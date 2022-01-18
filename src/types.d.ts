@@ -9,6 +9,9 @@ declare global {
   interface OpenapiRequest extends Request {
     user: UserType;
   }
+  interface OpenapiError extends Error {
+    status_code: number;
+  }
 
   type UserType = {
     ID: number;
