@@ -1,0 +1,3603 @@
+openapi: 3.0.0
+info:
+  title: AppQualityApi
+  version: "1.0"
+  description: An API to get all data for your bugfinding and ux research needs!
+  contact:
+    name: Developers
+    email: it@app-quality.com
+servers:
+  - url: "https://api.app-quality.com"
+paths:
+  /:
+    get:
+      summary: Get API description
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                example-1:
+                  value: {}
+      operationId: get-root
+      description: Get all routes available for this apis
+    parameters: []
+  /authenticate:
+    post:
+      description: A request to login with your username and password
+      summary: Authenticate to the API
+      operationId: post-authenticate
+      responses:
+        "200":
+          $ref: "#/components/responses/Authentication"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+              examples:
+                example-1:
+                  value: string
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+            examples:
+              example:
+                value:
+                  username: Elon71
+                  password: my-strong-password
+        description: A JSON containing username and password
+      parameters: []
+  /projects:
+    get:
+      description: Get all projects that you can view. A project is a collection of campaigns linked with your account.
+      summary: Get All Projects
+      tags:
+        - Projects
+      responses:
+        "200":
+          description: A list of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/Project"
+                    - type: object
+                      properties:
+                        campaigns:
+                          type: array
+                          items:
+                            allOf:
+                              - $ref: "#/components/schemas/Campaign"
+                              - type: object
+                                properties:
+                                  id:
+                                    type: integer
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-projects
+      parameters: []
+      security:
+        - JWT: []
+  /customers:
+    get:
+      summary: Get Customers
+      tags:
+        - Customer
+      responses:
+        "200":
+          description: An array of Customer objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/Customer"
+                    - type: object
+                      properties:
+                        id:
+                          type: integer
+              examples:
+                example-1:
+                  value:
+                    - username: Elon71
+                      customer_name: Elon71
+                      id: 0
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      operationId: get-customers
+      description: Get all the customers you have access to
+      security:
+        - JWT: []
+    post:
+      summary: Create Customers
+      operationId: post-customers
+      responses:
+        "201":
+          description: Created
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      description: Add a new Customer to the platform
+      tags:
+        - Customer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+            examples:
+              example-1:
+                value:
+                  username: Elon71
+                  customer_name: Elon71
+        description: The customer you want to create
+      security:
+        - JWT: []
+    parameters: []
+  "/customers/{customer}":
+    parameters:
+      - $ref: "#/components/parameters/customer"
+    get:
+      summary: Get a specific Customer
+      tags:
+        - Customer
+      responses:
+        "200":
+          description: The Customer data you requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+              examples:
+                example-1:
+                  value:
+                    username: Elon71
+                    customer_name: Elon71
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-customers-customer_id
+      description: Get the data for a Customer if you have access to it
+      security:
+        - JWT: []
+    put:
+      summary: Edit a Customer
+      operationId: put-customers-customer
+      responses:
+        "200":
+          description: OK
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      description: Change the data of a Customer if you have access to it
+      tags:
+        - Customer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Customer"
+            examples:
+              example-1:
+                value:
+                  username: Elon71
+                  customer_name: Elon71
+        description: The Customer data to edit
+      security:
+        - JWT: []
+  "/customers/{customer}/projects/{project}/campaigns":
+    parameters:
+      - $ref: "#/components/parameters/customer"
+      - $ref: "#/components/parameters/project"
+    get:
+      summary: Get all Campaigns in a Project
+      tags:
+        - Campaign
+        - Customer
+        - Projects
+      responses:
+        "200":
+          $ref: "#/components/responses/ListOfCampaigns"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-customer-customer_id-project-project_id-campaigns
+      security:
+        - JWT: []
+      description: Get all the Campaigns registered in a Project
+    post:
+      summary: Create a new Campaign in a Project
+      operationId: post-customers-customer_id-projects-project_id-campaigns
+      responses:
+        "201":
+          $ref: "#/components/responses/SingleCampaign"
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Campaign"
+            examples:
+              example-1:
+                value:
+                  campaign_type: 1
+                  name: UX test for a selfdrive service
+                  customer_title: Tesla Model 3 selfdrive UX
+                  internal_id: TSL3
+                  dates:
+                    start: 17/02/2021
+                    end: 17/08/2021
+                    close: 17/09/2021
+                  status: true
+                  language: English (England)
+                  public: true
+                  hasBugParade: true
+                  devices:
+                    - id: "2"
+                  minNumberOfMedia: 0
+                  titleRule: true
+                  allowed:
+                    severities:
+                      - id: 3
+                    bug_types:
+                      - id: 1
+                    replicabilities:
+                      - id: "1"
+                  projectManager:
+                    username: Elon Musk
+                  customerCanViewReviewing: true
+                  additionalFields:
+                    - id: 2
+        description: The Campaign data to set on the newly created Campaign
+      security:
+        - JWT: []
+      description: Create a new Campaign and register it to a Project
+      tags:
+        - Campaign
+        - Customer
+  /campaigns:
+    post:
+      summary: Create a new Campaign
+      operationId: post-campaigns
+      responses:
+        "201":
+          $ref: "#/components/responses/SingleCampaign"
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/Campaign"
+                - type: object
+                  properties:
+                    project_id:
+                      type: integer
+            examples:
+              example:
+                value:
+                  name: Tesla-Model-3-selfdrive-UX
+                  campaign_type: 1
+                  customer_title: Tesla Inc.
+                  internal_id: T4242
+                  dates:
+                    start: 17/02/2021
+                    end: 17/08/2021
+                    close: 17/09/2021
+                  status: true
+                  language: English (England)
+                  public: true
+                  hasBugParade: true
+                  devices:
+                    - id: "2"
+                  minNumberOfMedia: 0
+                  titleRule: true
+                  allowed:
+                    severities:
+                      - id: 3
+                    bug_types:
+                      - id: 3
+                    replicabilities:
+                      - id: "1"
+                  projectManager:
+                    username: Elon Musk
+                  customerCanViewReviewing: true
+                  additionalFields:
+                    - id: 2
+                  project_id: 42
+        description: "The Campaign data to set on the newly created Campaign, including the id of the Project to link the Campaign to"
+      description: Create a new Campaign if you have access to the creation
+      tags:
+        - Campaign
+    get:
+      summary: Get all available Campaigns
+      operationId: get-campaigns
+      responses:
+        "200":
+          $ref: "#/components/responses/ListOfCampaigns"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - JWT: []
+      description: Get all the Campaigns you have access to
+      tags:
+        - Campaign
+  "/campaigns/{campaign}":
+    parameters:
+      - $ref: "#/components/parameters/campaign"
+    get:
+      summary: Get a Campaign
+      tags:
+        - Campaign
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleCampaign"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          description: Not Found
+      operationId: get-campaigns-campaign
+      description: "Get the data of a Campaign if you have access to it "
+      security:
+        - JWT: []
+    put:
+      summary: Edit a Campaign
+      operationId: put-campaigns-campaign
+      responses:
+        "200":
+          $ref: "#/components/responses/SingleCampaign"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      description: "Edit the data of a Campaign if you have access to it "
+      tags:
+        - Campaign
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CampaignOptional"
+            examples:
+              full-example:
+                value:
+                  name: Tesla-Model-3-selfdrive-UX
+                  customer_title: Tesla Inc.
+                  internal_id: T4242
+                  dates:
+                    start: 17/02/2021
+                    end: 17/08/2021
+                    close: 17/09/2021
+                  status: true
+                  language: English (England)
+                  public: true
+                  hasBugParade: true
+                  devices:
+                    - id: "2"
+                  minNumberOfMedia: 0
+                  titleRule: true
+                  allowed:
+                    severities:
+                      - id: 3
+                    bug_types:
+                      - id: 3
+                    replicabilities:
+                      - id: "1"
+                  projectManager:
+                    username: Elon Musk
+                  customerCanViewReviewing: true
+                  additionalFields:
+                    - id: 2
+              change-name-example:
+                value:
+                  name: Tesla-Model-3-selfdrive-UX new name
+              update-campaign-token-usage:
+                value:
+                  tokens: 12
+        description: The Campaign data to edit
+      security:
+        - JWT: []
+  "/campaigns/{campaign}/tasks":
+    parameters:
+      - $ref: "#/components/parameters/campaign"
+    get:
+      summary: Get all Tasks in a Campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        "200":
+          description: A list of UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: "#/components/schemas/Task"
+                    - type: object
+                      properties:
+                        id:
+                          type: integer
+              examples:
+                example:
+                  value:
+                    - name: Ask news to Model-3
+                      content: <b>During</b> the trip ask the car for the weather
+                      campaign_id: 42
+                      group: 4
+                      allow_media: true
+                      id: 2
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-campaigns-campaign-tasks
+      description: |
+        Get all UseCases linked to a Campaign
+      security:
+        - JWT: []
+    post:
+      summary: Create a new Task in a Campaign
+      operationId: post-campaigns-campaign-tasks
+      responses:
+        "201":
+          description: Created
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      description: |
+        Create a new UseCase and link it to a Campaign
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskOptional"
+            examples:
+              example:
+                value:
+                  name: Ask news to Model-3
+                  content: <b>During</b> the trip ask the car for the weather
+                  campaign_id: 42
+                  group: 4
+                  allow_media: true
+                  id: 2
+        description: The data of the new UseCase to link to the Campaign
+      tags:
+        - Campaign
+        - Task
+      security:
+        - JWT: []
+  "/campaigns/{campaign}/tasks/{task}":
+    parameters:
+      - $ref: "#/components/parameters/campaign"
+      - $ref: "#/components/parameters/task"
+    get:
+      summary: Get a specific Task in a Campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        "200":
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              examples:
+                example:
+                  value:
+                    name: Ask news to Model-3
+                    content: <b>During</b> the trip ask the car for the weather
+                    campaign_id: 42
+                    group: 4
+                    allow_media: true
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-campaigns-campaign-tasks-task
+      description: Get the data of a UseCase in a Campaign
+      security:
+        - JWT: []
+    put:
+      summary: Edit a Task
+      operationId: put-campaigns-campaign-tasks-task
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              examples:
+                example:
+                  value:
+                    name: Ask news to Model-3
+                    content: <b>During</b> the trip ask the car for the weather
+                    campaign_id: 42
+                    group: 4
+                    allow_media: true
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      description: Edit a UseCase in a Campaign
+      tags:
+        - Campaign
+        - Task
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskOptional"
+            examples:
+              example:
+                value:
+                  name: Ask news to Model-3
+                  content: <b>During</b> the trip ask the car for the weather
+                  campaign_id: 42
+                  group: 4
+                  allow_media: true
+        description: The data to edit in the UseCase linked to the Campaign
+      security:
+        - JWT: []
+  /popups:
+    get:
+      summary: Get all popups
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                x-examples:
+                  example-1:
+                    - id: string
+                      profiles:
+                        - 0
+                      once: true
+                      content: string
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: integer
+                    - $ref: "#/components/schemas/Popup"
+              examples:
+                example-1:
+                  value:
+                    - id: 0
+                      profiles:
+                        - 0
+                      once: true
+                      content: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-popups
+      security:
+        - JWT: []
+      tags:
+        - Admin
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/start"
+      description: Retrieve all available popups for admin operations
+    post:
+      summary: Create a new popup
+      operationId: post-popups
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                  - $ref: "#/components/schemas/Popup"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Popup"
+      tags:
+        - Admin
+      description: The new popup will be inserted as an available popup on admin areas
+      security:
+        - JWT: []
+    parameters: []
+  "/popups/{popup}":
+    parameters:
+      - schema:
+          type: number
+        name: popup
+        in: path
+        required: true
+    get:
+      summary: Get a single popup
+      tags:
+        - Admin
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                  - $ref: "#/components/schemas/Popup"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      operationId: get-popups-popup
+      security:
+        - JWT: []
+      description: Retrieve a signle popup for admin operations
+    patch:
+      summary: Update popup
+      operationId: patch-popups-popup
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                  - $ref: "#/components/schemas/Popup"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Popup"
+      security:
+        - JWT: []
+      tags:
+        - Admin
+      description: Edit your popup with a new content or new rules
+  "/devices/{device_type}/models":
+    get:
+      summary: Retrive manufacturers and models of devices
+      tags:
+        - Devices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    manufacturer:
+                      type: string
+                    models:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          name:
+                            type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-devices-devices-type-model
+      security:
+        - JWT: []
+      description: Get all model of devices with theirs manufacturers
+      parameters:
+        - $ref: "#/components/parameters/filterBy"
+    parameters:
+      - schema:
+          type: string
+        name: device_type
+        in: path
+        required: true
+  /certifications:
+    get:
+      summary: Retrive and filter all certifications
+      tags:
+        - Devices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    area:
+                      type: string
+                    institute:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - area
+                    - institute
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-certifications
+      security:
+        - JWT: []
+      description: Get all certificatio
+      parameters:
+        - $ref: "#/components/parameters/filterBy"
+    parameters: []
+  "/devices/{device_type}/operating_systems":
+    get:
+      summary: Retrive operating systems list of a device type
+      tags:
+        - Devices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-devices-operating-systems
+      security:
+        - JWT: []
+      description: Get all operating systems of a device type
+      parameters:
+        - $ref: "#/components/parameters/filterBy"
+    parameters:
+      - schema:
+          type: string
+        name: device_type
+        in: path
+        required: true
+  "/devices/{device_type}/os_versions":
+    get:
+      summary: Retrive versions list of an operating systems
+      tags:
+        - Devices
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-devices-os-versions
+      security:
+        - JWT: []
+      description: Get all versions of an operating systems
+      parameters:
+        - $ref: "#/components/parameters/filterBy"
+    parameters:
+      - schema:
+          type: string
+        name: device_type
+        in: path
+        required: true
+  /languages:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-languages
+      description: Get all languages
+      parameters: []
+      security:
+        - JWT: []
+  /employments:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ""
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                      minLength: 1
+                x-examples:
+                  example-1:
+                    - id: 0
+                      name: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-employments
+      security:
+        - JWT: []
+      description: Get all employments
+  /education:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ""
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                      minLength: 1
+                x-examples:
+                  example-1:
+                    - id: 0
+                      name: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-education
+      security:
+        - JWT: []
+      description: Get all education levels
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+      operationId: get-users
+      security:
+        - JWT: []
+      description: Get all users you have access to
+    post:
+      summary: Create a new user
+      operationId: post-users
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      description: Create a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                surname:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                country:
+                  type: string
+                birthDate:
+                  type: string
+                  format: date
+                referral:
+                  type: string
+                  example: 555-1234
+                  description: A referral code (formatted as TESTER_ID-CAMPAIGN_ID)
+              required:
+                - name
+                - surname
+                - email
+                - password
+                - country
+                - birthDate
+            examples:
+              example-1:
+                value:
+                  name: Elon
+                  surname: Musk
+                  email: elon.musk@tesla.com
+                  password: Elon78
+                  country: Italy
+                  birthDate: "1971-06-28"
+      tags:
+        - User
+  /users/me:
+    get:
+      summary: Get your user data
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                type: object
+                x-examples:
+                  example-1:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: "http://example.com"
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                properties:
+                  username:
+                    type: string
+                    minLength: 1
+                  name:
+                    type: string
+                    minLength: 1
+                  surname:
+                    type: string
+                    minLength: 1
+                  email:
+                    type: string
+                    minLength: 1
+                  image:
+                    type: string
+                    minLength: 1
+                  id:
+                    type: number
+                  wp_user_id:
+                    type: number
+                  role:
+                    type: string
+                    minLength: 1
+                  is_verified:
+                    type: boolean
+                  rank:
+                    type: string
+                  total_exp_pts:
+                    type: number
+                  booty:
+                    type: number
+                  pending_booty:
+                    type: number
+                  languages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                  onboarding_completed:
+                    type: boolean
+                  additional:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AdditionalField"
+                  gender:
+                    type: string
+                    enum:
+                      - male
+                      - female
+                      - not-specified
+                  birthDate:
+                    type: string
+                    format: date
+                  phone:
+                    type: string
+                  education:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  profession:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  certifications:
+                    oneOf:
+                      - type: array
+                        items:
+                          $ref: "#/components/schemas/Certification"
+                      - type: boolean
+                  completionPercent:
+                    type: number
+                  country:
+                    type: string
+                  city:
+                    type: string
+                  attended_cp:
+                    type: number
+                  approved_bugs:
+                    type: number
+                required:
+                  - id
+              examples: {}
+      operationId: get-users-me
+      description: Get your user data
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fields
+          description: Comma separated string of specific fields requested
+    put:
+      summary: Edit your user data
+      operationId: put-users-me
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      description: Edit your user data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                surname:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+      security:
+        - JWT: []
+      tags:
+        - User
+    patch:
+      summary: Edit a field of your user
+      operationId: patch-users-me
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                type: object
+                x-examples:
+                  example-1:
+                    username: string
+                    name: string
+                    surname: string
+                    email: string
+                    image: string
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                    rank: string
+                    total_exp_pts: 0
+                    booty: 0
+                    pending_booty: 0
+                    languages:
+                      - id: 0
+                        name: string
+                    onboarding_completed: true
+                    additional:
+                      - field_id: 0
+                        name: string
+                        value: string
+                        text: string
+                        is_candidate: true
+                    gender: male
+                    birthDate: "2019-08-24"
+                    phone: string
+                    education:
+                      id: 0
+                      name: string
+                    profession:
+                      id: 0
+                      name: string
+                    certifications:
+                      - id: 0
+                        name: string
+                        area: string
+                        institute: string
+                        achievement_date: "2019-08-24"
+                    completionPercent: 0
+                    country: string
+                    city: string
+                    attended_cp: 0
+                    approved_bugs: 0
+                properties:
+                  username:
+                    type: string
+                  name:
+                    type: string
+                  surname:
+                    type: string
+                  email:
+                    type: string
+                  image:
+                    type: string
+                  id:
+                    type: number
+                  wp_user_id:
+                    type: number
+                  role:
+                    type: string
+                  is_verified:
+                    type: boolean
+                  rank:
+                    type: string
+                  total_exp_pts:
+                    type: number
+                  booty:
+                    type: number
+                  pending_booty:
+                    type: number
+                  languages:
+                    type: array
+                    uniqueItems: false
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                  onboarding_completed:
+                    type: boolean
+                  additional:
+                    type: array
+                    uniqueItems: false
+                    items:
+                      $ref: "#/components/schemas/AdditionalField"
+                  gender:
+                    type: string
+                    enum:
+                      - male
+                      - female
+                      - not-specified
+                  birthDate:
+                    type: string
+                    format: date
+                  phone:
+                    type: string
+                  education:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  profession:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  certifications:
+                    oneOf:
+                      - type: array
+                        items:
+                          $ref: "#/components/schemas/Certification"
+                      - type: boolean
+                        properties: {}
+                  completionPercent:
+                    type: number
+                  country:
+                    type: string
+                  city:
+                    type: string
+                  attended_cp:
+                    type: number
+                  approved_bugs:
+                    type: number
+                required:
+                  - id
+        "400":
+          description: Bad Request
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ""
+              type: object
+              x-examples:
+                example-1:
+                  username: string
+                  name: string
+                  surname: string
+                  email: string
+                  image: string
+                  id: 0
+                  wp_user_id: 0
+                  role: string
+                  onboarding_completed: true
+                  is_verified: true
+                  rank: string
+                  total_exp_pts: 0
+                  booty: 0
+                  pending_booty: 0
+                  languages:
+                    - string
+                  additional:
+                    - {}
+                  gender: string
+                  birthDate: "2019-08-24"
+                  phone: string
+                  education: string
+                  profession: string
+                  certifications:
+                    - name: string
+                      area: string
+                      institute: string
+                      achievement_date: "2019-08-24"
+                  completionPercent: 0
+                  country: string
+                  city: string
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                onboarding_completed:
+                  type: boolean
+                surname:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+                    - not-specified
+                birthDate:
+                  type: string
+                phone:
+                  type: string
+                education:
+                  type: integer
+                profession:
+                  type: integer
+                country:
+                  type: string
+                city:
+                  type: string
+                password:
+                  type: string
+                oldPassword:
+                  type: string
+            examples:
+              example-1:
+                value:
+                  onboarding_completed: true
+      tags:
+        - User
+      description: Edit basic user fields
+    delete:
+      summary: Delete your user
+      operationId: delete-users-me
+      responses:
+        "200":
+          description: OK
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+              required:
+                - reason
+      security:
+        - JWT: []
+  /users/me/bugs:
+    get:
+      summary: Get your uploaded bugs
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                        - $ref: "#/components/schemas/Bug"
+                  limit:
+                    type: integer
+                  size:
+                    type: integer
+                  start:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                  - results
+              examples:
+                minimal-example:
+                  value:
+                    results:
+                      - id: 1
+                        severity:
+                          id: 1
+                          name: LOW
+                        status:
+                          id: 1
+                          name: Refused
+                        campaign:
+                          name: UX test for a selfdrive service
+                          id: 1
+                        title: Self drive system crashing
+                    limit: 5
+                    size: 1
+                    start: 10
+                    total: 100
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-users-me-bugs
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/filterBy"
+        - schema:
+            type: string
+            enum:
+              - title
+              - campaign
+              - status
+              - id
+              - severity
+          in: query
+          name: orderBy
+          description: The field for item order
+        - $ref: "#/components/parameters/order"
+      description: "Get all the bugs that you uploaded to AppQuality. "
+    parameters: []
+  /users/me/experience:
+    get:
+      summary: Get your experience points
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                type: object
+                x-examples:
+                  example-1:
+                    results:
+                      - id: 1
+                        severity:
+                          id: 1
+                          name: LOW
+                        status:
+                          id: 1
+                          name: Refused
+                        campaign:
+                          name: UX test for a selfdrive service
+                          id: 1
+                        title: Self drive system crashing
+                    limit: 5
+                    size: 1
+                    start: 10
+                    total: 100
+                properties:
+                  results:
+                    type: array
+                    uniqueItems: true
+                    minItems: 1
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        activity:
+                          type: object
+                          required:
+                            - id
+                          properties:
+                            id:
+                              type: integer
+                        campaign:
+                          type: object
+                          required:
+                            - id
+                          properties:
+                            id:
+                              type: integer
+                            title:
+                              type: string
+                        date:
+                          type: string
+                          format: date
+                        amount:
+                          type: integer
+                        note:
+                          type: string
+                      required:
+                        - id
+                        - activity
+                        - campaign
+                        - date
+                        - amount
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  start:
+                    type: number
+                  total:
+                    type: number
+                    description: The total number of experience entries
+                  sum:
+                    type: number
+                    description: The total sum of experience
+                required:
+                  - results
+                  - sum
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-users-me-experience
+      description: "Get all the experience points earned in AppQuality. "
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/filterBy"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/searchBy"
+        - $ref: "#/components/parameters/search"
+        - schema:
+            type: string
+            enum:
+              - amount
+              - campaign
+              - date
+              - note
+              - activity
+              - id
+          in: query
+          name: orderBy
+          description: The field for item order
+  /users/me/fiscal:
+    get:
+      summary: Get Fiscal Data
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                type: object
+                x-examples:
+                  example-1:
+                    address:
+                      country: string
+                      province: string
+                      city: string
+                      street: string
+                      cityCode: string
+                    type: withholding
+                    birthCity: string
+                    fiscalId: string
+                    fiscalStatus: OK
+                    gender: string
+                properties:
+                  address:
+                    type: object
+                    required:
+                      - country
+                      - province
+                      - city
+                      - street
+                      - cityCode
+                    properties:
+                      country:
+                        type: string
+                      province:
+                        type: string
+                      city:
+                        type: string
+                      street:
+                        type: string
+                      streetNumber:
+                        type: string
+                      cityCode:
+                        type: string
+                  type:
+                    $ref: "#/components/schemas/FiscalType"
+                  birthPlace:
+                    type: object
+                    properties:
+                      city:
+                        type: string
+                      province:
+                        type: string
+                  fiscalId:
+                    type: string
+                  fiscalStatus:
+                    type: string
+                    enum:
+                      - Verified
+                      - Unverified
+                  gender:
+                    type: string
+                    enum:
+                      - male
+                      - female
+                required:
+                  - address
+                  - type
+                  - birthPlace
+                  - fiscalId
+                  - fiscalStatus
+                  - gender
+              examples: {}
+        "401":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-users-me-fiscal
+      security:
+        - JWT: []
+      description: Get your fiscal profile data
+    post:
+      summary: Create a new fiscal profile
+      operationId: post-users-me-fiscal
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                description: ""
+                type: object
+                x-examples:
+                  example-1:
+                    address:
+                      country: string
+                      province: string
+                      city: string
+                      street: string
+                      cityCode: string
+                    type: withholding
+                    birthCity: string
+                    fiscalId: string
+                    fiscalStatus: Verified
+                    gender: Male
+                properties:
+                  address:
+                    type: object
+                    required:
+                      - country
+                      - province
+                      - city
+                      - street
+                      - cityCode
+                    properties:
+                      country:
+                        type: string
+                      province:
+                        type: string
+                      city:
+                        type: string
+                      street:
+                        type: string
+                      streetNumber:
+                        type: string
+                      cityCode:
+                        type: string
+                  type:
+                    $ref: "#/components/schemas/FiscalType"
+                  birthPlace:
+                    type: object
+                    properties:
+                      city:
+                        type: string
+                      province:
+                        type: string
+                  fiscalId:
+                    type: string
+                  fiscalStatus:
+                    type: string
+                    enum:
+                      - Verified
+                      - Unverified
+                  gender:
+                    type: string
+                    enum:
+                      - male
+                      - female
+                required:
+                  - address
+                  - type
+                  - fiscalId
+                  - fiscalStatus
+                  - gender
+              examples:
+                example-1:
+                  value:
+                    address:
+                      country: string
+                      province: string
+                      city: string
+                      street: string
+                      cityCode: string
+                    type: withholding
+                    birthCity: string
+                    fiscalId: string
+                    fiscalStatus: Verified
+                    gender: male
+        "401":
+          $ref: "#/components/responses/NotAuthorized"
+      description: Create a new fiscal data entry from empty state
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ""
+              type: object
+              x-examples:
+                example-1:
+                  address:
+                    country: string
+                    province: string
+                    city: string
+                    street: string
+                    cityCode: string
+                  type: withholding
+                  birthCity: string
+                  fiscalId: string
+                  fiscalStatus: Verified
+                  gender: Male
+              properties:
+                address:
+                  type: object
+                  required:
+                    - country
+                    - province
+                    - city
+                    - street
+                    - streetNumber
+                    - cityCode
+                  properties:
+                    country:
+                      type: string
+                    province:
+                      type: string
+                    city:
+                      type: string
+                    street:
+                      type: string
+                    streetNumber:
+                      type: string
+                    cityCode:
+                      type: string
+                type:
+                  $ref: "#/components/schemas/FiscalType"
+                birthPlace:
+                  type: object
+                  properties:
+                    city:
+                      type: string
+                    province:
+                      type: string
+                fiscalId:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+              required:
+                - address
+                - type
+                - fiscalId
+                - gender
+            examples: {}
+      tags:
+        - User
+    put:
+      summary: Edit your fiscal profile
+      operationId: put-users-me-fiscal
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                type: object
+                x-examples:
+                  example-1:
+                    address:
+                      country: string
+                      province: string
+                      city: string
+                      street: string
+                      cityCode: string
+                    type: withholding
+                    birthCity: string
+                    fiscalId: string
+                    fiscalStatus: Verified
+                    gender: Male
+                properties:
+                  address:
+                    type: object
+                    required:
+                      - country
+                      - province
+                      - city
+                      - street
+                      - cityCode
+                    properties:
+                      country:
+                        type: string
+                      province:
+                        type: string
+                      city:
+                        type: string
+                      street:
+                        type: string
+                      streetNumber:
+                        type: string
+                      cityCode:
+                        type: string
+                  type:
+                    $ref: "#/components/schemas/FiscalType"
+                  birthPlace:
+                    type: object
+                    properties:
+                      city:
+                        type: string
+                      province:
+                        type: string
+                  fiscalId:
+                    type: string
+                  fiscalStatus:
+                    type: string
+                    enum:
+                      - Verified
+                      - Unverified
+                  gender:
+                    type: string
+                    enum:
+                      - male
+                      - female
+                required:
+                  - address
+                  - type
+                  - fiscalId
+                  - fiscalStatus
+                  - gender
+        "401":
+          $ref: "#/components/responses/NotAuthorized"
+      description: Update your fiscal data
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: ""
+              type: object
+              x-examples:
+                example-1:
+                  address:
+                    country: string
+                    province: string
+                    city: string
+                    street: string
+                    cityCode: string
+                  type: withholding
+                  birthCity: string
+                  fiscalId: string
+                  fiscalStatus: Verified
+                  gender: Male
+              properties:
+                address:
+                  type: object
+                  required:
+                    - country
+                    - province
+                    - city
+                    - street
+                    - streetNumber
+                    - cityCode
+                  properties:
+                    country:
+                      type: string
+                    province:
+                      type: string
+                    city:
+                      type: string
+                    street:
+                      type: string
+                    streetNumber:
+                      type: string
+                    cityCode:
+                      type: string
+                type:
+                  $ref: "#/components/schemas/FiscalType"
+                birthPlace:
+                  oneOf:
+                    - properties:
+                        city:
+                          type: string
+                        province:
+                          type: string
+                      required:
+                        - city
+                        - province
+                    - properties:
+                        placeId:
+                          type: string
+                          description: A google maps place id
+                      required:
+                        - placeId
+                  type: object
+                fiscalId:
+                  type: string
+                gender:
+                  type: string
+                  enum:
+                    - male
+                    - female
+              required:
+                - address
+                - type
+                - fiscalId
+                - gender
+      tags:
+        - User
+  /users/me/campaigns:
+    get:
+      summary: GET user campaign
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                        - $ref: "#/components/schemas/Campaign"
+                  limit:
+                    type: integer
+                  size:
+                    type: integer
+                  start:
+                    type: integer
+                  total:
+                    type: integer
+              examples: {}
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+      operationId: get-users-me-campaigns
+      description: |-
+        get available, and selected campaigns for a single user.
+        filterBy[accepted] = 1 retrieve accepted campaign only, otherwise retrieve available campaign.
+        filterBy[completed] = 1 get completed campaigns only (end date in the past)
+        filterBy[completed] = 0 get not completed campaigns only (end date today or in the future)
+        filterBy[statusID] = 1 get open campaigns
+        filterBy[statusID] = 2 get closed campaigns
+      security:
+        - JWT: []
+      parameters:
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/filterBy"
+        - $ref: "#/components/parameters/locale"
+        - $ref: "#/components/parameters/order"
+        - schema:
+            type: string
+            enum:
+              - name
+              - start_date
+              - end_date
+              - close_date
+          in: query
+          name: orderBy
+          description: The field for item order
+  /users/me/popups:
+    get:
+      summary: Get your popups
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    once:
+                      type: boolean
+      operationId: get-users-me-popups
+      description: Get all popup defined for your user
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: showExpired
+          description: "Show all popup history, expired popups included"
+  "/users/me/popups/{popup}":
+    parameters:
+      - schema:
+          type: integer
+        name: popup
+        in: path
+        required: true
+    get:
+      summary: Retrieve and expire popup
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                  - $ref: "#/components/schemas/Popup"
+      operationId: get-users-me-popups-popup
+      security:
+        - JWT: []
+      description: Get a single popup. Will set the retrieved popup as expired
+  /users/me/devices:
+    get:
+      summary: Get all your devices
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: number
+                    - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-users-me-devices
+      security:
+        - JWT: []
+      description: Get all your device data
+    post:
+      summary: Add a new device to your user
+      operationId: post-users-me-devices
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      id:
+                        type: number
+                    type: object
+                  - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      description: Add a new device to your user
+      tags:
+        - User
+        - Devices
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  oneOf:
+                    - type: integer
+                      properties: {}
+                    - type: string
+                      properties: {}
+                      enum:
+                        - Notebook
+                        - Desktop
+                        - Ultrabook
+                        - Gaming PC
+                        - Tablet PC / Hybrid
+                operating_system:
+                  type: integer
+              required:
+                - device
+                - operating_system
+        description: ""
+  "/users/me/devices/{deviceId}":
+    parameters:
+      - schema:
+          type: number
+        name: deviceId
+        in: path
+        required: true
+    get:
+      summary: Get one of your devices
+      tags:
+        - User
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                  - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-users-me-devices-deviceId
+      security:
+        - JWT: []
+      description: Retrieve a single device
+    patch:
+      summary: Edit one of your devices
+      operationId: patch-users-me-devices-deviceId
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                  - $ref: "#/components/schemas/UserDevice"
+        "304":
+          description: Not Modified
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                  - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operating_system:
+                  type: integer
+              required:
+                - operating_system
+      security:
+        - JWT: []
+      tags:
+        - Devices
+        - User
+      description: You can change only operating system version
+    delete:
+      summary: Remove one of your devices
+      operationId: delete-users-me-devices-deviceId
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - JWT: []
+      tags:
+        - Devices
+        - User
+      description: The device will be disabled and won't be available for selections and bugs submission. You can't remove a device currently involved in a campaign
+  /users/me/certifications:
+    post:
+      summary: Add one certification to your profile
+      operationId: post-users-me-certifications
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                description: ""
+                x-examples:
+                  example-1:
+                    name: string
+                    area: string
+                    institute: string
+                    achievement_date: "2019-08-24"
+                oneOf:
+                  - $ref: "#/components/schemas/Certification"
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                    required:
+                      - message
+              examples: {}
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - properties:
+                    certifications:
+                      type: boolean
+                  required:
+                    - certifications
+                - properties:
+                    certification_id:
+                      type: integer
+                    achievement_date:
+                      type: string
+                      format: date
+                  required:
+                    - certification_id
+                    - achievement_date
+              type: object
+      tags:
+        - User
+      description: Add one certification to your profile
+  "/users/me/certifications/{certificationId}":
+    parameters:
+      - schema:
+          type: integer
+        name: certificationId
+        in: path
+        required: true
+        description: The id of the certification
+    delete:
+      summary: Remove a certification from your profile
+      operationId: delete-users-me-certifications-certificationId
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - JWT: []
+      description: The certification will be removed
+      tags:
+        - User
+  /users/me/languages:
+    post:
+      summary: Add one language to your profile
+      operationId: post-users-me-languages
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+              examples: {}
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                languageId:
+                  type: integer
+      tags:
+        - User
+      description: Add one of the languages to your profile
+    put:
+      summary: ""
+      operationId: put-users-me-languages
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+      description: Edit your spoken languages
+      security:
+        - JWT: []
+  "/users/me/languages/{languageId}":
+    parameters:
+      - schema:
+          type: integer
+        name: languageId
+        in: path
+        required: true
+        description: The id of the language
+    delete:
+      summary: Remove one of your languages
+      operationId: delete-users-me-languages-languageId
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      security:
+        - JWT: []
+      tags:
+        - User
+      description: The language will be removed from your profile
+  "/users/me/additionals/{fieldId}":
+    parameters:
+      - schema:
+          type: integer
+        name: fieldId
+        in: path
+        required: true
+        description: The id of the field to edit
+    put:
+      summary: Edit your custom user fields
+      operationId: put-users-me-additionals-fieldId
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ""
+                x-examples:
+                  example-1:
+                    - field_id: 23
+                      name: Linkedin Profile
+                      value: "https://www.linkedin.com/in/gianpaolosinatra/"
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: "#/components/schemas/AdditionalField"
+                  - $ref: "#/components/schemas/AdditionalField"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: string
+                      is_candidate:
+                        type: boolean
+                    required:
+                      - value
+                - type: object
+                  properties:
+                    value:
+                      type: string
+                    is_candidate:
+                      type: boolean
+                  required:
+                    - value
+      security:
+        - JWT: []
+      tags:
+        - User
+      description: The field data will be replaced with your new data
+  /custom_user_fields:
+    get:
+      summary: Get all custom user fields
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    group:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          $ref: "#/components/schemas/TranslatablePage"
+                        description:
+                          $ref: "#/components/schemas/TranslatablePage"
+                    fields:
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/CustomUserFieldsData"
+                  required:
+                    - group
+              examples: {}
+      operationId: get-customUserFields
+      description: ""
+      security:
+        - JWT: []
+    parameters: []
+  "/countries/{code}/region":
+    get:
+      summary: Get regions
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                  required:
+                    - name
+                    - value
+      operationId: get-regions
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: string
+            default: en
+          in: query
+          name: languageCode
+    parameters:
+      - schema:
+          type: string
+        name: code
+        in: path
+        required: true
+components:
+  schemas:
+    Project:
+      title: Project
+      type: object
+      x-examples:
+        example-1:
+          name: string
+          campaigns:
+            - name: string
+              customer_title: string
+              internal_id: string
+              dates:
+                start: string
+                end: string
+                close: string
+              status: true
+              language: string
+              public: true
+              hasBugParade: true
+              devices:
+                - id: string
+              minNumberOfMedia: 0
+              titleRule: true
+              allowed:
+                severities:
+                  - id: string
+                bug_types:
+                  - id: string
+                replicabilities:
+                  - id: string
+              projectManager:
+                id: 0
+                name: string
+              customerCanViewReviewing: true
+              additionalFields:
+                - id: string
+              id: 0
+      properties:
+        name:
+          type: string
+    Campaign:
+      description: ""
+      x-examples: {}
+      allOf:
+        - $ref: "#/components/schemas/CampaignOptional"
+        - $ref: "#/components/schemas/CampaignRequired"
+    BugSeverity:
+      title: BugSeverity
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    BugType:
+      title: BugType
+      type: object
+      properties:
+        id:
+          type: integer
+    Replicability:
+      title: Replicability
+      type: object
+      properties:
+        id:
+          type: string
+    Task:
+      title: Task
+      allOf:
+        - $ref: "#/components/schemas/TaskOptional"
+        - $ref: "#/components/schemas/TaskRequired"
+    Customer:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - properties:
+            customer_name:
+              type: string
+          type: object
+    CampaignField:
+      title: CampaignField
+      type: object
+      properties:
+        id:
+          type: integer
+    CampaignOptional:
+      description: ""
+      type: object
+      x-examples:
+        example-1:
+          value:
+            name: string
+            customer_title: string
+            internal_id: string
+            dates:
+              start: string
+              end: string
+              close: string
+            status: true
+            language: string
+            public: true
+            hasBugParade: true
+            devices:
+              - id: string
+            minNumberOfMedia: 0
+            titleRule: true
+            allowed:
+              severities:
+                - id: 0
+                  name: string
+              bug_types:
+                - id: 0
+              replicabilities:
+                - id: string
+            projectManager:
+              username: string
+              name: string
+              surname: string
+              email: user@example.com
+              image: "http://example.com"
+              id: 0
+              wp_user_id: 0
+              role: string
+              is_verified: true
+            customerCanViewReviewing: true
+            additionalFields:
+              - id: 0
+            tokens: 0
+            csm_effort: 0
+            ux_effort: 0
+            preview_link:
+              en: string
+              it: string
+            manual_link:
+              en: string
+              it: string
+            applied: true
+      properties:
+        name:
+          type: string
+          minLength: 1
+        customer_title:
+          type: string
+          minLength: 0
+        internal_id:
+          type: string
+          minLength: 1
+        dates:
+          type: object
+          properties:
+            start:
+              type: string
+              minLength: 1
+            end:
+              type: string
+              minLength: 1
+            close:
+              type: string
+              minLength: 1
+        status:
+          type: boolean
+        language:
+          type: string
+          minLength: 1
+        public:
+          type: boolean
+        hasBugParade:
+          type: boolean
+        devices:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                minLength: 1
+        minNumberOfMedia:
+          type: number
+        titleRule:
+          type: boolean
+        allowed:
+          type: object
+          properties:
+            severities:
+              type: array
+              uniqueItems: true
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/BugSeverity"
+            bug_types:
+              type: array
+              uniqueItems: true
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/BugType"
+            replicabilities:
+              type: array
+              uniqueItems: true
+              minItems: 1
+              items:
+                $ref: "#/components/schemas/Replicability"
+        projectManager:
+          $ref: "#/components/schemas/User"
+        customerCanViewReviewing:
+          type: boolean
+        additionalFields:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CampaignField"
+        tokens:
+          type: number
+          default: 0
+        csm_effort:
+          type: number
+          default: 0
+        ux_effort:
+          type: number
+          default: 0
+        preview_link:
+          $ref: "#/components/schemas/TranslatablePage"
+        manual_link:
+          $ref: "#/components/schemas/TranslatablePage"
+        bugform_link:
+          oneOf:
+            - properties: {}
+              type: boolean
+              description: Exists only when the campaign bugform is deactivated. It is FALSE
+            - $ref: "#/components/schemas/TranslatablePage"
+          description: If bugform is deactivated is a boolean else contains URLs to bugforms for each languages
+        applied:
+          type: boolean
+          description: True if you applied on this Campaign
+    CampaignRequired:
+      description: ""
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        internal_id:
+          type: string
+          minLength: 1
+        dates:
+          type: object
+          required:
+            - start
+            - end
+            - close
+          properties:
+            start:
+              type: string
+              minLength: 1
+            end:
+              type: string
+              minLength: 1
+            close:
+              type: string
+              minLength: 1
+        devices:
+          type: array
+          uniqueItems: true
+          minItems: 1
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+            required:
+              - id
+        projectManager:
+          $ref: "#/components/schemas/User"
+        campaign_type:
+          $ref: "#/components/schemas/CampaignType"
+      required:
+        - name
+        - internal_id
+        - dates
+        - devices
+        - projectManager
+        - campaign_type
+    TaskOptional:
+      description: ""
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        campaign_id:
+          type: number
+        group:
+          type: number
+          minimum: 0
+          maximum: 4
+        allow_media:
+          type: boolean
+    TaskRequired:
+      description: ""
+      type: object
+      x-examples:
+        example-1:
+          name: string
+          content: string
+          campaign_id: 0
+          group: 0
+          allow_media: true
+      properties:
+        name:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        campaign_id:
+          type: number
+      required:
+        - name
+        - content
+        - campaign_id
+    CampaignType:
+      oneOf:
+        - type: string
+          properties: {}
+        - properties: {}
+          type: number
+    User:
+      title: User
+      type: object
+      description: ""
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        image:
+          type: string
+          format: uri
+        id:
+          type: integer
+        wp_user_id:
+          type: integer
+        role:
+          type: string
+        is_verified:
+          type: boolean
+      x-examples:
+        example-1:
+          value:
+            username: string
+            name: string
+            surname: string
+            email: user@example.com
+            image: "http://example.com"
+            id: 0
+            wp_user_id: 0
+            role: string
+            is_verified: true
+    Bug:
+      title: Bug
+      type: object
+      x-examples: {}
+      properties:
+        severity:
+          $ref: "#/components/schemas/BugSeverity"
+        status:
+          $ref: "#/components/schemas/BugStatus"
+        campaign:
+          allOf:
+            - $ref: "#/components/schemas/CampaignOptional"
+            - type: object
+              properties:
+                id:
+                  type: integer
+        title:
+          type: string
+    BugStatus:
+      title: BugStatus
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+    Popup:
+      description: ""
+      type: object
+      x-examples: {}
+      properties:
+        profiles:
+          oneOf:
+            - type: array
+              items:
+                type: integer
+            - type: string
+              enum:
+                - all
+                - italian
+                - non-italian
+                - logged-in-year
+                - not-logged-in-year
+              example: all
+        once:
+          type: boolean
+        content:
+          type: string
+          minLength: 1
+        title:
+          type: string
+    TranslatablePage:
+      title: TranslatablePage
+      type: object
+      properties:
+        en:
+          type: string
+        it:
+          type: string
+        es:
+          type: string
+    UserDevice:
+      title: UserDevice
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: number
+        device:
+          oneOf:
+            - properties:
+                manufacturer:
+                  type: string
+                model:
+                  type: string
+                id:
+                  type: number
+              required:
+                - manufacturer
+                - model
+            - properties:
+                pc_type:
+                  type: string
+              required:
+                - pc_type
+          type: object
+        operating_system:
+          type: object
+          required:
+            - id
+            - platform
+            - version
+          properties:
+            id:
+              type: number
+            platform:
+              type: string
+            version:
+              type: string
+      required:
+        - type
+        - id
+        - device
+        - operating_system
+    AdditionalField:
+      description: ""
+      type: object
+      x-examples:
+        example-1:
+          field_id: 12
+          name: My field name
+          value: My field value
+      properties:
+        field_id:
+          type: number
+        name:
+          type: string
+          minLength: 1
+        value:
+          type: string
+        text:
+          type: string
+        is_candidate:
+          type: boolean
+      required:
+        - field_id
+        - name
+        - value
+    Certification:
+      description: ""
+      type: object
+      x-examples:
+        example-1:
+          name: Certification
+          area: Area
+          institute: Institute
+          achievement_date: "2019-08-24"
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        area:
+          type: string
+        institute:
+          type: string
+        achievement_date:
+          type: string
+          format: date
+      required:
+        - name
+        - area
+        - institute
+        - achievement_date
+    FiscalType:
+      type: string
+      title: FiscalType
+      enum:
+        - withholding
+        - witholding-extra
+        - other
+        - non-italian
+    CustomUserFieldsData:
+      title: CustomUserFieldsData
+      type: object
+      properties:
+        id:
+          type: number
+        type:
+          type: string
+          enum:
+            - select
+            - multiselect
+            - text
+        placeholder:
+          $ref: "#/components/schemas/TranslatablePage"
+        allow_other:
+          type: boolean
+        name:
+          $ref: "#/components/schemas/TranslatablePage"
+        format:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/CustomUserFieldsDataOption"
+      required:
+        - id
+        - type
+        - name
+    CustomUserFieldsDataOption:
+      title: CustomUserFieldsDataOption
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+      required:
+        - id
+        - name
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      description: ""
+  responses:
+    UserData:
+      description: A user
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/User"
+          examples:
+            example:
+              value:
+                username: Elon71
+    Authentication:
+      description: Authentication data. The token can be used to authenticate the protected requests
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: number
+              firstName:
+                type: string
+              lastName:
+                type: string
+              token:
+                type: string
+              username:
+                type: string
+          examples:
+            example:
+              value:
+                id: 42
+                firstName: Elon
+                lastName: Musk
+                token: my-jwt-token
+                username: Elon71
+    ListOfCampaigns:
+      description: A list of Campaigns with the Campaign id
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              allOf:
+                - $ref: "#/components/schemas/Campaign"
+                - type: object
+                  properties:
+                    id:
+                      type: integer
+                  required:
+                    - id
+          examples:
+            full-example:
+              value:
+                - id: 1
+                  campaign_type: 1
+                  name: UX test for a selfdrive service
+                  customer_title: Tesla Model 3 selfdrive UX
+                  internal_id: TSL3
+                  dates:
+                    start: 17/02/2021
+                    end: 17/08/2021
+                    close: 17/09/2021
+                  status: true
+                  language: English (England)
+                  public: true
+                  hasBugParade: true
+                  devices:
+                    - id: "2"
+                  minNumberOfMedia: 0
+                  titleRule: true
+                  allowed:
+                    severities:
+                      - id: 3
+                    bug_types:
+                      - id: 3
+                    replicabilities:
+                      - id: "1"
+                  projectManager:
+                    username: Elon Musk
+                  customerCanViewReviewing: true
+                  additionalFields:
+                    - id: 2
+            minimal-example:
+              value:
+                - id: 1
+                  campaign_type: 1
+                  name: UX test for a selfdrive service
+                  customer_title: Tesla Model 3 selfdrive UX
+                  internal_id: TSL3
+                  dates:
+                    start: 17/02/2021
+                    end: 17/08/2021
+                    close: 17/09/2021
+                  devices:
+                    - id: "2"
+                  projectManager:
+                    username: Elon Musk
+            tester-example:
+              value:
+                - id: 1
+                  campaign_type: 1
+                  name: UX test for a selfdrive service
+                  internal_id: TSL3
+                  dates:
+                    start: 17/02/2021
+                    end: 17/08/2021
+                    close: 17/09/2021
+                  status: true
+                  language: English (England)
+                  devices:
+                    - id: "2"
+                  minNumberOfMedia: 0
+                  titleRule: true
+                  allowed:
+                    severities:
+                      - id: 3
+                    bug_types:
+                      - id: 3
+                    replicabilities:
+                      - id: "1"
+                  projectManager:
+                    username: Elon Musk
+                  additionalFields:
+                    - id: 2
+    SingleCampaign:
+      description: A single Campaigns with the Campaign id and Project data
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Campaign"
+              - type: object
+                properties:
+                  id:
+                    type: integer
+                required:
+                  - id
+              - type: object
+                properties:
+                  project:
+                    allOf:
+                      - $ref: "#/components/schemas/Project"
+                      - type: object
+                        properties:
+                          id:
+                            type: integer
+          examples:
+            full-example:
+              value:
+                id: 1
+                campaign_type: 1
+                name: UX test for a selfdrive service
+                customer_title: Tesla Model 3 selfdrive UX
+                internal_id: TSL3
+                dates:
+                  start: 17/02/2021
+                  end: 17/08/2021
+                  close: 17/09/2021
+                status: true
+                language: English (England)
+                public: true
+                hasBugParade: true
+                devices:
+                  - id: "2"
+                minNumberOfMedia: 0
+                titleRule: true
+                allowed:
+                  severities:
+                    - id: 3
+                  bug_types:
+                    - id: 2
+                  replicabilities:
+                    - id: "1"
+                projectManager:
+                  username: Elon Musk
+                customerCanViewReviewing: true
+                additionalFields:
+                  - id: 2
+                project:
+                  name: Tesla
+                  id: 42
+            minimal-example:
+              value:
+                id: 1
+                campaign_type: 1
+                name: UX test for a selfdrive service
+                customer_title: Tesla Model 3 selfdrive UX
+                internal_id: TSL3
+                dates:
+                  start: 17/02/2021
+                  end: 17/08/2021
+                  close: 17/09/2021
+                devices:
+                  - id: "2"
+                projectManager:
+                  username: Elon Musk
+                project:
+                  name: Tesla
+                  id: 42
+            tester-example:
+              value:
+                id: 1
+                campaign_type: 1
+                name: UX test for a selfdrive service
+                internal_id: TSL3
+                dates:
+                  start: 17/02/2021
+                  end: 17/08/2021
+                  close: 17/09/2021
+                status: true
+                language: English (England)
+                devices:
+                  - id: "2"
+                minNumberOfMedia: 0
+                titleRule: true
+                allowed:
+                  severities:
+                    - id: 3
+                  bug_types:
+                    - id: 3
+                  replicabilities:
+                    - id: "1"
+                projectManager:
+                  username: Elon Musk
+                additionalFields:
+                  - id: 2
+    NotFound:
+      description: An error due to the resource not existing
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              element:
+                type: string
+              id:
+                type: integer
+              message:
+                type: string
+            required:
+              - element
+              - id
+              - message
+          examples:
+            example-1:
+              value:
+                element: campaign
+                id: 1
+                message: No campaign with id 1
+    MissingParameters:
+      description: An error due to missing required parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            required:
+              - message
+          examples:
+            example:
+              value:
+                message: Missing parameters
+    NotAuthorized:
+      description: An error due to insufficient authorization to access the resource
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            example:
+              value:
+                message: Not Authorized.
+  parameters:
+    campaign:
+      name: campaign
+      in: path
+      required: true
+      schema:
+        type: string
+      description: A campaign id
+    task:
+      name: task
+      in: path
+      required: true
+      schema:
+        type: string
+      description: A task id
+    customer:
+      name: customer
+      in: path
+      required: true
+      schema:
+        type: string
+      description: A customer id
+    project:
+      name: project
+      in: path
+      required: true
+      schema:
+        type: string
+      description: A project id
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+      description: Max items to retrieve
+    start:
+      name: start
+      in: query
+      required: false
+      schema:
+        type: integer
+      description: Items to skip for pagination
+    filterBy:
+      name: filterBy
+      in: query
+      required: false
+      schema:
+        type: object
+      description: Key-value Array for item filtering
+    order:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - ASC
+          - DESC
+        default: DESC
+      description: "How to order values (ASC, DESC)"
+    locale:
+      name: locale
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - en
+          - it
+        default: en
+      description: How to localize values
+    searchBy:
+      name: searchBy
+      in: query
+      schema:
+        type: string
+      description: A comma separated list of fields which will be searched
+    search:
+      name: search
+      in: query
+      required: false
+      schema:
+        type: string
+      description: The value to search for
+  examples: {}
+tags:
+  - name: Authentication
+  - name: Campaign
+  - name: Customer
+  - name: Projects
+  - name: Task
+  - name: User
+  - name: Admin
+  - name: Devices
