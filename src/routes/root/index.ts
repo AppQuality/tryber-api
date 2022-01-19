@@ -1,12 +1,12 @@
 /**  OPENAPI-ROUTE : get-root */
 import { Context } from 'openapi-backend';
 
-import test from './sucafun';
+import getBranch from './getBranch';
+import getRevision from './getRevision';
 
-
-export default (c : Context, req : Request, res : OpenapiResponse) => {
+export default (c: Context, req: Request, res: OpenapiResponse) => {
   res.status_code = 200;
-  let revision = test();
-  let branch = "caio";
+  let revision = getRevision();
+  let branch = getBranch();
   return { branch, revision };
 };
