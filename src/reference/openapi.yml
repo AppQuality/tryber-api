@@ -1161,7 +1161,6 @@ paths:
                     type: number
                 required:
                   - id
-              examples: {}
       operationId: get-users-me
       description: Get your user data
       security:
