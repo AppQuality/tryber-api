@@ -13,6 +13,9 @@ declare global {
   interface OpenapiError extends Error {
     status_code: number;
   }
+  interface MySqlError extends Error {
+    code: string;
+  }
 
   type UserType = {
     ID: string;
