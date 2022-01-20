@@ -8,7 +8,7 @@ declare global {
   }
   interface OpenapiRequest extends Request {
     user: UserType;
-    query: { [key: string]: string };
+    query: { [key: string]: string | { [key: string]: string } };
   }
   interface OpenapiError extends Error {
     status_code: number;
