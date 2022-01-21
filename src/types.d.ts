@@ -1,5 +1,5 @@
-import { Response } from 'express';
-import { Request } from 'openapi-backend';
+import { Response } from "express";
+import { Request } from "openapi-backend";
 
 declare global {
   interface OpenapiResponse extends Response {
@@ -24,6 +24,6 @@ declare global {
     user_pass: string;
     role: string;
     capabilities: string[];
-    permission: { admin?: {} };
+    permission: { admin?: { [key: sting]: boolean } };
   };
 }
