@@ -1,4 +1,4 @@
-/** OPENAPI-ROUTE: post-popups */
+/** OPENAPI-ROUTE: get-popups */
 import { Context } from 'openapi-backend';
 
 import * as db from '../../../features/db';
@@ -13,49 +13,36 @@ export default async (
     return {
       element: "popups",
       id: 0,
-      message: "You cannot create new popups",
+      message: "You cannot list popups",
     };
   }
   try {
-    const query = mapObjectToQuery(req.body);
-    const insertId = await db.insert("wp_appq_popups", query);
-    if (!insertId) throw Error("Error on INSERT");
+    const SELECT = `SELECT *`;
+    const FROM = ` FROM wp_appq_popups`;
+    const WHERE = ``;
+    let LIMIT = ``;
 
-    const sql = `SELECT * FROM wp_appq_popups WHERE id = ${insertId}`;
-    const result = await db.query(sql);
-    if (!result.length) throw Error("Error on SELECT");
+    if (req.query.limit && typeof req.query.limit == "string") {
+      LIMIT = ` LIMIT ${parseInt(req.query.limit)}`;
+      if (req.query.start && typeof req.query.start == "string") {
+        LIMIT += ` OFFSET ${parseInt(req.query.start)}`;
+      }
+    }
+
+    const rows = await db.query(`${SELECT}${FROM}${WHERE}${LIMIT}`);
+    if (!rows.length) throw Error("No popups");
 
     res.status_code = 200;
-
-    return mapQueryToObject(result[0]);
+    return rows.map(mapQueryToObject);
   } catch (error) {
     if (process.env && process.env.DEBUG) {
       console.error(error);
     }
-    res.status_code = 404;
+    res.status_code = 400;
     return {
-      element: "popups",
-      id: 0,
-      message: (error as OpenapiError).message,
+      message: "Missing parameters: " + (error as OpenapiError).message,
     };
   }
-};
-
-const mapObjectToQuery = (obj: { [key: string]: any }) => {
-  const data = {
-    ...(obj.content && { content: obj.content }),
-    ...(obj.once && { is_once: obj.once }),
-    ...(obj.title && { title: obj.title }),
-  };
-  if (obj.profiles) {
-    if (typeof obj.profiles == "string") {
-      data.targets = obj.profiles;
-    } else if (Array.isArray(obj.profiles)) {
-      data.targets = "list";
-      data.extras = obj.profiles.join(",");
-    }
-  }
-  return data;
 };
 
 const mapQueryToObject = (data: {
