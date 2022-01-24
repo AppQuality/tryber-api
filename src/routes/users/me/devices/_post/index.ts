@@ -71,7 +71,6 @@ export default async (
       newDeviceData.platform_id = os.platformId;
       // ENDTODO
     }
-    console.log(newDeviceData);
     const insertId = await db.insert("wp_crowd_appq_device", newDeviceData);
 
     let checkSql = `
