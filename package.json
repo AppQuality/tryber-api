@@ -24,6 +24,7 @@
     "ajv": "^8.9.0",
     "avatar-initials": "^5.0.0",
     "body-parser": "^1.19.1",
+    "codice-fiscale-js": "^2.3.13",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
