@@ -36,7 +36,7 @@ FROM wp_crowd_appq_device dv
                     else 5
                end asc , plat.name ASC`;
     sql = db.format(sql, queryData);
-
+    console.log(sql);
     const results: {
       deviceId?: string;
       pc_type?: string;
