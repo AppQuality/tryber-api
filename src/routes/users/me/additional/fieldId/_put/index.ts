@@ -60,14 +60,13 @@ export default async (
     } catch (e) {
       throw e;
     }
-
     try {
       const result = await getAdditionalData(req.user.ID, field[0].id);
       res.status_code = 200;
       return result.additional;
     } catch (e) {
       if ((e as OpenapiError).status_code === 404) {
-        res.status_code = 404;
+        res.status_code = 200;
         if (field[0].type === "multiselect") {
           return [];
         } else {
@@ -83,6 +82,7 @@ export default async (
       }
     }
   } catch (error) {
+    if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = 404;
     return {
       element: "users",
