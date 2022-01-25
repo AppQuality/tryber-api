@@ -24,7 +24,6 @@ const checkCookies = (req: Request): Promise<UserType | Error> => {
     return wpAuth
       .checkAuth(req)
       .on("auth", async function (authIsValid: boolean, userId: number) {
-        console.log(authIsValid);
         if (authIsValid) {
           const userData = await getUserById(userId);
           const user = await authenticate(userData);
