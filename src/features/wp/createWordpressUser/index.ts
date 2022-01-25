@@ -1,6 +1,6 @@
-import { HashPassword } from 'wordpress-hash-node';
+import { HashPassword } from "wordpress-hash-node";
 
-import * as db from '../../db';
+import * as db from "../../db";
 
 const createWordpressUser = async (
   username: string,

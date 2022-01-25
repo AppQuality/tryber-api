@@ -1,6 +1,6 @@
-import { unserialize } from 'php-unserialize';
+import { unserialize } from "php-unserialize";
 
-import * as db from '../../db';
+import * as db from "../../db";
 
 export default async (
   ids: string[]

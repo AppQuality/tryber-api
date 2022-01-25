@@ -1,8 +1,8 @@
 /** OPENAPI-ROUTE: get-users-me-campaigns */
-import { Context } from 'openapi-backend';
+import { Context } from "openapi-backend";
 
-import * as db from '../../../../../features/db';
-import resolvePermalinks from '../../../../../features/wp/resolvePermalinks';
+import * as db from "../../../../../features/db";
+import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 
 export default async (
   c: Context,

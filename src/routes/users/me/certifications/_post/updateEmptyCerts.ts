@@ -1,4 +1,4 @@
-import * as db from '../../../../../features/db';
+import * as db from "../../../../../features/db";
 
 export default async (wpId: string, value: "true" | "false") => {
   let emptyCertSql = `SELECT * FROM wp_usermeta 

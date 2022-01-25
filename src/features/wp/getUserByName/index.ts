@@ -1,4 +1,4 @@
-import * as db from '../../db';
+import * as db from "../../db";
 
 export default async (userName: string) => {
   const sql = `SELECT p.id as testerId, wp.ID,wp.user_login,wp.user_pass

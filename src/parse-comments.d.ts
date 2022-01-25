@@ -1,5 +1,4 @@
-
-declare module 'parse-comments' {
+declare module "parse-comments" {
   export default class Comments {
     constructor();
     parse(content: string): Array<{
@@ -8,4 +7,3 @@ declare module 'parse-comments' {
     }>;
   }
 }
-

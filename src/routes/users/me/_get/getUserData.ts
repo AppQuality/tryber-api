@@ -1,12 +1,12 @@
-import getAdditionalData from './getAdditionalData';
-import getApprovedBugsData from './getApprovedBugsData';
-import getAttendedCpData from './getAttendedCpData';
-import getCertificationsData from './getCertificationsData';
-import getEducationData from './getEducationData';
-import getLanguagesData from './getLanguagesData';
-import getProfessionData from './getProfessionData';
-import getProfileData from './getProfileData';
-import getRankData from './getRankData';
+import getAdditionalData from "./getAdditionalData";
+import getApprovedBugsData from "./getApprovedBugsData";
+import getAttendedCpData from "./getAttendedCpData";
+import getCertificationsData from "./getCertificationsData";
+import getEducationData from "./getEducationData";
+import getLanguagesData from "./getLanguagesData";
+import getProfessionData from "./getProfessionData";
+import getProfileData from "./getProfileData";
+import getRankData from "./getRankData";
 
 const basicFields = [
   "name",

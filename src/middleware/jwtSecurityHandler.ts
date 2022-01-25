@@ -1,10 +1,10 @@
-import wpAuthProvider from '@appquality/wp-auth';
-import jwt from 'jsonwebtoken';
-import { Context, Request } from 'openapi-backend';
+import wpAuthProvider from "@appquality/wp-auth";
+import jwt from "jsonwebtoken";
+import { Context, Request } from "openapi-backend";
 
-import config from '../config';
-import authenticate from '../features/wp/authenticate';
-import getUserById from '../features/wp/getUserById';
+import config from "../config";
+import authenticate from "../features/wp/authenticate";
+import getUserById from "../features/wp/getUserById";
 
 const wpAuth = wpAuthProvider.create({
   wpurl: config.CROWD_URL,

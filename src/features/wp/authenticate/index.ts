@@ -1,6 +1,6 @@
-import PHPUnserialize from 'php-unserialize';
+import PHPUnserialize from "php-unserialize";
 
-import * as db from '../../db';
+import * as db from "../../db";
 
 export default async (userData: {
   testerId: number;

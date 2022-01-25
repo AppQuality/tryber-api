@@ -1,7 +1,7 @@
 /** OPENAPI-ROUTE: post-users-me-devices */
-import { Context } from 'openapi-backend';
+import { Context } from "openapi-backend";
 
-import * as db from '../../../../../features/db';
+import * as db from "../../../../../features/db";
 
 const formFactors = {
   0: "Smartphone",

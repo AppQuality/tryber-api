@@ -1,8 +1,8 @@
 /** OPENAPI-ROUTE: post-users-me-certifications */
-import { Context } from 'openapi-backend';
+import { Context } from "openapi-backend";
 
-import * as db from '../../../../../features/db';
-import updateEmptyCerts from './updateEmptyCerts';
+import * as db from "../../../../../features/db";
+import updateEmptyCerts from "./updateEmptyCerts";
 
 export default async (
   c: Context,

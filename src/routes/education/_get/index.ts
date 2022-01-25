@@ -1,7 +1,7 @@
 /** OPENAPI-ROUTE: get-education */
-import { Context } from 'openapi-backend';
+import { Context } from "openapi-backend";
 
-import * as db from '../../../features/db';
+import * as db from "../../../features/db";
 
 export default async (
   c: Context,

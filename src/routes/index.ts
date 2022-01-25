@@ -1,7 +1,7 @@
-import fs from 'fs';
-import OpenAPIBackend from 'openapi-backend';
-import Comments from 'parse-comments';
-import path from 'path';
+import fs from "fs";
+import OpenAPIBackend from "openapi-backend";
+import Comments from "parse-comments";
+import path from "path";
 
 const getAllRoutesByComment = function (
   dirPath: string,

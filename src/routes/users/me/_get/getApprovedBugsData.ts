@@ -1,4 +1,4 @@
-import * as db from '../../../../features/db';
+import * as db from "../../../../features/db";
 
 export default async (id: string) => {
   let sql = `SELECT COUNT(id) AS approved_bugs

@@ -1,5 +1,5 @@
-import { Context } from 'openapi-backend';
-import process from 'process';
+import { Context } from "openapi-backend";
+import process from "process";
 
 export default (c: Context, req: Request, res: OpenapiResponse) => {
   if (!res.skip_post_response_handler) {

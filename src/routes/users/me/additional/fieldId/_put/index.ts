@@ -1,8 +1,8 @@
 /** OPENAPI-ROUTE:put-users-me-additionals-fieldId */
-import { Context } from 'openapi-backend';
+import { Context } from "openapi-backend";
 
-import * as db from '../../../../../../features/db';
-import getAdditionalData from '../../../_get/getAdditionalData';
+import * as db from "../../../../../../features/db";
+import getAdditionalData from "../../../_get/getAdditionalData";
 
 export default async (
   c: Context,

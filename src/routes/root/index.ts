@@ -1,8 +1,8 @@
 /**  OPENAPI-ROUTE : get-root */
-import { Context } from 'openapi-backend';
+import { Context } from "openapi-backend";
 
-import getBranch from './getBranch';
-import getRevision from './getRevision';
+import getBranch from "./getBranch";
+import getRevision from "./getRevision";
 
 export default (c: Context, req: Request, res: OpenapiResponse) => {
   res.status_code = 200;

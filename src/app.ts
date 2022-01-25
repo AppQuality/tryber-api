@@ -1,11 +1,11 @@
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import express from 'express';
-import OpenAPIBackend, { Options, Request } from 'openapi-backend';
+import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import OpenAPIBackend, { Options, Request } from "openapi-backend";
 
-import config from './config';
-import middleware from './middleware';
-import routes from './routes';
+import config from "./config";
+import middleware from "./middleware";
+import routes from "./routes";
 
 const opts: Options = {
   definition: __dirname + "/reference/openapi.yml",

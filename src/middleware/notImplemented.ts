@@ -1,4 +1,4 @@
-import OpenAPIBackend, { Context } from 'openapi-backend';
+import OpenAPIBackend, { Context } from "openapi-backend";
 
 export default (api: OpenAPIBackend) =>
   async (c: Context, req: Request, res: OpenapiResponse) => {
