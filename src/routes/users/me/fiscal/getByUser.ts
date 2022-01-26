@@ -1,4 +1,4 @@
-import getActiveProfile from './getActiveProfile';
+import getActiveProfile from "./getActiveProfile";
 
 export default async (testerId: number) => {
   try {
@@ -35,6 +35,6 @@ export default async (testerId: number) => {
       gender: fiscal.sex == 0 ? "female" : "male",
     };
   } catch (e) {
-    return Promise.reject(e);
+    throw e;
   }
 };
