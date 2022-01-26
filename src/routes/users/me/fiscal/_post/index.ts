@@ -11,7 +11,14 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    let fiscal = await getActiveProfile(req.user.testerId);
+    let fiscal;
+    try {
+      fiscal = await getActiveProfile(req.user.testerId);
+      return Promise.reject({
+        status_code: 406,
+        message: "There is already a fiscal profile",
+      });
+    } catch (e) {}
 
     let tester = await db.query(
       db.format(
