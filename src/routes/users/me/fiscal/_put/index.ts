@@ -1,10 +1,10 @@
 /** OPENAPI-ROUTE:put-users-me-fiscal */
-import { Context } from 'openapi-backend';
-
-import * as db from '../../../../../features/db';
-import checkCodiceFiscale from '../checkCodiceFiscale';
-import getActiveProfile from '../getActiveProfile';
-import getByUser from '../getByUser';
+import { Context } from "openapi-backend";
+import * as db from "../../../../../features/db";
+import checkCodiceFiscale from "../checkCodiceFiscale";
+import geocodePlaceId from "../geocodeByPlaceId";
+import getActiveProfile from "../getActiveProfile";
+import getByUser from "../getByUser";
 
 export default async (
   c: Context,
@@ -37,6 +37,11 @@ WHERE id = ?`,
     if (
       [1, 2].includes(fiscalTypes[req.body.type as keyof typeof fiscalTypes])
     ) {
+      const birthPlace = await geocodePlaceId(req.body.birthPlace?.placeId);
+      if (birthPlace) {
+        req.body.birthPlace.city = birthPlace.city;
+        req.body.birthPlace.province = birthPlace.province;
+      }
       isVerified = (await checkCodiceFiscale(req.body.fiscalId, {
         name: tester.name,
         surname: tester.surname,
@@ -87,6 +92,9 @@ SET is_active = 0 WHERE id = ?`;
     res.status_code = 200;
     return getByUser(req.user.testerId);
   } catch (error) {
+    if (process.env && process.env.DEBUG) {
+      console.log(error);
+    }
     res.status_code = (error as OpenapiError).status_code || 500;
     return {
       element: "users",

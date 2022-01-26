@@ -1,9 +1,22 @@
 var CodiceFiscale = require("codice-fiscale-js");
 
 export default async (
-  fiscalCode:string,
-  { name, surname, gender, birthday, birthplace, birthplaceProvincia }: 
-  { name:string, surname:string, gender:string, birthday:{day:number,month:number,year:number}, birthplace:string, birthplaceProvincia:string }
+  fiscalCode: string,
+  {
+    name,
+    surname,
+    gender,
+    birthday,
+    birthplace,
+    birthplaceProvincia,
+  }: {
+    name: string;
+    surname: string;
+    gender: string;
+    birthday: { day: number; month: number; year: number };
+    birthplace: string;
+    birthplaceProvincia: string;
+  }
 ) => {
   let cf;
   let checkCf;

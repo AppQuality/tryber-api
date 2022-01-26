@@ -2,6 +2,7 @@
 import { Context } from "openapi-backend";
 import * as db from "../../../../../features/db";
 import checkCodiceFiscale from "../checkCodiceFiscale";
+import geocodePlaceId from "../geocodeByPlaceId";
 import getActiveProfile from "../getActiveProfile";
 import getByUser from "../getByUser";
 
@@ -43,6 +44,11 @@ WHERE id = ?`,
     if (
       [1, 2].includes(fiscalTypes[req.body.type as keyof typeof fiscalTypes])
     ) {
+      const birthPlace = await geocodePlaceId(req.body.birthPlace?.placeId);
+      if (birthPlace) {
+        req.body.birthPlace.city = birthPlace.city;
+        req.body.birthPlace.province = birthPlace.province;
+      }
       isVerified = (await checkCodiceFiscale(req.body.fiscalId, {
         name: tester.name,
         surname: tester.surname,
