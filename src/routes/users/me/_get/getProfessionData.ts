@@ -7,17 +7,12 @@ export default async (id: string) => {
     WHERE wp_user_id = ?;
   `;
 
-  return db
-    .query(db.format(sql, [id]))
-    .then((data) => {
-      if (!data.length)
-        return Promise.reject(Error("Invalid employement data"));
-      return { profession: data[0] };
-    })
-    .catch((e) => {
-      if (process.env && process.env.NODE_ENV === "development") {
-        console.log(e);
-      }
-      return Promise.reject(Error(e));
-    });
+  try {
+    const data = await db.query(db.format(sql, [id]));
+
+    if (!data.length) throw Error("Invalid employement data");
+    return { profession: data[0] };
+  } catch (e) {
+    throw e;
+  }
 };

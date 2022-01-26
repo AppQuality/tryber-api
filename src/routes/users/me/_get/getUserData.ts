@@ -40,14 +40,14 @@ const acceptedFields = [
   "completionPercent",
 ];
 
-export default (id: string, fields: string[]) => {
+export default async (id: string, fields: string[]) => {
   let isComplete = false;
   if (!fields) fields = basicFields;
   if (fields[0] === "all") {
     fields = acceptedFields;
     isComplete = true;
   }
-  return new Promise(async (resolve, reject) => {
+  try {
     const validFields = fields.filter((f) => acceptedFields.includes(f));
 
     let data = {};
@@ -106,7 +106,7 @@ export default (id: string, fields: string[]) => {
       }
     }
 
-    if (!Object.keys(data).length) return reject(Error("Invalid data"));
+    if (!Object.keys(data).length) throw Error("Invalid data");
 
     Object.keys(data).forEach((k) => {
       if (data[k as keyof typeof data] === null)
@@ -120,6 +120,11 @@ export default (id: string, fields: string[]) => {
           (100 * (Object.keys(data).length + 1)) / validFields.length,
       };
     }
-    return resolve(data);
-  });
+    return data;
+  } catch (e) {
+    if (process.env && process.env.NODE_ENV === "development") {
+      console.log(e);
+    }
+    throw e;
+  }
 };

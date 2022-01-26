@@ -1,6 +1,5 @@
 /** OPENAPI-ROUTE: get-users-me */
 import { Context } from "openapi-backend";
-
 import getUserData from "./getUserData";
 
 export default async (
@@ -15,7 +14,7 @@ export default async (
     user.role = req.user ? req.user.role : "tester";
     return user;
   } catch (e) {
-    if (process.env && process.env.NODE_ENV === "development") {
+    if (process.env && process.env.DEBUG) {
       console.log(e);
     }
     res.status_code = 404;
