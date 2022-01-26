@@ -58,8 +58,8 @@ WHERE id = ?`,
         : 0;
     }
     const updateSql = `UPDATE wp_appq_fiscal_profile 
-SET is_active = 0 WHERE id = ?`;
-    await db.query(db.format(updateSql, fiscal.id));
+SET is_active = 0 WHERE tester_id = ?`;
+    await db.query(db.format(updateSql, [req.user.testerId]));
 
     const updateData = {
       is_active: 1,

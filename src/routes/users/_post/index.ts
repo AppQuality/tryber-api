@@ -1,6 +1,5 @@
 /** OPENAPI-ROUTE: post-users */
 import { Context } from "openapi-backend";
-
 import * as db from "../../../features/db";
 import { send } from "../../../features/mail/send";
 import createWordpressUser from "../../../features/wp/createWordpressUser";
@@ -103,7 +102,7 @@ export default async (
 
     send({
       to: tester.email,
-      subject: "Thank you for joining AppQuality Community!",
+      subject: "Thank you for joining Tryber Community!",
       html: welcomeTemplate,
     });
 
