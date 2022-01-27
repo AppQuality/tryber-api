@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "jest": "jest  ./dist",
-    "test": "npm-run-all build jest",
+    "jest": "jest  ./dist --forceExit",
+    "test": "npm-run-all build jest ",
     "clean": "rimraf dist",
     "transpile": "babel ./src --out-dir dist --extensions \".ts,.js\"",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
@@ -66,9 +66,6 @@
       "*.spec.js"
     ]
   },
-  "jest": {
-    "testEnvironment": "node"
-  },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
@@ -86,8 +83,8 @@
     "@typescript-eslint/parser": "^5.9.1",
     "copyfiles": "^2.4.1",
     "husky": "^7.0.4",
-    "jest": "^24.9.0",
-    "jest-cli": "^24.7.1",
+    "jest": "^27.4.7",
+    "jest-cli": "^27.4.7",
     "nodemon": "^2.0.15",
     "openapi-typescript": "^5.1.1",
     "prettier": "^2.5.1",

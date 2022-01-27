@@ -1,10 +1,9 @@
 import PHPUnserialize from "php-unserialize";
-
 import * as db from "../../db";
 
 export default async (userData: {
   testerId: number;
-  ID: number;
+  ID: string;
   user_login: string;
   user_pass: string;
 }): Promise<UserType | Error> => {

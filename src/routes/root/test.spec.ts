@@ -1,19 +1,22 @@
 import request from "supertest";
-
 import app from "../../app";
-import test from "./sucafun";
+import getBranch from "./getBranch";
+import getRevision from "./getRevision";
 
-jest.mock("./sucafun");
+jest.mock("./getBranch");
+jest.mock("./getRevision");
 
-describe("Authorizations", () => {
+describe("Root endpoint", () => {
   afterEach(() => {
     jest.resetAllMocks();
   });
   it("GET on /authenticate with correct data should answer 200", async () => {
-    (test as jest.Mock).mockReturnValue("ciao");
+    const [branch, revision] = ["master", "12345"];
+    (getBranch as jest.Mock).mockReturnValue(branch);
+    (getRevision as jest.Mock).mockReturnValue(revision);
     return request(app).get("/").expect(200, {
-      branch: "caio",
-      revision: "ciao",
+      branch,
+      revision,
     });
   });
 });
