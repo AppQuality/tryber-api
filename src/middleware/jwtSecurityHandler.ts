@@ -1,7 +1,6 @@
 import wpAuthProvider from "@appquality/wp-auth";
 import jwt from "jsonwebtoken";
 import { Context, Request } from "openapi-backend";
-
 import config from "../config";
 import authenticate from "../features/wp/authenticate";
 import getUserById from "../features/wp/getUserById";
@@ -27,7 +26,7 @@ const checkCookies = (req: Request): Promise<UserType | Error> => {
         if (authIsValid) {
           const userData = await getUserById(userId);
           const user = await authenticate(userData);
-          resolve(user);
+          return resolve(user);
         }
         return reject(new Error("Missing authorization header"));
       });
