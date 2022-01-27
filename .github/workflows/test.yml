@@ -1,0 +1,15 @@
+name: "Run tests"
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: "Install Node"
+        uses: actions/setup-node@v1
+      - name: Install dependencies
+        run: npm install
+      - name: "Run Test"
+        run: npm run test
