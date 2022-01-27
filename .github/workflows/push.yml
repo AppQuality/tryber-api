@@ -1,0 +1,35 @@
+on: push
+
+name: Push to Amazon ECR
+
+jobs:
+  push-to-ecr:
+    name: Push Image
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Extract branch name
+        shell: bash
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [ "$BRANCH" = "main" ]; then
+              TAG="rework"
+          else
+              TAG="$BRANCH"
+          fi
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_branch
+
+      - name: Docker ECR
+        uses: kciter/aws-ecr-action@v2
+        with:
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          region: eu-west-1
+          repo: appquality-api-express
+          tags: ${{ steps.extract_branch.outputs.tag }}
