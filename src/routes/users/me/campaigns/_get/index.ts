@@ -129,12 +129,12 @@ export default async (
               item.preview_link["es"] !== "#" &&
               item.preview_link["it"] !== "#"
             ) {
-              data.push(r);
+              data.push(item);
             }
           }
         }
       } else {
-        data.push(r);
+        data.push(item);
       }
       return r;
     });
