@@ -1,6 +1,5 @@
 /** OPENAPI-ROUTE: get-users-me-campaigns */
 import { Context } from "openapi-backend";
-
 import * as db from "../../../../../features/db";
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 
@@ -142,16 +141,17 @@ export default async (
 
     let resultsFull = data.map(mapQueryToObject);
 
+    let start = parseInt((req.query.start as string) || "0");
+
     const availableCp = {
       results: resultsFull,
       size: data.length,
-      start: req.query.start || 0,
+      start: start,
     };
     if (!req.query.limit) {
       res.status_code = 200;
       return availableCp;
     }
-    let start = parseInt((req.query.start as string) || "0");
     let limit = parseInt((req.query.limit as string) || "10");
     let total = data.length || 0;
     data = availableCp.results.slice(start, limit + start);
