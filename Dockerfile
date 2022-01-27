@@ -14,6 +14,8 @@ FROM alpine:3.14 as web
 COPY --from=base /dist /app/build
 COPY package*.json /app/
 COPY --from=base /src/routes /app/src/routes
+COPY --from=base /.git/HEAD /app/.git/HEAD
+COPY --from=base /.git/refs /app/.git/refs
 WORKDIR /app
 RUN apk add nodejs npm
 RUN npm install --only=prod

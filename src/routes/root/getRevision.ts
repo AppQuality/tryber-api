@@ -1,5 +1,14 @@
-import child_process from "child_process";
+import fs from "fs";
 
 export default () => {
-  return child_process.execSync("git rev-parse --short HEAD").toString().trim();
+  const rev = fs.readFileSync(".git/HEAD").toString().trim();
+  if (rev.indexOf(":") === -1) {
+    return rev;
+  } else {
+    return fs
+      .readFileSync(".git/" + rev.substring(5))
+      .toString()
+      .trim()
+      .substr(0, 6);
+  }
 };

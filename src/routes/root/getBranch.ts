@@ -1,8 +1,8 @@
-import child_process from "child_process";
+import fs from "fs";
 
 export default () => {
-  return child_process
-    .execSync("git rev-parse --abbrev-ref HEAD")
-    .toString()
-    .trim();
+  const gitHeadPath = `.git/HEAD`;
+  return fs.existsSync(gitHeadPath)
+    ? fs.readFileSync(gitHeadPath, "utf-8").trim().split("/")[2]
+    : false;
 };
