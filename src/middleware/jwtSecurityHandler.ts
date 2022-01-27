@@ -1,6 +1,6 @@
 import wpAuthProvider from "@appquality/wp-auth";
 import jwt from "jsonwebtoken";
-import { Context, Request } from "openapi-backend";
+import { Context } from "openapi-backend";
 import config from "../config";
 import authenticate from "../features/wp/authenticate";
 import getUserById from "../features/wp/getUserById";
@@ -18,7 +18,7 @@ const wpAuth = wpAuthProvider.create({
   checkKnownHashes: false,
 });
 
-const checkCookies = (req: Request): Promise<UserType | Error> => {
+const checkCookies = (req: OpenapiRequest): Promise<UserType | Error> => {
   return new Promise((resolve, reject) => {
     return wpAuth
       .checkAuth(req)

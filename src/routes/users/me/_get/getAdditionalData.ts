@@ -15,6 +15,7 @@ WHERE wp_user_id = ?
   }
   let data: {
     id: string;
+    field_id: number;
     type: "text" | "select" | "multiselect";
     is_candidate: boolean;
     candidate: boolean;

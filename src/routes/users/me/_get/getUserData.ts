@@ -40,7 +40,12 @@ const acceptedFields = [
   "completionPercent",
 ];
 
-export default async (id: string, fields: string[]) => {
+export default async (
+  id: string,
+  fields: string[] | false
+): Promise<
+  StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]
+> => {
   let isComplete = false;
   if (!fields) fields = basicFields;
   if (fields[0] === "all") {
@@ -50,7 +55,8 @@ export default async (id: string, fields: string[]) => {
   try {
     const validFields = fields.filter((f) => acceptedFields.includes(f));
 
-    let data = {};
+    let data: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"] =
+      { id: 0 };
 
     try {
       data = { ...data, ...(await getProfileData(id, validFields)) };

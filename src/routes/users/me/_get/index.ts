@@ -7,7 +7,9 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  let fields = req.query.fields ? req.query.fields.split(",") : false;
+  let query =
+    req.query as StoplightOperations["get-users-me"]["parameters"]["query"];
+  let fields = query.fields ? query.fields.split(",") : false;
   try {
     const user = await getUserData(req.user.ID, fields);
     res.status_code = 200;

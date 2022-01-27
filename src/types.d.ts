@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { Request } from "openapi-backend";
+import { components, operations, paths } from "./schema";
 
 declare global {
   interface OpenapiResponse extends Response {
@@ -26,4 +27,8 @@ declare global {
     capabilities: string[];
     permission: { admin?: { [key: sting]: boolean } };
   };
+
+  interface StoplightOperations extends operations {}
+  interface StoplightComponents extends components {}
+  interface StoplightPaths extends paths {}
 }
