@@ -1,4 +1,4 @@
-import * as db from "../../../../features/db";
+import * as db from "@src/features/db";
 
 export default async (id: string) => {
   let sql = `SELECT e.id,e.display_name as name

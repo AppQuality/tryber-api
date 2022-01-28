@@ -1,8 +1,7 @@
-/** OPENAPI-ROUTE: get-devices-operating-systems */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-import * as db from "../../../../../features/db";
-
+/** OPENAPI-ROUTE: get-devices-operating-systems */
 export default async (
   c: Context,
   req: OpenapiRequest,

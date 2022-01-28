@@ -1,9 +1,10 @@
-/** OPENAPI-ROUTE: post-users */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-import * as db from "../../../features/db";
+
 import { send } from "../../../features/mail/send";
 import createWordpressUser from "../../../features/wp/createWordpressUser";
 
+/** OPENAPI-ROUTE: post-users */
 export default async (
   c: Context,
   req: OpenapiRequest,

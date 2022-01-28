@@ -1,11 +1,12 @@
-/** OPENAPI-ROUTE:put-users-me-fiscal */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-import * as db from "../../../../../features/db";
+
 import checkCodiceFiscale from "../checkCodiceFiscale";
 import geocodePlaceId from "../geocodeByPlaceId";
 import getActiveProfile from "../getActiveProfile";
 import getByUser from "../getByUser";
 
+/** OPENAPI-ROUTE:put-users-me-fiscal */
 export default async (
   c: Context,
   req: OpenapiRequest,

@@ -1,9 +1,7 @@
+import * as db from "@src/features/db";
+import { Context } from "openapi-backend";
+
 /** OPENAPI-ROUTE:delete-users-me */
-import { Context } from 'openapi-backend';
-
-import * as db from '../../../../features/db';
-
-
 export default async (
   c: Context,
   req: OpenapiRequest,
@@ -64,7 +62,6 @@ export default async (
 
     res.status_code = 200;
     return true;
-
   } catch (error) {
     res.status_code = (error as OpenapiError).status_code || 400;
     return {

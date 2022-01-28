@@ -1,8 +1,7 @@
-/** OPENAPI-ROUTE: post-popups */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-import * as db from "../../../features/db";
-
+/** OPENAPI-ROUTE: post-popups */
 export default async (
   c: Context,
   req: OpenapiRequest,

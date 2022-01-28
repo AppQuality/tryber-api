@@ -1,8 +1,7 @@
-/** OPENAPI-ROUTE: get-customUserFields */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-import * as db from "../../../features/db";
-
+/** OPENAPI-ROUTE: get-customUserFields */
 type GroupType = {
   group: {
     id: number;

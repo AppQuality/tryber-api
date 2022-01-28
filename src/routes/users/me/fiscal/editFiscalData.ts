@@ -1,4 +1,4 @@
-import * as db from '../../../../features/db';
+import * as db from "@src/features/db";
 
 export default async (testerId: number) => {
   let fiscal;

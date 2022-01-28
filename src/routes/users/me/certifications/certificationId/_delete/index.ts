@@ -1,7 +1,7 @@
-/** OPENAPI-ROUTE: delete-users-me-certifications-certificationId */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-import * as db from "../../../../../../features/db";
 
+/** OPENAPI-ROUTE: delete-users-me-certifications-certificationId */
 export default async (
   c: Context,
   req: OpenapiRequest,

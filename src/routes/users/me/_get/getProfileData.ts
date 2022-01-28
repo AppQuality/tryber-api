@@ -1,5 +1,5 @@
+import * as db from "@src/features/db";
 import { gravatarUrl } from "avatar-initials";
-import * as db from "../../../../features/db";
 
 export default async (id: string, fields: string[]) => {
   let sqlFields = ["p.id"];

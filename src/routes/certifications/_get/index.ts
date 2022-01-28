@@ -1,8 +1,7 @@
-/** OPENAPI-ROUTE: get-certifications */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-import * as db from "../../../features/db";
-
+/** OPENAPI-ROUTE: get-certifications */
 export default async (
   c: Context,
   req: OpenapiRequest,

@@ -40,20 +40,6 @@
     "php-unserialize": "^0.0.1",
     "wordpress-hash-node": "^1.0.0"
   },
-  "babel": {
-    "presets": [
-      "@babel/typescript",
-      "@babel/env"
-    ],
-    "plugins": [
-      [
-        "@babel/plugin-transform-runtime",
-        {
-          "regenerator": true
-        }
-      ]
-    ]
-  },
   "nodemonConfig": {
     "exec": "npm run dev",
     "watch": [
@@ -81,6 +67,7 @@
     "@types/wordpress-hash-node": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
+    "babel-plugin-module-resolver": "^4.1.0",
     "copyfiles": "^2.4.1",
     "husky": "^7.0.4",
     "jest": "^27.4.7",
