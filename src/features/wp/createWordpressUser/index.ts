@@ -44,7 +44,7 @@ const createWordpressUser = async (
           username,
           username,
           hash,
-          new Date().toISOString(),
+          new Date().toISOString().substring(0, 10),
         ]
       )
     );
