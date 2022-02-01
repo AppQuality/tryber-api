@@ -17,7 +17,7 @@ jobs:
         run: |
           BRANCH=$(echo ${GITHUB_REF#refs/heads/})
           if [ "$BRANCH" = "main" ]; then
-              TAG="rework"
+              TAG="latest"
           else
               TAG="$BRANCH"
           fi
