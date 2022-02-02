@@ -8,13 +8,13 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    const SELECT = `SELECT *`;
-    const FROM = ` FROM wp_appq_employment`;
+    const SELECT = `SELECT id,display_name`;
+    const FROM = ` FROM wp_appq_lang`;
     const rows = await db.query(`
         ${SELECT}
         ${FROM}
     `);
-    if (!rows.length) throw Error("No employments");
+    if (!rows.length) throw Error("No languages found");
 
     res.status_code = 200;
 
@@ -29,7 +29,7 @@ export default async (
 
     res.status_code = 404;
     return {
-      element: "employments",
+      element: "languages",
       id: 0,
       message: (error as OpenapiError).message,
     };
