@@ -1077,6 +1077,7 @@ paths:
                   email:
                     type: string
                     minLength: 1
+                    format: email
                   image:
                     type: string
                     minLength: 1
