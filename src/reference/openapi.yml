@@ -2655,6 +2655,28 @@ paths:
         name: code
         in: path
         required: true
+  '/payments/{paymentId}':
+    parameters:
+      - schema:
+          type: string
+        name: paymentId
+        in: path
+        required: true
+    post:
+      summary: Pay a request
+      operationId: post-payments-paymentId
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unprocessable Entity (WebDAV)
+      description: ''
+      security:
+        - JWT: []
 components:
   schemas:
     Project:
