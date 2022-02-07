@@ -9,6 +9,12 @@ class Transferwise {
   baseUrl: string;
   defaultProfile = "default";
 
+  errorCodes = {
+    IBAN_NOT_VALID: "IBAN_NOT_VALID",
+    NO_FUNDS: "NO_FUNDS",
+    GENERIC_ERROR: "GENERIC_ERROR",
+  };
+
   constructor({
     apiKey,
     sandbox = false,
@@ -45,9 +51,6 @@ class Transferwise {
       }
       throw new Error(res.data.response);
     } catch (error) {
-      if ((error as any)?.response?.data?.errors) {
-        throw new Error(JSON.stringify((error as any).response.data.errors));
-      }
       throw error;
     }
   }
@@ -73,7 +76,7 @@ class Transferwise {
       profile,
     };
     try {
-      return this.request("POST", `/v2/quotes`, data);
+      return await this.request("POST", `/v2/quotes`, data);
     } catch (error) {
       throw error;
     }
@@ -81,7 +84,7 @@ class Transferwise {
 
   public async getProfiles() {
     try {
-      return this.request("GET", `/v1/profiles`);
+      return await this.request("GET", `/v1/profiles`);
     } catch (error) {
       throw error;
     }
@@ -108,12 +111,28 @@ class Transferwise {
       },
     };
     try {
-      return this.request("POST", `/v1/accounts`, data);
+      return await this.request("POST", `/v1/accounts`, data);
     } catch (error) {
-      if ((error as any).response.data.errors) {
-        throw new Error(JSON.stringify((error as any).response.data.errors));
+      const res = error as AxiosError;
+      if (
+        res.response?.data?.errors &&
+        res.response.data.errors.find(
+          (e: { code: string; path: string }) =>
+            e.code === "NOT_VALID" && e.path === "IBAN"
+        )
+      ) {
+        throw {
+          status_code: res.response?.status,
+          message: { code: this.errorCodes.IBAN_NOT_VALID, data: iban },
+        };
       }
-      throw error;
+      throw {
+        status_code: res.response?.status,
+        message: {
+          code: this.errorCodes.GENERIC_ERROR,
+          data: JSON.stringify(res.response?.data.errors),
+        },
+      };
     }
   }
 
@@ -135,12 +154,10 @@ class Transferwise {
       },
     };
     try {
-      return this.request("POST", `/v1/transfers`, data);
+      return await this.request("POST", `/v1/transfers`, data);
     } catch (error) {
-      if ((error as any).response.data.errors) {
-        throw new Error(JSON.stringify((error as any).response.data.errors));
-      }
-      throw error;
+      const res = error as AxiosError;
+      throw { status_code: res.response?.status, message: res.message };
     }
   }
 
@@ -182,7 +199,21 @@ class Transferwise {
         }
       );
     } catch (error) {
-      throw error;
+      const res = error as AxiosError;
+      if (
+        res.response?.data &&
+        res.response.data.type === "BALANCE" &&
+        res.response.data.status === "REJECTED"
+      ) {
+        throw {
+          status_code: 422,
+          message: {
+            code: this.errorCodes.NO_FUNDS,
+            data: JSON.stringify(res.response.data),
+          },
+        };
+      }
+      throw { status_code: res.response?.status, message: res.message };
     }
   }
 
@@ -212,7 +243,12 @@ class Transferwise {
         profile: firstBusinessProfile.id,
       });
     } catch (error) {
-      throw error;
+      const res = error as OpenapiError;
+      if ((error as any)?.message?.code) throw error;
+      throw {
+        status_code: res?.status_code || 400,
+        message: { code: this.errorCodes.GENERIC_ERROR, data: res.message },
+      };
     }
 
     let recipient;
@@ -222,7 +258,12 @@ class Transferwise {
         iban,
       });
     } catch (error) {
-      throw error;
+      const res = error as OpenapiError;
+      if ((error as any)?.message?.code) throw error;
+      throw {
+        status_code: res?.status_code || 400,
+        message: { code: this.errorCodes.GENERIC_ERROR, data: res.message },
+      };
     }
 
     let transfer;
@@ -233,7 +274,12 @@ class Transferwise {
         reason,
       });
     } catch (error) {
-      throw error;
+      const res = error as OpenapiError;
+      if ((error as any)?.message?.code) throw error;
+      throw {
+        status_code: res?.status_code || 400,
+        message: { code: this.errorCodes.GENERIC_ERROR, data: res.message },
+      };
     }
 
     let payment;
@@ -243,7 +289,12 @@ class Transferwise {
         transferId: transfer.id,
       });
     } catch (error) {
-      throw error;
+      const res = error as OpenapiError;
+      if ((error as any)?.message?.code) throw error;
+      throw {
+        status_code: res?.status_code || 400,
+        message: { code: this.errorCodes.GENERIC_ERROR, data: res.message },
+      };
     }
     return payment;
   }
