@@ -2668,12 +2668,80 @@ paths:
       responses:
         '200':
           description: OK
+        '400':
+          description: Bad Request
+          headers: {}
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                x-examples:
+                  example-1:
+                    element: payments
+                    id: 0
+                    message:
+                      code: GENERIC_ERROR
+                      data: string
+                properties:
+                  element:
+                    type: string
+                    enum:
+                      - payments
+                  id:
+                    type: number
+                  message:
+                    type: object
+                    required:
+                      - code
+                      - data
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - GENERIC_ERROR
+                      data:
+                        type: string
+                required:
+                  - element
+                  - id
+                  - message
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '422':
           description: Unprocessable Entity (WebDAV)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  element:
+                    type: string
+                    enum:
+                      - payments
+                  id:
+                    type: number
+                  message:
+                    type: object
+                    required:
+                      - code
+                      - data
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - GENERIC_ERROR
+                          - NO_FUNDS
+                          - IBAN_NOT_VALID
+                      data:
+                        type: string
+                required:
+                  - element
+                  - id
+                  - message
+              examples: {}
       description: ''
       security:
         - JWT: []
