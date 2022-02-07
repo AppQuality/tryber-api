@@ -17,6 +17,6 @@ COPY --from=base /src/routes /app/src/routes
 COPY --from=base /.git/HEAD /app/.git/HEAD
 COPY --from=base /.git/refs /app/.git/refs
 WORKDIR /app
-RUN apk add nodejs npm
+RUN apk add nodejs npm openssl
 RUN npm install --only=prod
 CMD node build/index.js

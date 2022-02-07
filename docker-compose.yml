@@ -9,3 +9,5 @@ services:
       - "${PORT:-80}:80"
     environment:
       - PORT=80
+    volumes:
+      - ./keys:/app/keys
