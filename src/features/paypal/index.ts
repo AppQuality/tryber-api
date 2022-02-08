@@ -1,8 +1,9 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 class Paypal {
   clientId: string;
   secret: string;
+  sandbox: boolean;
   baseUrl: string;
 
   token?: string;
@@ -19,6 +20,7 @@ class Paypal {
   }) {
     this.secret = secret;
     this.clientId = clientId;
+    this.sandbox = sandbox;
     this.baseUrl = sandbox
       ? "https://api-m.sandbox.paypal.com"
       : "https://api.paypal.com";
@@ -74,6 +76,9 @@ class Paypal {
 
     let res;
     try {
+      let reasonText = this.sandbox
+        ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
+        : reason;
       res = await axios({
         method: "POST",
         url: `${this.baseUrl}/v1/payments/payouts`,
@@ -83,7 +88,7 @@ class Paypal {
         },
         data: {
           sender_batch_header: {
-            sender_batch_id: `Payouts_${new Date().getTime()}`,
+            sender_batch_id: reasonText,
             email_subject: "You have a payout!",
             email_message:
               "You have received a payout! Thanks for using our service!",
@@ -104,7 +109,6 @@ class Paypal {
       });
     } catch (error) {
       const res = error as AxiosError;
-      console.log(res.response?.data);
 
       if (res.response?.data) {
         if (res.response?.data?.name == "INSUFFICIENT_FUNDS") {
@@ -164,8 +168,12 @@ class Paypal {
     }
   }
 
-  private async waitForCompletion(requestUrl: string) {
+  private async waitForCompletion(
+    requestUrl: string,
+    retries = 10
+  ): Promise<AxiosResponse["data"]> {
     let token;
+    if (retries === 0) throw Error("Max retries reached");
     try {
       token = await this.getToken();
     } catch (error) {
@@ -184,7 +192,7 @@ class Paypal {
         return res.data;
       }
       await new Promise((resolve) => setTimeout(resolve, 500));
-      return this.waitForCompletion(requestUrl);
+      return this.waitForCompletion(requestUrl, retries - 1);
     } catch (error) {
       throw error;
     }
