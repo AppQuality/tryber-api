@@ -12,6 +12,7 @@ class Transferwise {
   errorCodes = {
     IBAN_NOT_VALID: "IBAN_NOT_VALID",
     NO_FUNDS: "NO_FUNDS",
+    DUPLICATE_PAYMENT: "DUPLICATE_PAYMENT",
     GENERIC_ERROR: "GENERIC_ERROR",
   };
 
@@ -157,7 +158,10 @@ class Transferwise {
       return await this.request("POST", `/v1/transfers`, data);
     } catch (error) {
       const res = error as AxiosError;
-      throw { status_code: res.response?.status, message: res.message };
+      throw {
+        status_code: res.response?.status,
+        message: JSON.stringify(res.response?.data?.errors || res.message),
+      };
     }
   }
 
@@ -205,6 +209,15 @@ class Transferwise {
         res.response.data.type === "BALANCE" &&
         res.response.data.status === "REJECTED"
       ) {
+        if (res.response.data.errorCode === "payment.exists") {
+          throw {
+            status_code: 422,
+            message: {
+              code: this.errorCodes.DUPLICATE_PAYMENT,
+              data: JSON.stringify(res.response.data),
+            },
+          };
+        }
         throw {
           status_code: 422,
           message: {
@@ -213,7 +226,10 @@ class Transferwise {
           },
         };
       }
-      throw { status_code: res.response?.status, message: res.message };
+      throw {
+        status_code: res.response?.status,
+        message: JSON.stringify(res.response?.data?.errors || res.message),
+      };
     }
   }
 

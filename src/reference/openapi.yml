@@ -2734,6 +2734,7 @@ paths:
                         enum:
                           - GENERIC_ERROR
                           - NO_FUNDS
+                          - DUPLICATE_PAYMENT
                           - IBAN_NOT_VALID
                           - INSUFFICIENT_FUNDS
                           - RECEIVER_UNREGISTERED
