@@ -12,15 +12,16 @@ export default async (payment: Payment): Promise<Payment> => {
   try {
     results = await transferwise.createPayment({
       targetAmount: payment.amount,
-      accountHolderName: "Nome Cognome",
-      iban: "DE46500105174335523977",
-      reason: `${new Date().getTime()}`,
+      accountHolderName: payment.accountName,
+      iban: payment.coordinates,
+      reason: `Payment no.${payment.id}`,
     });
   } catch (error) {
     throw error;
   }
   return {
     ...payment,
+    fee: results.quote.paymentOptions.fee.total,
     status: "paid",
   };
 };
