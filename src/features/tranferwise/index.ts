@@ -8,7 +8,6 @@ class Transferwise {
   sandbox: boolean;
   apiKey: string;
   baseUrl: string;
-  defaultProfile = "default";
 
   errorCodes = {
     IBAN_NOT_VALID: "IBAN_NOT_VALID",
@@ -64,12 +63,14 @@ class Transferwise {
     sourceAmount,
     targetAmount,
     profile,
+    targetAccount,
   }: {
     sourceCurrency?: string;
     targetCurrency?: string;
     sourceAmount?: number;
     targetAmount: number;
     profile: string;
+    targetAccount: string;
   }) {
     const data = {
       sourceCurrency,
@@ -77,9 +78,14 @@ class Transferwise {
       sourceAmount,
       targetAmount,
       profile,
+      targetAccount,
     };
     try {
-      return await this.request("POST", `/v2/quotes`, data);
+      const quote = await this.request("POST", `/v2/quotes`, data);
+      quote.paymentOptions = quote.paymentOptions.find(
+        ({ payIn }: { payIn: string }) => payIn === "BALANCE"
+      );
+      return quote;
     } catch (error) {
       throw error;
     }
@@ -95,12 +101,10 @@ class Transferwise {
 
   public async createRecipient({
     currency = "EUR",
-    profile = this.defaultProfile,
     accountHolderName,
     iban,
   }: {
     currency?: string;
-    profile?: string;
     accountHolderName: string;
     iban: string;
   }) {
@@ -257,11 +261,12 @@ class Transferwise {
     if (!firstBusinessProfile) {
       throw new Error("No business profile found");
     }
-    let quote;
+
+    let recipient;
     try {
-      quote = await this.createQuote({
-        targetAmount,
-        profile: firstBusinessProfile.id,
+      recipient = await this.createRecipient({
+        accountHolderName,
+        iban,
       });
     } catch (error) {
       const res = error as OpenapiError;
@@ -272,11 +277,12 @@ class Transferwise {
       };
     }
 
-    let recipient;
+    let quote;
     try {
-      recipient = await this.createRecipient({
-        accountHolderName,
-        iban,
+      quote = await this.createQuote({
+        targetAmount,
+        profile: firstBusinessProfile.id,
+        targetAccount: recipient.id,
       });
     } catch (error) {
       const res = error as OpenapiError;
@@ -309,6 +315,7 @@ class Transferwise {
         profileId: firstBusinessProfile.id,
         transferId: transfer.id,
       });
+      payment.quote = quote;
     } catch (error) {
       const res = error as OpenapiError;
       if ((error as any)?.message?.code) throw error;
