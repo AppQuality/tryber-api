@@ -5,6 +5,7 @@ import signRequest from "./signRequest";
 import stringToUuid from "./stringToUuid";
 
 class Transferwise {
+  sandbox: boolean;
   apiKey: string;
   baseUrl: string;
   defaultProfile = "default";
@@ -27,6 +28,7 @@ class Transferwise {
     this.baseUrl = sandbox
       ? "https://api.sandbox.transferwise.tech"
       : "https://api.transferwise.com";
+    this.sandbox = sandbox;
   }
 
   private async request(
@@ -146,12 +148,15 @@ class Transferwise {
     quoteUuid: string;
     reason: string;
   }) {
+    const reasonText = this.sandbox
+      ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
+      : reason;
     const data = {
       targetAccount,
       quoteUuid,
-      customerTransactionId: stringToUuid(reason),
+      customerTransactionId: stringToUuid(reasonText),
       details: {
-        reference: reason,
+        reference: reasonText,
       },
     };
     try {
