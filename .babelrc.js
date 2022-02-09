@@ -15,6 +15,7 @@ const moduleResolverPlugin = [
 ];
 
 module.exports = {
+  sourceMaps: "inline",
   presets: ["@babel/typescript", "@babel/env"],
   plugins: [transformRuntimePlugin, moduleResolverPlugin],
   env: {},

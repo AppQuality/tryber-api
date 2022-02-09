@@ -11,7 +11,7 @@
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
     "build": "npm-run-all clean transpile copy-reference",
     "dev": "NODE_ENV=development npm-run-all build server",
-    "server": "node ./dist/index.js",
+    "server": "node --enable-source-maps ./dist/index.js",
     "watch:dev": "nodemon",
     "start": "npm run watch:dev",
     "prepare": "npx husky install",
