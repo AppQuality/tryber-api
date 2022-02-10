@@ -14,7 +14,9 @@ jobs:
           npm install -g npm-run-all
           npm install
       - name: "Generate Coverage"
-        run: npm run coverage
+        run: |
+          npm run build
+          npm run coverage
       - name: Extract branch name
         shell: bash
         run: |
