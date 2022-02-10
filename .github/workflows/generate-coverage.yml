@@ -16,16 +16,16 @@ jobs:
       - name: "Generate Coverage"
         run: npm run coverage
       - name: Extract branch name
-            shell: bash
-            run: |
-              BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-              if [ "$BRANCH" = "main" ]; then
-                  TAG="latest"
-              else
-                  TAG="$BRANCH"
-              fi
-              echo "##[set-output name=tag;]$TAG"
-            id: extract_branch
+        shell: bash
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [ "$BRANCH" = "main" ]; then
+              TAG="latest"
+          else
+              TAG="$BRANCH"
+          fi
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_branch
       - name: Move coverage folder
         run: |
           mkdir ${{steps.extract_branch.outputs.tag}}
