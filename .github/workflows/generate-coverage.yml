@@ -41,3 +41,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "eu-west-1" # optional: defaults to us-east-1
           SOURCE_DIR: ${{steps.extract_branch.outputs.tag}}
+          DEST_DIR: ${{steps.extract_branch.outputs.tag}}
