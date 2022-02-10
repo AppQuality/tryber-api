@@ -23,7 +23,7 @@ export default async (paymentId: number): Promise<Payment> => {
     coordinates = payment.iban;
   } else if (payment.paypal_email) {
     paymentType = "paypal";
-    coordinates = payment.paymail_email;
+    coordinates = payment.paypal_email;
   } else {
     throw Error("Invalid payment type");
   }
