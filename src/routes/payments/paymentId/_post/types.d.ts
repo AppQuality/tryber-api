@@ -1,5 +1,5 @@
 type Payment = {
-  id: string;
+  id: number;
   amount: number;
   tester_id: number;
   accountName: string;
