@@ -1,0 +1,41 @@
+name: "Generate test coverage"
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: "Install Node"
+        uses: actions/setup-node@v1
+      - name: Install dependencies
+        run: |
+          npm install -g npm-run-all
+          npm install
+      - name: "Generate Coverage"
+        run: npm run coverage
+      - name: Extract branch name
+            shell: bash
+            run: |
+              BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+              if [ "$BRANCH" = "main" ]; then
+                  TAG="latest"
+              else
+                  TAG="$BRANCH"
+              fi
+              echo "##[set-output name=tag;]$TAG"
+            id: extract_branch
+      - name: Move coverage folder
+        run: |
+          mkdir ${{steps.extract_branch.outputs.tag}}
+          mv coverage/lcov-report/* ${{steps.extract_branch.outputs.tag}}
+      - uses: jakejarvis/s3-sync-action@master
+          with:
+            args: --acl public-read --follow-symlinks --delete
+          env:
+            AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
+            SOURCE_DIR: ${{steps.extract_branch.outputs.tag}}
