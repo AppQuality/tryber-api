@@ -1,8 +1,11 @@
 import { AxiosError } from "@googlemaps/google-maps-services-js/node_modules/axios";
 import axios from "axios";
+import dotenv from "dotenv";
 
 import signRequest from "./signRequest";
 import stringToUuid from "./stringToUuid";
+
+dotenv.config();
 
 class Transferwise {
   sandbox: boolean;
@@ -152,9 +155,10 @@ class Transferwise {
     quoteUuid: string;
     reason: string;
   }) {
-    const reasonText = this.sandbox
-      ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
-      : reason;
+    const reasonText =
+      process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX && this.sandbox
+        ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
+        : reason;
     const data = {
       targetAccount,
       quoteUuid,

@@ -1,4 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 class Paypal {
   clientId: string;
@@ -76,9 +79,10 @@ class Paypal {
 
     let res;
     try {
-      let reasonText = this.sandbox
-        ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
-        : reason;
+      let reasonText =
+        process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX && this.sandbox
+          ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
+          : reason;
       res = await axios({
         method: "POST",
         url: `${this.baseUrl}/v1/payments/payouts`,
