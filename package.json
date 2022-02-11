@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "jest": "jest  ./dist",
     "coverage": "jest  ./dist --coverage",
-    "test": "npm-run-all build jest ",
+    "test": "npm run build && jest ./dist ",
     "clean": "rimraf dist",
     "transpile": "babel ./src --out-dir dist --extensions \".ts,.js\"",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
