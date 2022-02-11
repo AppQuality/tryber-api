@@ -13,7 +13,7 @@ export default async (payment: Payment): Promise<Payment> => {
   try {
     results = await paypal.createPayment({
       amount: payment.amount,
-      email: "davide.bizzi+receiverpp@unguess.io",
+      email: payment.coordinates,
       reason: `Payment no.${payment.id}`,
     });
   } catch (error) {
