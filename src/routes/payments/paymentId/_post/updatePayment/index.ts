@@ -3,12 +3,22 @@ import * as db from "@src/features/db";
 export default async (payment: Payment) => {
   if (payment.error) {
     try {
+      let errorMessage;
+      if (payment.error.message) {
+        if (typeof payment.error.message === "string") {
+          errorMessage = payment.error.message;
+        } else {
+          errorMessage = JSON.stringify(payment.error.message);
+        }
+      } else {
+        errorMessage = JSON.stringify(payment.error);
+      }
       const sql = db.format(
         `UPDATE wp_appq_payment_request
                 SET error_message = ?
                 WHERE id = ?;     
                 `,
-        [JSON.stringify(payment.error.message || payment.error), payment.id]
+        [errorMessage, payment.id]
       );
       await db.query(sql);
       return;

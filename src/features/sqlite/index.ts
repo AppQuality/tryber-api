@@ -18,7 +18,7 @@ db.run = (query: string) => {
         reject(err.message);
       }
       //@ts-ignore
-      if (this.lastID) {
+      if (this && this.lastID) {
         //@ts-ignore
         resolve(this.lastID);
       }

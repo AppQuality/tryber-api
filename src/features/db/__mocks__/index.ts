@@ -7,7 +7,12 @@ export const format = (query: string, data: (string | number)[]) =>
 export const query = (query: string): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const data = await sqlite.all(query);
+      let data;
+      if (query.includes("UPDATE")) {
+        data = await sqlite.run(query);
+      } else {
+        data = await sqlite.all(query);
+      }
       resolve(data);
     } catch (error) {
       reject(error);
