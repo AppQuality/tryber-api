@@ -2,7 +2,7 @@ import sqlite from "@src/features/sqlite";
 import mysql from "mysql";
 
 export const format = (query: string, data: (string | number)[]) =>
-  mysql.format(query, data);
+  mysql.format(query.replaceAll("NOW()", "datetime('now')"), data);
 
 export const query = (query: string): Promise<any> => {
   return new Promise(async (resolve, reject) => {
