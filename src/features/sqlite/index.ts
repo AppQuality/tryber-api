@@ -33,6 +33,10 @@ db.createTable = (table: string, columns: string[]) => {
   const query = `CREATE TABLE IF NOT EXISTS ${table} (${columns.join(", ")});`;
   return db.run(query);
 };
+db.dropTable = (table: string) => {
+  const query = `DROP TABLE IF EXISTS ${table};`;
+  return db.run(query);
+};
 db.insert = (table: string, data: { [key: string]: any }) => {
   const query = `
     INSERT INTO ${table} (${Object.keys(data).join(
