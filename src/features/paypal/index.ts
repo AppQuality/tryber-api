@@ -151,6 +151,7 @@ class Paypal {
 
       if (payment.errors) {
         if (payment.errors.name == "RECEIVER_UNREGISTERED") {
+          await this.cancelPayment(payment.payout_item_id);
           throw {
             status_code: 422,
             message: {
@@ -170,6 +171,17 @@ class Paypal {
     } catch (error) {
       throw error;
     }
+  }
+
+  private cancelPayment(payout_item_id: string) {
+    return axios({
+      method: "POST",
+      url: `/v1/payments/payouts-item/${payout_item_id}/cancel`,
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   private async waitForCompletion(
