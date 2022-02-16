@@ -1,11 +1,12 @@
-import child_process from "child_process";
+import crypto from "crypto";
+import fs from "fs";
 
 export default (str: string): Promise<string> => {
-  const command = `printf '${str}' | openssl sha256 -sign ./keys/private_tw.pem | base64 -w 0`;
-  return new Promise((resolve, reject) => {
-    child_process.exec(command, function (error, stdout, stderr) {
-      if (error) return reject(error);
-      return resolve(`${stdout}${stderr}`);
-    });
-  });
+  const sign = crypto.createSign("SHA256");
+  sign.write(str);
+  sign.end();
+
+  const key = fs.readFileSync("./keys/private_tw.pem");
+  const signature_b64 = sign.sign(key, "base64");
+  return Promise.resolve(signature_b64);
 };
