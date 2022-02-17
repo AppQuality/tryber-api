@@ -2769,6 +2769,8 @@ paths:
                           name: Pippo
                           surname: Franco
                         error: RECEIVER_UNREGISTERED
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
       operationId: get-payments
       security:
         - JWT: []
