@@ -2,6 +2,7 @@ import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
+jest.mock("@src/features/db");
 const tester1 = {
   id: 1,
   name: "John",
@@ -19,7 +20,7 @@ const paymentRequestPaypal = {
   amount: 100,
   paypal_email: "john.doe@example.com",
   is_paid: 0,
-  request_date: new Date(),
+  request_date: new Date().toISOString(),
 };
 
 const paymentRequestPaypalWithError = {
@@ -28,8 +29,8 @@ const paymentRequestPaypalWithError = {
   amount: 100,
   paypal_email: "john.doe@example.com",
   is_paid: 0,
-  request_date: new Date(),
-  update_date: new Date(),
+  request_date: new Date().toISOString(),
+  update_date: new Date().toISOString(),
   error_message: "Error message",
 };
 
@@ -39,7 +40,7 @@ const paymentRequestWise = {
   amount: 100,
   iban: "DE12345678901234567890",
   is_paid: 0,
-  request_date: new Date(),
+  request_date: new Date().toISOString(),
 };
 
 const paymentRequestWiseWithError = {
@@ -48,8 +49,8 @@ const paymentRequestWiseWithError = {
   amount: 100,
   iban: "DE12345678901234567890",
   is_paid: 0,
-  request_date: new Date(),
-  update_date: new Date(),
+  request_date: new Date().toISOString(),
+  update_date: new Date().toISOString(),
   error_message: "Error message",
 };
 
@@ -68,8 +69,8 @@ describe("Route GET payments", () => {
         "amount INTEGER",
         "iban VARCHAR(255)",
         "paypal_email VARCHAR(255)",
-        "request_date DATETIME",
-        "update_date DATETIME",
+        "request_date TIMESTAMP",
+        "update_date TIMESTAMP",
         "error_message text",
         "is_paid BOOL",
       ]);
@@ -115,7 +116,9 @@ describe("Route GET payments", () => {
     expect(response.body).toMatchObject({
       items: [
         {
-          created: paymentRequestPaypal.request_date.getTime(),
+          created: new Date(paymentRequestPaypal.request_date)
+            .getTime()
+            .toString(),
           id: paymentRequestPaypal.id,
           amount: {
             value: paymentRequestPaypal.amount,
@@ -125,8 +128,12 @@ describe("Route GET payments", () => {
           tryber: tester1,
         },
         {
-          created: paymentRequestPaypalWithError.request_date.getTime(),
-          updated: paymentRequestPaypalWithError.update_date.getTime(),
+          created: new Date(paymentRequestPaypalWithError.request_date)
+            .getTime()
+            .toString(),
+          updated: new Date(paymentRequestPaypalWithError.update_date)
+            .getTime()
+            .toString(),
           id: paymentRequestPaypalWithError.id,
           amount: {
             value: paymentRequestPaypalWithError.amount,
@@ -137,7 +144,9 @@ describe("Route GET payments", () => {
           error: paymentRequestPaypalWithError.error_message,
         },
         {
-          created: paymentRequestWise.request_date.getTime(),
+          created: new Date(paymentRequestWise.request_date)
+            .getTime()
+            .toString(),
           id: paymentRequestWise.id,
           amount: {
             value: paymentRequestWise.amount,
@@ -147,8 +156,12 @@ describe("Route GET payments", () => {
           tryber: tester2,
         },
         {
-          created: paymentRequestWiseWithError.request_date.getTime(),
-          updated: paymentRequestWiseWithError.update_date.getTime(),
+          created: new Date(paymentRequestWiseWithError.request_date)
+            .getTime()
+            .toString(),
+          updated: new Date(paymentRequestWiseWithError.update_date)
+            .getTime()
+            .toString(),
           id: paymentRequestWiseWithError.id,
           amount: {
             value: paymentRequestWiseWithError.amount,
