@@ -1,12 +1,24 @@
+import wpAuthProvider from "@appquality/wp-auth";
 import request from "supertest";
+
 import app from "../../app";
 import getBranch from "./getBranch";
 import getRevision from "./getRevision";
 
 jest.mock("./getBranch");
 jest.mock("./getRevision");
+jest.mock("@appquality/wp-auth");
 
 describe("Root endpoint", () => {
+  beforeEach(() => {
+    (wpAuthProvider.create as jest.Mock).mockReturnValue({
+      checkAuth: (req: any) => ({
+        on: (string: string, fn: Function) => {
+          fn(true, 1);
+        },
+      }),
+    });
+  });
   afterEach(() => {
     jest.resetAllMocks();
   });

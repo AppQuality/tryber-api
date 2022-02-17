@@ -4,18 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "jest": "jest  ./dist --forceExit",
-    "test": "npm-run-all build jest ",
+    "coverage": "jest  ./dist --coverage",
+    "test": "npm run build && jest ./dist ",
     "clean": "rimraf dist",
     "transpile": "babel ./src --out-dir dist --extensions \".ts,.js\"",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
     "build": "npm-run-all clean transpile copy-reference",
-    "dev": "NODE_ENV=development npm-run-all build server",
-    "server": "node ./dist/index.js",
+    "dev": "NODE_ENV=development npm-run-all build server ",
+    "server": "tsc && node --enable-source-maps ./dist/index.js",
     "watch:dev": "nodemon",
     "start": "npm run watch:dev",
     "prepare": "npx husky install",
     "types": "npx openapi-typescript src/reference/openapi.yml --output src/schema.ts"
+  },
+  "jest": {
+    "modulePathIgnorePatterns": [
+      "<rootDir>/src"
+    ]
   },
   "author": "",
   "license": "ISC",
@@ -63,6 +68,7 @@
     "@types/jest": "^27.4.0",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/mysql": "^2.15.20",
+    "@types/sqlite3": "^3.1.8",
     "@types/supertest": "^2.0.11",
     "@types/wordpress-hash-node": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
@@ -76,6 +82,7 @@
     "openapi-typescript": "^5.1.1",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
+    "sqlite3": "^5.0.2",
     "supertest": "^6.1.6",
     "webpack": "^4.30.0",
     "webpack-dev-middleware": "^3.6.2"

@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { Request } from "openapi-backend";
+
 import { components, operations, paths } from "./schema";
 
 declare global {
@@ -25,7 +26,9 @@ declare global {
     user_pass: string;
     role: string;
     capabilities: string[];
-    permission: { admin?: { [key: sting]: boolean } };
+    permission: {
+      admin?: { appq_prospect?: boolean; appq_message_center?: boolean };
+    };
   };
 
   interface StoplightOperations extends operations {}
