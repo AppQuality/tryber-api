@@ -174,4 +174,20 @@ describe("Route GET payments", () => {
       ],
     });
   });
+  it("Should order based on order parameters", async () => {
+    const responseAsc = await request(app)
+      .get("/payments?order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    const responseDesc = await request(app)
+      .get("/payments?order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
+      4, 3, 2, 1,
+    ]);
+  });
 });

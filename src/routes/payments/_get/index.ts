@@ -16,6 +16,8 @@ export default async (
       message: "You cannot retrieve payments",
     };
   }
+  const query =
+    req.query as StoplightOperations["get-payments"]["parameters"]["query"];
   const sql = `SELECT 
     t.id   as tester_id,
     t.name as tester_name,
@@ -29,7 +31,7 @@ export default async (
     p.error_message
   FROM wp_appq_payment_request p
   JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
-  ORDER BY p.id ASC
+  ORDER BY p.id ${query.order || "ASC"}
   `;
   let results;
   try {

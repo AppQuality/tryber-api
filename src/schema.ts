@@ -283,6 +283,18 @@ export interface paths {
       };
     };
   };
+  "/payments": {
+    get: operations["get-payments"];
+    parameters: {};
+  };
+  "/payments/{paymentId}": {
+    post: operations["post-payments-paymentId"];
+    parameters: {
+      path: {
+        paymentId: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -1182,6 +1194,7 @@ export interface operations {
             username?: string;
             name?: string;
             surname?: string;
+            /** Format: email */
             email?: string;
             image?: string;
             id: number;
@@ -1950,6 +1963,104 @@ export interface operations {
             name: string;
             value: string;
           }[];
+        };
+      };
+    };
+  };
+  "get-payments": {
+    parameters: {
+      query: {
+        /** The status of the payment */
+        status?: "pending" | "failed";
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+        /** The value to order by */
+        orderBy?: "created" | "updated";
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            limit?: number;
+            size?: number;
+            start?: number;
+            total?: number;
+            items?: {
+              /** @description The timestamp (GMT) of the request creation */
+              created: string;
+              /** @description The timestamp (GMT) of the request last update */
+              updated?: string;
+              id: number;
+              amount: {
+                value: number;
+                currency: string;
+              };
+              /** @enum {string} */
+              type: "paypal" | "transferwise";
+              tryber: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+              error?: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+    };
+  };
+  "post-payments-paymentId": {
+    parameters: {
+      path: {
+        paymentId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            /** @enum {string} */
+            element: "payments";
+            id: number;
+            message: {
+              /** @enum {string} */
+              code: "GENERIC_ERROR";
+              data: string;
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Unprocessable Entity (WebDAV) */
+      422: {
+        content: {
+          "application/json": {
+            /** @enum {string} */
+            element: "payments";
+            id: number;
+            message: {
+              /** @enum {string} */
+              code:
+                | "GENERIC_ERROR"
+                | "NO_FUNDS"
+                | "DUPLICATE_PAYMENT"
+                | "IBAN_NOT_VALID"
+                | "INSUFFICIENT_FUNDS"
+                | "RECEIVER_UNREGISTERED";
+              data: string;
+            };
+          };
         };
       };
     };
