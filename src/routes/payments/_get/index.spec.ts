@@ -236,4 +236,14 @@ describe("Route GET payments", () => {
       1, 2, 4, 3,
     ]);
   });
+  it("Should return 400 if status is not failed and orderBy is updated", async () => {
+    const response = await request(app)
+      .get("/payments?orderBy=updated")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(400);
+    const responsePending = await request(app)
+      .get("/payments?orderBy=updated&status=pending")
+      .set("authorization", "Bearer admin");
+    expect(responsePending.status).toBe(400);
+  });
 });

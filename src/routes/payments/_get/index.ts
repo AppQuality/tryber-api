@@ -8,6 +8,9 @@ export default async (
   res: OpenapiResponse
 ) => {
   const user = req.user;
+  const query =
+    req.query as StoplightOperations["get-payments"]["parameters"]["query"];
+
   if (user.role !== "administrator") {
     res.status_code = 403;
     return {
@@ -16,8 +19,16 @@ export default async (
       message: "You cannot retrieve payments",
     };
   }
-  const query =
-    req.query as StoplightOperations["get-payments"]["parameters"]["query"];
+  if (query.orderBy == "updated" && query.status != "failed") {
+    res.status_code = 400;
+    return {
+      element: "payments",
+      id: 0,
+      message:
+        "You cannot order payments by update date with status different by failed",
+    };
+  }
+
   const sql = `SELECT 
     t.id   as tester_id,
     t.name as tester_name,
@@ -81,7 +92,6 @@ export default async (
       },
     };
   });
-
   res.status_code = 200;
   return { items: payments };
 };
