@@ -30,7 +30,7 @@ const paymentRequestPaypalWithError = {
   paypal_email: "john.doe@example.com",
   is_paid: 0,
   request_date: new Date("05/05/1970").toISOString(),
-  update_date: new Date().toISOString(),
+  update_date: new Date("05/05/1970").toISOString(),
   error_message: "Error message",
 };
 
@@ -50,7 +50,7 @@ const paymentRequestWiseWithError = {
   iban: "DE12345678901234567890",
   is_paid: 0,
   request_date: new Date("01/06/1970").toISOString(),
-  update_date: new Date().toISOString(),
+  update_date: new Date("05/06/1970").toISOString(),
   error_message: "Error message",
 };
 
@@ -287,5 +287,22 @@ describe("Route GET payments", () => {
         },
       ],
     });
+  });
+  it("Should order based on updated time if orderBy is updated and status is failed", async () => {
+    const response = await request(app)
+      .get("/payments?orderBy=updated&status=failed")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([2, 4]);
+    const responseAsc = await request(app)
+      .get("/payments?orderBy=updated&status=failed&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([2, 4]);
+    const responseDesc = await request(app)
+      .get("/payments?orderBy=updated&status=failed&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([4, 2]);
   });
 });

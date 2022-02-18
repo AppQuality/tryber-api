@@ -64,9 +64,7 @@ export default async (
         currency: "EUR",
       },
       created: new Date(r.created).getTime().toString(),
-      updated: r.update_date
-        ? new Date(r.update_date).getTime().toString()
-        : undefined,
+      updated: r.updated ? new Date(r.updated).getTime().toString() : undefined,
       error: r.error_message ? r.error_message : undefined,
       type,
       tryber: {

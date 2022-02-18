@@ -9,7 +9,7 @@ export default async (
     iban?: string;
     amount: number;
     created: string;
-    update_date?: string;
+    updated?: string;
     error_message?: string;
     tester_id: string;
     tester_name: string;
@@ -30,7 +30,7 @@ export default async (
       p.request_date as created,
       p.iban,
       p.paypal_email,
-      p.update_date,
+      p.update_date as updated,
       p.error_message
     FROM wp_appq_payment_request p
     JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
