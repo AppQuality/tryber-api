@@ -495,6 +495,16 @@ export interface components {
       id: number;
       name: string;
     };
+    /** FiscalBirthCity */
+    FiscalBirthCity:
+      | {
+          city: string;
+          province: string;
+        }
+      | {
+          /** @description A google maps place id */
+          placeId: string;
+        };
   };
   responses: {
     /** A user */
@@ -1506,15 +1516,7 @@ export interface operations {
             cityCode: string;
           };
           type: components["schemas"]["FiscalType"];
-          birthPlace?:
-            | {
-                city: string;
-                province: string;
-              }
-            | {
-                /** @description A google maps place id */
-                placeId: string;
-              };
+          birthPlace?: components["schemas"]["FiscalBirthCity"];
           fiscalId: string;
           /** @enum {string} */
           gender: "male" | "female";
@@ -1564,10 +1566,7 @@ export interface operations {
             cityCode: string;
           };
           type: components["schemas"]["FiscalType"];
-          birthPlace?: {
-            city?: string;
-            province?: string;
-          };
+          birthPlace?: components["schemas"]["FiscalBirthCity"];
           fiscalId: string;
           /** @enum {string} */
           gender: "male" | "female";
