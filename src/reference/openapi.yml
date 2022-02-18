@@ -2789,6 +2789,7 @@ paths:
             enum:
               - created
               - updated
+              - id
           in: query
           name: orderBy
           description: The value to order by
