@@ -1,6 +1,7 @@
 /** OPENAPI-ROUTE: get-payments */
-import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
+
+import getPaymentsFromQuery from "./getPaymentsFromQuery";
 
 export default async (
   c: Context,
@@ -28,25 +29,9 @@ export default async (
         "You cannot order payments by update date with status different by failed",
     };
   }
-
-  const sql = `SELECT 
-    t.id   as tester_id,
-    t.name as tester_name,
-    t.surname as tester_surname,
-    p.id as id, 
-    p.amount,
-    p.request_date as created,
-    p.iban,
-    p.paypal_email,
-    p.update_date,
-    p.error_message
-  FROM wp_appq_payment_request p
-  JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
-  ORDER BY ${query.orderBy || "p.id"} ${query.order || "ASC"}
-  `;
   let results;
   try {
-    results = await db.query(sql);
+    results = await getPaymentsFromQuery(query);
   } catch (err) {
     if (process.env && process.env.DEBUG) {
       console.log(err);
@@ -66,8 +51,7 @@ export default async (
       message: "No payments found",
     };
   }
-
-  const payments = results.map((r: any) => {
+  const payments = results.map((r) => {
     const type = r.paypal_email
       ? "paypal"
       : r.iban

@@ -246,4 +246,46 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(responsePending.status).toBe(400);
   });
+  it("Should return payments with error if status is failed", async () => {
+    const response = await request(app)
+      .get("/payments?status=failed")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      items: [
+        {
+          created: new Date(paymentRequestPaypalWithError.request_date)
+            .getTime()
+            .toString(),
+          updated: new Date(paymentRequestPaypalWithError.update_date)
+            .getTime()
+            .toString(),
+          id: paymentRequestPaypalWithError.id,
+          amount: {
+            value: paymentRequestPaypalWithError.amount,
+            currency: "EUR",
+          },
+          type: "paypal",
+          tryber: tester1,
+          error: paymentRequestPaypalWithError.error_message,
+        },
+        {
+          created: new Date(paymentRequestWiseWithError.request_date)
+            .getTime()
+            .toString(),
+          updated: new Date(paymentRequestWiseWithError.update_date)
+            .getTime()
+            .toString(),
+          id: paymentRequestWiseWithError.id,
+          amount: {
+            value: paymentRequestWiseWithError.amount,
+            currency: "EUR",
+          },
+          type: "transferwise",
+          tryber: tester2,
+          error: paymentRequestWiseWithError.error_message,
+        },
+      ],
+    });
+  });
 });
