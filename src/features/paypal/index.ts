@@ -176,7 +176,7 @@ class Paypal {
   private cancelPayment(payout_item_id: string) {
     return axios({
       method: "POST",
-      url: `/v1/payments/payouts-item/${payout_item_id}/cancel`,
+      url: `${this.baseUrl}/v1/payments/payouts-item/${payout_item_id}/cancel`,
       headers: {
         Authorization: `Bearer ${this.token}`,
         "Content-Type": "application/json",
