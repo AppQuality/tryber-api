@@ -22,16 +22,16 @@ export default async (
     t.id   as tester_id,
     t.name as tester_name,
     t.surname as tester_surname,
-    p.id,
+    p.id as id, 
     p.amount,
-    p.request_date,
+    p.request_date as created,
     p.iban,
     p.paypal_email,
     p.update_date,
     p.error_message
   FROM wp_appq_payment_request p
   JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
-  ORDER BY p.id ${query.order || "ASC"}
+  ORDER BY ${query.orderBy || "p.id"} ${query.order || "ASC"}
   `;
   let results;
   try {
@@ -68,7 +68,7 @@ export default async (
         value: r.amount,
         currency: "EUR",
       },
-      created: new Date(r.request_date).getTime().toString(),
+      created: new Date(r.created).getTime().toString(),
       updated: r.update_date
         ? new Date(r.update_date).getTime().toString()
         : undefined,

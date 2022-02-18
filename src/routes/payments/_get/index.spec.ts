@@ -20,7 +20,7 @@ const paymentRequestPaypal = {
   amount: 100,
   paypal_email: "john.doe@example.com",
   is_paid: 0,
-  request_date: new Date().toISOString(),
+  request_date: new Date("01/01/1972").toISOString(),
 };
 
 const paymentRequestPaypalWithError = {
@@ -29,7 +29,7 @@ const paymentRequestPaypalWithError = {
   amount: 100,
   paypal_email: "john.doe@example.com",
   is_paid: 0,
-  request_date: new Date().toISOString(),
+  request_date: new Date("05/05/1970").toISOString(),
   update_date: new Date().toISOString(),
   error_message: "Error message",
 };
@@ -40,7 +40,7 @@ const paymentRequestWise = {
   amount: 100,
   iban: "DE12345678901234567890",
   is_paid: 0,
-  request_date: new Date().toISOString(),
+  request_date: new Date("01/05/1970").toISOString(),
 };
 
 const paymentRequestWiseWithError = {
@@ -49,7 +49,7 @@ const paymentRequestWiseWithError = {
   amount: 100,
   iban: "DE12345678901234567890",
   is_paid: 0,
-  request_date: new Date().toISOString(),
+  request_date: new Date("01/06/1970").toISOString(),
   update_date: new Date().toISOString(),
   error_message: "Error message",
 };
@@ -188,6 +188,52 @@ describe("Route GET payments", () => {
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
       4, 3, 2, 1,
+    ]);
+  });
+  it("Should order based on id if orderBy is id", async () => {
+    const response = await request(app)
+      .get("/payments?orderBy=id")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    const responseAsc = await request(app)
+      .get("/payments?orderBy=id&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    const responseDesc = await request(app)
+      .get("/payments?orderBy=id&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
+      4, 3, 2, 1,
+    ]);
+  });
+  it("Should order based on creation time if orderBy is created", async () => {
+    const response = await request(app)
+      .get("/payments?orderBy=created")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([
+      3, 4, 2, 1,
+    ]);
+    const responseAsc = await request(app)
+      .get("/payments?orderBy=created&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
+      3, 4, 2, 1,
+    ]);
+    const responseDesc = await request(app)
+      .get("/payments?orderBy=created&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
+      1, 2, 4, 3,
     ]);
   });
 });
