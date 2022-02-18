@@ -3,6 +3,7 @@ import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
+jest.mock("@appquality/wp-auth");
 const tester1 = {
   id: 1,
   name: "John",
@@ -305,4 +306,5 @@ describe("Route GET payments", () => {
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([4, 2]);
   });
+  it("Should ", async () => {});
 });
