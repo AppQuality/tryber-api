@@ -1975,7 +1975,7 @@ export interface operations {
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
         /** The value to order by */
-        orderBy?: "created" | "updated";
+        orderBy?: "created" | "updated" | "id";
         /** Items to skip for pagination */
         start?: components["parameters"]["start"];
         /** Max items to retrieve */
