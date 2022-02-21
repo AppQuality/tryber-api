@@ -1,5 +1,4 @@
 /** OPENAPI-ROUTE: get-payments */
-import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
@@ -40,39 +39,16 @@ export default async (
     };
   }
 
-  let totalPaymentsCounter;
-  if (query.limit) {
-    try {
-      let WHERE = ``;
-      if (query.status == `pending`)
-        WHERE = `WHERE error_message IS NULL and is_paid = 0`;
-      if (query.status == `failed`) WHERE = `WHERE error_message IS NOT NULL`;
-      const sql = `SELECT COUNT(id) as total
-    FROM wp_appq_payment_request
-      ${WHERE}`;
-      let res = await db.query(sql);
-      totalPaymentsCounter = res[0].total;
-    } catch (err) {
-      if (process.env && process.env.DEBUG) {
-        console.log(err);
-      }
-      res.status_code = 400;
-      return {
-        element: "payments",
-        id: 0,
-        message: (err as OpenapiError).message,
-      };
-    }
-  }
-
-  let results;
+  let results, total;
   try {
-    results = await getPaymentsFromQuery(query);
+    const data = await getPaymentsFromQuery(query);
+    results = data.results;
+    total = data.total;
   } catch (err) {
     if (process.env && process.env.DEBUG) {
       console.log(err);
     }
-    res.status_code = 502;
+    res.status_code = 400;
     return {
       element: "payments",
       id: 0,
@@ -115,7 +91,7 @@ export default async (
     size: payments.length,
     start: query.start ? query.start : 0,
     limit: query.limit,
-    total: totalPaymentsCounter,
+    total,
     items: payments,
   };
 };

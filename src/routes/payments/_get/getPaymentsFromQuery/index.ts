@@ -2,8 +2,8 @@ import * as db from "@src/features/db";
 
 export default async (
   query: StoplightOperations["get-payments"]["parameters"]["query"]
-): Promise<
-  {
+): Promise<{
+  results: {
     id: number;
     paypal_email?: string;
     iban?: string;
@@ -14,8 +14,9 @@ export default async (
     tester_id: string;
     tester_name: string;
     tester_surname: string;
-  }[]
-> => {
+  }[];
+  total?: number;
+}> => {
   let WHERE = ``;
   if (query.status == "failed") {
     WHERE += ` WHERE p.error_message IS NOT NULL `;
@@ -48,5 +49,16 @@ export default async (
     ${pagination}
     `;
 
-  return await db.query(sql);
+  const results = await db.query(sql);
+
+  let total = undefined;
+  if (query.limit) {
+    const countSql = `SELECT COUNT(p.id) as total
+    FROM wp_appq_payment_request p
+      ${WHERE}`;
+    let countResults = await db.query(countSql);
+    total = countResults[0].total;
+  }
+
+  return { results, total };
 };
