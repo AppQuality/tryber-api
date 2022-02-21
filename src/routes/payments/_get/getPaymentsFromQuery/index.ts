@@ -35,8 +35,11 @@ export default async (
     FROM wp_appq_payment_request p
     JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
     ${WHERE}
-    ORDER BY ${query.orderBy || "p.id"} ${query.order || "ASC"}
+    ORDER BY ${query.orderBy || "p.id"} 
+    ${query.order || "ASC"} 
+    ${query.limit ? "LIMIT " + query.limit : ""}
     `;
 
+  console.log(sql);
   return await db.query(sql);
 };

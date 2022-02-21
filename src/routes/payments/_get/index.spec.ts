@@ -306,5 +306,21 @@ describe("Route GET payments", () => {
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([4, 2]);
   });
-  it("Should ", async () => {});
+  it("Should return 2 results if is set limit parameter with limit = 2", async () => {
+    const response = await request(app)
+      .get("/payments?limit=2")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([1, 2]);
+    const responseASC = await request(app)
+      .get("/payments?limit=2&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseASC.status).toBe(200);
+    expect(responseASC.body.items.map((item: any) => item.id)).toEqual([1, 2]);
+    const responseDESC = await request(app)
+      .get("/payments?limit=2&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([4, 3]);
+  });
 });
