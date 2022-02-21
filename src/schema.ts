@@ -1987,10 +1987,10 @@ export interface operations {
         content: {
           "application/json": {
             limit?: number;
-            size?: number;
-            start?: number;
+            size: number;
+            start: number;
             total?: number;
-            items?: {
+            items: {
               /** @description The timestamp (GMT) of the request creation */
               created: string;
               /** @description The timestamp (GMT) of the request last update */
