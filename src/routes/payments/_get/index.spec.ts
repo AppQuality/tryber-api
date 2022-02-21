@@ -348,7 +348,6 @@ describe("Route GET payments", () => {
       ],
     });
   });
-
   it("Should order based on updated time if orderBy is updated and status is failed", async () => {
     const response = await request(app)
       .get("/payments?orderBy=updated&status=failed")
@@ -422,5 +421,34 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
     expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([4, 3]);
+  });
+  it("Should return the size that is equal to number of results", async () => {
+    const response = await request(app)
+      .get("/payments")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.size).toBe(response.body.items.length);
+    const responseStart = await request(app)
+      .get("/payments?start=2&limit=2")
+      .set("authorization", "Bearer admin");
+    expect(responseStart.status).toBe(200);
+    expect(responseStart.body.size).toBe(responseStart.body.items.length);
+    const responsePending = await request(app)
+      .get("/payments?status=pending")
+      .set("authorization", "Bearer admin");
+    expect(responsePending.status).toBe(200);
+    expect(responsePending.body.size).toBe(responsePending.body.items.length);
+  });
+  it("Should return number of skipped elements", async () => {
+    const response = await request(app)
+      .get("/payments")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.start).toBe(0);
+    const responseStart = await request(app)
+      .get("/payments?start=2")
+      .set("authorization", "Bearer admin");
+    expect(responseStart.status).toBe(200);
+    expect(responseStart.body.start).toBe(2);
   });
 });

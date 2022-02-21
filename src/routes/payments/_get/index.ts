@@ -9,8 +9,13 @@ export default async (
   res: OpenapiResponse
 ) => {
   const user = req.user;
-  const query =
-    req.query as StoplightOperations["get-payments"]["parameters"]["query"];
+  const query = {
+    ...req.query,
+    start:
+      req.query.start && typeof req.query.start === "string"
+        ? parseInt(req.query.start)
+        : undefined,
+  } as StoplightOperations["get-payments"]["parameters"]["query"];
 
   if (user.role !== "administrator") {
     res.status_code = 403;
@@ -75,5 +80,9 @@ export default async (
     };
   });
   res.status_code = 200;
-  return { items: payments };
+  return {
+    size: payments.length,
+    start: query.start ? query.start : 0,
+    items: payments,
+  };
 };
