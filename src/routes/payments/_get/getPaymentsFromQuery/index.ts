@@ -24,7 +24,7 @@ export default async (
   let pagination = ``;
   query.limit
     ? (pagination += `LIMIT ` + query.limit)
-    : (pagination += `LIMIT 100`);
+    : (pagination += `LIMIT 25`);
   query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
 
   const sql = `SELECT 
