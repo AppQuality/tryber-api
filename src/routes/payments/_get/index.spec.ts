@@ -451,4 +451,16 @@ describe("Route GET payments", () => {
     expect(responseStart.status).toBe(200);
     expect(responseStart.body.start).toBe(2);
   });
+  it("Should return the size of limit if limit is set", async () => {
+    const response = await request(app)
+      .get("/payments?limit=50")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.limit).toBe(50);
+    const responseNoLimit = await request(app)
+      .get("/payments")
+      .set("authorization", "Bearer admin");
+    expect(responseNoLimit.status).toBe(200);
+    expect(responseNoLimit.body).not.toHaveProperty("limit");
+  });
 });

@@ -15,6 +15,10 @@ export default async (
       req.query.start && typeof req.query.start === "string"
         ? parseInt(req.query.start)
         : undefined,
+    limit:
+      req.query.limit && typeof req.query.limit === "string"
+        ? parseInt(req.query.limit)
+        : undefined,
   } as StoplightOperations["get-payments"]["parameters"]["query"];
 
   if (user.role !== "administrator") {
@@ -84,5 +88,6 @@ export default async (
     size: payments.length,
     start: query.start ? query.start : 0,
     items: payments,
+    limit: query.limit,
   };
 };
