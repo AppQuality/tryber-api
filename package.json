@@ -6,6 +6,7 @@
   "scripts": {
     "coverage": "jest  ./dist --coverage",
     "test": "npm run build && jest ./dist ",
+    "test:watch": "nodemon --exec \"npm test --\" ",
     "clean": "rimraf dist",
     "transpile": "babel ./src --out-dir dist --extensions \".ts,.js\"",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
@@ -20,7 +21,10 @@
   "jest": {
     "modulePathIgnorePatterns": [
       "<rootDir>/src"
-    ]
+    ],
+    "moduleNameMapper": {
+      "jsonwebtoken": "<rootDir>/dist/__mocks__/jsonwebtoken"
+    }
   },
   "author": "",
   "license": "ISC",
