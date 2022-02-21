@@ -37,7 +37,8 @@ export default async (
     ${WHERE}
     ORDER BY ${query.orderBy || "p.id"} 
     ${query.order || "ASC"} 
-    ${query.limit ? "LIMIT " + query.limit : ""}
+    ${query.limit ? "LIMIT " + query.limit : ""} 
+    ${query.start ? "LIMIT 100 OFFSET " + query.start : ""}
     `;
 
   console.log(sql);

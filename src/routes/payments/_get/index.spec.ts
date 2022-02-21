@@ -323,4 +323,25 @@ describe("Route GET payments", () => {
     expect(responseDESC.status).toBe(200);
     expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([4, 3]);
   });
+  it("Should skip the first result if is set start parameter with start = 1", async () => {
+    const response = await request(app)
+      .get("/payments?start=1")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([2, 3, 4]);
+    const responseASC = await request(app)
+      .get("/payments?start=1&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseASC.status).toBe(200);
+    expect(responseASC.body.items.map((item: any) => item.id)).toEqual([
+      2, 3, 4,
+    ]);
+    const responseDESC = await request(app)
+      .get("/payments?start=1&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([
+      3, 2, 1,
+    ]);
+  });
 });
