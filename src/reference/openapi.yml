@@ -2705,6 +2705,10 @@ paths:
                         - amount
                         - type
                         - tryber
+                required:
+                  - size
+                  - start
+                  - items
               examples:
                 example-1:
                   value:
