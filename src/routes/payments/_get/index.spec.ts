@@ -54,6 +54,15 @@ const paymentRequestWiseWithError = {
   update_date: new Date("05/06/1970").toISOString(),
   error_message: "Error message",
 };
+const paymentRequestWisePaid = {
+  id: 5,
+  tester_id: tester2.id,
+  amount: 69,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/06/1975").toISOString(),
+  update_date: new Date("05/10/1975").toISOString(),
+};
 
 describe("Route GET payments", () => {
   beforeAll(async () => {
@@ -81,6 +90,7 @@ describe("Route GET payments", () => {
 
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
+      await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
       await sqlite3.insert(
         "wp_appq_payment_request",
         paymentRequestPaypalWithError
@@ -172,6 +182,21 @@ describe("Route GET payments", () => {
           tryber: tester2,
           error: paymentRequestWiseWithError.error_message,
         },
+        {
+          created: new Date(paymentRequestWisePaid.request_date)
+            .getTime()
+            .toString(),
+          updated: new Date(paymentRequestWisePaid.update_date)
+            .getTime()
+            .toString(),
+          id: paymentRequestWisePaid.id,
+          amount: {
+            value: paymentRequestWisePaid.amount,
+            currency: "EUR",
+          },
+          type: "transferwise",
+          tryber: tester2,
+        },
       ],
     });
   });
@@ -181,14 +206,14 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4,
+      1, 2, 3, 4, 5,
     ]);
     const responseDesc = await request(app)
       .get("/payments?order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
-      4, 3, 2, 1,
+      5, 4, 3, 2, 1,
     ]);
   });
   it("Should order based on id if orderBy is id", async () => {
@@ -197,21 +222,21 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4,
+      1, 2, 3, 4, 5,
     ]);
     const responseAsc = await request(app)
       .get("/payments?orderBy=id&order=ASC")
       .set("authorization", "Bearer admin");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4,
+      1, 2, 3, 4, 5,
     ]);
     const responseDesc = await request(app)
       .get("/payments?orderBy=id&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
-      4, 3, 2, 1,
+      5, 4, 3, 2, 1,
     ]);
   });
   it("Should order based on creation time if orderBy is created", async () => {
@@ -220,21 +245,21 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([
-      3, 4, 2, 1,
+      3, 4, 2, 1, 5,
     ]);
     const responseAsc = await request(app)
       .get("/payments?orderBy=created&order=ASC")
       .set("authorization", "Bearer admin");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
-      3, 4, 2, 1,
+      3, 4, 2, 1, 5,
     ]);
     const responseDesc = await request(app)
       .get("/payments?orderBy=created&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 4, 3,
+      5, 1, 2, 4, 3,
     ]);
   });
   it("Should return 400 if status is not failed and orderBy is updated", async () => {
@@ -289,6 +314,41 @@ describe("Route GET payments", () => {
       ],
     });
   });
+  it("Should return payments not paid if status is pending", async () => {
+    const response = await request(app)
+      .get("/payments?status=pending")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      items: [
+        {
+          created: new Date(paymentRequestPaypal.request_date)
+            .getTime()
+            .toString(),
+          id: paymentRequestPaypal.id,
+          amount: {
+            value: paymentRequestPaypal.amount,
+            currency: "EUR",
+          },
+          type: "paypal",
+          tryber: tester1,
+        },
+        {
+          created: new Date(paymentRequestWise.request_date)
+            .getTime()
+            .toString(),
+          id: paymentRequestWise.id,
+          amount: {
+            value: paymentRequestWise.amount,
+            currency: "EUR",
+          },
+          type: "transferwise",
+          tryber: tester2,
+        },
+      ],
+    });
+  });
+
   it("Should order based on updated time if orderBy is updated and status is failed", async () => {
     const response = await request(app)
       .get("/payments?orderBy=updated&status=failed")
@@ -321,27 +381,29 @@ describe("Route GET payments", () => {
       .get("/payments?limit=2&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
-    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([4, 3]);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([5, 4]);
   });
   it("Should skip the first result if is set start parameter with start = 1", async () => {
     const response = await request(app)
       .get("/payments?start=1")
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
-    expect(response.body.items.map((item: any) => item.id)).toEqual([2, 3, 4]);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([
+      2, 3, 4, 5,
+    ]);
     const responseASC = await request(app)
       .get("/payments?start=1&order=ASC")
       .set("authorization", "Bearer admin");
     expect(responseASC.status).toBe(200);
     expect(responseASC.body.items.map((item: any) => item.id)).toEqual([
-      2, 3, 4,
+      2, 3, 4, 5,
     ]);
     const responseDESC = await request(app)
       .get("/payments?start=1&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
     expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([
-      3, 2, 1,
+      4, 3, 2, 1,
     ]);
   });
   it("Should skip the first result and limit 2 results if are set start and limit parameters with start 1, limit 2", async () => {
@@ -359,6 +421,6 @@ describe("Route GET payments", () => {
       .get("/payments?start=1&limit=2&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
-    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([3, 2]);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([4, 3]);
   });
 });

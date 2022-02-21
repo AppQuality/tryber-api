@@ -19,6 +19,8 @@ export default async (
   let WHERE = ``;
   if (query.status == "failed") {
     WHERE += ` WHERE p.error_message IS NOT NULL `;
+  } else if (query.status == "pending") {
+    WHERE += ` WHERE p.error_message IS NULL AND p.is_paid = 0`;
   }
 
   let pagination = ``;
@@ -46,6 +48,5 @@ export default async (
     ${pagination}
     `;
 
-  console.log(sql);
   return await db.query(sql);
 };
