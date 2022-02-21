@@ -50,17 +50,20 @@ app.use((req, res) => {
     if (typeof exampleData === "string") {
       exampleData = exampleData.split(":");
       if (exampleData.length === 2) {
-        return res
-          .status(parseInt(exampleData[0]))
-          .json(
-            getExample(
-              api,
-              req.path,
-              req.method,
-              exampleData[0],
-              exampleData[1]
-            )
-          );
+        let path = req.path;
+        if (config.apiRoot) {
+          path = path.replace(new RegExp(`^${config.apiRoot}`), "");
+        }
+        const example = getExample(
+          api,
+          path,
+          req.method,
+          exampleData[0],
+          exampleData[1]
+        );
+        if (example) {
+          return res.status(parseInt(exampleData[0])).json(example);
+        }
       }
     }
   }

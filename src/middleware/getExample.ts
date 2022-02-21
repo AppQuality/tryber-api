@@ -26,9 +26,16 @@ export default (
   if (!responseData || !responseData.hasOwnProperty("examples")) {
     return false;
   }
-  if (example && responseData.examples.hasOwnProperty(example)) {
-    return responseData.examples[example];
+  if (
+    example &&
+    responseData.examples.hasOwnProperty(example) &&
+    responseData.examples[example].hasOwnProperty("value")
+  ) {
+    return responseData.examples[example].value;
   }
-
-  return Object.values(response.examples).pop();
+  const firstExample = Object.values(response.examples).pop() as { value: any };
+  if (!firstExample.hasOwnProperty("value")) {
+    return false;
+  }
+  return firstExample.value;
 };
