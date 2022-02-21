@@ -463,4 +463,27 @@ describe("Route GET payments", () => {
     expect(responseNoLimit.status).toBe(200);
     expect(responseNoLimit.body).not.toHaveProperty("limit");
   });
+  it("Should return the total number of elements if limit is set", async () => {
+    const response = await request(app)
+      .get("/payments?limit=1")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("total");
+    expect(response.body.total).toBe(5);
+    const responseNoLimit = await request(app)
+      .get("/payments")
+      .set("authorization", "Bearer admin");
+    expect(responseNoLimit.status).toBe(200);
+    expect(responseNoLimit.body).not.toHaveProperty("total");
+    const responseFail = await request(app)
+      .get("/payments?status=failed&limit=1")
+      .set("authorization", "Bearer admin");
+    expect(responseFail.status).toBe(200);
+    expect(responseFail.body.total).toBe(2);
+    const responsePending = await request(app)
+      .get("/payments?status=pending&limit=1")
+      .set("authorization", "Bearer admin");
+    expect(responsePending.status).toBe(200);
+    expect(responsePending.body.total).toBe(2);
+  });
 });

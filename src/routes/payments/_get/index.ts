@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-payments */
+import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
@@ -38,6 +39,32 @@ export default async (
         "You cannot order payments by update date with status different by failed",
     };
   }
+
+  let totalPaymentsCounter;
+  if (query.limit) {
+    try {
+      let WHERE = ``;
+      if (query.status == `pending`)
+        WHERE = `WHERE error_message IS NULL and is_paid = 0`;
+      if (query.status == `failed`) WHERE = `WHERE error_message IS NOT NULL`;
+      const sql = `SELECT COUNT(id) as total
+    FROM wp_appq_payment_request
+      ${WHERE}`;
+      let res = await db.query(sql);
+      totalPaymentsCounter = res[0].total;
+    } catch (err) {
+      if (process.env && process.env.DEBUG) {
+        console.log(err);
+      }
+      res.status_code = 400;
+      return {
+        element: "payments",
+        id: 0,
+        message: (err as OpenapiError).message,
+      };
+    }
+  }
+
   let results;
   try {
     results = await getPaymentsFromQuery(query);
@@ -87,7 +114,8 @@ export default async (
   return {
     size: payments.length,
     start: query.start ? query.start : 0,
-    items: payments,
     limit: query.limit,
+    total: totalPaymentsCounter,
+    items: payments,
   };
 };
