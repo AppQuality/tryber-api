@@ -344,4 +344,21 @@ describe("Route GET payments", () => {
       3, 2, 1,
     ]);
   });
+  it("Should skip the first result and limit 2 results if are set start and limit parameters with start 1, limit 2", async () => {
+    const response = await request(app)
+      .get("/payments?start=1&limit=2")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([2, 3]);
+    const responseASC = await request(app)
+      .get("/payments?start=1&limit=2&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseASC.status).toBe(200);
+    expect(responseASC.body.items.map((item: any) => item.id)).toEqual([2, 3]);
+    const responseDESC = await request(app)
+      .get("/payments?start=1&limit=2&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([3, 2]);
+  });
 });

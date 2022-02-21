@@ -21,6 +21,12 @@ export default async (
     WHERE += ` WHERE p.error_message IS NOT NULL `;
   }
 
+  let pagination = ``;
+  query.limit
+    ? (pagination += `LIMIT ` + query.limit)
+    : (pagination += `LIMIT 100`);
+  query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
+
   const sql = `SELECT 
       t.id   as tester_id,
       t.name as tester_name,
@@ -37,8 +43,7 @@ export default async (
     ${WHERE}
     ORDER BY ${query.orderBy || "p.id"} 
     ${query.order || "ASC"} 
-    ${query.limit ? "LIMIT " + query.limit : ""} 
-    ${query.start ? "LIMIT 100 OFFSET " + query.start : ""}
+    ${pagination}
     `;
 
   console.log(sql);
