@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-payments */
+import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
 
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
@@ -45,9 +46,7 @@ export default async (
     results = data.results;
     total = data.total;
   } catch (err) {
-    if (process.env && process.env.DEBUG) {
-      console.log(err);
-    }
+    debugMessage(err);
     res.status_code = 400;
     return {
       element: "payments",
