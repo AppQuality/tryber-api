@@ -63,6 +63,13 @@ const paymentRequestWisePaid = {
   request_date: new Date("01/06/1975").toISOString(),
   update_date: new Date("05/10/1975").toISOString(),
 };
+const paymentRequestInvalid = {
+  id: 6,
+  tester_id: tester1.id,
+  amount: 69,
+  is_paid: 0,
+  request_date: new Date("01/06/2000").toISOString(),
+};
 
 describe("Route GET payments", () => {
   beforeAll(async () => {
@@ -91,6 +98,7 @@ describe("Route GET payments", () => {
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
+      await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
       await sqlite3.insert(
         "wp_appq_payment_request",
         paymentRequestPaypalWithError

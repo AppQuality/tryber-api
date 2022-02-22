@@ -17,11 +17,11 @@ export default async (
   }[];
   total?: number;
 }> => {
-  let WHERE = ``;
+  let WHERE = `WHERE ( p.paypal_email IS NOT NULL OR p.iban IS NOT NULL )`;
   if (query.status == "failed") {
-    WHERE += ` WHERE p.error_message IS NOT NULL `;
+    WHERE += ` AND p.error_message IS NOT NULL `;
   } else if (query.status == "pending") {
-    WHERE += ` WHERE p.error_message IS NULL AND p.is_paid = 0`;
+    WHERE += ` AND p.error_message IS NULL AND p.is_paid = 0`;
   }
 
   let pagination = ``;
