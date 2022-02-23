@@ -56,6 +56,15 @@ class Transferwise {
       }
       throw new Error(res.data.response);
     } catch (error) {
+      if ((error as AxiosError).response?.status === 401) {
+        throw {
+          status_code: 422,
+          message: {
+            code: "GENERIC_ERROR",
+            data: `API not configurated - Please contact an administrator`,
+          },
+        };
+      }
       throw error;
     }
   }
