@@ -86,11 +86,18 @@ describe("Route GET payments", () => {
         "amount INTEGER",
         "iban VARCHAR(255)",
         "paypal_email VARCHAR(255)",
-        "request_date TIMESTAMP",
-        "update_date TIMESTAMP",
+        "request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ",
+        "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
         "error_message text",
         "is_paid BOOL",
       ]);
+
+      await sqlite3.run(`
+      CREATE TRIGGER "on_update__update_date"
+        BEFORE UPDATE ON "wp_appq_payment_request" FOR EACH ROW 
+        BEGIN
+        UPDATE wp_appq_payment_request set update_date = CURRENT_TIMESTAMP where id = NEW.id;
+        END`);
 
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_appq_evd_profile", tester2);
