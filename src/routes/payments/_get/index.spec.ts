@@ -14,6 +14,10 @@ const tester2 = {
   name: "Pippo",
   surname: "Franco",
 };
+const tester3 = {
+  id: 69,
+  name: "Deleted User",
+};
 
 const paymentRequestPaypal = {
   id: 1,
@@ -70,6 +74,24 @@ const paymentRequestInvalid = {
   is_paid: 0,
   request_date: new Date("01/06/2000").toISOString(),
 };
+const paymentRequestOldUser = {
+  id: 7,
+  tester_id: tester3.id,
+  amount: 6969,
+  is_paid: 0,
+  iban: "DE12345678901234567869",
+  request_date: new Date("01/06/2000").toISOString(),
+};
+const paymentRequestOldUserWithError = {
+  id: 8,
+  tester_id: tester3.id,
+  amount: 6969,
+  is_paid: 0,
+  iban: "DE12345678901234567869",
+  request_date: new Date("01/06/2000").toISOString(),
+  update_date: new Date("05/06/1970").toISOString(),
+  error_message: "Error message",
+};
 
 describe("Route GET payments", () => {
   beforeAll(async () => {
@@ -101,11 +123,17 @@ describe("Route GET payments", () => {
 
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_appq_evd_profile", tester2);
+      await sqlite3.insert("wp_appq_evd_profile", tester3);
 
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
+      await sqlite3.insert("wp_appq_payment_request", paymentRequestOldUser);
+      await sqlite3.insert(
+        "wp_appq_payment_request",
+        paymentRequestOldUserWithError
+      );
       await sqlite3.insert(
         "wp_appq_payment_request",
         paymentRequestPaypalWithError
@@ -533,7 +561,6 @@ describe("Route GET payments when no data", () => {
 
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_appq_evd_profile", tester2);
-
       resolve(null);
     });
   });

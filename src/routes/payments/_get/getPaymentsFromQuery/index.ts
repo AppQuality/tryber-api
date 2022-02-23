@@ -17,7 +17,8 @@ export default async (
   }[];
   total?: number;
 }> => {
-  let WHERE = `WHERE ( p.paypal_email IS NOT NULL OR p.iban IS NOT NULL )`;
+  let WHERE = `WHERE ( t.name != 'Deleted User' ) 
+      AND ( p.paypal_email IS NOT NULL OR p.iban IS NOT NULL )`;
   if (query.status == "failed") {
     WHERE += ` AND p.error_message IS NOT NULL `;
   } else if (query.status == "pending") {
@@ -48,13 +49,13 @@ export default async (
     ${query.order || "ASC"} 
     ${pagination}
     `;
-
   const results = await db.query(sql);
 
   let total = undefined;
   if (query.limit) {
     const countSql = `SELECT COUNT(p.id) as total
     FROM wp_appq_payment_request p
+    JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
       ${WHERE}`;
     let countResults = await db.query(countSql);
     total = countResults[0].total;
