@@ -5,6 +5,7 @@ import OpenAPIBackend, { Options, Request } from "openapi-backend";
 
 import config from "./config";
 import middleware from "./middleware";
+import getExample from "./middleware/getExample";
 import routes from "./routes";
 
 const opts: Options = {
@@ -26,7 +27,6 @@ api.register({
 api.registerHandler("notImplemented", middleware.notImplemented(api));
 // register security handler for jwt auth
 api.registerSecurityHandler("JWT", middleware.jwtSecurityHandler);
-
 api.register("postResponseHandler", middleware.postResponseHandler);
 routes(api);
 api.init();
@@ -44,6 +44,30 @@ app.use(
 app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
 });
-app.use((req, res) => api.handleRequest(req as Request, req, res));
+app.use((req, res) => {
+  if (req.rawHeaders.includes("x-tryber-mock-example")) {
+    let exampleData = req.headers["x-tryber-mock-example"];
+    if (typeof exampleData === "string") {
+      exampleData = exampleData.split(":");
+      if (exampleData.length === 2) {
+        let path = req.path;
+        if (config.apiRoot) {
+          path = path.replace(new RegExp(`^${config.apiRoot}`), "");
+        }
+        const example = getExample(
+          api,
+          path,
+          req.method,
+          exampleData[0],
+          exampleData[1]
+        );
+        if (example) {
+          return res.status(parseInt(exampleData[0])).json(example);
+        }
+      }
+    }
+  }
+  return api.handleRequest(req as Request, req, res);
+});
 
 export default app;

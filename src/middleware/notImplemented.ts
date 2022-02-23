@@ -6,6 +6,7 @@ export default (api: OpenAPIBackend) =>
     if (process.env && process.env.DEBUG) {
       console.log(`Mocking ${c.operation.operationId}`);
     }
+
     const { status, mock } = api.mockResponseForOperation(
       c.operation.operationId || ""
     );

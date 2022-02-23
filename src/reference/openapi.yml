@@ -1869,12 +1869,7 @@ paths:
                 type:
                   $ref: "#/components/schemas/FiscalType"
                 birthPlace:
-                  type: object
-                  properties:
-                    city:
-                      type: string
-                    province:
-                      type: string
+                  $ref: "#/components/schemas/FiscalBirthCity"
                 fiscalId:
                   type: string
                 gender:
@@ -2013,22 +2008,7 @@ paths:
                 type:
                   $ref: "#/components/schemas/FiscalType"
                 birthPlace:
-                  oneOf:
-                    - properties:
-                        city:
-                          type: string
-                        province:
-                          type: string
-                      required:
-                        - city
-                        - province
-                    - properties:
-                        placeId:
-                          type: string
-                          description: A google maps place id
-                      required:
-                        - placeId
-                  type: object
+                  $ref: "#/components/schemas/FiscalBirthCity"
                 fiscalId:
                   type: string
                 gender:
@@ -2655,6 +2635,152 @@ paths:
         name: code
         in: path
         required: true
+  /payments:
+    get:
+      summary: Get all payments
+      tags: []
+      responses:
+        "200":
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  start:
+                    type: number
+                  total:
+                    type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        created:
+                          type: string
+                          description: The timestamp (GMT) of the request creation
+                        updated:
+                          type: string
+                          description: The timestamp (GMT) of the request last update
+                        id:
+                          type: number
+                        amount:
+                          type: object
+                          required:
+                            - value
+                            - currency
+                          properties:
+                            value:
+                              type: number
+                            currency:
+                              type: string
+                        type:
+                          type: string
+                          enum:
+                            - paypal
+                            - transferwise
+                        tryber:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                          properties:
+                            id:
+                              type: number
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                        error:
+                          type: string
+                      required:
+                        - created
+                        - updated
+                        - id
+                        - amount
+                        - type
+                        - tryber
+                required:
+                  - size
+                  - start
+                  - items
+              examples:
+                example-1:
+                  value:
+                    limit: 3
+                    size: 3
+                    start: 2
+                    total: 100
+                    items:
+                      - created: "1645096692"
+                        updated: "1645096692"
+                        id: 123
+                        amount:
+                          value: 100
+                          currency: EUR
+                        type: paypal
+                        tryber:
+                          id: 1
+                          name: John
+                          surname: Doe
+                        error: INSUFFICIENT_FUNDS
+                      - created: "1645096692"
+                        updated: "1645096692"
+                        id: 1
+                        amount:
+                          value: 100
+                          currency: EUR
+                        type: paypal
+                        tryber:
+                          id: 1
+                          name: John
+                          surname: Doe
+                        error: GENERIC_ERROR
+                      - created: "1645096692"
+                        updated: "1645096692"
+                        id: 12
+                        amount:
+                          value: 100
+                          currency: EUR
+                        type: transferwise
+                        tryber:
+                          id: 5
+                          name: Pippo
+                          surname: Franco
+                        error: RECEIVER_UNREGISTERED
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      operationId: get-payments
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - pending
+              - failed
+          in: query
+          name: status
+          description: The status of the payment
+        - $ref: "#/components/parameters/order"
+        - schema:
+            type: string
+            enum:
+              - created
+              - updated
+              - id
+          in: query
+          name: orderBy
+          description: The value to order by
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
+    parameters: []
   "/payments/{paymentId}":
     parameters:
       - schema:
@@ -3320,6 +3446,24 @@ components:
       required:
         - id
         - name
+    FiscalBirthCity:
+      title: FiscalBirthCity
+      oneOf:
+        - properties:
+            city:
+              type: string
+            province:
+              type: string
+          required:
+            - city
+            - province
+        - properties:
+            placeId:
+              type: string
+              description: A google maps place id
+          required:
+            - placeId
+      type: object
   securitySchemes:
     JWT:
       type: http
