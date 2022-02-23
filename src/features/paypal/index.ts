@@ -78,7 +78,7 @@ class Paypal {
         status_code: 422,
         message: {
           code: "GENERIC_ERROR",
-          data: `API not configurated - Please contact an administrator`,
+          data: `API not configured - Please contact an administrator`,
         },
       };
     }
