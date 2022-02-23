@@ -74,7 +74,13 @@ class Paypal {
     try {
       token = await this.getToken();
     } catch (error) {
-      throw error;
+      throw {
+        status_code: 422,
+        message: {
+          code: "GENERIC_ERROR",
+          data: `API not configurated - Please contact an administrator`,
+        },
+      };
     }
 
     let res;
