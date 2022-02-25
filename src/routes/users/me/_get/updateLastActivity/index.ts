@@ -9,7 +9,7 @@ export default async (id: number) => {
       WHERE id = ?;`,
       [id]
     );
-    const res = await db.query(sql);
+    await db.query(sql);
   } catch (e) {
     debugMessage(e);
     throw e;

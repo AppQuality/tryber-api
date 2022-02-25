@@ -7,7 +7,6 @@ import getLanguagesData from "./getLanguagesData";
 import getProfessionData from "./getProfessionData";
 import getProfileData from "./getProfileData";
 import getRankData from "./getRankData";
-import updateLastActivity from "./updateLastActivity";
 
 const basicFields = [
   "name",
@@ -61,10 +60,6 @@ export default async (
 
     try {
       data = { ...data, ...(await getProfileData(id, validFields)) };
-    } catch (e) {}
-
-    try {
-      let update = await updateLastActivity(data.id);
     } catch (e) {}
 
     if (validFields.includes("rank")) {

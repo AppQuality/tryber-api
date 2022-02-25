@@ -1,6 +1,8 @@
 /** OPENAPI-ROUTE: get-users-me */
 import { Context } from "openapi-backend";
+
 import getUserData from "./getUserData";
+import updateLastActivity from "./updateLastActivity";
 
 export default async (
   c: Context,
@@ -10,6 +12,10 @@ export default async (
   let query =
     req.query as StoplightOperations["get-users-me"]["parameters"]["query"];
   let fields = query.fields ? query.fields.split(",") : false;
+  try {
+    await updateLastActivity(req.user.testerId);
+  } catch (e) {}
+
   try {
     const user = await getUserData(req.user.ID, fields);
     res.status_code = 200;
