@@ -71,7 +71,7 @@ export default async (
         Object.keys(accepted).includes(req.query.orderBy)) ||
       req.query.orderBy === "date"
     ) {
-      fromSql += ` ORDER BY ?? ${req.query.order}`;
+      fromSql += ` ORDER BY ?? ${req.query.order || "ASC"}`;
       if (req.query.orderBy === "date") {
         data.push("e.creation_date");
       } else {
@@ -168,7 +168,7 @@ const mapQueryToObject = (experience: {
       id: experience.activityId,
     },
     campaign: campaign,
-    date: experience.date.toISOString().substr(0, 10),
+    date: new Date(experience.date).toISOString().substr(0, 10),
     amount: experience.amount,
     note: experience.note,
   };
