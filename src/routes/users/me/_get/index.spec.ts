@@ -63,7 +63,16 @@ describe("Route GET users-me", () => {
       .get("/users/me")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    console.log(response.body);
     expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
+  });
+  //    user.role = req.user ? req.user.role : "tester";
+  it("Should return an object with role 'tester' if the user is without special permission", async () => {
+    const response = await request(app)
+      .get("/users/me")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    console.log(response.body);
+    expect(response.body).toHaveProperty("role");
+    expect(response.body.role).toBe("tester");
   });
 });
