@@ -18,6 +18,7 @@ export default async (
 
   try {
     const user = await getUserData(req.user.ID, fields);
+
     res.status_code = 200;
     user.role = req.user ? req.user.role : "tester";
     return user;

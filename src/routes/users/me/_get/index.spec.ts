@@ -6,26 +6,44 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 const tester1 = {
   id: 1,
-  name: "John",
-  surname: "Doe",
+  //name: "John",
+  //surname: "Doe",
+  //email: "jhon.doe@example.com",
+  wp_user_id: 1,
+  //is_verified: 0,
+};
+const wpTester1 = {
+  ID: 1,
+  user_login: "john_doe",
 };
 
 describe("Route GET users-me", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.createTable("wp_appq_evd_profile", [
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(255)",
         "surname VARCHAR(255)",
+        "email VARCHAR(255)",
+        "wp_user_id INTEGER ",
+        "is_verified INTEGER DEFAULT 0",
+      ]);
+
+      await sqlite3.createTable("wp_users", [
+        "ID INTEGER PRIMARY KEY",
+        "user_login VARCHAR(255)",
       ]);
       await sqlite3.insert("wp_appq_evd_profile", tester1);
+      await sqlite3.insert("wp_users", wpTester1);
 
       resolve(null);
     });
   });
-  afterAll(async () => {
+  afterEach(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_users");
+
       resolve(null);
     });
   });
@@ -39,5 +57,13 @@ describe("Route GET users-me", () => {
       .get("/users/me")
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
+  });
+  it("Should return at least tryber id and tryber role", async () => {
+    const response = await request(app)
+      .get("/users/me")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    console.log(response.body);
+    expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
   });
 });
