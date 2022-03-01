@@ -6,11 +6,11 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 const tester1 = {
   id: 1,
-  //name: "John",
-  //surname: "Doe",
-  //email: "jhon.doe@example.com",
+  name: "John",
+  surname: "Doe",
+  email: "jhon.doe@example.com",
   wp_user_id: 1,
-  //is_verified: 0,
+  is_verified: 0,
 };
 const wpTester1 = {
   ID: 1,
@@ -65,13 +65,11 @@ describe("Route GET users-me", () => {
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
   });
-  //    user.role = req.user ? req.user.role : "tester";
   it("Should return an object with role 'tester' if the user is without special permission", async () => {
     const response = await request(app)
       .get("/users/me")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    console.log(response.body);
     expect(response.body).toHaveProperty("role");
     expect(response.body.role).toBe("tester");
   });
