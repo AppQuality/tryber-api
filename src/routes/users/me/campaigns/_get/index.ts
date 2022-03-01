@@ -118,7 +118,7 @@ export default async (
           : {},
       };
 
-      if (parseInt(filterBy?.accepted) !== 1) {
+      if (typeof filterBy !== "string" && parseInt(filterBy?.accepted) !== 1) {
         if (Object.keys(item.preview_link).length > 0) {
           if (
             item.preview_link.hasOwnProperty("en") &&

@@ -17,7 +17,7 @@ export default async (
     SET name = "Deleted User", 
     email = "",
     surname = "",
-    birth_date = "1970-01-01",
+    birth_date = NULL,
     sex = -1,
     phone_number = NULL,
     city = NULL,
@@ -63,6 +63,9 @@ export default async (
     res.status_code = 200;
     return true;
   } catch (error) {
+    if (process.env && process.env.DEBUG) {
+      console.log(error);
+    }
     res.status_code = (error as OpenapiError).status_code || 400;
     return {
       element: "users",
