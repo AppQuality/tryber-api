@@ -23,8 +23,10 @@
       "<rootDir>/src"
     ],
     "moduleNameMapper": {
-      "jsonwebtoken": "<rootDir>/dist/__mocks__/jsonwebtoken"
-    }
+      "jsonwebtoken": "<rootDir>/dist/__mocks__/jsonwebtoken",
+      "@appquality/wp-auth": "<rootDir>/dist/__mocks__/@appquality-wp-auth"
+    },
+    "testTimeout": 15000
   },
   "author": "",
   "license": "ISC",
@@ -79,6 +81,7 @@
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
     "babel-plugin-module-resolver": "^4.1.0",
+    "better-sqlite3": "^7.5.0",
     "copyfiles": "^2.4.1",
     "husky": "^7.0.4",
     "jest": "^27.4.7",
@@ -87,7 +90,6 @@
     "openapi-typescript": "^5.1.1",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
-    "sqlite3": "^5.0.2",
     "supertest": "^6.1.6",
     "webpack": "^4.30.0",
     "webpack-dev-middleware": "^3.6.2"
