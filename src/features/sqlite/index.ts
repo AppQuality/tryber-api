@@ -1,7 +1,8 @@
 const sqlite3 = require("better-sqlite3");
-const util = require("util");
 
 const db = new sqlite3(":memory:");
+db.function("NOW", () => "datetime('now')");
+
 const mockDb: any = {};
 
 mockDb.createTable = (table: string, columns: string[]) => {
