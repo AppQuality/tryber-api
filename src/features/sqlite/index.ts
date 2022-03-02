@@ -2,6 +2,7 @@ const sqlite3 = require("better-sqlite3");
 
 const db = new sqlite3(":memory:");
 db.function("NOW", () => "datetime('now')");
+db.function("CONCAT", { varargs: true }, (...args: string[]) => args.join(""));
 
 const mockDb: any = {};
 
