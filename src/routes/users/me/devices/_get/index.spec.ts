@@ -20,6 +20,18 @@ const device1 = {
   source_id: 1,
   platform_id: 10,
 };
+const deviceDisabled = {
+  id: 1,
+  form_factor: "Smartphone",
+  model: "Galassy note 3",
+  //pc_type: null,
+  manufacturer: "Samsungu",
+  os_version_id: 11,
+  id_profile: 1,
+  enabled: 0,
+  source_id: 1,
+  platform_id: 10,
+};
 const platform1 = {
   id: 10,
   name: "Androis",
@@ -158,7 +170,69 @@ describe("Route GET users-me-devices when the user hasn't devices", () => {
     const response = await request(app)
       .get("/users/me/devices")
       .set("authorization", "Bearer tester");
-    console.log(response.statusCode);
     expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({
+      element: "devices",
+      id: 1,
+      message: "No device on your user",
+    });
+  });
+});
+
+describe("Route GET users-me-devices when the user devices are all disabled", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_evd_profile", [
+        "id INTEGER PRIMARY KEY",
+        "wp_user_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_crowd_appq_device", [
+        "id INTEGER PRIMARY KEY",
+        "form_factor VARCHAR(255)",
+        "model VARCHAR(255)",
+        "manufacturer VARCHAR(255)",
+        "pc_type VARCHAR(255)",
+        "os_version_id INTEGER",
+        "id_profile INTEGER",
+        "source_id INTEGER",
+        "platform_id INTEGER",
+        "enabled INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_platform", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+      ]);
+      await sqlite3.createTable("wp_appq_os", [
+        "id INTEGER PRIMARY KEY",
+        "display_name VARCHAR(255)",
+        "version_number VARCHAR(255)",
+      ]);
+
+      await sqlite3.insert("wp_appq_evd_profile", tester1);
+      await sqlite3.insert("wp_crowd_appq_device", deviceDisabled);
+      await sqlite3.insert("wp_appq_evd_platform", platform1);
+      await sqlite3.insert("wp_appq_os", os1);
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_crowd_appq_device");
+      await sqlite3.dropTable("wp_appq_evd_platform");
+      await sqlite3.dropTable("wp_appq_os");
+      resolve(null);
+    });
+  });
+  it("Should answer 404 if the user devices are all disabled", async () => {
+    const response = await request(app)
+      .get("/users/me/devices")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({
+      element: "devices",
+      id: 1,
+      message: "No device on your user",
+    });
   });
 });
