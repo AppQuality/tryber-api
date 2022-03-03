@@ -85,24 +85,28 @@ describe("Route GET users-me-devices", () => {
     const response = await request(app)
       .get("/users/me/devices")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
-  /*
-  it("Should return at least tryber id and tryber role", async () => {
+  it("Should answer with all tryber devices", async () => {
     const response = await request(app)
-      .get("/users/me")
+      .get("/users/me/devices")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
+    expect(response.body.length).toBe(1);
+    const expectDevice = {
+      id: device1.id,
+      type: device1.form_factor,
+      operating_system: {
+        id: os1.id,
+        platform: platform1.name,
+        version: os1.display_name + " (" + os1.version_number + ")",
+      },
+      device: {
+        id: device1.id,
+        manufacturer: device1.manufacturer,
+        model: device1.model,
+      },
+    };
+    expect(response.body[0]).toMatchObject(expectDevice);
   });
-  it("Should return an object with role 'tester' if the user is without special permission", async () => {
-    const response = await request(app)
-      .get("/users/me")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("role");
-    expect(response.body.role).toBe("tester");
-  });
-  */
 });
