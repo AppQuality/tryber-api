@@ -110,3 +110,55 @@ describe("Route GET users-me-devices", () => {
     expect(response.body[0]).toMatchObject(expectDevice);
   });
 });
+
+describe("Route GET users-me-devices when the user hasn't devices", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_evd_profile", [
+        "id INTEGER PRIMARY KEY",
+        "wp_user_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_crowd_appq_device", [
+        "id INTEGER PRIMARY KEY",
+        "form_factor VARCHAR(255)",
+        "model VARCHAR(255)",
+        "manufacturer VARCHAR(255)",
+        "pc_type VARCHAR(255)",
+        "os_version_id INTEGER",
+        "id_profile INTEGER",
+        "source_id INTEGER",
+        "platform_id INTEGER",
+        "enabled INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_platform", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+      ]);
+      await sqlite3.createTable("wp_appq_os", [
+        "id INTEGER PRIMARY KEY",
+        "display_name VARCHAR(255)",
+        "version_number VARCHAR(255)",
+      ]);
+
+      await sqlite3.insert("wp_appq_evd_profile", tester1);
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_crowd_appq_device");
+      await sqlite3.dropTable("wp_appq_evd_platform");
+      await sqlite3.dropTable("wp_appq_os");
+      resolve(null);
+    });
+  });
+
+  it("Should answer 404 if the user hasn't any devices", async () => {
+    const response = await request(app)
+      .get("/users/me/devices")
+      .set("authorization", "Bearer tester");
+    console.log(response.statusCode);
+    expect(response.status).toBe(404);
+  });
+});
