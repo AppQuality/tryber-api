@@ -4,38 +4,65 @@ import request from "supertest";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
-const tester1 = {
+const bug1 = {
   id: 1,
+  message: "This is the bug message",
+  campaign_id: 1,
+  status_id: 1,
   wp_user_id: 1,
+  severity_id: 1,
+};
+const campaign1 = {
+  id: 1,
+  title: "This is the Campaign title",
+};
+const severity1 = {
+  id: 1,
+  name: "This is the Severity name",
+};
+const status1 = {
+  id: 1,
+  name: "This is the Status name",
 };
 
 describe("Route GET users-me-bugs", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
+      await sqlite3.createTable("wp_appq_evd_bug", [
         "id INTEGER PRIMARY KEY",
+        "message VARCHAR(255)",
+        "campaign_id INTEGER",
+        "status_id INTEGER",
         "wp_user_id INTEGER",
+        "severity_id INTEGER",
       ]);
-      await sqlite3.createTable("wp_crowd_appq_device", [
+      await sqlite3.createTable("wp_appq_evd_campaign", [
         "id INTEGER PRIMARY KEY",
-        "form_factor VARCHAR(255)",
-        "model VARCHAR(255)",
-        "manufacturer VARCHAR(255)",
-        "pc_type VARCHAR(255)",
-        "os_version_id INTEGER",
-        "id_profile INTEGER",
-        "source_id INTEGER",
-        "platform_id INTEGER",
-        "enabled INTEGER",
+        "title VARCHAR(255)",
       ]);
+      await sqlite3.createTable("wp_appq_evd_severity", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_bug_status", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+      ]);
+      await sqlite3.insert("wp_appq_evd_bug", bug1);
+      await sqlite3.insert("wp_appq_evd_campaign", campaign1);
+      await sqlite3.insert("wp_appq_evd_severity", severity1);
+      await sqlite3.insert("wp_appq_evd_bug_status", status1);
 
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_appq_evd_bug");
+      await sqlite3.dropTable("wp_appq_evd_campaign");
+      await sqlite3.dropTable("wp_appq_evd_severity");
+      await sqlite3.dropTable("wp_appq_evd_bug_status");
+
       resolve(null);
     });
   });
@@ -43,6 +70,18 @@ describe("Route GET users-me-bugs", () => {
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get("/users/me/bugs");
     expect(response.status).toBe(403);
-    console.log(response.statusCode);
+  });
+  it("Should answer 200 if logged in tryber", async () => {
+    const response = await request(app)
+      .get("/users/me/bugs")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results[0]).toMatchObject({
+      id: bug1.id,
+      severity: { id: severity1.id, name: severity1.name },
+      status: { id: 1, name: status1.name },
+      campaign: { id: 1, name: campaign1.title },
+      title: bug1.message,
+    });
   });
 });
