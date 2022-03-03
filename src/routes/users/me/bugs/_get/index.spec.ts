@@ -85,3 +85,60 @@ describe("Route GET users-me-bugs", () => {
     });
   });
 });
+
+describe("Route GET users-me-bugs when the tryber hasn't bug", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_evd_profile", [
+        "id INTEGER PRIMARY KEY",
+        "wp_user_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_bug", [
+        "id INTEGER PRIMARY KEY",
+        "message VARCHAR(255)",
+        "campaign_id INTEGER",
+        "status_id INTEGER",
+        "wp_user_id INTEGER",
+        "severity_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_campaign", [
+        "id INTEGER PRIMARY KEY",
+        "title VARCHAR(255)",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_severity", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_bug_status", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+      ]);
+
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_appq_evd_bug");
+      await sqlite3.dropTable("wp_appq_evd_campaign");
+      await sqlite3.dropTable("wp_appq_evd_severity");
+      await sqlite3.dropTable("wp_appq_evd_bug_status");
+
+      resolve(null);
+    });
+  });
+
+  it("Should answer 404 if the tryber hasn't bug", async () => {
+    const response = await request(app)
+      .get("/users/me/bugs")
+      .set("authorization", "Bearer tester");
+    console.log(response.body);
+    expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({
+      element: "bugs",
+      id: 0,
+      message: "Error on finding bugs",
+    });
+  });
+});
