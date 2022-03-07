@@ -24,6 +24,12 @@ export default async (
   } else if (query.status == "pending") {
     WHERE += ` AND p.error_message IS NULL AND p.is_paid = 0`;
   }
+  // filter by payment method
+  if (query.filterBy?.paymentMethod === "paypal") {
+    WHERE += ` AND p.paypal_email IS NOT NULL`;
+  } else if (query.filterBy?.paymentMethod === "transferwise") {
+    WHERE += ` AND p.iban IS NOT NULL`;
+  }
 
   let pagination = ``;
   query.limit
