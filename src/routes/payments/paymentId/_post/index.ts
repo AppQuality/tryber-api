@@ -1,5 +1,6 @@
 import { Context } from "openapi-backend";
 
+import generateReceipt from "./generateReceipt";
 import getPayment from "./getPayment";
 import sendPaypalPayment from "./sendPaypalPayment";
 import sendTransferwisePayment from "./sendTransferwisePayment";
@@ -92,6 +93,8 @@ export default async (
       message: payment.error.message,
     };
   }
+
+  generateReceipt(paymentId);
   res.status_code = 200;
 
   return payment;
