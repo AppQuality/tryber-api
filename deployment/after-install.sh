@@ -22,7 +22,6 @@ mkdir -p /home/ec2-user/$APPLICATION_NAME
 aws ssm get-parameter --region eu-west-1 --name "/$DEPLOYMENT_GROUP_NAME/.env" --with-decryption --query "Parameter.Value" | sed -e 's/\\n/\n/g' -e 's/\\"/"/g' -e 's/^"//' -e 's/"$//' > /var/docker/.env
 aws ssm get-parameter --region eu-west-1 --name "/$DEPLOYMENT_GROUP_NAME/private_tw.pem" --with-decryption --query "Parameter.Value" | sed -e 's/\\n/\n/g' -e 's/\\"/"/g' -e 's/^"//' -e 's/"$//' > /var/docker/keys/private_tw.pem
 
-source /var/docker/.env
 
 if test -f "$DOCKER_COMPOSE_FILE"; then
     IS_RUNNING=$(docker ps -a | grep $DOCKER_IMAGE| wc -l)
