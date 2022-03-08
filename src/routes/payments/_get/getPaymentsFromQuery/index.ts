@@ -18,7 +18,10 @@ export default async (
   total?: number;
 }> => {
   let WHERE = `WHERE ( t.name != 'Deleted User' ) 
-      AND ( p.paypal_email IS NOT NULL OR p.iban IS NOT NULL )`;
+      AND ( 
+        (p.paypal_email IS NOT NULL AND p.paypal_email <> "") 
+        OR (p.iban IS NOT NULL AND p.iban <> "")
+      )`;
   if (query.status == "failed") {
     WHERE += ` AND p.error_message IS NOT NULL `;
   } else if (query.status == "pending") {
