@@ -5,6 +5,7 @@ import getPayment from "./getPayment";
 import sendPaypalPayment from "./sendPaypalPayment";
 import sendTransferwisePayment from "./sendTransferwisePayment";
 import updatePayment from "./updatePayment";
+import sendPaymentEmail from "./sendPaymentEmail";
 
 /** OPENAPI-ROUTE: post-payments-paymentId */
 export default async (
@@ -94,6 +95,9 @@ export default async (
     };
   }
 
+  if (process.env.SEND_EMAIL_ON_PAYMENT) {
+    sendPaymentEmail(payment.testerEmail);
+  }
   generateReceipt(paymentId);
   res.status_code = 200;
 

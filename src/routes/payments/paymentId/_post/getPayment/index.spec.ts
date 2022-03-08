@@ -8,6 +8,7 @@ const tester = {
   id: 1,
   name: "John",
   surname: "Doe",
+  email: "tester@example.com",
 };
 const validBankTransferPayment = {
   id: 1,
@@ -31,7 +32,7 @@ const invalidTypePayment = {
   is_paid: 0,
 };
 
-describe("Get Payments", () => {
+describe("POST /payments/:paymentId", () => {
   beforeAll(() => {
     return new Promise(async (resolve) => {
       await sqlite3.createTable("wp_appq_payment_request", [
@@ -46,6 +47,7 @@ describe("Get Payments", () => {
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(255)",
         "surname VARCHAR(255)",
+        "email VARCHAR(255)",
       ]);
 
       await sqlite3.insert("wp_appq_payment_request", validBankTransferPayment);
@@ -76,17 +78,16 @@ describe("Get Payments", () => {
   it("Should return a transferwise payment object if iban is present", async () => {
     try {
       const payment = await getPayment(validBankTransferPayment.id);
-      expect(JSON.stringify(payment)).toBe(
-        JSON.stringify({
-          id: validBankTransferPayment.id,
-          tester_id: tester.id,
-          accountName: `${tester.name} ${tester.surname}`,
-          amount: validBankTransferPayment.amount,
-          type: "transferwise",
-          coordinates: validBankTransferPayment.iban,
-          status: "pending",
-        })
-      );
+      expect(payment).toMatchObject({
+        id: validBankTransferPayment.id,
+        tester_id: tester.id,
+        accountName: `${tester.name} ${tester.surname}`,
+        amount: validBankTransferPayment.amount,
+        type: "transferwise",
+        coordinates: validBankTransferPayment.iban,
+        testerEmail: tester.email,
+        status: "pending",
+      });
     } catch (error) {
       throw error;
     }
@@ -94,17 +95,16 @@ describe("Get Payments", () => {
   it("Should return a paypal payment object if paypal email is present", async () => {
     try {
       const payment = await getPayment(validPaypalPayment.id);
-      expect(JSON.stringify(payment)).toBe(
-        JSON.stringify({
-          id: validPaypalPayment.id,
-          tester_id: tester.id,
-          accountName: `${tester.name} ${tester.surname}`,
-          amount: validPaypalPayment.amount,
-          type: "paypal",
-          coordinates: validPaypalPayment.paypal_email,
-          status: "pending",
-        })
-      );
+      expect(payment).toMatchObject({
+        id: validPaypalPayment.id,
+        tester_id: tester.id,
+        accountName: `${tester.name} ${tester.surname}`,
+        amount: validPaypalPayment.amount,
+        type: "paypal",
+        coordinates: validPaypalPayment.paypal_email,
+        testerEmail: tester.email,
+        status: "pending",
+      });
     } catch (error) {
       throw error;
     }
