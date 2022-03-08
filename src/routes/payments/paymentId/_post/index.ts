@@ -2,10 +2,10 @@ import { Context } from "openapi-backend";
 
 import generateReceipt from "./generateReceipt";
 import getPayment from "./getPayment";
+import sendPaymentEmail from "./sendPaymentEmail";
 import sendPaypalPayment from "./sendPaypalPayment";
 import sendTransferwisePayment from "./sendTransferwisePayment";
 import updatePayment from "./updatePayment";
-import sendPaymentEmail from "./sendPaymentEmail";
 
 /** OPENAPI-ROUTE: post-payments-paymentId */
 export default async (
@@ -95,8 +95,11 @@ export default async (
     };
   }
 
-  if (process.env.SEND_EMAIL_ON_PAYMENT) {
-    sendPaymentEmail(payment.testerEmail);
+  if (process.env.PAYMENT_COMPLETED_EMAIL) {
+    sendPaymentEmail({
+      email: payment.testerEmail,
+      template: process.env.PAYMENT_COMPLETED_EMAIL,
+    });
   }
   generateReceipt(paymentId);
   res.status_code = 200;

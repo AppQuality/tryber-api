@@ -12,7 +12,7 @@ export default async ({
 	SELECT umt.html_body FROM wp_appq_unlayer_mail_template AS umt
 	JOIN wp_appq_event_transactional_mail AS etm ON umt.id = etm.template_id
 	WHERE etm.event_name = ?`;
-  let templateHtml = await db.query(sqlTemplate);
+  let templateHtml = await db.query(db.format(sqlTemplate, [template]));
 
   if (!templateHtml.length) return;
 
