@@ -16,9 +16,69 @@ const wpTester1 = {
   ID: 1,
   user_login: "john_doe",
 };
+const testerFull = {
+  id: 1,
+  name: "Bob",
+  surname: "Alice",
+  email: "bob.alice@example.com",
+  wp_user_id: 1,
+  is_verified: 1,
+  booty: 69,
+  pending_booty: 70,
+  total_exp_pts: 6969,
+  birth_date: "1996-03-21 00:00:00",
+  phone_number: "+39696969696969",
+  sex: 1,
+  country: "Italy",
+  city: "Rome",
+  onboarding_complete: 1,
+  employment_id: 1,
+  education_id: 1,
+};
+const bug1 = {
+  id: 1,
+  wp_user_id: testerFull.wp_user_id,
+  status_id: 2,
+};
+const testerCandidacy = {
+  id: 1,
+  user_id: testerFull.wp_user_id,
+  accepted: 1,
+  results: 2,
+};
+const certification1 = {
+  id: 1,
+  name: "Best Tryber Ever",
+  area: "Testing 360",
+  institute: "Tryber",
+};
+const testerFullCertification1 = {
+  id: 1,
+  tester_id: testerFull.id,
+  cert_id: certification1.id,
+  //achievement_date: "2021-10-17 00:00:00",
+  achievement_date: new Date("01/01/2021").toISOString(),
+};
+const employment1 = {
+  id: 1,
+  display_name: "UNGUESS Tester",
+};
+const education1 = {
+  id: 1,
+  display_name: "Phd",
+};
+const lang1 = {
+  id: 1,
+  display_name: "Italian",
+};
+const testerFullLang1 = {
+  id: 1,
+  profile_id: testerFull.id,
+  language_id: lang1.id,
+};
 
 describe("Route GET users-me", () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.createTable("wp_appq_evd_profile", [
         "id INTEGER PRIMARY KEY",
@@ -35,11 +95,10 @@ describe("Route GET users-me", () => {
       ]);
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_users", wpTester1);
-
       resolve(null);
     });
   });
-  afterEach(async () => {
+  afterAll(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.dropTable("wp_appq_evd_profile");
       await sqlite3.dropTable("wp_users");
@@ -72,5 +131,182 @@ describe("Route GET users-me", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("role");
     expect(response.body.role).toBe("tester");
+  });
+  it("Should return at least tryber id and tryber role if fields parameter is an unccepted field", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=aaaaaaaaaaaa,aaaaaaaaa")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
+  });
+});
+
+describe("Route GET users-me-full-fields", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_evd_profile", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(255)",
+        "surname VARCHAR(255)",
+        "email VARCHAR(255)",
+        "wp_user_id INTEGER ",
+        "is_verified INTEGER DEFAULT 0",
+        "booty DECIMAL(11,2)",
+        "pending_booty DECIMAL(11,2)",
+        "total_exp_pts INTEGER",
+        "birth_date DATETIME",
+        "phone_number VARCHAR(15)",
+        "sex INTEGER",
+        "country VARCHAR(45)",
+        "city VARCHAR(45)",
+        "onboarding_complete INTEGER",
+        "employment_id INTEGER",
+        "education_id INTEGER",
+      ]);
+
+      await sqlite3.createTable("wp_users", [
+        "ID INTEGER PRIMARY KEY",
+        "user_login VARCHAR(255)",
+      ]);
+      await sqlite3.createTable("wp_appq_evd_bug", [
+        "id INTEGER PRIMARY KEY",
+        "wp_user_id INTEGER",
+        "status_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_crowd_appq_has_candidate", [
+        "id INTEGER PRIMARY KEY",
+        "user_id INTEGER",
+        "accepted INTEGER",
+        "results INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_certifications_list", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(64)",
+        "area VARCHAR(64)",
+        "institute VARCHAR(64)",
+      ]);
+      await sqlite3.createTable("wp_appq_profile_certifications", [
+        "id INTEGER PRIMARY KEY",
+        "tester_id INTEGER",
+        "cert_id INTEGER",
+        "achievement_date TIMESTAMP",
+      ]);
+      await sqlite3.createTable("wp_appq_employment", [
+        "id INTEGER PRIMARY KEY",
+        "display_name VARCHAR(64)",
+      ]);
+      await sqlite3.createTable("wp_appq_education", [
+        "id INTEGER PRIMARY KEY",
+        "display_name VARCHAR(64)",
+      ]);
+      await sqlite3.createTable("wp_appq_lang", [
+        "id INTEGER PRIMARY KEY",
+        "display_name VARCHAR(64)",
+      ]);
+      await sqlite3.createTable("wp_appq_profile_has_lang", [
+        "id INTEGER PRIMARY KEY",
+        "profile_id INTEGER",
+        "language_id INTEGER",
+      ]);
+      await sqlite3.insert("wp_appq_evd_profile", testerFull);
+      await sqlite3.insert("wp_users", wpTester1);
+      await sqlite3.insert("wp_appq_evd_bug", bug1);
+      await sqlite3.insert("wp_crowd_appq_has_candidate", testerCandidacy);
+      await sqlite3.insert("wp_appq_certifications_list", certification1);
+      await sqlite3.insert(
+        "wp_appq_profile_certifications",
+        testerFullCertification1
+      );
+      await sqlite3.insert("wp_appq_employment", employment1);
+      await sqlite3.insert("wp_appq_education", education1);
+      await sqlite3.insert("wp_appq_lang", lang1);
+      await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_users");
+      await sqlite3.dropTable("wp_appq_evd_bug");
+      await sqlite3.dropTable("wp_crowd_appq_has_candidate");
+      await sqlite3.dropTable("wp_appq_certifications_list");
+      await sqlite3.dropTable("wp_appq_profile_certifications");
+      await sqlite3.dropTable("wp_appq_employment");
+      await sqlite3.dropTable("wp_appq_education");
+      await sqlite3.dropTable("wp_appq_lang");
+      await sqlite3.dropTable("wp_appq_profile_has_lang");
+
+      resolve(null);
+    });
+  });
+
+  it("Should return tryber (id, role and name) if parameter fields=name", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=name")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("name");
+    expect(response.body).toMatchObject({
+      id: testerFull.id,
+      role: "tester",
+      name: testerFull.name,
+    });
+  });
+
+  const acceptedFields = {
+    name: "",
+    surname: "",
+    email: "",
+    wp_user_id: 0,
+    is_verified: false,
+    username: "",
+    pending_booty: 0,
+    booty: 0,
+    total_exp_pts: 0,
+    birthDate: "",
+    phone: "",
+    gender: "",
+    country: "",
+    city: "",
+    onboarding_completed: false,
+    image: "",
+    //rank: "",
+    approved_bugs: 0,
+    attended_cp: 0,
+    //certifications: [],
+    profession: {
+      id: 1,
+      name: "profession name",
+    },
+    education: {
+      id: 1,
+      name: "education name",
+    },
+    languages: [],
+    //additional: [],
+  };
+
+  Object.keys(acceptedFields).forEach((k) => {
+    let current: { [key: string]: any } = { id: 1, role: "tester" };
+    current[k] = acceptedFields[k as keyof typeof acceptedFields];
+    //console.log(current);
+    it(
+      "Should return at least tryber (id, role and " +
+        k +
+        ") if is set parameter fields=" +
+        k,
+      async () => {
+        const response = await request(app)
+          .get("/users/me?fields=" + k)
+          .set("authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty(k);
+        /*
+      expect(response.body).toMatchObject(acceptedFields);
+      */
+      }
+    );
   });
 });
