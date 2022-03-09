@@ -1,6 +1,7 @@
 import wpAuthProvider from "@appquality/wp-auth";
-import jwt from "@src/__mocks__/jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { Context } from "openapi-backend";
+
 import config from "../config";
 import authenticate from "../features/wp/authenticate";
 import getUserById from "../features/wp/getUserById";
