@@ -278,7 +278,7 @@ class Transferwise {
     let recipient;
     try {
       recipient = await this.createRecipient({
-        accountHolderName,
+        accountHolderName: accountHolderName.replace(/[^a-zA-Z0-9]+/g, "-"),
         iban,
       });
     } catch (error) {
