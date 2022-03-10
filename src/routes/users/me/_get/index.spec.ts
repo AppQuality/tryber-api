@@ -435,4 +435,35 @@ describe("Route GET users-me-full-fields", () => {
       }
     );
   });
+  it("Should return certifications if parameter fields=certifications", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=certifications")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("certifications");
+    expect(response.body).toHaveProperty("role");
+    expect(response.body.certifications[0]).toMatchObject({
+      id: certification1.id,
+      name: certification1.name,
+      area: certification1.area,
+      institute: certification1.institute,
+      achievement_date: testerFullCertification1.achievement_date.substring(
+        0,
+        10
+      ),
+    });
+    expect(Array.isArray(response.body.certifications)).toBe(true);
+    const certs = response.body
+      .certifications as StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["certifications"];
+    if (Array.isArray(certs)) {
+      certs.forEach((c) => {
+        expect(c).toHaveProperty("id");
+        expect(c).toHaveProperty("name");
+        expect(c).toHaveProperty("area");
+        expect(c).toHaveProperty("institute");
+        expect(c).toHaveProperty("achievement_date");
+      });
+    }
+  });
 });
