@@ -76,6 +76,59 @@ const testerFullLang1 = {
   profile_id: testerFull.id,
   language_id: lang1.id,
 };
+const cufText = {
+  //cuf
+  id: 1,
+  name: "Username Tetris",
+  type: "text",
+  enabled: 1,
+};
+const cufTextVal = {
+  //cuf_data
+  id: 1,
+  value: "CiccioGamer89.",
+  custom_user_field_id: 1,
+  profile_id: testerFull.id,
+  candidate: 0,
+};
+const cufSelect = {
+  //cuf
+  id: 2,
+  name: "Tipologia di spezie preferita",
+  type: "select",
+  enabled: 1,
+};
+const cufSelectOption1 = {
+  //cuf_exstras
+  id: 1,
+  name: "Habanero Scorpion",
+};
+const cufSelectTesterOption1 = {
+  //cuf_data
+  id: 2,
+  value: cufSelectOption1.id,
+  custom_user_field_id: cufSelect.id,
+  profile_id: testerFull.id,
+  candidate: 0,
+};
+const cufMultiselect = {
+  //cuf
+  id: 3,
+  name: "Fornitore di cardamomo preferito",
+  type: "multiselect",
+  enabled: 1,
+};
+const cufTextDisabled = {
+  //cuf
+  id: 4,
+  name: "Fornitore di zenzero preferito",
+  type: "multiselect",
+  enabled: 0,
+};
+
+const cufSelectVal2 = {};
+const cufMultiSelectVal1 = {};
+const cufMultiSelectVal2 = {};
 
 describe("Route GET users-me", () => {
   beforeAll(async () => {
@@ -208,6 +261,26 @@ describe("Route GET users-me-full-fields", () => {
         "profile_id INTEGER",
         "language_id INTEGER",
       ]);
+      //cuf
+      await sqlite3.createTable("wp_appq_custom_user_field", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(128)",
+        "type VARCHAR(11)",
+        "enabled INTEGER",
+      ]);
+      //cud
+      await sqlite3.createTable("wp_appq_custom_user_field_data", [
+        "id INTEGER PRIMARY KEY",
+        "value VARCHAR(512)",
+        "custom_user_field_id INTEGER",
+        "profile_id INTEGER",
+        "candidate",
+      ]);
+      //cue
+      await sqlite3.createTable("wp_appq_custom_user_field_extras", [
+        "id INTEGER PRIMARY KEY",
+        "name VARCHAR(64)",
+      ]);
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -221,6 +294,19 @@ describe("Route GET users-me-full-fields", () => {
       await sqlite3.insert("wp_appq_education", education1);
       await sqlite3.insert("wp_appq_lang", lang1);
       await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+
+      await sqlite3.insert("wp_appq_custom_user_field", cufText);
+      await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+
+      await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
+      await sqlite3.insert(
+        "wp_appq_custom_user_field_data",
+        cufSelectTesterOption1
+      );
+      await sqlite3.insert(
+        "wp_appq_custom_user_field_extras",
+        cufSelectOption1
+      );
 
       resolve(null);
     });
@@ -237,6 +323,9 @@ describe("Route GET users-me-full-fields", () => {
       await sqlite3.dropTable("wp_appq_education");
       await sqlite3.dropTable("wp_appq_lang");
       await sqlite3.dropTable("wp_appq_profile_has_lang");
+      await sqlite3.dropTable("wp_appq_custom_user_field");
+      await sqlite3.dropTable("wp_appq_custom_user_field_data");
+      await sqlite3.dropTable("wp_appq_custom_user_field_extras");
 
       resolve(null);
     });
@@ -285,13 +374,12 @@ describe("Route GET users-me-full-fields", () => {
       name: "education name",
     },
     languages: [],
-    //additional: [],
+    additional: [],
   };
 
   Object.keys(acceptedFields).forEach((k) => {
     let current: { [key: string]: any } = { id: 1, role: "tester" };
     current[k] = acceptedFields[k as keyof typeof acceptedFields];
-    //console.log(current);
     it(
       "Should return at least tryber (id, role and " +
         k +
@@ -301,6 +389,7 @@ describe("Route GET users-me-full-fields", () => {
         const response = await request(app)
           .get("/users/me?fields=" + k)
           .set("authorization", "Bearer tester");
+        console.log(response.body);
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty(k);
         /*
