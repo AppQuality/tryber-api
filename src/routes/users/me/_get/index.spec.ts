@@ -118,6 +118,32 @@ const cufMultiselect = {
   type: "multiselect",
   enabled: 1,
 };
+const cufMultiSelectVal1 = {
+  //cuf_exstras
+  id: 2,
+  name: "Il cardamomo Siciliano",
+};
+const cufMultiSelectVal2 = {
+  //cuf_exstras
+  id: 3,
+  name: "Treviso, città del Cardamomo",
+};
+const cufMultiSelectTesterVal1 = {
+  //cuf_data
+  id: 3,
+  value: cufMultiSelectVal1.id,
+  custom_user_field_id: cufMultiselect.id,
+  profile_id: testerFull.id,
+  candidate: 0,
+};
+const cufMultiSelectTesterVal2 = {
+  //cuf_data
+  id: 4,
+  value: cufMultiSelectVal2.id,
+  custom_user_field_id: cufMultiselect.id,
+  profile_id: testerFull.id,
+  candidate: 0,
+};
 const cufTextDisabled = {
   //cuf
   id: 4,
@@ -125,10 +151,6 @@ const cufTextDisabled = {
   type: "multiselect",
   enabled: 0,
 };
-
-const cufSelectVal2 = {};
-const cufMultiSelectVal1 = {};
-const cufMultiSelectVal2 = {};
 
 describe("Route GET users-me", () => {
   beforeAll(async () => {
@@ -294,18 +316,36 @@ describe("Route GET users-me-full-fields", () => {
       await sqlite3.insert("wp_appq_education", education1);
       await sqlite3.insert("wp_appq_lang", lang1);
       await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
-
+      //insert cuf_text
       await sqlite3.insert("wp_appq_custom_user_field", cufText);
       await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
-
+      //insert cuf_select
       await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
+      await sqlite3.insert(
+        "wp_appq_custom_user_field_extras",
+        cufSelectOption1
+      );
       await sqlite3.insert(
         "wp_appq_custom_user_field_data",
         cufSelectTesterOption1
       );
+      //insert cuf_multiselect
+      await sqlite3.insert("wp_appq_custom_user_field", cufMultiselect);
       await sqlite3.insert(
         "wp_appq_custom_user_field_extras",
-        cufSelectOption1
+        cufMultiSelectVal1
+      );
+      await sqlite3.insert(
+        "wp_appq_custom_user_field_extras",
+        cufMultiSelectVal2
+      );
+      await sqlite3.insert(
+        "wp_appq_custom_user_field_data",
+        cufMultiSelectTesterVal1
+      );
+      await sqlite3.insert(
+        "wp_appq_custom_user_field_data",
+        cufMultiSelectTesterVal2
       );
 
       resolve(null);
@@ -389,12 +429,10 @@ describe("Route GET users-me-full-fields", () => {
         const response = await request(app)
           .get("/users/me?fields=" + k)
           .set("authorization", "Bearer tester");
-        console.log(response.body);
         expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("id");
         expect(response.body).toHaveProperty(k);
-        /*
-      expect(response.body).toMatchObject(acceptedFields);
-      */
+        expect(response.body).toHaveProperty("role");
       }
     );
   });
