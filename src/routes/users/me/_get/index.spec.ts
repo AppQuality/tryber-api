@@ -466,4 +466,51 @@ describe("Route GET users-me-full-fields", () => {
       });
     }
   });
+  it("Should return languages if parameter fields=languages", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=languages")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("languages");
+    expect(response.body).toHaveProperty("role");
+    expect(response.body.languages[0]).toMatchObject({
+      id: lang1.id,
+      name: lang1.display_name,
+    });
+    expect(Array.isArray(response.body.languages)).toBe(true);
+    const langs = response.body
+      .languages as StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["languages"];
+    if (Array.isArray(langs)) {
+      langs.forEach((l) => {
+        expect(l).toHaveProperty("id");
+        expect(l).toHaveProperty("name");
+      });
+    }
+  });
+  it("Should return additionals if parameter fields=additional", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=additional")
+      .set("authorization", "Bearer tester");
+    console.log(response.body);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("additional");
+    expect(response.body).toHaveProperty("role");
+    expect(response.body.additional[3]).toMatchObject({
+      field_id: cufText.id,
+      name: cufText.name,
+      text: cufTextVal.value,
+    });
+    expect(Array.isArray(response.body.additional)).toBe(true);
+    const cufs = response.body
+      .additional as StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["additional"];
+    if (Array.isArray(cufs)) {
+      cufs.forEach((c) => {
+        expect(c).toHaveProperty("field_id");
+        expect(c).toHaveProperty("name");
+        expect(c).toHaveProperty("value");
+      });
+    }
+  });
 });
