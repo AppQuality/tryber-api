@@ -4,17 +4,31 @@ import request from "supertest";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
+
+const campaign1 = {
+  id: 1,
+  title: "This is the Campaign title",
+};
+
+const campaign2 = {
+  id: 2,
+  title: "This is the Campaign title",
+};
 const bug1 = {
   id: 1,
   message: "This is the bug message",
-  campaign_id: 1,
+  campaign_id: campaign1.id,
   status_id: 1,
   wp_user_id: 1,
   severity_id: 1,
 };
-const campaign1 = {
-  id: 1,
-  title: "This is the Campaign title",
+const bug2 = {
+  id: 2,
+  message: "This is the bug message",
+  campaign_id: campaign2.id,
+  status_id: 1,
+  wp_user_id: 1,
+  severity_id: 1,
 };
 const severity1 = {
   id: 1,
@@ -25,7 +39,7 @@ const status1 = {
   name: "This is the Status name",
 };
 
-describe("Route GET users-me-bugs", () => {
+describe("GET /users/me/bugs", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.createTable("wp_appq_evd_bug", [
@@ -49,7 +63,9 @@ describe("Route GET users-me-bugs", () => {
         "name VARCHAR(255)",
       ]);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
+      await sqlite3.insert("wp_appq_evd_bug", bug2);
       await sqlite3.insert("wp_appq_evd_campaign", campaign1);
+      await sqlite3.insert("wp_appq_evd_campaign", campaign2);
       await sqlite3.insert("wp_appq_evd_severity", severity1);
       await sqlite3.insert("wp_appq_evd_bug_status", status1);
 
@@ -84,9 +100,54 @@ describe("Route GET users-me-bugs", () => {
       title: bug1.message,
     });
   });
+
+  it("Should order based on order parameters", async () => {
+    const responseAsc = await request(app)
+      .get("/users/me/bugs?order=ASC&orderBy=id")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      1, 2,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/bugs?order=DESC&orderBy=id")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      2, 1,
+    ]);
+  });
+
+  it("Should return 1 result if is set limit parameter with limit = 1", async () => {
+    const response = await request(app)
+      .get("/users/me/bugs?limit=1")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([1]);
+    const responseASC = await request(app)
+      .get("/users/me/bugs?limit=1&order=ASC&orderBy=id")
+      .set("authorization", "Bearer tester");
+    expect(responseASC.status).toBe(200);
+    expect(responseASC.body.results.map((item: any) => item.id)).toEqual([1]);
+    const responseDESC = await request(app)
+      .get("/users/me/bugs?limit=1&order=DESC&orderBy=id")
+      .set("authorization", "Bearer tester");
+    expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([2]);
+  });
+
+  it("Should return only campaign 1 bugs if filterBy[campaign]=1", async () => {
+    const response = await request(app)
+      .get("/users/me/bugs?filterBy[campaign]=1")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.map((item: { id: number }) => item.id)
+    ).toEqual([bug1.id]);
+  });
 });
 
-describe("Route GET users-me-bugs when the tryber hasn't bug", () => {
+describe("GET /users/me/bugs - user without bugs", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.createTable("wp_appq_evd_profile", [

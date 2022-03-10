@@ -142,7 +142,7 @@ export default async (
     if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = 404;
     return {
-      element: "bugs",
+      element: "experience",
       id: 0,
       message: (error as OpenapiError).message,
     };
