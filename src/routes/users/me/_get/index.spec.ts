@@ -415,7 +415,7 @@ describe("Route GET users-me-full-fields", () => {
     languages: [],
     additional: [],
   };
-
+  //test each single accepted fields
   Object.keys(acceptedFields).forEach((k) => {
     let current: { [key: string]: any } = { id: 1, role: "tester" };
     current[k] = acceptedFields[k as keyof typeof acceptedFields];
@@ -492,7 +492,6 @@ describe("Route GET users-me-full-fields", () => {
     const response = await request(app)
       .get("/users/me?fields=additional")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("id");
     expect(response.body).toHaveProperty("additional");
@@ -512,5 +511,26 @@ describe("Route GET users-me-full-fields", () => {
         expect(c).toHaveProperty("value");
       });
     }
+  });
+
+  it("should return only tester id, role, name and surname if the parameter fields=name,surname", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=name,surname")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("name");
+    expect(response.body).toHaveProperty("surname");
+    expect(response.body).toHaveProperty("role");
+  });
+  it("should return only tester id and role and accepted fields if the fields parameter has multiple options fields=name,home,email", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=name,home,email")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("name");
+    expect(response.body).toHaveProperty("email");
+    expect(response.body).toHaveProperty("role");
   });
 });
