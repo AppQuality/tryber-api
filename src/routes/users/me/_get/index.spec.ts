@@ -56,7 +56,6 @@ const testerFullCertification1 = {
   id: 1,
   tester_id: testerFull.id,
   cert_id: certification1.id,
-  //achievement_date: "2021-10-17 00:00:00",
   achievement_date: new Date("01/01/2021").toISOString(),
 };
 const employment1 = {
@@ -404,7 +403,7 @@ describe("Route GET users-me-full-fields", () => {
     //rank: "",
     approved_bugs: 0,
     attended_cp: 0,
-    //certifications: [],
+    certifications: [],
     profession: {
       id: 1,
       name: "profession name",

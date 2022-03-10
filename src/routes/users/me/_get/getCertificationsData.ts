@@ -26,7 +26,9 @@ export default async (id: string) => {
       certifications: data.map((d: { achievement_date: Date }) => {
         const item = {
           ...d,
-          achievement_date: d.achievement_date.toISOString().substring(0, 10),
+          achievement_date: new Date(d.achievement_date)
+            .toISOString()
+            .substring(0, 10),
         };
         return item;
       }),
