@@ -3,6 +3,9 @@ const sqlite3 = require("better-sqlite3");
 const db = new sqlite3(":memory:");
 db.function("NOW", () => "datetime('now')");
 db.function("CONCAT", { varargs: true }, (...args: string[]) => args.join(""));
+db.function("COALESCE", { varargs: true }, (...args: string[]) =>
+  (args.find((a: any) => a) || null)?.toString()
+);
 
 const mockDb: any = {};
 
@@ -39,7 +42,7 @@ mockDb.all = (query: string): Promise<any> => {
       resolve(data);
     } catch (err) {
       console.log(query);
-      console.log("asd");
+      console.log("error SQLITE:");
       reject(err);
     }
   });
