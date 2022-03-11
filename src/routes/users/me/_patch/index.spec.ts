@@ -168,6 +168,7 @@ describe("Route PATCH users-me", () => {
         "onboarding_complete INTEGER",
         "employment_id INTEGER",
         "education_id INTEGER",
+        "last_activity TIMESTAMP",
       ]);
 
       await sqlite3.createTable("wp_users", [
@@ -344,6 +345,7 @@ describe("Route PATCH users-me new mail", () => {
         "onboarding_complete INTEGER",
         "employment_id INTEGER",
         "education_id INTEGER",
+        "last_activity TIMESTAMP",
       ]);
 
       await sqlite3.createTable("wp_users", [

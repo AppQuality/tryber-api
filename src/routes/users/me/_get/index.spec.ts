@@ -161,6 +161,7 @@ describe("Route GET users-me", () => {
         "email VARCHAR(255)",
         "wp_user_id INTEGER ",
         "is_verified INTEGER DEFAULT 0",
+        "last_activity TIMESTAMP",
       ]);
 
       await sqlite3.createTable("wp_users", [
@@ -236,6 +237,7 @@ describe("Route GET users-me-full-fields", () => {
         "onboarding_complete INTEGER",
         "employment_id INTEGER",
         "education_id INTEGER",
+        "last_activity TIMESTAMP",
       ]);
 
       await sqlite3.createTable("wp_users", [

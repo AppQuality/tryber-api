@@ -1,7 +1,9 @@
 const sqlite3 = require("better-sqlite3");
 
 const db = new sqlite3(":memory:");
-db.function("NOW", () => "datetime('now')");
+db.function("NOW", () =>
+  new Date().toISOString().split(".")[0].replace("T", " ")
+);
 db.function("CONCAT", { varargs: true }, (...args: string[]) => args.join(""));
 db.function("COALESCE", { varargs: true }, (...args: string[]) =>
   (args.find((a: any) => a) || null)?.toString()
@@ -38,7 +40,7 @@ mockDb.dropTable = (table: string) => {
 mockDb.all = (query: string): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const data = await db.prepare(query).all();
+      const data = await db.prepare(query.replace(/"/g, "'")).all();
       resolve(data);
     } catch (err) {
       console.log(query);
