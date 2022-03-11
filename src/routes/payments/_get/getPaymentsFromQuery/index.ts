@@ -58,6 +58,7 @@ export default async (
     ${query.order || "ASC"} 
     ${pagination}
     `;
+
   const results = await db.query(sql);
 
   let total = undefined;

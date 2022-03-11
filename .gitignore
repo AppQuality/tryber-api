@@ -1,6 +1,6 @@
 node_modules/
 dist/
+coverage/
 .env
 keys/*
-!/**/.gitkeep
-.idea
+!/**/.gitkeep.idea

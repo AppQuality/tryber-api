@@ -1,5 +1,4 @@
 import sqlite3 from "@src/features/sqlite";
-
 import updateLastActivity from ".";
 
 jest.mock("@src/features/db");
@@ -40,6 +39,7 @@ describe("updateLastActivity", () => {
     const res = await sqlite3.get(
       `SELECT last_activity FROM wp_appq_evd_profile WHERE id = ${tester1.id} `
     );
+    console.log(res);
     const lastActivity = new Date(res.last_activity + ".000+00:00")
       .toISOString()
       .split(".")[0];
