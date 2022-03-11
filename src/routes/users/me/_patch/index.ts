@@ -47,12 +47,15 @@ export default async (
             [req.body.email, req.user.ID]
           )
         );
+
         if (emailAlreadyExists.length)
           throw {
             status_code: 412,
             message: `Email ${req.body.email} already exists`,
           };
       } catch (e) {
+        const err = e as OpenapiError;
+        if (err.status_code === 412) throw e;
         throw Error("Error while trying to check email");
       }
       profileSets.push("email = ?");
