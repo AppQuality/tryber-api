@@ -1,6 +1,5 @@
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-
 import { send } from "../../../features/mail/send";
 import createWordpressUser from "../../../features/wp/createWordpressUser";
 
@@ -118,7 +117,7 @@ export default async (
         try {
           const insertId = await db.insert("wp_appq_referral_data", {
             referrer_id: parseInt(referralId),
-            tester_id: parseInt(testerId),
+            tester_id: parseInt(testerId.insertId),
             campaign_id: parseInt(campaignId),
           });
         } catch (e) {
