@@ -2900,13 +2900,6 @@ paths:
                             id:
                               type: number
                         - properties:
-                            campaign:
-                              type: object
-                              properties:
-                                id:
-                                  type: number
-                                name:
-                                  type: string
                             type:
                               type: string
                             amount:
@@ -2919,6 +2912,8 @@ paths:
                             date:
                               type: string
                               format: date
+                            activity:
+                              type: string
                       type: object
                   limit:
                     type: number
@@ -3056,10 +3051,10 @@ paths:
         - schema:
             type: string
             enum:
-              - campaign
               - amount
               - type
               - date
+              - activity
           in: query
           name: orderBy
           description: The value to order by
