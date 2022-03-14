@@ -2617,6 +2617,7 @@ paths:
                           required:
                             - status
                             - amount
+                            - receipt
                       type: object
                   limit:
                     type: number
@@ -2626,9 +2627,6 @@ paths:
                     type: number
                   total:
                     type: number
-                required:
-                  - size
-                  - start
               examples:
                 single-paid-payment:
                   value:
