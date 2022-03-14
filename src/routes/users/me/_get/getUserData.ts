@@ -60,7 +60,9 @@ export default async (
 
     try {
       data = { ...data, ...(await getProfileData(id, validFields)) };
-    } catch (e) {}
+    } catch (e) {
+      console.log(e);
+    }
 
     if (validFields.includes("rank")) {
       try {

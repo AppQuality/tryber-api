@@ -2,7 +2,7 @@ import * as db from "@src/features/db";
 
 export default async (paymentId: number): Promise<Payment> => {
   const sql = db.format(
-    `SELECT req.id, p.id as tester_id, p.name , p.surname, req.amount, req.iban, req.paypal_email, req.is_paid
+    `SELECT req.id, p.id as tester_id, p.name , p.surname,p.email as tester_email, req.amount, req.iban, req.paypal_email, req.is_paid
     FROM wp_appq_payment_request req
     JOIN wp_appq_evd_profile p ON (p.id = req.tester_id)
     WHERE req.id = ?;
@@ -35,6 +35,7 @@ export default async (paymentId: number): Promise<Payment> => {
     amount: payment.amount,
     type: paymentType,
     coordinates,
+    testerEmail: payment.tester_email,
     status: payment.is_paid == "1" ? "paid" : "pending",
   };
 };

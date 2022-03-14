@@ -455,6 +455,22 @@ describe("Route GET payments", () => {
       4, 3, 2, 1,
     ]);
   });
+  it("should return only corresponding requests if filterBy method is set", async () => {
+    const responsePaypal = await request(app)
+      .get("/payments?filterBy[paymentMethod]=paypal")
+      .set("authorization", "Bearer admin");
+    expect(responsePaypal.status).toBe(200);
+    expect(responsePaypal.body.items.map((item: any) => item.id)).toEqual([
+      1, 2,
+    ]);
+    const responseTrasferwise = await request(app)
+      .get("/payments?filterBy[paymentMethod]=transferwise")
+      .set("authorization", "Bearer admin");
+    expect(responseTrasferwise.status).toBe(200);
+    expect(responseTrasferwise.body.items.map((item: any) => item.id)).toEqual([
+      3, 4, 5,
+    ]);
+  });
   it("Should skip the first result and limit 2 results if are set start and limit parameters with start 1, limit 2", async () => {
     const response = await request(app)
       .get("/payments?start=1&limit=2")
@@ -576,6 +592,7 @@ describe("Route GET payments when no data", () => {
     const response = await request(app)
       .get("/payments")
       .set("authorization", "Bearer admin");
+    console.log(response.body);
     expect(response.status).toBe(404);
   });
 });

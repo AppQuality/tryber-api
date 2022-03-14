@@ -1979,6 +1979,8 @@ export interface operations {
         start?: components["parameters"]["start"];
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
       };
     };
     responses: {
@@ -1994,7 +1996,7 @@ export interface operations {
               /** @description The timestamp (GMT) of the request creation */
               created: string;
               /** @description The timestamp (GMT) of the request last update */
-              updated?: string;
+              updated: string;
               id: number;
               amount: {
                 value: number;
