@@ -3049,6 +3049,20 @@ paths:
       operationId: get-users-me-payments-payment
       security:
         - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - campaign
+              - amount
+              - type
+              - date
+          in: query
+          name: orderBy
+          description: The value to order by
   /custom_user_fields:
     get:
       summary: Get all custom user fields
