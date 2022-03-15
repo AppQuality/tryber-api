@@ -15,6 +15,7 @@ const tester = {
 const paymentWithError: Payment = {
   tester_id: tester.id,
   amount: 100,
+  testerEmail: "john.doe@example.com",
   coordinates: "DE12345678901234567890",
   accountName: "John Doe",
   status: "pending",
@@ -30,6 +31,7 @@ const paymentWithError: Payment = {
 const paymentWithFee: Payment = {
   tester_id: tester.id,
   amount: 100,
+  testerEmail: "john.doe@example.com",
   coordinates: "DE12345678901234567890",
   accountName: "John Doe",
   status: "pending",
