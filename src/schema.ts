@@ -271,8 +271,9 @@ export interface paths {
       };
     };
   };
-  "/users/me/payments/": {
+  "/users/me/payments": {
     get: operations["get-users-me-payments"];
+    parameters: {};
   };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
