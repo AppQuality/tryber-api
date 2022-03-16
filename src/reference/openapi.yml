@@ -2617,7 +2617,6 @@ paths:
                           required:
                             - status
                             - amount
-                            - receipt
                       type: object
                   limit:
                     type: number
