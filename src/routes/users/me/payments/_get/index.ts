@@ -8,15 +8,14 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  res.status_code = 200;
   try {
     const query = `SELECT pr.*, rcpt.url AS receipt
     FROM wp_appq_payment_request pr
-             JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id
+             LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id
     WHERE pr.tester_id = ?`;
     const results = await db.query(db.format(query, [req.user.testerId]));
-    //console.log(results);
-    return {
+    console.log(results);
+    const c = {
       results: results.map((row: any) => {
         return {
           id: row.id,
@@ -25,15 +24,22 @@ export default async (
             value: row.amount,
             currency: "EUR",
           },
-          paidDate: row.update_date.substring(0, 10),
+          paidDate: new Date(row.update_date).toISOString().substring(0, 10),
           method: {
             type: !row.paypal_email ? "iban" : "paypal",
-            note: !row.paypal_email ? "Iban " + row.iban : row.paypal_email,
+            note: !row.paypal_email
+              ? "Iban ************" +
+                row.iban.substr(-Math.min(row.iban.length - 1, 6))
+              : row.paypal_email,
           },
-          receipt: row.receipt,
+          receipt: row.receipt ? row.receipt : undefined,
         };
       }),
     };
+    console.log(c);
+    res.status_code = 200;
+
+    return c;
   } catch (err) {
     debugMessage(err);
     res.status_code = 400;

@@ -12,7 +12,6 @@ const paymentRequestPaypal = {
   paypal_email: "john.doe@example.com",
   is_paid: 0,
   request_date: new Date("01/01/1972").toISOString(),
-  receipt_id: 6969,
 };
 const paymentRequestWise = {
   id: 2,
@@ -23,13 +22,9 @@ const paymentRequestWise = {
   request_date: new Date("01/05/1970").toISOString(),
   receipt_id: 69,
 };
-const receiptPaypal = {
-  id: 6969,
-  url: "http://example.com/receiptPaypal",
-};
 const receiptWise = {
   id: 69,
-  url: "http://example.com/receiptWise",
+  url: "https://example.com/receiptWise",
 };
 describe("GET /users/me/payments", () => {
   beforeAll(async () => {
@@ -52,7 +47,6 @@ describe("GET /users/me/payments", () => {
       ]);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
-      await sqlite3.insert("wp_appq_receipt", receiptPaypal);
       await sqlite3.insert("wp_appq_receipt", receiptWise);
       resolve(null);
     });
@@ -81,7 +75,5 @@ describe("GET /users/me/payments", () => {
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    console.log(response.body);
-    console.log(response.statusCode);
   });
 });
