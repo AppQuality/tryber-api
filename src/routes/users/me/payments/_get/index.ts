@@ -12,9 +12,11 @@ export default async (
     const query = `SELECT pr.*, rcpt.url AS receipt
     FROM wp_appq_payment_request pr
              LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id
-    WHERE pr.tester_id = ?`;
+    WHERE pr.tester_id = ? AND 
+    ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
+    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)`;
+
     const results = await db.query(db.format(query, [req.user.testerId]));
-    console.log(results);
     const c = {
       results: results.map((row: any) => {
         return {

@@ -22,6 +22,14 @@ const paymentRequestWise = {
   request_date: new Date("01/05/1970").toISOString(),
   receipt_id: 69,
 };
+const paymentRequestInvalid = {
+  id: 3,
+  tester_id: 1,
+  amount: 169,
+  is_paid: 1,
+  request_date: new Date("03/05/1979").toISOString(),
+  receipt_id: 69,
+};
 const receiptWise = {
   id: 69,
   url: "https://example.com/receiptWise",
@@ -47,6 +55,7 @@ describe("GET /users/me/payments", () => {
       ]);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
+      await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
       await sqlite3.insert("wp_appq_receipt", receiptWise);
       resolve(null);
     });
@@ -63,7 +72,6 @@ describe("GET /users/me/payments", () => {
     const response = await request(app).get("/users/me/payments");
     expect(response.status).toBe(403);
   });
-
   it("Should answer 200 if logged in", async () => {
     const response = await request(app)
       .get("/users/me/payments")
