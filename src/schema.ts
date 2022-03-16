@@ -1938,8 +1938,6 @@ export interface operations {
         start?: components["parameters"]["start"];
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
-        /** Key-value Array for item filtering */
-        filterBy?: components["parameters"]["filterBy"];
         /** The field for item order */
         orderBy?: string;
         /** How to order values (ASC, DESC) */
@@ -1967,8 +1965,8 @@ export interface operations {
                 type?: "paypal" | "iban";
                 note?: string;
               };
-              /** Format: uri */
-              receipt: string;
+              /** Format: uri-reference */
+              receipt?: string;
             })[];
             limit?: number;
             size?: number;
