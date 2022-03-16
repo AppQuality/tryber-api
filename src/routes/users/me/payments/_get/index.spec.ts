@@ -30,9 +30,22 @@ const paymentRequestInvalid = {
   request_date: new Date("03/05/1979").toISOString(),
   receipt_id: 69,
 };
+const paymentRequestPaypal2 = {
+  id: 4,
+  tester_id: 1,
+  amount: 169,
+  is_paid: 1,
+  paypal_email: "john.doe@example.com",
+  request_date: new Date("03/05/1979").toISOString(),
+  receipt_id: 70,
+};
 const receiptWise = {
   id: 69,
   url: "https://example.com/receiptWise",
+};
+const receiptPaypal = {
+  id: 70,
+  url: "https://example.com/receiptPaypal",
 };
 describe("GET /users/me/payments", () => {
   beforeAll(async () => {
@@ -56,7 +69,9 @@ describe("GET /users/me/payments", () => {
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
+      await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal2);
       await sqlite3.insert("wp_appq_receipt", receiptWise);
+      await sqlite3.insert("wp_appq_receipt", receiptPaypal);
       resolve(null);
     });
   });
@@ -83,5 +98,24 @@ describe("GET /users/me/payments", () => {
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      1, 2, 4,
+    ]);
+  });
+  it("Should order based on order parameters", async () => {
+    const responseAsc = await request(app)
+      .get("/users/me/payments?order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      1, 2, 4,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/payments?order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      4, 2, 1,
+    ]);
   });
 });

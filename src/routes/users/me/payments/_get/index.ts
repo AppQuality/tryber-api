@@ -9,14 +9,18 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    const query = `SELECT pr.*, rcpt.url AS receipt
+    let query: StoplightOperations["get-users-me-payments"]["parameters"]["query"] =
+      req.query;
+    const querySql = `SELECT pr.*, rcpt.url AS receipt
     FROM wp_appq_payment_request pr
              LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id
     WHERE pr.tester_id = ? AND 
     ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
-    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)`;
-
-    const results = await db.query(db.format(query, [req.user.testerId]));
+    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)
+    ORDER BY ${query.orderBy || "pr.id"} 
+    ${query.order || "ASC"} 
+    `;
+    const results = await db.query(db.format(querySql, [req.user.testerId]));
     const c = {
       results: results.map((row: any) => {
         return {
