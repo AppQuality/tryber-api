@@ -9,7 +9,7 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    let query: StoplightOperations["get-users-me-payments"]["parameters"]["query"] =
+    let params: StoplightOperations["get-users-me-payments"]["parameters"]["query"] =
       req.query;
     const querySql = `SELECT pr.*, rcpt.url AS receipt
     FROM wp_appq_payment_request pr
@@ -17,8 +17,8 @@ export default async (
     WHERE pr.tester_id = ? AND 
     ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
     (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)
-    ORDER BY ${query.orderBy || "pr.id"} 
-    ${query.order || "ASC"} 
+    ORDER BY pr.id 
+    ${params.order || "ASC"} 
     `;
     const results = await db.query(db.format(querySql, [req.user.testerId]));
     const c = {
@@ -42,7 +42,7 @@ export default async (
         };
       }),
     };
-    console.log(c);
+    //console.log(c);
     res.status_code = 200;
 
     return c;

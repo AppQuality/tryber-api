@@ -102,7 +102,7 @@ describe("GET /users/me/payments", () => {
       1, 2, 4,
     ]);
   });
-  it("Should order based on order parameters", async () => {
+  it("Should return requests ordered ASC DESC if order is set", async () => {
     const responseAsc = await request(app)
       .get("/users/me/payments?order=ASC")
       .set("authorization", "Bearer tester");
