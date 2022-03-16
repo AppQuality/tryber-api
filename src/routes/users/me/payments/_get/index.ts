@@ -17,7 +17,7 @@ export default async (
     WHERE pr.tester_id = ? AND 
     ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
     (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)
-    ORDER BY pr.id 
+    ORDER BY ${params.orderBy || "pr.id"} 
     ${params.order || "ASC"} 
     `;
     const results = await db.query(db.format(querySql, [req.user.testerId]));

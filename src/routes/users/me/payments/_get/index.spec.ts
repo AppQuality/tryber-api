@@ -8,24 +8,24 @@ jest.mock("@appquality/wp-auth");
 const paymentRequestPaypal = {
   id: 1,
   tester_id: 1,
-  amount: 100,
+  amount: 269,
   paypal_email: "john.doe@example.com",
   is_paid: 0,
-  request_date: new Date("01/01/1972").toISOString(),
+  request_date: new Date("01/01/1980").toISOString(),
 };
 const paymentRequestWise = {
   id: 2,
   tester_id: 1,
-  amount: 100,
+  amount: 169,
   iban: "DE12345678901234567890",
   is_paid: 1,
-  request_date: new Date("01/05/1970").toISOString(),
+  request_date: new Date("01/05/1992").toISOString(),
   receipt_id: 69,
 };
 const paymentRequestInvalid = {
   id: 3,
   tester_id: 1,
-  amount: 169,
+  amount: 69,
   is_paid: 1,
   request_date: new Date("03/05/1979").toISOString(),
   receipt_id: 69,
@@ -33,7 +33,7 @@ const paymentRequestInvalid = {
 const paymentRequestPaypal2 = {
   id: 4,
   tester_id: 1,
-  amount: 169,
+  amount: 170,
   is_paid: 1,
   paypal_email: "john.doe@example.com",
   request_date: new Date("03/05/1979").toISOString(),
@@ -116,6 +116,40 @@ describe("GET /users/me/payments", () => {
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
       4, 2, 1,
+    ]);
+  });
+  it("Should return requests ordered by amount if orderBy=amount is set", async () => {
+    const responseAsc = await request(app)
+      .get("/users/me/payments?orderBy=amount&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      2, 4, 1,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/payments?orderBy=amount&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      1, 4, 2,
+    ]);
+  });
+  it("Should return requests ordered by request_date if orderBy=request_date is set", async () => {
+    const responseAsc = await request(app)
+      .get("/users/me/payments?orderBy=request_date&order=ASC")
+      .set("authorization", "Bearer tester");
+    console.log(responseAsc.body);
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      4, 1, 2,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/payments?orderBy=request_date&order=DESC")
+      .set("authorization", "Bearer tester");
+    console.log(responseDesc.body);
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      2, 1, 4,
     ]);
   });
 });
