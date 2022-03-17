@@ -2626,6 +2626,9 @@ paths:
                     type: number
                   total:
                     type: number
+                required:
+                  - size
+                  - start
               examples:
                 single-paid-payment:
                   value:

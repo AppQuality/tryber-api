@@ -1969,8 +1969,8 @@ export interface operations {
               receipt?: string;
             })[];
             limit?: number;
-            size?: number;
-            start?: number;
+            size: number;
+            start: number;
             total?: number;
           };
         };
