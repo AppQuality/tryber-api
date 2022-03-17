@@ -153,22 +153,103 @@ describe("GET /users/me/payments", () => {
   it("Should return 2 results if is set limit parameter with limit = 2", async () => {
     const response = await request(app)
       .get("/users/me/payments?limit=2")
-      .set("authorization", "Bearer admin");
+      .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("limit");
     expect(response.body.results.map((item: any) => item.id)).toEqual([1, 2]);
+
     const responseASC = await request(app)
       .get("/users/me/payments?limit=2&order=ASC")
-      .set("authorization", "Bearer admin");
+      .set("authorization", "Bearer tester");
     expect(responseASC.status).toBe(200);
+    expect(responseASC.body).toHaveProperty("limit");
     expect(responseASC.body.results.map((item: any) => item.id)).toEqual([
       1, 2,
     ]);
+
     const responseDESC = await request(app)
       .get("/users/me/payments?limit=2&order=DESC")
-      .set("authorization", "Bearer admin");
+      .set("authorization", "Bearer tester");
     expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body).toHaveProperty("limit");
     expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([
       4, 2,
     ]);
+  });
+  it("Should skip the first result if is set start=1 parameter", async () => {
+    const response = await request(app)
+      .get("/users/me/payments?start=1")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("start");
+    expect(response.body.results.map((item: any) => item.id)).toEqual([2, 4]);
+
+    const responseASC = await request(app)
+      .get("/users/me/payments?start=1&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseASC.status).toBe(200);
+    expect(responseASC.body).toHaveProperty("start");
+    expect(responseASC.body.results.map((item: any) => item.id)).toEqual([
+      2, 4,
+    ]);
+
+    const responseDESC = await request(app)
+      .get("/users/me/payments?start=1&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body).toHaveProperty("start");
+    expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([
+      2, 1,
+    ]);
+  });
+
+  it("Should return the size that is equal to number of results", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.size).toBe(response.body.results.length);
+    const responseStart = await request(app)
+      .get("/users/me/payments?start=2&limit=2")
+      .set("authorization", "Bearer tester");
+    expect(responseStart.status).toBe(200);
+    expect(responseStart.body.size).toBe(responseStart.body.results.length);
+  });
+  it("Should return the size of limit if limit is set", async () => {
+    const response = await request(app)
+      .get("/users/me/payments?limit=50")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.limit).toBe(50);
+    expect(response.body).toHaveProperty("limit");
+    const responseNoLimit = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(responseNoLimit.status).toBe(200);
+    expect(responseNoLimit.body).not.toHaveProperty("limit");
+  });
+  it("Should return total of records only if limit is set", async () => {
+    const response = await request(app)
+      .get("/users/me/payments?limit=50")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("limit");
+    expect(response.body).toHaveProperty("total");
+    const responseNoLimit = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(responseNoLimit.status).toBe(200);
+    expect(responseNoLimit.body).not.toHaveProperty("limit");
+    expect(responseNoLimit.body).not.toHaveProperty("total");
+  });
+  it("Should return size and start", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("size");
+    expect(response.body.size).toBe(3);
+    expect(response.body).toHaveProperty("start");
+    expect(response.body.start).toBe(0);
   });
 });

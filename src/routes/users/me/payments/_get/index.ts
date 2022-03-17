@@ -11,10 +11,10 @@ export default async (
   try {
     const params = {
       ...req.query,
-      // start:
-      //   req.query.start && typeof req.query.start === "string"
-      //     ? parseInt(req.query.start)
-      //     : undefined,
+      start:
+        req.query.start && typeof req.query.start === "string"
+          ? parseInt(req.query.start)
+          : undefined,
       limit:
         req.query.limit && typeof req.query.limit === "string"
           ? parseInt(req.query.limit)
@@ -73,6 +73,9 @@ export default async (
           receipt: row.receipt ?? undefined,
         };
       }),
+      limit: params.limit ?? undefined,
+      size: results.length ?? 0,
+      start: params.start ?? 0,
       total: total,
     };
     res.status_code = 200;
