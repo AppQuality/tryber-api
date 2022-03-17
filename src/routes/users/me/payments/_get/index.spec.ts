@@ -138,7 +138,6 @@ describe("GET /users/me/payments", () => {
     const responseAsc = await request(app)
       .get("/users/me/payments?orderBy=request_date&order=ASC")
       .set("authorization", "Bearer tester");
-    console.log(responseAsc.body);
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
       4, 1, 2,
@@ -146,10 +145,30 @@ describe("GET /users/me/payments", () => {
     const responseDesc = await request(app)
       .get("/users/me/payments?orderBy=request_date&order=DESC")
       .set("authorization", "Bearer tester");
-    console.log(responseDesc.body);
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
       2, 1, 4,
+    ]);
+  });
+  it("Should return 2 results if is set limit parameter with limit = 2", async () => {
+    const response = await request(app)
+      .get("/users/me/payments?limit=2")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([1, 2]);
+    const responseASC = await request(app)
+      .get("/users/me/payments?limit=2&order=ASC")
+      .set("authorization", "Bearer admin");
+    expect(responseASC.status).toBe(200);
+    expect(responseASC.body.results.map((item: any) => item.id)).toEqual([
+      1, 2,
+    ]);
+    const responseDESC = await request(app)
+      .get("/users/me/payments?limit=2&order=DESC")
+      .set("authorization", "Bearer admin");
+    expect(responseDESC.status).toBe(200);
+    expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([
+      4, 2,
     ]);
   });
 });

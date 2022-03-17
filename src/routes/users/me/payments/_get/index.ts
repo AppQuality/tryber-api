@@ -9,16 +9,48 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    let params: StoplightOperations["get-users-me-payments"]["parameters"]["query"] =
-      req.query;
+    const params = {
+      ...req.query,
+      // start:
+      //   req.query.start && typeof req.query.start === "string"
+      //     ? parseInt(req.query.start)
+      //     : undefined,
+      limit:
+        req.query.limit && typeof req.query.limit === "string"
+          ? parseInt(req.query.limit)
+          : undefined,
+    } as StoplightOperations["get-users-me-payments"]["parameters"]["query"];
+
+    let pagination = ``;
+    params.limit
+      ? (pagination += `LIMIT ` + params.limit)
+      : (pagination += `LIMIT 25`);
+    params.start
+      ? (pagination += ` OFFSET ` + params.start)
+      : (pagination += ``);
+
+    const WHERE = `WHERE pr.tester_id = ? AND 
+    ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
+    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)`;
+
+    let total = undefined;
+    if (params.limit) {
+      const countSql = `SELECT COUNT(pr.id) as total
+    FROM wp_appq_payment_request pr 
+      ${WHERE}`;
+      let countResults = await db.query(
+        db.format(countSql, [req.user.testerId])
+      );
+      total = countResults[0].total ?? undefined;
+    }
+
     const querySql = `SELECT pr.*, rcpt.url AS receipt
     FROM wp_appq_payment_request pr
-             LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id
-    WHERE pr.tester_id = ? AND 
-    ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
-    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)
+             LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id 
+    ${WHERE} 
     ORDER BY ${params.orderBy || "pr.id"} 
     ${params.order || "ASC"} 
+    ${pagination}
     `;
     const results = await db.query(db.format(querySql, [req.user.testerId]));
     const c = {
@@ -38,11 +70,11 @@ export default async (
                 row.iban.substr(-Math.min(row.iban.length - 1, 6))
               : row.paypal_email,
           },
-          receipt: row.receipt ? row.receipt : undefined,
+          receipt: row.receipt ?? undefined,
         };
       }),
+      total: total,
     };
-    //console.log(c);
     res.status_code = 200;
 
     return c;
