@@ -2561,6 +2561,239 @@ paths:
       tags:
         - User
       description: The field data will be replaced with your new data
+  /users/me/payments:
+    get:
+      summary: Get all your payments
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - properties:
+                            id:
+                              type: number
+                          required:
+                            - id
+                        - properties:
+                            status:
+                              type: string
+                              enum:
+                                - paid
+                                - processing
+                            amount:
+                              type: object
+                              properties:
+                                value:
+                                  type: number
+                                currency:
+                                  type: string
+                            paidDate:
+                              type: string
+                              format: date
+                            method:
+                              type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                    - paypal
+                                    - iban
+                                note:
+                                  type: string
+                            receipt:
+                              type: string
+                              format: uri-reference
+                          required:
+                            - status
+                            - amount
+                      type: object
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  start:
+                    type: number
+                  total:
+                    type: number
+                required:
+                  - size
+                  - start
+              examples:
+                single-paid-payment:
+                  value:
+                    results:
+                      - id: 1
+                        status: paid
+                        amount:
+                          value: 10
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                    limit: 10
+                    size: 1
+                    start: 0
+                    total: 1
+                paid-and-processing:
+                  value:
+                    results:
+                      - id: 2
+                        status: processing
+                        amount:
+                          value: 5
+                          currency: EUR
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 1
+                        status: paid
+                        amount:
+                          value: 10
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                    limit: 10
+                    size: 2
+                    start: 0
+                    total: 2
+                multiple-pages:
+                  value:
+                    results:
+                      - id: 2
+                        status: processing
+                        amount:
+                          value: 5
+                          currency: EUR
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 1
+                        status: paid
+                        amount:
+                          value: 10
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: iban
+                          note: Iban ********************8020
+                        receipt: 'http://example.com'
+                      - id: 3
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: iban
+                          note: Iban ********************8020
+                        receipt: 'http://example.com'
+                      - id: 4
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 5
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 6
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 7
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 8
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 9
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 10
+                        status: paid
+                        amount:
+                          value: 5
+                          currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: iban
+                          note: Iban ********************8020
+                        receipt: 'http://example.com'
+                    limit: 10
+                    size: 10
+                    start: 0
+                    total: 20
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-payments
+      description: ''
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - schema:
+            type: string
+          in: query
+          description: The field for item order
+          name: orderBy
+        - $ref: '#/components/parameters/order'
+    parameters: []
   /custom_user_fields:
     get:
       summary: Get all custom user fields
