@@ -1939,7 +1939,7 @@ export interface operations {
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
         /** The field for item order */
-        orderBy?: string;
+        orderBy?: "amount" | "paidDate";
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
       };
