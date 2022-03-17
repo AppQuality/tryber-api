@@ -58,6 +58,25 @@ export default async (
   }
 
   try {
+    await updateGrossAmounts(
+      {
+        id: payment.id,
+        amount: payment.amount,
+      },
+      payment.fiscalCategory
+    );
+  } catch (error) {
+    payment.error = {
+      status_code: 400,
+      name: "GENERIC_ERROR",
+      message: JSON.stringify({
+        code: "GENERIC_ERROR",
+        data: "Payment is not pending",
+      }),
+    };
+  }
+
+  try {
     if (payment.type == "paypal") {
       payment = await sendPaypalPayment(payment);
     } else if (payment.type == "transferwise") {
@@ -95,13 +114,6 @@ export default async (
       message: payment.error.message,
     };
   }
-  updateGrossAmounts(
-    {
-      id: payment.id,
-      amount: payment.amount,
-    },
-    payment.fiscalCategory
-  );
   if (process.env.PAYMENT_COMPLETED_EMAIL) {
     sendPaymentEmail({
       email: payment.testerEmail,
