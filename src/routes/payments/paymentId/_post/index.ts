@@ -5,6 +5,7 @@ import getPayment from "./getPayment";
 import sendPaymentEmail from "./sendPaymentEmail";
 import sendPaypalPayment from "./sendPaypalPayment";
 import sendTransferwisePayment from "./sendTransferwisePayment";
+import updateGrossAmounts from "./updateGrossAmounts";
 import updatePayment from "./updatePayment";
 
 /** OPENAPI-ROUTE: post-payments-paymentId */
@@ -94,7 +95,13 @@ export default async (
       message: payment.error.message,
     };
   }
-
+  updateGrossAmounts(
+    {
+      id: payment.id,
+      amount: payment.amount,
+    },
+    payment.fiscalCategory
+  );
   if (process.env.PAYMENT_COMPLETED_EMAIL) {
     sendPaymentEmail({
       email: payment.testerEmail,
