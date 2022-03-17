@@ -1160,8 +1160,28 @@ paths:
                     type: number
                   approved_bugs:
                     type: number
+                  bootyThreshold:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                      isOver:
+                        type: boolean
                 required:
                   - id
+              examples:
+                over-threshold-booty:
+                  value:
+                    id: 1
+                    bootyThreshold:
+                      value: 0
+                      isOver: true
+                under-threshold-booty:
+                  value:
+                    id: 1
+                    bootyThreshold:
+                      value: 100
+                      isOver: false
       operationId: get-users-me
       description: Get your user data
       security:
@@ -1338,7 +1358,6 @@ paths:
                         items:
                           $ref: '#/components/schemas/Certification'
                       - type: boolean
-                        properties: {}
                   completionPercent:
                     type: number
                   country:
@@ -1349,6 +1368,13 @@ paths:
                     type: number
                   approved_bugs:
                     type: number
+                  bootyThreshold:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                      isOver:
+                        type: boolean
                 required:
                   - id
         '400':
