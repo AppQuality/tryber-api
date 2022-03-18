@@ -48,7 +48,7 @@ export default async (
       pr.id, pr.is_paid, pr.amount, pr.paypal_email, pr.iban,
       CASE 
         WHEN pr.is_paid=0 THEN NOW()
-          ELSE pr.update_date 
+          ELSE CAST(pr.update_date as CHAR) 
       END as paidDate, 
         rcpt.url AS receipt
       FROM wp_appq_payment_request pr
@@ -76,10 +76,7 @@ export default async (
             value: row.amount,
             currency: "EUR",
           },
-          paidDate:
-            row.is_paid === 0
-              ? "-"
-              : new Date(row.paidDate).toISOString().substring(0, 10),
+          paidDate: row.is_paid === 0 ? "-" : row.paidDate.substring(0, 10),
           method: {
             type: !row.paypal_email ? "iban" : "paypal",
             note: !row.paypal_email

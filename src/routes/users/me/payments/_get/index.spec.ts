@@ -11,7 +11,7 @@ const paymentRequestPaypal = {
   amount: 269,
   paypal_email: "john.doe@example.com",
   is_paid: 1,
-  update_date: new Date("01/01/1980").toISOString(),
+  update_date: "1980-01-01 00:00:00",
 };
 const paymentRequestWise = {
   id: 2,
@@ -19,7 +19,7 @@ const paymentRequestWise = {
   amount: 169,
   iban: "DE12345678901234567890",
   is_paid: 1,
-  update_date: new Date("01/05/1992").toISOString(),
+  update_date: "1992-05-01 00:00:00",
   receipt_id: 69,
 };
 const paymentRequestInvalid = {
@@ -27,7 +27,7 @@ const paymentRequestInvalid = {
   tester_id: 1,
   amount: 69,
   is_paid: 1,
-  update_date: new Date("03/05/1979").toISOString(),
+  update_date: "1979-05-03 00:00:00",
   receipt_id: 69,
 };
 const paymentRequestPaypal2 = {
@@ -36,7 +36,7 @@ const paymentRequestPaypal2 = {
   amount: 170,
   is_paid: 1,
   paypal_email: "john.doe@example.com",
-  update_date: new Date("03/05/1979").toISOString(),
+  update_date: "1979-05-03 00:00:00",
   receipt_id: 70,
 };
 const paymentRequestPaypalProcessing = {
@@ -45,7 +45,7 @@ const paymentRequestPaypalProcessing = {
   amount: 49000,
   is_paid: 0,
   paypal_email: "john.doe@example.com",
-  update_date: new Date("03/05/1979").toISOString(),
+  update_date: "1979-05-03 00:00:00",
 };
 const receiptWise = {
   id: 69,
@@ -134,7 +134,7 @@ describe("GET /users/me/payments", () => {
             note: "Iban ************567890",
             type: "iban",
           },
-          paidDate: "1992-01-04",
+          paidDate: "1992-05-01",
           receipt: "https://example.com/receiptWise",
           status: "paid",
         },
@@ -148,7 +148,7 @@ describe("GET /users/me/payments", () => {
             note: "john.doe@example.com",
             type: "paypal",
           },
-          paidDate: "1979-12-31",
+          paidDate: "1980-01-01",
           status: "paid",
         },
         {
@@ -161,7 +161,7 @@ describe("GET /users/me/payments", () => {
             note: "john.doe@example.com",
             type: "paypal",
           },
-          paidDate: "1979-03-04",
+          paidDate: "1979-05-03",
           receipt: "https://example.com/receiptPaypal",
           status: "paid",
         },

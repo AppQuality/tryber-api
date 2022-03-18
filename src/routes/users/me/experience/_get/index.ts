@@ -11,7 +11,7 @@ export default async (
     const sqlCountFields = `SELECT count(e.id) as total`;
     const sqlSelectFields = `SELECT 
        e.id as id, e.activity_id as activityId, e.reason as note, 
-       e.creation_date as date, e.amount, e.campaign_id as campaignId, c.title as campaignTITLE `;
+       CAST(e.creation_date AS CHAR) as date, e.amount, e.campaign_id as campaignId, c.title as campaignTITLE `;
 
     let fromSql = `
     FROM wp_appq_exp_points e 
@@ -98,6 +98,7 @@ export default async (
       throw Error("Error on finding experience points");
     }
 
+    console.log(rows);
     let expList = rows.map(mapQueryToObject);
     let start = 0;
     if (req.query.start && typeof req.query.start === "string") {
@@ -153,7 +154,7 @@ const mapQueryToObject = (experience: {
   id: number;
   activityId: number;
   note: string;
-  date: Date;
+  date: string;
   amount: number;
   campaignId: number;
   campaignTITLE: string;
@@ -168,7 +169,7 @@ const mapQueryToObject = (experience: {
       id: experience.activityId,
     },
     campaign: campaign,
-    date: new Date(experience.date).toISOString().substr(0, 10),
+    date: experience.date.substr(0, 10),
     amount: experience.amount,
     note: experience.note,
   };

@@ -21,7 +21,7 @@ const exp1 = {
   tester_id: tester1.id,
   activity_id: 1,
   reason: "I'm a reason",
-  creation_date: new Date("01/01/1970").toISOString(),
+  creation_date: "1970-01-01 00:00:00",
   amount: 20,
   campaign_id: campaign1.id,
 };
@@ -30,7 +30,7 @@ const exp2 = {
   tester_id: tester1.id,
   activity_id: 1,
   reason: "I'm a reason",
-  creation_date: new Date("01/01/1970").toISOString(),
+  creation_date: "1970-01-01 00:00:00",
   amount: 10,
   campaign_id: campaign2.id,
 };
@@ -83,19 +83,23 @@ describe("GET /users/me/experience", () => {
       .get("/users/me/experience")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({
+    expect(response.body).toEqual({
       results: [
         {
           id: exp1.id,
           activity: { id: exp1.activity_id },
-          campaign: { id: campaign1.id },
+          campaign: { id: campaign1.id, title: campaign1.title },
+          date: "1970-01-01",
           amount: exp1.amount,
           note: exp1.reason,
         },
         {
           id: exp2.id,
-          activity: { id: exp2.activity_id },
-          campaign: { id: campaign2.id },
+          activity: {
+            id: exp2.activity_id,
+          },
+          date: "1970-01-01",
+          campaign: { id: campaign2.id, title: campaign2.title },
           amount: exp2.amount,
           note: exp2.reason,
         },
