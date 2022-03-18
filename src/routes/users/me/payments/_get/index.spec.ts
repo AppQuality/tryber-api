@@ -13,6 +13,15 @@ const paymentRequestPaypal = {
   is_paid: 1,
   update_date: "1980-01-01 00:00:00",
 };
+
+const paymentRequestPaypalNotMine = {
+  id: 6,
+  tester_id: 2,
+  amount: 269,
+  paypal_email: "john.doe@example.com",
+  is_paid: 1,
+  update_date: "1980-01-01 00:00:00",
+};
 const paymentRequestWise = {
   id: 2,
   tester_id: 1,
@@ -77,6 +86,10 @@ describe("GET /users/me/payments", () => {
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal2);
+      await sqlite3.insert(
+        "wp_appq_payment_request",
+        paymentRequestPaypalNotMine
+      );
       await sqlite3.insert(
         "wp_appq_payment_request",
         paymentRequestPaypalProcessing

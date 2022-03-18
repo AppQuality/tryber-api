@@ -16,9 +16,11 @@ export default async (
   total?: number;
 }> => {
   const data = [];
-  const WHERE = `WHERE pr.tester_id = ? AND 
-    ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
-    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)`;
+  const WHERE = `WHERE 
+    pr.tester_id = ? AND (
+        (pr.paypal_email IS NOT NULL AND pr.paypal_email <> "") 
+        OR (pr.iban IS NOT NULL AND pr.iban <> "")
+    )`;
   data.push(testerId);
 
   let pagination = ``;
