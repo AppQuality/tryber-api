@@ -1,7 +1,8 @@
 /**  OPENAPI-ROUTE : get-users-me-payments */
-import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
+
+import getPaymentsFromQuery from "./getPaymentsFromQuery";
 
 export default async (
   c: Context,
@@ -21,54 +22,37 @@ export default async (
           : undefined,
     } as StoplightOperations["get-users-me-payments"]["parameters"]["query"];
 
-    let pagination = ``;
-    params.limit
-      ? (pagination += `LIMIT ` + params.limit)
-      : (pagination += `LIMIT 25`);
-    params.start
-      ? (pagination += ` OFFSET ` + params.start)
-      : (pagination += ``);
-
-    const WHERE = `WHERE pr.tester_id = ? AND 
-    ( pr.iban IS NOT NULL AND pr.paypal_email IS NULL) OR 
-    (pr.iban IS NULL AND pr.paypal_email IS NOT NULL)`;
-
-    let total = undefined;
-    if (params.limit) {
-      const countSql = `SELECT COUNT(pr.id) as total
-    FROM wp_appq_payment_request pr 
-      ${WHERE}`;
-      let countResults = await db.query(
-        db.format(countSql, [req.user.testerId])
-      );
-      total = countResults[0].total ?? undefined;
+    let results, total;
+    try {
+      const data = await getPaymentsFromQuery(req.user.testerId, params);
+      results = data.results;
+      total = data.total;
+    } catch (err) {
+      debugMessage(err);
+      res.status_code = 400;
+      return {
+        element: "payments",
+        id: 0,
+        message: (err as OpenapiError).message,
+      };
     }
-    const querySql = `
-      SELECT 
-      pr.id, pr.is_paid, pr.amount, pr.paypal_email, pr.iban,
-      CASE 
-        WHEN pr.is_paid=0 THEN NOW()
-          ELSE CAST(pr.update_date as CHAR) 
-      END as paidDate, 
-        rcpt.url AS receipt
-      FROM wp_appq_payment_request pr
-             LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id 
-    ${WHERE} 
-    ORDER BY ${params.orderBy || "paidDate"} 
-    ${params.order || "DESC"} 
-    ${pagination}
-    `;
-    const results = await db.query(db.format(querySql, [req.user.testerId]));
+
     if (!results.length) {
       res.status_code = 404;
       return {
-        element: "payment-requests",
+        element: "payments",
         id: 0,
-        message: "No payments resquests until now",
+        message: "No payments requests until now",
       };
     }
-    const c = {
-      results: results.map((row: any) => {
+    res.status_code = 200;
+    return {
+      results: results.map((row) => {
+        const type = row.iban ? "iban" : "paypal";
+        const note = row.iban
+          ? "Iban ************" +
+            row.iban.substr(-Math.min(row.iban.length - 1, 6))
+          : row.paypal_email;
         return {
           id: row.id,
           status: row.is_paid === 0 ? "processing" : "paid",
@@ -78,28 +62,22 @@ export default async (
           },
           paidDate: row.is_paid === 0 ? "-" : row.paidDate.substring(0, 10),
           method: {
-            type: !row.paypal_email ? "iban" : "paypal",
-            note: !row.paypal_email
-              ? "Iban ************" +
-                row.iban.substr(-Math.min(row.iban.length - 1, 6))
-              : row.paypal_email,
+            type,
+            note,
           },
           receipt: row.receipt ?? undefined,
         };
       }),
-      limit: params.limit ?? undefined,
-      size: results.length ?? 0,
+      limit: params.limit ?? 25,
+      size: results.length,
       start: params.start ?? 0,
-      total: total,
+      total,
     };
-    res.status_code = 200;
-
-    return c;
   } catch (err) {
     debugMessage(err);
     res.status_code = 400;
     return {
-      element: "payment-requests",
+      element: "payments",
       id: 0,
       message: (err as OpenapiError).message,
     };

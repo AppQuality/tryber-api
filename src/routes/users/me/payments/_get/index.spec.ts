@@ -168,6 +168,7 @@ describe("GET /users/me/payments", () => {
       ],
       size: 4,
       start: 0,
+      limit: 25,
     });
   });
   it("Should return requests ordered ASC DESC if order is set", async () => {
@@ -296,7 +297,7 @@ describe("GET /users/me/payments", () => {
     expect(responseStart.status).toBe(200);
     expect(responseStart.body.size).toBe(responseStart.body.results.length);
   });
-  it("Should return the size of limit if limit is set", async () => {
+  it("Should return the size of limit", async () => {
     const response = await request(app)
       .get("/users/me/payments?limit=50")
       .set("authorization", "Bearer tester");
@@ -307,20 +308,19 @@ describe("GET /users/me/payments", () => {
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(responseNoLimit.status).toBe(200);
-    expect(responseNoLimit.body).not.toHaveProperty("limit");
+    expect(responseNoLimit.body).toHaveProperty("limit");
+    expect(responseNoLimit.body.limit).toBe(25);
   });
   it("Should return total of records only if limit is set", async () => {
     const response = await request(app)
       .get("/users/me/payments?limit=50")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("limit");
     expect(response.body).toHaveProperty("total");
     const responseNoLimit = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(responseNoLimit.status).toBe(200);
-    expect(responseNoLimit.body).not.toHaveProperty("limit");
     expect(responseNoLimit.body).not.toHaveProperty("total");
   });
   it("Should return size and start", async () => {
@@ -392,9 +392,9 @@ describe("Route GET payment-requests when no data", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
-      element: "payment-requests",
+      element: "payments",
       id: 0,
-      message: "No payments resquests until now",
+      message: "No payments requests until now",
     });
   });
 });
