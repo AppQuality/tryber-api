@@ -2792,9 +2792,6 @@ paths:
         - $ref: "#/components/parameters/limit"
         - schema:
             type: string
-            enum:
-              - amount
-              - paidDate
           in: query
           description: The field for item order
           name: orderBy

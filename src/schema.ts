@@ -1939,7 +1939,7 @@ export interface operations {
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
         /** The field for item order */
-        orderBy?: "amount" | "paidDate";
+        orderBy?: string;
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
       };
@@ -1958,7 +1958,6 @@ export interface operations {
                 value?: number;
                 currency?: string;
               };
-              /** Format: date */
               paidDate?: string;
               method?: {
                 /** @enum {string} */
