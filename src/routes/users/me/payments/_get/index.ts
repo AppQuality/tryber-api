@@ -43,13 +43,19 @@ export default async (
       );
       total = countResults[0].total ?? undefined;
     }
-
-    const querySql = `SELECT pr.*, rcpt.url AS receipt
-    FROM wp_appq_payment_request pr
+    const querySql = `
+      SELECT 
+      pr.id, pr.is_paid, pr.amount, pr.paypal_email, pr.iban,
+      CASE 
+        WHEN pr.is_paid=0 THEN NOW()
+          ELSE pr.update_date 
+      END as paidDate, 
+        rcpt.url AS receipt
+      FROM wp_appq_payment_request pr
              LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id 
     ${WHERE} 
-    ORDER BY ${params.orderBy || "pr.id"} 
-    ${params.order || "ASC"} 
+    ORDER BY ${params.orderBy || "paidDate"} 
+    ${params.order || "DESC"} 
     ${pagination}
     `;
     const results = await db.query(db.format(querySql, [req.user.testerId]));
@@ -62,7 +68,10 @@ export default async (
             value: row.amount,
             currency: "EUR",
           },
-          paidDate: new Date(row.update_date).toISOString().substring(0, 10),
+          paidDate:
+            row.is_paid === 0
+              ? "-"
+              : new Date(row.paidDate).toISOString().substring(0, 10),
           method: {
             type: !row.paypal_email ? "iban" : "paypal",
             note: !row.paypal_email

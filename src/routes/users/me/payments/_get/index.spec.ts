@@ -10,8 +10,8 @@ const paymentRequestPaypal = {
   tester_id: 1,
   amount: 269,
   paypal_email: "john.doe@example.com",
-  is_paid: 0,
-  request_date: new Date("01/01/1980").toISOString(),
+  is_paid: 1,
+  update_date: new Date("01/01/1980").toISOString(),
 };
 const paymentRequestWise = {
   id: 2,
@@ -19,7 +19,7 @@ const paymentRequestWise = {
   amount: 169,
   iban: "DE12345678901234567890",
   is_paid: 1,
-  request_date: new Date("01/05/1992").toISOString(),
+  update_date: new Date("01/05/1992").toISOString(),
   receipt_id: 69,
 };
 const paymentRequestInvalid = {
@@ -27,7 +27,7 @@ const paymentRequestInvalid = {
   tester_id: 1,
   amount: 69,
   is_paid: 1,
-  request_date: new Date("03/05/1979").toISOString(),
+  update_date: new Date("03/05/1979").toISOString(),
   receipt_id: 69,
 };
 const paymentRequestPaypal2 = {
@@ -36,8 +36,16 @@ const paymentRequestPaypal2 = {
   amount: 170,
   is_paid: 1,
   paypal_email: "john.doe@example.com",
-  request_date: new Date("03/05/1979").toISOString(),
+  update_date: new Date("03/05/1979").toISOString(),
   receipt_id: 70,
+};
+const paymentRequestPaypalProcessing = {
+  id: 5,
+  tester_id: 1,
+  amount: 49000,
+  is_paid: 0,
+  paypal_email: "john.doe@example.com",
+  update_date: new Date("03/05/1979").toISOString(),
 };
 const receiptWise = {
   id: 69,
@@ -56,7 +64,6 @@ describe("GET /users/me/payments", () => {
         "amount INTEGER",
         "iban VARCHAR(255)",
         "paypal_email VARCHAR(255)",
-        "request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ",
         "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
         "error_message text",
         "is_paid BOOL",
@@ -70,6 +77,10 @@ describe("GET /users/me/payments", () => {
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal2);
+      await sqlite3.insert(
+        "wp_appq_payment_request",
+        paymentRequestPaypalProcessing
+      );
       await sqlite3.insert("wp_appq_receipt", receiptWise);
       await sqlite3.insert("wp_appq_receipt", receiptPaypal);
       resolve(null);
@@ -98,9 +109,66 @@ describe("GET /users/me/payments", () => {
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body.results.map((item: any) => item.id)).toEqual([
-      1, 2, 4,
-    ]);
+    expect(response.body).toEqual({
+      results: [
+        {
+          amount: {
+            currency: "EUR",
+            value: 49000,
+          },
+          id: 5,
+          method: {
+            note: "john.doe@example.com",
+            type: "paypal",
+          },
+          paidDate: "-",
+          status: "processing",
+        },
+        {
+          amount: {
+            currency: "EUR",
+            value: 169,
+          },
+          id: 2,
+          method: {
+            note: "Iban ************567890",
+            type: "iban",
+          },
+          paidDate: "1992-01-04",
+          receipt: "https://example.com/receiptWise",
+          status: "paid",
+        },
+        {
+          amount: {
+            currency: "EUR",
+            value: 269,
+          },
+          id: 1,
+          method: {
+            note: "john.doe@example.com",
+            type: "paypal",
+          },
+          paidDate: "1979-12-31",
+          status: "paid",
+        },
+        {
+          amount: {
+            currency: "EUR",
+            value: 170,
+          },
+          id: 4,
+          method: {
+            note: "john.doe@example.com",
+            type: "paypal",
+          },
+          paidDate: "1979-03-04",
+          receipt: "https://example.com/receiptPaypal",
+          status: "paid",
+        },
+      ],
+      size: 4,
+      start: 0,
+    });
   });
   it("Should return requests ordered ASC DESC if order is set", async () => {
     const responseAsc = await request(app)
@@ -108,14 +176,14 @@ describe("GET /users/me/payments", () => {
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
-      1, 2, 4,
+      4, 1, 2, 5,
     ]);
     const responseDesc = await request(app)
       .get("/users/me/payments?order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
-      4, 2, 1,
+      5, 2, 1, 4,
     ]);
   });
   it("Should return requests ordered by amount if orderBy=amount is set", async () => {
@@ -124,39 +192,49 @@ describe("GET /users/me/payments", () => {
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
-      2, 4, 1,
+      2, 4, 1, 5,
     ]);
     const responseDesc = await request(app)
       .get("/users/me/payments?orderBy=amount&order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
-      1, 4, 2,
+      5, 1, 4, 2,
     ]);
   });
-  it("Should return requests ordered by request_date if orderBy=request_date is set", async () => {
+  it("Should return requests ordered by request_date if orderBy=paidDate is set", async () => {
     const responseAsc = await request(app)
-      .get("/users/me/payments?orderBy=request_date&order=ASC")
+      .get("/users/me/payments?orderBy=paidDate&order=ASC")
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
-      4, 1, 2,
+      4, 1, 2, 5,
     ]);
     const responseDesc = await request(app)
-      .get("/users/me/payments?orderBy=request_date&order=DESC")
+      .get("/users/me/payments?orderBy=paidDate&order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
-      2, 1, 4,
+      5, 2, 1, 4,
     ]);
   });
-  it("Should return 2 results if is set limit parameter with limit = 2", async () => {
+  it("Should return requests ordered by request_date DESC by default", async () => {
+    const responseDesc = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      5, 2, 1, 4,
+    ]);
+  });
+  it("Should return 3 results if is set limit parameter with limit = 2", async () => {
     const response = await request(app)
       .get("/users/me/payments?limit=2")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("limit");
-    expect(response.body.results.map((item: any) => item.id)).toEqual([1, 2]);
+    expect(response.body.limit).toBe(2);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([5, 2]);
 
     const responseASC = await request(app)
       .get("/users/me/payments?limit=2&order=ASC")
@@ -164,7 +242,7 @@ describe("GET /users/me/payments", () => {
     expect(responseASC.status).toBe(200);
     expect(responseASC.body).toHaveProperty("limit");
     expect(responseASC.body.results.map((item: any) => item.id)).toEqual([
-      1, 2,
+      4, 1,
     ]);
 
     const responseDESC = await request(app)
@@ -173,7 +251,7 @@ describe("GET /users/me/payments", () => {
     expect(responseDESC.status).toBe(200);
     expect(responseDESC.body).toHaveProperty("limit");
     expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([
-      4, 2,
+      5, 2,
     ]);
   });
   it("Should skip the first result if is set start=1 parameter", async () => {
@@ -182,7 +260,10 @@ describe("GET /users/me/payments", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("start");
-    expect(response.body.results.map((item: any) => item.id)).toEqual([2, 4]);
+    expect(response.body.start).toBe(1);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      2, 1, 4,
+    ]);
 
     const responseASC = await request(app)
       .get("/users/me/payments?start=1&order=ASC")
@@ -190,7 +271,7 @@ describe("GET /users/me/payments", () => {
     expect(responseASC.status).toBe(200);
     expect(responseASC.body).toHaveProperty("start");
     expect(responseASC.body.results.map((item: any) => item.id)).toEqual([
-      2, 4,
+      1, 2, 5,
     ]);
 
     const responseDESC = await request(app)
@@ -199,7 +280,7 @@ describe("GET /users/me/payments", () => {
     expect(responseDESC.status).toBe(200);
     expect(responseDESC.body).toHaveProperty("start");
     expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([
-      2, 1,
+      2, 1, 4,
     ]);
   });
 
@@ -248,8 +329,28 @@ describe("GET /users/me/payments", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("size");
-    expect(response.body.size).toBe(3);
+    expect(response.body.size).toBe(4);
     expect(response.body).toHaveProperty("start");
     expect(response.body.start).toBe(0);
+  });
+  it("Should return - as paidDate if status is processing", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results[0].status).toBe("processing");
+    response.body.results.forEach(
+      (el: {
+        id: number;
+        status: string;
+        amount: object;
+        paidDate: string;
+        method: object;
+        receipt?: string;
+      }) => {
+        if (el.status === "processing") expect(el.paidDate).toEqual("-");
+        else expect(el.paidDate.length).toEqual(10);
+      }
+    );
   });
 });
