@@ -1950,7 +1950,7 @@ export interface operations {
         content: {
           "application/json": {
             results?: ({
-              id: number;
+              id?: number;
             } & {
               /** @enum {string} */
               status: "paid" | "processing";
