@@ -8,6 +8,7 @@ const paymentMockData: Payment = {
   accountName: "John Doe",
   type: "paypal",
   status: "pending",
+  testerEmail: "john.doe@example.com",
   coordinates: "DE12345678901234567890",
   amount: 1,
 };

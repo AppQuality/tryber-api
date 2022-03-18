@@ -271,6 +271,10 @@ export interface paths {
       };
     };
   };
+  "/users/me/payments": {
+    get: operations["get-users-me-payments"];
+    parameters: {};
+  };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
     parameters: {};
@@ -1925,6 +1929,53 @@ export interface operations {
               is_candidate?: boolean;
             };
       };
+    };
+  };
+  "get-users-me-payments": {
+    parameters: {
+      query: {
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** The field for item order */
+        orderBy?: string;
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results?: ({
+              id?: number;
+            } & {
+              /** @enum {string} */
+              status: "paid" | "processing";
+              amount: {
+                value?: number;
+                currency?: string;
+              };
+              paidDate?: string;
+              method?: {
+                /** @enum {string} */
+                type?: "paypal" | "iban";
+                note?: string;
+              };
+              /** Format: uri-reference */
+              receipt?: string;
+            })[];
+            limit?: number;
+            size: number;
+            start: number;
+            total?: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-customUserFields": {

@@ -14,6 +14,7 @@ export default (c: Context, req: Request, res: OpenapiResponse) => {
         console.log(c.response);
       }
       // response validation failed
+      console.log(valid.errors);
       return res.status(502).json({
         status: 502,
         err: valid.errors,
