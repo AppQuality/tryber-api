@@ -59,6 +59,14 @@ export default async (
     ${pagination}
     `;
     const results = await db.query(db.format(querySql, [req.user.testerId]));
+    if (!results.length) {
+      res.status_code = 404;
+      return {
+        element: "payment-requests",
+        id: 0,
+        message: "No payments resquests until now",
+      };
+    }
     const c = {
       results: results.map((row: any) => {
         return {

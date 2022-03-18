@@ -349,8 +349,52 @@ describe("GET /users/me/payments", () => {
         receipt?: string;
       }) => {
         if (el.status === "processing") expect(el.paidDate).toEqual("-");
-        else expect(el.paidDate.length).toEqual(10);
+        else {
+          expect(el.paidDate.length).toEqual(10);
+          expect(el.paidDate).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); //YYYY-MM-DD
+        }
       }
     );
+  });
+});
+
+describe("Route GET payment-requests when no data", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_payment_request", [
+        "id INTEGER PRIMARY KEY",
+        "tester_id INTEGER",
+        "amount INTEGER",
+        "iban VARCHAR(255)",
+        "paypal_email VARCHAR(255)",
+        "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "error_message text",
+        "is_paid BOOL",
+        "receipt_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_receipt", [
+        "id INTEGER PRIMARY KEY",
+        "url VARCHAR(256)",
+      ]);
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_payment_request");
+      await sqlite3.dropTable("wp_appq_receipt");
+      resolve(null);
+    });
+  });
+  it("Should return 404", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      element: "payment-requests",
+      id: 0,
+      message: "No payments resquests until now",
+    });
   });
 });
