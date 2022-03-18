@@ -16,6 +16,5 @@ export default (id: number) => {
     if (err) {
       console.error(err);
     }
-    console.log(data);
   });
 };

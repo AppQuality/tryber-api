@@ -592,7 +592,6 @@ describe("Route GET payments when no data", () => {
     const response = await request(app)
       .get("/payments")
       .set("authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.status).toBe(404);
   });
 });

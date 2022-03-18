@@ -98,7 +98,6 @@ export default async (
       throw Error("Error on finding experience points");
     }
 
-    console.log(rows);
     let expList = rows.map(mapQueryToObject);
     let start = 0;
     if (req.query.start && typeof req.query.start === "string") {

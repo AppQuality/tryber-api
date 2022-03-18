@@ -195,7 +195,6 @@ describe("GET /users/me/experience - user without experience points", () => {
     const response = await request(app)
       .get("/users/me/experience")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({
       element: "experience",
