@@ -31,7 +31,14 @@ describe("POST /users/me/payments - valid paypal", () => {
       wpOptionsData.crowdWpOptions();
       paymentRequestTable.create();
 
-      data.tester = profileData.testerWithBooty();
+      data.tester = profileData.testerWithBooty({
+        pending_booty: 129.99,
+      });
+      data.tester = {
+        ...data.tester,
+        expected_gross: 162.49,
+        expected_withholding: 32.5,
+      };
       data.fiscalProfile = fiscalProfileData.validFiscalProfile({
         tester_id: data.tester.id,
       });
@@ -121,6 +128,46 @@ describe("POST /users/me/payments - valid paypal", () => {
       `SELECT fiscal_profile_id FROM wp_appq_payment_request WHERE id=${requestId}`
     );
     expect(requestData.fiscal_profile_id).toBe(data.fiscalProfile.id);
+  });
+
+  it("Should create a row in the requests with amount_gross = 125% of the amount", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT amount_gross FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.amount_gross).toBe(data.tester.expected_gross);
+  });
+
+  it("Should create a row in the requests amount_witholding = gross - amount", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT amount_gross,amount_withholding FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.amount_withholding).toBe(
+      data.tester.expected_withholding
+    );
   });
 });
 
