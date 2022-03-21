@@ -1,3 +1,7 @@
+import {
+  data as wpOptionsData,
+  table as wpOptionsTable,
+} from "@src/__mocks__/mockedDb/wp_options";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
@@ -304,6 +308,8 @@ describe("Route GET users-me-full-fields", () => {
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(64)",
       ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -367,6 +373,7 @@ describe("Route GET users-me-full-fields", () => {
       await sqlite3.dropTable("wp_appq_custom_user_field");
       await sqlite3.dropTable("wp_appq_custom_user_field_data");
       await sqlite3.dropTable("wp_appq_custom_user_field_extras");
+      wpOptionsTable.drop();
 
       resolve(null);
     });
@@ -406,6 +413,10 @@ describe("Route GET users-me-full-fields", () => {
     approved_bugs: 0,
     attended_cp: 0,
     certifications: [],
+    booty_threshold: {
+      value: 0,
+      isOver: false,
+    },
     profession: {
       id: 1,
       name: "profession name",
@@ -534,5 +545,18 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("name");
     expect(response.body).toHaveProperty("email");
     expect(response.body).toHaveProperty("role");
+  });
+  it("should return only tester id, role and booty_threshold fields=booty_threshold", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=booty_threshold")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    expect(response.body).toHaveProperty("booty_threshold");
+    expect(response.body).toHaveProperty("role");
+    expect(response.body.booty_threshold).toEqual({
+      value: 2,
+      isOver: true,
+    });
   });
 });
