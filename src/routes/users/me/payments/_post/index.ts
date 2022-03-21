@@ -25,7 +25,7 @@ export default async (
 
   const gross = Math.round((booty + Number.EPSILON) * 125) / 100;
   const witholding = Math.round((booty + Number.EPSILON) * 25) / 100;
-  console.log(gross, witholding);
+
   const data = await db.query(
     db.format(
       `
