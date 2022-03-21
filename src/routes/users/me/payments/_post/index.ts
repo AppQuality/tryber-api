@@ -1,25 +1,21 @@
 /** OPENAPI-ROUTE: post-users-me-payments */
-import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
+
+import checkBooty from "./checkBooty";
+import checkFiscalProfile from "./checkFiscalProfile";
 
 export default async (
   c: Context,
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  const currentBooty = await db.query(
-    db.format(
-      `
-  SELECT pending_booty 
-  FROM wp_appq_evd_profile
-  WHERE id = ?`,
-      [req.user.testerId]
-    )
-  );
-  if (currentBooty.length === 0 || currentBooty[0].pending_booty === 0) {
+  try {
+    checkBooty(req.user.testerId);
+    checkFiscalProfile(req.user.testerId);
+  } catch (err) {
     res.status_code = 403;
     return {
-      error: "You don't have any booty to pay",
+      error: (err as OpenapiError).message,
     };
   }
 };

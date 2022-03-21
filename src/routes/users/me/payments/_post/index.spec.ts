@@ -1,8 +1,12 @@
-import app from "@src/app";
+import {
+  data as fiscalProfileData,
+  table as fiscalProfileTable,
+} from "@src/__mocks__/mockedDb/fiscalProfile";
 import {
   data as profileData,
   table as profileTable,
 } from "@src/__mocks__/mockedDb/profile";
+import app from "@src/app";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -26,22 +30,56 @@ describe("POST /users/me/payments", () => {
   });
 });
 
-describe("POST /users/me/payments", () => {
+describe("POST /users/me/payments - invalid data", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       profileTable.create();
-      profileData.testerWithoutBooty();
+      fiscalProfileTable.create();
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
       profileTable.drop();
+      fiscalProfileTable.drop();
       resolve(null);
     });
   });
 
   it("Should answer 403 if logged in but with empty booty", async () => {
+    profileData.testerWithoutBooty();
+    const response = await request(app)
+      .post("/users/me/payments")
+      .set("authorization", "Bearer tester")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      });
+    expect(response.status).toBe(403);
+  });
+
+  it("Should answer 403 if logged with a booty but without fiscal profile", async () => {
+    const tester = profileData.testerWithBooty();
+    fiscalProfileData.inactiveFiscalProfile({ tester_id: tester.id });
+
+    const response = await request(app)
+      .post("/users/me/payments")
+      .set("authorization", "Bearer tester")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      });
+    expect(response.status).toBe(403);
+  });
+
+  it("Should answer 403 if logged with a booty but with an invalid fiscal profile", async () => {
+    const tester = profileData.testerWithBooty();
+    fiscalProfileData.invalidFiscalProfile({ tester_id: tester.id });
+
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")

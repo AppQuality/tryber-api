@@ -18,10 +18,10 @@ export const table = {
   },
 };
 
-const data: { [key: string]: () => void } = {};
+const data: { [key: string]: (params?: any) => { [key: string]: any } } = {};
 
 data.testerWithoutBooty = () => {
-  sqlite3.insert("wp_appq_evd_profile", {
+  const item = {
     id: 1,
     name: "tester",
     surname: "tester",
@@ -30,7 +30,24 @@ data.testerWithoutBooty = () => {
     wp_user_id: 1,
     is_verified: 0,
     last_activity: new Date("01/01/2021").toISOString(),
-  });
+  };
+  sqlite3.insert("wp_appq_evd_profile", item);
+  return item;
+};
+
+data.testerWithBooty = () => {
+  const item = {
+    id: 1,
+    name: "tester",
+    surname: "tester",
+    email: "tester@example.com",
+    pending_booty: 100,
+    wp_user_id: 1,
+    is_verified: 0,
+    last_activity: new Date("01/01/2021").toISOString(),
+  };
+  sqlite3.insert("wp_appq_evd_profile", item);
+  return item;
 };
 
 export { data };
