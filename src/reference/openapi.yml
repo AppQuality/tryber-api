@@ -1160,6 +1160,16 @@ paths:
                     type: number
                   approved_bugs:
                     type: number
+                  booty_threshold:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                      isOver:
+                        type: boolean
+                    required:
+                      - value
+                      - isOver
                 required:
                   - id
       operationId: get-users-me
