@@ -25,13 +25,13 @@ describe("POST /users/me/payments - valid paypal", () => {
   const data: any = {};
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
-      fiscalProfileTable.create();
-      wpOptionsTable.create();
-      wpOptionsData.crowdWpOptions();
-      paymentRequestTable.create();
+      await profileTable.create();
+      await fiscalProfileTable.create();
+      await wpOptionsTable.create();
+      await wpOptionsData.crowdWpOptions();
+      await paymentRequestTable.create();
 
-      data.tester = profileData.testerWithBooty({
+      data.tester = await profileData.testerWithBooty({
         pending_booty: 129.99,
       });
       data.tester = {
@@ -39,7 +39,7 @@ describe("POST /users/me/payments - valid paypal", () => {
         expected_gross: 162.49,
         expected_withholding: 32.5,
       };
-      data.fiscalProfile = fiscalProfileData.validFiscalProfile({
+      data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
         tester_id: data.tester.id,
       });
       resolve(null);
@@ -47,10 +47,10 @@ describe("POST /users/me/payments - valid paypal", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      fiscalProfileTable.drop();
-      wpOptionsTable.drop();
-      paymentRequestTable.drop();
+      await profileTable.drop();
+      await fiscalProfileTable.drop();
+      await wpOptionsTable.drop();
+      await paymentRequestTable.drop();
       resolve(null);
     });
   });
@@ -174,27 +174,27 @@ describe("POST /users/me/payments - valid paypal", () => {
 describe("POST /users/me/payments - invalid data", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
-      fiscalProfileTable.create();
-      wpOptionsTable.create();
-      wpOptionsData.crowdWpOptions();
-      paymentRequestTable.create();
+      await profileTable.create();
+      await fiscalProfileTable.create();
+      await wpOptionsTable.create();
+      await wpOptionsData.crowdWpOptions();
+      await paymentRequestTable.create();
 
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      fiscalProfileTable.drop();
-      wpOptionsTable.drop();
-      paymentRequestTable.drop();
+      await profileTable.drop();
+      await fiscalProfileTable.drop();
+      await wpOptionsTable.drop();
+      await paymentRequestTable.drop();
       resolve(null);
     });
   });
 
   it("Should answer 403 if logged in but with empty booty", async () => {
-    profileData.testerWithoutBooty();
+    await profileData.testerWithoutBooty();
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")
@@ -208,8 +208,8 @@ describe("POST /users/me/payments - invalid data", () => {
   });
 
   it("Should answer 403 if logged with a booty but without fiscal profile", async () => {
-    const tester = profileData.testerWithBooty();
-    fiscalProfileData.inactiveFiscalProfile({ tester_id: tester.id });
+    const tester = await profileData.testerWithBooty();
+    await fiscalProfileData.inactiveFiscalProfile({ tester_id: tester.id });
 
     const response = await request(app)
       .post("/users/me/payments")
@@ -224,8 +224,8 @@ describe("POST /users/me/payments - invalid data", () => {
   });
 
   it("Should answer 403 if logged with a booty but with an invalid fiscal profile", async () => {
-    const tester = profileData.testerWithBooty();
-    fiscalProfileData.invalidFiscalProfile({ tester_id: tester.id });
+    const tester = await profileData.testerWithBooty();
+    await fiscalProfileData.invalidFiscalProfile({ tester_id: tester.id });
 
     const response = await request(app)
       .post("/users/me/payments")
@@ -239,10 +239,10 @@ describe("POST /users/me/payments - invalid data", () => {
     expect(response.status).toBe(403);
   });
   it("Should answer 403 if logged with a valid fiscal profile but the booty under threshold", async () => {
-    const tester = profileData.testerWithBooty({
+    const tester = await profileData.testerWithBooty({
       pending_booty: 0.01,
     });
-    fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
+    await fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
 
     const response = await request(app)
       .post("/users/me/payments")
@@ -256,9 +256,9 @@ describe("POST /users/me/payments - invalid data", () => {
     expect(response.status).toBe(403);
   });
   it("Should answer 403 if logged with a valid fiscal, a booty over threshold but with a payment already processing", async () => {
-    const tester = profileData.testerWithBooty();
-    fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
-    paymentRequestData.processingPaypalPayment({ tester_id: tester.id });
+    const tester = await profileData.testerWithBooty();
+    await fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
+    await paymentRequestData.processingPaypalPayment({ tester_id: tester.id });
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")

@@ -14,37 +14,39 @@ export const table = {
   },
 };
 
-const data: { [key: string]: (params?: any) => { [key: string]: any } } = {};
+const data: {
+  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
+} = {};
 
-data.inactiveFiscalProfile = ({ tester_id }: { tester_id: number }) => {
+data.inactiveFiscalProfile = async ({ tester_id }: { tester_id: number }) => {
   const item = {
     id: 1,
     tester_id,
     is_active: 0,
     is_verified: 1,
   };
-  sqlite3.insert("wp_appq_fiscal_profile", item);
+  await sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
 };
 
-data.invalidFiscalProfile = ({ tester_id }: { tester_id: number }) => {
+data.invalidFiscalProfile = async ({ tester_id }: { tester_id: number }) => {
   const item = {
     id: 1,
     tester_id,
     is_active: 1,
     is_verified: 0,
   };
-  sqlite3.insert("wp_appq_fiscal_profile", item);
+  await sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
 };
-data.validFiscalProfile = ({ tester_id }: { tester_id: number }) => {
+data.validFiscalProfile = async ({ tester_id }: { tester_id: number }) => {
   const item = {
     id: 1,
     tester_id,
     is_active: 1,
     is_verified: 1,
   };
-  sqlite3.insert("wp_appq_fiscal_profile", item);
+  await sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
 };
 

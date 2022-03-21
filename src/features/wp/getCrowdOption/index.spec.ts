@@ -10,8 +10,8 @@ jest.mock("@src/features/db");
 describe("getCrowdOption", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      wpOptionsTable.create();
-      wpOptionsData.crowdWpOptions();
+      await wpOptionsTable.create();
+      await wpOptionsData.crowdWpOptions();
       resolve(null);
     });
   });

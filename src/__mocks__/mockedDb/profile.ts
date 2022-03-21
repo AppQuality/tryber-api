@@ -18,9 +18,11 @@ export const table = {
   },
 };
 
-const data: { [key: string]: (params?: any) => { [key: string]: any } } = {};
+const data: {
+  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
+} = {};
 
-data.testerWithoutBooty = () => {
+data.testerWithoutBooty = async () => {
   const item = {
     id: 1,
     name: "tester",
@@ -31,11 +33,11 @@ data.testerWithoutBooty = () => {
     is_verified: 0,
     last_activity: new Date("01/01/2021").toISOString(),
   };
-  sqlite3.insert("wp_appq_evd_profile", item);
+  await sqlite3.insert("wp_appq_evd_profile", item);
   return item;
 };
 
-data.testerWithBooty = (params?: { pending_booty?: number }) => {
+data.testerWithBooty = async (params?: { pending_booty?: number }) => {
   const item = {
     id: 1,
     name: "tester",
@@ -47,7 +49,7 @@ data.testerWithBooty = (params?: { pending_booty?: number }) => {
     last_activity: new Date("01/01/2021").toISOString(),
     ...params,
   };
-  sqlite3.insert("wp_appq_evd_profile", item);
+  await sqlite3.insert("wp_appq_evd_profile", item);
   return item;
 };
 
