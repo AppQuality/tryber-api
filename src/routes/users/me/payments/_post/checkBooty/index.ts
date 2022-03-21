@@ -18,5 +18,5 @@ export default async (testerId: number) => {
   if (threshold && currentBooty[0].pending_booty < threshold) {
     throw new Error(`You need to have at least ${threshold} booty to pay`);
   }
-  return true;
+  return currentBooty[0].pending_booty;
 };
