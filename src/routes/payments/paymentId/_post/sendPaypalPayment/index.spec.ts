@@ -10,6 +10,7 @@ const paymentMockData: Payment = {
   status: "pending",
   testerEmail: "john.doe@example.com",
   coordinates: "john.doe@example.com",
+  testerEmail: "john.doe@example.com",
   amount: 1,
 };
 jest.mock("@src/features/paypal");

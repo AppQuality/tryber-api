@@ -20,6 +20,7 @@ const paymentWithError: Payment = {
   accountName: "John Doe",
   status: "pending",
   type: "transferwise",
+  testerEmail: "jhon.doe@example.com",
   id: 1,
   error: {
     status_code: 400,
@@ -33,6 +34,7 @@ const paymentWithFee: Payment = {
   amount: 100,
   testerEmail: "john.doe@example.com",
   coordinates: "DE12345678901234567890",
+  testerEmail: "jhon.doe@example.com",
   accountName: "John Doe",
   status: "pending",
   type: "transferwise",

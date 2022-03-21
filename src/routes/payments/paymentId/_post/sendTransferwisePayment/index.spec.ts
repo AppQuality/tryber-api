@@ -10,6 +10,7 @@ const paymentMockData: Payment = {
   status: "pending",
   testerEmail: "john.doe@example.com",
   coordinates: "DE12345678901234567890",
+  testerEmail: "jhon.doe@example.com",
   amount: 1,
 };
 jest.mock("@src/features/tranferwise");
