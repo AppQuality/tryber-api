@@ -5,7 +5,9 @@ export const table = {
     await sqlite3.createTable("wp_appq_payment_request", [
       "id INTEGER PRIMARY KEY",
       "tester_id INTEGER",
-      "amount INTEGER",
+      "amount DECIMAL(11,2)",
+      "amount_gross DECIMAL(11,2)",
+      "amount_withholding DECIMAL(11,2)",
       "iban VARCHAR(255)",
       "paypal_email VARCHAR(255)",
       "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
@@ -19,9 +21,11 @@ export const table = {
   },
 };
 
-const data: { [key: string]: (params?: any) => { [key: string]: any } } = {};
+const data: {
+  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
+} = {};
 
-data.processingPaypalPayment = (params?: { tester_id: number }) => {
+data.processingPaypalPayment = async (params?: { tester_id: number }) => {
   const item = {
     id: 1,
     tester_id: 1,
@@ -31,7 +35,7 @@ data.processingPaypalPayment = (params?: { tester_id: number }) => {
     update_date: "1979-05-03 00:00:00",
     ...params,
   };
-  sqlite3.insert("wp_appq_payment_request", item);
+  await sqlite3.insert("wp_appq_payment_request", item);
   return item;
 };
 
