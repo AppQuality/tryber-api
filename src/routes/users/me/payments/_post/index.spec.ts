@@ -78,10 +78,28 @@ describe("POST /users/me/payments - valid paypal", () => {
     expect(response.body).toHaveProperty("id");
     const requestId: number = response.body.id;
     const requestData = await sqlite3.get(
-      `SELECT * FROM wp_appq_payment_request WHERE id=${requestId}`
+      `SELECT amount,is_paid FROM wp_appq_payment_request WHERE id=${requestId}`
     );
     expect(requestData.amount).toBe(data.tester.pending_booty);
     expect(requestData.is_paid).toBe(0);
+  });
+  it("Should create a row in the requests with tester_id = current tester id", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT tester_id FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.tester_id).toBe(data.tester.id);
   });
 });
 
