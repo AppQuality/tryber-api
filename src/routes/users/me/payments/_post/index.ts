@@ -1,7 +1,6 @@
 /** OPENAPI-ROUTE: post-users-me-payments */
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-
 import checkBooty from "./checkBooty";
 import checkFiscalProfile from "./checkFiscalProfile";
 import checkProcessingPayment from "./checkProcessingPayment";
@@ -11,6 +10,8 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
+  const body =
+    req.body as StoplightOperations["post-users-me-payments"]["requestBody"]["content"]["application/json"];
   let booty, fiscalProfile;
   try {
     booty = await checkBooty(req.user.testerId);
@@ -26,14 +27,18 @@ export default async (
   const gross = Math.round((booty + Number.EPSILON) * 125) / 100;
   const witholding = Math.round((booty + Number.EPSILON) * 25) / 100;
 
+  let paypalEmail = null;
+  if (body.method.type === "paypal") {
+    paypalEmail = body.method.email;
+  }
   const data = await db.query(
     db.format(
       `
     INSERT INTO wp_appq_payment_request 
-    (tester_id, amount, is_paid, fiscal_profile_id,amount_gross, amount_withholding)
-    VALUES (?, ?, 0, ?, ?, ?)
+    (tester_id, amount, is_paid, fiscal_profile_id,amount_gross, amount_withholding,paypal_email)
+    VALUES (?, ?, 0, ?, ?, ?, ?)
   `,
-      [req.user.testerId, booty, fiscalProfile, gross, witholding]
+      [req.user.testerId, booty, fiscalProfile, gross, witholding, paypalEmail]
     )
   );
 

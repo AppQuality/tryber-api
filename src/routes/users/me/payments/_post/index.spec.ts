@@ -1,3 +1,5 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import {
   data as fiscalProfileData,
   table as fiscalProfileTable,
@@ -14,8 +16,6 @@ import {
   data as wpOptionsData,
   table as wpOptionsTable,
 } from "@src/__mocks__/mockedDb/wp_options";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -168,6 +168,25 @@ describe("POST /users/me/payments - valid paypal", () => {
     expect(requestData.amount_withholding).toBe(
       data.tester.expected_withholding
     );
+  });
+  it("Should create a row in the requests paypal_email = the email sent in the body and iban null", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT paypal_email,iban FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.paypal_email).toBe("test@example.com");
+    expect(requestData.iban).toBe(null);
   });
 });
 
