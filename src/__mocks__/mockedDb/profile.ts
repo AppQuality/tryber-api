@@ -35,7 +35,7 @@ data.testerWithoutBooty = () => {
   return item;
 };
 
-data.testerWithBooty = () => {
+data.testerWithBooty = (params?: { pending_booty?: number }) => {
   const item = {
     id: 1,
     name: "tester",
@@ -45,6 +45,7 @@ data.testerWithBooty = () => {
     wp_user_id: 1,
     is_verified: 0,
     last_activity: new Date("01/01/2021").toISOString(),
+    ...params,
   };
   sqlite3.insert("wp_appq_evd_profile", item);
   return item;

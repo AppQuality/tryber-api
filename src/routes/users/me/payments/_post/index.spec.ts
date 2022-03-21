@@ -6,6 +6,10 @@ import {
   data as profileData,
   table as profileTable,
 } from "@src/__mocks__/mockedDb/profile";
+import {
+  data as wpOptionsData,
+  table as wpOptionsTable,
+} from "@src/__mocks__/mockedDb/wp_options";
 import app from "@src/app";
 import request from "supertest";
 
@@ -35,6 +39,8 @@ describe("POST /users/me/payments - invalid data", () => {
     return new Promise(async (resolve) => {
       profileTable.create();
       fiscalProfileTable.create();
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
       resolve(null);
     });
   });
@@ -42,6 +48,7 @@ describe("POST /users/me/payments - invalid data", () => {
     return new Promise(async (resolve) => {
       profileTable.drop();
       fiscalProfileTable.drop();
+      wpOptionsTable.drop();
       resolve(null);
     });
   });
@@ -79,6 +86,23 @@ describe("POST /users/me/payments - invalid data", () => {
   it("Should answer 403 if logged with a booty but with an invalid fiscal profile", async () => {
     const tester = profileData.testerWithBooty();
     fiscalProfileData.invalidFiscalProfile({ tester_id: tester.id });
+
+    const response = await request(app)
+      .post("/users/me/payments")
+      .set("authorization", "Bearer tester")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      });
+    expect(response.status).toBe(403);
+  });
+  it("Should answer 403 if logged with a valid fiscal profile but the booty under threshold", async () => {
+    const tester = profileData.testerWithBooty({
+      pending_booty: 0.01,
+    });
+    fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
 
     const response = await request(app)
       .post("/users/me/payments")

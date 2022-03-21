@@ -37,5 +37,15 @@ data.invalidFiscalProfile = ({ tester_id }: { tester_id: number }) => {
   sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
 };
+data.validFiscalProfile = ({ tester_id }: { tester_id: number }) => {
+  const item = {
+    id: 1,
+    tester_id,
+    is_active: 1,
+    is_verified: 1,
+  };
+  sqlite3.insert("wp_appq_fiscal_profile", item);
+  return item;
+};
 
 export { data };
