@@ -13,6 +13,7 @@ export const table = {
       "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
       "error_message text",
       "is_paid BOOL",
+      "stamp_required BOOL",
       "fiscal_profile_id INTEGER",
     ]);
   },

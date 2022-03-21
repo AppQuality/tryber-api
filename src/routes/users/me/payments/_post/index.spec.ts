@@ -190,6 +190,77 @@ describe("POST /users/me/payments - valid paypal", () => {
   });
 });
 
+describe("POST /users/me/payments - stamp required", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await profileTable.create();
+      await fiscalProfileTable.create();
+      await wpOptionsTable.create();
+      await wpOptionsData.crowdWpOptions();
+      await paymentRequestTable.create();
+
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await profileTable.drop();
+      await fiscalProfileTable.drop();
+      await wpOptionsTable.drop();
+      await paymentRequestTable.drop();
+      resolve(null);
+    });
+  });
+
+  it("Should create a row with stamp_required = true if the amount gross is over 77,47", async () => {
+    const tester = await profileData.testerWithBooty({
+      pending_booty: 61.99,
+    });
+    await fiscalProfileData.validFiscalProfile({
+      tester_id: tester.id,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT stamp_required FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.stamp_required).toBe(1);
+  });
+  it("Should create a row with stamp_required = true if the amount gross is over 77,47", async () => {
+    const tester = await profileData.testerWithBooty({
+      pending_booty: 61.95,
+    });
+    await fiscalProfileData.validFiscalProfile({
+      tester_id: tester.id,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT stamp_required FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.stamp_required).toBe(0);
+  });
+});
 describe("POST /users/me/payments - invalid data", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {

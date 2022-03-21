@@ -31,14 +31,24 @@ export default async (
   if (body.method.type === "paypal") {
     paypalEmail = body.method.email;
   }
+
+  const isStampRequired = gross > 77.47;
   const data = await db.query(
     db.format(
       `
     INSERT INTO wp_appq_payment_request 
-    (tester_id, amount, is_paid, fiscal_profile_id,amount_gross, amount_withholding,paypal_email)
-    VALUES (?, ?, 0, ?, ?, ?, ?)
+    (tester_id, amount, is_paid, fiscal_profile_id,amount_gross, amount_withholding,paypal_email, stamp_required)
+    VALUES (?, ?, 0, ?, ?, ?, ?, ?)
   `,
-      [req.user.testerId, booty, fiscalProfile, gross, witholding, paypalEmail]
+      [
+        req.user.testerId,
+        booty,
+        fiscalProfile,
+        gross,
+        witholding,
+        paypalEmail,
+        isStampRequired,
+      ]
     )
   );
 
