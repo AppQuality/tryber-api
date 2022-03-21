@@ -3,6 +3,7 @@ import { Context } from "openapi-backend";
 
 import checkBooty from "./checkBooty";
 import checkFiscalProfile from "./checkFiscalProfile";
+import checkProcessingPayment from "./checkProcessingPayment";
 
 export default async (
   c: Context,
@@ -12,6 +13,7 @@ export default async (
   try {
     await checkBooty(req.user.testerId);
     await checkFiscalProfile(req.user.testerId);
+    await checkProcessingPayment(req.user.testerId);
   } catch (err) {
     res.status_code = 403;
     return {
