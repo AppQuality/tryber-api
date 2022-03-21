@@ -10,8 +10,8 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    checkBooty(req.user.testerId);
-    checkFiscalProfile(req.user.testerId);
+    await checkBooty(req.user.testerId);
+    await checkFiscalProfile(req.user.testerId);
   } catch (err) {
     res.status_code = 403;
     return {
