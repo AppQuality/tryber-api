@@ -32,7 +32,9 @@ describe("POST /users/me/payments - valid paypal", () => {
       paymentRequestTable.create();
 
       data.tester = profileData.testerWithBooty();
-      fiscalProfileData.validFiscalProfile({ tester_id: data.tester.id });
+      data.fiscalProfile = fiscalProfileData.validFiscalProfile({
+        tester_id: data.tester.id,
+      });
       resolve(null);
     });
   });
@@ -100,6 +102,25 @@ describe("POST /users/me/payments - valid paypal", () => {
       `SELECT tester_id FROM wp_appq_payment_request WHERE id=${requestId}`
     );
     expect(requestData.tester_id).toBe(data.tester.id);
+  });
+
+  it("Should create a row in the requests with fiscal_profile_id = current tester fiscal id", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT fiscal_profile_id FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.fiscal_profile_id).toBe(data.fiscalProfile.id);
   });
 });
 

@@ -11,10 +11,10 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  let booty = 0;
+  let booty, fiscalProfile;
   try {
     booty = await checkBooty(req.user.testerId);
-    await checkFiscalProfile(req.user.testerId);
+    fiscalProfile = await checkFiscalProfile(req.user.testerId);
     await checkProcessingPayment(req.user.testerId);
   } catch (err) {
     res.status_code = 403;
@@ -26,10 +26,10 @@ export default async (
   const data = await db.query(
     db.format(
       `
-    INSERT INTO wp_appq_payment_request (tester_id, amount, is_paid)
-    VALUES (?, ?, 0)
+    INSERT INTO wp_appq_payment_request (tester_id, amount, is_paid, fiscal_profile_id)
+    VALUES (?, ?, 0, ?)
   `,
-      [req.user.testerId, booty]
+      [req.user.testerId, booty, fiscalProfile]
     )
   );
 

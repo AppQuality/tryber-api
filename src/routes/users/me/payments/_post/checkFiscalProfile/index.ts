@@ -13,5 +13,5 @@ export default async (testerId: number) => {
   if (fiscalProfile.length === 0) {
     throw new Error("You don't have a fiscal profile");
   }
-  return true;
+  return fiscalProfile[0].id;
 };
