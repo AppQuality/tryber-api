@@ -8,7 +8,7 @@ export default async (key: string) => {
     throw new Error(`Option crowd_options_option_name not found`);
   }
   const option = unserialize(results[0].option_value);
-  let value = false;
+  let value: false | string = false;
   if (option[key]) {
     value = option[key];
   }
