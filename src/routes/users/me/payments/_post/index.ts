@@ -37,8 +37,13 @@ export default async (
   }
 
   let paypalEmail = null;
+  let iban = null;
+  let accountHolderName = null;
   if (body.method.type === "paypal") {
     paypalEmail = body.method.email;
+  } else if (body.method.type === "iban") {
+    iban = body.method.iban;
+    accountHolderName = body.method.accountHolderName;
   }
 
   const isStampRequired = fiscalData.gross > 77.47;
@@ -48,9 +53,10 @@ export default async (
     INSERT INTO wp_appq_payment_request 
     (
       tester_id, amount, is_paid, fiscal_profile_id,amount_gross, 
-      amount_withholding,paypal_email, stamp_required,withholding_tax_percentage
+      amount_withholding,paypal_email, stamp_required,withholding_tax_percentage,
+      iban, account_holder_name
     )
-    VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
       [
         req.user.testerId,
@@ -61,6 +67,8 @@ export default async (
         paypalEmail,
         isStampRequired,
         fiscalData.tax_percent,
+        iban,
+        accountHolderName,
       ]
     )
   );

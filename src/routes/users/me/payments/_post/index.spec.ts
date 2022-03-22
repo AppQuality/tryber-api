@@ -264,11 +264,11 @@ describe("POST /users/me/payments - valid iban", () => {
     expect(response.body).toHaveProperty("id");
     const requestId: number = response.body.id;
     const requestData = await sqlite3.get(
-      `SELECT paypal_email,iban,account_holder FROM wp_appq_payment_request WHERE id=${requestId}`
+      `SELECT paypal_email,iban,account_holder_name FROM wp_appq_payment_request WHERE id=${requestId}`
     );
     expect(requestData.paypal_email).toBe(null);
     expect(requestData.iban).toBe("IT75T0300203280284975661141");
-    expect(requestData.account_holder).toBe("John Doe");
+    expect(requestData.account_holder_name).toBe("John Doe");
   });
 });
 

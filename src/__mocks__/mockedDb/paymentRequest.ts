@@ -10,6 +10,7 @@ export const table = {
       "amount_withholding DECIMAL(11,2)",
       "iban VARCHAR(255)",
       "paypal_email VARCHAR(255)",
+      "account_holder_name VARCHAR(255)",
       "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
       "error_message text",
       "is_paid BOOL",
