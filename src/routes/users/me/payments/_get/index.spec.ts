@@ -12,6 +12,7 @@ const paymentRequestPaypal = {
   paypal_email: "john.doe@example.com",
   is_paid: 1,
   update_date: "1980-01-01 00:00:00",
+  paid_date: "1980-01-01 00:00:00",
 };
 
 const paymentRequestPaypalNotMine = {
@@ -21,6 +22,7 @@ const paymentRequestPaypalNotMine = {
   paypal_email: "john.doe@example.com",
   is_paid: 1,
   update_date: "1980-01-01 00:00:00",
+  paid_date: "1980-01-01 00:00:00",
 };
 const paymentRequestWise = {
   id: 2,
@@ -29,6 +31,7 @@ const paymentRequestWise = {
   iban: "DE12345678901234567890",
   is_paid: 1,
   update_date: "1992-05-01 00:00:00",
+  paid_date: "1992-05-01 00:00:00",
   receipt_id: 69,
 };
 const paymentRequestInvalid = {
@@ -37,6 +40,7 @@ const paymentRequestInvalid = {
   amount: 69,
   is_paid: 1,
   update_date: "1979-05-03 00:00:00",
+  paid_date: "1979-05-03 00:00:00",
   receipt_id: 69,
 };
 const paymentRequestPaypal2 = {
@@ -46,6 +50,7 @@ const paymentRequestPaypal2 = {
   is_paid: 1,
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
+  paid_date: "1979-05-03 00:00:00",
   receipt_id: 70,
 };
 const paymentRequestPaypalProcessing = {
@@ -55,6 +60,7 @@ const paymentRequestPaypalProcessing = {
   is_paid: 0,
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
+  paid_date: "1979-05-03 00:00:00",
 };
 const receiptWise = {
   id: 69,
@@ -74,6 +80,7 @@ describe("GET /users/me/payments", () => {
         "iban VARCHAR(255)",
         "paypal_email VARCHAR(255)",
         "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "paid_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
         "error_message text",
         "is_paid BOOL",
         "receipt_id INTEGER",
@@ -381,6 +388,7 @@ describe("Route GET payment-requests when no data", () => {
         "iban VARCHAR(255)",
         "paypal_email VARCHAR(255)",
         "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+        "paid_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
         "error_message text",
         "is_paid BOOL",
         "receipt_id INTEGER",

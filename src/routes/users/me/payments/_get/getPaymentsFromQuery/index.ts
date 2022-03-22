@@ -34,7 +34,7 @@ export default async (
         pr.id, pr.is_paid, pr.amount, pr.paypal_email, pr.iban,
         CASE 
             WHEN pr.is_paid=0 THEN NOW()
-            ELSE CAST(pr.update_date as CHAR) 
+            ELSE CAST(pr.paid_date as CHAR) 
         END as paidDate, 
         rcpt.url AS receipt
     FROM wp_appq_payment_request pr
