@@ -276,6 +276,14 @@ export interface paths {
     post: operations["post-users-me-payments"];
     parameters: {};
   };
+  "/users/me/payments/{payment}": {
+    get: operations["get-users-me-payments-payment"];
+    parameters: {
+      path: {
+        payment: string;
+      };
+    };
+  };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
     parameters: {};
@@ -2015,6 +2023,50 @@ export interface operations {
               };
         };
       };
+    };
+  };
+  "get-users-me-payments-payment": {
+    parameters: {
+      path: {
+        payment: string;
+      };
+      query: {
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+        /** The value to order by */
+        orderBy?: "amount" | "type" | "date" | "activity";
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results?: ({
+              id?: number;
+            } & {
+              type?: string;
+              amount?: {
+                value?: number;
+                currency?: string;
+              };
+              /** Format: date */
+              date?: string;
+              activity?: string;
+            })[];
+            limit?: number;
+            size?: number;
+            total?: number;
+            start?: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-customUserFields": {
