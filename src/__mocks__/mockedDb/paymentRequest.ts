@@ -14,6 +14,7 @@ export const table = {
       "error_message text",
       "is_paid BOOL",
       "stamp_required BOOL",
+      "withholding_tax_percentage INTEGER",
       "fiscal_profile_id INTEGER",
     ]);
   },

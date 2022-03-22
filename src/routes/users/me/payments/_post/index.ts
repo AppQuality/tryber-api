@@ -25,36 +25,42 @@ export default async (
     };
   }
 
-  const gross =
-    fiscalProfile.fiscal_category === 1
-      ? Math.round((booty + Number.EPSILON) * 125) / 100
-      : booty;
-  const witholding =
-    fiscalProfile.fiscal_category === 1
-      ? Math.round((booty + Number.EPSILON) * 25) / 100
-      : 0;
+  const fiscalData = {
+    tax_percent: 0,
+    gross: booty,
+    witholding: 0,
+  };
+  if (fiscalProfile.fiscal_category === 1) {
+    fiscalData.tax_percent = 20;
+    fiscalData.gross = Math.round((booty + Number.EPSILON) * 125) / 100;
+    fiscalData.witholding = Math.round((booty + Number.EPSILON) * 25) / 100;
+  }
 
   let paypalEmail = null;
   if (body.method.type === "paypal") {
     paypalEmail = body.method.email;
   }
 
-  const isStampRequired = gross > 77.47;
+  const isStampRequired = fiscalData.gross > 77.47;
   const data = await db.query(
     db.format(
       `
     INSERT INTO wp_appq_payment_request 
-    (tester_id, amount, is_paid, fiscal_profile_id,amount_gross, amount_withholding,paypal_email, stamp_required)
-    VALUES (?, ?, 0, ?, ?, ?, ?, ?)
+    (
+      tester_id, amount, is_paid, fiscal_profile_id,amount_gross, 
+      amount_withholding,paypal_email, stamp_required,withholding_tax_percentage
+    )
+    VALUES (?, ?, 0, ?, ?, ?, ?, ?, ?)
   `,
       [
         req.user.testerId,
         booty,
         fiscalProfile.id,
-        gross,
-        witholding,
+        fiscalData.gross,
+        fiscalData.witholding,
         paypalEmail,
         isStampRequired,
+        fiscalData.tax_percent,
       ]
     )
   );

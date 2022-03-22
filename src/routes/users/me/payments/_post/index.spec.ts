@@ -200,6 +200,53 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     expect(requestData.amount_gross).toBe(data.tester.expected_gross);
   });
 
+  it("Should create a row in the requests withholding_tax_percentage = 20  if fiscal category is 1", async () => {
+    data.tester = await profileData.testerWithBooty();
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 1,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT withholding_tax_percentage FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.withholding_tax_percentage).toBe(20);
+  });
+
+  it("Should create a row in the requests withholding_tax_percentage = 0  if fiscal category is 4", async () => {
+    data.tester = await profileData.testerWithBooty();
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 4,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT withholding_tax_percentage FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.withholding_tax_percentage).toBe(0);
+  });
   it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 1", async () => {
     data.tester = await profileData.testerWithBooty({
       pending_booty: 129.99,
