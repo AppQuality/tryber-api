@@ -55,7 +55,7 @@ describe("POST /users/me/payments - valid paypal", () => {
     expect(response.status).toBe(403);
   });
 
-  it("Should answer 200 if not logged in", async () => {
+  it("Should answer 200 if logged in", async () => {
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -175,7 +175,7 @@ describe("POST /users/me/payments - valid iban", () => {
     });
   });
 
-  it("Should answer 200 if not logged in", async () => {
+  it("Should answer 200 if logged in", async () => {
     const response = await request(app)
       .post("/users/me/payments")
       .send({
