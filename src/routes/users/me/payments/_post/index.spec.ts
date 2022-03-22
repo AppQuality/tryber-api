@@ -294,6 +294,44 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       data.tester.expected_withholding
     );
   });
+  it("Should answer 403 if fiscal category is 2", async () => {
+    data.tester = await profileData.testerWithBooty({
+      pending_booty: 129.99,
+    });
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 2,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
+  it("Should answer 403 if fiscal category is 3", async () => {
+    data.tester = await profileData.testerWithBooty({
+      pending_booty: 129.99,
+    });
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 2,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
 });
 
 describe("POST /users/me/payments - stamp required", () => {
