@@ -1,6 +1,7 @@
 /** OPENAPI-ROUTE: post-users-me-payments */
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
+
 import checkBooty from "./checkBooty";
 import checkFiscalProfile from "./checkFiscalProfile";
 import checkProcessingPayment from "./checkProcessingPayment";
@@ -24,8 +25,14 @@ export default async (
     };
   }
 
-  const gross = Math.round((booty + Number.EPSILON) * 125) / 100;
-  const witholding = Math.round((booty + Number.EPSILON) * 25) / 100;
+  const gross =
+    fiscalProfile.fiscal_category === 1
+      ? Math.round((booty + Number.EPSILON) * 125) / 100
+      : booty;
+  const witholding =
+    fiscalProfile.fiscal_category === 1
+      ? Math.round((booty + Number.EPSILON) * 25) / 100
+      : 0;
 
   let paypalEmail = null;
   if (body.method.type === "paypal") {
@@ -43,7 +50,7 @@ export default async (
       [
         req.user.testerId,
         booty,
-        fiscalProfile,
+        fiscalProfile.id,
         gross,
         witholding,
         paypalEmail,

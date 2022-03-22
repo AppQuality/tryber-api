@@ -1,5 +1,3 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import {
   data as fiscalProfileData,
   table as fiscalProfileTable,
@@ -16,6 +14,8 @@ import {
   data as wpOptionsData,
   table as wpOptionsTable,
 } from "@src/__mocks__/mockedDb/wp_options";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -34,11 +34,6 @@ describe("POST /users/me/payments - valid paypal", () => {
       data.tester = await profileData.testerWithBooty({
         pending_booty: 129.99,
       });
-      data.tester = {
-        ...data.tester,
-        expected_gross: 162.49,
-        expected_withholding: 32.5,
-      };
       data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
         tester_id: data.tester.id,
       });
@@ -130,7 +125,63 @@ describe("POST /users/me/payments - valid paypal", () => {
     expect(requestData.fiscal_profile_id).toBe(data.fiscalProfile.id);
   });
 
-  it("Should create a row in the requests with amount_gross = 125% of the amount", async () => {
+  it("Should create a row in the requests paypal_email = the email sent in the body and iban null", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT paypal_email,iban FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.paypal_email).toBe("test@example.com");
+    expect(requestData.iban).toBe(null);
+  });
+});
+
+describe("POST /users/me/payments/ - fiscal profiles", () => {
+  const data: any = {};
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await profileTable.create();
+      await fiscalProfileTable.create();
+      await wpOptionsTable.create();
+      await wpOptionsData.crowdWpOptions();
+      await paymentRequestTable.create();
+
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await profileTable.drop();
+      await fiscalProfileTable.drop();
+      await wpOptionsTable.drop();
+      await paymentRequestTable.drop();
+      resolve(null);
+    });
+  });
+
+  it("Should create a row in the requests with amount_gross = 125% of the amount if fiscal category is 1", async () => {
+    data.tester = await profileData.testerWithBooty({
+      pending_booty: 129.99,
+    });
+    data.tester = {
+      ...data.tester,
+      expected_gross: 162.49,
+      expected_withholding: 32.5,
+    };
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 1,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -149,7 +200,19 @@ describe("POST /users/me/payments - valid paypal", () => {
     expect(requestData.amount_gross).toBe(data.tester.expected_gross);
   });
 
-  it("Should create a row in the requests amount_witholding = gross - amount", async () => {
+  it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 1", async () => {
+    data.tester = await profileData.testerWithBooty({
+      pending_booty: 129.99,
+    });
+    data.tester = {
+      ...data.tester,
+      expected_gross: 162.49,
+      expected_withholding: 32.5,
+    };
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 1,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -169,7 +232,19 @@ describe("POST /users/me/payments - valid paypal", () => {
       data.tester.expected_withholding
     );
   });
-  it("Should create a row in the requests paypal_email = the email sent in the body and iban null", async () => {
+
+  it("Should create a row in the requests with amount_gross = 100% of the amount if fiscal category is 4", async () => {
+    data.tester = await profileData.testerWithBooty({
+      pending_booty: 129.99,
+    });
+    data.tester = {
+      ...data.tester,
+      expected_gross: 129.99,
+    };
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 4,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -183,10 +258,41 @@ describe("POST /users/me/payments - valid paypal", () => {
     expect(response.body).toHaveProperty("id");
     const requestId: number = response.body.id;
     const requestData = await sqlite3.get(
-      `SELECT paypal_email,iban FROM wp_appq_payment_request WHERE id=${requestId}`
+      `SELECT amount_gross FROM wp_appq_payment_request WHERE id=${requestId}`
     );
-    expect(requestData.paypal_email).toBe("test@example.com");
-    expect(requestData.iban).toBe(null);
+    expect(requestData.amount_gross).toBe(data.tester.expected_gross);
+  });
+
+  it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 4", async () => {
+    data.tester = await profileData.testerWithBooty({
+      pending_booty: 129.99,
+    });
+    data.tester = {
+      ...data.tester,
+      expected_withholding: 0,
+    };
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 4,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const requestData = await sqlite3.get(
+      `SELECT amount_withholding FROM wp_appq_payment_request WHERE id=${requestId}`
+    );
+    expect(requestData.amount_withholding).toBe(
+      data.tester.expected_withholding
+    );
   });
 });
 

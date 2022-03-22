@@ -7,6 +7,7 @@ export const table = {
       "tester_id INTEGER ",
       "is_active INTEGER DEFAULT 0",
       "is_verified INTEGER DEFAULT 0",
+      "fiscal_category INTEGER",
     ]);
   },
   drop: async () => {
@@ -14,37 +15,49 @@ export const table = {
   },
 };
 
+type FiscalProfileParams = {
+  tester_id?: number;
+  fiscal_category?: number;
+};
 const data: {
-  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
+  [key: string]: (
+    params?: FiscalProfileParams
+  ) => Promise<{ [key: string]: any }>;
 } = {};
 
-data.inactiveFiscalProfile = async ({ tester_id }: { tester_id: number }) => {
+data.inactiveFiscalProfile = async (params?: FiscalProfileParams) => {
   const item = {
     id: 1,
-    tester_id,
+    tester_id: 1,
     is_active: 0,
     is_verified: 1,
+    fiscal_category: 1,
+    ...params,
   };
   await sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
 };
 
-data.invalidFiscalProfile = async ({ tester_id }: { tester_id: number }) => {
+data.invalidFiscalProfile = async (params?: FiscalProfileParams) => {
   const item = {
     id: 1,
-    tester_id,
+    tester_id: params,
     is_active: 1,
     is_verified: 0,
+    fiscal_category: 1,
+    ...params,
   };
   await sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
 };
-data.validFiscalProfile = async ({ tester_id }: { tester_id: number }) => {
+data.validFiscalProfile = async (params?: FiscalProfileParams) => {
   const item = {
     id: 1,
-    tester_id,
+    tester_id: 1,
     is_active: 1,
     is_verified: 1,
+    fiscal_category: 1,
+    ...params,
   };
   await sqlite3.insert("wp_appq_fiscal_profile", item);
   return item;
