@@ -1245,6 +1245,10 @@ export interface operations {
             city?: string;
             attended_cp?: number;
             approved_bugs?: number;
+            booty_threshold?: {
+              value: number;
+              isOver: boolean;
+            };
           };
         };
       };

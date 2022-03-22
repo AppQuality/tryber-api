@@ -1,3 +1,7 @@
+import {
+  data as wpOptionsData,
+  table as wpOptionsTable,
+} from "@src/__mocks__/mockedDb/wp_options";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
@@ -24,7 +28,7 @@ const testerFull = {
   wp_user_id: 1,
   is_verified: 1,
   booty: 69,
-  pending_booty: 70,
+  pending_booty: 10,
   total_exp_pts: 6969,
   birth_date: "1996-03-21 00:00:00",
   phone_number: "+39696969696969",
@@ -304,6 +308,8 @@ describe("Route GET users-me-full-fields", () => {
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(64)",
       ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -367,6 +373,7 @@ describe("Route GET users-me-full-fields", () => {
       await sqlite3.dropTable("wp_appq_custom_user_field");
       await sqlite3.dropTable("wp_appq_custom_user_field_data");
       await sqlite3.dropTable("wp_appq_custom_user_field_extras");
+      wpOptionsTable.drop();
 
       resolve(null);
     });
@@ -406,6 +413,10 @@ describe("Route GET users-me-full-fields", () => {
     approved_bugs: 0,
     attended_cp: 0,
     certifications: [],
+    booty_threshold: {
+      value: 0,
+      isOver: false,
+    },
     profession: {
       id: 1,
       name: "profession name",
@@ -534,5 +545,68 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("name");
     expect(response.body).toHaveProperty("email");
     expect(response.body).toHaveProperty("role");
+  });
+});
+
+describe("Route GET users-me pending_booty threshold", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_evd_profile", [
+        "id INTEGER PRIMARY KEY",
+        "wp_user_id INTEGER ",
+        "pending_booty DECIMAL(11,2)",
+        "last_activity TIMESTAMP",
+      ]);
+
+      await sqlite3.createTable("wp_users", [
+        "ID INTEGER PRIMARY KEY",
+        "user_login VARCHAR(255)",
+      ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
+      await sqlite3.insert("wp_users", wpTester1);
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_users");
+      wpOptionsTable.drop();
+
+      resolve(null);
+    });
+  });
+  it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
+    await sqlite3.insert("wp_appq_evd_profile", {
+      id: 1,
+      wp_user_id: 1,
+      pending_booty: 1,
+    });
+    const response = await request(app)
+      .get("/users/me?fields=booty_threshold")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("booty_threshold");
+    expect(response.body.booty_threshold).toEqual({
+      value: 2,
+      isOver: false,
+    });
+  });
+  it("Should return booty threshold.isOver=true if pending booty > threshold", async () => {
+    await sqlite3.insert("wp_appq_evd_profile", {
+      id: 1,
+      wp_user_id: 1,
+      pending_booty: 3,
+    });
+    const response = await request(app)
+      .get("/users/me?fields=booty_threshold")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("booty_threshold");
+    expect(response.body.booty_threshold).toEqual({
+      value: 2,
+      isOver: true,
+    });
   });
 });

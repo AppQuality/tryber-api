@@ -1,3 +1,5 @@
+import getCrowdOption from "@src/features/wp/getCrowdOption";
+
 import getAdditionalData from "./getAdditionalData";
 import getApprovedBugsData from "./getApprovedBugsData";
 import getAttendedCpData from "./getAttendedCpData";
@@ -26,6 +28,7 @@ const acceptedFields = [
   "attended_cp",
   "total_exp_pts",
   "booty",
+  "booty_threshold",
   "pending_booty",
   "languages",
   "additional",
@@ -109,6 +112,26 @@ export default async (
     if (validFields.includes("additional")) {
       try {
         data = { ...data, ...(await getAdditionalData(id)) };
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    if (validFields.includes("booty_threshold")) {
+      try {
+        let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
+          { value: 0, isOver: false };
+
+        const trbPendingBooty = (await getProfileData(id, ["pending_booty"]))
+          .pending_booty;
+        const bootyThresholdVal = await getCrowdOption("minimum_payout");
+        if (bootyThresholdVal) {
+          bootyThreshold.value = parseFloat(bootyThresholdVal);
+          if (trbPendingBooty >= bootyThreshold.value) {
+            bootyThreshold.isOver = true;
+          }
+        }
+
+        data = { ...data, ...{ booty_threshold: bootyThreshold } };
       } catch (e) {
         console.log(e);
       }
