@@ -546,29 +546,16 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("email");
     expect(response.body).toHaveProperty("role");
   });
-  it("Should return only tester id, role and booty_threshold fields=booty_threshold", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=booty_threshold")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("id");
-    expect(response.body).toHaveProperty("booty_threshold");
-    expect(response.body).toHaveProperty("role");
-    expect(response.body.booty_threshold).toEqual({
-      value: 2,
-      isOver: true,
-    });
-  });
 });
 
-describe("Route GET users-me pending_booty under threshold", () => {
-  beforeAll(async () => {
+describe("Route GET users-me pending_booty threshold", () => {
+  beforeEach(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.createTable("wp_appq_evd_profile", [
         "id INTEGER PRIMARY KEY",
         "wp_user_id INTEGER ",
         "pending_booty DECIMAL(11,2)",
-        "last_activity TIMESTAMP", //?????
+        "last_activity TIMESTAMP",
       ]);
 
       await sqlite3.createTable("wp_users", [
@@ -577,16 +564,11 @@ describe("Route GET users-me pending_booty under threshold", () => {
       ]);
       wpOptionsTable.create();
       wpOptionsData.crowdWpOptions();
-      await sqlite3.insert("wp_appq_evd_profile", {
-        id: 1,
-        wp_user_id: 1,
-        pending_booty: 1,
-      });
       await sqlite3.insert("wp_users", wpTester1);
       resolve(null);
     });
   });
-  afterAll(async () => {
+  afterEach(async () => {
     return new Promise(async (resolve) => {
       await sqlite3.dropTable("wp_appq_evd_profile");
       await sqlite3.dropTable("wp_users");
@@ -596,15 +578,35 @@ describe("Route GET users-me pending_booty under threshold", () => {
     });
   });
   it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
+    await sqlite3.insert("wp_appq_evd_profile", {
+      id: 1,
+      wp_user_id: 1,
+      pending_booty: 1,
+    });
     const response = await request(app)
       .get("/users/me?fields=booty_threshold")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("booty_threshold");
     expect(response.body.booty_threshold).toEqual({
       value: 2,
       isOver: false,
+    });
+  });
+  it("Should return booty threshold.isOver=true if pending booty > threshold", async () => {
+    await sqlite3.insert("wp_appq_evd_profile", {
+      id: 1,
+      wp_user_id: 1,
+      pending_booty: 3,
+    });
+    const response = await request(app)
+      .get("/users/me?fields=booty_threshold")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("booty_threshold");
+    expect(response.body.booty_threshold).toEqual({
+      value: 2,
+      isOver: true,
     });
   });
 });
