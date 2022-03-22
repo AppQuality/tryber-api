@@ -28,7 +28,7 @@ const testerFull = {
   wp_user_id: 1,
   is_verified: 1,
   booty: 69,
-  pending_booty: 70,
+  pending_booty: 10,
   total_exp_pts: 6969,
   birth_date: "1996-03-21 00:00:00",
   phone_number: "+39696969696969",
@@ -546,7 +546,7 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("email");
     expect(response.body).toHaveProperty("role");
   });
-  it("should return only tester id, role and booty_threshold fields=booty_threshold", async () => {
+  it("Should return only tester id, role and booty_threshold fields=booty_threshold", async () => {
     const response = await request(app)
       .get("/users/me?fields=booty_threshold")
       .set("authorization", "Bearer tester");
@@ -557,6 +557,54 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body.booty_threshold).toEqual({
       value: 2,
       isOver: true,
+    });
+  });
+});
+
+describe("Route GET users-me pending_booty under threshold", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.createTable("wp_appq_evd_profile", [
+        "id INTEGER PRIMARY KEY",
+        "wp_user_id INTEGER ",
+        "pending_booty DECIMAL(11,2)",
+        "last_activity TIMESTAMP", //?????
+      ]);
+
+      await sqlite3.createTable("wp_users", [
+        "ID INTEGER PRIMARY KEY",
+        "user_login VARCHAR(255)",
+      ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
+      await sqlite3.insert("wp_appq_evd_profile", {
+        id: 1,
+        wp_user_id: 1,
+        pending_booty: 1,
+      });
+      await sqlite3.insert("wp_users", wpTester1);
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      await sqlite3.dropTable("wp_appq_evd_profile");
+      await sqlite3.dropTable("wp_users");
+      wpOptionsTable.drop();
+
+      resolve(null);
+    });
+  });
+  it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=booty_threshold")
+      .set("authorization", "Bearer tester");
+    console.log(response.body);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("booty_threshold");
+    expect(response.body.booty_threshold).toEqual({
+      value: 2,
+      isOver: false,
     });
   });
 });

@@ -121,17 +121,14 @@ export default async (
         let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
           { value: 0, isOver: false };
 
+        const trbPendingBooty = (await getProfileData(id, ["pending_booty"]))
+          .pending_booty;
         const bootyThresholdVal = await getCrowdOption("minimum_payout");
-        if (typeof bootyThresholdVal === "string") {
+        if (bootyThresholdVal) {
           bootyThreshold.value = parseFloat(bootyThresholdVal);
-        }
-
-        const tryberBooty = (await getProfileData(id, ["booty"])).booty;
-        if (
-          typeof bootyThresholdVal === "string" &&
-          tryberBooty >= parseFloat(bootyThresholdVal)
-        ) {
-          bootyThreshold.isOver = true;
+          if (trbPendingBooty >= bootyThreshold.value) {
+            bootyThreshold.isOver = true;
+          }
         }
 
         data = { ...data, ...{ booty_threshold: bootyThreshold } };
