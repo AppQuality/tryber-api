@@ -273,6 +273,7 @@ export interface paths {
   };
   "/users/me/payments": {
     get: operations["get-users-me-payments"];
+    post: operations["post-users-me-payments"];
     parameters: {};
   };
   "/custom_user_fields": {
@@ -1976,6 +1977,40 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "post-users-me-payments": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id?: number;
+            amount?: number;
+          };
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          method:
+            | {
+                /** @enum {string} */
+                type: "paypal";
+                email: string;
+              }
+            | {
+                /** @enum {string} */
+                type: "iban";
+                accountHolderName: string;
+                iban: string;
+              };
+        };
+      };
     };
   };
   "get-customUserFields": {
