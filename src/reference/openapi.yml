@@ -2879,6 +2879,190 @@ paths:
                     type: iban
                     accountHolderName: Pippo Franco
                     iban: IT42E0300203280581481468634
+  "/users/me/payments/{payment}":
+    parameters:
+      - schema:
+          type: string
+        name: payment
+        in: path
+        required: true
+    get:
+      summary: Details of a single payment
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - properties:
+                            id:
+                              type: number
+                        - properties:
+                            type:
+                              type: string
+                            amount:
+                              type: object
+                              properties:
+                                value:
+                                  type: number
+                                currency:
+                                  type: string
+                            date:
+                              type: string
+                              format: date
+                            activity:
+                              type: string
+                      type: object
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  total:
+                    type: number
+                  start:
+                    type: number
+              examples:
+                simple:
+                  value:
+                    results:
+                      - id: 1
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                    limit: 10
+                    size: 1
+                    total: 1
+                    start: 0
+                multi-page:
+                  value:
+                    results:
+                      - id: 1
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 2
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 3
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 4
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 5
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 6
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 7
+                        campaign:
+                          id: 12
+                          name: My campaign 2
+                        type: Community
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 8
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 9
+                        campaign:
+                          id: 123
+                          name: My campaign
+                        type: Test
+                        date: "2019-08-24"
+                        amount:
+                          value: 10
+                          currency: EUR
+                      - id: 10
+                        campaign:
+                          id: 12
+                          name: My campaign 2
+                        type: Community
+                        date: "2019-08-24"
+                        amount:
+                          value: 5
+                          currency: EUR
+                    limit: 10
+                    size: 1
+                    total: 1
+                    start: 0
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      operationId: get-users-me-payments-payment
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - amount
+              - type
+              - date
+              - activity
+          in: query
+          name: orderBy
+          description: The value to order by
   /custom_user_fields:
     get:
       summary: Get all custom user fields
