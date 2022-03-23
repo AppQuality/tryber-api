@@ -1955,7 +1955,7 @@ export interface operations {
         content: {
           "application/json": {
             results?: ({
-              id?: number;
+              id: number;
             } & {
               /** @enum {string} */
               status: "paid" | "processing";
@@ -1963,11 +1963,11 @@ export interface operations {
                 value?: number;
                 currency?: string;
               };
-              paidDate?: string;
-              method?: {
+              paidDate: string;
+              method: {
                 /** @enum {string} */
-                type?: "paypal" | "iban";
-                note?: string;
+                type: "paypal" | "iban";
+                note: string;
               };
               /** Format: uri-reference */
               receipt?: string;
