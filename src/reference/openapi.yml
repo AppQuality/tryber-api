@@ -2571,6 +2571,158 @@ paths:
       tags:
         - User
       description: The field data will be replaced with your new data
+  /users/me/pending_booty:
+    get:
+      summary: Get all your payments
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - properties:
+                            id:
+                              type: number
+                          required:
+                            - id
+                        - properties:
+                            name:
+                              type: string
+                            amount:
+                              type: object
+                              properties:
+                                value:
+                                  type: number
+                                currency:
+                                  type: string
+                            attributionDate:
+                              type: string
+                              format: date
+                          required:
+                            - name
+                            - amount
+                            - attributionDate
+                      type: object
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  start:
+                    type: number
+                  total:
+                    type: number
+                required:
+                  - size
+                  - start
+              examples:
+                single-attribution:
+                  value:
+                    results:
+                      - id: 1
+                        name: ''
+                        amount:
+                          value: 10
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                    limit: 10
+                    size: 1
+                    start: 0
+                    total: 1
+                multiple-attributions:
+                  value:
+                    results:
+                      - id: 1
+                        name: ''
+                        amount:
+                          value: 10
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 2
+                        name: ''
+                        amount:
+                          value: 12
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 3
+                        name: ''
+                        amount:
+                          value: 13
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 4
+                        name: ''
+                        amount:
+                          value: 14
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 5
+                        name: ''
+                        amount:
+                          value: 15
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 6
+                        name: ''
+                        amount:
+                          value: 16
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 7
+                        name: ''
+                        amount:
+                          value: 17
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 8
+                        name: ''
+                        amount:
+                          value: 18
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 9
+                        name: ''
+                        amount:
+                          value: 19
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 10
+                        name: ''
+                        amount:
+                          value: 20
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                    limit: 10
+                    size: 10
+                    start: 0
+                    total: 20
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-pending-booty
+      description: Return all single attributions that dials the pending booty
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - schema:
+            type: string
+            enum:
+              - id
+              - attributionDate
+          in: query
+          description: The field for item order
+          name: orderBy
+        - $ref: '#/components/parameters/order'
+    parameters: []
   /users/me/payments:
     get:
       summary: Get all your payments
