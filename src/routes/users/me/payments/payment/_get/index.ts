@@ -1,7 +1,7 @@
 /** OPENAPI-ROUTE: get-users-me-payments-payment*/
-import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
+import getPaymentsFromQuery from "./getPaymentsFromQuery";
 
 export default async (
   c: Context,
@@ -23,37 +23,12 @@ export default async (
   let params = c.request
     .params as StoplightOperations["get-users-me-payments-payment"]["parameters"]["path"];
 
-  let order = query.order || "DESC";
-  let orderBy = query.orderBy || "date";
-  let attributions: {
-    id: number;
-    amount: number;
-    date: string;
-    activity: string;
-    type: string;
-  }[];
+  let total, results;
   try {
-    let pagination = ``;
-    query.limit
-      ? (pagination += `LIMIT ` + query.limit)
-      : (pagination += `LIMIT 25`);
-    query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
-
-    attributions = await db.query(
-      db.format(
-        `SELECT p.id, p.amount,p.creation_date as date,
-        CONCAT("[CP-",cp.id,"] ",cp.title) as activity,
-        wt.work_type as type
-    FROM wp_appq_payment p
-    JOIN wp_appq_evd_campaign cp ON p.campaign_id = cp.id
-    JOIN wp_appq_payment_work_types wt ON p.work_type_id = wt.id
-    WHERE request_id = ? 
-    ORDER BY ${orderBy} ${order}, date DESC
-    ${pagination}`,
-        [params.payment]
-      )
-    );
-    if (!attributions.length) {
+    const data = await getPaymentsFromQuery(parseInt(params.payment), query);
+    results = data.results;
+    total = data.total;
+    if (!results.length) {
       res.status_code = 404;
       return {
         element: "payment",
@@ -71,21 +46,20 @@ export default async (
     };
   }
 
-  let results = attributions.map((attribution) => {
-    return {
-      id: attribution.id,
-      amount: { value: attribution.amount, currency: "EUR" },
-      date: new Date(attribution.date).toISOString().split("T")[0],
-      activity: attribution.activity,
-      type: attribution.type,
-    };
-  });
-
   res.status_code = 200;
   return {
-    results,
+    results: results.map((attribution) => {
+      return {
+        id: attribution.id,
+        amount: { value: attribution.amount, currency: "EUR" },
+        date: new Date(attribution.date).toISOString().split("T")[0],
+        activity: attribution.activity,
+        type: attribution.type,
+      };
+    }),
     limit: query.limit ?? 25,
     size: results.length,
     start: query.start ?? 0,
+    total,
   };
 };

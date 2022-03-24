@@ -340,4 +340,17 @@ describe("GET /users/me/payments/{payment}", () => {
       data.payment3.id,
     ]);
   });
+
+  it("Should return total of records only if limit is set", async () => {
+    const response = await request(app)
+      .get("/users/me/payments/1?limit=50")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("total");
+    const responseNoLimit = await request(app)
+      .get("/users/me/payments/1")
+      .set("authorization", "Bearer tester");
+    expect(responseNoLimit.status).toBe(200);
+    expect(responseNoLimit.body).not.toHaveProperty("total");
+  });
 });
