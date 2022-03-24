@@ -295,4 +295,49 @@ describe("GET /users/me/payments/{payment}", () => {
       work_type2.work_type,
     ]);
   });
+
+  it("Should return 2 results if is set limit parameter with limit = 2", async () => {
+    const response = await request(app)
+      .get("/users/me/payments/1?limit=2")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("limit");
+    expect(response.body.limit).toBe(2);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      data.payment3.id,
+      data.payment2.id,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/payments/1?order=ASC&limit=2")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body).toHaveProperty("limit");
+    expect(responseAsc.body.limit).toBe(2);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      data.payment1.id,
+      data.payment2.id,
+    ]);
+  });
+  it("Should skip the first result if is set start=1 parameter", async () => {
+    const response = await request(app)
+      .get("/users/me/payments/1?start=1")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("start");
+    expect(response.body.start).toBe(1);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      data.payment2.id,
+      data.payment1.id,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/payments/1?start=1&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body).toHaveProperty("start");
+    expect(responseAsc.body.start).toBe(1);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      data.payment2.id,
+      data.payment3.id,
+    ]);
+  });
 });

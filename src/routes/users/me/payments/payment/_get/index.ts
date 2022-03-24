@@ -8,8 +8,18 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  let query =
-    req.query as StoplightOperations["get-users-me-payments-payment"]["parameters"]["query"];
+  const query = {
+    ...req.query,
+    start:
+      req.query.start && typeof req.query.start === "string"
+        ? parseInt(req.query.start)
+        : undefined,
+    limit:
+      req.query.limit && typeof req.query.limit === "string"
+        ? parseInt(req.query.limit)
+        : undefined,
+  } as StoplightOperations["get-users-me-payments-payment"]["parameters"]["query"];
+
   let params = c.request
     .params as StoplightOperations["get-users-me-payments-payment"]["parameters"]["path"];
 
@@ -23,6 +33,12 @@ export default async (
     type: string;
   }[];
   try {
+    let pagination = ``;
+    query.limit
+      ? (pagination += `LIMIT ` + query.limit)
+      : (pagination += `LIMIT 25`);
+    query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
+
     attributions = await db.query(
       db.format(
         `SELECT p.id, p.amount,p.creation_date as date,
@@ -31,7 +47,9 @@ export default async (
     FROM wp_appq_payment p
     JOIN wp_appq_evd_campaign cp ON p.campaign_id = cp.id
     JOIN wp_appq_payment_work_types wt ON p.work_type_id = wt.id
-    WHERE request_id = ? ORDER BY ${orderBy} ${order}, date DESC`,
+    WHERE request_id = ? 
+    ORDER BY ${orderBy} ${order}, date DESC
+    ${pagination}`,
         [params.payment]
       )
     );
@@ -66,7 +84,8 @@ export default async (
   res.status_code = 200;
   return {
     results,
-    start: 0,
+    limit: query.limit ?? 25,
     size: results.length,
+    start: query.start ?? 0,
   };
 };
