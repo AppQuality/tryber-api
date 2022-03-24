@@ -72,6 +72,18 @@ export default async (
       ]
     )
   );
+  const requestId = data.insertId;
+
+  await db.query(
+    db.format(
+      `
+    UPDATE wp_appq_payment 
+      SET is_requested = 1, request_id = ?
+    WHERE tester_id = ? AND is_requested = 0
+  `,
+      [requestId, req.user.testerId]
+    )
+  );
 
   res.status_code = 200;
   return {
