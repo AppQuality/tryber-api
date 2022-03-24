@@ -16,6 +16,7 @@ export default async (
   let order = query.order || "DESC";
   let orderBy = query.orderBy || "date";
   let attributions: {
+    id: number;
     amount: number;
     date: string;
     activity: string;
@@ -24,7 +25,7 @@ export default async (
   try {
     attributions = await db.query(
       db.format(
-        `SELECT p.amount,p.creation_date as date,
+        `SELECT p.id, p.amount,p.creation_date as date,
         CONCAT("[CP-",cp.id,"] ",cp.title) as activity,
         wt.work_type as type
     FROM wp_appq_payment p
@@ -54,6 +55,7 @@ export default async (
 
   let results = attributions.map((attribution) => {
     return {
+      id: attribution.id,
       amount: { value: attribution.amount, currency: "EUR" },
       date: new Date(attribution.date).toISOString().split("T")[0],
       activity: attribution.activity,
@@ -64,5 +66,7 @@ export default async (
   res.status_code = 200;
   return {
     results,
+    start: 0,
+    size: results.length,
   };
 };
