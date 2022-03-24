@@ -2906,11 +2906,16 @@ paths:
                         - properties:
                             id:
                               type: number
+                          required:
+                            - id
                         - properties:
                             type:
                               type: string
                             amount:
                               type: object
+                              required:
+                                - value
+                                - currency
                               properties:
                                 value:
                                   type: number
@@ -2921,6 +2926,11 @@ paths:
                               format: date
                             activity:
                               type: string
+                          required:
+                            - type
+                            - amount
+                            - date
+                            - activity
                       type: object
                   limit:
                     type: number
@@ -2930,6 +2940,10 @@ paths:
                     type: number
                   start:
                     type: number
+                required:
+                  - results
+                  - size
+                  - total
               examples:
                 simple:
                   value:
