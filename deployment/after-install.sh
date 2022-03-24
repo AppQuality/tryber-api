@@ -24,7 +24,9 @@ aws ssm get-parameter --region eu-west-1 --name "/$DEPLOYMENT_GROUP_NAME/private
 
 
 if test -f "$DOCKER_COMPOSE_FILE"; then
+    set +e
     IS_RUNNING=$(docker ps -a | grep $DOCKER_IMAGE| wc -l)
+    set -e
     if [ "$IS_RUNNING" -eq "1" ]; then
         docker-compose -f $DOCKER_COMPOSE_FILE down
     fi
