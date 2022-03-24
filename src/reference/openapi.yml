@@ -2943,7 +2943,7 @@ paths:
                 required:
                   - results
                   - size
-                  - total
+                  - start
               examples:
                 simple:
                   value:
