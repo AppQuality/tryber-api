@@ -1,4 +1,8 @@
 import {
+  data as attributionData,
+  table as attributionTable,
+} from "@src/__mocks__/mockedDb/attributions";
+import {
   data as fiscalProfileData,
   table as fiscalProfileTable,
 } from "@src/__mocks__/mockedDb/fiscalProfile";
@@ -30,12 +34,33 @@ describe("POST /users/me/payments - valid paypal", () => {
       await wpOptionsTable.create();
       await wpOptionsData.crowdWpOptions();
       await paymentRequestTable.create();
+      await attributionTable.create();
 
       data.tester = await profileData.testerWithBooty({
         pending_booty: 129.99,
       });
       data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
         tester_id: data.tester.id,
+      });
+      attributionData.validAttribution({
+        id: 1,
+        tester_id: data.tester.id,
+        amount: 9.99,
+      });
+      attributionData.validAttribution({
+        id: 2,
+        tester_id: data.tester.id,
+        amount: 50,
+      });
+      attributionData.validAttribution({
+        id: 3,
+        tester_id: data.tester.id,
+        amount: 70,
+      });
+      attributionData.validAttribution({
+        id: 4,
+        tester_id: data.tester.id + 1,
+        amount: 70,
       });
       resolve(null);
     });
@@ -46,6 +71,7 @@ describe("POST /users/me/payments - valid paypal", () => {
       await fiscalProfileTable.drop();
       await wpOptionsTable.drop();
       await paymentRequestTable.drop();
+      await attributionTable.drop();
       resolve(null);
     });
   });
@@ -54,7 +80,6 @@ describe("POST /users/me/payments - valid paypal", () => {
     const response = await request(app).post("/users/me/payments");
     expect(response.status).toBe(403);
   });
-
   it("Should answer 200 if logged in", async () => {
     const response = await request(app)
       .post("/users/me/payments")
@@ -86,6 +111,29 @@ describe("POST /users/me/payments - valid paypal", () => {
     );
     expect(requestData.amount).toBe(data.tester.pending_booty);
     expect(requestData.is_paid).toBe(0);
+  });
+
+  it("Should update the attributions with is_requested =1 and request_id = the id of the inserted request ", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const attributions: { is_requested: number; request_id: number }[] =
+      await sqlite3.all(
+        `SELECT is_requested,request_id FROM wp_appq_payment WHERE request_id=${requestId}`
+      );
+    expect(attributions.length).toBe(3);
+    attributions.forEach((attribution) => {
+      expect(attribution.is_requested).toBe(1);
+    });
   });
   it("Should create a row in the requests with tester_id = current tester id", async () => {
     const response = await request(app)
@@ -155,6 +203,7 @@ describe("POST /users/me/payments - valid iban", () => {
       await wpOptionsTable.create();
       await wpOptionsData.crowdWpOptions();
       await paymentRequestTable.create();
+      await attributionTable.create();
 
       data.tester = await profileData.testerWithBooty({
         pending_booty: 129.99,
@@ -162,11 +211,33 @@ describe("POST /users/me/payments - valid iban", () => {
       data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
         tester_id: data.tester.id,
       });
+
+      attributionData.validAttribution({
+        id: 1,
+        tester_id: data.tester.id,
+        amount: 9.99,
+      });
+      attributionData.validAttribution({
+        id: 2,
+        tester_id: data.tester.id,
+        amount: 50,
+      });
+      attributionData.validAttribution({
+        id: 3,
+        tester_id: data.tester.id,
+        amount: 70,
+      });
+      attributionData.validAttribution({
+        id: 4,
+        tester_id: data.tester.id + 1,
+        amount: 70,
+      });
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
+      await attributionTable.drop();
       await profileTable.drop();
       await fiscalProfileTable.drop();
       await wpOptionsTable.drop();
@@ -189,6 +260,29 @@ describe("POST /users/me/payments - valid iban", () => {
     expect(response.status).toBe(200);
   });
 
+  it("Should update the attributions with is_requested =1 and request_id = the id of the inserted request ", async () => {
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "iban",
+          iban: "IT75T0300203280284975661141",
+          accountHolderName: "John Doe",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const requestId: number = response.body.id;
+    const attributions: { is_requested: number; request_id: number }[] =
+      await sqlite3.all(
+        `SELECT is_requested,request_id FROM wp_appq_payment WHERE request_id=${requestId}`
+      );
+    expect(attributions.length).toBe(3);
+    attributions.forEach((attribution) => {
+      expect(attribution.is_requested).toBe(1);
+    });
+  });
   it("Should create a row in the requests with the amount equal to current pending booty and is_paid=0", async () => {
     const response = await request(app)
       .post("/users/me/payments")
@@ -281,12 +375,14 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       await wpOptionsTable.create();
       await wpOptionsData.crowdWpOptions();
       await paymentRequestTable.create();
+      await attributionTable.create();
 
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
+      await attributionTable.drop();
       await profileTable.drop();
       await fiscalProfileTable.drop();
       await wpOptionsTable.drop();
@@ -515,6 +611,7 @@ describe("POST /users/me/payments - stamp required", () => {
       await wpOptionsTable.create();
       await wpOptionsData.crowdWpOptions();
       await paymentRequestTable.create();
+      await attributionTable.create();
 
       resolve(null);
     });
@@ -522,6 +619,7 @@ describe("POST /users/me/payments - stamp required", () => {
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await profileTable.drop();
+      await attributionTable.drop();
       await fiscalProfileTable.drop();
       await wpOptionsTable.drop();
       await paymentRequestTable.drop();
@@ -586,6 +684,7 @@ describe("POST /users/me/payments - invalid data", () => {
       await wpOptionsTable.create();
       await wpOptionsData.crowdWpOptions();
       await paymentRequestTable.create();
+      await attributionTable.create();
 
       resolve(null);
     });
@@ -596,6 +695,7 @@ describe("POST /users/me/payments - invalid data", () => {
       await fiscalProfileTable.drop();
       await wpOptionsTable.drop();
       await paymentRequestTable.drop();
+      await attributionTable.drop();
       resolve(null);
     });
   });
