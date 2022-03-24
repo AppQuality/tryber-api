@@ -2670,6 +2670,7 @@ paths:
                         amount:
                           value: 5
                           currency: EUR
+                        paidDate: '-'
                         method:
                           type: paypal
                           note: me@example.com
@@ -2693,6 +2694,7 @@ paths:
                     results:
                       - id: 2
                         status: processing
+                        paidDate: '-'
                         amount:
                           value: 5
                           currency: EUR
@@ -2879,7 +2881,7 @@ paths:
                     type: iban
                     accountHolderName: Pippo Franco
                     iban: IT42E0300203280581481468634
-  "/users/me/payments/{payment}":
+  '/users/me/payments/{payment}':
     parameters:
       - schema:
           type: string
@@ -2890,7 +2892,7 @@ paths:
       summary: Details of a single payment
       tags: []
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -2937,7 +2939,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -2953,7 +2955,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -2962,7 +2964,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -2971,7 +2973,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -2980,7 +2982,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -2989,7 +2991,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -2998,7 +3000,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -3007,7 +3009,7 @@ paths:
                           id: 12
                           name: My campaign 2
                         type: Community
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -3016,7 +3018,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -3025,7 +3027,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 10
                           currency: EUR
@@ -3034,7 +3036,7 @@ paths:
                           id: 12
                           name: My campaign 2
                         type: Community
-                        date: "2019-08-24"
+                        date: '2019-08-24'
                         amount:
                           value: 5
                           currency: EUR
@@ -3042,10 +3044,10 @@ paths:
                     size: 1
                     total: 1
                     start: 0
-        "403":
-          $ref: "#/components/responses/NotAuthorized"
-        "404":
-          $ref: "#/components/responses/NotFound"
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
       operationId: get-users-me-payments-payment
       security:
         - JWT: []
