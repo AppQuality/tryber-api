@@ -58,12 +58,7 @@
     "watch": [
       "src/*"
     ],
-    "ext": "ts,json",
-    "ignore": [
-      "**/__tests__/**",
-      "*.test.js",
-      "*.spec.js"
-    ]
+    "ext": "ts,json"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",

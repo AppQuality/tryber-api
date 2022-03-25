@@ -1,9 +1,9 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import {
   data as attributionData,
   table as attributionTable,
 } from "@src/__mocks__/mockedDb/attributions";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -30,15 +30,7 @@ describe("GET /users/me/payments/{payment}", () => {
   const data: any = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_payment", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "amount DECIMAL(11,2)",
-        "creation_date DATETIME",
-        "work_type_id INTEGER",
-        "request_id INTEGER",
-        "campaign_id INTEGER",
-      ]);
+      await attributionTable.create();
 
       await sqlite3.createTable("wp_appq_evd_campaign", [
         "id INTEGER PRIMARY KEY",
@@ -96,7 +88,7 @@ describe("GET /users/me/payments/{payment}", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_payment");
+      await attributionTable.drop();
       await sqlite3.dropTable("wp_appq_evd_campaign");
       await sqlite3.dropTable("wp_appq_payment_work_types");
       await attributionTable.drop();
@@ -120,7 +112,7 @@ describe("GET /users/me/payments/{payment}", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(404);
   });
-  it("Should return a list of payments ordered by date DESC", async () => {
+  it("Should return a list of attributions ordered by date DESC", async () => {
     const response = await request(app)
       .get("/users/me/payments/1")
       .set("authorization", "Bearer tester");
