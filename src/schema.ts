@@ -2046,22 +2046,22 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            results?: ({
-              id?: number;
+            results: ({
+              id: number;
             } & {
-              type?: string;
-              amount?: {
-                value?: number;
-                currency?: string;
+              type: string;
+              amount: {
+                value: number;
+                currency: string;
               };
               /** Format: date */
-              date?: string;
-              activity?: string;
+              date: string;
+              activity: string;
             })[];
             limit?: number;
-            size?: number;
+            size: number;
             total?: number;
-            start?: number;
+            start: number;
           };
         };
       };
