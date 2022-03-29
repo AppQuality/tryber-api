@@ -2719,6 +2719,7 @@ paths:
               - id
               - attributionDate
               - amount
+              - activityName
           in: query
           description: The field for item order
           name: orderBy
