@@ -271,6 +271,11 @@ export interface paths {
       };
     };
   };
+  "/users/me/pending_booty": {
+    /** Return all single attributions that dials the pending booty */
+    get: operations["get-users-me-pending-booty"];
+    parameters: {};
+  };
   "/users/me/payments": {
     get: operations["get-users-me-payments"];
     post: operations["post-users-me-payments"];
@@ -1942,6 +1947,47 @@ export interface operations {
               is_candidate?: boolean;
             };
       };
+    };
+  };
+  /** Return all single attributions that dials the pending booty */
+  "get-users-me-pending-booty": {
+    parameters: {
+      query: {
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** The field for item order */
+        orderBy?: "id" | "attributionDate";
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results?: ({
+              id: number;
+            } & {
+              name: string;
+              amount: {
+                value?: number;
+                currency?: string;
+              };
+              /** Format: date */
+              attributionDate: string;
+            })[];
+            limit?: number;
+            size: number;
+            start: number;
+            total?: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-users-me-payments": {
