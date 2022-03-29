@@ -9,8 +9,7 @@ export default async (
     name: string;
     amount: number;
     attributionDate: string;
-    cpId: number;
-    cpName: string;
+    activityName: string;
   }[];
   total?: number;
 }> => {
@@ -29,13 +28,12 @@ export default async (
     SELECT 
         p.id as id, p.amount as amount, 
         CAST(p.creation_date as CHAR) as attributionDate, 
-        cp.id as cpId, 
-        cp.title as cpName
+        CONCAT('[CP-', cp.id, '] ', cp.title) as activityName
     FROM wp_appq_payment p
     JOIN wp_appq_evd_campaign cp ON p.campaign_id = cp.id 
     ${WHERE} 
     ORDER BY ${query.orderBy || "attributionDate"} 
-    ${query.order || "DESC"} 
+    ${query.order || "DESC"}, attributionDate ${query.order || "DESC"}
     ${pagination}
 `;
   const results = await db.query(db.format(sql, data));

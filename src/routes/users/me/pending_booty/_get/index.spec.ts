@@ -1,3 +1,4 @@
+import { table as attributionTable } from "@src/__mocks__/mockedDb/attributions";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
@@ -7,12 +8,16 @@ jest.mock("@appquality/wp-auth");
 
 const campaign1 = {
   id: 1,
-  title: "Best Campaign ever",
+  title: "The Best Campaign ever",
+};
+const campaign2 = {
+  id: 2,
+  title: "Absolut Best Campaign ever",
 };
 const attribution1 = {
   id: 1,
   tester_id: 1,
-  campaign_id: 1,
+  campaign_id: 2,
   amount: 6969.69,
   creation_date: "1970-01-01 00:00:00",
   is_paid: 0,
@@ -39,7 +44,7 @@ const attribution3 = {
 const attributionPaid = {
   id: 4,
   tester_id: 1,
-  campaign_id: 1,
+  campaign_id: 3,
   amount: 100,
   creation_date: "1980-01-01 00:00:00",
   is_paid: 1,
@@ -66,20 +71,13 @@ const attributionRequested = {
 describe("GET /users/me/pending_booty", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_payment", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "campaign_id INTEGER",
-        "amount DECIMAL(11,2) NOT NULL DEFAULT 0",
-        "creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "is_paid BOOL",
-        "is_requested BOOL",
-      ]);
+      await attributionTable.create();
       await sqlite3.createTable("wp_appq_evd_campaign", [
         "id INTEGER PRIMARY KEY",
         "title VARCHAR(256)",
       ]);
       sqlite3.insert("wp_appq_evd_campaign", campaign1);
+      sqlite3.insert("wp_appq_evd_campaign", campaign2);
       sqlite3.insert("wp_appq_payment", attribution1);
       sqlite3.insert("wp_appq_payment", attribution2);
       sqlite3.insert("wp_appq_payment", attribution3);
@@ -90,8 +88,8 @@ describe("GET /users/me/pending_booty", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_payment");
       await sqlite3.dropTable("wp_appq_evd_campaign");
+      await attributionTable.drop();
 
       resolve(null);
     });
@@ -105,15 +103,40 @@ describe("GET /users/me/pending_booty", () => {
       .get("/users/me/pending_booty")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body.results[0]).toEqual({
-      id: attribution2.id,
-      name: `[CP-${campaign1.id}] ${campaign1.title}`,
-      amount: {
-        value: attribution2.amount,
-        currency: "EUR",
+  });
+  it("Should return a list of attributions", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty")
+      .set("authorization", "Bearer tester");
+    expect(response.body.results).toEqual([
+      {
+        id: attribution2.id,
+        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        amount: {
+          value: attribution2.amount,
+          currency: "EUR",
+        },
+        attributionDate: attribution2.creation_date.substring(0, 10),
       },
-      attributionDate: attribution2.creation_date.substring(0, 10),
-    });
+      {
+        id: attribution1.id,
+        name: `[CP-${campaign2.id}] ${campaign2.title}`,
+        amount: {
+          value: attribution1.amount,
+          currency: "EUR",
+        },
+        attributionDate: attribution1.creation_date.substring(0, 10),
+      },
+      {
+        id: attribution3.id,
+        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        amount: {
+          value: attribution3.amount,
+          currency: "EUR",
+        },
+        attributionDate: attribution3.creation_date.substring(0, 10),
+      },
+    ]);
   });
   it("Should return attributions not paid and not requested", async () => {
     const response = await request(app)
@@ -212,6 +235,29 @@ describe("GET /users/me/pending_booty", () => {
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
       1, 3, 2,
+    ]);
+  });
+  it("Should return attributions ordered by activityName if orderBy=activityName is set", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty?orderBy=activityName")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      1, 2, 3,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/pending_booty?orderBy=activityName&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      3, 2, 1,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/pending_booty?orderBy=activityName&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      1, 2, 3,
     ]);
   });
   it("Should return attributions ordered by attributionDate DESC by default", async () => {

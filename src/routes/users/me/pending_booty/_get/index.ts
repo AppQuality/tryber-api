@@ -50,7 +50,7 @@ export default async (
       results: results.map((row) => {
         return {
           id: row.id,
-          name: `[CP-${row.cpId}] ${row.cpName}`,
+          name: row.activityName,
           amount: {
             value: row.amount,
             currency: "EUR",

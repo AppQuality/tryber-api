@@ -7,6 +7,7 @@ export const table = {
       "tester_id INTEGER",
       "amount DECIMAL(11,2)",
       "is_requested INTEGER DEFAULT 0",
+      "is_paid INTEGER DEFAULT 0",
       "creation_date DATETIME",
       "work_type_id INTEGER",
       "request_id INTEGER DEFAULT NULL",
