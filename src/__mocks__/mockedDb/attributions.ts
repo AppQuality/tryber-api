@@ -26,6 +26,7 @@ type AttributionParams = {
   creation_date?: string;
   work_type_id?: number;
   campaign_id?: number;
+  is_requested?: 1 | 0;
 };
 const data: {
   [key: string]: (
@@ -41,6 +42,7 @@ data.validAttribution = async (params?: AttributionParams) => {
     campaign_id: 1,
     work_type_id: 1,
     creation_date: "2020-01-01",
+    is_requested: 0,
     ...params,
   };
   await sqlite3.insert("wp_appq_payment", item);

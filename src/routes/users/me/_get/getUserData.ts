@@ -6,6 +6,7 @@ import getAttendedCpData from "./getAttendedCpData";
 import getCertificationsData from "./getCertificationsData";
 import getEducationData from "./getEducationData";
 import getLanguagesData from "./getLanguagesData";
+import getPendingBootyData from "./getPendingBootyData";
 import getProfessionData from "./getProfessionData";
 import getProfileData from "./getProfileData";
 import getRankData from "./getRankData";
@@ -67,6 +68,12 @@ export default async (
       console.log(e);
     }
 
+    if (validFields.includes("pending_booty")) {
+      try {
+        data = { ...data, ...(await getPendingBootyData(id)) };
+      } catch (e) {}
+    }
+
     if (validFields.includes("rank")) {
       try {
         data = { ...data, ...(await getRankData(id)) };
@@ -121,8 +128,7 @@ export default async (
         let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
           { value: 0, isOver: false };
 
-        const trbPendingBooty = (await getProfileData(id, ["pending_booty"]))
-          .pending_booty;
+        const trbPendingBooty = (await getPendingBootyData(id)).pending_booty;
         const bootyThresholdVal = await getCrowdOption("minimum_payout");
         if (bootyThresholdVal) {
           bootyThreshold.value = parseFloat(bootyThresholdVal);
