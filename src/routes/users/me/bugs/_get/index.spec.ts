@@ -194,7 +194,6 @@ describe("GET /users/me/bugs - user without bugs", () => {
     const response = await request(app)
       .get("/users/me/bugs")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(404);
     expect(response.body).toMatchObject({
       element: "bugs",

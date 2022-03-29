@@ -14,6 +14,9 @@ export const query = (query: string): Promise<any> => {
         query.includes("INSERT")
       ) {
         data = await sqlite.run(query);
+        if (data.hasOwnProperty("lastInsertRowid")) {
+          data.insertId = data.lastInsertRowid;
+        }
       } else {
         data = await sqlite.all(query);
       }

@@ -83,7 +83,6 @@ describe("Route GET popups", () => {
     const response = await request(app)
       .get("/popups?start=1&limit=1")
       .set("authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(1);
     expect(response.body[0].id).toBe(2);

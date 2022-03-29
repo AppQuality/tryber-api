@@ -271,6 +271,24 @@ export interface paths {
       };
     };
   };
+  "/users/me/pending_booty": {
+    /** Return all single attributions that dials the pending booty */
+    get: operations["get-users-me-pending-booty"];
+    parameters: {};
+  };
+  "/users/me/payments": {
+    get: operations["get-users-me-payments"];
+    post: operations["post-users-me-payments"];
+    parameters: {};
+  };
+  "/users/me/payments/{payment}": {
+    get: operations["get-users-me-payments-payment"];
+    parameters: {
+      path: {
+        payment: string;
+      };
+    };
+  };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
     parameters: {};
@@ -1240,6 +1258,10 @@ export interface operations {
             city?: string;
             attended_cp?: number;
             approved_bugs?: number;
+            booty_threshold?: {
+              value: number;
+              isOver: boolean;
+            };
           };
         };
       };
@@ -1925,6 +1947,172 @@ export interface operations {
               is_candidate?: boolean;
             };
       };
+    };
+  };
+  /** Return all single attributions that dials the pending booty */
+  "get-users-me-pending-booty": {
+    parameters: {
+      query: {
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** The field for item order */
+        orderBy?: "id" | "attributionDate";
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results?: ({
+              id: number;
+            } & {
+              name: string;
+              amount: {
+                value?: number;
+                currency?: string;
+              };
+              /** Format: date */
+              attributionDate: string;
+            })[];
+            limit?: number;
+            size: number;
+            start: number;
+            total?: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "get-users-me-payments": {
+    parameters: {
+      query: {
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** The field for item order */
+        orderBy?: string;
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results?: ({
+              id: number;
+            } & {
+              /** @enum {string} */
+              status: "paid" | "processing";
+              amount: {
+                value?: number;
+                currency?: string;
+              };
+              paidDate: string;
+              method: {
+                /** @enum {string} */
+                type: "paypal" | "iban";
+                note: string;
+              };
+              /** Format: uri-reference */
+              receipt?: string;
+            })[];
+            limit?: number;
+            size: number;
+            start: number;
+            total?: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "post-users-me-payments": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id?: number;
+            amount?: number;
+          };
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          method:
+            | {
+                /** @enum {string} */
+                type: "paypal";
+                email: string;
+              }
+            | {
+                /** @enum {string} */
+                type: "iban";
+                accountHolderName: string;
+                iban: string;
+              };
+        };
+      };
+    };
+  };
+  "get-users-me-payments-payment": {
+    parameters: {
+      path: {
+        payment: string;
+      };
+      query: {
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+        /** The value to order by */
+        orderBy?: "amount" | "type" | "date" | "activity";
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: ({
+              id: number;
+            } & {
+              type: string;
+              amount: {
+                value: number;
+                currency: string;
+              };
+              /** Format: date */
+              date: string;
+              activity: string;
+            })[];
+            limit?: number;
+            size: number;
+            total?: number;
+            start: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-customUserFields": {
