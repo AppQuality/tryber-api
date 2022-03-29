@@ -2718,6 +2718,7 @@ paths:
             enum:
               - id
               - attributionDate
+              - amount
           in: query
           description: The field for item order
           name: orderBy

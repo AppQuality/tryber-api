@@ -16,7 +16,7 @@ export default async (
 }> => {
   const data = [];
   const WHERE = `WHERE 
-    p.tester_id = ? and p.is_paid=0 and p.is_requested=0`; //ma siamo sicuri?????
+    p.tester_id = ? and p.is_paid=0 and p.is_requested=0`;
   data.push(testerId);
 
   let pagination = ``;
@@ -27,7 +27,7 @@ export default async (
 
   const sql = `
     SELECT 
-        p.id as id, p.amount, 
+        p.id as id, p.amount as amount, 
         CAST(p.creation_date as CHAR) as attributionDate, 
         cp.id as cpId, 
         cp.title as cpName

@@ -1958,7 +1958,7 @@ export interface operations {
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
         /** The field for item order */
-        orderBy?: "id" | "attributionDate";
+        orderBy?: "id" | "attributionDate" | "amount";
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
       };

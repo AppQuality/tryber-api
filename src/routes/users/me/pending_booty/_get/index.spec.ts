@@ -13,7 +13,7 @@ const attribution1 = {
   id: 1,
   tester_id: 1,
   campaign_id: 1,
-  amount: 69.69,
+  amount: 6969.69,
   creation_date: "1970-01-01 00:00:00",
   is_paid: 0,
   is_requested: 0,
@@ -31,7 +31,7 @@ const attribution3 = {
   id: 3,
   tester_id: 1,
   campaign_id: 1,
-  amount: 90,
+  amount: 99,
   creation_date: "1960-01-01 00:00:00",
   is_paid: 0,
   is_requested: 0,
@@ -189,6 +189,29 @@ describe("GET /users/me/pending_booty", () => {
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
       3, 2, 1,
+    ]);
+  });
+  it("Should return attributions ordered by amount if orderBy=amount is set", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty?orderBy=amount")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      1, 3, 2,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/pending_booty?orderBy=amount&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      2, 3, 1,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/pending_booty?orderBy=amount&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      1, 3, 2,
     ]);
   });
   it("Should return attributions ordered by attributionDate DESC by default", async () => {
