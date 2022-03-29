@@ -11,6 +11,5 @@ export default async (id: string) => {
   if (!res.length) {
     Promise.reject(Error("Invalid pending booty data"));
   }
-  console.log(res);
   return { pending_booty: res[0].total ?? 0 };
 };

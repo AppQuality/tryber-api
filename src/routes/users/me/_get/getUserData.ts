@@ -130,8 +130,6 @@ export default async (
 
         const trbPendingBooty = (await getPendingBootyData(id)).pending_booty;
         const bootyThresholdVal = await getCrowdOption("minimum_payout");
-        console.log(bootyThresholdVal);
-        console.log(trbPendingBooty);
         if (bootyThresholdVal) {
           bootyThreshold.value = parseFloat(bootyThresholdVal);
           if (trbPendingBooty >= bootyThreshold.value) {
