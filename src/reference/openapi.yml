@@ -3012,7 +3012,7 @@ paths:
                             - iban
                         accountHolderName:
                           type: string
-                          pattern: '^[A-Za-zÀ-ÖØ-öø-ÿ''-ū\.]* [''A-Za-zÀ-Ö Ø-öø-ÿ-ū\.]*$'
+                          pattern: '^[A-Za-zÀ-ÖØ-öø-ÿ''-ū\.]+ [''A-Za-zÀ-Ö Ø-öø-ÿ-ū\.]+$'
                         iban:
                           type: string
                           pattern: '^([A-Z]{2}[ \-]?[0-9]{2})(?=(?:[ \-]?[A-Z0-9]){9,30}$)((?:[ \-]?[A-Z0-9]{3,5}){2,7})([ \-]?[A-Z0-9]{1,3})?$'
