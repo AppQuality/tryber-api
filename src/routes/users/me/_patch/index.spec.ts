@@ -1,3 +1,7 @@
+import {
+  data as wpOptionsData,
+  table as wpOptionsTable,
+} from "@src/__mocks__/mockedDb/wp_options";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
@@ -236,6 +240,8 @@ describe("Route PATCH users-me", () => {
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(64)",
       ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -299,7 +305,7 @@ describe("Route PATCH users-me", () => {
       await sqlite3.dropTable("wp_appq_custom_user_field");
       await sqlite3.dropTable("wp_appq_custom_user_field_data");
       await sqlite3.dropTable("wp_appq_custom_user_field_extras");
-
+      wpOptionsTable.drop();
       resolve(null);
     });
   });
@@ -413,6 +419,8 @@ describe("Route PATCH users-me new mail", () => {
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(64)",
       ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_users", wpTester2);
@@ -477,7 +485,7 @@ describe("Route PATCH users-me new mail", () => {
       await sqlite3.dropTable("wp_appq_custom_user_field");
       await sqlite3.dropTable("wp_appq_custom_user_field_data");
       await sqlite3.dropTable("wp_appq_custom_user_field_extras");
-
+      wpOptionsTable.drop();
       resolve(null);
     });
   });

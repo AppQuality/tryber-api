@@ -12,7 +12,6 @@ export default async (id: string, fields: string[]) => {
   if (fields.includes("wp_user_id")) sqlFields.push("p.wp_user_id");
   if (fields.includes("is_verified")) sqlFields.push("p.is_verified");
   if (fields.includes("username")) sqlFields.push("wp.user_login as username");
-  if (fields.includes("pending_booty")) sqlFields.push("p.pending_booty");
   if (fields.includes("booty")) sqlFields.push("p.booty");
   if (fields.includes("total_exp_pts")) sqlFields.push("p.total_exp_pts");
   if (fields.includes("birthDate"))

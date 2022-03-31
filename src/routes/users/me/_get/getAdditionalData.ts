@@ -75,7 +75,6 @@ WHERE wp_user_id = ?
       if (process.env && process.env.NODE_ENV === "development") {
         console.log(e);
       }
-      console.log(e);
     }
   } else {
     additional = textes;

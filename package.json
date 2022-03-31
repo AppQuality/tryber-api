@@ -6,6 +6,7 @@
   "scripts": {
     "coverage": "jest  ./dist --coverage",
     "test": "npm run build && jest ./dist ",
+    "test:ls": "npm run build 2>/dev/null 1>/dev/null && jest ./dist --json",
     "test:watch": "nodemon --exec \"npm test --\" ",
     "clean": "rimraf dist",
     "transpile": "babel ./src --out-dir dist --extensions \".ts,.js\"",
@@ -57,12 +58,7 @@
     "watch": [
       "src/*"
     ],
-    "ext": "ts,json",
-    "ignore": [
-      "**/__tests__/**",
-      "*.test.js",
-      "*.spec.js"
-    ]
+    "ext": "ts,json"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",

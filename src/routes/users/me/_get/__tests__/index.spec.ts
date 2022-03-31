@@ -1,3 +1,7 @@
+import {
+  data as wpOptionsData,
+  table as wpOptionsTable,
+} from "@src/__mocks__/mockedDb/wp_options";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
@@ -24,7 +28,7 @@ const testerFull = {
   wp_user_id: 1,
   is_verified: 1,
   booty: 69,
-  pending_booty: 70,
+  pending_booty: 10,
   total_exp_pts: 6969,
   birth_date: "1996-03-21 00:00:00",
   phone_number: "+39696969696969",
@@ -304,6 +308,8 @@ describe("Route GET users-me-full-fields", () => {
         "id INTEGER PRIMARY KEY",
         "name VARCHAR(64)",
       ]);
+      wpOptionsTable.create();
+      wpOptionsData.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -367,6 +373,7 @@ describe("Route GET users-me-full-fields", () => {
       await sqlite3.dropTable("wp_appq_custom_user_field");
       await sqlite3.dropTable("wp_appq_custom_user_field_data");
       await sqlite3.dropTable("wp_appq_custom_user_field_extras");
+      wpOptionsTable.drop();
 
       resolve(null);
     });
@@ -385,58 +392,6 @@ describe("Route GET users-me-full-fields", () => {
     });
   });
 
-  const acceptedFields = {
-    name: "",
-    surname: "",
-    email: "",
-    wp_user_id: 0,
-    is_verified: false,
-    username: "",
-    pending_booty: 0,
-    booty: 0,
-    total_exp_pts: 0,
-    birthDate: "",
-    phone: "",
-    gender: "",
-    country: "",
-    city: "",
-    onboarding_completed: false,
-    image: "",
-    //rank: "",
-    approved_bugs: 0,
-    attended_cp: 0,
-    certifications: [],
-    profession: {
-      id: 1,
-      name: "profession name",
-    },
-    education: {
-      id: 1,
-      name: "education name",
-    },
-    languages: [],
-    additional: [],
-  };
-  //test each single accepted fields
-  Object.keys(acceptedFields).forEach((k) => {
-    let current: { [key: string]: any } = { id: 1, role: "tester" };
-    current[k] = acceptedFields[k as keyof typeof acceptedFields];
-    it(
-      "Should return at least tryber (id, role and " +
-        k +
-        ") if is set parameter fields=" +
-        k,
-      async () => {
-        const response = await request(app)
-          .get("/users/me?fields=" + k)
-          .set("authorization", "Bearer tester");
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("id");
-        expect(response.body).toHaveProperty(k);
-        expect(response.body).toHaveProperty("role");
-      }
-    );
-  });
   it("Should return certifications if parameter fields=certifications", async () => {
     const response = await request(app)
       .get("/users/me?fields=certifications")

@@ -1,9 +1,12 @@
+import getCrowdOption from "@src/features/wp/getCrowdOption";
+
 import getAdditionalData from "./getAdditionalData";
 import getApprovedBugsData from "./getApprovedBugsData";
 import getAttendedCpData from "./getAttendedCpData";
 import getCertificationsData from "./getCertificationsData";
 import getEducationData from "./getEducationData";
 import getLanguagesData from "./getLanguagesData";
+import getPendingBootyData from "./getPendingBootyData";
 import getProfessionData from "./getProfessionData";
 import getProfileData from "./getProfileData";
 import getRankData from "./getRankData";
@@ -26,6 +29,7 @@ const acceptedFields = [
   "attended_cp",
   "total_exp_pts",
   "booty",
+  "booty_threshold",
   "pending_booty",
   "languages",
   "additional",
@@ -62,6 +66,12 @@ export default async (
       data = { ...data, ...(await getProfileData(id, validFields)) };
     } catch (e) {
       console.log(e);
+    }
+
+    if (validFields.includes("pending_booty")) {
+      try {
+        data = { ...data, ...(await getPendingBootyData(id)) };
+      } catch (e) {}
     }
 
     if (validFields.includes("rank")) {
@@ -109,6 +119,25 @@ export default async (
     if (validFields.includes("additional")) {
       try {
         data = { ...data, ...(await getAdditionalData(id)) };
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    if (validFields.includes("booty_threshold")) {
+      try {
+        let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
+          { value: 0, isOver: false };
+
+        const trbPendingBooty = (await getPendingBootyData(id)).pending_booty;
+        const bootyThresholdVal = await getCrowdOption("minimum_payout");
+        if (bootyThresholdVal) {
+          bootyThreshold.value = parseFloat(bootyThresholdVal);
+          if (trbPendingBooty >= bootyThreshold.value) {
+            bootyThreshold.isOver = true;
+          }
+        }
+
+        data = { ...data, ...{ booty_threshold: bootyThreshold } };
       } catch (e) {
         console.log(e);
       }
