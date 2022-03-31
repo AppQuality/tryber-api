@@ -100,15 +100,15 @@ export default async (
         template: process.env.PAYMENT_REQUESTED_EMAIL,
         optionalFields: {
           "{Profile.name}": tester[0].name,
-          "{Profile.amount}": booty,
-          "{Profile.requestDate}": now.toLocaleString("it", {
+          "{Payment.amount}": booty,
+          "{Payment.requestDate}": now.toLocaleString("it", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
           }),
-          "{Profile.methodLabel}":
+          "{Payment.methodLabel}":
             body.method.type === "paypal" ? "PayPal Email" : "IBAN",
-          "{Profile.method}":
+          "{Payment.method}":
             body.method.type === "paypal"
               ? body.method.email
               : body.method.iban,
