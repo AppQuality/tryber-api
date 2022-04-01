@@ -1,8 +1,13 @@
 {
+  "ts-node": {
+    "files": true
+  },
   "compilerOptions": {
     "inlineSourceMap": true,
     "noImplicitAny": true,
-    "target": "esnext",
+    "target": "es5",
+    "outDir": "./dist",
+    "downlevelIteration": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "strict": true,
