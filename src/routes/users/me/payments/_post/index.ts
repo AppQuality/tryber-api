@@ -1,7 +1,8 @@
 /** OPENAPI-ROUTE: post-users-me-payments */
 import * as db from "@src/features/db";
+import debugMessage from "@src/features/debugMessage";
+import { sendTemplate } from "@src/features/mail/sendTemplate";
 import { Context } from "openapi-backend";
-
 import checkBooty from "./checkBooty";
 import checkFiscalProfile from "./checkFiscalProfile";
 import checkProcessingPayment from "./checkProcessingPayment";
@@ -84,6 +85,39 @@ export default async (
       [requestId, req.user.testerId]
     )
   );
+
+  try {
+    if (process.env.PAYMENT_REQUESTED_EMAIL) {
+      const sql = `SELECT name,email FROM wp_appq_evd_profile WHERE id = ?`;
+      const tester: [{ name: string; email: string }] = await db.query(
+        db.format(sql, [req.user.testerId])
+      );
+      const now = new Date();
+
+      await sendTemplate({
+        email: tester[0].email,
+        subject: "[Tryber] Payout Request",
+        template: process.env.PAYMENT_REQUESTED_EMAIL,
+        optionalFields: {
+          "{Profile.name}": tester[0].name,
+          "{Payment.amount}": booty,
+          "{Payment.requestDate}": now.toLocaleString("it", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }),
+          "{Payment.methodLabel}":
+            body.method.type === "paypal" ? "PayPal Email" : "IBAN",
+          "{Payment.method}":
+            body.method.type === "paypal"
+              ? body.method.email
+              : body.method.iban,
+        },
+      });
+    }
+  } catch (err) {
+    debugMessage(err);
+  }
 
   res.status_code = 200;
   return {
