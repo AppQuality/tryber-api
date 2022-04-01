@@ -616,8 +616,15 @@ paths:
                       - removed
                   device:
                     oneOf:
-                      - type: object
+                      - type: string
+                        enum:
+                          - any
                       - $ref: '#/components/schemas/UserDevice'
+                required:
+                  - tester_id
+                  - accepted
+                  - status
+                  - device
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

@@ -953,18 +953,16 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            tester_id?: number;
-            accepted?: boolean;
+            tester_id: number;
+            accepted: boolean;
             /** @enum {string} */
-            status?:
+            status:
               | "ready"
               | "in-progress"
               | "completed"
               | "excluded"
               | "removed";
-            device?:
-              | { [key: string]: unknown }
-              | components["schemas"]["UserDevice"];
+            device: "any" | components["schemas"]["UserDevice"];
           };
         };
       };
