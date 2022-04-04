@@ -27,10 +27,11 @@ jobs:
           cd deployment
           echo -n "appquality-api-express:${{ github.event.inputs.tag }}" > docker-image.txt
           zip dist.zip *
-      - uses: jakejarvis/s3-sync-action@master
+      - uses: zdurham/s3-upload-github-action@master
         env:
-          AWS_S3_BUCKET: crowd-api-app-staging-s3-source-bucket
+          S3_BUCKET: crowd-api-app-staging-s3-source-bucket
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "eu-west-1" # optional: defaults to us-east-1
-          SOURCE_DIR: ./deployment/dist.zip
+          FILE: ./deployment/dist.zip
+          S3_KEY: dist.zip
