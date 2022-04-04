@@ -5,11 +5,6 @@ name: Deploy to staging
 # Controls when the workflow will run
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "The tag to deploy"
-        required: true
-        default: "develop"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,10 +17,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Extract branch name
+        shell: bash
+        run: |
+          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
+          if [ "$BRANCH" = "main" ]; then
+              TAG="latest"
+          else
+              TAG="$BRANCH"
+          fi
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_branch
       - name: "Generate dist zip"
         run: |
           cd deployment
-          echo -n "appquality-api-express:${{ github.event.inputs.tag }}" > docker-image.txt
+          echo -n "appquality-api-express:${{steps.extract_branch.outputs.tag}}" > docker-image.txt
           zip dist.zip *
       - uses: zdurham/s3-upload-github-action@master
         env:
