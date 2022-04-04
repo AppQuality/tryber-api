@@ -3558,6 +3558,17 @@ paths:
       description: ''
       security:
         - JWT: []
+    delete:
+      summary: ''
+      operationId: delete-payments-paymentId
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      description: delete a specific payment request
 components:
   schemas:
     Project:
