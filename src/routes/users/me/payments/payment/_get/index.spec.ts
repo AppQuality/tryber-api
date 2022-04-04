@@ -2,6 +2,14 @@ import {
   data as attributionData,
   table as attributionTable,
 } from "@src/__mocks__/mockedDb/attributions";
+import {
+  data as requestData,
+  table as requestTable,
+} from "@src/__mocks__/mockedDb/paymentRequest";
+import {
+  data as profileData,
+  table as profileTable,
+} from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
@@ -31,6 +39,8 @@ describe("GET /users/me/payments/{payment}", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       await attributionTable.create();
+      await profileTable.create();
+      await requestTable.create();
 
       await sqlite3.createTable("wp_appq_evd_campaign", [
         "id INTEGER PRIMARY KEY",
@@ -42,13 +52,25 @@ describe("GET /users/me/payments/{payment}", () => {
         "work_type VARCHAR(255)",
       ]);
 
-      await attributionTable.create();
-
       await sqlite3.insert("wp_appq_evd_campaign", campaign1);
       await sqlite3.insert("wp_appq_evd_campaign", campaign2);
       await sqlite3.insert("wp_appq_payment_work_types", work_type1);
       await sqlite3.insert("wp_appq_payment_work_types", work_type2);
 
+      await profileData.testerWithBooty({
+        id: 1,
+      });
+      await profileData.testerWithBooty({
+        id: 2,
+      });
+      requestData.processingPaypalPayment({
+        id: 1,
+        tester_id: 1,
+      });
+      requestData.processingPaypalPayment({
+        id: 2,
+        tester_id: 2,
+      });
       data.payment1 = await attributionData.validAttribution({
         id: 1,
         amount: 10,
@@ -88,10 +110,11 @@ describe("GET /users/me/payments/{payment}", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
+      await profileTable.drop();
       await attributionTable.drop();
+      await requestTable.drop();
       await sqlite3.dropTable("wp_appq_evd_campaign");
       await sqlite3.dropTable("wp_appq_payment_work_types");
-      await attributionTable.drop();
       resolve(null);
     });
   });
@@ -105,6 +128,12 @@ describe("GET /users/me/payments/{payment}", () => {
       .get("/users/me/payments/1")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
+  });
+  it("Should answer 404 if the payment is from another tester", async () => {
+    const response = await request(app)
+      .get("/users/me/payments/2")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
   });
   it("Should answer 404 if the tester doesn't have the payment", async () => {
     const response = await request(app)

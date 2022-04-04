@@ -1,6 +1,7 @@
 import * as db from "@src/features/db";
 
 export default async (
+  testerId: number,
   requestId: number,
   query: StoplightOperations["get-users-me-payments"]["parameters"]["query"]
 ): Promise<{
@@ -14,8 +15,9 @@ export default async (
   total?: number;
 }> => {
   const data = [];
-  const WHERE = `WHERE request_id = ? `;
+  const WHERE = `WHERE request_id = ? AND req.tester_id = ? `;
   data.push(requestId);
+  data.push(testerId);
 
   let pagination = ``;
   query.limit
@@ -25,13 +27,17 @@ export default async (
 
   const sql = `
     SELECT 
-        p.id, p.amount,p.creation_date as date,
+        p.id, p.amount as amount,p.creation_date as date,
         CONCAT("[CP-",cp.id,"] ",cp.title) as activity,
         wt.work_type as type
     FROM 
         wp_appq_payment p
     JOIN 
         wp_appq_evd_campaign cp ON p.campaign_id = cp.id
+    JOIN 
+        wp_appq_payment_request req ON req.id = p.request_id
+    JOIN 
+        wp_appq_evd_profile t ON t.id = req.tester_id
     JOIN 
         wp_appq_payment_work_types wt ON p.work_type_id = wt.id
     ${WHERE} 
@@ -51,6 +57,10 @@ export default async (
         wp_appq_payment p
     JOIN 
         wp_appq_evd_campaign cp ON p.campaign_id = cp.id
+    JOIN 
+        wp_appq_payment_request req ON req.id = p.request_id
+    JOIN 
+        wp_appq_evd_profile t ON t.id = req.tester_id
     JOIN 
         wp_appq_payment_work_types wt ON p.work_type_id = wt.id
       ${WHERE}`;

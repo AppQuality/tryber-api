@@ -1,6 +1,7 @@
 /** OPENAPI-ROUTE: get-users-me-payments-payment*/
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
+
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
 
 export default async (
@@ -25,7 +26,11 @@ export default async (
 
   let total, results;
   try {
-    const data = await getPaymentsFromQuery(parseInt(params.payment), query);
+    const data = await getPaymentsFromQuery(
+      req.user.testerId,
+      parseInt(params.payment),
+      query
+    );
     results = data.results;
     total = data.total;
     if (!results.length) {
