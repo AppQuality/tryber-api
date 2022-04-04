@@ -2266,10 +2266,8 @@ export interface operations {
     responses: {
       /** OK */
       200: unknown;
-      /** Forbidden */
-      403: unknown;
-      /** Not Found */
-      404: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
 }
