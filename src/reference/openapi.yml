@@ -3559,15 +3559,15 @@ paths:
       security:
         - JWT: []
     delete:
-      summary: ''
+      summary: Delete payment request from id
       operationId: delete-payments-paymentId
       responses:
         '200':
           description: OK
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/NotAuthorized'
         '404':
-          description: Not Found
+          $ref: '#/components/responses/NotFound'
       description: delete a specific payment request
 components:
   schemas:
