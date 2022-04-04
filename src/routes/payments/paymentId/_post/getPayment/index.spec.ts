@@ -16,6 +16,7 @@ const validBankTransferPayment = {
   amount: 100,
   iban: "DE12345678901234567890",
   is_paid: 0,
+  fiscal_profile_id: 1,
 };
 const validPaypalPayment = {
   id: 2,
@@ -23,6 +24,7 @@ const validPaypalPayment = {
   amount: 100,
   paypal_email: "john.doe@example.com",
   is_paid: 0,
+  fiscal_profile_id: 1,
 };
 
 const invalidTypePayment = {
@@ -30,6 +32,12 @@ const invalidTypePayment = {
   tester_id: tester.id,
   amount: 100,
   is_paid: 0,
+  fiscal_profile_id: 1,
+};
+
+const fiscalProfile = {
+  id: 1,
+  fiscal_category: 1,
 };
 
 describe("POST /payments/:paymentId", () => {
@@ -42,6 +50,11 @@ describe("POST /payments/:paymentId", () => {
         "iban VARCHAR(255)",
         "paypal_email VARCHAR(255)",
         "is_paid BOOL",
+        "fiscal_profile_id INTEGER",
+      ]);
+      await sqlite3.createTable("wp_appq_fiscal_profile", [
+        "id INTEGER PRIMARY KEY",
+        "fiscal_category INTEGER",
       ]);
       await sqlite3.createTable("wp_appq_evd_profile", [
         "id INTEGER PRIMARY KEY",
@@ -53,6 +66,7 @@ describe("POST /payments/:paymentId", () => {
       await sqlite3.insert("wp_appq_payment_request", validBankTransferPayment);
       await sqlite3.insert("wp_appq_payment_request", validPaypalPayment);
       await sqlite3.insert("wp_appq_payment_request", invalidTypePayment);
+      await sqlite3.insert("wp_appq_fiscal_profile", fiscalProfile);
 
       await sqlite3.insert("wp_appq_evd_profile", tester);
 
