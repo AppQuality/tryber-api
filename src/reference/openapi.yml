@@ -3569,6 +3569,8 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       description: delete a specific payment request
+      security:
+        - JWT: []
 components:
   schemas:
     Project:
