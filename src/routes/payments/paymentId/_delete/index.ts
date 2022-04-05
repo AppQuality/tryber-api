@@ -35,8 +35,16 @@ export default async (
       `DELETE FROM wp_appq_payment_request WHERE id = ? AND is_paid = 0 `,
       [paymentId]
     );
-    const result = await db.query(query);
-    if (result.changes === 1) {
+    const resultDelete = await db.query(query);
+
+    let updateAttributions = db.format(
+      `UPDATE wp_appq_payment
+        SET is_requested = 0 WHERE request_id = ? ;`,
+      [paymentId]
+    );
+    const resultUpdate = await db.query(updateAttributions);
+
+    if (resultDelete.changes === 1 && resultUpdate.changes > 0) {
       res.status_code = 200;
       return {};
     } else {
