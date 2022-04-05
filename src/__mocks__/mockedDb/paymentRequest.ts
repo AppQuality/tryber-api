@@ -24,11 +24,28 @@ export const table = {
   },
 };
 
+type RequestParams = {
+  id?: number;
+  tester_id?: number;
+  amount?: number;
+  amount_gross?: number;
+  amount_withholding?: number;
+  iban?: string;
+  paypal_email?: string;
+  account_holder_name?: string;
+  update_date?: string;
+  error_message?: string;
+  is_paid?: 1 | 0;
+  stamp_required?: 1 | 0;
+  withholding_tax_percentage?: number;
+  fiscal_profile_id?: number;
+};
+
 const data: {
-  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
+  [key: string]: (params?: RequestParams) => Promise<{ [key: string]: any }>;
 } = {};
 
-data.processingPaypalPayment = async (params?: { tester_id: number }) => {
+data.processingPaypalPayment = async (params) => {
   const item = {
     id: 1,
     tester_id: 1,
@@ -41,5 +58,17 @@ data.processingPaypalPayment = async (params?: { tester_id: number }) => {
   await sqlite3.insert("wp_appq_payment_request", item);
   return item;
 };
-
+data.paidPaypalPayment = async (params) => {
+  const item2 = {
+    id: 1,
+    tester_id: 1,
+    amount: 49000,
+    is_paid: 1,
+    paypal_email: "john.doe@example.com",
+    update_date: "1980-05-03 00:00:00",
+    ...params,
+  };
+  await sqlite3.insert("wp_appq_payment_request", item2);
+  return item2;
+};
 export { data };
