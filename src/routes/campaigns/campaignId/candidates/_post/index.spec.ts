@@ -3,6 +3,10 @@ import {
   table as cpTable,
 } from "@src/__mocks__/mockedDb/campaign";
 import {
+  data as candidatesData,
+  table as candidatesTable,
+} from "@src/__mocks__/mockedDb/cp_has_candidates";
+import {
   data as testerData,
   table as testerTable,
 } from "@src/__mocks__/mockedDb/profile";
@@ -24,8 +28,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       await testerData.testerWithBooty();
       await wpUsersTable.create();
       await wpUsersData.basicUser();
-      // await candidatesTable.create();
-      // await candidatesData.candidate1();
+      await candidatesTable.create();
       resolve(null);
     });
   });
@@ -34,7 +37,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       await cpTable.drop();
       await testerTable.drop();
       await wpUsersTable.drop();
-      // await candidatesTable.drop();
+      await candidatesTable.drop();
       resolve(null);
     });
   });
@@ -59,40 +62,23 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(404);
   });
-  /*
+
   it("Should return 403 if tester is already candidate on campaign", async () => {
-    const response = await request(app)
-    .post("/campaigns/1/candidates")
-    .send({ tester_id: 1 })
-    .set("authorization", "Bearer admin");
+    // const response = await request(app)
+    // .post("/campaigns/1/candidates")
+    // .send({ tester_id: 1 })
+    // .set("authorization", "Bearer admin");
+    await candidatesData.candidate1({ user_id: 1, campaign_id: 1 });
     const responseJustCandidate = await request(app)
-    .post("/campaigns/1/candidates")
-    .send({ tester_id: 1 })
-    .set("authorization", "Bearer admin");
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
     expect(responseJustCandidate.status).toBe(403);
   });
-*/
+
   /*
-    it("Should set the attribution of the payments as unrequested", async () => {
-      const attributions = await sqlite3.all(`SELECT * FROM wp_appq_payment`);
-      expect(attributions[0].is_requested).toBe(1);
-      expect(attributions[1].is_requested).toBe(1);
-  
-      const response = await request(app)
-        .delete("/payments/1")
-        .set("authorization", "Bearer admin");
-  
-      const attributionsAfterDeletion = await sqlite3.all(
-        `SELECT * FROM wp_appq_payment`
-      );
-      expect(attributionsAfterDeletion[0].is_requested).toBe(0);
-      expect(attributionsAfterDeletion[1].is_requested).toBe(0);
+    it("Should add the candidature to the table", async () => {
     });
-    it("Should return 404 if user is admin and paymentId does not exist", async () => {
-      const response = await request(app)
-        .delete("/payments/69")
-        .set("authorization", "Bearer admin");
-      expect(response.status).toBe(404);
-    });
+ 
     */
 });

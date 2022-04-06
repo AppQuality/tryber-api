@@ -10,7 +10,7 @@ export const table = {
       "devices VARCHAR(600) NOT NULL DEFAULT 0",
       "selected_device INTEGER(100) NOT NULL DEFAULT 0",
       "results INTEGER(11) NOT NULL DEFAULT 0",
-      "modified TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+      "modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
       "group_id INTEGER(1) NOT NULL DEFAULT 1",
     ]);
   },

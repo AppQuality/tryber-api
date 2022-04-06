@@ -49,7 +49,7 @@ export default async (
         message: "wrong tester-id. tester-id does not exist",
       };
     }
-    /*
+
     //check tester is already candidate on campaign
     let resTesterJustCandidate = await db.query(
       db.format(
@@ -65,15 +65,12 @@ export default async (
       )
     );
     const testerJustCandidate = resTesterJustCandidate[0]?.id ?? 0;
-    console.log(testerJustCandidate)
     if (testerJustCandidate) {
       res.status_code = 403;
       return {
         message: "this tester is already candidate for this campaign",
       };
     }
-
-*/
 
     res.status_code = 200;
     return {
