@@ -1,0 +1,59 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - release-*
+
+jobs:
+  push-to-ecr:
+    name: Push Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get tag name
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_tag
+
+      - name: Docker ECR
+        uses: kciter/aws-ecr-action@v2
+        with:
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          region: eu-west-1
+          repo: appquality-api-express
+          tags: ${{ steps.extract_tag.outputs.tag }}
+
+  release-to-preprod:
+    name: Release to PreProd
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    environment: preproduction
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get tag name
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_tag
+      - name: "Generate dist zip"
+        run: |
+          cd deployment
+          echo -n "appquality-api-express:${{steps.extract_tag.outputs.tag}}" > docker-image.txt
+          zip dist.zip *
+      - uses: zdurham/s3-upload-github-action@master
+        env:
+          S3_BUCKET: crowd-api-app-staging-s3-source-bucket
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          FILE: ./deployment/dist.zip
+          S3_KEY: dist.zip
