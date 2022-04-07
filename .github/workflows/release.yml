@@ -36,10 +36,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: preproduction
     steps:
+      - name: Get tag name
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_tag
       - name: "Generate dist zip"
         run: |
           cd deployment
-          echo -n "appquality-api-express:${{steps.extract_branch.outputs.tag}}" > docker-image.txt
+          echo -n "appquality-api-express:${{steps.extract_tag.outputs.tag}}" > docker-image.txt
           zip dist.zip *
       - uses: zdurham/s3-upload-github-action@master
         env:
