@@ -1,19 +1,18 @@
+name: Create release
+
 on:
   push:
     tags:
       - release-*
 
-name: Create release
-
 jobs:
   push-to-ecr:
     name: Push Image
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+        
       - name: Docker ECR
         uses: kciter/aws-ecr-action@v2
         with:
@@ -23,8 +22,10 @@ jobs:
           region: eu-west-1
           repo: appquality-api-express
           tags: ${GITHUB_REF##*/}
+  
   release-to-preprod:
-    name: Push Image
+    name: Release to PreProd
+    needs: push-to-ecr
     runs-on: ubuntu-latest
     environment: preproduction
     steps:
