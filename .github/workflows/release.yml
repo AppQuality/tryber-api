@@ -12,7 +12,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
+      - name: Get tag name
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "##[set-output name=tag;]$TAG"
+        id: extract_tag
+
       - name: Docker ECR
         uses: kciter/aws-ecr-action@v2
         with:
@@ -21,8 +28,8 @@ jobs:
           account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           region: eu-west-1
           repo: appquality-api-express
-          tags: ${GITHUB_REF##*/}
-  
+          tags: ${{ steps.extract_tag.outputs.tag }}
+
   release-to-preprod:
     name: Release to PreProd
     needs: push-to-ecr
