@@ -3,7 +3,7 @@ import * as db from "@src/features/db";
 export default async (paymentId: number): Promise<Payment> => {
   const sql = db.format(
     `SELECT 
-      req.id, req.amount, req.iban, req.paypal_email, req.is_paid,
+      req.id, req.amount, req.iban, req.paypal_email, req.is_paid, req.error_message as error,
       p.id as tester_id, p.name , p.surname,p.email as tester_email,
       f.fiscal_category
     FROM wp_appq_payment_request req
@@ -32,6 +32,17 @@ export default async (paymentId: number): Promise<Payment> => {
     throw Error("Invalid payment type");
   }
 
+  let paymentError: OpenapiError | undefined;
+
+  if (payment.error) {
+    try {
+      const error_obj = JSON.parse(payment.error);
+      paymentError = { status_code: 0, name: "", message: error_obj.code };
+    } catch (e) {
+      paymentError = { status_code: 0, name: "", message: "GENERIC_ERROR" };
+    }
+  }
+
   return {
     id: payment.id,
     tester_id: payment.tester_id,
@@ -42,5 +53,6 @@ export default async (paymentId: number): Promise<Payment> => {
     testerEmail: payment.tester_email,
     fiscalCategory: payment.fiscal_category,
     status: payment.is_paid == "1" ? "paid" : "pending",
+    error: paymentError,
   };
 };
