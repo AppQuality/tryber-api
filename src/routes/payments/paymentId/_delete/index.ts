@@ -44,7 +44,7 @@ export default async (
     );
     const resultUpdate = await db.query(updateAttributions);
 
-    if (resultDelete.changes === 1 && resultUpdate.changes > 0) {
+    if (resultDelete.affectedRows === 1 && resultUpdate.changedRows > 0) {
       res.status_code = 200;
       return {};
     } else {
@@ -60,7 +60,8 @@ export default async (
     res.status_code = 404;
     return {
       id: 0,
-      message: "request id not found",
+      message:
+        "Error on deleting payment request. The request didn't eliminate.",
       element: "payment-request",
     };
   }
