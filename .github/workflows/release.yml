@@ -5,6 +5,11 @@ on:
     tags:
       - release-*
 
+env:
+  ECR_REPOSITORY: appquality-api-express
+  DEPLOY_BUCKET: crowd-api-app-preproduction-s3-source-bucket
+  DEPLOY_PROD_BUCKET: crowd-api-app-production-s3-source-bucket
+
 jobs:
   push-to-ecr:
     name: Push Image
@@ -27,7 +32,7 @@ jobs:
           secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           region: eu-west-1
-          repo: appquality-api-express
+          repo: ${ECR_REPOSITORY}
           tags: ${{ steps.extract_tag.outputs.tag }}
 
   release-to-preprod:
@@ -47,11 +52,42 @@ jobs:
       - name: "Generate dist zip"
         run: |
           cd deployment
-          echo -n "appquality-api-express:${{steps.extract_tag.outputs.tag}}" > docker-image.txt
+          echo -n "${ECR_REPOSITORY}:${{steps.extract_tag.outputs.tag}}" > docker-image.txt
           zip dist.zip *
       - uses: zdurham/s3-upload-github-action@master
         env:
-          S3_BUCKET: crowd-api-app-preproduction-s3-source-bucket
+          S3_BUCKET: ${DEPLOY_BUCKET}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          FILE: ./deployment/dist.zip
+          S3_KEY: dist.zip
+
+  prepare-release-for-prod:
+    name: Prepare release to Prod
+    needs: push-to-ecr
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get tag name
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          echo "##[set-output name=tag;]$TAG"
+          echo "##[set-output name=ECR_REPOSITORY;]$ECR_REPOSITORY"
+          echo "##[set-output name=DEPLOY_BUCKET;]$DEPLOY_BUCKET"
+          echo "##[set-output name=DEPLOY_PROD_BUCKET;]$DEPLOY_PROD_BUCKET"
+        id: extract_tag
+      - name: "Generate dist zip"
+        run: |
+          cd deployment
+          echo -n "${{ steps.extract_tag.outputs.ECR_REPOSITORY }}:${{steps.extract_tag.outputs.tag}}" > docker-image.txt
+          zip dist.zip *
+      - uses: zdurham/s3-upload-github-action@master
+        env:
+          S3_BUCKET: ${{ steps.extract_tag.outputs.DEPLOY_PROD_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "eu-west-1"
