@@ -23,6 +23,7 @@ jobs:
         run: |
           TAG=${GITHUB_REF##*/}
           echo "##[set-output name=tag;]$TAG"
+          echo "##[set-output name=ECR_REPOSITORY;]$ECR_REPOSITORY"
         id: extract_tag
 
       - name: Docker ECR
@@ -32,7 +33,7 @@ jobs:
           secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           account_id: ${{ secrets.AWS_ACCOUNT_ID }}
           region: eu-west-1
-          repo: ${ECR_REPOSITORY}
+          repo: ${{ steps.extract_tag.outputs.ECR_REPOSITORY }}
           tags: ${{ steps.extract_tag.outputs.tag }}
 
   release-to-preprod:
@@ -48,6 +49,8 @@ jobs:
         run: |
           TAG=${GITHUB_REF##*/}
           echo "##[set-output name=tag;]$TAG"
+          echo "##[set-output name=ECR_REPOSITORY;]$ECR_REPOSITORY"
+          echo "##[set-output name=DEPLOY_BUCKET;]$DEPLOY_BUCKET"
         id: extract_tag
       - name: "Generate dist zip"
         run: |
@@ -56,7 +59,7 @@ jobs:
           zip dist.zip *
       - uses: zdurham/s3-upload-github-action@master
         env:
-          S3_BUCKET: ${DEPLOY_BUCKET}
+          S3_BUCKET: ${{ steps.extract_tag.outputs.DEPLOY_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "eu-west-1"
