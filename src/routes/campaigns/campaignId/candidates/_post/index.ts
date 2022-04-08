@@ -1,12 +1,10 @@
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
+import adminOnly from "@src/features/preconditions/adminOnly";
 import { Context } from "openapi-backend";
+import createCandidature from "./createCandidature";
+import testerShouldNotBeCandidate from "./testerShouldNotBeCandidate";
 
-const adminOnly = (role: string) => {
-  if (role !== "administrator") {
-    throw new Error("You are not an administrator");
-  }
-};
 const campaignShouldExist = async (campaignId: number) => {
   const campaign = await db.query(
     db.format(`SELECT id FROM wp_appq_evd_campaign WHERE id = ? `, [campaignId])
@@ -23,26 +21,7 @@ const testerShouldExist = async (testerId: number) => {
     throw { status_code: 404, message: "Tester does not exist" };
   }
 };
-const testerShouldNotBeCandidate = async (
-  testerId: number,
-  campaignId: number
-) => {
-  const tester = await db.query(
-    db.format(
-      `
-    SELECT cand.user_id AS id
-    FROM wp_crowd_appq_has_candidate cand
-       JOIN wp_appq_evd_profile profile ON cand.user_id = profile.wp_user_id
-    WHERE profile.id = ?
-    AND cand.campaign_id = ?;
-    `,
-      [testerId, campaignId]
-    )
-  );
-  if (tester.length) {
-    throw new Error("This tester is already candidate for this campaign");
-  }
-};
+
 /** OPENAPI-ROUTE: post-campaigns-campaign-candidates */
 export default async (
   c: Context,
@@ -72,62 +51,33 @@ export default async (
     };
   }
 
+  let candidature;
   try {
-    let resCandidate = await db.query(
-      db.format(
-        `INSERT INTO wp_crowd_appq_has_candidate 
-          (user_id, campaign_id, accepted, results, devices, selected_device, group_id)
-        VALUES 
-          (?, ?, 1 , 0 , 0 , 0 , 1)`,
-        [testerId, campaignId]
-      )
-    );
-    let candidatureId = resCandidate?.insertId ?? 0;
-    let candidature = await db.query(
-      //get candidature
-      db.format(
-        `
-      SELECT t.id as tester_id, cand.campaign_id as campaign_id, cand.results as status, cand.devices as device, cand.accepted as accepted 
-        FROM wp_crowd_appq_has_candidate cand 
-        JOIN wp_appq_evd_profile t ON (t.wp_user_id = cand.user_id) 
-      WHERE id = ?`,
-        [candidatureId]
-      )
-    );
-    if (!candidature.length) {
-      res.status_code = 500;
-      return {
-        message: "Error adding candidature",
-      };
-    }
-    candidature = candidature[0];
-
-    res.status_code = 200;
-    return {
-      tester_id: candidature.tester_id,
-      accepted: candidature.accepted == 1,
-      campaign_id: candidature.campaign_id,
-      status:
-        candidature.status === 0
-          ? "ready"
-          : candidature.status === -1
-          ? "removed"
-          : candidature.status === 1
-          ? "excluded"
-          : candidature.status === 2
-          ? "in-progress"
-          : candidature.status === 3
-          ? "completed"
-          : "unknown",
-      device: candidature.device == 0 ? "any" : "invalid",
-    };
+    candidature = await createCandidature(testerId, campaignId);
   } catch (err) {
     debugMessage(err);
-    res.status_code = 404;
+    res.status_code = (err as OpenapiError).status_code || 500;
     return {
-      id: 0,
-      message: "?? not found",
-      element: "candidate-tryber-on-campaign",
+      message: (err as OpenapiError).message,
     };
   }
+  res.status_code = 200;
+  return {
+    tester_id: candidature.tester_id,
+    accepted: candidature.accepted == 1,
+    campaign_id: candidature.campaign_id,
+    status:
+      candidature.status === 0
+        ? "ready"
+        : candidature.status === -1
+        ? "removed"
+        : candidature.status === 1
+        ? "excluded"
+        : candidature.status === 2
+        ? "in-progress"
+        : candidature.status === 3
+        ? "completed"
+        : "unknown",
+    device: candidature.device == 0 ? "any" : "invalid",
+  };
 };
