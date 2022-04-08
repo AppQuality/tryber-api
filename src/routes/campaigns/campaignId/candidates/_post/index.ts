@@ -12,7 +12,7 @@ const campaignShouldExist = async (campaignId: number) => {
     db.format(`SELECT id FROM wp_appq_evd_campaign WHERE id = ? `, [campaignId])
   );
   if (!campaign.length) {
-    throw new Error("Campaign does not exist");
+    throw { status_code: 404, message: "Campaign does not exist" };
   }
 };
 const testerShouldExist = async (testerId: number) => {
@@ -20,7 +20,7 @@ const testerShouldExist = async (testerId: number) => {
     db.format(`SELECT id FROM wp_appq_evd_profile WHERE id = ? `, [testerId])
   );
   if (!tester.length) {
-    throw new Error("Tester does not exist");
+    throw { status_code: 404, message: "Tester does not exist" };
   }
 };
 const testerShouldNotBeCandidate = async (
@@ -39,7 +39,7 @@ const testerShouldNotBeCandidate = async (
       [testerId, campaignId]
     )
   );
-  if (!tester.length) {
+  if (tester.length) {
     throw new Error("This tester is already candidate for this campaign");
   }
 };
@@ -63,11 +63,15 @@ export default async (
     await testerShouldExist(testerId);
     await testerShouldNotBeCandidate(testerId, campaignId);
   } catch (err) {
-    res.status_code = 403;
+    debugMessage(err);
+    res.status_code = (err as OpenapiError).status_code || 403;
     return {
-      error: (err as OpenapiError).message,
+      id: testerId,
+      element: "candidate",
+      message: (err as OpenapiError).message,
     };
   }
+
   try {
     let resCandidate = await db.query(
       db.format(
