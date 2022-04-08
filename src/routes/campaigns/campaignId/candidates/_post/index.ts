@@ -15,11 +15,14 @@ const campaignShouldExist = async (campaignId: number) => {
 };
 const testerShouldExist = async (testerId: number) => {
   const tester = await db.query(
-    db.format(`SELECT id FROM wp_appq_evd_profile WHERE id = ? `, [testerId])
+    db.format(`SELECT id,wp_user_id FROM wp_appq_evd_profile WHERE id = ? `, [
+      testerId,
+    ])
   );
   if (!tester.length) {
     throw { status_code: 404, message: "Tester does not exist" };
   }
+  return tester[0];
 };
 
 /** OPENAPI-ROUTE: post-campaigns-campaign-candidates */
@@ -36,10 +39,11 @@ export default async (
       : "-1"
   );
   const testerId = body.tester_id;
+  let tester;
   try {
     adminOnly(req.user.role);
     await campaignShouldExist(campaignId);
-    await testerShouldExist(testerId);
+    tester = await testerShouldExist(testerId);
     await testerShouldNotBeCandidate(testerId, campaignId);
   } catch (err) {
     debugMessage(err);
@@ -53,7 +57,7 @@ export default async (
 
   let candidature;
   try {
-    candidature = await createCandidature(testerId, campaignId);
+    candidature = await createCandidature(tester.wp_user_id, campaignId);
   } catch (err) {
     debugMessage(err);
     res.status_code = (err as OpenapiError).status_code || 500;
