@@ -15,6 +15,7 @@ import {
   table as wpUsersTable,
 } from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -64,10 +65,6 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   });
 
   it("Should return 403 if tester is already candidate on campaign", async () => {
-    // const response = await request(app)
-    // .post("/campaigns/1/candidates")
-    // .send({ tester_id: 1 })
-    // .set("authorization", "Bearer admin");
     await candidatesData.candidate1({ user_id: 1, campaign_id: 1 });
     const responseJustCandidate = await request(app)
       .post("/campaigns/1/candidates")
@@ -76,9 +73,41 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
     expect(responseJustCandidate.status).toBe(403);
   });
 
-  /*
-    it("Should add the candidature to the table", async () => {
+  it("Should candidate the user on success", async () => {
+    const beforeCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(beforeCandidature).toBe(undefined);
+    await request(app)
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+    const afterCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(afterCandidature).toEqual({
+      accepted: 1,
+      results: 0,
     });
- 
-    */
+  });
+  it("Should return the candidature on success", async () => {
+    const response = await request(app)
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      tester_id: 1,
+      campaign_id: 1,
+      accepted: true,
+      status: "ready",
+      device: "any",
+    });
+  });
 });
