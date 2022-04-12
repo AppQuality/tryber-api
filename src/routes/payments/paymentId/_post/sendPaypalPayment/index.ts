@@ -6,7 +6,7 @@ export default async (payment: Payment): Promise<Payment> => {
   const paypal = new Paypal({
     clientId: process.env.PAYPAL_CLIENT_ID || "",
     secret: process.env.PAYPAL_SECRET || "",
-    sandbox: !!process.env.PAYPAL_IS_SANDBOX,
+    sandbox: !!parseInt(process.env.PAYPAL_IS_SANDBOX || ""),
   });
 
   let results;
