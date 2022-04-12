@@ -65,6 +65,17 @@ jobs:
           AWS_REGION: "eu-west-1"
           FILE: ./deployment/dist.zip
           S3_KEY: dist.zip
+      - name: configure AWS creds
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Start CodePipeline
+        uses: moia-oss/aws-codepipeline-trigger@v1
+        with:
+          pipeline: crowd-api-app-preproduction-code-pipeline
+          wait: true
 
   prepare-release-for-prod:
     name: Prepare release to Prod
@@ -96,3 +107,14 @@ jobs:
           AWS_REGION: "eu-west-1"
           FILE: ./deployment/dist.zip
           S3_KEY: dist.zip
+      - name: configure AWS creds
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+      - name: Start CodePipeline
+        uses: moia-oss/aws-codepipeline-trigger@v1
+        with:
+          pipeline: crowd-api-app-production-code-pipeline
+          wait: true
