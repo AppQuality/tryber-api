@@ -159,10 +159,12 @@ class Transferwise {
     targetAccount,
     quoteUuid,
     reason,
+    error,
   }: {
     targetAccount: string;
     quoteUuid: string;
     reason: string;
+    error?: string;
   }) {
     const reasonText =
       process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX && this.sandbox
@@ -171,7 +173,9 @@ class Transferwise {
     const data = {
       targetAccount,
       quoteUuid,
-      customerTransactionId: stringToUuid(reasonText),
+      customerTransactionId: error
+        ? stringToUuid(reasonText + error)
+        : stringToUuid(reasonText),
       details: {
         reference: reasonText,
       },
@@ -260,11 +264,13 @@ class Transferwise {
     accountHolderName,
     iban,
     reason,
+    error,
   }: {
     targetAmount: number;
     accountHolderName: string;
     iban: string;
     reason: string;
+    error?: string;
   }) {
     const profiles = await this.getProfiles();
     const firstBusinessProfile = profiles.find(
@@ -312,6 +318,7 @@ class Transferwise {
         targetAccount: recipient.id,
         quoteUuid: quote.id,
         reason,
+        error,
       });
     } catch (error) {
       const res = error as OpenapiError;

@@ -15,6 +15,7 @@ export default async (payment: Payment): Promise<Payment> => {
       accountHolderName: payment.accountName,
       iban: payment.coordinates,
       reason: `Payment no.${payment.id}`,
+      error: payment.error?.message,
     });
   } catch (error) {
     throw error;

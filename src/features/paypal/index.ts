@@ -65,10 +65,12 @@ class Paypal {
     amount,
     email,
     reason,
+    error,
   }: {
     amount: number;
     email: string;
     reason: string;
+    error?: string;
   }) {
     let token;
     try {
@@ -98,7 +100,7 @@ class Paypal {
         },
         data: {
           sender_batch_header: {
-            sender_batch_id: reasonText,
+            sender_batch_id: error ? reasonText + error : reasonText,
             email_subject: "You have a payout!",
             email_message:
               "You have received a payout! Thanks for using our service!",
