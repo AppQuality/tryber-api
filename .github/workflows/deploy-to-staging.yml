@@ -42,3 +42,8 @@ jobs:
           AWS_REGION: "eu-west-1" # optional: defaults to us-east-1
           FILE: ./deployment/dist.zip
           S3_KEY: dist.zip
+      - name: Start CodePipeline
+        uses: moia-oss/aws-codepipeline-trigger@v1
+        with:
+          pipeline: crowd-api-app-staging-code-pipeline
+          wait: true
