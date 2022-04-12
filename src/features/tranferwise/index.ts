@@ -167,7 +167,8 @@ class Transferwise {
     error?: string;
   }) {
     const reasonText =
-      process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX && this.sandbox
+      parseInt(process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX || "0") &&
+      this.sandbox
         ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
         : reason;
     const data = {
