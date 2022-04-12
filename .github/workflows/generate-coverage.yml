@@ -1,6 +1,8 @@
 name: "Generate test coverage"
 on:
   push:
+    branches:
+      - "*"
 
 jobs:
   test:
