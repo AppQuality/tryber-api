@@ -51,6 +51,7 @@ describe("POST /payments/:paymentId", () => {
         "paypal_email VARCHAR(255)",
         "is_paid BOOL",
         "fiscal_profile_id INTEGER",
+        "error_message text",
       ]);
       await sqlite3.createTable("wp_appq_fiscal_profile", [
         "id INTEGER PRIMARY KEY",
