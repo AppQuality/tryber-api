@@ -1,6 +1,8 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
 import dotenv from "dotenv";
 
+import debugMessage from "../debugMessage";
+
 dotenv.config();
 
 class Paypal {
@@ -65,10 +67,12 @@ class Paypal {
     amount,
     email,
     reason,
+    error,
   }: {
     amount: number;
     email: string;
     reason: string;
+    error?: string;
   }) {
     let token;
     try {
@@ -86,7 +90,8 @@ class Paypal {
     let res;
     try {
       let reasonText =
-        process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX && this.sandbox
+        parseInt(process.env.ALLOW_DUPLICATED_PAYMENTS_IN_SANDBOX || "0") &&
+        this.sandbox
           ? `${Math.floor(Date.now() / 1000)} Test no.${reason}`
           : reason;
       res = await axios({
@@ -98,7 +103,7 @@ class Paypal {
         },
         data: {
           sender_batch_header: {
-            sender_batch_id: reasonText,
+            sender_batch_id: error ? reasonText + error : reasonText,
             email_subject: "You have a payout!",
             email_message:
               "You have received a payout! Thanks for using our service!",
@@ -213,6 +218,7 @@ class Paypal {
       if (res.data.batch_header.batch_status == "SUCCESS") {
         return res.data;
       }
+      debugMessage(res.data.batch_header);
       await new Promise((resolve) => setTimeout(resolve, 500));
       return this.waitForCompletion(requestUrl, retries - 1);
     } catch (error) {

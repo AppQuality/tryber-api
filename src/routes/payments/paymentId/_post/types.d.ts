@@ -4,10 +4,11 @@ type Payment = {
   tester_id: number;
   accountName: string;
   testerEmail: string;
-  fiscalCategory: number;
+  fiscalCategory?: number;
   type: "paypal" | "transferwise";
   status: "pending" | "paid" | "error";
   fee?: number;
   coordinates: string;
   error?: OpenapiError;
+  currentErrorCode?: string;
 };
