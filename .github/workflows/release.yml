@@ -118,3 +118,18 @@ jobs:
         with:
           pipeline: crowd-api-app-production-code-pipeline
           wait: true
+      - name: Get deployment url
+        uses: AppQuality/get-codeploy-from-codepipeline@1.0.0
+        id: codedeploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          PIPELINE_NAME: crowd-api-app-production-code-pipeline
+      - name: Update release with deployment url
+        uses: tubone24/update_release@v1.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          body: "[![](https://img.shields.io/badge/AWS-Redeploy-blueviolet)](${{ steps.codedeploy.outputs.codedeploy_url }})"
+          isAppendBody: true
