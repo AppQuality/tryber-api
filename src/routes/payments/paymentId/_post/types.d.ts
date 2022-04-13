@@ -10,4 +10,5 @@ type Payment = {
   fee?: number;
   coordinates: string;
   error?: OpenapiError;
+  currentErrorCode?: string;
 };
