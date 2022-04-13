@@ -6,7 +6,7 @@ export default async (payment: Payment): Promise<Payment> => {
   const paypal = new Paypal({
     clientId: process.env.PAYPAL_CLIENT_ID || "",
     secret: process.env.PAYPAL_SECRET || "",
-    sandbox: !!process.env.PAYPAL_IS_SANDBOX,
+    sandbox: !!parseInt(process.env.PAYPAL_IS_SANDBOX || ""),
   });
 
   let results;
@@ -15,6 +15,7 @@ export default async (payment: Payment): Promise<Payment> => {
       amount: payment.amount,
       email: payment.coordinates,
       reason: `Payment no.${payment.id}`,
+      error: payment.currentErrorCode,
     });
   } catch (error) {
     throw error;

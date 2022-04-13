@@ -17,6 +17,12 @@ export const query = (query: string): Promise<any> => {
         if (data.hasOwnProperty("lastInsertRowid")) {
           data.insertId = data.lastInsertRowid;
         }
+        if (data.hasOwnProperty("changes") && query.includes("UPDATE")) {
+          data.changedRows = data.changes;
+        }
+        if (data.hasOwnProperty("changes") && query.includes("DELETE")) {
+          data.affectedRows = data.changes;
+        }
       } else {
         data = await sqlite.all(query);
       }

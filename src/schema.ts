@@ -94,6 +94,16 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/candidates": {
+    /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
+    post: operations["post-campaigns-campaign-candidates"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/popups": {
     /** Retrieve all available popups for admin operations */
     get: operations["get-popups"];
@@ -307,6 +317,8 @@ export interface paths {
   };
   "/payments/{paymentId}": {
     post: operations["post-payments-paymentId"];
+    /** delete a specific payment request */
+    delete: operations["delete-payments-paymentId"];
     parameters: {
       path: {
         paymentId: string;
@@ -925,6 +937,43 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["TaskOptional"];
+      };
+    };
+  };
+  /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
+  "post-campaigns-campaign-candidates": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            tester_id: number;
+            accepted: boolean;
+            /** @enum {string} */
+            status:
+              | "ready"
+              | "in-progress"
+              | "completed"
+              | "excluded"
+              | "removed";
+            device: "any" | components["schemas"]["UserDevice"];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          tester_id: number;
+        };
       };
     };
   };
@@ -2252,6 +2301,20 @@ export interface operations {
           };
         };
       };
+    };
+  };
+  /** delete a specific payment request */
+  "delete-payments-paymentId": {
+    parameters: {
+      path: {
+        paymentId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
 }

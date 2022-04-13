@@ -583,6 +583,65 @@ paths:
         description: The data to edit in the UseCase linked to the Campaign
       security:
         - JWT: []
+  '/campaigns/{campaign}/candidates':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: ''
+      operationId: post-campaigns-campaign-candidates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tester_id:
+                    type: number
+                  accepted:
+                    type: boolean
+                  status:
+                    type: string
+                    enum:
+                      - ready
+                      - in-progress
+                      - completed
+                      - excluded
+                      - removed
+                  device:
+                    oneOf:
+                      - type: string
+                        enum:
+                          - any
+                      - $ref: '#/components/schemas/UserDevice'
+                required:
+                  - tester_id
+                  - accepted
+                  - status
+                  - device
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: The Tryber will be inserted as a candidate Tryber on a specific Campaign
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tester_id:
+                  type: number
+              required:
+                - tester_id
   /popups:
     get:
       summary: Get all popups
@@ -3556,6 +3615,19 @@ paths:
                   - message
               examples: {}
       description: ''
+      security:
+        - JWT: []
+    delete:
+      summary: Delete payment request from id
+      operationId: delete-payments-paymentId
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: delete a specific payment request
       security:
         - JWT: []
 components:

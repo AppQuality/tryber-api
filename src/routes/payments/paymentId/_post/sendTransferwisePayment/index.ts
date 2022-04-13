@@ -5,7 +5,7 @@ dotenv.config();
 export default async (payment: Payment): Promise<Payment> => {
   const transferwise = new Transferwise({
     apiKey: process.env.TRANSFERWISE_API_KEY || "",
-    sandbox: !!process.env.TRANSFERWISE_IS_SANDBOX,
+    sandbox: !!parseInt(process.env.TRANSFERWISE_IS_SANDBOX || ""),
   });
 
   let results;
@@ -15,6 +15,7 @@ export default async (payment: Payment): Promise<Payment> => {
       accountHolderName: payment.accountName,
       iban: payment.coordinates,
       reason: `Payment no.${payment.id}`,
+      error: payment.currentErrorCode,
     });
   } catch (error) {
     throw error;

@@ -1,4 +1,7 @@
-on: push
+on:
+  push:
+    branches:
+      - "*"
 
 name: Push to Amazon ECR
 
@@ -6,7 +9,6 @@ jobs:
   push-to-ecr:
     name: Push Image
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
       - name: Checkout
