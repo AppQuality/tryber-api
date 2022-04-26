@@ -41,6 +41,9 @@ jobs:
     needs: push-to-ecr
     runs-on: ubuntu-latest
     environment: preproduction
+    outputs:
+      original_preprod_desired: ${{ steps.update-asg.outputs.original_desired }}
+      original_preprod_max: ${{ steps.update-asg.outputs.original_max }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -71,6 +74,16 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+      - name: Update asg capacity to 1
+        uses: AppQuality/update-desired-asg-instances@v1.0.0
+        id: update-asg
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          ASG_NAME: crowd-api-asg-preproduction
+          DESIRED_INSTANCES: 1
+          MAX_INSTANCES: 1
       - name: Start CodePipeline
         uses: moia-oss/aws-codepipeline-trigger@v1
         with:
@@ -113,11 +126,30 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+      - name: Update asg capacity to 2
+        uses: AppQuality/update-desired-asg-instances@v1.0.0
+        id: update-asg
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          ASG_NAME: crowd-api-asg-production
+          DESIRED_INSTANCES: 2
+          MAX_INSTANCES: 2
       - name: Start CodePipeline
         uses: moia-oss/aws-codepipeline-trigger@v1
         with:
           pipeline: crowd-api-app-production-code-pipeline
           wait: true
+      - name: Restore asg capacity
+        uses: AppQuality/update-desired-asg-instances@v1.0.0
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          ASG_NAME: crowd-api-asg-production
+          DESIRED_INSTANCES: ${{ steps.update-asg.outputs.original_desired }}
+          MAX_INSTANCES: ${{ steps.update-asg.outputs.original_max }}
       - name: Get deployment url
         uses: AppQuality/get-codeploy-from-codepipeline@1.0.0
         id: codedeploy
@@ -133,3 +165,18 @@ jobs:
         with:
           body: "[![](https://img.shields.io/badge/AWS-Redeploy-blueviolet)](${{ steps.codedeploy.outputs.codedeploy_url }})"
           isAppendBody: true
+  disable-preprod-on-release:
+    name: Disable PreProd
+    needs: [prepare-release-for-prod, release-to-preprod]
+    runs-on: ubuntu-latest
+    environment: preproduction
+    steps:
+      - name: Restore asg capacity
+        uses: AppQuality/update-desired-asg-instances@v1.0.0
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "eu-west-1"
+          ASG_NAME: crowd-api-asg-preproduction
+          DESIRED_INSTANCES: ${{needs.release-to-preprod.outputs.original_preprod_desired }}
+          MAX_INSTANCES: ${{needs.release-to-preprod.outputs.original_preprod_max }}
