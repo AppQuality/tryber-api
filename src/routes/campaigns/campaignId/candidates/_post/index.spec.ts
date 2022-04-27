@@ -1,3 +1,5 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import {
   data as cpData,
   table as cpTable,
@@ -14,8 +16,6 @@ import {
   data as wpUsersData,
   table as wpUsersTable,
 } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -24,7 +24,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await cpTable.create();
-      await cpData.runningCp();
+      await cpData.basicCampaign();
       await testerTable.create();
       await testerData.testerWithBooty();
       await wpUsersTable.create();
