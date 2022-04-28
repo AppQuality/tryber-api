@@ -299,6 +299,9 @@ export interface paths {
       };
     };
   };
+  "/users/me/rank/list": {
+    get: operations["get-users-me-rank-list"];
+  };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
     parameters: {};
@@ -535,6 +538,13 @@ export interface components {
           /** @description A google maps place id */
           placeId: string;
         };
+    RankingItem: {
+      position: number;
+      image: string;
+      id: number;
+      name: string;
+      monthly_exp: number;
+    };
   };
   responses: {
     /** A user */
@@ -2157,6 +2167,21 @@ export interface operations {
             size: number;
             total?: number;
             start: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "get-users-me-rank-list": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            tops: components["schemas"]["RankingItem"][];
+            peers: components["schemas"]["RankingItem"][];
           };
         };
       };

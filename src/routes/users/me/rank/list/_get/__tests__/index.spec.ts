@@ -15,4 +15,11 @@ describe("GET /users/me/rank/list", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
   });
+  it("Should have 3 items as tops", async () => {
+    const response = await request(app)
+      .get("/users/me/rank/list")
+      .set("authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("tops");
+    expect(response.body.tops.length).toBe(3);
+  });
 });
