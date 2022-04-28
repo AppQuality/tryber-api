@@ -3303,6 +3303,101 @@ paths:
           in: query
           name: orderBy
           description: The value to order by
+  /users/me/rank/list:
+    get:
+      summary: Get your ranking list
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tops:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankingItem'
+                  peers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankingItem'
+                required:
+                  - tops
+                  - peers
+              examples:
+                example-1:
+                  value:
+                    tops:
+                      - position: 1
+                        image: 'https://placekitten.com/200/200'
+                        id: 1
+                        name: Pippo F.
+                        monthly_exp: 100
+                      - position: 2
+                        image: 'https://placekitten.com/200/200'
+                        id: 2
+                        name: Ciccio P.
+                        monthly_exp: 90
+                      - position: 3
+                        image: 'https://placekitten.com/200/200'
+                        id: 3
+                        name: Ciccio I.
+                        monthly_exp: 100
+                    peers:
+                      - position: 50
+                        image: 'https://placekitten.com/200/200'
+                        id: 41
+                        name: Peppe F.
+                        monthly_exp: 50
+                      - position: 51
+                        image: 'https://placekitten.com/200/200'
+                        id: 42
+                        name: Rosario M.
+                        monthly_exp: 50
+                      - position: 52
+                        image: 'https://placekitten.com/200/200'
+                        id: 49
+                        name: Giuseppe S.
+                        monthly_exp: 49
+                      - position: 53
+                        image: 'https://placekitten.com/200/200'
+                        id: 20
+                        name: Maria D.
+                        monthly_exp: 48
+                      - position: 54
+                        image: 'https://placekitten.com/200/200'
+                        id: 40
+                        name: Luca F.
+                        monthly_exp: 49
+                      - position: 55
+                        image: 'https://placekitten.com/200/200'
+                        id: 100
+                        name: Maurizio C.
+                        monthly_exp: 46
+                      - position: 56
+                        image: 'https://placekitten.com/200/200'
+                        id: 123
+                        name: Vittorio S.
+                        monthly_exp: 45
+                      - position: 57
+                        image: 'https://placekitten.com/200/200'
+                        id: 49
+                        name: Fabrizio C.
+                        monthly_exp: 44
+                      - position: 58
+                        image: 'https://placekitten.com/200/200'
+                        id: 49
+                        name: Antonio Z.
+                        monthly_exp: 40
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-rank-list
+      security:
+        - JWT: []
   /custom_user_fields:
     get:
       summary: Get all custom user fields
@@ -4220,6 +4315,32 @@ components:
           required:
             - placeId
       type: object
+    RankingItem:
+      type: object
+      x-examples:
+        example-1:
+          position: 1
+          image: 'https://placekitten.com/200/200'
+          id: 1
+          name: Pippo F.
+          monthly_exp: 100
+      properties:
+        position:
+          type: integer
+        image:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        monthly_exp:
+          type: integer
+      required:
+        - position
+        - image
+        - id
+        - name
+        - monthly_exp
   securitySchemes:
     JWT:
       type: http
