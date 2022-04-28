@@ -351,6 +351,11 @@ export interface components {
     Replicability: {
       id?: string;
     };
+    /** MontlyLevel */
+    MontlyLevel: {
+      id: number;
+      name: string;
+    };
     /** Task */
     Task: components["schemas"]["TaskOptional"] &
       components["schemas"]["TaskRequired"];
