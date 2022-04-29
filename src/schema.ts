@@ -355,8 +355,8 @@ export interface components {
     Replicability: {
       id?: string;
     };
-    /** MontlyLevel */
-    MontlyLevel: {
+    /** MonthlyLevel */
+    MonthlyLevel: {
       id: number;
       name: string;
     };
@@ -2190,16 +2190,16 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            level: components["schemas"]["MontlyLevel"];
-            previousLevel: components["schemas"]["MontlyLevel"];
+            level: components["schemas"]["MonthlyLevel"];
+            previousLevel: components["schemas"]["MonthlyLevel"];
             rank: number;
             points: number;
             prospect: {
-              level: components["schemas"]["MontlyLevel"];
+              level: components["schemas"]["MonthlyLevel"];
               mantainance?: number;
               next?: {
                 points: number;
-                level: components["schemas"]["MontlyLevel"];
+                level: components["schemas"]["MonthlyLevel"];
               };
             };
           };
