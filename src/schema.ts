@@ -2191,7 +2191,6 @@ export interface operations {
         };
       };
       403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
     };
   };
   "get-customUserFields": {
