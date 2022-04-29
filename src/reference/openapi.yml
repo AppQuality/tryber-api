@@ -3894,10 +3894,7 @@ components:
         - name
       description: ''
       x-internal: false
-      x-examples:
-        example-1:
-          id: 100
-          name: Berserker
+      x-examples: {}
     Task:
       title: Task
       allOf:
