@@ -11,6 +11,7 @@ export const table = {
       "wp_user_id INTEGER ",
       "is_verified INTEGER DEFAULT 0",
       "last_activity TIMESTAMP",
+      "total_exp_pts INTEGER DEFAULT 0",
     ]);
   },
   drop: async () => {
@@ -18,9 +19,37 @@ export const table = {
   },
 };
 
+type TesterParams = {
+  id?: number;
+  name?: string;
+  surname?: string;
+  email?: string;
+  pending_booty?: number;
+  wp_user_id?: number;
+  is_verified?: number;
+  last_activity?: string;
+  total_exp_pts?: number;
+};
 const data: {
-  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
+  [key: string]: (params?: TesterParams) => Promise<{ [key: string]: any }>;
 } = {};
+
+data.basicTester = async (params) => {
+  const item = {
+    id: 1,
+    name: "tester",
+    surname: "tester",
+    email: "tester@example.com",
+    pending_booty: 0,
+    wp_user_id: 1,
+    is_verified: 0,
+    last_activity: new Date("01/01/2021").toISOString(),
+    total_exp_pts: 1000,
+    ...params,
+  };
+  await sqlite3.insert("wp_appq_evd_profile", item);
+  return item;
+};
 
 data.testerWithoutBooty = async () => {
   const item = {

@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-users-me-rank-list */
+import Leadeboard from "@src/features/leaderboard";
 import { Context } from "openapi-backend";
 
 export default async (
@@ -6,32 +7,11 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  const leaderboard: StoplightComponents["schemas"]["RankingItem"][] = [
-    {
-      position: 1,
-      image: "https://placekitten.com/200/200",
-      name: "John D.",
-      id: 1,
-      monthly_exp: 100,
-    },
-    {
-      position: 2,
-      image: "https://placekitten.com/200/200",
-      name: "John D.",
-      id: 1,
-      monthly_exp: 100,
-    },
-    {
-      position: 3,
-      image: "https://placekitten.com/200/200",
-      name: "John D.",
-      id: 1,
-      monthly_exp: 100,
-    },
-  ];
+  const leaderboard = new Leadeboard(10);
+  const result = await leaderboard.getLeaderboard();
   res.status_code = 200;
   return {
-    tops: leaderboard.slice(0, 3),
+    tops: result.slice(0, 3),
     peers: [],
   };
 };
