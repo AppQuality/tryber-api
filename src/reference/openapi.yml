@@ -3386,8 +3386,6 @@ paths:
                       mantainance: 10
         '403':
           $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
       operationId: get-users-me-rank
       security:
         - JWT: []
