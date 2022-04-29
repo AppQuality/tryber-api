@@ -1,4 +1,12 @@
 import {
+  data as userLevelData,
+  table as userLevelTable,
+} from "@src/__mocks__/mockedDb/levels";
+import {
+  data as levelDefData,
+  table as levelDefTable,
+} from "@src/__mocks__/mockedDb/levelsDefinition";
+import {
   data as profileData,
   table as profileTable,
 } from "@src/__mocks__/mockedDb/profile";
@@ -13,12 +21,18 @@ describe("Route GET users-me-rank", () => {
     return new Promise(async (resolve) => {
       profileTable.create();
       profileData.testerWithBooty();
+      levelDefTable.create();
+      levelDefData.basicLevel();
+      userLevelTable.create();
+      userLevelData.basicLevel();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
       profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
       resolve(null);
     });
   });
@@ -32,5 +46,12 @@ describe("Route GET users-me-rank", () => {
       .get("/users/me/rank")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
+  });
+  it("Should return user current level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("level", { id: 10, name: "Basic" });
   });
 });

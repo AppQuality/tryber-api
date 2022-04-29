@@ -1,26 +1,31 @@
+import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
 
 /** OPENAPI-ROUTE: get-users-me-rank */
+async function getUserLevel(
+  tester_id: number
+): Promise<StoplightComponents["schemas"]["MonthlyLevel"]> {
+  // get user level
+  const query = `
+    SELECT lvl.id AS id, lvl.name AS name
+    FROM wp_appq_activity_level_definition AS lvl
+             JOIN wp_appq_activity_level trblvl ON lvl.id = trblvl.level_id
+    WHERE trblvl.tester_id = ? `;
+
+  let userLevelData = await db.query(db.format(query, [tester_id]));
+  if (!userLevelData.length) throw Error("No level found for user");
+  return userLevelData[0];
+}
 export default async (
   c: Context,
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
   try {
-    // const SELECT = `SELECT *`;
-    // const FROM = ` FROM wp_appq_popups`;
-    // const WHERE = ``;
-
-    // const rows = await db.query(`${SELECT}${FROM}${WHERE}`);
-    // if (!rows.length) throw Error("No rank found");
-
     res.status_code = 200;
     return {
-      level: {
-        id: 1,
-        name: "newbie",
-      },
+      level: await getUserLevel(req.user?.testerId),
       previousLevel: {
         id: 0,
         name: "shit",
