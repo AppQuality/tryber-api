@@ -127,6 +127,10 @@ export default class Leaderboard {
     }));
   }
 
+  getRankByTester(testerId: number): typeof this.leaderboard[0] | undefined {
+    return this.leaderboard.find((item) => item.id === testerId);
+  }
+
   async getLeaderboard(): Promise<
     StoplightComponents["schemas"]["RankingItem"][]
   > {
