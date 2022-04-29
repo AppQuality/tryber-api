@@ -15,6 +15,21 @@ import request from "supertest";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
+jest.mock("avatar-initials", () => {
+  return {
+    gravatarUrl: jest.fn(
+      ({
+        fallback,
+        email,
+        size,
+      }: {
+        fallback: string;
+        email: string;
+        size: number;
+      }) => `${fallback}---${email}---${size}`
+    ),
+  };
+});
 
 describe("GET /users/me/rank/list", () => {
   const data: any = {};
@@ -29,6 +44,7 @@ describe("GET /users/me/rank/list", () => {
       surname: "Pluto",
     });
     data.tester1.short_name = "Pippo P.";
+    data.tester1.image = `https://eu.ui-avatars.com/api/pippo+p/132---${data.tester1.email}---132`;
     data.tester1.exp = await expData.basicExperience({
       id: 1,
       tester_id: data.tester1.id,
@@ -46,6 +62,7 @@ describe("GET /users/me/rank/list", () => {
       surname: "Franco",
     });
     data.tester2.short_name = "Pippo F.";
+    data.tester2.image = `https://eu.ui-avatars.com/api/pippo+f/132---${data.tester2.email}---132`;
     data.tester2.exp = await expData.basicExperience({
       id: 2,
       tester_id: data.tester2.id,
@@ -64,6 +81,7 @@ describe("GET /users/me/rank/list", () => {
     });
 
     data.tester3.short_name = "Giorgio G.";
+    data.tester3.image = `https://eu.ui-avatars.com/api/giorgio+g/132---${data.tester3.email}---132`;
     data.tester3.exp = await expData.basicExperience({
       id: 3,
       tester_id: data.tester3.id,
@@ -82,6 +100,8 @@ describe("GET /users/me/rank/list", () => {
       surname: "Martello",
     });
     data.tester4.short_name = "Carlo M.";
+    data.tester4.image = `https://eu.ui-avatars.com/api/carlo+m/132---${data.tester4.email}---132`;
+
     data.tester4.exp = await expData.basicExperience({
       id: 4,
       tester_id: data.tester4.id,
@@ -126,21 +146,21 @@ describe("GET /users/me/rank/list", () => {
     expect(response.body.tops).toEqual([
       {
         position: 1,
-        image: "https://placekitten.com/200/200",
+        image: data.tester3.image,
         name: data.tester3.short_name,
         id: data.tester3.id,
         monthly_exp: data.tester3.exp.amount,
       },
       {
         position: 2,
-        image: "https://placekitten.com/200/200",
+        image: data.tester2.image,
         name: data.tester2.short_name,
         id: data.tester2.id,
         monthly_exp: data.tester2.exp.amount,
       },
       {
         position: 3,
-        image: "https://placekitten.com/200/200",
+        image: data.tester4.image,
         name: data.tester4.short_name,
         id: data.tester4.id,
         monthly_exp: data.tester4.exp.amount,

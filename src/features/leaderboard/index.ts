@@ -1,4 +1,5 @@
 import * as db from "@src/features/db";
+import { gravatarUrl } from "avatar-initials";
 
 export default class Leaderboard {
   private leaderboard: StoplightComponents["schemas"]["RankingItem"][];
@@ -30,6 +31,7 @@ export default class Leaderboard {
     {
       tester_name: string;
       tester_surname: string;
+      tester_email: string;
       tester_id: number;
       level: number;
       total_exp: number;
@@ -37,7 +39,7 @@ export default class Leaderboard {
   > {
     const sql = db.format(
       `SELECT 
-    t.name as tester_name, t.surname as tester_surname,
+    t.name as tester_name, t.surname as tester_surname, t.email as tester_email,
     lvl.tester_id   as tester_id,
     t.total_exp_pts as total_exp
   FROM wp_appq_activity_level lvl
@@ -51,15 +53,35 @@ export default class Leaderboard {
     return await db.query(sql);
   }
 
-  private getTesterName(tester: {
+  private getTesterName({
+    tester_name,
+    tester_surname,
+  }: {
     tester_name: string;
     tester_surname: string;
   }) {
-    return tester.tester_name + " " + tester.tester_surname.charAt(0) + ".";
+    return tester_name + " " + tester_surname.charAt(0) + ".";
   }
 
-  private getTesterImage() {
-    return "https://placekitten.com/200/200";
+  private getTesterImage(tester: {
+    tester_name: string;
+    tester_surname: string;
+    tester_email: string;
+  }) {
+    const nameSlug = tester.tester_name
+      .toLowerCase()
+      .replace(/[\W_]+/g, " ")
+      .replace(" ", "-");
+    const surnameSlug = tester.tester_surname
+      .toLowerCase()
+      .replace(/[\W_]+/g, " ")
+      .replace(" ", "-")
+      .charAt(0);
+    return gravatarUrl({
+      fallback: `https://eu.ui-avatars.com/api/${nameSlug}+${surnameSlug}/132`,
+      email: tester.tester_email,
+      size: 132,
+    });
   }
 
   private async populate() {
@@ -76,7 +98,7 @@ export default class Leaderboard {
         position: 0,
         name: this.getTesterName(level),
         id: level.tester_id,
-        image: this.getTesterImage(),
+        image: this.getTesterImage(level),
         monthly_exp: testerExp ? testerExp.monthly_exp : 0,
         total_exp: level.total_exp,
       });
