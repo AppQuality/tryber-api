@@ -299,6 +299,10 @@ export interface paths {
       };
     };
   };
+  "/users/me/rank": {
+    get: operations["get-users-me-rank"];
+    parameters: {};
+  };
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
@@ -2179,6 +2183,31 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  "get-users-me-rank": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            level: components["schemas"]["MontlyLevel"];
+            previousLevel: components["schemas"]["MontlyLevel"];
+            rank: number;
+            points: number;
+            prospect: {
+              level: components["schemas"]["MontlyLevel"];
+              mantainance?: number;
+              next?: {
+                points: number;
+                level: components["schemas"]["MontlyLevel"];
+              };
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+    };
+  };
   "get-users-me-rank-list": {
     responses: {
       /** OK */
@@ -2191,6 +2220,7 @@ export interface operations {
         };
       };
       403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-customUserFields": {
