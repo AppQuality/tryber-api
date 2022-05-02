@@ -1,17 +1,10 @@
-import {
-  data as expData,
-  table as expTable,
-} from "@src/__mocks__/mockedDb/experience";
-import {
-  data as levelData,
-  table as levelTable,
-} from "@src/__mocks__/mockedDb/levels";
-import {
-  data as profileData,
-  table as profileTable,
-} from "@src/__mocks__/mockedDb/profile";
+import { table as expTable } from "@src/__mocks__/mockedDb/experience";
+import { table as levelTable } from "@src/__mocks__/mockedDb/levels";
+import { table as profileTable } from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
 import request from "supertest";
+
+import createTesterBasicData from "./createTesterData";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
@@ -37,80 +30,38 @@ describe("GET /users/me/rank/list", () => {
     await profileTable.create();
     await levelTable.create();
     await expTable.create();
-    data.tester1 = await profileData.basicTester({
-      id: 1,
-      wp_user_id: 1,
+    data.tester1 = await createTesterBasicData({
+      testerId: 1,
       name: "Pippo",
       surname: "Pluto",
+      shortname: "Pippo P.",
+      image_name: "pippo+p",
+      exp: 10,
     });
-    data.tester1.short_name = "Pippo P.";
-    data.tester1.image = `https://eu.ui-avatars.com/api/pippo+p/132---${data.tester1.email}---132`;
-    data.tester1.exp = await expData.basicExperience({
-      id: 1,
-      tester_id: data.tester1.id,
-      amount: 10,
-    });
-    data.tester1.level = await levelData.basicLevel({
-      id: 1,
-      tester_id: data.tester1.id,
-      level_id: 10,
-    });
-    data.tester2 = await profileData.basicTester({
-      id: 2,
-      wp_user_id: 2,
+    data.tester2 = await createTesterBasicData({
+      testerId: 2,
       name: "Pippo",
       surname: "Franco",
+      shortname: "Pippo F.",
+      image_name: "pippo+f",
+      exp: 100,
     });
-    data.tester2.short_name = "Pippo F.";
-    data.tester2.image = `https://eu.ui-avatars.com/api/pippo+f/132---${data.tester2.email}---132`;
-    data.tester2.exp = await expData.basicExperience({
-      id: 2,
-      tester_id: data.tester2.id,
-      amount: 100,
-    });
-    data.tester2.level = await levelData.basicLevel({
-      id: 2,
-      tester_id: data.tester2.id,
-      level_id: 10,
-    });
-    data.tester3 = await profileData.basicTester({
-      id: 3,
-      wp_user_id: 3,
+    data.tester3 = await createTesterBasicData({
+      testerId: 3,
       name: "Giorgio",
       surname: "Giovanna",
+      shortname: "Giorgio G.",
+      image_name: "giorgio+g",
+      exp: 1000,
     });
 
-    data.tester3.short_name = "Giorgio G.";
-    data.tester3.image = `https://eu.ui-avatars.com/api/giorgio+g/132---${data.tester3.email}---132`;
-    data.tester3.exp = await expData.basicExperience({
-      id: 3,
-      tester_id: data.tester3.id,
-      amount: 1000,
-    });
-    data.tester3.level = await levelData.basicLevel({
-      id: 3,
-      tester_id: data.tester3.id,
-      level_id: 10,
-    });
-
-    data.tester4 = await profileData.basicTester({
-      id: 4,
-      wp_user_id: 4,
+    data.tester4 = await createTesterBasicData({
+      testerId: 4,
       name: "Carlo",
       surname: "Martello",
-    });
-    data.tester4.short_name = "Carlo M.";
-    data.tester4.image = `https://eu.ui-avatars.com/api/carlo+m/132---${data.tester4.email}---132`;
-
-    data.tester4.exp = await expData.basicExperience({
-      id: 4,
-      tester_id: data.tester4.id,
-      amount: 20,
-    });
-    data.tester4.level = await levelData.basicLevel({
-      id: 4,
-      tester_id: data.tester4.id,
-      level_id: 10,
+      shortname: "Carlo M.",
+      image_name: "carlo+m",
+      exp: 20,
     });
 
     return null;
