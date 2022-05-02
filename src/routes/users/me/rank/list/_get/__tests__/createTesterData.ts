@@ -9,7 +9,7 @@ export default async (params: {
   shortname: string;
   exp: number;
   image_name: string;
-  level?: number;
+  level?: number | false;
 }) => {
   let tester = await profileData.basicTester({
     id: params.testerId,
@@ -19,15 +19,18 @@ export default async (params: {
   });
   tester.short_name = params.shortname;
   tester.image = `https://eu.ui-avatars.com/api/${params.image_name}/132---${tester.email}---132`;
-  tester.exp = await expData.basicExperience({
-    id: params.testerId + 100,
-    tester_id: tester.id,
-    amount: params.exp,
-  });
-  tester.level = await levelData.basicLevel({
-    id: params.testerId + 1000,
-    tester_id: tester.id,
-    level_id: params.level || 10,
-  });
+  tester.exp = { amount: 0 };
+  if (params.exp > 0)
+    tester.exp = await expData.basicExperience({
+      id: params.testerId + 100,
+      tester_id: tester.id,
+      amount: params.exp,
+    });
+  if (params.level !== false)
+    tester.level = await levelData.basicLevel({
+      id: params.testerId + 1000,
+      tester_id: tester.id,
+      level_id: params.level || 10,
+    });
   return tester;
 };
