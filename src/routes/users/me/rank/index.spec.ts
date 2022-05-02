@@ -54,4 +54,32 @@ describe("Route GET users-me-rank", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("level", { id: 10, name: "Basic" });
   });
+  //Should return 404 if user has no level
+});
+
+describe("Route GET users-me-rank no level user", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.testerWithBooty();
+      levelDefTable.create();
+      levelDefData.basicLevel();
+      userLevelTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      resolve(null);
+    });
+  });
+  it("Should return 404 if has not level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
 });
