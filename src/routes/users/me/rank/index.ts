@@ -1,5 +1,6 @@
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
+import Leaderboard from "@src/features/leaderboard";
 import { Context } from "openapi-backend";
 
 /** OPENAPI-ROUTE: get-users-me-rank */
@@ -35,7 +36,6 @@ async function getPreviousLevel(
   LIMIT 1;`;
 
   let userLevelData = await db.query(db.format(query, [tester_id]));
-  console.log(userLevelData);
   if (!userLevelData.length) {
     return noLevel;
   }
@@ -62,11 +62,16 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
+    const userLevel = await getUserLevel(req.user?.testerId);
+    const leaderboard = new Leaderboard(userLevel.id);
+    await leaderboard.getLeaderboard();
+    const myRanking = leaderboard.getRankByTester(req.user?.testerId);
     res.status_code = 200;
-    let p = {
-      level: await getUserLevel(req.user?.testerId),
+
+    return {
+      level: userLevel,
       previousLevel: await getPreviousLevel(req.user?.testerId),
-      rank: 0,
+      rank: myRanking?.position || 0,
       points: await getMonthlyPoints(req.user?.testerId),
       prospect: {
         level: {
@@ -75,8 +80,6 @@ export default async (
         },
       },
     };
-    // console.log(p);
-    return p;
   } catch (err) {
     res.status_code = (err as OpenapiError).status_code || 500;
     debugMessage(err);

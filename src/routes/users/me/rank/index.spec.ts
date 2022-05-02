@@ -29,13 +29,19 @@ describe("Route GET users-me-rank", () => {
     return new Promise(async (resolve) => {
       profileTable.create();
       profileData.testerWithBooty();
+      profileData.basicTester({ id: 2 });
+      profileData.basicTester({ id: 3 });
       levelDefTable.create();
       levelDefData.basicLevel();
       levelDefData.basicLevel({ id: 20, name: "Bronze" });
       userLevelTable.create();
       userLevelData.basicLevel();
+      userLevelData.basicLevel({ id: 2, tester_id: 2 });
+      userLevelData.basicLevel({ id: 3, tester_id: 3 });
       expTable.create();
       expData.basicExperience();
+      expData.basicExperience({ id: 2, tester_id: 2, amount: 69 });
+      expData.basicExperience({ id: 3, tester_id: 3, amount: 169 });
       levelRevTable.create();
       levelRevData.basicLevelRev({
         level_id: 20,
@@ -92,6 +98,13 @@ describe("Route GET users-me-rank", () => {
       name: "Bronze",
     });
   });
+  it("Should return rank position as 2", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("rank", 2);
+  });
 });
 
 describe("Route GET users-me-rank no level user", () => {
@@ -125,40 +138,6 @@ describe("Route GET users-me-rank no level user", () => {
     expect(response.body).toHaveProperty("level", { id: 0, name: "No Level" });
   });
 });
-
-describe("Route GET users-me-rank no montly points", () => {
-  beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      profileTable.create();
-      profileData.testerWithBooty();
-      levelDefTable.create();
-      levelDefData.basicLevel();
-      userLevelTable.create();
-      userLevelData.basicLevel();
-      levelRevTable.create();
-      expTable.create();
-      resolve(null);
-    });
-  });
-  afterAll(async () => {
-    return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
-      resolve(null);
-    });
-  });
-  it("Should return 0 points if user hasn't montly exp pts", async () => {
-    const response = await request(app)
-      .get("/users/me/rank")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("points", 0);
-  });
-});
-
 describe("Route GET users-me-rank no previous level", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
@@ -192,5 +171,37 @@ describe("Route GET users-me-rank no previous level", () => {
       id: 0,
       name: "No Level",
     });
+  });
+});
+describe("Route GET users-me-rank no montly points", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.testerWithBooty();
+      levelDefTable.create();
+      levelDefData.basicLevel();
+      userLevelTable.create();
+      userLevelData.basicLevel();
+      levelRevTable.create();
+      expTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
+  it("Should return 0 points if user hasn't montly exp pts", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("points", 0);
   });
 });
