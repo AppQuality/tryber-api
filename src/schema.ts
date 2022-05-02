@@ -2196,7 +2196,7 @@ export interface operations {
             points: number;
             prospect: {
               level: components["schemas"]["MonthlyLevel"];
-              mantainance?: number;
+              manteinance?: number;
               next?: {
                 points: number;
                 level: components["schemas"]["MonthlyLevel"];
