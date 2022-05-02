@@ -18,9 +18,20 @@ async function getUserLevel(
   if (!userLevelData.length) {
     throw { status_code: 404, message: "No Level for you" };
   }
-
-  console.log(userLevelData);
   return userLevelData[0];
+}
+async function getMonthlyPoints(tester_id: number): Promise<number> {
+  // get monthly user exp points
+  const query = `
+  SELECT SUM(amount) AS points
+  FROM wp_appq_exp_points
+  WHERE tester_id = ? AND MONTH(creation_date) = MONTH(NOW()) ;`;
+
+  let userMonthlyExpPoints = await db.query(db.format(query, [tester_id]));
+  if (!userMonthlyExpPoints.length || !userMonthlyExpPoints[0].points) {
+    return 0;
+  }
+  return userMonthlyExpPoints[0].points;
 }
 
 export default async (
@@ -37,7 +48,7 @@ export default async (
         name: "shit",
       },
       rank: 0,
-      points: 0,
+      points: await getMonthlyPoints(req.user?.testerId),
       prospect: {
         level: {
           id: 2,
