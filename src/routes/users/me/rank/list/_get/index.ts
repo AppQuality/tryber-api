@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-users-me-rank-list */
+import * as db from "@src/features/db";
 import Leaderboard from "@src/features/leaderboard";
 import { Context } from "openapi-backend";
 
@@ -27,7 +28,22 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  const leaderboard = new Leaderboard(10);
+  const myLevel = await db.query(
+    db.format(
+      "SELECT level_id FROM wp_appq_activity_level WHERE tester_id = ?",
+      [req.user.testerId]
+    )
+  );
+  if (!myLevel.length) {
+    res.status_code = 404;
+    return {
+      element: "rank",
+      id: 0,
+      message: "You are not ranked yet",
+    };
+  }
+  const myLevelId = myLevel[0].level_id;
+  const leaderboard = new Leaderboard(myLevelId);
   const result = await leaderboard.getLeaderboard();
   const myRank = leaderboard.getRankByTester(req.user?.testerId);
   if (!myRank) {

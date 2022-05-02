@@ -9,6 +9,7 @@ export default async (params: {
   shortname: string;
   exp: number;
   image_name: string;
+  level?: number;
 }) => {
   let tester = await profileData.basicTester({
     id: params.testerId,
@@ -26,7 +27,7 @@ export default async (params: {
   tester.level = await levelData.basicLevel({
     id: params.testerId + 1000,
     tester_id: tester.id,
-    level_id: 10,
+    level_id: params.level || 10,
   });
   return tester;
 };

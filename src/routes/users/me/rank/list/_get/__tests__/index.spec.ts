@@ -63,6 +63,15 @@ describe("GET /users/me/rank/list", () => {
       image_name: "carlo+m",
       exp: 20,
     });
+    data.tester5 = await createTesterBasicData({
+      testerId: 5,
+      name: "Carlo",
+      surname: "Martello",
+      shortname: "Carlo M.",
+      image_name: "carlo+m",
+      exp: 10000,
+      level: 20,
+    });
 
     return null;
   });
@@ -117,5 +126,18 @@ describe("GET /users/me/rank/list", () => {
         monthly_exp: data.tester4.exp.amount,
       },
     ]);
+  });
+  it("Should show only tester with my level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank/list")
+      .set("authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("tops");
+    for (const tester of response.body.tops) {
+      expect(tester.id).not.toBe(data.tester5.id);
+    }
+    expect(response.body).toHaveProperty("peers");
+    for (const tester of response.body.peers) {
+      expect(tester.id).not.toBe(data.tester5.id);
+    }
   });
 });
