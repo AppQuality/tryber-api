@@ -3331,7 +3331,7 @@ paths:
                     properties:
                       level:
                         $ref: '#/components/schemas/MonthlyLevel'
-                      mantainance:
+                      manteinance:
                         type: number
                       next:
                         type: object
@@ -3383,7 +3383,7 @@ paths:
                       level:
                         id: 30
                         name: Silver
-                      mantainance: 10
+                      manteinance: 10
         '403':
           $ref: '#/components/responses/NotAuthorized'
       operationId: get-users-me-rank
