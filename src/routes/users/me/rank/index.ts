@@ -62,19 +62,19 @@ async function getMonthlyPoints(tester_id: number): Promise<number> {
   return userMonthlyExpPoints[0].points;
 }
 
-function getNextLevel(
+function getProspectLevel(
   monthly_exp: number,
   definitions: LevelDefinition[],
   currentLevelDefinition: LevelDefinition
 ): LevelDefinition {
-  const nextLevel = definitions.find(
+  let prospectLevel = definitions.find(
     (level) =>
       monthly_exp >= level.reach_exp_pts && level.id > currentLevelDefinition.id
   );
-  if (!nextLevel) {
+  if (!prospectLevel) {
     return currentLevelDefinition;
   }
-  return getNextLevel(monthly_exp, definitions, nextLevel);
+  return getProspectLevel(monthly_exp, definitions, prospectLevel);
 }
 
 async function getLevelDefinitions(): Promise<LevelDefinition[]> {
@@ -83,10 +83,12 @@ async function getLevelDefinitions(): Promise<LevelDefinition[]> {
     FROM wp_appq_activity_level_definition `;
   return await db.query(query);
 }
-async function getProspectLevel(
+async function getProspectData(
   monthly_exp: number,
   current_level: number
-): Promise<any> {
+): Promise<
+  StoplightOperations["get-users-me-rank"]["responses"]["200"]["content"]["application/json"]["prospect"]
+> {
   const definitions = await getLevelDefinitions();
 
   const currentLevelDefinition = definitions.find(
@@ -100,19 +102,32 @@ async function getProspectLevel(
       (definition) => definition.id < currentLevelDefinition.id
     );
     if (previousLevel) {
-      return { level: { id: previousLevel.id, name: previousLevel.name } };
+      return {
+        level: { id: previousLevel.id, name: previousLevel.name },
+        maintenance: currentLevelDefinition.hold_exp_pts - monthly_exp,
+      };
     }
   }
-  const nextLevel = getNextLevel(
+  const prospectLevel = getProspectLevel(
     monthly_exp,
     definitions,
     currentLevelDefinition
   );
+  const nextLevel = definitions.find(
+    (definition) => definition.id > prospectLevel.id
+  );
+
   return {
     level: {
-      id: nextLevel.id,
-      name: nextLevel.name,
+      id: prospectLevel.id,
+      name: prospectLevel.name,
     },
+    next: nextLevel
+      ? {
+          level: { id: nextLevel.id, name: nextLevel.name },
+          points: nextLevel.reach_exp_pts - monthly_exp,
+        }
+      : undefined,
   };
 }
 
@@ -134,7 +149,7 @@ export default async (
       previousLevel: await getPreviousLevel(req.user?.testerId),
       rank: myRanking?.position || 0,
       points: monthlyExp,
-      prospect: await getProspectLevel(monthlyExp, userLevel.id),
+      prospect: await getProspectData(monthlyExp, userLevel.id),
     };
   } catch (err) {
     res.status_code = (err as OpenapiError).status_code || 500;

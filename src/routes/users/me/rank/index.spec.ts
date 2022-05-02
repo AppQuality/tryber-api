@@ -139,7 +139,7 @@ describe("Route GET users-me-rank - downgrade bronze to basic", () => {
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 20 });
       expTable.create();
-      expData.basicExperience({ amount: 0 });
+      expData.basicExperience({ amount: 20 });
       levelRevTable.create();
       resolve(null);
     });
@@ -166,6 +166,14 @@ describe("Route GET users-me-rank - downgrade bronze to basic", () => {
       name: "Basic",
     });
   });
+  it("Should return the exp points missing to maintain level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("maintenance", 30);
+  });
 });
 
 describe("Route GET users-me-rank - upgrade basic to silver", () => {
@@ -186,6 +194,12 @@ describe("Route GET users-me-rank - upgrade basic to silver", () => {
         name: "Silver",
         hold_exp_pts: 100,
         reach_exp_pts: 300,
+      });
+      levelDefData.basicLevel({
+        id: 40,
+        name: "Gold",
+        hold_exp_pts: 200,
+        reach_exp_pts: 400,
       });
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 10 });
@@ -216,6 +230,15 @@ describe("Route GET users-me-rank - upgrade basic to silver", () => {
       id: 30,
       name: "Silver",
     });
+  });
+  it("Should return the exp points needed for next level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("next");
+    expect(response.body.prospect.next).toHaveProperty("points", 100);
   });
 });
 
