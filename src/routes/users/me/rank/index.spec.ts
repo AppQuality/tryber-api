@@ -33,13 +33,18 @@ describe("Route GET users-me-rank", () => {
       profileData.basicTester({ id: 3 });
       levelDefTable.create();
       levelDefData.basicLevel();
-      levelDefData.basicLevel({ id: 20, name: "Bronze" });
+      levelDefData.basicLevel({
+        id: 20,
+        name: "Bronze",
+        hold_exp_pts: 50,
+        reach_exp_pts: 100,
+      });
       userLevelTable.create();
       userLevelData.basicLevel();
       userLevelData.basicLevel({ id: 2, tester_id: 2 });
       userLevelData.basicLevel({ id: 3, tester_id: 3 });
       expTable.create();
-      expData.basicExperience();
+      expData.basicExperience({ amount: 99 });
       expData.basicExperience({ id: 2, tester_id: 2, amount: 69 });
       expData.basicExperience({ id: 3, tester_id: 3, amount: 169 });
       levelRevTable.create();
@@ -86,7 +91,7 @@ describe("Route GET users-me-rank", () => {
       .get("/users/me/rank")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("points", 100);
+    expect(response.body).toHaveProperty("points", 99);
   });
   it("Should return previous users level", async () => {
     const response = await request(app)
@@ -104,6 +109,113 @@ describe("Route GET users-me-rank", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("rank", 2);
+  });
+  it("Should return basic as prospect level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level", {
+      id: 10,
+      name: "Basic",
+    });
+  });
+});
+
+describe("Route GET users-me-rank - downgrade bronze to basic", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.basicTester();
+      levelDefTable.create();
+      levelDefData.basicLevel();
+      levelDefData.basicLevel({
+        id: 20,
+        name: "Bronze",
+        hold_exp_pts: 50,
+        reach_exp_pts: 100,
+      });
+      userLevelTable.create();
+      userLevelData.basicLevel({ level_id: 20 });
+      expTable.create();
+      expData.basicExperience({ amount: 0 });
+      levelRevTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
+
+  it("Should return basic as prospect level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level", {
+      id: 10,
+      name: "Basic",
+    });
+  });
+});
+
+describe("Route GET users-me-rank - upgrade basic to silver", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.basicTester();
+      levelDefTable.create();
+      levelDefData.basicLevel();
+      levelDefData.basicLevel({
+        id: 20,
+        name: "Bronze",
+        hold_exp_pts: 50,
+        reach_exp_pts: 100,
+      });
+      levelDefData.basicLevel({
+        id: 30,
+        name: "Silver",
+        hold_exp_pts: 100,
+        reach_exp_pts: 300,
+      });
+      userLevelTable.create();
+      userLevelData.basicLevel({ level_id: 10 });
+      expTable.create();
+      expData.basicExperience({ amount: 300 });
+      levelRevTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
+
+  it("Should return silver as prospect level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level", {
+      id: 30,
+      name: "Silver",
+    });
   });
 });
 

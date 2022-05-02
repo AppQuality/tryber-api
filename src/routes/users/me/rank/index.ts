@@ -4,6 +4,12 @@ import Leaderboard from "@src/features/leaderboard";
 import { Context } from "openapi-backend";
 
 /** OPENAPI-ROUTE: get-users-me-rank */
+type LevelDefinition = {
+  id: number;
+  name: string;
+  reach_exp_pts: number;
+  hold_exp_pts: number;
+};
 const noLevel = { id: 0, name: "No Level" };
 async function getUserLevel(
   tester_id: number
@@ -56,6 +62,60 @@ async function getMonthlyPoints(tester_id: number): Promise<number> {
   return userMonthlyExpPoints[0].points;
 }
 
+function getNextLevel(
+  monthly_exp: number,
+  definitions: LevelDefinition[],
+  currentLevelDefinition: LevelDefinition
+): LevelDefinition {
+  const nextLevel = definitions.find(
+    (level) =>
+      monthly_exp >= level.reach_exp_pts && level.id > currentLevelDefinition.id
+  );
+  if (!nextLevel) {
+    return currentLevelDefinition;
+  }
+  return getNextLevel(monthly_exp, definitions, nextLevel);
+}
+
+async function getLevelDefinitions(): Promise<LevelDefinition[]> {
+  const query = `
+  SELECT id, name, reach_exp_pts ,hold_exp_pts
+    FROM wp_appq_activity_level_definition `;
+  return await db.query(query);
+}
+async function getProspectLevel(
+  monthly_exp: number,
+  current_level: number
+): Promise<any> {
+  const definitions = await getLevelDefinitions();
+
+  const currentLevelDefinition = definitions.find(
+    (definition) => definition.id === current_level
+  );
+  if (!currentLevelDefinition) {
+    return { level: noLevel };
+  }
+  if (monthly_exp < currentLevelDefinition.hold_exp_pts) {
+    const previousLevel = definitions.find(
+      (definition) => definition.id < currentLevelDefinition.id
+    );
+    if (previousLevel) {
+      return { level: { id: previousLevel.id, name: previousLevel.name } };
+    }
+  }
+  const nextLevel = getNextLevel(
+    monthly_exp,
+    definitions,
+    currentLevelDefinition
+  );
+  return {
+    level: {
+      id: nextLevel.id,
+      name: nextLevel.name,
+    },
+  };
+}
+
 export default async (
   c: Context,
   req: OpenapiRequest,
@@ -66,19 +126,15 @@ export default async (
     const leaderboard = new Leaderboard(userLevel.id);
     await leaderboard.getLeaderboard();
     const myRanking = leaderboard.getRankByTester(req.user?.testerId);
+    const monthlyExp = await getMonthlyPoints(req.user?.testerId);
     res.status_code = 200;
 
     return {
       level: userLevel,
       previousLevel: await getPreviousLevel(req.user?.testerId),
       rank: myRanking?.position || 0,
-      points: await getMonthlyPoints(req.user?.testerId),
-      prospect: {
-        level: {
-          id: 2,
-          name: "starter",
-        },
-      },
+      points: monthlyExp,
+      prospect: await getProspectLevel(monthlyExp, userLevel.id),
     };
   } catch (err) {
     res.status_code = (err as OpenapiError).status_code || 500;
