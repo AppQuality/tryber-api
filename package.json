@@ -23,6 +23,9 @@
     "modulePathIgnorePatterns": [
       "<rootDir>/src"
     ],
+    "testMatch": [
+      "**/?(*.)+(spec|test).[jt]s?(x)"
+    ],
     "moduleNameMapper": {
       "jsonwebtoken": "<rootDir>/dist/__mocks__/jsonwebtoken",
       "@appquality/wp-auth": "<rootDir>/dist/__mocks__/@appquality-wp-auth"
