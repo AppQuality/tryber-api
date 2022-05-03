@@ -299,6 +299,10 @@ export interface paths {
       };
     };
   };
+  "/users/me/rank": {
+    get: operations["get-users-me-rank"];
+    parameters: {};
+  };
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
@@ -350,6 +354,11 @@ export interface components {
     /** Replicability */
     Replicability: {
       id?: string;
+    };
+    /** MonthlyLevel */
+    MonthlyLevel: {
+      id: number;
+      name: string;
     };
     /** Task */
     Task: components["schemas"]["TaskOptional"] &
@@ -2172,6 +2181,31 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-users-me-rank": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            level: components["schemas"]["MonthlyLevel"];
+            previousLevel: components["schemas"]["MonthlyLevel"];
+            rank: number;
+            points: number;
+            prospect: {
+              level: components["schemas"]["MonthlyLevel"];
+              maintenance?: number;
+              next?: {
+                points: number;
+                level: components["schemas"]["MonthlyLevel"];
+              };
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
     };
   };
   "get-users-me-rank-list": {

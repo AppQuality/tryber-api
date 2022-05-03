@@ -3303,6 +3303,93 @@ paths:
           in: query
           name: orderBy
           description: The value to order by
+  /users/me/rank:
+    parameters: []
+    get:
+      summary: Details of tryber ranking
+      tags: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  level:
+                    $ref: "#/components/schemas/MonthlyLevel"
+                  previousLevel:
+                    $ref: "#/components/schemas/MonthlyLevel"
+                  rank:
+                    type: number
+                  points:
+                    type: number
+                  prospect:
+                    type: object
+                    required:
+                      - level
+                    properties:
+                      level:
+                        $ref: "#/components/schemas/MonthlyLevel"
+                      maintenance:
+                        type: number
+                      next:
+                        type: object
+                        properties:
+                          points:
+                            type: number
+                          level:
+                            $ref: "#/components/schemas/MonthlyLevel"
+                        required:
+                          - points
+                          - level
+                required:
+                  - level
+                  - previousLevel
+                  - rank
+                  - points
+                  - prospect
+              examples:
+                bronze-to-gold:
+                  value:
+                    level:
+                      id: 20
+                      name: Bronze
+                    previousLevel:
+                      id: 10
+                      name: Basic
+                    rank: 3
+                    points: 100
+                    prospect:
+                      level:
+                        id: 40
+                        name: Gold
+                      next:
+                        points: 10
+                        level:
+                          id: 50
+                          name: Diamond
+                stay-gold:
+                  value:
+                    level:
+                      id: 40
+                      name: Gold
+                    previousLevel:
+                      id: 10
+                      name: Basic
+                    rank: 50
+                    points: 100
+                    prospect:
+                      level:
+                        id: 30
+                        name: Silver
+                      manteinance: 10
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+      operationId: get-users-me-rank
+      security:
+        - JWT: []
+      parameters: []
   /users/me/rank/list:
     get:
       summary: Get your ranking list
@@ -3792,6 +3879,20 @@ components:
       properties:
         id:
           type: string
+    MonthlyLevel:
+      title: MonthlyLevel
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+      required:
+        - id
+        - name
+      description: ""
+      x-internal: false
+      x-examples: {}
     Task:
       title: Task
       allOf:
