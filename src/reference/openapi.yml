@@ -3812,6 +3812,30 @@ paths:
       description: delete a specific payment request
       security:
         - JWT: []
+  /levels:
+    get:
+      summary: Retrive levels definitions
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LevelDefinition'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-levels
+      security:
+        - JWT: []
+      description: Get all levels
+      parameters: []
+    parameters: []
 components:
   schemas:
     Project:
@@ -4435,6 +4459,22 @@ components:
         - id
         - name
         - monthly_exp
+    LevelDefinition:
+      title: LevelDefinition
+      type: object
+      description: ''
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        reach:
+          type: number
+        hold:
+          type: number
+      required:
+        - id
+        - name
   securitySchemes:
     JWT:
       type: http
