@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-levels */
+import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
 
@@ -8,7 +9,15 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    const levels: [] = [];
+    let levels: StoplightOperations["get-levels"]["responses"]["200"]["content"]["application/json"] =
+      [];
+    levels = await db.query(`
+    SELECT id, name, reach_exp_pts AS reach, hold_exp_pts AS hold
+    FROM wp_appq_activity_level_definition
+    `);
+    if (!levels.length) {
+      throw Error("No levels");
+    }
 
     res.status_code = 200;
     return levels;
