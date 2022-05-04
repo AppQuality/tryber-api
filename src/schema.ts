@@ -552,7 +552,6 @@ export interface components {
           /** @description A google maps place id */
           placeId: string;
         };
-    /** RankItem */
     RankingItem: {
       position: number;
       image: string;
