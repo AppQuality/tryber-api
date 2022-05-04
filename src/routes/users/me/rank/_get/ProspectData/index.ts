@@ -61,9 +61,9 @@ export default class ProspectData {
   };
 
   getDowngradeLevel = () => {
-    const previousLevel = this.definitions.find(
-      (definition) => definition.id < this.currentLevel.id
-    );
+    const previousLevel = this.definitions
+      .reverse()
+      .find((definition) => definition.id < this.currentLevel.id);
     if (previousLevel) {
       return {
         level: { id: previousLevel.id, name: previousLevel.name },
