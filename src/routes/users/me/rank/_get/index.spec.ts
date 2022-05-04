@@ -68,7 +68,6 @@ describe("Route GET users-me-rank", () => {
       resolve(null);
     });
   });
-
   it("Should return 403 if does not logged in", async () => {
     const response = await request(app).get("/users/me/rank");
     expect(response.status).toBe(403);
@@ -123,7 +122,7 @@ describe("Route GET users-me-rank", () => {
   });
 });
 
-describe("Route GET users-me-rank - downgrade bronze to basic", () => {
+describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       profileTable.create();
@@ -154,7 +153,6 @@ describe("Route GET users-me-rank - downgrade bronze to basic", () => {
       resolve(null);
     });
   });
-
   it("Should return basic as prospect level", async () => {
     const response = await request(app)
       .get("/users/me/rank")
@@ -175,8 +173,58 @@ describe("Route GET users-me-rank - downgrade bronze to basic", () => {
     expect(response.body.prospect).toHaveProperty("maintenance", 30);
   });
 });
+describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.basicTester();
+      levelDefTable.create();
+      levelDefData.basicLevel();
+      levelDefData.basicLevel({
+        id: 20,
+        name: "Bronze",
+        hold_exp_pts: 50,
+        reach_exp_pts: 100,
+      });
+      levelDefData.basicLevel({
+        id: 30,
+        name: "Silver",
+        hold_exp_pts: 150,
+        reach_exp_pts: 250,
+      });
+      userLevelTable.create();
+      userLevelData.basicLevel({ level_id: 30 });
+      expTable.create();
+      expData.basicExperience({ amount: 50 });
+      levelRevTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
 
-describe("Route GET users-me-rank - upgrade basic to silver", () => {
+  it("Should return Bronze as prospect level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level", {
+      id: 20,
+      name: "Bronze",
+    });
+    console.log(response.body);
+  });
+});
+describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       profileTable.create();
@@ -242,7 +290,7 @@ describe("Route GET users-me-rank - upgrade basic to silver", () => {
   });
 });
 
-describe("Route GET users-me-rank no level user", () => {
+describe("Route GET users-me-rank - No level user", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       profileTable.create();
@@ -273,7 +321,7 @@ describe("Route GET users-me-rank no level user", () => {
     expect(response.body).toHaveProperty("level", { id: 0, name: "No Level" });
   });
 });
-describe("Route GET users-me-rank no previous level", () => {
+describe("Route GET users-me-rank - No previous level", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       profileTable.create();
@@ -308,7 +356,7 @@ describe("Route GET users-me-rank no previous level", () => {
     });
   });
 });
-describe("Route GET users-me-rank no montly points", () => {
+describe("Route GET users-me-rank - No montly points", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       profileTable.create();
