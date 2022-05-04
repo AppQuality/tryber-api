@@ -332,6 +332,11 @@ export interface paths {
       };
     };
   };
+  "/levels": {
+    /** Get all levels */
+    get: operations["get-levels"];
+    parameters: {};
+  };
 }
 
 export interface components {
@@ -553,6 +558,13 @@ export interface components {
       id: number;
       name: string;
       monthly_exp: number;
+    };
+    /** LevelDefinition */
+    LevelDefinition: {
+      id: number;
+      name: string;
+      reach?: number;
+      hold?: number;
     };
   };
   responses: {
@@ -2372,6 +2384,20 @@ export interface operations {
     responses: {
       /** OK */
       200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get all levels */
+  "get-levels": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["LevelDefinition"][];
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
