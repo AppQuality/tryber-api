@@ -29,9 +29,17 @@ export default class ProspectData {
       }
       this.currentLevel = currentLevel;
       if (this.isToDowngrade()) {
-        this.prospectLevel = this.getDowngradeLevel();
+        try {
+          this.prospectLevel = this.getDowngradeLevel();
+        } catch (err) {
+          return reject(err);
+        }
       } else {
-        this.prospectLevel = this.getUpgradeOrMaintenanceLevel();
+        try {
+          this.prospectLevel = this.getUpgradeOrMaintenanceLevel();
+        } catch (err) {
+          return reject(err);
+        }
         if (this.prospectLevel.level.id > currentLevel.id) {
           this.nextLevel = this.definitions.find(
             (definition) => definition.id > this.prospectLevel.level.id
