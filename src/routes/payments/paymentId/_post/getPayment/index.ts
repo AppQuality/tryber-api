@@ -4,6 +4,7 @@ export default async (paymentId: number): Promise<Payment> => {
   const sql = db.format(
     `SELECT 
       req.id, req.amount, req.iban, req.paypal_email, req.is_paid, req.error_message as error_message,
+      COALESCE(req.account_holder_name, CONCAT(p.name," ",p.surname)) as account_name,
       p.id as tester_id, p.name , p.surname,p.email as tester_email,
       f.fiscal_category
     FROM wp_appq_payment_request req
@@ -46,7 +47,7 @@ export default async (paymentId: number): Promise<Payment> => {
   return {
     id: payment.id,
     tester_id: payment.tester_id,
-    accountName: `${payment.name} ${payment.surname}`,
+    accountName: payment.account_name,
     amount: payment.amount,
     type: paymentType,
     coordinates,
