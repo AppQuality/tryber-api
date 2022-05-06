@@ -38,16 +38,11 @@ export default async (id: string, fields: string[]) => {
     if (!data.length) Promise.reject(Error("No user"));
     const user = data[0];
     if (fields.includes("image") && user.name && user.surname) {
-      const nameSlug = user.name
-        .toLowerCase()
-        .replace(/[\W_]+/g, " ")
-        .replace(" ", "-");
-      const surnameSlug = user.surname
-        .toLowerCase()
-        .replace(/[\W_]+/g, " ")
-        .replace(" ", "-");
+      const nameSlug = user.name.toLowerCase().replace(/[\W_ ]+/g, "");
+      const surnameSlug = user.surname.toLowerCase().replace(/[\W_ ]+/g, "");
+      const initials = `${nameSlug[0] || "?"}+${surnameSlug[0] || "?"}`;
       user.image = gravatarUrl({
-        fallback: `https://eu.ui-avatars.com/api/${nameSlug}+${surnameSlug}/132`,
+        fallback: `https://eu.ui-avatars.com/api/${initials}/132`,
         email: user.email,
         size: 132,
       });
