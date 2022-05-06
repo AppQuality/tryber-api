@@ -40,7 +40,7 @@ export default class ProspectData {
         } catch (err) {
           return reject(err);
         }
-        if (this.prospectLevel.level.id > currentLevel.id) {
+        if (this.prospectLevel.level.id >= currentLevel.id) {
           this.nextLevel = this.definitions.find(
             (definition) => definition.id > this.prospectLevel.level.id
           );
