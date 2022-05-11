@@ -17,6 +17,7 @@ const validBankTransferPayment = {
   iban: "DE12345678901234567890",
   is_paid: 0,
   fiscal_profile_id: 1,
+  account_holder_name: "John Doe",
 };
 const validPaypalPayment = {
   id: 2,
@@ -48,6 +49,7 @@ describe("POST /payments/:paymentId", () => {
         "tester_id INTEGER",
         "amount INTEGER",
         "iban VARCHAR(255)",
+        "account_holder_name VARCHAR(255)",
         "paypal_email VARCHAR(255)",
         "is_paid BOOL",
         "fiscal_profile_id INTEGER",
@@ -96,7 +98,7 @@ describe("POST /payments/:paymentId", () => {
       expect(payment).toMatchObject({
         id: validBankTransferPayment.id,
         tester_id: tester.id,
-        accountName: `${tester.name} ${tester.surname}`,
+        accountName: validBankTransferPayment.account_holder_name,
         amount: validBankTransferPayment.amount,
         type: "transferwise",
         coordinates: validBankTransferPayment.iban,
