@@ -1,63 +1,68 @@
+import {
+  data as popupData,
+  table as popupTable,
+} from "@src/__mocks__/mockedDb/popups";
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
-const popup1 = {
-  id: 1,
-  content: "eyJST09ertgetrerbsfgUIjp",
-  //is_once: 1,
-  targets: "italian",
-  //exstras: "",
-  title: "This is the Popup title",
-};
-const popup2 = {
-  id: 2,
-  content: "eyJSdfnbgertbgreT09UIjp",
-  //is_once: 1,
-  targets: "list",
-  //exstras: "",
-  title: "This is another Popup title",
-};
-const popup3 = {
-  id: 3,
-  content: "eyJSdfnbgertbgreT09UIjp",
-  //is_once: 1,
-  targets: "list",
-  //exstras: "",
-  title: "Stap Popup title please",
-};
 
 describe("Route GET popups", () => {
+  const data: { [key: string]: any } = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_popups", [
-        "id INTEGER PRIMARY KEY",
-        "content MEDIUMTEXT",
-        "is_once INTEGER",
-        "targets VARCHAR(32)",
-        "exstras MEDIUMTEXT",
-        "title VARCHAR(128)",
-      ]);
-      await sqlite3.insert("wp_appq_popups", popup1);
-      await sqlite3.insert("wp_appq_popups", popup2);
-      await sqlite3.insert("wp_appq_popups", popup3);
+      await popupTable.create();
+      data.popup1 = await popupData.basicPopup({
+        id: 1,
+        targets: "italian",
+      });
+      data.popup2 = await popupData.basicPopup({
+        id: 2,
+      });
+      data.popup3 = await popupData.basicPopup({
+        id: 3,
+      });
+      data.popup4 = await popupData.basicPopup({
+        id: 4,
+        is_auto: 1,
+      });
+
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_popups");
+      await popupTable.drop();
       resolve(null);
     });
   });
 
-  it("Should return all popups if user has appq_message_center permission", async () => {
+  it("Should return all not automatic popups if user has appq_message_center permission", async () => {
     const response = await request(app)
       .get("/popups")
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        content: data.popup1.content,
+        id: data.popup1.id,
+        profiles: "italian",
+        title: data.popup1.title,
+      },
+      {
+        content: data.popup2.content,
+        id: data.popup2.id,
+        profiles: [],
+        title: data.popup2.title,
+      },
+      {
+        content: data.popup3.content,
+        id: data.popup3.id,
+        profiles: [],
+        title: data.popup3.title,
+      },
+    ]);
   });
   it("Should return 403 if user has not appq_message_center permission", async () => {
     const response = await request(app)
