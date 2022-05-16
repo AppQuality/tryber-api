@@ -30,10 +30,13 @@ const data: {
   [key: string]: (params?: PopupParams) => Promise<{ [key: string]: any }>;
 } = {};
 
-data.insert = async (params) => {
+data.basicPopup = async (params) => {
   const item = {
     id: 1,
-    title: "Tihs is the POPUP title",
+    title: "This is the POPUP title",
+    targets: "list",
+    extras: "",
+    content: "eyJST09ertgetrerbsfgUIjp",
     is_auto: 0,
     ...params,
   };
