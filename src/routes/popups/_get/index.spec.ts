@@ -9,7 +9,6 @@ const popup1 = {
   content: "eyJST09ertgetrerbsfgUIjp",
   //is_once: 1,
   targets: "italian",
-  //exstras: "",
   title: "This is the Popup title",
 };
 const popup2 = {
@@ -17,7 +16,6 @@ const popup2 = {
   content: "eyJSdfnbgertbgreT09UIjp",
   //is_once: 1,
   targets: "list",
-  //exstras: "",
   title: "This is another Popup title",
 };
 const popup3 = {
@@ -25,8 +23,15 @@ const popup3 = {
   content: "eyJSdfnbgertbgreT09UIjp",
   //is_once: 1,
   targets: "list",
-  //exstras: "",
   title: "Stap Popup title please",
+};
+const popupAuto1 = {
+  id: 4,
+  content: "eyJSdfnbgertbgreT09UIjp",
+  //is_once: 1,
+  targets: "list",
+  title: "This is an automatic Popup",
+  is_auto: 1,
 };
 
 describe("Route GET popups", () => {
@@ -37,12 +42,14 @@ describe("Route GET popups", () => {
         "content MEDIUMTEXT",
         "is_once INTEGER",
         "targets VARCHAR(32)",
-        "exstras MEDIUMTEXT",
+        "extras MEDIUMTEXT",
         "title VARCHAR(128)",
+        "is_auto BOOLEAN NOT NULL DEFAULT FALSE",
       ]);
       await sqlite3.insert("wp_appq_popups", popup1);
       await sqlite3.insert("wp_appq_popups", popup2);
       await sqlite3.insert("wp_appq_popups", popup3);
+      await sqlite3.insert("wp_appq_popups", popupAuto1);
       resolve(null);
     });
   });
@@ -53,11 +60,31 @@ describe("Route GET popups", () => {
     });
   });
 
-  it("Should return all popups if user has appq_message_center permission", async () => {
+  it("Should return all not autmatic popups if user has appq_message_center permission", async () => {
     const response = await request(app)
       .get("/popups")
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        content: "eyJST09ertgetrerbsfgUIjp",
+        id: 1,
+        profiles: "italian",
+        title: "This is the Popup title",
+      },
+      {
+        content: "eyJSdfnbgertbgreT09UIjp",
+        id: 2,
+        profiles: [],
+        title: "This is another Popup title",
+      },
+      {
+        content: "eyJSdfnbgertbgreT09UIjp",
+        id: 3,
+        profiles: [],
+        title: "Stap Popup title please",
+      },
+    ]);
   });
   it("Should return 403 if user has not appq_message_center permission", async () => {
     const response = await request(app)
