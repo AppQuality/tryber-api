@@ -6,6 +6,7 @@ export default class ProspectData {
   private definitions: LevelDefinition[];
   private currentLevel: LevelDefinition;
   private monthlyExp: number;
+  private LEGENDARY_LEVEL = 100;
 
   private prospectLevel: {
     level: { id: number; name: string };
@@ -28,28 +29,40 @@ export default class ProspectData {
         return reject("Could not find current level");
       }
       this.currentLevel = currentLevel;
+      if (this.isLegendary()) {
+        this.prospectLevel = {
+          level: {
+            id: currentLevel.id,
+            name: currentLevel.name,
+          },
+        };
+        return resolve(true);
+      }
+
       if (this.isToDowngrade()) {
         try {
           this.prospectLevel = this.getDowngradeLevel();
+          return resolve(true);
         } catch (err) {
           return reject(err);
         }
-      } else {
-        try {
-          this.prospectLevel = this.getUpgradeOrMaintenanceLevel();
-        } catch (err) {
-          return reject(err);
-        }
-        if (this.prospectLevel.level.id >= currentLevel.id) {
-          this.nextLevel = this.definitions.find(
-            (definition) => definition.id > this.prospectLevel.level.id
-          );
-          if (this.nextLevel) {
-            this.prospectLevel.next = {
-              level: { id: this.nextLevel.id, name: this.nextLevel.name },
-              points: this.nextLevel.reach_exp_pts - this.monthlyExp,
-            };
-          }
+      }
+
+      try {
+        this.prospectLevel = this.getUpgradeOrMaintenanceLevel();
+      } catch (err) {
+        return reject(err);
+      }
+
+      if (this.prospectLevelIsCurrentOrHigher()) {
+        this.nextLevel = this.definitions.find(
+          (definition) => definition.id > this.prospectLevel.level.id
+        );
+        if (this.nextLevel) {
+          this.prospectLevel.next = {
+            level: { id: this.nextLevel.id, name: this.nextLevel.name },
+            points: this.nextLevel.reach_exp_pts - this.monthlyExp,
+          };
         }
       }
       resolve(true);
@@ -64,8 +77,16 @@ export default class ProspectData {
     return this.currentLevel;
   };
 
+  prospectLevelIsCurrentOrHigher() {
+    return this.prospectLevel.level.id >= this.currentLevel.id;
+  }
   isToDowngrade = () => {
     return this.monthlyExp < this.currentLevel.hold_exp_pts;
+  };
+
+  isLegendary = () => {
+    console.log(this.currentLevel);
+    return this.currentLevel.id === this.LEGENDARY_LEVEL;
   };
 
   getDowngradeLevel = () => {
@@ -88,6 +109,7 @@ export default class ProspectData {
     const currentLevelDefinition = currentLevel || this.currentLevel;
     let prospectLevel = this.definitions.find(
       (level) =>
+        level.reach_exp_pts !== null &&
         this.monthlyExp >= level.reach_exp_pts &&
         level.id > currentLevelDefinition.id
     );

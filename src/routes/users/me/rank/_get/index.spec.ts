@@ -24,6 +24,46 @@ import request from "supertest";
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 
+const mockedLevelDefinitions = () => {
+  levelDefData.basicLevel();
+  levelDefData.basicLevel({
+    id: 20,
+    name: "Bronze",
+    hold_exp_pts: 50,
+    reach_exp_pts: 100,
+  });
+  levelDefData.basicLevel({
+    id: 30,
+    name: "Silver",
+    hold_exp_pts: 150,
+    reach_exp_pts: 250,
+  });
+  levelDefData.basicLevel({
+    id: 40,
+    name: "Gold",
+    hold_exp_pts: 300,
+    reach_exp_pts: 500,
+  });
+
+  levelDefData.basicLevel({
+    id: 50,
+    name: "Platinum",
+    hold_exp_pts: 600,
+    reach_exp_pts: 1000,
+  });
+  levelDefData.basicLevel({
+    id: 60,
+    name: "Diamond",
+    hold_exp_pts: 2000,
+    reach_exp_pts: 3000,
+  });
+  levelDefData.basicLevel({
+    id: 100,
+    name: "Legendary",
+    hold_exp_pts: undefined,
+    reach_exp_pts: undefined,
+  });
+};
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
@@ -32,13 +72,7 @@ describe("Route GET users-me-rank", () => {
       profileData.basicTester({ id: 2 });
       profileData.basicTester({ id: 3 });
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel();
       userLevelData.basicLevel({ id: 2, tester_id: 2 });
@@ -128,13 +162,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 20 });
       expTable.create();
@@ -179,19 +207,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
-      levelDefData.basicLevel({
-        id: 30,
-        name: "Silver",
-        hold_exp_pts: 150,
-        reach_exp_pts: 250,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 30 });
       expTable.create();
@@ -221,7 +237,6 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       id: 20,
       name: "Bronze",
     });
-    console.log(response.body);
   });
 });
 describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
@@ -230,25 +245,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
-      levelDefData.basicLevel({
-        id: 30,
-        name: "Silver",
-        hold_exp_pts: 100,
-        reach_exp_pts: 300,
-      });
-      levelDefData.basicLevel({
-        id: 40,
-        name: "Gold",
-        hold_exp_pts: 200,
-        reach_exp_pts: 400,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 10 });
       expTable.create();
@@ -286,7 +283,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("prospect");
     expect(response.body.prospect).toHaveProperty("next");
-    expect(response.body.prospect.next).toHaveProperty("points", 100);
+    expect(response.body.prospect.next).toHaveProperty("points", 200);
   });
 });
 
@@ -296,7 +293,7 @@ describe("Route GET users-me-rank - No level user", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel();
+      mockedLevelDefinitions();
       userLevelTable.create();
       expTable.create();
       levelRevTable.create();
@@ -327,7 +324,7 @@ describe("Route GET users-me-rank - No previous level", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel();
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel();
       levelRevTable.create();
@@ -362,7 +359,7 @@ describe("Route GET users-me-rank - No montly points", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel();
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel();
       levelRevTable.create();
@@ -386,5 +383,51 @@ describe("Route GET users-me-rank - No montly points", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("points", 0);
+  });
+});
+describe("Route GET users-me-rank - Legendary User", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.testerWithBooty();
+      levelDefTable.create();
+      mockedLevelDefinitions();
+      userLevelTable.create();
+      userLevelData.basicLevel({ level_id: 100 });
+      levelRevTable.create();
+      expTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
+  it("As a legendary user the response's prospect has no next and has no maintenance", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).not.toHaveProperty("next");
+    expect(response.body.prospect).not.toHaveProperty("maintenance");
+  });
+  it("As a legendary user the response's prospect has level Legendary with id 100", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level");
+    expect(response.body.prospect.level).toMatchObject({
+      id: 100,
+      name: "Legendary",
+    });
   });
 });
