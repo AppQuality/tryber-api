@@ -22,7 +22,6 @@ export default class ProspectData {
 
     this.ready = new Promise(async (resolve, reject) => {
       this.definitions = await getLevelDefinitions();
-      console.log(this.definitions);
       const currentLevel = this.definitions.find(
         (level) => level.id === currentLevelId
       );
@@ -43,25 +42,27 @@ export default class ProspectData {
       if (this.isToDowngrade()) {
         try {
           this.prospectLevel = this.getDowngradeLevel();
+          return resolve(true);
         } catch (err) {
           return reject(err);
         }
-      } else {
-        try {
-          this.prospectLevel = this.getUpgradeOrMaintenanceLevel();
-        } catch (err) {
-          return reject(err);
-        }
-        if (this.prospectLevel.level.id >= currentLevel.id) {
-          this.nextLevel = this.definitions.find(
-            (definition) => definition.id > this.prospectLevel.level.id
-          );
-          if (this.nextLevel) {
-            this.prospectLevel.next = {
-              level: { id: this.nextLevel.id, name: this.nextLevel.name },
-              points: this.nextLevel.reach_exp_pts - this.monthlyExp,
-            };
-          }
+      }
+
+      try {
+        this.prospectLevel = this.getUpgradeOrMaintenanceLevel();
+      } catch (err) {
+        return reject(err);
+      }
+
+      if (this.prospectLevelIsCurrentOrHigher()) {
+        this.nextLevel = this.definitions.find(
+          (definition) => definition.id > this.prospectLevel.level.id
+        );
+        if (this.nextLevel) {
+          this.prospectLevel.next = {
+            level: { id: this.nextLevel.id, name: this.nextLevel.name },
+            points: this.nextLevel.reach_exp_pts - this.monthlyExp,
+          };
         }
       }
       resolve(true);
@@ -76,6 +77,9 @@ export default class ProspectData {
     return this.currentLevel;
   };
 
+  prospectLevelIsCurrentOrHigher() {
+    return this.prospectLevel.level.id >= this.currentLevel.id;
+  }
   isToDowngrade = () => {
     return this.monthlyExp < this.currentLevel.hold_exp_pts;
   };
