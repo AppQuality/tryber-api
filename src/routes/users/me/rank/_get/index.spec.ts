@@ -24,6 +24,40 @@ import request from "supertest";
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 
+const mockedLevelDefinitions = () => {
+  levelDefData.basicLevel();
+  levelDefData.basicLevel({
+    id: 20,
+    name: "Bronze",
+    hold_exp_pts: 50,
+    reach_exp_pts: 100,
+  });
+  levelDefData.basicLevel({
+    id: 30,
+    name: "Silver",
+    hold_exp_pts: 150,
+    reach_exp_pts: 250,
+  });
+  levelDefData.basicLevel({
+    id: 40,
+    name: "Gold",
+    hold_exp_pts: 300,
+    reach_exp_pts: 500,
+  });
+
+  levelDefData.basicLevel({
+    id: 50,
+    name: "Platinum",
+    hold_exp_pts: 600,
+    reach_exp_pts: 1000,
+  });
+  levelDefData.basicLevel({
+    id: 60,
+    name: "Legendary",
+    hold_exp_pts: undefined,
+    reach_exp_pts: undefined,
+  });
+};
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
@@ -32,13 +66,7 @@ describe("Route GET users-me-rank", () => {
       profileData.basicTester({ id: 2 });
       profileData.basicTester({ id: 3 });
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel();
       userLevelData.basicLevel({ id: 2, tester_id: 2 });
@@ -128,13 +156,8 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
+
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 20 });
       expTable.create();
@@ -179,19 +202,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
-      levelDefData.basicLevel({
-        id: 30,
-        name: "Silver",
-        hold_exp_pts: 150,
-        reach_exp_pts: 250,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 30 });
       expTable.create();
@@ -221,7 +232,6 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       id: 20,
       name: "Bronze",
     });
-    console.log(response.body);
   });
 });
 describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
@@ -230,25 +240,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-      levelDefData.basicLevel();
-      levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        hold_exp_pts: 50,
-        reach_exp_pts: 100,
-      });
-      levelDefData.basicLevel({
-        id: 30,
-        name: "Silver",
-        hold_exp_pts: 100,
-        reach_exp_pts: 300,
-      });
-      levelDefData.basicLevel({
-        id: 40,
-        name: "Gold",
-        hold_exp_pts: 200,
-        reach_exp_pts: 400,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 10 });
       expTable.create();
@@ -296,7 +288,7 @@ describe("Route GET users-me-rank - No level user", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel();
+      mockedLevelDefinitions();
       userLevelTable.create();
       expTable.create();
       levelRevTable.create();
@@ -327,7 +319,7 @@ describe("Route GET users-me-rank - No previous level", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel();
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel();
       levelRevTable.create();
@@ -362,7 +354,7 @@ describe("Route GET users-me-rank - No montly points", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel();
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel();
       levelRevTable.create();
@@ -394,12 +386,7 @@ describe("Route GET users-me-rank - Legendary User", () => {
       profileTable.create();
       profileData.testerWithBooty();
       levelDefTable.create();
-      levelDefData.basicLevel({
-        id: 100,
-        name: "Legendary",
-        reach_exp_pts: undefined,
-        hold_exp_pts: undefined,
-      });
+      mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 100 });
       levelRevTable.create();
