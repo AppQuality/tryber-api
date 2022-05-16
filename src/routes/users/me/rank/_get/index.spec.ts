@@ -388,3 +388,54 @@ describe("Route GET users-me-rank - No montly points", () => {
     expect(response.body).toHaveProperty("points", 0);
   });
 });
+describe("Route GET users-me-rank - Legendary User", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.testerWithBooty();
+      levelDefTable.create();
+      levelDefData.basicLevel({
+        id: 100,
+        name: "Legendary",
+        reach_exp_pts: undefined,
+        hold_exp_pts: undefined,
+      });
+      userLevelTable.create();
+      userLevelData.basicLevel({ level_id: 100 });
+      levelRevTable.create();
+      expTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
+  it("As a legendary user the response's prospect has no next and has no maintenance", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).not.toHaveProperty("next");
+    expect(response.body.prospect).not.toHaveProperty("maintenance");
+  });
+  it("As a legendary user the response's prospect has level Legendary with id 100", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level");
+    expect(response.body.prospect.level).toMatchObject({
+      id: 100,
+      name: "Legendary",
+    });
+  });
+});
