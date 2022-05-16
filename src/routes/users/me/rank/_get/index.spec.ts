@@ -156,7 +156,6 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
       profileTable.create();
       profileData.basicTester();
       levelDefTable.create();
-
       mockedLevelDefinitions();
       userLevelTable.create();
       userLevelData.basicLevel({ level_id: 20 });
@@ -278,7 +277,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("prospect");
     expect(response.body.prospect).toHaveProperty("next");
-    expect(response.body.prospect.next).toHaveProperty("points", 100);
+    expect(response.body.prospect.next).toHaveProperty("points", 200);
   });
 });
 
