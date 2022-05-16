@@ -1,61 +1,49 @@
+import {
+  data as popupData,
+  table as popupTable,
+} from "@src/__mocks__/mockedDb/popups";
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
-const popup1 = {
-  id: 1,
-  content: "eyJST09ertgetrerbsfgUIjp",
-  //is_once: 1,
-  targets: "italian",
-  title: "This is the Popup title",
-};
-const popup2 = {
-  id: 2,
-  content: "eyJSdfnbgertbgreT09UIjp",
-  //is_once: 1,
-  targets: "list",
-  title: "This is another Popup title",
-};
-const popup3 = {
-  id: 3,
-  content: "eyJSdfnbgertbgreT09UIjp",
-  //is_once: 1,
-  targets: "list",
-  title: "Stap Popup title please",
-};
-const popupAuto1 = {
-  id: 4,
-  content: "eyJSdfnbgertbgreT09UIjp",
-  //is_once: 1,
-  targets: "list",
-  title: "This is an automatic Popup",
-  is_auto: 1,
-};
 
 describe("Route GET popups", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_popups", [
-        "id INTEGER PRIMARY KEY",
-        "content MEDIUMTEXT",
-        "is_once INTEGER",
-        "targets VARCHAR(32)",
-        "extras MEDIUMTEXT",
-        "title VARCHAR(128)",
-        "is_auto BOOLEAN NOT NULL DEFAULT FALSE",
-      ]);
-      await sqlite3.insert("wp_appq_popups", popup1);
-      await sqlite3.insert("wp_appq_popups", popup2);
-      await sqlite3.insert("wp_appq_popups", popup3);
-      await sqlite3.insert("wp_appq_popups", popupAuto1);
+      await popupTable.create();
+      await popupData.insert({
+        id: 1,
+        content: "eyJST09ertgetrerbsfgUIjp",
+        targets: "italian",
+        title: "This is the Popup title",
+      });
+      await popupData.insert({
+        id: 2,
+        content: "eyJSdfnbgertbgreT09UIjp",
+        targets: "list",
+        title: "This is another Popup title",
+      });
+      await popupData.insert({
+        id: 3,
+        content: "eyJSdfnbgertbgreT09UIjp",
+        targets: "list",
+        title: "Stap Popup title please",
+      });
+      await popupData.insert({
+        id: 4,
+        content: "eyJSdfnbgertbgreT09UIjp",
+        targets: "list",
+        title: "This is an automatic Popup",
+        is_auto: 1,
+      });
+
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_popups");
+      await popupTable.drop();
       resolve(null);
     });
   });
