@@ -6,6 +6,7 @@ export default class ProspectData {
   private definitions: LevelDefinition[];
   private currentLevel: LevelDefinition;
   private monthlyExp: number;
+  private LEGENDARY_LEVEL = 100;
 
   private prospectLevel: {
     level: { id: number; name: string };
@@ -21,6 +22,7 @@ export default class ProspectData {
 
     this.ready = new Promise(async (resolve, reject) => {
       this.definitions = await getLevelDefinitions();
+      console.log(this.definitions);
       const currentLevel = this.definitions.find(
         (level) => level.id === currentLevelId
       );
@@ -28,6 +30,16 @@ export default class ProspectData {
         return reject("Could not find current level");
       }
       this.currentLevel = currentLevel;
+      if (this.isLegendary()) {
+        this.prospectLevel = {
+          level: {
+            id: currentLevel.id,
+            name: currentLevel.name,
+          },
+        };
+        return resolve(true);
+      }
+
       if (this.isToDowngrade()) {
         try {
           this.prospectLevel = this.getDowngradeLevel();
@@ -66,6 +78,11 @@ export default class ProspectData {
 
   isToDowngrade = () => {
     return this.monthlyExp < this.currentLevel.hold_exp_pts;
+  };
+
+  isLegendary = () => {
+    console.log(this.currentLevel);
+    return this.currentLevel.id === this.LEGENDARY_LEVEL;
   };
 
   getDowngradeLevel = () => {

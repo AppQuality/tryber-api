@@ -53,6 +53,12 @@ const mockedLevelDefinitions = () => {
   });
   levelDefData.basicLevel({
     id: 60,
+    name: "Diamond",
+    hold_exp_pts: 2000,
+    reach_exp_pts: 3000,
+  });
+  levelDefData.basicLevel({
+    id: 100,
     name: "Legendary",
     hold_exp_pts: undefined,
     reach_exp_pts: undefined,
