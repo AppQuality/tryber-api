@@ -6,7 +6,9 @@ export default class ProspectData {
   private definitions: LevelDefinition[];
   private currentLevel: LevelDefinition;
   private monthlyExp: number;
+  private totalExp: number;
   private LEGENDARY_LEVEL = 100;
+  private LEGENDARY_EXP_POINTS = 100000;
 
   private prospectLevel: {
     level: { id: number; name: string };
@@ -14,9 +16,10 @@ export default class ProspectData {
   };
   private nextLevel: LevelDefinition | undefined;
 
-  constructor(currentLevelId: number, monthlyExp: number) {
+  constructor(currentLevelId: number, monthlyExp: number, totalExp: number) {
     this.definitions = [];
     this.monthlyExp = monthlyExp;
+    this.totalExp = totalExp;
     this.currentLevel = { ...noLevel, reach_exp_pts: 0, hold_exp_pts: 0 };
     this.prospectLevel = { level: noLevel };
 
@@ -31,14 +34,17 @@ export default class ProspectData {
       this.currentLevel = currentLevel;
       if (this.isLegendary()) {
         this.prospectLevel = {
-          level: {
-            id: currentLevel.id,
-            name: currentLevel.name,
-          },
+          level: this.legendaryLevel(),
         };
         return resolve(true);
       }
 
+      if (this.willUpgradeToLegendary()) {
+        this.prospectLevel = {
+          level: this.legendaryLevel(),
+        };
+        return resolve(true);
+      }
       if (this.isToDowngrade()) {
         try {
           this.prospectLevel = this.getDowngradeLevel();
@@ -85,8 +91,22 @@ export default class ProspectData {
   };
 
   isLegendary = () => {
-    console.log(this.currentLevel);
     return this.currentLevel.id === this.LEGENDARY_LEVEL;
+  };
+
+  willUpgradeToLegendary = () => {
+    return this.totalExp >= this.LEGENDARY_EXP_POINTS;
+  };
+
+  legendaryLevel = () => {
+    const legendaryLevelData = this.definitions.find(
+      (level) => level.id === this.LEGENDARY_LEVEL
+    );
+    if (!legendaryLevelData) return noLevel;
+    return {
+      id: legendaryLevelData.id,
+      name: legendaryLevelData.name,
+    };
   };
 
   getDowngradeLevel = () => {

@@ -431,3 +431,43 @@ describe("Route GET users-me-rank - Legendary User", () => {
     });
   });
 });
+describe("Route GET users-me-rank - Legendary Prospect User", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.create();
+      profileData.basicTester({
+        total_exp_pts: 9999999,
+      });
+      levelDefTable.create();
+      mockedLevelDefinitions();
+      userLevelTable.create();
+      userLevelData.basicLevel({ level_id: 30 });
+      levelRevTable.create();
+      expTable.create();
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileTable.drop();
+      levelDefTable.drop();
+      userLevelTable.drop();
+      expTable.drop();
+      levelRevTable.drop();
+      resolve(null);
+    });
+  });
+  it("As a non-legendary user with 100000+ exp points i should have legendary as prospect level", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level", {
+      id: 100,
+      name: "Legendary",
+    });
+    expect(response.body.prospect).not.toHaveProperty("next");
+    expect(response.body.prospect).not.toHaveProperty("maintenance");
+  });
+});
