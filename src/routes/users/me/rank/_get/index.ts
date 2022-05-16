@@ -2,9 +2,9 @@ import debugMessage from "@src/features/debugMessage";
 import Leaderboard from "@src/features/leaderboard";
 import { Context } from "openapi-backend";
 
-import getMonthlyPoints from "./getMonthlyPoints";
 import getPreviousLevel from "./getPreviousLevel";
 import getUserLevel from "./getUserLevel";
+import getUserTotalExperience from "./getUserTotalExperience";
 import noLevel from "./noLevel";
 import ProspectData from "./ProspectData";
 
@@ -18,14 +18,15 @@ export default async (
   | StoplightOperations["get-users-me-rank"]["responses"]["200"]["content"]["application/json"]
   | { message: string }
 > => {
-  let userLevel, leaderboard, myRanking, monthlyExp, previousLevel;
+  let userLevel, leaderboard, myRanking, monthlyExp, previousLevel, totalExp;
 
   try {
     userLevel = await getUserLevel(req.user?.testerId);
     leaderboard = new Leaderboard(userLevel.id);
     await leaderboard.getLeaderboard();
     myRanking = leaderboard.getRankByTester(req.user?.testerId);
-    monthlyExp = await getMonthlyPoints(req.user?.testerId);
+    monthlyExp = myRanking?.monthly_exp || 0;
+    totalExp = await getUserTotalExperience(req.user?.testerId);
     previousLevel = await getPreviousLevel(req.user?.testerId);
   } catch (err) {
     res.status_code = (err as OpenapiError).status_code || 500;
@@ -37,7 +38,7 @@ export default async (
 
   let prospect;
   try {
-    const prospectData = new ProspectData(userLevel.id, monthlyExp);
+    const prospectData = new ProspectData(userLevel.id, monthlyExp, totalExp);
     await prospectData.ready;
     prospect = prospectData.getProspectLevel();
   } catch {
