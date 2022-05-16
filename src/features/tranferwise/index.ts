@@ -200,8 +200,9 @@ class Transferwise {
     transferId: string;
   }): Promise<any> {
     let twoFactorAuthHeader;
+    let response;
     try {
-      await this.request(
+      response = await this.request(
         "POST",
         `/v3/profiles/${profileId}/transfers/${transferId}/payments`,
         { type: "BALANCE" }
@@ -216,7 +217,7 @@ class Transferwise {
       }
       twoFactorAuthHeader = res.response.headers["x-2fa-approval"];
     }
-    if (!twoFactorAuthHeader) throw new Error("No 2FA header");
+    if (!twoFactorAuthHeader) return response;
     const twoFactorAuthCode = await signRequest(twoFactorAuthHeader);
 
     try {
