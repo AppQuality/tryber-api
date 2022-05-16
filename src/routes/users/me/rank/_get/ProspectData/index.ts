@@ -88,6 +88,7 @@ export default class ProspectData {
     const currentLevelDefinition = currentLevel || this.currentLevel;
     let prospectLevel = this.definitions.find(
       (level) =>
+        level.reach_exp_pts !== null &&
         this.monthlyExp >= level.reach_exp_pts &&
         level.id > currentLevelDefinition.id
     );
