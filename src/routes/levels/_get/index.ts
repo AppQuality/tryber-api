@@ -20,6 +20,14 @@ export default async (
     }
 
     res.status_code = 200;
+    levels = levels.map((level) => {
+      return {
+        id: level.id,
+        name: level.name,
+        reach: level.reach ?? undefined,
+        hold: level.hold ?? undefined,
+      };
+    });
     return levels;
   } catch (err) {
     debugMessage(err);
