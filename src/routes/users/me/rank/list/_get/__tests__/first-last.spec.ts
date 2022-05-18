@@ -1,7 +1,6 @@
-import { table as expTable } from "@src/__mocks__/mockedDb/experience";
-import { table as levelTable } from "@src/__mocks__/mockedDb/levels";
-import { table as profileTable } from "@src/__mocks__/mockedDb/profile";
-
+import { data as expData } from "@src/__mocks__/mockedDb/experience";
+import { data as levelData } from "@src/__mocks__/mockedDb/levels";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import createTesterData from "./createTesterData";
 import shouldShowFirstNineTesters from "./shouldShowFirstNineTesters";
 
@@ -26,9 +25,6 @@ jest.mock("avatar-initials", () => {
 describe("GET /users/me/rank/list - Is first", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 1,
       name: "Pippo",
@@ -104,9 +100,9 @@ describe("GET /users/me/rank/list - Is first", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await profileData.drop();
+    await expData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -118,9 +114,6 @@ describe("GET /users/me/rank/list - Is first", () => {
 describe("GET /users/me/rank/list - Is second", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 2,
       name: "Pippo",
@@ -196,9 +189,9 @@ describe("GET /users/me/rank/list - Is second", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await expData.drop();
+    await profileData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -210,9 +203,6 @@ describe("GET /users/me/rank/list - Is second", () => {
 describe("GET /users/me/rank/list - Is third", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 3,
       name: "Pippo",
@@ -288,9 +278,9 @@ describe("GET /users/me/rank/list - Is third", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await expData.drop();
+    await profileData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -302,9 +292,6 @@ describe("GET /users/me/rank/list - Is third", () => {
 describe("GET /users/me/rank/list - Is fourth", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 4,
       name: "Pippo",
@@ -380,9 +367,9 @@ describe("GET /users/me/rank/list - Is fourth", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await expData.drop();
+    await profileData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -394,9 +381,6 @@ describe("GET /users/me/rank/list - Is fourth", () => {
 describe("GET /users/me/rank/list - Is last", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 9,
       name: "Pippo",
@@ -472,9 +456,9 @@ describe("GET /users/me/rank/list - Is last", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await profileData.drop();
+    await expData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -486,9 +470,6 @@ describe("GET /users/me/rank/list - Is last", () => {
 describe("GET /users/me/rank/list - Is second from last", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 8,
       name: "Pippo",
@@ -564,9 +545,9 @@ describe("GET /users/me/rank/list - Is second from last", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await expData.drop();
+    await profileData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -578,9 +559,6 @@ describe("GET /users/me/rank/list - Is second from last", () => {
 describe("GET /users/me/rank/list - Is third from last", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 7,
       name: "Pippo",
@@ -656,9 +634,9 @@ describe("GET /users/me/rank/list - Is third from last", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await expData.drop();
+    await profileData.drop();
+    await levelData.drop();
     return null;
   });
   it(
@@ -670,9 +648,6 @@ describe("GET /users/me/rank/list - Is third from last", () => {
 describe("GET /users/me/rank/list - Is fourth from last", () => {
   const data: any = {};
   beforeAll(async () => {
-    await profileTable.create();
-    await levelTable.create();
-    await expTable.create();
     data.tester1 = await createTesterData({
       testerId: 6,
       name: "Pippo",
@@ -748,9 +723,9 @@ describe("GET /users/me/rank/list - Is fourth from last", () => {
     return null;
   });
   afterAll(async () => {
-    await profileTable.drop();
-    await expTable.drop();
-    await levelTable.drop();
+    await expData.drop();
+    await profileData.drop();
+    await levelData.drop();
     return null;
   });
   it(

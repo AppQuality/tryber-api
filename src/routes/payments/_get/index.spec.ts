@@ -1,5 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -96,31 +98,6 @@ const paymentRequestOldUserWithError = {
 describe("Route GET payments", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-      ]);
-
-      await sqlite3.createTable("wp_appq_payment_request", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "amount INTEGER",
-        "iban VARCHAR(255)",
-        "paypal_email VARCHAR(255)",
-        "request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ",
-        "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "error_message text",
-        "is_paid BOOL",
-      ]);
-
-      await sqlite3.run(`
-      CREATE TRIGGER "on_update__update_date"
-        BEFORE UPDATE ON "wp_appq_payment_request" FOR EACH ROW 
-        BEGIN
-        UPDATE wp_appq_payment_request set update_date = CURRENT_TIMESTAMP where id = NEW.id;
-        END`);
-
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_appq_evd_profile", tester2);
       await sqlite3.insert("wp_appq_evd_profile", tester3);
@@ -148,8 +125,8 @@ describe("Route GET payments", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_appq_payment_request");
+      await profileData.drop();
+      await paymentRequestData.drop();
       resolve(null);
     });
   });

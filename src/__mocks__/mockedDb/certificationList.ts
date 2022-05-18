@@ -1,11 +1,13 @@
 import sqlite3 from "@src/features/sqlite";
 
-const tableName = "wp_users";
+const tableName = "wp_appq_certifications_list";
 export const table = {
   create: async () => {
     await sqlite3.createTable(tableName, [
-      "ID INTEGER PRIMARY KEY",
-      "user_login VARCHAR(255)",
+      "id INTEGER PRIMARY KEY",
+      "name VARCHAR(255)",
+      "area VARCHAR(255)",
+      "institute VARCHAR(255)",
     ]);
   },
   drop: async () => {
@@ -13,24 +15,17 @@ export const table = {
   },
 };
 
-type WpUsersParams = {
+type UsersDeletionReasonParams = {
   ID?: number;
 };
 const data: {
-  [key: string]: (params?: WpUsersParams) => Promise<{ [key: string]: any }>;
+  [key: string]: (
+    params?: UsersDeletionReasonParams
+  ) => Promise<{ [key: string]: any }>;
 } = {
   drop: async () => {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
-};
-
-data.basicUser = async (params?: WpUsersParams) => {
-  const item = {
-    ID: 1,
-    ...params,
-  };
-  await sqlite3.insert(tableName, item);
-  return item;
 };
 
 export { data };

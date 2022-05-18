@@ -4,7 +4,7 @@ export const table = {
   create: async () => {
     await sqlite3.createTable("wp_crowd_appq_has_candidate", [
       "user_id INTEGER(11) NOT NULL PRIMARY KEY",
-      "campaign_id INTEGER(11) NOT NULL",
+      "campaign_id INTEGER(11)",
       "subscription_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP",
       "accepted INTEGER(1)",
       "devices VARCHAR(600) NOT NULL DEFAULT 0",
@@ -21,7 +21,11 @@ export const table = {
 
 const data: {
   [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run("DELETE FROM wp_crowd_appq_has_candidate");
+  },
+};
 
 data.candidate1 = async () => {
   const item = {

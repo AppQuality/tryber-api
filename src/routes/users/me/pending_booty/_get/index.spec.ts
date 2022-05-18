@@ -1,6 +1,7 @@
-import { table as attributionTable } from "@src/__mocks__/mockedDb/attributions";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
+import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -71,11 +72,6 @@ const attributionRequested = {
 describe("GET /users/me/pending_booty", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await attributionTable.create();
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(256)",
-      ]);
       sqlite3.insert("wp_appq_evd_campaign", campaign1);
       sqlite3.insert("wp_appq_evd_campaign", campaign2);
       sqlite3.insert("wp_appq_payment", attribution1);
@@ -88,8 +84,8 @@ describe("GET /users/me/pending_booty", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-      await attributionTable.drop();
+      await attributionData.drop();
+      await campaignData.drop();
 
       resolve(null);
     });
@@ -369,32 +365,6 @@ describe("GET /users/me/pending_booty", () => {
 });
 
 describe("Route GET payment-pending-booty when no data", () => {
-  beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_payment", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "campaign_id INTEGER",
-        "amount DECIMAL(11,2) NOT NULL DEFAULT 0",
-        "creation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "is_paid BOOL",
-        "is_requested BOOL",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(256)",
-      ]);
-      resolve(null);
-    });
-  });
-  afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_payment");
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-
-      resolve(null);
-    });
-  });
   it("Should return 404", async () => {
     const response = await request(app)
       .get("/users/me/pending_booty")

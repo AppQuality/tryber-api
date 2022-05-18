@@ -33,7 +33,11 @@ const data: {
   [key: string]: (
     params?: AttributionParams
   ) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run("DELETE FROM wp_appq_payment");
+  },
+};
 
 data.validAttribution = async (params?: AttributionParams) => {
   const item = {

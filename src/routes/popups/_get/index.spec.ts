@@ -1,8 +1,8 @@
+import app from "@src/app";
 import {
   data as popupData,
   table as popupTable,
 } from "@src/__mocks__/mockedDb/popups";
-import app from "@src/app";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -33,7 +33,7 @@ describe("Route GET popups", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await popupTable.drop();
+      await popupData.drop();
       resolve(null);
     });
   });

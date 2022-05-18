@@ -1,8 +1,5 @@
-import {
-  data as levelDefData,
-  table as levelDefTable,
-} from "@src/__mocks__/mockedDb/levelsDefinition";
 import app from "@src/app";
+import { data as levelDefData } from "@src/__mocks__/mockedDb/levelsDefinition";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -11,7 +8,6 @@ jest.mock("@appquality/wp-auth");
 describe("GET /levels", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await levelDefTable.create();
       await levelDefData.basicLevel();
       await levelDefData.basicLevel({
         id: 20,
@@ -54,7 +50,7 @@ describe("GET /levels", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await levelDefTable.drop();
+      await levelDefData.drop();
       resolve(null);
     });
   });

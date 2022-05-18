@@ -9,9 +9,8 @@ module.exports = {
     jsonwebtoken: "<rootDir>/src/__mocks__/jsonwebtoken",
     "@appquality/wp-auth": "<rootDir>/src/__mocks__/@appquality-wp-auth",
   }),
-  testMatch: [
-    "**/?(*.)+(spec|test).[jt]s?(x)"
-  ],
+  testMatch: ["**/?(*.)+(spec|test).[jt]s?(x)"],
+  setupFilesAfterEnv: ["<rootDir>/src/__mocks__/globalSetup.ts"],
   preset: "ts-jest",
   testEnvironment: "node",
   testTimeout: 15000,

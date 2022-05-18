@@ -1,3 +1,4 @@
+import app from "@src/app";
 import {
   data as attributionsData,
   table as attributionsTable,
@@ -14,7 +15,6 @@ import {
   data as wpUsersData,
   table as wpUsersTable,
 } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -24,13 +24,10 @@ describe("GET /users/me - booty data", () => {
   const data: any = {};
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await profileTable.create();
-      await wpUsersTable.create();
       data.tester = await profileData.testerWithoutBooty();
       await wpUsersData.basicUser({
         ID: data.tester.wp_user_id,
       });
-      await attributionsTable.create();
       data.attributionTotal = 0;
       data.attributionTotal += (
         await attributionsData.validAttribution({
@@ -72,9 +69,9 @@ describe("GET /users/me - booty data", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileTable.drop();
-      await attributionsTable.drop();
-      await wpUsersTable.drop();
+      await profileData.drop();
+      await attributionsData.drop();
+      await wpUsersData.drop();
       resolve(null);
     });
   });

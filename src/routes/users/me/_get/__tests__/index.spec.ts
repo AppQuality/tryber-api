@@ -1,9 +1,19 @@
-import {
-  data as wpOptionsData,
-  table as wpOptionsTable,
-} from "@src/__mocks__/mockedDb/wp_options";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import { data as certificationListData } from "@src/__mocks__/mockedDb/certificationList";
+import { data as candidateData } from "@src/__mocks__/mockedDb/cp_has_candidates";
+import { data as cufData } from "@src/__mocks__/mockedDb/customUserFields";
+import { data as cufDataData } from "@src/__mocks__/mockedDb/customUserFieldsData";
+import { data as cufExtraData } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import { data as educationListData } from "@src/__mocks__/mockedDb/educationList";
+import { data as employmentListData } from "@src/__mocks__/mockedDb/employmentList";
+import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
+import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
+import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -45,7 +55,6 @@ const bug1 = {
   status_id: 2,
 };
 const testerCandidacy = {
-  id: 1,
   user_id: testerFull.wp_user_id,
   accepted: 1,
   results: 2,
@@ -158,20 +167,6 @@ const cufTextDisabled = {
 describe("Route GET users-me", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-        "email VARCHAR(255)",
-        "wp_user_id INTEGER ",
-        "is_verified INTEGER DEFAULT 0",
-        "last_activity TIMESTAMP",
-      ]);
-
-      await sqlite3.createTable("wp_users", [
-        "ID INTEGER PRIMARY KEY",
-        "user_login VARCHAR(255)",
-      ]);
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_users", wpTester1);
       resolve(null);
@@ -179,8 +174,8 @@ describe("Route GET users-me", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_users");
+      await profileData.drop();
+      await wpUserData.drop();
 
       resolve(null);
     });
@@ -223,92 +218,6 @@ describe("Route GET users-me", () => {
 describe("Route GET users-me-full-fields", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-        "email VARCHAR(255)",
-        "wp_user_id INTEGER ",
-        "is_verified INTEGER DEFAULT 0",
-        "booty DECIMAL(11,2)",
-        "pending_booty DECIMAL(11,2)",
-        "total_exp_pts INTEGER",
-        "birth_date DATETIME",
-        "phone_number VARCHAR(15)",
-        "sex INTEGER",
-        "country VARCHAR(45)",
-        "city VARCHAR(45)",
-        "onboarding_complete INTEGER",
-        "employment_id INTEGER",
-        "education_id INTEGER",
-        "last_activity TIMESTAMP",
-      ]);
-
-      await sqlite3.createTable("wp_users", [
-        "ID INTEGER PRIMARY KEY",
-        "user_login VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_bug", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-        "status_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_has_candidate", [
-        "id INTEGER PRIMARY KEY",
-        "user_id INTEGER",
-        "accepted INTEGER",
-        "results INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_certifications_list", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(64)",
-        "area VARCHAR(64)",
-        "institute VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_profile_certifications", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "cert_id INTEGER",
-        "achievement_date TIMESTAMP",
-      ]);
-      await sqlite3.createTable("wp_appq_employment", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_education", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_lang", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_profile_has_lang", [
-        "id INTEGER PRIMARY KEY",
-        "profile_id INTEGER",
-        "language_id INTEGER",
-      ]);
-      //cuf
-      await sqlite3.createTable("wp_appq_custom_user_field", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(128)",
-        "type VARCHAR(11)",
-        "enabled INTEGER",
-      ]);
-      //cud
-      await sqlite3.createTable("wp_appq_custom_user_field_data", [
-        "id INTEGER PRIMARY KEY",
-        "value VARCHAR(512)",
-        "custom_user_field_id INTEGER",
-        "profile_id INTEGER",
-        "candidate",
-      ]);
-      //cue
-      await sqlite3.createTable("wp_appq_custom_user_field_extras", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(64)",
-      ]);
-      wpOptionsTable.create();
       wpOptionsData.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
@@ -360,20 +269,22 @@ describe("Route GET users-me-full-fields", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_users");
-      await sqlite3.dropTable("wp_appq_evd_bug");
-      await sqlite3.dropTable("wp_crowd_appq_has_candidate");
-      await sqlite3.dropTable("wp_appq_certifications_list");
-      await sqlite3.dropTable("wp_appq_profile_certifications");
-      await sqlite3.dropTable("wp_appq_employment");
-      await sqlite3.dropTable("wp_appq_education");
-      await sqlite3.dropTable("wp_appq_lang");
-      await sqlite3.dropTable("wp_appq_profile_has_lang");
-      await sqlite3.dropTable("wp_appq_custom_user_field");
-      await sqlite3.dropTable("wp_appq_custom_user_field_data");
-      await sqlite3.dropTable("wp_appq_custom_user_field_extras");
-      wpOptionsTable.drop();
+      await profileData.drop();
+      await wpUserData.drop();
+
+      await bugData.drop();
+      await candidateData.drop();
+      await certificationListData.drop();
+      await testerCertificationData.drop();
+      await testerCertificationData.drop();
+      await employmentListData.drop();
+      await educationListData.drop();
+      await languageListData.drop();
+      await testerLanguageData.drop();
+      await cufData.drop();
+      await cufDataData.drop();
+      await cufExtraData.drop();
+      await wpOptionsData.drop();
 
       resolve(null);
     });
