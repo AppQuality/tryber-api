@@ -7,11 +7,20 @@ export const table = {
       "name VARCHAR(255)",
       "surname VARCHAR(255)",
       "email VARCHAR(255)",
-      "pending_booty DECIMAL(11,2)",
       "wp_user_id INTEGER ",
       "is_verified INTEGER DEFAULT 0",
-      "last_activity TIMESTAMP",
+      "booty DECIMAL(11,2)",
+      "pending_booty DECIMAL(11,2)",
       "total_exp_pts INTEGER DEFAULT 0",
+      "birth_date DATETIME",
+      "phone_number VARCHAR(15)",
+      "sex INTEGER",
+      "country VARCHAR(45)",
+      "city VARCHAR(45)",
+      "onboarding_complete INTEGER",
+      "employment_id INTEGER",
+      "education_id INTEGER",
+      "last_activity TIMESTAMP",
     ]);
   },
   drop: async () => {
@@ -24,11 +33,20 @@ type TesterParams = {
   name?: string;
   surname?: string;
   email?: string;
-  pending_booty?: number;
   wp_user_id?: number;
   is_verified?: number;
-  last_activity?: string;
+  booty?: number;
+  pending_booty?: number;
   total_exp_pts?: number;
+  birth_date?: string;
+  phone_number?: string;
+  sex?: number;
+  country?: string;
+  city?: string;
+  onboarding_complete?: number;
+  employment_id?: number;
+  education_id?: number;
+  last_activity?: string;
 };
 const data: {
   [key: string]: (params?: TesterParams) => Promise<{ [key: string]: any }>;
