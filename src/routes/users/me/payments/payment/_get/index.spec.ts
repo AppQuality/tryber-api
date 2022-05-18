@@ -1,17 +1,10 @@
-import {
-  data as attributionData,
-  table as attributionTable,
-} from "@src/__mocks__/mockedDb/attributions";
-import {
-  data as requestData,
-  table as requestTable,
-} from "@src/__mocks__/mockedDb/paymentRequest";
-import {
-  data as profileData,
-  table as profileTable,
-} from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
+import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -38,20 +31,6 @@ describe("GET /users/me/payments/{payment}", () => {
   const data: any = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await attributionTable.create();
-      await profileTable.create();
-      await requestTable.create();
-
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(255)",
-      ]);
-
-      await sqlite3.createTable("wp_appq_payment_work_types", [
-        "id INTEGER PRIMARY KEY",
-        "work_type VARCHAR(255)",
-      ]);
-
       await sqlite3.insert("wp_appq_evd_campaign", campaign1);
       await sqlite3.insert("wp_appq_evd_campaign", campaign2);
       await sqlite3.insert("wp_appq_payment_work_types", work_type1);
@@ -110,11 +89,11 @@ describe("GET /users/me/payments/{payment}", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await profileTable.drop();
-      await attributionTable.drop();
-      await requestTable.drop();
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-      await sqlite3.dropTable("wp_appq_payment_work_types");
+      await profileData.drop();
+      await attributionData.drop();
+      await requestData.drop();
+      await campaignData.drop();
+      await workTypeData.drop();
       resolve(null);
     });
   });

@@ -1,8 +1,5 @@
 import app from "@src/app";
-import {
-  data as popupData,
-  table as popupTable,
-} from "@src/__mocks__/mockedDb/popups";
+import { data as popupData } from "@src/__mocks__/mockedDb/popups";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -12,7 +9,6 @@ describe("Route GET popups", () => {
   const data: { [key: string]: any } = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await popupTable.create();
       data.popup1 = await popupData.basicPopup({
         id: 1,
         targets: "italian",

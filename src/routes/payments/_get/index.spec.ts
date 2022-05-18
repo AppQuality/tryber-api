@@ -534,24 +534,6 @@ describe("Route GET payments", () => {
 describe("Route GET payments when no data", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-      ]);
-
-      await sqlite3.createTable("wp_appq_payment_request", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "amount INTEGER",
-        "iban VARCHAR(255)",
-        "paypal_email VARCHAR(255)",
-        "request_date TIMESTAMP",
-        "update_date TIMESTAMP",
-        "error_message text",
-        "is_paid BOOL",
-      ]);
-
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_appq_evd_profile", tester2);
       resolve(null);
@@ -560,8 +542,7 @@ describe("Route GET payments when no data", () => {
 
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_appq_payment_request");
+      await profileData.drop();
       resolve(null);
     });
   });

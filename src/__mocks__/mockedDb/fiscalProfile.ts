@@ -1,8 +1,9 @@
 import sqlite3 from "@src/features/sqlite";
 
+const tableName = "wp_appq_fiscal_profile";
 export const table = {
   create: async () => {
-    await sqlite3.createTable("wp_appq_fiscal_profile", [
+    await sqlite3.createTable(tableName, [
       "id INTEGER PRIMARY KEY",
       "tester_id INTEGER ",
       "is_active INTEGER DEFAULT 0",
@@ -11,7 +12,7 @@ export const table = {
     ]);
   },
   drop: async () => {
-    await sqlite3.dropTable("wp_appq_fiscal_profile");
+    await sqlite3.dropTable(tableName);
   },
 };
 
@@ -23,7 +24,11 @@ const data: {
   [key: string]: (
     params?: FiscalProfileParams
   ) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run(`DELETE FROM ${tableName}`);
+  },
+};
 
 data.inactiveFiscalProfile = async (params?: FiscalProfileParams) => {
   const item = {

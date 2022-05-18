@@ -86,7 +86,6 @@ describe("GET /users/me/pending_booty", () => {
     return new Promise(async (resolve) => {
       await attributionData.drop();
       await campaignData.drop();
-
       resolve(null);
     });
   });

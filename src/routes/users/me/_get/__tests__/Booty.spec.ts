@@ -1,20 +1,8 @@
 import app from "@src/app";
-import {
-  data as attributionsData,
-  table as attributionsTable,
-} from "@src/__mocks__/mockedDb/attributions";
-import {
-  data as profileData,
-  table as profileTable,
-} from "@src/__mocks__/mockedDb/profile";
-import {
-  data as wpOptionsData,
-  table as wpOptionsTable,
-} from "@src/__mocks__/mockedDb/wp_options";
-import {
-  data as wpUsersData,
-  table as wpUsersTable,
-} from "@src/__mocks__/mockedDb/wp_users";
+import { data as attributionsData } from "@src/__mocks__/mockedDb/attributions";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -92,11 +80,6 @@ describe("GET /users/me - pending_booty threshold", () => {
   const data: any = {};
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await profileTable.create();
-      await wpUsersTable.create();
-      await attributionsTable.create();
-      await wpOptionsTable.create();
-
       data.tester = await profileData.testerWithoutBooty();
       await wpUsersData.basicUser({
         ID: data.tester.wp_user_id,
@@ -107,10 +90,10 @@ describe("GET /users/me - pending_booty threshold", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileTable.drop();
-      await wpUsersTable.drop();
-      await attributionsTable.drop();
-      await wpOptionsTable.drop();
+      await profileData.drop();
+      await wpUsersData.drop();
+      await attributionsData.drop();
+      await wpOptionsData.drop();
 
       resolve(null);
     });

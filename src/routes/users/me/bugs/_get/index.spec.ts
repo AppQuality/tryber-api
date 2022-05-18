@@ -134,23 +134,6 @@ describe("GET /users/me/bugs", () => {
 });
 
 describe("GET /users/me/bugs - user without bugs", () => {
-  beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      resolve(null);
-    });
-  });
-  afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await profileData.drop();
-      await campaignData.drop();
-      await severityData.drop();
-      await bugStatusData.drop();
-      await bugData.drop();
-
-      resolve(null);
-    });
-  });
-
   it("Should answer 404 if the tryber hasn't bug", async () => {
     const response = await request(app)
       .get("/users/me/bugs")
