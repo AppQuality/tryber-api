@@ -31,6 +31,7 @@ export const table = {
       "state VARCHAR(255)",
       "country_code VARCHAR(255)",
       "onboarding_complete BOOL",
+      "deletion_date TIMESTAMP",
     ]);
   },
   drop: async () => {

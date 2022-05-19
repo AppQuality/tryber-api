@@ -35,7 +35,8 @@ export default async (
     employment_id = 0,
     education_id = 0,
     state = NULL,
-    country_code = NULL
+    country_code = NULL,
+    deletion_date = CURRENT_TIMESTAMP
     WHERE id = ?`;
     await db.query(db.format(updateProfile, [req.user.testerId]));
 

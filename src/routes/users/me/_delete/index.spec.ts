@@ -81,4 +81,20 @@ describe("Route DELETE users/me", () => {
     );
     expect(userData.birth_date).toBe(null);
   });
+  it("Should update deletion date", async () => {
+    const userData = await sqlite3.get(
+      `SELECT * FROM wp_appq_evd_profile WHERE id = 1 `
+    );
+    const response = await request(app)
+      .delete("/users/me")
+      .send({ reason: "REASON" })
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const deletedUser = await sqlite3.get(
+      `SELECT * FROM wp_appq_evd_profile WHERE id = 1 `
+    );
+    const expectDate = new Date().toISOString().substring(0, 10);
+    expect(userData.deletion_date).not.toEqual(deletedUser.deletion_date);
+    expect(deletedUser.deletion_date.substring(0, 10)).toEqual(expectDate);
+  });
 });
