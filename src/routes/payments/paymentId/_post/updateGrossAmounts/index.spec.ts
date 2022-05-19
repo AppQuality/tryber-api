@@ -1,5 +1,5 @@
 import sqlite3 from "@src/features/sqlite";
-
+import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import updateGrossAmounts from ".";
 
 jest.mock("@src/features/db");
@@ -23,15 +23,6 @@ const paymentNoStampRequired = {
 describe("Update gross amount", () => {
   beforeEach(() => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_payment_request", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "amount DECIMAL(11,2)",
-        "amount_gross DECIMAL(11,2)",
-        "amount_withholding DECIMAL(11,2)",
-        "withholding_tax_percentage INTEGER",
-        "stamp_required BOOL",
-      ]);
       await sqlite3.insert("wp_appq_payment_request", payment);
       await sqlite3.insert("wp_appq_payment_request", paymentNoStampRequired);
       resolve(null);
@@ -39,7 +30,7 @@ describe("Update gross amount", () => {
   });
   afterEach(() => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_payment_request");
+      await paymentRequestData.drop();
       resolve(null);
     });
   });

@@ -8,10 +8,29 @@ export const table = {
       "surname VARCHAR(255)",
       "email VARCHAR(255)",
       "pending_booty DECIMAL(11,2)",
+      "booty FLOAT(2)",
       "wp_user_id INTEGER ",
       "is_verified INTEGER DEFAULT 0",
       "last_activity TIMESTAMP",
       "total_exp_pts INTEGER DEFAULT 0",
+      "payment_status BOOL",
+      "birth_date DATETIME",
+      "sex INTEGER",
+      "phone_number VARCHAR(255)",
+      "city VARCHAR(255)",
+      "address VARCHAR(255)",
+      "postal_code VARCHAR(255)",
+      "province VARCHAR(255)",
+      "country VARCHAR(255)",
+      "address_number VARCHAR(255)",
+      "u2b_login_token VARCHAR(255)",
+      "fb_login_token VARCHAR(255)",
+      "ln_login_token VARCHAR(255)",
+      "employment_id INTEGER",
+      "education_id INTEGER",
+      "state VARCHAR(255)",
+      "country_code VARCHAR(255)",
+      "onboarding_complete BOOL",
     ]);
   },
   drop: async () => {
@@ -32,7 +51,11 @@ type TesterParams = {
 };
 const data: {
   [key: string]: (params?: TesterParams) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run("DELETE FROM wp_appq_evd_profile");
+  },
+};
 
 data.basicTester = async (params) => {
   const item = {

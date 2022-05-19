@@ -1,24 +1,9 @@
-import {
-  data as expData,
-  table as expTable,
-} from "@src/__mocks__/mockedDb/experience";
-import {
-  data as userLevelData,
-  table as userLevelTable,
-} from "@src/__mocks__/mockedDb/levels";
-import {
-  data as levelDefData,
-  table as levelDefTable,
-} from "@src/__mocks__/mockedDb/levelsDefinition";
-import {
-  data as levelRevData,
-  table as levelRevTable,
-} from "@src/__mocks__/mockedDb/levelsRevisions";
-import {
-  data as profileData,
-  table as profileTable,
-} from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
+import { data as expData } from "@src/__mocks__/mockedDb/experience";
+import { data as userLevelData } from "@src/__mocks__/mockedDb/levels";
+import { data as levelDefData } from "@src/__mocks__/mockedDb/levelsDefinition";
+import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -67,21 +52,16 @@ const mockedLevelDefinitions = () => {
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.testerWithBooty();
       profileData.basicTester({ id: 2 });
       profileData.basicTester({ id: 3 });
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel();
       userLevelData.basicLevel({ id: 2, tester_id: 2 });
       userLevelData.basicLevel({ id: 3, tester_id: 3 });
-      expTable.create();
       expData.basicExperience({ amount: 99 });
       expData.basicExperience({ id: 2, tester_id: 2, amount: 69 });
       expData.basicExperience({ id: 3, tester_id: 3, amount: 169 });
-      levelRevTable.create();
       levelRevData.basicLevelRev({
         level_id: 20,
         start_date: new Date(new Date().setMonth(new Date().getMonth() - 1))
@@ -94,11 +74,11 @@ describe("Route GET users-me-rank", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
+      expData.drop();
+      levelRevData.drop();
       resolve(null);
     });
   });
@@ -159,25 +139,20 @@ describe("Route GET users-me-rank", () => {
 describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.basicTester();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel({ level_id: 20 });
-      expTable.create();
       expData.basicExperience({ amount: 20 });
-      levelRevTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
+      expData.drop();
+      levelRevData.drop();
       resolve(null);
     });
   });
@@ -204,25 +179,20 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
 describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.basicTester();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel({ level_id: 30 });
-      expTable.create();
       expData.basicExperience({ amount: 50 });
-      levelRevTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
+      expData.drop();
+      levelRevData.drop();
       resolve(null);
     });
   });
@@ -242,25 +212,20 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
 describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.basicTester();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel({ level_id: 10 });
-      expTable.create();
       expData.basicExperience({ amount: 300 });
-      levelRevTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
+      expData.drop();
+      levelRevData.drop();
       resolve(null);
     });
   });
@@ -290,23 +255,15 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
 describe("Route GET users-me-rank - No level user", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.testerWithBooty();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
-      expTable.create();
-      levelRevTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
       resolve(null);
     });
   });
@@ -321,24 +278,17 @@ describe("Route GET users-me-rank - No level user", () => {
 describe("Route GET users-me-rank - No previous level", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.testerWithBooty();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel();
-      levelRevTable.create();
-      expTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
       resolve(null);
     });
   });
@@ -356,24 +306,17 @@ describe("Route GET users-me-rank - No previous level", () => {
 describe("Route GET users-me-rank - No montly points", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.testerWithBooty();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel();
-      levelRevTable.create();
-      expTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
       resolve(null);
     });
   });
@@ -388,24 +331,17 @@ describe("Route GET users-me-rank - No montly points", () => {
 describe("Route GET users-me-rank - Legendary User", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.testerWithBooty();
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel({ level_id: 100 });
-      levelRevTable.create();
-      expTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
       resolve(null);
     });
   });
@@ -434,26 +370,19 @@ describe("Route GET users-me-rank - Legendary User", () => {
 describe("Route GET users-me-rank - Legendary Prospect User", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.create();
       profileData.basicTester({
         total_exp_pts: 9999999,
       });
-      levelDefTable.create();
       mockedLevelDefinitions();
-      userLevelTable.create();
       userLevelData.basicLevel({ level_id: 30 });
-      levelRevTable.create();
-      expTable.create();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileTable.drop();
-      levelDefTable.drop();
-      userLevelTable.drop();
-      expTable.drop();
-      levelRevTable.drop();
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
       resolve(null);
     });
   });

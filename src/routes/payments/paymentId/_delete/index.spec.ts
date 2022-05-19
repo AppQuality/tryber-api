@@ -1,13 +1,7 @@
-import {
-  data as attributionsData,
-  table as attributionsTable,
-} from "@src/__mocks__/mockedDb/attributions";
-import {
-  data as paymentRequestData,
-  table as paymentRequestTable,
-} from "@src/__mocks__/mockedDb/paymentRequest";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as attributionsData } from "@src/__mocks__/mockedDb/attributions";
+import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -15,10 +9,8 @@ jest.mock("@appquality/wp-auth");
 describe("DELETE /payments/{paymentId}", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await paymentRequestTable.create();
       await paymentRequestData.processingPaypalPayment({ id: 1, amount: 2 });
       await paymentRequestData.paidPaypalPayment({ id: 2 });
-      await attributionsTable.create();
       await attributionsData.validAttribution({
         id: 1,
         request_id: 1,
@@ -34,8 +26,8 @@ describe("DELETE /payments/{paymentId}", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await paymentRequestTable.drop();
-      await attributionsTable.drop();
+      await paymentRequestData.drop();
+      await attributionsData.drop();
       resolve(null);
     });
   });

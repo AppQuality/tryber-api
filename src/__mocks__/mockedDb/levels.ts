@@ -20,7 +20,11 @@ type LevelParams = {
 };
 const data: {
   [key: string]: (params?: LevelParams) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run(`DELETE FROM wp_appq_activity_level`);
+  },
+};
 
 data.basicLevel = async (params) => {
   const item = {

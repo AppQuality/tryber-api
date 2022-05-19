@@ -4,6 +4,7 @@ export const table = {
   create: async () => {
     await sqlite3.createTable("wp_appq_evd_campaign", [
       "id INTEGER(11) PRIMARY KEY",
+      "title VARCHAR(255)",
     ]);
   },
   drop: async () => {
@@ -16,7 +17,11 @@ type CampaignParams = {
 };
 const data: {
   [key: string]: (params?: CampaignParams) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run("DELETE FROM wp_appq_evd_campaign");
+  },
+};
 
 data.basicCampaign = async (params) => {
   const item = {

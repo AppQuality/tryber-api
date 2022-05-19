@@ -28,7 +28,11 @@ type PopupParams = {
 };
 const data: {
   [key: string]: (params?: PopupParams) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run("DELETE FROM wp_appq_popups");
+  },
+};
 
 data.basicPopup = async (params) => {
   const item = {

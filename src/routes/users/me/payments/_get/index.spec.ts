@@ -1,5 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as receiptData } from "@src/__mocks__/mockedDb/receipt";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -73,22 +75,6 @@ const receiptPaypal = {
 describe("GET /users/me/payments", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_payment_request", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "amount INTEGER",
-        "iban VARCHAR(255)",
-        "paypal_email VARCHAR(255)",
-        "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "paid_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "error_message text",
-        "is_paid BOOL",
-        "receipt_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_receipt", [
-        "id INTEGER PRIMARY KEY",
-        "url VARCHAR(256)",
-      ]);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
@@ -108,7 +94,8 @@ describe("GET /users/me/payments", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_payment_request");
+      await paymentRequestData.drop();
+      await receiptData.drop();
 
       resolve(null);
     });
@@ -379,34 +366,6 @@ describe("GET /users/me/payments", () => {
 });
 
 describe("Route GET payment-requests when no data", () => {
-  beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_payment_request", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "amount INTEGER",
-        "iban VARCHAR(255)",
-        "paypal_email VARCHAR(255)",
-        "update_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "paid_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
-        "error_message text",
-        "is_paid BOOL",
-        "receipt_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_receipt", [
-        "id INTEGER PRIMARY KEY",
-        "url VARCHAR(256)",
-      ]);
-      resolve(null);
-    });
-  });
-  afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_payment_request");
-      await sqlite3.dropTable("wp_appq_receipt");
-      resolve(null);
-    });
-  });
   it("Should return 404", async () => {
     const response = await request(app)
       .get("/users/me/payments")

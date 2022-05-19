@@ -1,8 +1,9 @@
 import sqlite3 from "@src/features/sqlite";
 
+const tableName = "wp_appq_activity_level_definition";
 export const table = {
   create: async () => {
-    await sqlite3.createTable("wp_appq_activity_level_definition", [
+    await sqlite3.createTable(tableName, [
       "id INTEGER PRIMARY KEY",
       "name VARCHAR(64)",
       "reach_exp_pts INTEGER",
@@ -10,7 +11,7 @@ export const table = {
     ]);
   },
   drop: async () => {
-    await sqlite3.dropTable("wp_appq_activity_level_definition");
+    await sqlite3.dropTable(tableName);
   },
 };
 
@@ -22,7 +23,11 @@ type LevelParams = {
 };
 const data: {
   [key: string]: (params?: LevelParams) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run(`DELETE FROM ${tableName}`);
+  },
+};
 
 data.basicLevel = async (params) => {
   const item = {

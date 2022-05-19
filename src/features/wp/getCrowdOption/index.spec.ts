@@ -1,8 +1,4 @@
-import {
-  data as wpOptionsData,
-  table as wpOptionsTable,
-} from "@src/__mocks__/mockedDb/wp_options";
-
+import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
 import getCrowdOption from ".";
 
 jest.mock("@src/features/db");
@@ -10,14 +6,13 @@ jest.mock("@src/features/db");
 describe("getCrowdOption", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsTable.create();
       await wpOptionsData.crowdWpOptions();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      wpOptionsTable.drop();
+      await wpOptionsData.drop();
       resolve(null);
     });
   });
@@ -33,19 +28,6 @@ describe("getCrowdOption", () => {
 });
 
 describe("getCrowdOption - database not populated", () => {
-  beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      wpOptionsTable.create();
-      resolve(null);
-    });
-  });
-  afterAll(async () => {
-    return new Promise(async (resolve) => {
-      wpOptionsTable.drop();
-      resolve(null);
-    });
-  });
-
   it("Should throw an error", async () => {
     try {
       await getCrowdOption("minimum_payout");

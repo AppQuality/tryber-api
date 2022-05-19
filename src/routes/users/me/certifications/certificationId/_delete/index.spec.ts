@@ -1,5 +1,6 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -13,11 +14,6 @@ const cert1 = {
 describe("Route DELETE single-certification", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_profile_certifications", [
-        "id INTEGER PRIMARY KEY",
-        "cert_id INTEGER",
-        "tester_id INTEGER",
-      ]);
       await sqlite3.insert("wp_appq_profile_certifications", cert1);
 
       resolve(null);
@@ -25,7 +21,7 @@ describe("Route DELETE single-certification", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_profile_certifications");
+      await testerCertificationData.drop();
 
       resolve(null);
     });
