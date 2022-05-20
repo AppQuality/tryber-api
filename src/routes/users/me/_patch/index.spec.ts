@@ -21,10 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const testerPatchMail = {
-  email: "bob.alice@example.com",
-};
-
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
@@ -150,7 +146,7 @@ describe("Route PATCH users-me", () => {
   });
 });
 
-describe("Route PATCH users-me new mail", () => {
+describe("Route PATCH users-me accepted fields", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await attributions.validAttribution();
@@ -261,20 +257,19 @@ describe("Route PATCH users-me new mail", () => {
       resolve(null);
     });
   });
-  it("Should return 412 if email already exists", async () => {
+  it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)
       .patch(`/users/me`)
       .set("Authorization", `Bearer tester`)
       .send({ email: "bob@example.com" });
     expect(response.status).toBe(412);
   });
-  it("Should return tryber with new mail if send a new mail ", async () => {
+  it("Should return tryber with new EMAIL if send a new vaild EMAIL ", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me`)
       .set("Authorization", `Bearer tester`);
     expect(responseGet1.status).toBe(200);
     expect(responseGet1.body.email).toBe("tester@example.com");
-    expect(responseGet1.body.is_verified).toBe(true);
 
     const responsePatch = await request(app)
       .patch(`/users/me`)
@@ -286,10 +281,158 @@ describe("Route PATCH users-me new mail", () => {
       .set("Authorization", `Bearer tester`);
     expect(responseGet2.status).toBe(200);
     expect(responseGet2.body.email).toBe("pino@example.com");
-    expect(responseGet2.body.is_verified).toBe(false);
     const wpTesterEmail = await sqlite3.get(
       "SELECT user_email FROM wp_users WHERE ID=1"
     );
+    expect(responsePatch.body.email).toBe("pino@example.com");
     expect(responsePatch.body.email).toBe(wpTesterEmail.user_email);
   });
+  it("Should return IS_VERIFIED false if before it was true and send a valid new mail", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.status).toBe(200);
+    expect(responseGet1.body.is_verified).toBe(true);
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ email: "pino@example.com" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=is_verified`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responseGet2.body.is_verified).toBe(false);
+  });
+
+  it("Should return tryber with new NAME if send a new NAME", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=name`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.name).toBe("tester");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ name: "new-name" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=name`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.name).toBe("new-name");
+  });
+  it("Should return tryber with new SURNAME if send a new SURNAME", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=surname`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.surname).toBe("tester");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ surname: "new-surname" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=name`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.surname).toBe("new-surname");
+  });
+  it("Should return tryber with new BIRTHDATE if send a new BIRTHDATE", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=birthDate`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.birthDate).toBe("1996-03-21");
+
+    const newBirthDate = new Date()
+      .toISOString()
+      .split(".")[0]
+      .replace("T", " ")
+      .substring(0, 10);
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ birthDate: newBirthDate });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=birthDate`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.birthDate).toBe(newBirthDate);
+  });
+  it("Should return tryber with new PHONE number if send a new PHONE number", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=phone`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.phone).toBe("+39696969696969");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ phone: "0000-1234567890" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=phone`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.phone).toBe("0000-1234567890");
+  });
+
+  it("Should return tryber with new GENDER if send a new GENDER", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=gender`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.gender).toBe("male");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ gender: "female" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=gender`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.gender).toBe("female");
+  });
+
+  it("Should return tryber with new CITY if send a new CITY", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=city`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.city).toBe("Rome");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ city: "Ummary" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=city`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.city).toBe("Ummary");
+  });
+
+  it("Should return tryber with new COUNTRY if send a new COUNTRY", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=country`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.country).toBe("Italy");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ country: "Custonacy Freedomland" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=country`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.country).toBe("Custonacy Freedomland");
+  });
+
+  //TODO: remain (accepted fields) to tests: onboarding_completed, profession, education and password
 });
