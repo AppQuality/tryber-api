@@ -15,17 +15,32 @@ export const table = {
   },
 };
 
-type UsersDeletionReasonParams = {
-  ID?: number;
+type CertificationParams = {
+  id?: number;
+  name?: string;
+  area?: string;
+  institute?: string;
 };
 const data: {
   [key: string]: (
-    params?: UsersDeletionReasonParams
+    params?: CertificationParams
   ) => Promise<{ [key: string]: any }>;
 } = {
   drop: async () => {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
+};
+
+data.certification1 = async (params) => {
+  const item = {
+    id: 1,
+    name: "Best Tryber Ever",
+    area: "Testing 360",
+    institute: "Tryber",
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
 };
 
 export { data };
