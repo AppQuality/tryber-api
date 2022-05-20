@@ -1,6 +1,10 @@
 import * as db from "@src/features/db";
 
-export default async (wpId: string, showExpired: boolean = true) => {
+export default async (
+  wpId: string,
+  showExpired: boolean = true,
+  order: StoplightComponents["parameters"]["order"] = "ASC"
+) => {
   try {
     const { id, logged_in_year, is_italian } = await getCurrentProfile();
 
@@ -30,6 +34,7 @@ export default async (wpId: string, showExpired: boolean = true) => {
       SELECT id, title, content, is_once
       FROM wp_appq_popups pop
       ${getPopupClause(id, is_italian, logged_in_year)}
+      ORDER BY id ${order}
     `);
   }
 
