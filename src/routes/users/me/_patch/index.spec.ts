@@ -21,11 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const testerCandidacy = {
-  user_id: 1,
-  accepted: 1,
-  results: 2,
-};
 const certification1 = {
   id: 1,
   name: "Best Tryber Ever",
@@ -148,7 +143,7 @@ describe("Route PATCH users-me", () => {
         education_id: 1,
       });
       await bugs.basicBug({ status_id: 2 });
-      await sqlite3.insert("wp_crowd_appq_has_candidate", testerCandidacy);
+      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
       await sqlite3.insert("wp_appq_certifications_list", certification1);
       await sqlite3.insert(
         "wp_appq_profile_certifications",
@@ -262,7 +257,7 @@ describe("Route PATCH users-me new mail", () => {
         is_verified: 1,
       });
       await bugs.basicBug({ status_id: 2 });
-      await sqlite3.insert("wp_crowd_appq_has_candidate", testerCandidacy);
+      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
       await sqlite3.insert("wp_appq_certifications_list", certification1);
       await sqlite3.insert(
         "wp_appq_profile_certifications",
