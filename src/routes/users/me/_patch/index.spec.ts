@@ -21,13 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const cufText = {
-  //cuf
-  id: 1,
-  name: "Username Tetris",
-  type: "text",
-  enabled: 1,
-};
 const cufTextVal = {
   //cuf_data
   id: 1,
@@ -35,13 +28,6 @@ const cufTextVal = {
   custom_user_field_id: 1,
   profile_id: 1,
   candidate: 0,
-};
-const cufSelect = {
-  //cuf
-  id: 2,
-  name: "Tipologia di spezie preferita",
-  type: "select",
-  enabled: 1,
 };
 const cufSelectOption1 = {
   //cuf_exstras
@@ -52,16 +38,14 @@ const cufSelectTesterOption1 = {
   //cuf_data
   id: 2,
   value: cufSelectOption1.id,
-  custom_user_field_id: cufSelect.id,
+  custom_user_field_id: 2,
   profile_id: 1,
   candidate: 0,
 };
 const cufMultiselect = {
-  //cuf
   id: 3,
   name: "Fornitore di cardamomo preferito",
   type: "multiselect",
-  enabled: 1,
 };
 const cufMultiSelectVal1 = {
   //cuf_exstras
@@ -77,7 +61,7 @@ const cufMultiSelectTesterVal1 = {
   //cuf_data
   id: 3,
   value: cufMultiSelectVal1.id,
-  custom_user_field_id: cufMultiselect.id,
+  custom_user_field_id: 3,
   profile_id: 1,
   candidate: 0,
 };
@@ -85,7 +69,7 @@ const cufMultiSelectTesterVal2 = {
   //cuf_data
   id: 4,
   value: cufMultiSelectVal2.id,
-  custom_user_field_id: cufMultiselect.id,
+  custom_user_field_id: 3,
   profile_id: 1,
   candidate: 0,
 };
@@ -124,10 +108,17 @@ describe("Route PATCH users-me", () => {
       await languagesList.lenguage1({ display_name: "Sicilian" });
       await testerLanguages.assignLanguage();
       //insert cuf_text
-      await sqlite3.insert("wp_appq_custom_user_field", cufText);
+      await cuf.insertCuf({
+        name: "Username Tetris",
+        type: "text",
+      });
       await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
       //insert cuf_select
-      await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
+      await cuf.insertCuf({
+        id: 2,
+        name: "Tipologia di spezie preferita",
+        type: "select",
+      });
       await sqlite3.insert(
         "wp_appq_custom_user_field_extras",
         cufSelectOption1
@@ -137,7 +128,11 @@ describe("Route PATCH users-me", () => {
         cufSelectTesterOption1
       );
       //insert cuf_multiselect
-      await sqlite3.insert("wp_appq_custom_user_field", cufMultiselect);
+      await cuf.insertCuf({
+        id: 3,
+        name: "Fornitore di cardamomo preferito",
+        type: "multiselect",
+      });
       await sqlite3.insert(
         "wp_appq_custom_user_field_extras",
         cufMultiSelectVal1
@@ -237,10 +232,17 @@ describe("Route PATCH users-me new mail", () => {
       await languagesList.lenguage1({ display_name: "Sicilian" });
       await testerLanguages.assignLanguage();
       //insert cuf_text
-      await sqlite3.insert("wp_appq_custom_user_field", cufText);
+      await cuf.insertCuf({
+        name: "Username Tetris",
+        type: "text",
+      });
       await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
       //insert cuf_select
-      await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
+      await cuf.insertCuf({
+        id: 2,
+        name: "Tipologia di spezie preferita",
+        type: "select",
+      });
       await sqlite3.insert(
         "wp_appq_custom_user_field_extras",
         cufSelectOption1
@@ -250,7 +252,11 @@ describe("Route PATCH users-me new mail", () => {
         cufSelectTesterOption1
       );
       //insert cuf_multiselect
-      await sqlite3.insert("wp_appq_custom_user_field", cufMultiselect);
+      await cuf.insertCuf({
+        id: 3,
+        name: "Fornitore di cardamomo preferito",
+        type: "multiselect",
+      });
       await sqlite3.insert(
         "wp_appq_custom_user_field_extras",
         cufMultiSelectVal1

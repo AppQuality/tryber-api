@@ -29,4 +29,15 @@ const data: {
   },
 };
 
+data.insertCuf = async (params) => {
+  const item = {
+    id: 1,
+    name: "CUF name",
+    enabled: 1,
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
+};
+
 export { data };
