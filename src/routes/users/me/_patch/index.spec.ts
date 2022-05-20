@@ -21,26 +21,10 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const cufTextVal = {
-  //cuf_data
-  id: 1,
-  value: "CiccioGamer89.",
-  custom_user_field_id: 1,
-  profile_id: 1,
-  candidate: 0,
-};
 const cufSelectOption1 = {
   //cuf_exstras
   id: 1,
   name: "Habanero Scorpion",
-};
-const cufSelectTesterOption1 = {
-  //cuf_data
-  id: 2,
-  value: cufSelectOption1.id,
-  custom_user_field_id: 2,
-  profile_id: 1,
-  candidate: 0,
 };
 const cufMultiselect = {
   id: 3,
@@ -56,22 +40,6 @@ const cufMultiSelectVal2 = {
   //cuf_exstras
   id: 3,
   name: "Treviso, città del Cardamomo",
-};
-const cufMultiSelectTesterVal1 = {
-  //cuf_data
-  id: 3,
-  value: cufMultiSelectVal1.id,
-  custom_user_field_id: 3,
-  profile_id: 1,
-  candidate: 0,
-};
-const cufMultiSelectTesterVal2 = {
-  //cuf_data
-  id: 4,
-  value: cufMultiSelectVal2.id,
-  custom_user_field_id: 3,
-  profile_id: 1,
-  candidate: 0,
 };
 const testerPatchMail = {
   email: "bob.alice@example.com",
@@ -112,7 +80,10 @@ describe("Route PATCH users-me", () => {
         name: "Username Tetris",
         type: "text",
       });
-      await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+      await cufData.insertCufData({
+        value: "CiccioGamer89.",
+        candidate: 0,
+      });
       //insert cuf_select
       await cuf.insertCuf({
         id: 2,
@@ -123,10 +94,12 @@ describe("Route PATCH users-me", () => {
         "wp_appq_custom_user_field_extras",
         cufSelectOption1
       );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufSelectTesterOption1
-      );
+      await cufData.insertCufData({
+        id: 2,
+        value: "1",
+        custom_user_field_id: 2,
+        candidate: 0,
+      });
       //insert cuf_multiselect
       await cuf.insertCuf({
         id: 3,
@@ -141,14 +114,18 @@ describe("Route PATCH users-me", () => {
         "wp_appq_custom_user_field_extras",
         cufMultiSelectVal2
       );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal2
-      );
+      await cufData.insertCufData({
+        id: 3,
+        value: "2",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
+      await cufData.insertCufData({
+        id: 4,
+        value: "3",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
 
       resolve(null);
     });
@@ -236,7 +213,10 @@ describe("Route PATCH users-me new mail", () => {
         name: "Username Tetris",
         type: "text",
       });
-      await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+      await cufData.insertCufData({
+        value: "CiccioGamer89.",
+        candidate: 0,
+      });
       //insert cuf_select
       await cuf.insertCuf({
         id: 2,
@@ -247,10 +227,12 @@ describe("Route PATCH users-me new mail", () => {
         "wp_appq_custom_user_field_extras",
         cufSelectOption1
       );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufSelectTesterOption1
-      );
+      await cufData.insertCufData({
+        id: 2,
+        value: "1",
+        custom_user_field_id: 2,
+        candidate: 0,
+      });
       //insert cuf_multiselect
       await cuf.insertCuf({
         id: 3,
@@ -265,14 +247,18 @@ describe("Route PATCH users-me new mail", () => {
         "wp_appq_custom_user_field_extras",
         cufMultiSelectVal2
       );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal2
-      );
+      await cufData.insertCufData({
+        id: 3,
+        value: "2",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
+      await cufData.insertCufData({
+        id: 4,
+        value: "3",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
 
       resolve(null);
     });
