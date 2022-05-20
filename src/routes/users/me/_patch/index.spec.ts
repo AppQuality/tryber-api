@@ -21,11 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const testerFullLang1 = {
-  id: 1,
-  profile_id: 1,
-  language_id: 1,
-};
 const cufText = {
   //cuf
   id: 1,
@@ -127,8 +122,7 @@ describe("Route PATCH users-me", () => {
       await employmentsList.employment1({ display_name: "UNGUESS Tester" });
       await educationsList.education1({ display_name: "Phd" });
       await languagesList.lenguage1({ display_name: "Sicilian" });
-
-      await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+      await testerLanguages.assignLanguage();
       //insert cuf_text
       await sqlite3.insert("wp_appq_custom_user_field", cufText);
       await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
@@ -241,7 +235,7 @@ describe("Route PATCH users-me new mail", () => {
       await employmentsList.employment1({ display_name: "UNGUESS Tester" });
       await educationsList.education1({ display_name: "Phd" });
       await languagesList.lenguage1({ display_name: "Sicilian" });
-      await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+      await testerLanguages.assignLanguage();
       //insert cuf_text
       await sqlite3.insert("wp_appq_custom_user_field", cufText);
       await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);

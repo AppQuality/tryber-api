@@ -28,5 +28,15 @@ const data: {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
 };
+data.assignLanguage = async (params) => {
+  const item = {
+    id: 1,
+    profile_id: 1,
+    language_id: 1,
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
+};
 
 export { data };
