@@ -21,12 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const testerFullCertification1 = {
-  id: 1,
-  tester_id: 1,
-  cert_id: 1,
-  achievement_date: new Date("01/01/2021").toISOString(),
-};
 const employment1 = {
   id: 1,
   display_name: "UNGUESS Tester",
@@ -139,11 +133,10 @@ describe("Route PATCH users-me", () => {
       await bugs.basicBug({ status_id: 2 });
       await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
       await certificationsList.certification1();
+      await testerCertifications.assignCertification({
+        achievement_date: new Date("01/01/2021").toISOString(),
+      });
 
-      await sqlite3.insert(
-        "wp_appq_profile_certifications",
-        testerFullCertification1
-      );
       await sqlite3.insert("wp_appq_employment", employment1);
       await sqlite3.insert("wp_appq_education", education1);
       await sqlite3.insert("wp_appq_lang", lang1);
@@ -254,10 +247,9 @@ describe("Route PATCH users-me new mail", () => {
       await bugs.basicBug({ status_id: 2 });
       await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
       await certificationsList.certification1();
-      await sqlite3.insert(
-        "wp_appq_profile_certifications",
-        testerFullCertification1
-      );
+      await testerCertifications.assignCertification({
+        achievement_date: new Date("01/01/2021").toISOString(),
+      });
       await sqlite3.insert("wp_appq_employment", employment1);
       await sqlite3.insert("wp_appq_education", education1);
       await sqlite3.insert("wp_appq_lang", lang1);
