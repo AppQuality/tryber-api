@@ -115,12 +115,19 @@ export default class ProspectData {
       .find((definition) => definition.id < this.currentLevel.id);
     if (previousLevel) {
       return {
-        level: { id: previousLevel.id, name: previousLevel.name },
+        level: this.getCurrentLevel(),
         maintenance: this.currentLevel.hold_exp_pts - this.monthlyExp,
       };
     }
 
     throw new Error("No current level");
+  };
+
+  getCurrentLevel = () => {
+    return {
+      id: this.currentLevel.id,
+      name: this.currentLevel.name,
+    };
   };
 
   getUpgradeOrMaintenanceLevel(
