@@ -21,14 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const employment1 = {
-  id: 1,
-  display_name: "UNGUESS Tester",
-};
-const education1 = {
-  id: 1,
-  display_name: "Phd",
-};
 const lang1 = {
   id: 1,
   display_name: "Italian",
@@ -136,9 +128,9 @@ describe("Route PATCH users-me", () => {
       await testerCertifications.assignCertification({
         achievement_date: new Date("01/01/2021").toISOString(),
       });
+      await employmentsList.employment1({ display_name: "UNGUESS Tester" });
+      await educationsList.education1({ display_name: "Phd" });
 
-      await sqlite3.insert("wp_appq_employment", employment1);
-      await sqlite3.insert("wp_appq_education", education1);
       await sqlite3.insert("wp_appq_lang", lang1);
       await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
       //insert cuf_text
@@ -250,8 +242,8 @@ describe("Route PATCH users-me new mail", () => {
       await testerCertifications.assignCertification({
         achievement_date: new Date("01/01/2021").toISOString(),
       });
-      await sqlite3.insert("wp_appq_employment", employment1);
-      await sqlite3.insert("wp_appq_education", education1);
+      await employmentsList.employment1({ display_name: "UNGUESS Tester" });
+      await educationsList.education1({ display_name: "Phd" });
       await sqlite3.insert("wp_appq_lang", lang1);
       await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
       //insert cuf_text
