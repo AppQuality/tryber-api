@@ -2,6 +2,59 @@ import * as db from "@src/features/db";
 
 export default async (wpId: string, showExpired: boolean = true) => {
   try {
+    const { id, logged_in_year, is_italian } = await getCurrentProfile();
+
+    const rows = await getUserPopups(id, is_italian, logged_in_year);
+
+    if (!rows.length) {
+      throw new Error("No popups found");
+    }
+    return rows.map((row) => ({
+      id: parseInt(row.id),
+      title: row.title,
+      content: row.content,
+      once: row.is_once === "1",
+    }));
+  } catch (error) {
+    throw error;
+  }
+
+  async function getUserPopups(
+    id: any,
+    is_italian: any,
+    logged_in_year: any
+  ): Promise<
+    { id: string; title: string; content: string; is_once: string }[]
+  > {
+    return await db.query(`
+      SELECT id, title, content, is_once
+      FROM wp_appq_popups pop
+      ${getPopupClause(id, is_italian, logged_in_year)}
+    `);
+  }
+
+  function getPopupClause(
+    id: string,
+    is_italian: string,
+    logged_in_year: string
+  ) {
+    const result = [];
+
+    if (!showExpired) {
+      result.push(onlyNotExpiredClause(id));
+    }
+
+    result.push(matchingTargetClause(is_italian, logged_in_year, id));
+
+    if (!result.length) return "";
+
+    const conditions = result.map(
+      (condition) => " (" + condition.join(" OR ") + " )"
+    );
+    return "WHERE " + conditions.join(" AND ");
+  }
+
+  async function getCurrentProfile() {
     const profileSql = `
       SELECT p.id,
              DATE_ADD(p.last_activity, INTERVAL 1 YEAR) >= NOW() as logged_in_year,
@@ -13,83 +66,38 @@ export default async (wpId: string, showExpired: boolean = true) => {
       throw new Error("There was an error with your profile");
     }
     const profile = profiles[0];
-
     profile.is_italian = false;
     if (profile.country) {
       profile.is_italian = profile.country.search(/\b(italy|italia)\b/gi) >= 0;
     }
-
-    const { id, logged_in_year, is_italian } = profile;
-
-    const SELECT = `SELECT id, title, content, is_once`;
-    const FROM = ` FROM wp_appq_popups pop`;
-    let WHERE = `WHERE `;
-    if (!showExpired) {
-      WHERE += ` (  
-        1 NOT IN (
-          SELECT 1
-          FROM wp_appq_popups_read_status 
-          WHERE tester_id = ${id}
-          AND popup_id = pop.id
-        )
-      ) AND `;
-    }
-
-    const popupsClauses = ['pop.targets = "all"'];
-    popupsClauses.push(
-      is_italian ? 'pop.targets = "italian"' : 'pop.targets = "non-italian"'
-    );
-    popupsClauses.push(
-      parseInt(logged_in_year) == 1
-        ? 'pop.targets = "logged-in-year"'
-        : 'pop.targets = "not-logged-in-year"'
-    );
-    popupsClauses.push(
-      `targets = "list" AND CONCAT(",",extras,",") LIKE "%,${id},%"`
-    );
-
-    WHERE += " (" + popupsClauses.join(" OR ") + " )";
-    const sql = `
-            ${SELECT}
-            ${FROM}
-            ${WHERE}
-          `;
-    const rows = await db.query(sql);
-
-    if (!rows.length) {
-      throw new Error("No popups found");
-    }
-
-    return rows.map(mapQueryToObject);
-  } catch (error) {
-    throw error;
+    return profile;
   }
 };
 
-const mapQueryToObject = (data: {
-  id: string;
-  title: string;
-  content: string;
-  is_once: number;
-  targets: string;
-  extras: string;
-}) => {
-  const obj: { [key: string]: string | boolean | number | number[] } = {
-    ...(data.id && { id: parseInt(data.id) }),
-    ...(data.content && { content: data.content }),
-    ...(data.is_once && { once: data.is_once == 1 }),
-    ...(data.title && { title: data.title }),
-  };
-  if (data.targets) {
-    if (data.targets == "list") {
-      obj.profiles = [];
-      if (data.extras) {
-        const profiles = data.extras.split(",").map((id) => parseInt(id));
-        if (profiles) obj.profiles = profiles;
-      }
-    } else {
-      obj.profiles = data.targets;
-    }
-  }
-  return obj;
-};
+function onlyNotExpiredClause(id: string) {
+  return [
+    ` (  
+  1 NOT IN ( 
+    SELECT 1 FROM wp_appq_popups_read_status 
+    WHERE tester_id = ${id} AND popup_id = pop.id
+  )
+)`,
+  ];
+}
+function matchingTargetClause(
+  is_italian: string,
+  logged_in_year: string,
+  id: string
+) {
+  const targets = ['pop.targets = "all"'];
+  targets.push(
+    is_italian ? 'pop.targets = "italian"' : 'pop.targets = "non-italian"'
+  );
+  targets.push(
+    parseInt(logged_in_year) == 1
+      ? 'pop.targets = "logged-in-year"'
+      : 'pop.targets = "not-logged-in-year"'
+  );
+  targets.push(`targets = "list" AND CONCAT(",",extras,",") LIKE "%,${id},%"`);
+  return targets;
+}
