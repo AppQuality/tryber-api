@@ -19,6 +19,11 @@ export const table = {
 
 type BugParams = {
   id?: number;
+  message?: string;
+  campaign_id?: number;
+  status_id?: number;
+  wp_user_id?: number;
+  severity_id?: number;
 };
 const data: {
   [key: string]: (params?: BugParams) => Promise<{ [key: string]: any }>;
@@ -26,6 +31,16 @@ const data: {
   drop: async () => {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
+};
+
+data.basicBug = async (params) => {
+  const item = {
+    id: 1,
+    wp_user_id: 1,
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
 };
 
 export { data };
