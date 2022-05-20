@@ -156,15 +156,15 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
       resolve(null);
     });
   });
-  it("Should return basic as prospect level", async () => {
+  it("Should return current Level Bronze as prospect level", async () => {
     const response = await request(app)
       .get("/users/me/rank")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("prospect");
     expect(response.body.prospect).toHaveProperty("level", {
-      id: 10,
-      name: "Basic",
+      id: 20,
+      name: "Bronze",
     });
   });
   it("Should return the exp points missing to maintain level", async () => {
@@ -197,15 +197,15 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
     });
   });
 
-  it("Should return Bronze as prospect level", async () => {
+  it("Should return current level Silver as prospect level", async () => {
     const response = await request(app)
       .get("/users/me/rank")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("prospect");
     expect(response.body.prospect).toHaveProperty("level", {
-      id: 20,
-      name: "Bronze",
+      id: 30,
+      name: "Silver",
     });
   });
 });
