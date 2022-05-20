@@ -24,5 +24,14 @@ const data: {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
 };
+data.insertCufExtras = async (params) => {
+  const item = {
+    id: 1,
+    name: "Cuf Extra name",
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
+};
 
 export { data };

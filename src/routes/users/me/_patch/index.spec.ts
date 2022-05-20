@@ -21,26 +21,6 @@ jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const cufSelectOption1 = {
-  //cuf_exstras
-  id: 1,
-  name: "Habanero Scorpion",
-};
-const cufMultiselect = {
-  id: 3,
-  name: "Fornitore di cardamomo preferito",
-  type: "multiselect",
-};
-const cufMultiSelectVal1 = {
-  //cuf_exstras
-  id: 2,
-  name: "Il cardamomo Siciliano",
-};
-const cufMultiSelectVal2 = {
-  //cuf_exstras
-  id: 3,
-  name: "Treviso, città del Cardamomo",
-};
 const testerPatchMail = {
   email: "bob.alice@example.com",
 };
@@ -90,10 +70,9 @@ describe("Route PATCH users-me", () => {
         name: "Tipologia di spezie preferita",
         type: "select",
       });
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufSelectOption1
-      );
+      await cufExtras.insertCufExtras({
+        name: "Habanero Scorpion",
+      });
       await cufData.insertCufData({
         id: 2,
         value: "1",
@@ -106,14 +85,14 @@ describe("Route PATCH users-me", () => {
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
       });
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal2
-      );
+      await cufExtras.insertCufExtras({
+        id: 2,
+        name: "Il cardamomo Siciliano",
+      });
+      await cufExtras.insertCufExtras({
+        id: 3,
+        name: "Treviso, città del Cardamomo",
+      });
       await cufData.insertCufData({
         id: 3,
         value: "2",
@@ -223,10 +202,9 @@ describe("Route PATCH users-me new mail", () => {
         name: "Tipologia di spezie preferita",
         type: "select",
       });
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufSelectOption1
-      );
+      await cufExtras.insertCufExtras({
+        name: "Habanero Scorpion",
+      });
       await cufData.insertCufData({
         id: 2,
         value: "1",
@@ -239,14 +217,14 @@ describe("Route PATCH users-me new mail", () => {
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
       });
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal2
-      );
+      await cufExtras.insertCufExtras({
+        id: 2,
+        name: "Il cardamomo Siciliano",
+      });
+      await cufExtras.insertCufExtras({
+        id: 3,
+        name: "Treviso, città del Cardamomo",
+      });
       await cufData.insertCufData({
         id: 3,
         value: "2",
