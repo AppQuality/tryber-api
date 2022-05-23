@@ -180,7 +180,12 @@ describe("Route PATCH users-me accepted fields", () => {
         achievement_date: new Date("01/01/2021").toISOString(),
       });
       await employmentsList.employment1({ display_name: "UNGUESS Tester" });
+      await employmentsList.employment1({
+        id: 2,
+        display_name: "Best Tester in the world",
+      });
       await educationsList.education1({ display_name: "Phd" });
+      await educationsList.education1({ id: 2, display_name: "Phd Professor" });
       await languagesList.lenguage1({ display_name: "Sicilian" });
       await testerLanguages.assignLanguage();
       //insert cuf_text
@@ -433,6 +438,49 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.country).toBe("Custonacy Freedomland");
   });
+  it("Should return tryber with new PROFESSION if send a new PROFESSION", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=profession`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.profession).toStrictEqual({
+      id: 1,
+      name: "UNGUESS Tester",
+    });
 
-  //TODO: remain (accepted fields) to tests: onboarding_completed, profession, education and password
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ profession: 2 });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=profession`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.profession).toStrictEqual({
+      id: 2,
+      name: "Best Tester in the world",
+    });
+  });
+  it("Should return tryber with new EDUCATION if send a new EDUCATION", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=education`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.education).toStrictEqual({ id: 1, name: "Phd" });
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ education: 2 });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=education`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.education).toStrictEqual({
+      id: 2,
+      name: "Phd Professor",
+    });
+  });
+
+  //TODO: remain (accepted fields) to tests: and password
 });
