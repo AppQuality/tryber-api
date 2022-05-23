@@ -1728,6 +1728,8 @@ export interface operations {
       query: {
         /** Show all popup history, expired popups included */
         showExpired?: boolean;
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
       };
     };
     responses: {
