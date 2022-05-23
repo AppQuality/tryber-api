@@ -13,17 +13,25 @@ export const table = {
   },
 };
 
-type UsersDeletionReasonParams = {
-  ID?: number;
+type EducationParams = {
+  id?: number;
+  display_name?: string;
 };
 const data: {
-  [key: string]: (
-    params?: UsersDeletionReasonParams
-  ) => Promise<{ [key: string]: any }>;
+  [key: string]: (params?: EducationParams) => Promise<{ [key: string]: any }>;
 } = {
   drop: async () => {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
+};
+data.education1 = async (params) => {
+  const item = {
+    id: 1,
+    display_name: "Education name",
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
 };
 
 export { data };

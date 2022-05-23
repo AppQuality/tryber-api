@@ -19,6 +19,9 @@ export const table = {
 type CUFDataParams = {
   id?: number;
   profile_id?: number;
+  value?: string;
+  custom_user_field_id?: number;
+  candidate?: number;
 };
 const data: {
   [key: string]: (params?: CUFDataParams) => Promise<{ [key: string]: any }>;
@@ -28,4 +31,14 @@ const data: {
   },
 };
 
+data.insertCufData = async (params) => {
+  const item = {
+    id: 1,
+    custom_user_field_id: 1,
+    profile_id: 1,
+    ...params,
+  };
+  await sqlite3.insert(tableName, item);
+  return item;
+};
 export { data };
