@@ -1,4 +1,4 @@
-import sqlite3 from '@src/features/sqlite';
+import sqlite3 from "@src/features/sqlite";
 
 const tableName = "wp_users";
 export const table = {
@@ -7,6 +7,7 @@ export const table = {
       "ID INTEGER PRIMARY KEY",
       "user_login VARCHAR(255)",
       "user_email VARCHAR(100)",
+      "user_pass VARCHAR(255)",
     ]);
   },
   drop: async () => {
@@ -18,6 +19,7 @@ type WpUsersParams = {
   ID?: number;
   user_login?: string;
   user_email?: string;
+  user_pass?: string;
 };
 const data: {
   [key: string]: (params?: WpUsersParams) => Promise<{ [key: string]: any }>;

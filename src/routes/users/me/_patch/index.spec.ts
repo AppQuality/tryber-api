@@ -16,6 +16,7 @@ import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
+import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
@@ -154,6 +155,7 @@ describe("Route PATCH users-me accepted fields", () => {
       await wpUsers.basicUser({
         user_login: "bob_alice",
         user_email: "bob.alice@example.com",
+        user_pass: HashPassword("password"),
       });
       await wpUsers.basicUser({
         ID: 2,
@@ -481,6 +483,52 @@ describe("Route PATCH users-me accepted fields", () => {
       name: "Phd Professor",
     });
   });
+  it("Should return 417 if send wrong oldPassword", async () => {
+    const oldHashPassword = await sqlite3.get(
+      "SELECT user_pass FROM wp_users WHERE ID=1"
+    );
+    expect(CheckPassword("password", oldHashPassword.user_pass)).toBe(true);
 
-  //TODO: remain (accepted fields) to tests: and password
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ oldPassword: "wrongOldPassword", password: "newPassword" });
+    expect(responsePatch.status).toBe(417);
+    expect(responsePatch.body).toStrictEqual({
+      element: "users",
+      id: 1,
+      message: "Your old password is not correct",
+    });
+  });
+  it("Should return an error if send a new password without old password", async () => {
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ password: "newPassword" });
+    expect(responsePatch.body).toStrictEqual({
+      element: "users",
+      id: 1,
+      message: "You need to specify your old password",
+    });
+    expect(responsePatch.status).toBe(400);
+  });
+  it("Should return 200 if send right oldPassword and a new password", async () => {
+    const oldHashPassword = await sqlite3.get(
+      "SELECT user_pass FROM wp_users WHERE ID=1"
+    );
+    expect(CheckPassword("password", oldHashPassword.user_pass)).toBe(true);
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ oldPassword: "password", password: "newPassword" });
+    expect(responsePatch.status).toBe(200);
+    //check new password
+    const olnewHashPassword = await sqlite3.get(
+      "SELECT user_pass FROM wp_users WHERE ID=1"
+    );
+    expect(CheckPassword("newPassword", olnewHashPassword.user_pass)).toBe(
+      true
+    );
+  });
 });
