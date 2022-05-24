@@ -62,7 +62,9 @@ export default class ProspectData {
 
       if (this.prospectLevelIsCurrentOrHigher()) {
         this.nextLevel = this.definitions.find(
-          (definition) => definition.id > this.prospectLevel.level.id
+          (definition) =>
+            definition.id > this.prospectLevel.level.id &&
+            definition.reach_exp_pts !== null
         );
         if (this.nextLevel) {
           this.prospectLevel.next = {

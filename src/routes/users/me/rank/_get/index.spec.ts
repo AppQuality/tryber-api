@@ -400,3 +400,37 @@ describe("Route GET users-me-rank - Legendary Prospect User", () => {
     expect(response.body.prospect).not.toHaveProperty("maintenance");
   });
 });
+
+describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
+  beforeAll(async () => {
+    return new Promise(async (resolve) => {
+      profileData.basicTester({
+        total_exp_pts: 10000,
+      });
+      mockedLevelDefinitions();
+      userLevelData.basicLevel({ level_id: 60 });
+      expData.basicExperience({ amount: 2500 });
+      resolve(null);
+    });
+  });
+  afterAll(async () => {
+    return new Promise(async (resolve) => {
+      profileData.drop();
+      levelDefData.drop();
+      userLevelData.drop();
+      resolve(null);
+    });
+  });
+  it("As a diamond user with less than 100000 exp points i shouldn't have prospect next", async () => {
+    const response = await request(app)
+      .get("/users/me/rank")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("prospect");
+    expect(response.body.prospect).toHaveProperty("level", {
+      id: 60,
+      name: "Diamond",
+    });
+    expect(response.body.prospect).not.toHaveProperty("next");
+  });
+});
