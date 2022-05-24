@@ -1,5 +1,10 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import { data as bugStatusData } from "@src/__mocks__/mockedDb/bugStatus";
+import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as severityData } from "@src/__mocks__/mockedDb/severities";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -42,26 +47,6 @@ const status1 = {
 describe("GET /users/me/bugs", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_bug", [
-        "id INTEGER PRIMARY KEY",
-        "message VARCHAR(255)",
-        "campaign_id INTEGER",
-        "status_id INTEGER",
-        "wp_user_id INTEGER",
-        "severity_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_severity", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_bug_status", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
       await sqlite3.insert("wp_appq_evd_bug", bug2);
       await sqlite3.insert("wp_appq_evd_campaign", campaign1);
@@ -74,10 +59,11 @@ describe("GET /users/me/bugs", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_bug");
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-      await sqlite3.dropTable("wp_appq_evd_severity");
-      await sqlite3.dropTable("wp_appq_evd_bug_status");
+      await profileData.drop();
+      await campaignData.drop();
+      await severityData.drop();
+      await bugData.drop();
+      await bugStatusData.drop();
 
       resolve(null);
     });
@@ -148,48 +134,6 @@ describe("GET /users/me/bugs", () => {
 });
 
 describe("GET /users/me/bugs - user without bugs", () => {
-  beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_bug", [
-        "id INTEGER PRIMARY KEY",
-        "message VARCHAR(255)",
-        "campaign_id INTEGER",
-        "status_id INTEGER",
-        "wp_user_id INTEGER",
-        "severity_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_severity", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_bug_status", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
-
-      resolve(null);
-    });
-  });
-  afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_appq_evd_bug");
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-      await sqlite3.dropTable("wp_appq_evd_severity");
-      await sqlite3.dropTable("wp_appq_evd_bug_status");
-
-      resolve(null);
-    });
-  });
-
   it("Should answer 404 if the tryber hasn't bug", async () => {
     const response = await request(app)
       .get("/users/me/bugs")

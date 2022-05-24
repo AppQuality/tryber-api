@@ -1,5 +1,9 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as deviceOsData } from "@src/__mocks__/mockedDb/deviceOs";
+import { data as devicePlatformData } from "@src/__mocks__/mockedDb/devicePlatform";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as deviceData } from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -45,32 +49,6 @@ const os1 = {
 describe("Route GET users-me-devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_device", [
-        "id INTEGER PRIMARY KEY",
-        "form_factor VARCHAR(255)",
-        "model VARCHAR(255)",
-        "manufacturer VARCHAR(255)",
-        "pc_type VARCHAR(255)",
-        "os_version_id INTEGER",
-        "id_profile INTEGER",
-        "source_id INTEGER",
-        "platform_id INTEGER",
-        "enabled INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_platform", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_os", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(255)",
-        "version_number VARCHAR(255)",
-      ]);
-
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_crowd_appq_device", device1);
       await sqlite3.insert("wp_appq_evd_platform", platform1);
@@ -80,10 +58,10 @@ describe("Route GET users-me-devices", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_crowd_appq_device");
-      await sqlite3.dropTable("wp_appq_evd_platform");
-      await sqlite3.dropTable("wp_appq_os");
+      await profileData.drop();
+      await deviceData.drop();
+      await devicePlatformData.drop();
+      await deviceOsData.drop();
       resolve(null);
     });
   });
@@ -126,42 +104,13 @@ describe("Route GET users-me-devices", () => {
 describe("Route GET users-me-devices when the user hasn't devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_device", [
-        "id INTEGER PRIMARY KEY",
-        "form_factor VARCHAR(255)",
-        "model VARCHAR(255)",
-        "manufacturer VARCHAR(255)",
-        "pc_type VARCHAR(255)",
-        "os_version_id INTEGER",
-        "id_profile INTEGER",
-        "source_id INTEGER",
-        "platform_id INTEGER",
-        "enabled INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_platform", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_os", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(255)",
-        "version_number VARCHAR(255)",
-      ]);
-
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_crowd_appq_device");
-      await sqlite3.dropTable("wp_appq_evd_platform");
-      await sqlite3.dropTable("wp_appq_os");
+      await profileData.drop();
       resolve(null);
     });
   });
@@ -182,32 +131,6 @@ describe("Route GET users-me-devices when the user hasn't devices", () => {
 describe("Route GET users-me-devices when the user devices are all disabled", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_device", [
-        "id INTEGER PRIMARY KEY",
-        "form_factor VARCHAR(255)",
-        "model VARCHAR(255)",
-        "manufacturer VARCHAR(255)",
-        "pc_type VARCHAR(255)",
-        "os_version_id INTEGER",
-        "id_profile INTEGER",
-        "source_id INTEGER",
-        "platform_id INTEGER",
-        "enabled INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_platform", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-      ]);
-      await sqlite3.createTable("wp_appq_os", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(255)",
-        "version_number VARCHAR(255)",
-      ]);
-
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_crowd_appq_device", deviceDisabled);
       await sqlite3.insert("wp_appq_evd_platform", platform1);
@@ -217,10 +140,10 @@ describe("Route GET users-me-devices when the user devices are all disabled", ()
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_crowd_appq_device");
-      await sqlite3.dropTable("wp_appq_evd_platform");
-      await sqlite3.dropTable("wp_appq_os");
+      await profileData.drop();
+      await deviceData.drop();
+      await devicePlatformData.drop();
+      await deviceOsData.drop();
       resolve(null);
     });
   });

@@ -1,5 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -37,57 +39,6 @@ const tester1 = {
 describe("Route DELETE users/me", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_users", ["ID INTEGER PRIMARY KEY"]);
-      await sqlite3.createTable("wp_usermeta", [
-        "id INTEGER PRIMARY KEY",
-        "user_id INTEGER NOT NULL",
-      ]);
-      await sqlite3.createTable("wp_appq_custom_user_field_data", [
-        "id INTEGER PRIMARY KEY",
-        "profile_id INTEGER NOT NULL",
-      ]);
-      await sqlite3.createTable("wp_appq_fiscal_profile", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER NOT NULL",
-        "is_active INTEGER NOT NULL",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_device", [
-        "id INTEGER PRIMARY KEY",
-        "id_profile INTEGER NOT NULL",
-        "enabled INTEGER NOT NULL",
-      ]);
-      await sqlite3.createTable("wp_appq_user_deletion_reason", [
-        "tester_id INTEGER NOT NULL",
-        "reason TEXT NOT NULL",
-      ]);
-
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-        "email VARCHAR(255)",
-        "birth_date DATETIME",
-        "sex INTEGER",
-        "phone_number VARCHAR(255)",
-        "city VARCHAR(255)",
-        "address VARCHAR(255)",
-        "postal_code VARCHAR(255)",
-        "province VARCHAR(255)",
-        "country VARCHAR(255)",
-        "booty INTEGER",
-        "pending_booty INTEGER",
-        "address_number VARCHAR(255)",
-        "u2b_login_token VARCHAR(255)",
-        "fb_login_token VARCHAR(255)",
-        "ln_login_token VARCHAR(255)",
-        "total_exp_pts INTEGER",
-        "employment_id INTEGER",
-        "education_id INTEGER",
-        "state VARCHAR(255)",
-        "country_code VARCHAR(255)",
-      ]);
-
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       await sqlite3.insert("wp_users", user);
       resolve(null);
@@ -96,10 +47,8 @@ describe("Route DELETE users/me", () => {
   afterEach(async () => {
     return new Promise(async (resolve, reject) => {
       try {
-        await sqlite3.dropTable("wp_appq_evd_profile");
-        await sqlite3.dropTable("wp_users");
-        await sqlite3.dropTable("wp_appq_custom_user_field_data");
-        await sqlite3.dropTable("wp_appq_fiscal_profile");
+        await wpUserData.drop();
+        await profileData.drop();
         resolve(null);
       } catch (err) {
         reject(err);
@@ -131,5 +80,21 @@ describe("Route DELETE users/me", () => {
       `SELECT * FROM wp_appq_evd_profile WHERE id = ${tester1.id} `
     );
     expect(userData.birth_date).toBe(null);
+  });
+  it("Should update deletion date", async () => {
+    const userData = await sqlite3.get(
+      `SELECT * FROM wp_appq_evd_profile WHERE id = 1 `
+    );
+    const response = await request(app)
+      .delete("/users/me")
+      .send({ reason: "REASON" })
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const deletedUser = await sqlite3.get(
+      `SELECT * FROM wp_appq_evd_profile WHERE id = 1 `
+    );
+    const expectDate = new Date().toISOString().substring(0, 10);
+    expect(userData.deletion_date).not.toEqual(deletedUser.deletion_date);
+    expect(deletedUser.deletion_date.substring(0, 10)).toEqual(expectDate);
   });
 });

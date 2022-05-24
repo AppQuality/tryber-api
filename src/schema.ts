@@ -299,6 +299,13 @@ export interface paths {
       };
     };
   };
+  "/users/me/rank": {
+    get: operations["get-users-me-rank"];
+    parameters: {};
+  };
+  "/users/me/rank/list": {
+    get: operations["get-users-me-rank-list"];
+  };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
     parameters: {};
@@ -325,6 +332,11 @@ export interface paths {
       };
     };
   };
+  "/levels": {
+    /** Get all levels */
+    get: operations["get-levels"];
+    parameters: {};
+  };
 }
 
 export interface components {
@@ -347,6 +359,11 @@ export interface components {
     /** Replicability */
     Replicability: {
       id?: string;
+    };
+    /** MonthlyLevel */
+    MonthlyLevel: {
+      id: number;
+      name: string;
     };
     /** Task */
     Task: components["schemas"]["TaskOptional"] &
@@ -535,6 +552,20 @@ export interface components {
           /** @description A google maps place id */
           placeId: string;
         };
+    RankingItem: {
+      position: number;
+      image: string;
+      id: number;
+      name: string;
+      monthly_exp: number;
+    };
+    /** LevelDefinition */
+    LevelDefinition: {
+      id: number;
+      name: string;
+      reach?: number;
+      hold?: number;
+    };
   };
   responses: {
     /** A user */
@@ -1697,6 +1728,8 @@ export interface operations {
       query: {
         /** Show all popup history, expired popups included */
         showExpired?: boolean;
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
       };
     };
     responses: {
@@ -2164,6 +2197,46 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  "get-users-me-rank": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            level: components["schemas"]["MonthlyLevel"];
+            previousLevel: components["schemas"]["MonthlyLevel"];
+            rank: number;
+            points: number;
+            prospect: {
+              level: components["schemas"]["MonthlyLevel"];
+              maintenance?: number;
+              next?: {
+                points: number;
+                level: components["schemas"]["MonthlyLevel"];
+              };
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+    };
+  };
+  "get-users-me-rank-list": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            tops: components["schemas"]["RankingItem"][];
+            peers: components["schemas"]["RankingItem"][];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
   "get-customUserFields": {
     parameters: {};
     responses: {
@@ -2313,6 +2386,20 @@ export interface operations {
     responses: {
       /** OK */
       200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get all levels */
+  "get-levels": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["LevelDefinition"][];
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };

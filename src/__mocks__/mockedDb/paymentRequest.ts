@@ -1,13 +1,15 @@
 import sqlite3 from "@src/features/sqlite";
 
+const tableName = "wp_appq_payment_request";
 export const table = {
   create: async () => {
-    await sqlite3.createTable("wp_appq_payment_request", [
+    await sqlite3.createTable(tableName, [
       "id INTEGER PRIMARY KEY",
       "tester_id INTEGER",
       "amount DECIMAL(11,2)",
       "amount_gross DECIMAL(11,2)",
       "amount_withholding DECIMAL(11,2)",
+      "withholding_tax_percentage INTEGER",
       "iban VARCHAR(255)",
       "paypal_email VARCHAR(255)",
       "account_holder_name VARCHAR(255)",
@@ -15,12 +17,15 @@ export const table = {
       "error_message text",
       "is_paid BOOL",
       "stamp_required BOOL",
-      "withholding_tax_percentage INTEGER",
       "fiscal_profile_id INTEGER",
+      "request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ",
+      "amount_paypal_fee FLOAT(2)",
+      "paid_date DATETIME",
+      "receipt_id INTEGER",
     ]);
   },
   drop: async () => {
-    await sqlite3.dropTable("wp_appq_payment_request");
+    await sqlite3.dropTable(tableName);
   },
 };
 
@@ -43,7 +48,11 @@ type RequestParams = {
 
 const data: {
   [key: string]: (params?: RequestParams) => Promise<{ [key: string]: any }>;
-} = {};
+} = {
+  drop: async () => {
+    return await sqlite3.run(`DELETE FROM ${tableName}`);
+  },
+};
 
 data.processingPaypalPayment = async (params) => {
   const item = {

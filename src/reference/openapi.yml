@@ -2189,6 +2189,7 @@ paths:
           in: query
           name: showExpired
           description: 'Show all popup history, expired popups included'
+        - $ref: '#/components/parameters/order'
   '/users/me/popups/{popup}':
     parameters:
       - schema:
@@ -3303,6 +3304,188 @@ paths:
           in: query
           name: orderBy
           description: The value to order by
+  /users/me/rank:
+    parameters: []
+    get:
+      summary: Details of tryber ranking
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  level:
+                    $ref: '#/components/schemas/MonthlyLevel'
+                  previousLevel:
+                    $ref: '#/components/schemas/MonthlyLevel'
+                  rank:
+                    type: number
+                  points:
+                    type: number
+                  prospect:
+                    type: object
+                    required:
+                      - level
+                    properties:
+                      level:
+                        $ref: '#/components/schemas/MonthlyLevel'
+                      maintenance:
+                        type: number
+                      next:
+                        type: object
+                        properties:
+                          points:
+                            type: number
+                          level:
+                            $ref: '#/components/schemas/MonthlyLevel'
+                        required:
+                          - points
+                          - level
+                required:
+                  - level
+                  - previousLevel
+                  - rank
+                  - points
+                  - prospect
+              examples:
+                bronze-to-gold:
+                  value:
+                    level:
+                      id: 20
+                      name: Bronze
+                    previousLevel:
+                      id: 10
+                      name: Basic
+                    rank: 3
+                    points: 100
+                    prospect:
+                      level:
+                        id: 40
+                        name: Gold
+                      next:
+                        points: 10
+                        level:
+                          id: 50
+                          name: Diamond
+                stay-gold:
+                  value:
+                    level:
+                      id: 40
+                      name: Gold
+                    previousLevel:
+                      id: 10
+                      name: Basic
+                    rank: 50
+                    points: 100
+                    prospect:
+                      level:
+                        id: 30
+                        name: Silver
+                      manteinance: 10
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      operationId: get-users-me-rank
+      security:
+        - JWT: []
+      parameters: []
+  /users/me/rank/list:
+    get:
+      summary: Get your ranking list
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tops:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankingItem'
+                  peers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RankingItem'
+                required:
+                  - tops
+                  - peers
+              examples:
+                example-1:
+                  value:
+                    tops:
+                      - position: 1
+                        image: 'https://placekitten.com/200/200'
+                        id: 1
+                        name: Pippo F.
+                        monthly_exp: 100
+                      - position: 2
+                        image: 'https://placekitten.com/200/200'
+                        id: 2
+                        name: Ciccio P.
+                        monthly_exp: 90
+                      - position: 3
+                        image: 'https://placekitten.com/200/200'
+                        id: 3
+                        name: Ciccio I.
+                        monthly_exp: 100
+                    peers:
+                      - position: 50
+                        image: 'https://placekitten.com/200/200'
+                        id: 41
+                        name: Peppe F.
+                        monthly_exp: 50
+                      - position: 51
+                        image: 'https://placekitten.com/200/200'
+                        id: 42
+                        name: Rosario M.
+                        monthly_exp: 50
+                      - position: 52
+                        image: 'https://placekitten.com/200/200'
+                        id: 49
+                        name: Giuseppe S.
+                        monthly_exp: 49
+                      - position: 53
+                        image: 'https://placekitten.com/200/200'
+                        id: 20
+                        name: Maria D.
+                        monthly_exp: 48
+                      - position: 54
+                        image: 'https://placekitten.com/200/200'
+                        id: 40
+                        name: Luca F.
+                        monthly_exp: 49
+                      - position: 55
+                        image: 'https://placekitten.com/200/200'
+                        id: 100
+                        name: Maurizio C.
+                        monthly_exp: 46
+                      - position: 56
+                        image: 'https://placekitten.com/200/200'
+                        id: 123
+                        name: Vittorio S.
+                        monthly_exp: 45
+                      - position: 57
+                        image: 'https://placekitten.com/200/200'
+                        id: 49
+                        name: Fabrizio C.
+                        monthly_exp: 44
+                      - position: 58
+                        image: 'https://placekitten.com/200/200'
+                        id: 49
+                        name: Antonio Z.
+                        monthly_exp: 40
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-rank-list
+      security:
+        - JWT: []
   /custom_user_fields:
     get:
       summary: Get all custom user fields
@@ -3630,6 +3813,30 @@ paths:
       description: delete a specific payment request
       security:
         - JWT: []
+  /levels:
+    get:
+      summary: Retrive levels definitions
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LevelDefinition'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-levels
+      security:
+        - JWT: []
+      description: Get all levels
+      parameters: []
+    parameters: []
 components:
   schemas:
     Project:
@@ -3697,6 +3904,20 @@ components:
       properties:
         id:
           type: string
+    MonthlyLevel:
+      title: MonthlyLevel
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+      required:
+        - id
+        - name
+      description: ''
+      x-internal: false
+      x-examples: {}
     Task:
       title: Task
       allOf:
@@ -4220,6 +4441,41 @@ components:
           required:
             - placeId
       type: object
+    RankingItem:
+      type: object
+      properties:
+        position:
+          type: integer
+        image:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        monthly_exp:
+          type: integer
+      required:
+        - position
+        - image
+        - id
+        - name
+        - monthly_exp
+    LevelDefinition:
+      title: LevelDefinition
+      type: object
+      description: ''
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        reach:
+          type: number
+        hold:
+          type: number
+      required:
+        - id
+        - name
   securitySchemes:
     JWT:
       type: http

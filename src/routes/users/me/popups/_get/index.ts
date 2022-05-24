@@ -13,7 +13,9 @@ export default async (
       req.query.showExpired &&
       typeof req.query.showExpired === "string"
     );
-    const popups = await getByUser(req.user.ID, showExpired);
+    const order: StoplightOperations["get-users-me-popups"]["parameters"]["query"]["order"] =
+      req.query?.order === "DESC" ? "DESC" : "ASC";
+    const popups = await getByUser(req.user.ID, showExpired, order);
 
     res.status_code = 200;
     return popups;

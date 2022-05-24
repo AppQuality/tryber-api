@@ -1,5 +1,5 @@
 import sqlite3 from "@src/features/sqlite";
-
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import updateLastActivity from ".";
 
 jest.mock("@src/features/db");
@@ -13,10 +13,6 @@ describe("updateLastActivity", () => {
   beforeEach(() => {
     return new Promise(async (resolve, reject) => {
       try {
-        await sqlite3.createTable("wp_appq_evd_profile", [
-          "id INTEGER PRIMARY KEY",
-          "last_activity TIMESTAMP",
-        ]);
         await sqlite3.insert("wp_appq_evd_profile", tester1);
         resolve(null);
       } catch (err) {
@@ -27,7 +23,7 @@ describe("updateLastActivity", () => {
   afterEach(async () => {
     return new Promise(async (resolve, reject) => {
       try {
-        await sqlite3.dropTable("wp_appq_evd_profile");
+        await profileData.drop();
         resolve(null);
       } catch (err) {
         reject(err);

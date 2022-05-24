@@ -1,311 +1,128 @@
-import {
-  data as wpOptionsData,
-  table as wpOptionsTable,
-} from "@src/__mocks__/mockedDb/wp_options";
+import { data as attributions } from "@src/__mocks__/mockedDb/attributions";
+import { data as bugs } from "@src/__mocks__/mockedDb/bug";
+import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
+import { data as campaignsCandidatures } from "@src/__mocks__/mockedDb/cp_has_candidates";
+import { data as cuf } from "@src/__mocks__/mockedDb/customUserFields";
+import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
+import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import { data as educationsList } from "@src/__mocks__/mockedDb/educationList";
+import { data as employmentsList } from "@src/__mocks__/mockedDb/employmentList";
+import { data as languagesList } from "@src/__mocks__/mockedDb/languageList";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCertification";
+import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
+import { data as wpOptions } from "@src/__mocks__/mockedDb/wp_options";
+import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
+import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
 jest.mock("@src/features/db");
 jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
-const wpTester1 = {
-  ID: 1,
-  user_login: "bob_alice",
-  user_email: "bob.alice@example.com",
-};
-const wpTester2 = {
-  ID: 2,
-  user_login: "bob",
-  user_email: "bob@example.com",
-};
-const testerFull = {
-  id: 1,
-  name: "Bob",
-  surname: "Alice",
-  email: "bob.alice@example.com",
-  wp_user_id: 1,
-  is_verified: 1,
-  booty: 69,
-  pending_booty: 70,
-  total_exp_pts: 6969,
-  birth_date: "1996-03-21 00:00:00",
-  phone_number: "+39696969696969",
-  sex: 1,
-  country: "Italy",
-  city: "Rome",
-  onboarding_complete: 1,
-  employment_id: 1,
-  education_id: 1,
-};
-const bug1 = {
-  id: 1,
-  wp_user_id: testerFull.wp_user_id,
-  status_id: 2,
-};
-const testerCandidacy = {
-  id: 1,
-  user_id: testerFull.wp_user_id,
-  accepted: 1,
-  results: 2,
-};
-const certification1 = {
-  id: 1,
-  name: "Best Tryber Ever",
-  area: "Testing 360",
-  institute: "Tryber",
-};
-const testerFullCertification1 = {
-  id: 1,
-  tester_id: testerFull.id,
-  cert_id: certification1.id,
-  achievement_date: new Date("01/01/2021").toISOString(),
-};
-const employment1 = {
-  id: 1,
-  display_name: "UNGUESS Tester",
-};
-const education1 = {
-  id: 1,
-  display_name: "Phd",
-};
-const lang1 = {
-  id: 1,
-  display_name: "Italian",
-};
-const testerFullLang1 = {
-  id: 1,
-  profile_id: testerFull.id,
-  language_id: lang1.id,
-};
-const cufText = {
-  //cuf
-  id: 1,
-  name: "Username Tetris",
-  type: "text",
-  enabled: 1,
-};
-const cufTextVal = {
-  //cuf_data
-  id: 1,
-  value: "CiccioGamer89.",
-  custom_user_field_id: 1,
-  profile_id: testerFull.id,
-  candidate: 0,
-};
-const cufSelect = {
-  //cuf
-  id: 2,
-  name: "Tipologia di spezie preferita",
-  type: "select",
-  enabled: 1,
-};
-const cufSelectOption1 = {
-  //cuf_exstras
-  id: 1,
-  name: "Habanero Scorpion",
-};
-const cufSelectTesterOption1 = {
-  //cuf_data
-  id: 2,
-  value: cufSelectOption1.id,
-  custom_user_field_id: cufSelect.id,
-  profile_id: testerFull.id,
-  candidate: 0,
-};
-const cufMultiselect = {
-  //cuf
-  id: 3,
-  name: "Fornitore di cardamomo preferito",
-  type: "multiselect",
-  enabled: 1,
-};
-const cufMultiSelectVal1 = {
-  //cuf_exstras
-  id: 2,
-  name: "Il cardamomo Siciliano",
-};
-const cufMultiSelectVal2 = {
-  //cuf_exstras
-  id: 3,
-  name: "Treviso, città del Cardamomo",
-};
-const cufMultiSelectTesterVal1 = {
-  //cuf_data
-  id: 3,
-  value: cufMultiSelectVal1.id,
-  custom_user_field_id: cufMultiselect.id,
-  profile_id: testerFull.id,
-  candidate: 0,
-};
-const cufMultiSelectTesterVal2 = {
-  //cuf_data
-  id: 4,
-  value: cufMultiSelectVal2.id,
-  custom_user_field_id: cufMultiselect.id,
-  profile_id: testerFull.id,
-  candidate: 0,
-};
-const testerPatchMail = {
-  email: "bob.alice@example.com",
-};
-
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-        "email VARCHAR(255)",
-        "wp_user_id INTEGER ",
-        "is_verified INTEGER DEFAULT 0",
-        "booty DECIMAL(11,2)",
-        "pending_booty DECIMAL(11,2)",
-        "total_exp_pts INTEGER",
-        "birth_date DATETIME",
-        "phone_number VARCHAR(15)",
-        "sex INTEGER",
-        "country VARCHAR(45)",
-        "city VARCHAR(45)",
-        "onboarding_complete INTEGER",
-        "employment_id INTEGER",
-        "education_id INTEGER",
-        "last_activity TIMESTAMP",
-      ]);
-
-      await sqlite3.createTable("wp_users", [
-        "ID INTEGER PRIMARY KEY",
-        "user_login VARCHAR(255)",
-        "user_email VARCHAR(100)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_bug", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-        "status_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_has_candidate", [
-        "id INTEGER PRIMARY KEY",
-        "user_id INTEGER",
-        "accepted INTEGER",
-        "results INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_certifications_list", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(64)",
-        "area VARCHAR(64)",
-        "institute VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_profile_certifications", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "cert_id INTEGER",
-        "achievement_date TIMESTAMP",
-      ]);
-      await sqlite3.createTable("wp_appq_employment", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_education", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_lang", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_profile_has_lang", [
-        "id INTEGER PRIMARY KEY",
-        "profile_id INTEGER",
-        "language_id INTEGER",
-      ]);
-      //cuf
-      await sqlite3.createTable("wp_appq_custom_user_field", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(128)",
-        "type VARCHAR(11)",
-        "enabled INTEGER",
-      ]);
-      //cud
-      await sqlite3.createTable("wp_appq_custom_user_field_data", [
-        "id INTEGER PRIMARY KEY",
-        "value VARCHAR(512)",
-        "custom_user_field_id INTEGER",
-        "profile_id INTEGER",
-        "candidate",
-      ]);
-      //cue
-      await sqlite3.createTable("wp_appq_custom_user_field_extras", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(64)",
-      ]);
-      wpOptionsTable.create();
-      wpOptionsData.crowdWpOptions();
-      await sqlite3.insert("wp_appq_evd_profile", testerFull);
-      await sqlite3.insert("wp_users", wpTester1);
-      await sqlite3.insert("wp_appq_evd_bug", bug1);
-      await sqlite3.insert("wp_crowd_appq_has_candidate", testerCandidacy);
-      await sqlite3.insert("wp_appq_certifications_list", certification1);
-      await sqlite3.insert(
-        "wp_appq_profile_certifications",
-        testerFullCertification1
-      );
-      await sqlite3.insert("wp_appq_employment", employment1);
-      await sqlite3.insert("wp_appq_education", education1);
-      await sqlite3.insert("wp_appq_lang", lang1);
-      await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+      await wpUsers.basicUser({
+        user_login: "bob_alice",
+        user_email: "bob.alice@example.com",
+      });
+      await attributions.validAttribution();
+      await wpOptions.crowdWpOptions();
+      await profileData.basicTester({
+        booty: 69,
+        birth_date: "1996-03-21 00:00:00",
+        phone_number: "+39696969696969",
+        sex: 1,
+        country: "Italy",
+        city: "Rome",
+        onboarding_complete: 1,
+        employment_id: 1,
+        education_id: 1,
+      });
+      await bugs.basicBug({ status_id: 2 });
+      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
+      await certificationsList.certification1();
+      await testerCertifications.assignCertification({
+        achievement_date: new Date("01/01/2021").toISOString(),
+      });
+      await employmentsList.employment1({ display_name: "UNGUESS Tester" });
+      await educationsList.education1({ display_name: "Phd" });
+      await languagesList.lenguage1({ display_name: "Sicilian" });
+      await testerLanguages.assignLanguage();
       //insert cuf_text
-      await sqlite3.insert("wp_appq_custom_user_field", cufText);
-      await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+      await cuf.insertCuf({
+        name: "Username Tetris",
+        type: "text",
+      });
+      await cufData.insertCufData({
+        value: "CiccioGamer89.",
+        candidate: 0,
+      });
       //insert cuf_select
-      await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufSelectOption1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufSelectTesterOption1
-      );
+      await cuf.insertCuf({
+        id: 2,
+        name: "Tipologia di spezie preferita",
+        type: "select",
+      });
+      await cufExtras.insertCufExtras({
+        name: "Habanero Scorpion",
+      });
+      await cufData.insertCufData({
+        id: 2,
+        value: "1",
+        custom_user_field_id: 2,
+        candidate: 0,
+      });
       //insert cuf_multiselect
-      await sqlite3.insert("wp_appq_custom_user_field", cufMultiselect);
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal2
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal2
-      );
+      await cuf.insertCuf({
+        id: 3,
+        name: "Fornitore di cardamomo preferito",
+        type: "multiselect",
+      });
+      await cufExtras.insertCufExtras({
+        id: 2,
+        name: "Il cardamomo Siciliano",
+      });
+      await cufExtras.insertCufExtras({
+        id: 3,
+        name: "Treviso, città del Cardamomo",
+      });
+      await cufData.insertCufData({
+        id: 3,
+        value: "2",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
+      await cufData.insertCufData({
+        id: 4,
+        value: "3",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
 
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_users");
-      await sqlite3.dropTable("wp_appq_evd_bug");
-      await sqlite3.dropTable("wp_crowd_appq_has_candidate");
-      await sqlite3.dropTable("wp_appq_certifications_list");
-      await sqlite3.dropTable("wp_appq_profile_certifications");
-      await sqlite3.dropTable("wp_appq_employment");
-      await sqlite3.dropTable("wp_appq_education");
-      await sqlite3.dropTable("wp_appq_lang");
-      await sqlite3.dropTable("wp_appq_profile_has_lang");
-      await sqlite3.dropTable("wp_appq_custom_user_field");
-      await sqlite3.dropTable("wp_appq_custom_user_field_data");
-      await sqlite3.dropTable("wp_appq_custom_user_field_extras");
-      wpOptionsTable.drop();
+      await wpUsers.drop();
+      await attributions.drop();
+      await wpOptions.drop();
+      await profileData.drop();
+      await bugs.drop();
+      await campaignsCandidatures.drop();
+      await certificationsList.drop();
+      await testerCertifications.drop();
+      await employmentsList.drop();
+      await educationsList.drop();
+      await languagesList.drop();
+      await testerLanguages.drop();
+      await cuf.drop();
+      await cufData.drop();
+      await cufExtras.drop();
       resolve(null);
     });
   });
@@ -330,179 +147,136 @@ describe("Route PATCH users-me", () => {
   });
 });
 
-describe("Route PATCH users-me new mail", () => {
+describe("Route PATCH users-me accepted fields", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(255)",
-        "surname VARCHAR(255)",
-        "email VARCHAR(255)",
-        "wp_user_id INTEGER ",
-        "is_verified INTEGER DEFAULT 0",
-        "booty DECIMAL(11,2)",
-        "pending_booty DECIMAL(11,2)",
-        "total_exp_pts INTEGER",
-        "birth_date DATETIME",
-        "phone_number VARCHAR(15)",
-        "sex INTEGER",
-        "country VARCHAR(45)",
-        "city VARCHAR(45)",
-        "onboarding_complete INTEGER",
-        "employment_id INTEGER",
-        "education_id INTEGER",
-        "last_activity TIMESTAMP",
-      ]);
+      await attributions.validAttribution();
 
-      await sqlite3.createTable("wp_users", [
-        "ID INTEGER PRIMARY KEY",
-        "user_login VARCHAR(255)",
-        "user_email VARCHAR(100)",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_bug", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER",
-        "status_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_crowd_appq_has_candidate", [
-        "id INTEGER PRIMARY KEY",
-        "user_id INTEGER",
-        "accepted INTEGER",
-        "results INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_certifications_list", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(64)",
-        "area VARCHAR(64)",
-        "institute VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_profile_certifications", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "cert_id INTEGER",
-        "achievement_date TIMESTAMP",
-      ]);
-      await sqlite3.createTable("wp_appq_employment", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_education", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_lang", [
-        "id INTEGER PRIMARY KEY",
-        "display_name VARCHAR(64)",
-      ]);
-      await sqlite3.createTable("wp_appq_profile_has_lang", [
-        "id INTEGER PRIMARY KEY",
-        "profile_id INTEGER",
-        "language_id INTEGER",
-      ]);
-      //cuf
-      await sqlite3.createTable("wp_appq_custom_user_field", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(128)",
-        "type VARCHAR(11)",
-        "enabled INTEGER",
-      ]);
-      //cud
-      await sqlite3.createTable("wp_appq_custom_user_field_data", [
-        "id INTEGER PRIMARY KEY",
-        "value VARCHAR(512)",
-        "custom_user_field_id INTEGER",
-        "profile_id INTEGER",
-        "candidate",
-      ]);
-      //cue
-      await sqlite3.createTable("wp_appq_custom_user_field_extras", [
-        "id INTEGER PRIMARY KEY",
-        "name VARCHAR(64)",
-      ]);
-      wpOptionsTable.create();
-      wpOptionsData.crowdWpOptions();
-      await sqlite3.insert("wp_appq_evd_profile", testerFull);
-      await sqlite3.insert("wp_users", wpTester1);
-      await sqlite3.insert("wp_users", wpTester2);
-      await sqlite3.insert("wp_appq_evd_bug", bug1);
-      await sqlite3.insert("wp_crowd_appq_has_candidate", testerCandidacy);
-      await sqlite3.insert("wp_appq_certifications_list", certification1);
-      await sqlite3.insert(
-        "wp_appq_profile_certifications",
-        testerFullCertification1
-      );
-      await sqlite3.insert("wp_appq_employment", employment1);
-      await sqlite3.insert("wp_appq_education", education1);
-      await sqlite3.insert("wp_appq_lang", lang1);
-      await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+      await wpUsers.basicUser({
+        user_login: "bob_alice",
+        user_email: "bob.alice@example.com",
+        user_pass: HashPassword("password"),
+      });
+      await wpUsers.basicUser({
+        ID: 2,
+        user_login: "bob",
+        user_email: "bob@example.com",
+      });
+      wpOptions.crowdWpOptions();
+      await profileData.basicTester({
+        booty: 69,
+        birth_date: "1996-03-21 00:00:00",
+        phone_number: "+39696969696969",
+        sex: 1,
+        country: "Italy",
+        city: "Rome",
+        onboarding_complete: 1,
+        employment_id: 1,
+        education_id: 1,
+        is_verified: 1,
+      });
+      await bugs.basicBug({ status_id: 2 });
+      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
+      await certificationsList.certification1();
+      await testerCertifications.assignCertification({
+        achievement_date: new Date("01/01/2021").toISOString(),
+      });
+      await employmentsList.employment1({ display_name: "UNGUESS Tester" });
+      await employmentsList.employment1({
+        id: 2,
+        display_name: "Best Tester in the world",
+      });
+      await educationsList.education1({ display_name: "Phd" });
+      await educationsList.education1({ id: 2, display_name: "Phd Professor" });
+      await languagesList.lenguage1({ display_name: "Sicilian" });
+      await testerLanguages.assignLanguage();
       //insert cuf_text
-      await sqlite3.insert("wp_appq_custom_user_field", cufText);
-      await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+      await cuf.insertCuf({
+        name: "Username Tetris",
+        type: "text",
+      });
+      await cufData.insertCufData({
+        value: "CiccioGamer89.",
+        candidate: 0,
+      });
       //insert cuf_select
-      await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufSelectOption1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufSelectTesterOption1
-      );
+      await cuf.insertCuf({
+        id: 2,
+        name: "Tipologia di spezie preferita",
+        type: "select",
+      });
+      await cufExtras.insertCufExtras({
+        name: "Habanero Scorpion",
+      });
+      await cufData.insertCufData({
+        id: 2,
+        value: "1",
+        custom_user_field_id: 2,
+        candidate: 0,
+      });
       //insert cuf_multiselect
-      await sqlite3.insert("wp_appq_custom_user_field", cufMultiselect);
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal2
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal2
-      );
+      await cuf.insertCuf({
+        id: 3,
+        name: "Fornitore di cardamomo preferito",
+        type: "multiselect",
+      });
+      await cufExtras.insertCufExtras({
+        id: 2,
+        name: "Il cardamomo Siciliano",
+      });
+      await cufExtras.insertCufExtras({
+        id: 3,
+        name: "Treviso, città del Cardamomo",
+      });
+      await cufData.insertCufData({
+        id: 3,
+        value: "2",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
+      await cufData.insertCufData({
+        id: 4,
+        value: "3",
+        custom_user_field_id: 3,
+        candidate: 0,
+      });
 
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_evd_profile");
-      await sqlite3.dropTable("wp_users");
-      await sqlite3.dropTable("wp_appq_evd_bug");
-      await sqlite3.dropTable("wp_crowd_appq_has_candidate");
-      await sqlite3.dropTable("wp_appq_certifications_list");
-      await sqlite3.dropTable("wp_appq_profile_certifications");
-      await sqlite3.dropTable("wp_appq_employment");
-      await sqlite3.dropTable("wp_appq_education");
-      await sqlite3.dropTable("wp_appq_lang");
-      await sqlite3.dropTable("wp_appq_profile_has_lang");
-      await sqlite3.dropTable("wp_appq_custom_user_field");
-      await sqlite3.dropTable("wp_appq_custom_user_field_data");
-      await sqlite3.dropTable("wp_appq_custom_user_field_extras");
-      wpOptionsTable.drop();
+      await wpUsers.drop();
+      await attributions.drop();
+      await wpOptions.drop();
+      await profileData.drop();
+      await bugs.drop();
+      await campaignsCandidatures.drop();
+      await certificationsList.drop();
+      await testerCertifications.drop();
+      await employmentsList.drop();
+      await educationsList.drop();
+      await languagesList.drop();
+      await testerLanguages.drop();
+      await cuf.drop();
+      await cufData.drop();
+      await cufExtras.drop();
       resolve(null);
     });
   });
-  it("Should return 412 if email already exists", async () => {
+  it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)
       .patch(`/users/me`)
       .set("Authorization", `Bearer tester`)
       .send({ email: "bob@example.com" });
     expect(response.status).toBe(412);
   });
-  it("Should return tryber with new mail if send a new mail ", async () => {
+  it("Should return tryber with new EMAIL if send a new vaild EMAIL ", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me`)
       .set("Authorization", `Bearer tester`);
     expect(responseGet1.status).toBe(200);
-    expect(responseGet1.body.email).toBe(testerFull.email);
-    expect(responseGet1.body.is_verified).toBe(true);
+    expect(responseGet1.body.email).toBe("tester@example.com");
 
     const responsePatch = await request(app)
       .patch(`/users/me`)
@@ -514,10 +288,247 @@ describe("Route PATCH users-me new mail", () => {
       .set("Authorization", `Bearer tester`);
     expect(responseGet2.status).toBe(200);
     expect(responseGet2.body.email).toBe("pino@example.com");
-    expect(responseGet2.body.is_verified).toBe(false);
     const wpTesterEmail = await sqlite3.get(
-      "SELECT user_email FROM wp_users WHERE ID=" + testerFull.id
+      "SELECT user_email FROM wp_users WHERE ID=1"
     );
+    expect(responsePatch.body.email).toBe("pino@example.com");
     expect(responsePatch.body.email).toBe(wpTesterEmail.user_email);
+  });
+  it("Should return IS_VERIFIED false if before it was true and send a valid new mail", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.status).toBe(200);
+    expect(responseGet1.body.is_verified).toBe(true);
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ email: "pino@example.com" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=is_verified`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responseGet2.body.is_verified).toBe(false);
+  });
+
+  it("Should return tryber with new NAME if send a new NAME", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=name`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.name).toBe("tester");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ name: "new-name" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=name`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.name).toBe("new-name");
+  });
+  it("Should return tryber with new SURNAME if send a new SURNAME", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=surname`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.surname).toBe("tester");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ surname: "new-surname" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=name`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.surname).toBe("new-surname");
+  });
+  it("Should return tryber with new BIRTHDATE if send a new BIRTHDATE", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=birthDate`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.birthDate).toBe("1996-03-21");
+
+    const newBirthDate = new Date()
+      .toISOString()
+      .split(".")[0]
+      .replace("T", " ")
+      .substring(0, 10);
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ birthDate: newBirthDate });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=birthDate`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.birthDate).toBe(newBirthDate);
+  });
+  it("Should return tryber with new PHONE number if send a new PHONE number", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=phone`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.phone).toBe("+39696969696969");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ phone: "0000-1234567890" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=phone`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.phone).toBe("0000-1234567890");
+  });
+
+  it("Should return tryber with new GENDER if send a new GENDER", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=gender`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.gender).toBe("male");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ gender: "female" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=gender`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.gender).toBe("female");
+  });
+
+  it("Should return tryber with new CITY if send a new CITY", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=city`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.city).toBe("Rome");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ city: "Ummary" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=city`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.city).toBe("Ummary");
+  });
+
+  it("Should return tryber with new COUNTRY if send a new COUNTRY", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=country`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.country).toBe("Italy");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ country: "Custonacy Freedomland" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=country`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.country).toBe("Custonacy Freedomland");
+  });
+  it("Should return tryber with new PROFESSION if send a new PROFESSION", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=profession`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.profession).toStrictEqual({
+      id: 1,
+      name: "UNGUESS Tester",
+    });
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ profession: 2 });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=profession`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.profession).toStrictEqual({
+      id: 2,
+      name: "Best Tester in the world",
+    });
+  });
+  it("Should return tryber with new EDUCATION if send a new EDUCATION", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=education`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.education).toStrictEqual({ id: 1, name: "Phd" });
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ education: 2 });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=education`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.education).toStrictEqual({
+      id: 2,
+      name: "Phd Professor",
+    });
+  });
+  it("Should return 417 if send wrong oldPassword", async () => {
+    const oldHashPassword = await sqlite3.get(
+      "SELECT user_pass FROM wp_users WHERE ID=1"
+    );
+    expect(CheckPassword("password", oldHashPassword.user_pass)).toBe(true);
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ oldPassword: "wrongOldPassword", password: "newPassword" });
+    expect(responsePatch.status).toBe(417);
+    expect(responsePatch.body).toStrictEqual({
+      element: "users",
+      id: 1,
+      message: "Your old password is not correct",
+    });
+  });
+  it("Should return an error if send a new password without old password", async () => {
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ password: "newPassword" });
+    expect(responsePatch.body).toStrictEqual({
+      element: "users",
+      id: 1,
+      message: "You need to specify your old password",
+    });
+    expect(responsePatch.status).toBe(400);
+  });
+  it("Should return 200 if send right oldPassword and a new password", async () => {
+    const oldHashPassword = await sqlite3.get(
+      "SELECT user_pass FROM wp_users WHERE ID=1"
+    );
+    expect(CheckPassword("password", oldHashPassword.user_pass)).toBe(true);
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ oldPassword: "password", password: "newPassword" });
+    expect(responsePatch.status).toBe(200);
+    //check new password
+    const olnewHashPassword = await sqlite3.get(
+      "SELECT user_pass FROM wp_users WHERE ID=1"
+    );
+    expect(CheckPassword("newPassword", olnewHashPassword.user_pass)).toBe(
+      true
+    );
   });
 });

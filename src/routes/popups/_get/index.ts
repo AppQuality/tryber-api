@@ -18,7 +18,7 @@ export default async (
   try {
     const SELECT = `SELECT *`;
     const FROM = ` FROM wp_appq_popups`;
-    const WHERE = ``;
+    const WHERE = ` WHERE is_auto <> TRUE `;
     let LIMIT = ``;
 
     if (req.query.limit && typeof req.query.limit == "string") {

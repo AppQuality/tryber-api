@@ -26,13 +26,7 @@ const getAllRoutesByComment = function (
         const routeName = routeComment.value.split(":")[1].trim();
         arrayOfFiles.push({
           name: routeName,
-          path:
-            "./" +
-            path.join(
-              dirPath.replace("src/routes", ""),
-              "/",
-              file.replace(".ts", ".js")
-            ),
+          path: `${dirPath}/${file}`,
         });
       }
     }
@@ -45,7 +39,9 @@ export default (api: OpenAPIBackend) => {
   try {
     const files = getAllRoutesByComment("./src/routes");
     files.forEach((file) => {
-      let route = require(file.path).default;
+      let route = require(file.path
+        .replace("./src/routes", ".")
+        .replace("index.ts", "")).default;
       api.register(file.name, route);
     });
   } catch (e) {

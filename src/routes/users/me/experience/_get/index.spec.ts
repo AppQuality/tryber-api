@@ -1,5 +1,8 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
+import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import { data as experienceData } from "@src/__mocks__/mockedDb/experience";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -38,23 +41,6 @@ const exp2 = {
 describe("GET /users/me/experience", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER ",
-      ]);
-      await sqlite3.createTable("wp_appq_exp_points", [
-        "id INTEGER PRIMARY KEY",
-        "tester_id INTEGER",
-        "activity_id INTEGER",
-        "reason VARCHAR(255)",
-        "creation_date DATETIME",
-        "amount INTEGER",
-        "campaign_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(255)",
-      ]);
       await sqlite3.insert("wp_appq_exp_points", exp1);
       await sqlite3.insert("wp_appq_exp_points", exp2);
       await sqlite3.insert("wp_appq_evd_campaign", campaign1);
@@ -66,9 +52,9 @@ describe("GET /users/me/experience", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_exp_points");
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-      await sqlite3.dropTable("wp_appq_evd_profile");
+      await campaignData.drop();
+      await experienceData.drop();
+      await profileData.drop();
 
       resolve(null);
     });
@@ -159,23 +145,6 @@ describe("GET /users/me/experience", () => {
 describe("GET /users/me/experience - user without experience points", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.createTable("wp_appq_evd_profile", [
-        "id INTEGER PRIMARY KEY",
-        "wp_user_id INTEGER ",
-      ]);
-      await sqlite3.createTable("wp_appq_exp_points", [
-        "id INTEGER PRIMARY KEY",
-        "activity_id INTEGER",
-        "tester_id INTEGER",
-        "reason VARCHAR(255)",
-        "creation_date DATETIME",
-        "amount INTEGER",
-        "campaign_id INTEGER",
-      ]);
-      await sqlite3.createTable("wp_appq_evd_campaign", [
-        "id INTEGER PRIMARY KEY",
-        "title VARCHAR(255)",
-      ]);
       await sqlite3.insert("wp_appq_evd_campaign", campaign1);
       await sqlite3.insert("wp_appq_evd_profile", tester1);
       resolve(null);
@@ -183,9 +152,9 @@ describe("GET /users/me/experience - user without experience points", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.dropTable("wp_appq_exp_points");
-      await sqlite3.dropTable("wp_appq_evd_campaign");
-      await sqlite3.dropTable("wp_appq_evd_profile");
+      await campaignData.drop();
+      await experienceData.drop();
+      await profileData.drop();
 
       resolve(null);
     });

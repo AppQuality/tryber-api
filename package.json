@@ -4,39 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "coverage": "jest  ./dist --coverage",
-    "test": "npm run build && jest ./dist ",
-    "test:ls": "npm run build 2>/dev/null 1>/dev/null && jest ./dist --json",
-    "test:watch": "nodemon --exec \"npm test --\" ",
+    "coverage": "jest --coverage --runInBand",
+    "test": "jest --maxWorkers=50%",
+    "test:ls": "jest --json",
+    "test:watch": "nodemon --exec \"npm test -- --maxWorkers=50%\" ",
     "clean": "rimraf dist",
-    "transpile": "babel ./src --out-dir dist --extensions \".ts,.js\"",
+    "transpile": "tsc --noEmit false  && tscpaths -p tsconfig.json -s ./src -o ./dist",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
     "build": "npm-run-all clean transpile copy-reference",
-    "dev": "NODE_ENV=development npm-run-all build server ",
-    "server": "tsc && node --enable-source-maps ./dist/index.js",
-    "watch:dev": "nodemon",
-    "start": "npm run watch:dev",
+    "start": "nodemon",
     "prepare": "npx husky install",
     "types": "npx openapi-typescript src/reference/openapi.yml --output src/schema.ts"
-  },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "<rootDir>/src"
-    ],
-    "moduleNameMapper": {
-      "jsonwebtoken": "<rootDir>/dist/__mocks__/jsonwebtoken",
-      "@appquality/wp-auth": "<rootDir>/dist/__mocks__/@appquality-wp-auth"
-    },
-    "testTimeout": 15000
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@appquality/wp-auth": "^1.0.7",
-    "@babel/runtime": "^7.16.7",
     "@googlemaps/google-maps-services-js": "^3.3.7",
     "@sendgrid/mail": "^7.6.0",
-    "ajv": "^8.9.0",
     "avatar-initials": "^5.0.0",
     "aws-sdk": "^2.1087.0",
     "axios": "^0.25.0",
@@ -44,50 +29,46 @@
     "codice-fiscale-js": "^2.3.13",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
+    "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1",
-    "node-fetch": "^3.1.1",
     "openapi-backend": "^3.9.2",
     "parse-comments": "^1.0.0",
     "php-unserialize": "^0.0.1",
     "wordpress-hash-node": "^1.0.0"
   },
   "nodemonConfig": {
-    "exec": "npm run dev",
+    "exec": "node -r tsconfig-paths/register -r ts-node/register ./src/index.ts",
     "watch": [
       "src/*"
     ],
     "ext": "ts,json"
   },
   "devDependencies": {
-    "@babel/cli": "^7.16.0",
-    "@babel/core": "^7.16.0",
-    "@babel/plugin-transform-runtime": "^7.16.8",
-    "@babel/preset-env": "^7.16.4",
-    "@babel/preset-typescript": "^7.16.7",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
-    "@types/jest": "^27.4.0",
+    "@types/jest": "^27.5.1",
     "@types/jsonwebtoken": "^8.5.8",
     "@types/mysql": "^2.15.20",
     "@types/sqlite3": "^3.1.8",
-    "@types/supertest": "^2.0.11",
+    "@types/supertest": "^2.0.12",
     "@types/wordpress-hash-node": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.9.1",
     "@typescript-eslint/parser": "^5.9.1",
-    "babel-plugin-module-resolver": "^4.1.0",
     "better-sqlite3": "^7.5.0",
     "copyfiles": "^2.4.1",
     "husky": "^7.0.4",
-    "jest": "^27.4.7",
-    "jest-cli": "^27.4.7",
+    "jest": "^28.1.0",
+    "jest-cli": "^28.1.0",
     "nodemon": "^2.0.15",
     "openapi-typescript": "^5.1.1",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2",
-    "supertest": "^6.1.6",
-    "webpack": "^4.30.0",
-    "webpack-dev-middleware": "^3.6.2"
+    "supertest": "^6.2.3",
+    "ts-jest": "^28.0.2",
+    "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1",
+    "tscpaths": "^0.0.9",
+    "typescript": "^4.6.3"
   }
 }

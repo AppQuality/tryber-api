@@ -1,5 +1,7 @@
 import sqlite3 from "@src/features/sqlite";
-
+import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
+import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import updatePayment from ".";
 
 jest.mock("@src/features/db");
@@ -51,31 +53,6 @@ describe("updatePayment", () => {
   beforeEach(() => {
     return new Promise(async (resolve, reject) => {
       try {
-        await sqlite3.createTable("wp_appq_payment_request", [
-          "id INTEGER PRIMARY KEY",
-          "tester_id INTEGER",
-          "amount FLOAT(2)",
-          "amount_paypal_fee FLOAT(2)",
-          "iban VARCHAR(255)",
-          "paypal_email VARCHAR(255)",
-          "is_paid BOOL",
-          "paid_date DATETIME",
-          "error_message text",
-        ]);
-        await sqlite3.createTable("wp_appq_payment", [
-          "id INTEGER PRIMARY KEY",
-          "is_paid BOOL",
-          "request_id INTEGER",
-        ]);
-        await sqlite3.createTable("wp_appq_evd_profile", [
-          "id INTEGER PRIMARY KEY",
-          "name VARCHAR(255)",
-          "surname VARCHAR(255)",
-          "pending_booty FLOAT(2)",
-          "booty FLOAT(2)",
-          "payment_status BOOL",
-        ]);
-
         await sqlite3.insert(
           "wp_appq_payment_request",
           validBankTransferPayment
@@ -100,9 +77,9 @@ describe("updatePayment", () => {
   afterEach(async () => {
     return new Promise(async (resolve, reject) => {
       try {
-        await sqlite3.dropTable("wp_appq_payment_request");
-        await sqlite3.dropTable("wp_appq_payment");
-        await sqlite3.dropTable("wp_appq_evd_profile");
+        await paymentRequestData.drop();
+        await attributionData.drop();
+        await profileData.drop();
         resolve(null);
       } catch (err) {
         reject(err);

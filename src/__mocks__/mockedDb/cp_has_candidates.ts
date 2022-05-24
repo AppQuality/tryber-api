@@ -1,10 +1,11 @@
 import sqlite3 from "@src/features/sqlite";
 
+const tableName = "wp_crowd_appq_has_candidate";
 export const table = {
   create: async () => {
-    await sqlite3.createTable("wp_crowd_appq_has_candidate", [
+    await sqlite3.createTable(tableName, [
       "user_id INTEGER(11) NOT NULL PRIMARY KEY",
-      "campaign_id INTEGER(11) NOT NULL",
+      "campaign_id INTEGER(11)",
       "subscription_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP",
       "accepted INTEGER(1)",
       "devices VARCHAR(600) NOT NULL DEFAULT 0",
@@ -15,15 +16,30 @@ export const table = {
     ]);
   },
   drop: async () => {
-    await sqlite3.dropTable("wp_crowd_appq_has_candidate");
+    await sqlite3.dropTable(tableName);
   },
+};
+type CandidacyParams = {
+  user_id?: number;
+  campaign_id?: number;
+  subscription_date?: string;
+  accepted?: number;
+  devices?: number;
+  selected_device?: number;
+  results?: number;
+  modified?: string;
+  group_id?: number;
 };
 
 const data: {
-  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
-} = {};
+  [key: string]: (params?: CandidacyParams) => Promise<{ [key: string]: any }>;
+} = {
+  drop: async () => {
+    return await sqlite3.run(`DELETE FROM ${tableName}`);
+  },
+};
 
-data.candidate1 = async () => {
+data.candidate1 = async (params) => {
   const item = {
     user_id: 1,
     campaign_id: 1,
@@ -34,8 +50,9 @@ data.candidate1 = async () => {
     results: 0,
     modified: new Date("01/01/2021").toISOString(),
     group_id: 1,
+    ...params,
   };
-  await sqlite3.insert("wp_crowd_appq_has_candidate", item);
+  await sqlite3.insert(tableName, item);
   return item;
 };
 
