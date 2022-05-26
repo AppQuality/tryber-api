@@ -1028,6 +1028,22 @@ paths:
       security:
         - JWT: []
       description: Get all education levels
+  /media:
+    post:
+      summary: ''
+      operationId: post-media
+      responses:
+        '200':
+          description: OK
+      description: 'Send a media for my bug to AppQuality Bucket. '
+      requestBody:
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+        description: ''
+    parameters: []
   /users:
     get:
       summary: Get all users
@@ -1604,21 +1620,6 @@ paths:
         - $ref: '#/components/parameters/order'
       description: 'Get all the bugs that you uploaded to AppQuality. '
     parameters: []
-  /users/me/bugs/media:
-    post:
-      summary: ''
-      operationId: post-users-me-bugs-media
-      responses:
-        '200':
-          description: OK
-      description: 'Send a media for my bug to AppQuality Bucket. '
-      requestBody:
-        content:
-          image/png:
-            schema:
-              type: string
-              format: binary
-        description: ''
   /users/me/experience:
     get:
       summary: Get your experience points
