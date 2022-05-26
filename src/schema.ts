@@ -186,6 +186,10 @@ export interface paths {
     get: operations["get-users-me-bugs"];
     parameters: {};
   };
+  "/users/me/bugs/media": {
+    /** Send a media for my bug to AppQuality Bucket. */
+    post: operations["post-users-me-bugs-media"];
+  };
   "/users/me/experience": {
     /** Get all the experience points earned in AppQuality. */
     get: operations["get-users-me-experience"];
@@ -1489,6 +1493,18 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  /** Send a media for my bug to AppQuality Bucket. */
+  "post-users-me-bugs-media": {
+    responses: {
+      /** OK */
+      200: unknown;
+    };
+    requestBody: {
+      content: {
+        "image/png": string;
+      };
     };
   };
   /** Get all the experience points earned in AppQuality. */

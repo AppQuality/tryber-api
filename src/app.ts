@@ -40,10 +40,12 @@ app.use(
     extended: true,
   })
 );
+//app.use(BINARY?????);
 
 app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
 });
+
 app.use((req, res) => {
   if (req.rawHeaders.includes("x-tryber-mock-example")) {
     let exampleData = req.headers["x-tryber-mock-example"];
