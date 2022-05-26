@@ -9,7 +9,8 @@ export default async (
 ) => {
   try {
     const user = req.user;
-    let uploadedFiles: string[] = [];
+    let uploadedFiles: StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"] =
+      [];
     if (req.files.media && user) {
       const files = req.files.media;
       const today = new Date();
