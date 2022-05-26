@@ -166,6 +166,11 @@ export interface paths {
     /** Get all education levels */
     get: operations["get-education"];
   };
+  "/media": {
+    /** Send a media for my bug to AppQuality Bucket. */
+    post: operations["post-media"];
+    parameters: {};
+  };
   "/users": {
     /** Get all users you have access to */
     get: operations["get-users"];
@@ -185,10 +190,6 @@ export interface paths {
     /** Get all the bugs that you uploaded to AppQuality. */
     get: operations["get-users-me-bugs"];
     parameters: {};
-  };
-  "/users/me/bugs/media": {
-    /** Send a media for my bug to AppQuality Bucket. */
-    post: operations["post-users-me-bugs-media"];
   };
   "/users/me/experience": {
     /** Get all the experience points earned in AppQuality. */
@@ -1249,6 +1250,19 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  /** Send a media for my bug to AppQuality Bucket. */
+  "post-media": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: unknown;
+    };
+    requestBody: {
+      content: {
+        "image/png": string;
+      };
+    };
+  };
   /** Get all users you have access to */
   "get-users": {
     responses: {
@@ -1493,18 +1507,6 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
-    };
-  };
-  /** Send a media for my bug to AppQuality Bucket. */
-  "post-users-me-bugs-media": {
-    responses: {
-      /** OK */
-      200: unknown;
-    };
-    requestBody: {
-      content: {
-        "image/png": string;
-      };
     };
   };
   /** Get all the experience points earned in AppQuality. */

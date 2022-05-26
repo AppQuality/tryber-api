@@ -1,6 +1,6 @@
 import { Context } from "openapi-backend";
 
-/** OPENAPI-ROUTE: post-users-me-bugs-media */
+/** OPENAPI-ROUTE: post-media */
 export default async (
   c: Context,
   req: OpenapiRequest,
