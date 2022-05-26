@@ -1255,7 +1255,11 @@ export interface operations {
     parameters: {};
     responses: {
       /** OK */
-      200: unknown;
+      200: {
+        content: {
+          "application/json": string[];
+        };
+      };
     };
     requestBody: {
       content: {
