@@ -6,11 +6,13 @@ type UploadParams = {
   key: string;
   file: UploadedFile;
 };
-export default async ({ bucket, key, file }: UploadParams) => {
-  const s3 = new S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID, // your AWS access id
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY, // your AWS access key
-  });
+
+export default async ({ bucket, key, file }: UploadParams): Promise<string> => {
+  const awsCredentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  };
+  const s3 = new S3(awsCredentials);
 
   const data = await s3
     .upload({
