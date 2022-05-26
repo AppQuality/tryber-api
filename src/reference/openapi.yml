@@ -1043,6 +1043,8 @@ paths:
               type: string
               format: binary
         description: ''
+      security:
+        - JWT: []
     parameters: []
   /users:
     get:
