@@ -1,8 +1,8 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
+import upload from "express-fileupload";
 import OpenAPIBackend, { Options, Request } from "openapi-backend";
-
 import config from "./config";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
@@ -40,7 +40,7 @@ app.use(
     extended: true,
   })
 );
-//app.use(BINARY?????);
+app.use(upload());
 
 app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
