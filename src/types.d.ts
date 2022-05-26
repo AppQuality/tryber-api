@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { FileArray } from "express-fileupload";
 import { Request } from "openapi-backend";
 
 import { components, operations, paths } from "./schema";
@@ -11,6 +12,7 @@ declare global {
   interface OpenapiRequest extends Request {
     user: UserType;
     query: { [key: string]: string | { [key: string]: string } };
+    files: FileArray;
   }
   interface OpenapiError extends Error {
     status_code: number;
