@@ -1100,6 +1100,7 @@ paths:
               properties:
                 url:
                   type: string
+                  format: uri
   /users:
     get:
       summary: Get all users
