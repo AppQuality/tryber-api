@@ -44,7 +44,6 @@ describe("Route POST /media", () => {
       .attach("media", "./src/__mocks__/exampleFiles/void.sh")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    console.log(response.body);
     expect(response.body).toHaveProperty("failed", [
       { name: "void.bat" },
       { name: "void.sh" },
