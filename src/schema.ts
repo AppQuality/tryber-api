@@ -169,6 +169,7 @@ export interface paths {
   "/media": {
     /** Send a media for my bug to AppQuality Bucket. */
     post: operations["post-media"];
+    delete: operations["delete-media"];
     parameters: {};
   };
   "/users": {
@@ -1272,6 +1273,21 @@ export interface operations {
     requestBody: {
       content: {
         "image/png": string;
+      };
+    };
+  };
+  "delete-media": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: unknown;
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          url?: string;
+        };
       };
     };
   };
