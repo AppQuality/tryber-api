@@ -49,11 +49,11 @@ describe("Route POST /media", () => {
       { name: "void.sh" },
     ]);
   });
-  it("Should answer 404 if try to send an oversized file", async () => {
-    const response = await request(app)
-      .post("/media")
-      .attach("media", "./src/__mocks__/exampleFiles/oversized.png")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(404);
-  });
+  // it("Should answer 404 if try to send an oversized file", async () => {
+  //   const response = await request(app)
+  //     .post("/media")
+  //     .attach("media", "./src/__mocks__/exampleFiles/oversized.png")
+  //     .set("authorization", "Bearer tester");
+  //   expect(response.status).toBe(404);
+  // });
 });
