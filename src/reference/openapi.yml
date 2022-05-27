@@ -1040,7 +1040,12 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    path:
+                      type: string
       description: 'Send a media for my bug to AppQuality Bucket. '
       requestBody:
         content:
