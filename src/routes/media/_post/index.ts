@@ -50,8 +50,9 @@ export default async (
   > {
     let uploadedFiles = [];
     for (const media of files) {
-      uploadedFiles.push(
-        (
+      uploadedFiles.push({
+        name: media.name,
+        path: (
           await upload({
             bucket: `tryber.assets.static`,
             key: getKey({
@@ -61,8 +62,8 @@ export default async (
             }),
             file: media,
           })
-        ).toString()
-      );
+        ).toString(),
+      });
     }
     return uploadedFiles;
   }
