@@ -1286,6 +1286,7 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
+          /** Format: uri */
           url?: string;
         };
       };
