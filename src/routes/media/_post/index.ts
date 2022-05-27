@@ -1,3 +1,4 @@
+import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
 import { Context } from "openapi-backend";
 
@@ -13,17 +14,19 @@ export default async (
       [];
     if (req.files.media && user) {
       const files = req.files.media;
-      const today = new Date();
-      const date =
-        today.getFullYear() +
-        "_" +
-        (today.getMonth() + 1) +
-        "_" +
-        today.getDate();
+
       //console.log(req.files.media);
 
       if (Array.isArray(files)) {
-        files.forEach(async (media) => {
+        for (const media of files) {
+          const today = new Date();
+          const date =
+            today.getFullYear() +
+            "_" +
+            (today.getMonth() + 1) +
+            "_" +
+            today.getDate();
+
           const extension = media.name.split(".").pop();
           if (extension) media.name = media.name.replace(extension, "");
           const name = media.name + "_" + date + "." + extension;
@@ -34,20 +37,18 @@ export default async (
           });
           uploadedFiles.push(uploadedFile.toString());
           console.log(uploadedFiles);
-        });
+        }
         res.status_code = 200;
         return uploadedFiles;
       }
     }
-    res.status_code = 200;
-    return { uploadedFiles };
-  } catch (error) {
-    if (process.env && process.env.DEBUG) console.log(error);
+  } catch (err) {
+    debugMessage(err);
     res.status_code = 404;
     return {
       element: "media-bugs",
       id: 0,
-      message: (error as OpenapiError).message,
+      message: (err as OpenapiError).message,
     };
   }
 };
