@@ -4,7 +4,6 @@ import { UploadedFile } from "express-fileupload";
 import { Context } from "openapi-backend";
 import path from "path";
 
-const notAcceptableFiles = [".bat", ".sh", ".exe"];
 /** OPENAPI-ROUTE: post-media */
 export default async (
   c: Context,
@@ -40,11 +39,11 @@ export default async (
     filename: string;
     extension: string;
   }): string {
-    return `media/T${testerId}/${filename}}_${new Date().getTime()}${extension}`;
+    return `media/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
   }
 
-  function isAccetableFile(file: UploadedFile): boolean {
-    return !notAcceptableFiles.includes(path.extname(file.name));
+  function isAcceptableFile(file: UploadedFile): boolean {
+    return ![".bat", ".sh", ".exe"].includes(path.extname(file.name));
   }
 
   async function uploadFiles(
@@ -54,24 +53,29 @@ export default async (
     StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]
   > {
     let uploadedFiles = [];
+    let failedFiles = [];
     for (const media of files) {
-      if (!isAccetableFile(media))
-        throw new Error("Unacceptable file extension");
-      uploadedFiles.push({
-        name: media.name,
-        path: (
-          await upload({
-            bucket: `tryber.assets.static`,
-            key: getKey({
-              testerId: testerId,
-              filename: path.basename(media.name, path.extname(media.name)),
-              extension: path.extname(media.name),
-            }),
-            file: media,
-          })
-        ).toString(),
-      });
+      if (!isAcceptableFile(media)) failedFiles.push({ name: media.name });
+      else {
+        uploadedFiles.push({
+          name: media.name,
+          path: (
+            await upload({
+              bucket: `tryber.assets.static`,
+              key: getKey({
+                testerId: testerId,
+                filename: path.basename(media.name, path.extname(media.name)),
+                extension: path.extname(media.name),
+              }),
+              file: media,
+            })
+          ).toString(),
+        });
+      }
     }
-    return uploadedFiles;
+    return {
+      files: uploadedFiles,
+      failed: failedFiles.length ? failedFiles : undefined,
+    };
   }
 };

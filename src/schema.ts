@@ -1258,9 +1258,14 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            name?: string;
-            path?: string;
-          }[];
+            files: {
+              name: string;
+              path: string;
+            }[];
+            failed?: {
+              name: string;
+            }[];
+          };
         };
       };
     };
