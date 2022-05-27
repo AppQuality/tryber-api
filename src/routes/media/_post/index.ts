@@ -24,7 +24,7 @@ export default async (
     debugMessage(err);
     res.status_code = 404;
     return {
-      element: "media-bugs",
+      element: "media-upload",
       id: 0,
       message: (err as OpenapiError).message,
     };
