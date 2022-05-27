@@ -1082,6 +1082,24 @@ paths:
       security:
         - JWT: []
     parameters: []
+    delete:
+      summary: ''
+      operationId: delete-media
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
   /users:
     get:
       summary: Get all users
