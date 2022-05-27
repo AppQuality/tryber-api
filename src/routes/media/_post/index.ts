@@ -55,7 +55,8 @@ export default async (
     let uploadedFiles = [];
     let failedFiles = [];
     for (const media of files) {
-      if (!isAcceptableFile(media)) failedFiles.push({ name: media.name });
+      if (!isAcceptableFile(media) || isOversizedFile(media))
+        failedFiles.push({ name: media.name });
       else {
         uploadedFiles.push({
           name: media.name,
@@ -79,3 +80,8 @@ export default async (
     };
   }
 };
+function isOversizedFile(media: UploadedFile): boolean {
+  //return media.size > process.env.MAX_FILE_SIZE;
+  console.log(media.size); //media.size is in bytes
+  return false;
+}

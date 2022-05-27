@@ -1,7 +1,7 @@
-import app from "@src/app";
-import upload from "@src/features/upload";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import upload from "@src/features/upload";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -48,5 +48,12 @@ describe("Route POST /media", () => {
       { name: "void.bat" },
       { name: "void.sh" },
     ]);
+  });
+  it("Should answer 404 if try to send an oversized file", async () => {
+    const response = await request(app)
+      .post("/media")
+      .attach("media", "./src/__mocks__/exampleFiles/oversized.png")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
   });
 });
