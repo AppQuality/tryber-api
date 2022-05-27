@@ -4,6 +4,7 @@ import { UploadedFile } from "express-fileupload";
 import { Context } from "openapi-backend";
 import path from "path";
 
+const notAcceptableFiles = [".bat", ".sh", ".exe"];
 /** OPENAPI-ROUTE: post-media */
 export default async (
   c: Context,
@@ -42,6 +43,10 @@ export default async (
     return `media/T${testerId}/${filename}}_${new Date().getTime()}${extension}`;
   }
 
+  function isAccetableFile(file: UploadedFile): boolean {
+    return !notAcceptableFiles.includes(path.extname(file.name));
+  }
+
   async function uploadFiles(
     files: UploadedFile[],
     testerId: number
@@ -50,6 +55,8 @@ export default async (
   > {
     let uploadedFiles = [];
     for (const media of files) {
+      if (!isAccetableFile(media))
+        throw new Error("Unacceptable file extension");
       uploadedFiles.push({
         name: media.name,
         path: (
