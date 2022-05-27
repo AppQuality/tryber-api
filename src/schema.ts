@@ -1257,7 +1257,10 @@ export interface operations {
       /** OK */
       200: {
         content: {
-          "application/json": string[];
+          "application/json": {
+            name?: string;
+            path?: string;
+          }[];
         };
       };
     };
