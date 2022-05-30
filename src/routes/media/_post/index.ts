@@ -39,7 +39,9 @@ export default async (
     filename: string;
     extension: string;
   }): string {
-    return `media/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
+    return `${
+      process.env.MEDIA_FOLDER || "media"
+    }/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
   }
 
   function isAcceptableFile(file: UploadedFile): boolean {
@@ -62,7 +64,7 @@ export default async (
           name: media.name,
           path: (
             await upload({
-              bucket: `tryber.assets.static`,
+              bucket: process.env.MEDIA_BUCKET || "",
               key: getKey({
                 testerId: testerId,
                 filename: path.basename(media.name, path.extname(media.name)),

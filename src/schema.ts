@@ -1287,7 +1287,7 @@ export interface operations {
       content: {
         "application/json": {
           /** Format: uri */
-          url?: string;
+          url: string;
         };
       };
     };

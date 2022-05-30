@@ -8,18 +8,30 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
+  const { url } =
+    req.body as StoplightOperations["delete-media"]["requestBody"]["content"]["application/json"];
+
+  const bucket = process.env.MEDIA_BUCKET;
+  if (!bucket) {
+    res.status_code = 500;
+    return {
+      message: "Configuration error, contact your administrator",
+    };
+  }
+
+  if (!isValidPath(url, "eu-west-1", bucket)) {
+    res.status_code = 404;
+    return {
+      element: "delete-media",
+      id: 0,
+      message: "Bad file path",
+    };
+  }
+
   try {
-    if (!req.body.url) {
-      throw new Error("No url was provided");
-    }
-    if (
-      !isS3Path(req.body.url, "eu-west-1", "tryber.assets.static") ||
-      !isMyS3Folder(req.body.url)
-    ) {
-      throw new Error("Bad file path");
-    }
     res.status_code = 200;
-    return await deleteFromS3({ url: req.body.url });
+    await deleteFromS3({ url });
+    return {};
   } catch (err) {
     debugMessage(err);
     res.status_code = 404;
@@ -30,11 +42,11 @@ export default async (
     };
   }
 
-  function isS3Path(path: string, region: string, bucket: string): boolean {
-    return path.startsWith(`https://s3.${region}.amazonaws.com/${bucket}/`);
-  }
-
-  function isMyS3Folder(path: string): boolean {
-    return path.includes(`/T${req.user.testerId}/`);
+  function isValidPath(path: string, region: string, bucket: string): boolean {
+    return path.startsWith(
+      `https://s3.${region}.amazonaws.com/${bucket}/${
+        process.env.MEDIA_FOLDER || "media"
+      }/T${req.user.testerId}/`
+    );
   }
 };
