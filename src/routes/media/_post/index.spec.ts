@@ -50,6 +50,7 @@ describe("Route POST /media", () => {
     expect(response.body).toHaveProperty("failed", [
       { name: "void.bat" },
       { name: "void.sh" },
+      { name: "void.exe" },
     ]);
   });
   it("Should answer 200 and mark as failed if try to send an oversized file", async () => {
