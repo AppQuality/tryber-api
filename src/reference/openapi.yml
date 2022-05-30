@@ -1101,6 +1101,8 @@ paths:
                 url:
                   type: string
                   format: uri
+              required:
+                - url
   /users:
     get:
       summary: Get all users
