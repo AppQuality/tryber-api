@@ -61,6 +61,10 @@ export default async (
     WHERE tester_id = ? AND is_active = 0`;
     await db.query(db.format(deleteProfile, [req.user.testerId]));
 
+    const deleteRankLevel = `DELETE FROM wp_appq_activity_level
+    WHERE tester_id = ?`;
+    await db.query(db.format(deleteRankLevel, [req.user.testerId]));
+
     res.status_code = 200;
     return true;
   } catch (error) {
