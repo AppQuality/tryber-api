@@ -83,7 +83,8 @@ export default async (
   }
 };
 function isOversizedFile(media: UploadedFile): boolean {
-  //return media.size > process.env.MAX_FILE_SIZE;
-  console.log(media.size); //media.size is in bytes
-  return false;
+  return (
+    typeof media.size !== "number" ||
+    media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912")
+  );
 }

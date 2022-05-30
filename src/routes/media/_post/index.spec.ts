@@ -1,7 +1,7 @@
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import upload from "@src/features/upload";
+import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 jest.mock("@src/features/db");
@@ -36,12 +36,15 @@ describe("Route POST /media", () => {
     const response = await request(app).post("/media");
     expect(response.status).toBe(403);
   });
-  it("Should answer 200 if try to send file as .bat, .sh and .exe", async () => {
+  it("Should answer 200 and mark as failed if try to send file as .bat, .sh and .exe", async () => {
+    const mockFileBuffer = Buffer.from("some data");
+
     const response = await request(app)
       .post("/media")
-      .attach("media", "./src/__mocks__/exampleFiles/void.bat")
-      .attach("media", "./src/__mocks__/exampleFiles/image.png")
-      .attach("media", "./src/__mocks__/exampleFiles/void.sh")
+      .attach("media", mockFileBuffer, "void.bat")
+      .attach("media", mockFileBuffer, "image.png")
+      .attach("media", mockFileBuffer, "void.sh")
+      .attach("media", mockFileBuffer, "void.exe")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("failed", [
@@ -49,11 +52,17 @@ describe("Route POST /media", () => {
       { name: "void.sh" },
     ]);
   });
-  // it("Should answer 404 if try to send an oversized file", async () => {
-  //   const response = await request(app)
-  //     .post("/media")
-  //     .attach("media", "./src/__mocks__/exampleFiles/oversized.png")
-  //     .set("authorization", "Bearer tester");
-  //   expect(response.status).toBe(404);
-  // });
+  it("Should answer 200 and mark as failed if try to send an oversized file", async () => {
+    process.env.MAX_FILE_SIZE = "100";
+    // a buffer with size of 101 bytes
+    const mockFileBuffer = Buffer.alloc(101);
+
+    const response = await request(app)
+      .post("/media")
+      .attach("media", mockFileBuffer, "oversized.png")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+
+    expect(response.body).toHaveProperty("failed", [{ name: "oversized.png" }]);
+  });
 });
