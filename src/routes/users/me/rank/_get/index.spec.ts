@@ -49,6 +49,12 @@ const mockedLevelDefinitions = () => {
     reach_exp_pts: undefined,
   });
 };
+const firstDayOfLastMonth = () => {
+  const date = new Date();
+  date.setDate(1);
+  date.setMonth(date.getMonth() - 1);
+  return date;
+};
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
@@ -64,7 +70,7 @@ describe("Route GET users-me-rank", () => {
       expData.basicExperience({ id: 3, tester_id: 3, amount: 169 });
       levelRevData.basicLevelRev({
         level_id: 20,
-        start_date: new Date(new Date().setMonth(new Date().getMonth() - 1))
+        start_date: firstDayOfLastMonth()
           .toISOString()
           .split(".")[0]
           .replace("T", " "),
