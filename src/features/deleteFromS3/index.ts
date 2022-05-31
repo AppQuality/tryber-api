@@ -3,7 +3,8 @@ import { parse } from "url";
 
 const decomposeS3Url = (url: string): { bucket: string; key: string } => {
   const { path } = parse(url);
-  const [, bucket, key] = (path || "").match(/\/(.*?)\/(.*?)\/?$/) || [];
+  const decodedPath = decodeURI(path || "");
+  const [, bucket, key] = decodedPath.match(/\/(.*?)\/(.*?)\/?$/) || [];
   return { bucket, key };
 };
 
