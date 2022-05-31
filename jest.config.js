@@ -15,6 +15,9 @@ module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
   testTimeout: 15000,
+  transform: {
+    "^.+\\.(t|j)sx?$": ["@swc/jest"],
+  },
   globals: {
     "ts-jest": {
       isolatedModules: true,
