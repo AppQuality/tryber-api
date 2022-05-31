@@ -12,7 +12,7 @@
     "transpile": "tsc --noEmit false  && tscpaths -p tsconfig.json -s ./src -o ./dist",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
     "build": "npm-run-all clean transpile copy-reference",
-    "start": "tsnd --transpile-only ./src/index.ts",
+    "start": "tsnd --respawn -r tsconfig-paths/register  --transpile-only  ./src/index.ts",
     "prepare": "npx husky install",
     "types": "npx openapi-typescript src/reference/openapi.yml --output src/schema.ts"
   },
