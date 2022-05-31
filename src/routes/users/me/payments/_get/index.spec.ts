@@ -4,9 +4,6 @@ import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentReque
 import { data as receiptData } from "@src/__mocks__/mockedDb/receipt";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 const paymentRequestPaypal = {
   id: 1,
   tester_id: 1,

@@ -10,6 +10,7 @@ module.exports = {
     "@appquality/wp-auth": "<rootDir>/src/__mocks__/@appquality-wp-auth",
   }),
   testMatch: ["**/?(*.)+(spec|test).[jt]s?(x)"],
+  setupFiles: ["<rootDir>/src/__mocks__/mocks.ts"],
   setupFilesAfterEnv: ["<rootDir>/src/__mocks__/globalSetup.ts"],
   preset: "ts-jest",
   testEnvironment: "node",

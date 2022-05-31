@@ -1,12 +1,10 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import { data as userLevels } from "@src/__mocks__/mockedDb/levels";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 const user = {
   ID: 1,
 };

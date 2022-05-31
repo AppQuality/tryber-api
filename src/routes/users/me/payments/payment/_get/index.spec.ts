@@ -7,9 +7,6 @@ import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 const campaign1 = {
   id: 1,
   title: "Campaign 1",

@@ -1,3 +1,5 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import { data as attributions } from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
@@ -13,13 +15,9 @@ import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCert
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
 import { data as wpOptions } from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 jest.mock("@src/routes/users/me/_get/getRankData");
 
 describe("Route PATCH users-me", () => {

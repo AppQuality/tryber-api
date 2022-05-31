@@ -6,9 +6,6 @@ import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 const mockedLevelDefinitions = () => {
   levelDefData.basicLevel();
   levelDefData.basicLevel({
