@@ -18,17 +18,10 @@ export default async (
       message: "Configuration error, contact your administrator",
     };
   }
-
-  if (!isValidPath(url, "eu-west-1", bucket)) {
-    res.status_code = 404;
-    return {
-      element: "delete-media",
-      id: 0,
-      message: "Bad file path",
-    };
-  }
-
   try {
+    if (!isValidPath(url, "eu-west-1", bucket)) {
+      throw new Error("Invalid path");
+    }
     res.status_code = 200;
     await deleteFromS3({ url });
     return {};
@@ -38,7 +31,7 @@ export default async (
     return {
       element: "delete-media",
       id: 0,
-      message: (err as OpenapiError).message,
+      message: "Bad file path",
     };
   }
 
