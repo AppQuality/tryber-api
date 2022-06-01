@@ -2,6 +2,7 @@
   "ts-node": {
     "files": true
   },
+  "files": ["src/index.ts", "src/types.d.ts"],
   "compilerOptions": {
     "inlineSourceMap": true,
     "noImplicitAny": true,

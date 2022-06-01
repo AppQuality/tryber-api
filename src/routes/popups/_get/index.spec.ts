@@ -2,9 +2,6 @@ import app from "@src/app";
 import { data as popupData } from "@src/__mocks__/mockedDb/popups";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 describe("Route GET popups", () => {
   const data: { [key: string]: any } = {};
   beforeAll(async () => {

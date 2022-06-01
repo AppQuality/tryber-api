@@ -4,8 +4,6 @@ import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import createTesterData from "./createTesterData";
 import shouldShowFirstNineTesters from "./shouldShowFirstNineTesters";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 jest.mock("avatar-initials", () => {
   return {
     gravatarUrl: jest.fn(

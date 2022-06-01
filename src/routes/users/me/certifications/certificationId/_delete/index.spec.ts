@@ -3,8 +3,6 @@ import sqlite3 from "@src/features/sqlite";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 const cert1 = {
   id: 1,
   cert_id: 1,

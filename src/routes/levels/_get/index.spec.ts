@@ -2,9 +2,6 @@ import app from "@src/app";
 import { data as levelDefData } from "@src/__mocks__/mockedDb/levelsDefinition";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 describe("GET /levels", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {

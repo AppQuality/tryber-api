@@ -4,9 +4,6 @@ import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
 import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 const campaign1 = {
   id: 1,
   title: "The Best Campaign ever",
