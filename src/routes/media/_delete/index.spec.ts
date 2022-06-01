@@ -4,8 +4,6 @@ import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 jest.mock("@src/features/deleteFromS3");
 
 process.env.MEDIA_BUCKET = "media.bucket";

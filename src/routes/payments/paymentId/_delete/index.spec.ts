@@ -4,8 +4,6 @@ import { data as attributionsData } from "@src/__mocks__/mockedDb/attributions";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 describe("DELETE /payments/{paymentId}", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {

@@ -8,9 +8,6 @@ import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
-
 describe("POST /users/me/payments - valid paypal", () => {
   const data: any = {};
   beforeEach(async () => {

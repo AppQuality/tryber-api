@@ -6,8 +6,6 @@ import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as deviceData } from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 const tester1 = {
   id: 1,
   wp_user_id: 1,

@@ -39,10 +39,14 @@ export default (api: OpenAPIBackend) => {
   try {
     const files = getAllRoutesByComment("./src/routes");
     files.forEach((file) => {
-      let route = require(file.path
+      const filePath = file.path
         .replace("./src/routes", ".")
-        .replace("index.ts", "")).default;
-      api.register(file.name, route);
+        .replace("index.ts", "");
+
+      api.register(file.name, (c, req, res) => {
+        let route = require(filePath).default;
+        return route(c, req, res);
+      });
     });
   } catch (e) {
     console.log(e);
