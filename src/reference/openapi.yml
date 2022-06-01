@@ -1072,15 +1072,23 @@ paths:
                   - files
               examples: {}
       description: 'Send a media for my bug to AppQuality Bucket. '
-      requestBody:
-        content:
-          image/png:
-            schema:
-              type: string
-              format: binary
-        description: ''
       security:
         - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - type: string
+                      properties: {}
+                      format: binary
+                    - type: array
+                      items:
+                        type: string
+                        format: binary
     parameters: []
     delete:
       summary: ''
