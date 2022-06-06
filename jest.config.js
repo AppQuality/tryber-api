@@ -9,6 +9,7 @@ module.exports = {
     jsonwebtoken: "<rootDir>/src/__mocks__/jsonwebtoken",
     "@appquality/wp-auth": "<rootDir>/src/__mocks__/@appquality-wp-auth",
   }),
+  collectCoverageFrom: ["src/**/*.{js,jsx,ts,tsx}", "!<rootDir>/node_modules/"],
   testMatch: ["**/?(*.)+(spec|test).[jt]s?(x)"],
   setupFiles: ["<rootDir>/src/__mocks__/mocks.ts"],
   setupFilesAfterEnv: ["<rootDir>/src/__mocks__/globalSetup.ts"],
