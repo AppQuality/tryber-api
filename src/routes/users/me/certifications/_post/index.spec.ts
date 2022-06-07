@@ -2,12 +2,19 @@ import { data as certificationData } from "@src/__mocks__/mockedDb/certification
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as userMetaData } from "@src/__mocks__/mockedDb/wp_usermeta";
 import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 describe("Route POST single-certification", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await certificationData.certification1();
+      await certificationData.certification1({
+        id: 2,
+        name: "This is another Certification",
+        area: "Testing",
+        institute: "Germano Mosconi Tested",
+      });
       await userMetaData.basicMeta();
 
       resolve(null);
@@ -57,6 +64,29 @@ describe("Route POST single-certification", () => {
       id: 0,
       element: "certifications",
       message: "Can't find certification with id 69",
+    });
+  });
+  it("Should return an error if send a certification that the user already owns", async () => {
+    const response = await request(app)
+      .post("/users/me/certifications")
+      .send({ certification_id: 1, achievement_date: "2020-01-01" })
+      .set("authorization", "Bearer tester");
+    console.log(response.body);
+
+    const responseTwinCertification = await request(app)
+      .post("/users/me/certifications")
+      .send({ certification_id: 1, achievement_date: "2020-01-01" })
+      .set("authorization", "Bearer tester");
+    console.log(responseTwinCertification.body);
+    const userCerts = await sqlite3.all(
+      `SELECT * FROM wp_appq_profile_certifications WHERE tester_id = 1`
+    );
+    console.log("cert", userCerts);
+
+    expect(responseTwinCertification.status).toBe(201);
+    expect(responseTwinCertification.body).toMatchObject({
+      id: 1,
+      name: "Best Tryber Ever",
     });
   });
 });
