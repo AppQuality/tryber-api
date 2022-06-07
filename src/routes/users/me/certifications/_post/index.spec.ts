@@ -1,7 +1,7 @@
-import app from "@src/app";
 import { data as certificationData } from "@src/__mocks__/mockedDb/certificationList";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as userMetaData } from "@src/__mocks__/mockedDb/wp_usermeta";
+import app from "@src/app";
 import request from "supertest";
 
 describe("Route POST single-certification", () => {
@@ -33,7 +33,7 @@ describe("Route POST single-certification", () => {
     const response = await request(app).delete("/users/me/certifications/1");
     expect(response.status).toBe(403);
   });
-  it("Should return 201 if send a certification", async () => {
+  it("Should return 201 the resource if a certification is sent", async () => {
     const response = await request(app)
       .post("/users/me/certifications")
       .send({ certification_id: 1, achievement_date: "2020-01-01" })
