@@ -1,8 +1,7 @@
+import app from "@src/app";
 import { data as certificationData } from "@src/__mocks__/mockedDb/certificationList";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as userMetaData } from "@src/__mocks__/mockedDb/wp_usermeta";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 describe("Route POST single-certification", () => {
@@ -71,22 +70,16 @@ describe("Route POST single-certification", () => {
       .post("/users/me/certifications")
       .send({ certification_id: 1, achievement_date: "2020-01-01" })
       .set("authorization", "Bearer tester");
-    console.log(response.body);
 
     const responseTwinCertification = await request(app)
       .post("/users/me/certifications")
       .send({ certification_id: 1, achievement_date: "2020-01-01" })
       .set("authorization", "Bearer tester");
-    console.log(responseTwinCertification.body);
-    const userCerts = await sqlite3.all(
-      `SELECT * FROM wp_appq_profile_certifications WHERE tester_id = 1`
-    );
-    console.log("cert", userCerts);
 
-    expect(responseTwinCertification.status).toBe(201);
+    expect(responseTwinCertification.status).toBe(400);
     expect(responseTwinCertification.body).toMatchObject({
-      id: 1,
-      name: "Best Tryber Ever",
+      message:
+        "Failed. Duplication entry. Certification already assigned to the tester.",
     });
   });
 });
