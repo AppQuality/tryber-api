@@ -8,7 +8,6 @@ describe("Route POST single-certification", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await certificationData.certification1();
-      //await testerCertificationData.assignCertification();
       await userMetaData.basicMeta();
 
       resolve(null);
