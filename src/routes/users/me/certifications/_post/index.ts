@@ -106,7 +106,7 @@ export default async (
     res.status_code = (error as OpenapiError).status_code || 400;
     return {
       element: "certifications",
-      id: parseInt(req.user.ID),
+      id: 0,
       message: (error as OpenapiError).message,
     };
   }
