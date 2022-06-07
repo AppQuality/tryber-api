@@ -44,4 +44,19 @@ describe("Route POST single-certification", () => {
   //new user doesn't have any certification and doesn't have emptyCerts meta
   // when add first certification, it should add emptyCerts meta to usermeta as false
   // if user remove all certifications, remain emptyCerts meta as false
+  it("Should return an error if sending an inexistent certification", async () => {
+    const response = await request(app)
+      .post("/users/me/certifications")
+      .send({ certification_id: 69, achievement_date: "2020-01-01" })
+      .set("authorization", "Bearer tester");
+    console.log(response.body);
+
+    expect(response.status).toBe(400);
+    console.log(response.body);
+    expect(response.body).toMatchObject({
+      id: 0,
+      element: "certifications",
+      message: "Can't find certification with id 69",
+    });
+  });
 });
