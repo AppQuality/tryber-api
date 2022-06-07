@@ -6,6 +6,8 @@ export const table = {
     await sqlite3.createTable(tableName, [
       "id INTEGER PRIMARY KEY",
       "user_id INTEGER NOT NULL",
+      "meta_key VARCHAR(255)",
+      "meta_value LONGTEXT",
     ]);
   },
   drop: async () => {
@@ -16,6 +18,8 @@ export const table = {
 type WpUsersMetaParams = {
   id?: number;
   user_id?: number;
+  meta_key?: string;
+  meta_value?: string;
 };
 const data: {
   [key: string]: (
