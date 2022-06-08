@@ -166,6 +166,12 @@ export interface paths {
     /** Get all education levels */
     get: operations["get-education"];
   };
+  "/media": {
+    /** Send a media for my bug to AppQuality Bucket. */
+    post: operations["post-media"];
+    delete: operations["delete-media"];
+    parameters: {};
+  };
   "/users": {
     /** Get all users you have access to */
     get: operations["get-users"];
@@ -1243,6 +1249,47 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  /** Send a media for my bug to AppQuality Bucket. */
+  "post-media": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            files: {
+              name: string;
+              path: string;
+            }[];
+            failed?: {
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "image/png": string;
+      };
+    };
+  };
+  "delete-media": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: unknown;
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** Format: uri */
+          url: string;
+        };
+      };
     };
   };
   /** Get all users you have access to */

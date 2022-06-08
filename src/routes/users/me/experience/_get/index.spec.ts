@@ -5,8 +5,6 @@ import { data as experienceData } from "@src/__mocks__/mockedDb/experience";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 const tester1 = {
   id: 1,
   wp_user_id: 1,

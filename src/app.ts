@@ -1,8 +1,8 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
+import upload from "express-fileupload";
 import OpenAPIBackend, { Options, Request } from "openapi-backend";
-
 import config from "./config";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
@@ -10,6 +10,7 @@ import routes from "./routes";
 
 const opts: Options = {
   definition: __dirname + "/reference/openapi.yml",
+  quick: true,
 };
 
 let referencePath = "/reference/";
@@ -40,10 +41,12 @@ app.use(
     extended: true,
   })
 );
+app.use(upload());
 
 app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
 });
+
 app.use((req, res) => {
   if (req.rawHeaders.includes("x-tryber-mock-example")) {
     let exampleData = req.headers["x-tryber-mock-example"];

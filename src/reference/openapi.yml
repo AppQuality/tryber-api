@@ -1028,6 +1028,89 @@ paths:
       security:
         - JWT: []
       description: Get all education levels
+  /media:
+    post:
+      summary: ''
+      operationId: post-media
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    files:
+                      - name: string
+                        path: string
+                    failed:
+                      - name: string
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                  failed:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                      required:
+                        - name
+                required:
+                  - files
+              examples: {}
+      description: 'Send a media for my bug to AppQuality Bucket. '
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - type: string
+                      properties: {}
+                      format: binary
+                    - type: array
+                      items:
+                        type: string
+                        format: binary
+    parameters: []
+    delete:
+      summary: ''
+      operationId: delete-media
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+              required:
+                - url
   /users:
     get:
       summary: Get all users

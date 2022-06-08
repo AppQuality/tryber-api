@@ -68,6 +68,9 @@ services:
       AWS_SECRET_ACCESS_KEY: '${AWS_SECRET_ACCESS_KEY}'
       PAYMENT_COMPLETED_EMAIL: '${PAYMENT_COMPLETED_EMAIL}'
       PAYMENT_REQUESTED_EMAIL: '${PAYMENT_REQUESTED_EMAIL}'
+      MEDIA_BUCKET: '${MEDIA_BUCKET}'
+      MEDIA_FOLDER: 'media'
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE}
     volumes:
       - /var/docker/keys:/app/keys
     logging:

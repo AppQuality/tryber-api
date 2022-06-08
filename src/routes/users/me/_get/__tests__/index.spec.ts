@@ -16,8 +16,6 @@ import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
-jest.mock("@src/features/db");
-jest.mock("@appquality/wp-auth");
 const tester1 = {
   id: 1,
   name: "John",
