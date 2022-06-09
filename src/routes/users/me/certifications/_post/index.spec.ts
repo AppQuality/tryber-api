@@ -8,12 +8,6 @@ describe("Route POST single-certification", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await certificationData.certification1();
-      await certificationData.certification1({
-        id: 2,
-        name: "This is another Certification",
-        area: "Testing",
-        institute: "Germano Mosconi Tested",
-      });
       await userMetaData.basicMeta();
 
       resolve(null);
@@ -55,10 +49,8 @@ describe("Route POST single-certification", () => {
       .post("/users/me/certifications")
       .send({ certification_id: 69, achievement_date: "2020-01-01" })
       .set("authorization", "Bearer tester");
-    console.log(response.body);
 
     expect(response.status).toBe(400);
-    console.log(response.body);
     expect(response.body).toMatchObject({
       id: 0,
       element: "certifications",
