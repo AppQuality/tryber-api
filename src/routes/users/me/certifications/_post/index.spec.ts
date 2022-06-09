@@ -27,7 +27,7 @@ describe("Route POST single-certification", () => {
     const response = await request(app).delete("/users/me/certifications/1");
     expect(response.status).toBe(403);
   });
-  it("Should return 201 the resource if a certification is sent", async () => {
+  it("Should return 201 and the resource if a certification is sent", async () => {
     const response = await request(app)
       .post("/users/me/certifications")
       .send({ certification_id: 1, achievement_date: "2020-01-01" })
