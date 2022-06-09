@@ -34,64 +34,17 @@ export default async (
         message: `Operation completed`,
       };
     } else {
-      try {
-        let certificationSql = `SELECT name, area, institute
-                                      FROM wp_appq_certifications_list
-                                      WHERE id = ?;`;
-        certification = await db.query(
-          db.format(certificationSql, [req.body.certification_id])
-        );
-        if (!certification.length) {
-          throw Error(
-            `Can't find certification with id ${req.body.certification_id}`
-          );
-        }
-        certification = { ...certification[0], id: req.body.certification_id };
-      } catch (e) {
-        throw e;
-      }
+      certification = await getCertification(req.body.certification_id);
     }
 
-    let insertData = [
+    let inserted = await assignCertification(
       req.user.testerId,
-      req.body.achievement_date,
       req.body.certification_id,
-    ];
-    let insertSql = `INSERT INTO wp_appq_profile_certifications (tester_id, achievement_date, cert_id)
-                       VALUES (?, ?, ?);`;
-    let inserted;
-    try {
-      inserted = await db.query(db.format(insertSql, insertData));
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      if (
-        (e as MySqlError).hasOwnProperty("code") &&
-        (e as MySqlError).code == "ER_DUP_ENTRY"
-      ) {
-        throw Error(
-          "Failed. Duplication entry. Certification already assigned to the tester."
-        );
-      }
-      throw Error("Failed to add user Certification");
-    }
+      req.body.achievement_date
+    );
 
-    let userCertification;
-    try {
-      userCertification = await db.query(
-        db.format(
-          `SELECT CAST(achievement_date AS CHAR) AS achievement_date
-                   FROM wp_appq_profile_certifications
-                   WHERE id = ?;`,
-          [inserted.insertId]
-        )
-      );
-      if (!userCertification.length)
-        throw Error("Can't find user Certification");
-      userCertification = userCertification[0];
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      throw Error("Error on finding user Certification");
-    }
+    let userCertification = await getUserCertification(inserted);
+
     try {
       await updateEmptyCerts(req.user.ID, "false");
       res.status_code = 201;
@@ -111,3 +64,62 @@ export default async (
     };
   }
 };
+
+async function getCertification(certification_id: number) {
+  let certification;
+  let certificationSql = `SELECT name, area, institute
+                                  FROM wp_appq_certifications_list
+                                  WHERE id = ?;`;
+  certification = await db.query(
+    db.format(certificationSql, [certification_id])
+  );
+  if (!certification.length) {
+    throw Error(`Can't find certification with id ${certification_id}`);
+  }
+  return { ...certification[0], id: certification_id };
+}
+
+async function assignCertification(
+  tester_id: number,
+  certification_id: number,
+  achievement_date: string
+) {
+  let insertData = [tester_id, achievement_date, certification_id];
+  let insertSql = `INSERT INTO wp_appq_profile_certifications (tester_id, achievement_date, cert_id)
+                     VALUES (?, ?, ?);`;
+  let inserted;
+  try {
+    inserted = await db.query(db.format(insertSql, insertData));
+    console.log("INS: ", inserted);
+    return inserted;
+  } catch (e) {
+    if (process.env && process.env.DEBUG) console.log(e);
+    if (
+      (e as MySqlError).hasOwnProperty("code") &&
+      (e as MySqlError).code == "ER_DUP_ENTRY"
+    ) {
+      throw Error(
+        "Failed. Duplication entry. Certification already assigned to the tester."
+      );
+    }
+    throw Error("Failed to add user Certification");
+  }
+}
+async function getUserCertification(inserted: { insertId: number }) {
+  try {
+    let userCertification;
+    userCertification = await db.query(
+      db.format(
+        `SELECT CAST(achievement_date AS CHAR) AS achievement_date
+                 FROM wp_appq_profile_certifications
+                 WHERE id = ?;`,
+        [inserted.insertId]
+      )
+    );
+    if (!userCertification.length) throw Error("Can't find user Certification");
+    return userCertification[0];
+  } catch (e) {
+    if (process.env && process.env.DEBUG) console.log(e);
+    throw Error("Error on finding user Certification");
+  }
+}
