@@ -1,11 +1,11 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
 import { data as fiscalProfileData } from "@src/__mocks__/mockedDb/fiscalProfile";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 describe("POST /users/me/payments - valid paypal", () => {
@@ -383,6 +383,11 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       expected_gross: 162.49,
       expected_withholding: 32.5,
     };
+    data.attribution = await attributionData.validAttribution({
+      amount: 129.99,
+      is_paid: 0,
+    });
+
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
       fiscal_category: 1,
@@ -414,6 +419,10 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       tester_id: data.tester.id,
       fiscal_category: 1,
     });
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -441,6 +450,10 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       tester_id: data.tester.id,
       fiscal_category: 4,
     });
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -464,6 +477,10 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.tester = await profileData.testerWithBooty({
       pending_booty: 129.99,
+    });
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
     });
     data.tester = {
       ...data.tester,
@@ -505,6 +522,10 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       ...data.tester,
       expected_gross: 129.99,
     };
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
+    });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
       fiscal_category: 4,
@@ -541,6 +562,10 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
       fiscal_category: 4,
+    });
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
     });
     const response = await request(app)
       .post("/users/me/payments")
@@ -636,6 +661,10 @@ describe("POST /users/me/payments - stamp required", () => {
     await fiscalProfileData.validFiscalProfile({
       tester_id: tester.id,
     });
+    const attribution = await attributionData.validAttribution({
+      amount: tester.pending_booty,
+      is_paid: 0,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .send({
@@ -653,12 +682,16 @@ describe("POST /users/me/payments - stamp required", () => {
     );
     expect(requestData.stamp_required).toBe(1);
   });
-  it("Should create a row with stamp_required = true if the amount gross is over 77,47", async () => {
+  it("Should create a row with stamp_required = false if the amount gross is under 77,47", async () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
     const tester = await profileData.testerWithBooty({
       pending_booty: 61.95,
+    });
+    const attribution = await attributionData.validAttribution({
+      amount: tester.pending_booty,
+      is_paid: 0,
     });
     await fiscalProfileData.validFiscalProfile({
       tester_id: tester.id,
@@ -724,7 +757,10 @@ describe("POST /users/me/payments - invalid data", () => {
     });
     const tester = await profileData.testerWithBooty();
     await fiscalProfileData.inactiveFiscalProfile({ tester_id: tester.id });
-
+    const attribution = await attributionData.validAttribution({
+      amount: 69.99,
+      is_paid: 0,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")
@@ -743,7 +779,10 @@ describe("POST /users/me/payments - invalid data", () => {
     });
     const tester = await profileData.testerWithBooty();
     await fiscalProfileData.invalidFiscalProfile({ tester_id: tester.id });
-
+    const attribution = await attributionData.validAttribution({
+      amount: tester.pending_booty,
+      is_paid: 0,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")
@@ -761,6 +800,10 @@ describe("POST /users/me/payments - invalid data", () => {
     });
     const tester = await profileData.testerWithBooty({
       pending_booty: 0.01,
+    });
+    const attribution = await attributionData.validAttribution({
+      amount: tester.pending_booty,
+      is_paid: 0,
     });
     await fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
 
@@ -782,6 +825,10 @@ describe("POST /users/me/payments - invalid data", () => {
     const tester = await profileData.testerWithBooty();
     await fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
     await paymentRequestData.processingPaypalPayment({ tester_id: tester.id });
+    const attribution = await attributionData.validAttribution({
+      amount: tester.pending_booty,
+      is_paid: 0,
+    });
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")
