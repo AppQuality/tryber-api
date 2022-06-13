@@ -593,6 +593,10 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     data.tester = await profileData.testerWithBooty({
       pending_booty: 129.99,
     });
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
+    });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
       fiscal_category: 2,
@@ -617,7 +621,11 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 2,
+      fiscal_category: 3,
+    });
+    data.attribution = await attributionData.validAttribution({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
     });
     const response = await request(app)
       .post("/users/me/payments")
