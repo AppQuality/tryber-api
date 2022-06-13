@@ -13,7 +13,7 @@ export default async (testerId: number) => {
       [testerId]
     )
   );
-  if (attributions.length === 0 || attributions[0].total === 0) {
+  if (!attributions[0].total) {
     throw new Error("You don't have any booty to pay");
   }
   const threshold = await getCrowdOption("minimum_payout");
