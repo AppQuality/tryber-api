@@ -2243,6 +2243,202 @@ paths:
           in: query
           name: orderBy
           description: The field for item order
+  '/users/me/campaigns/{campaignId}/bugs':
+    post:
+      summary: POST all user's bugs on a specific campaign
+      operationId: post-users-me-campaigns-campaign-bugs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    id: ''
+                    testerId: 1
+                    title: ''
+                    status: ''
+                    description: ''
+                    expected: ''
+                    current: ''
+                    severity: ''
+                    replicability: ''
+                    type: ''
+                    notes: ''
+                    usecase: ''
+                    device: {}
+                    media:
+                      - ''
+                      - ''
+                    additional:
+                      - name: ''
+                        value: ''
+                properties:
+                  id:
+                    type: string
+                  testerId:
+                    type: integer
+                  title:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - APPROVED
+                      - REFUSED
+                      - NEED-REVIEW
+                  description:
+                    type: string
+                  expected:
+                    type: string
+                  current:
+                    type: string
+                  severity:
+                    type: string
+                    enum:
+                      - LOW
+                      - MEDIUM
+                      - HIGHT
+                      - CRITICAL
+                  replicability:
+                    type: string
+                    enum:
+                      - ONCE
+                      - SOMETIMES
+                      - NEVER
+                  type:
+                    type: string
+                    enum:
+                      - TYPO
+                  notes:
+                    type: string
+                  usecase:
+                    type: string
+                  device:
+                    $ref: '#/components/schemas/UserDevice'
+                  media:
+                    type: array
+                    items:
+                      type: string
+                  additional:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - name
+                        - value
+                required:
+                  - id
+                  - testerId
+                  - title
+                  - status
+                  - description
+                  - expected
+                  - current
+                  - severity
+                  - replicability
+                  - type
+                  - notes
+                  - usecase
+                  - device
+                  - media
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Send all user's bugs on a specific campaign
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  title: ''
+                  description: ''
+                  expected: ''
+                  current: ''
+                  severity: LOW
+                  replicability: ONCE
+                  type: TYPO
+                  notes: ''
+                  usecase: 1
+                  device: 1
+                  media:
+                    - ''
+                    - ''
+                  additional:
+                    - name: ''
+                      value: ''
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                expected:
+                  type: string
+                current:
+                  type: string
+                severity:
+                  type: string
+                  enum:
+                    - LOW
+                    - MEDIUM
+                    - HIGHT
+                    - CRITICAL
+                replicability:
+                  type: string
+                  enum:
+                    - ONCE
+                    - SOMETIMES
+                    - NEVER
+                type:
+                  type: string
+                  enum:
+                    - TYPO
+                notes:
+                  type: string
+                usecase:
+                  type: integer
+                device:
+                  type: integer
+                media:
+                  type: array
+                  items:
+                    type: string
+                additional:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - name
+                      - value
+              required:
+                - title
+                - description
+                - expected
+                - current
+                - severity
+                - replicability
+                - type
+                - notes
+                - usecase
+                - device
+                - media
+      security:
+        - JWT: []
   /users/me/popups:
     get:
       summary: Get your popups
