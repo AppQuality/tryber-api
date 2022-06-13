@@ -2243,9 +2243,44 @@ paths:
           in: query
           name: orderBy
           description: The field for item order
+  /users/me/popups:
+    get:
+      summary: Get your popups
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    once:
+                      type: boolean
+      operationId: get-users-me-popups
+      description: Get all popup defined for your user
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: showExpired
+          description: 'Show all popup history, expired popups included'
+        - $ref: '#/components/parameters/order'
   '/users/me/campaigns/{campaignId}/bugs':
     post:
-      summary: POST all user's bugs on a specific campaign
+      summary: POST a user bug on a specific campaign
       operationId: post-users-me-campaigns-campaign-bugs
       responses:
         '200':
@@ -2311,13 +2346,25 @@ paths:
                   type:
                     type: string
                     enum:
+                      - CRASH
+                      - GRAPHIC
+                      - MALFUNCTION
+                      - OTHER
+                      - PERFORMANCE
+                      - SECURITY
                       - TYPO
+                      - USABILITY
                   notes:
                     type: string
                   usecase:
                     type: string
                   device:
-                    $ref: '#/components/schemas/UserDevice'
+                    allOf:
+                      - type: object
+                        properties:
+                          '':
+                            type: number
+                      - $ref: '#/components/schemas/UserDevice'
                   media:
                     type: array
                     items:
@@ -2347,13 +2394,12 @@ paths:
                   - type
                   - notes
                   - usecase
-                  - device
                   - media
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      description: Send all user's bugs on a specific campaign
+      description: Send a user bug on a specific campaign
       requestBody:
         content:
           application/json:
@@ -2402,7 +2448,14 @@ paths:
                 type:
                   type: string
                   enum:
+                    - CRASH
+                    - GRAPHIC
+                    - MALFUNCTION
+                    - OTHER
+                    - PERFORMANCE
+                    - SECURITY
                     - TYPO
+                    - USABILITY
                 notes:
                   type: string
                 usecase:
@@ -2439,41 +2492,13 @@ paths:
                 - media
       security:
         - JWT: []
-  /users/me/popups:
-    get:
-      summary: Get your popups
-      tags:
-        - User
-      responses:
-        '200':
-          description: OK
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    title:
-                      type: string
-                    content:
-                      type: string
-                    once:
-                      type: boolean
-      operationId: get-users-me-popups
-      description: Get all popup defined for your user
-      security:
-        - JWT: []
-      parameters:
-        - schema:
-            type: boolean
-          in: query
-          name: showExpired
-          description: 'Show all popup history, expired popups included'
-        - $ref: '#/components/parameters/order'
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+        description: the campaign id
   '/users/me/popups/{popup}':
     parameters:
       - schema:
