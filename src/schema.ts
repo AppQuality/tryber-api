@@ -215,6 +215,10 @@ export interface paths {
      */
     get: operations["get-users-me-campaigns"];
   };
+  "/users/me/campaigns/{campaignId}/bugs": {
+    /** Send all user's bugs on a specific campaign */
+    post: operations["post-users-me-campaigns-campaign-bugs"];
+  };
   "/users/me/popups": {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
@@ -1811,6 +1815,66 @@ export interface operations {
       403: unknown;
       /** Not Found */
       404: unknown;
+    };
+  };
+  /** Send all user's bugs on a specific campaign */
+  "post-users-me-campaigns-campaign-bugs": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: string;
+            testerId: number;
+            title: string;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REFUSED" | "NEED-REVIEW";
+            description: string;
+            expected: string;
+            current: string;
+            /** @enum {string} */
+            severity: "LOW" | "MEDIUM" | "HIGHT" | "CRITICAL";
+            /** @enum {string} */
+            replicability: "ONCE" | "SOMETIMES" | "NEVER";
+            /** @enum {string} */
+            type: "TYPO";
+            notes: string;
+            usecase: string;
+            device: components["schemas"]["UserDevice"];
+            media: string[];
+            additional?: {
+              name: string;
+              value: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          title: string;
+          description: string;
+          expected: string;
+          current: string;
+          /** @enum {string} */
+          severity: "LOW" | "MEDIUM" | "HIGHT" | "CRITICAL";
+          /** @enum {string} */
+          replicability: "ONCE" | "SOMETIMES" | "NEVER";
+          /** @enum {string} */
+          type: "TYPO";
+          notes: string;
+          usecase: number;
+          device: number;
+          media: string[];
+          additional?: {
+            name: string;
+            value: string;
+          }[];
+        };
+      };
     };
   };
   /** Get all popup defined for your user */
