@@ -13,6 +13,7 @@ export default async (
   try {
     await campaignExists();
     await testerIsCandidate();
+    await severityIsAcceptable();
   } catch (error) {
     if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -50,6 +51,28 @@ export default async (
       throw {
         status_code: 403,
         message: `T${req.user.testerId} is not candidate on CP${campaignId}.`,
+      };
+    }
+  }
+
+  async function severityIsAcceptable() {
+    let severities = (
+      await db.query(
+        db.format(
+          `SELECT name
+        FROM wp_appq_evd_severity sv
+                 JOIN wp_appq_additional_bug_severities cpsv ON sv.id = cpsv.bug_severity_id
+        WHERE campaign_id=?;
+         ;`,
+          [campaignId]
+        )
+      )
+    ).map((severity: { name: string }) => severity.name);
+
+    if (!severities.includes(req.body.severity)) {
+      throw {
+        status_code: 403,
+        message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
       };
     }
   }

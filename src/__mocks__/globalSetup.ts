@@ -1,9 +1,6 @@
-require("ts-node").register({
-  transpileOnly: true,
-});
-require("tsconfig-paths").register();
-import sqlite3 from "@src/features/sqlite";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
+import sqlite3 from "@src/features/sqlite";
+
 import { table as attributionsTable } from "./mockedDb/attributions";
 import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
@@ -44,6 +41,11 @@ import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
+
+require("ts-node").register({
+  transpileOnly: true,
+});
+require("tsconfig-paths").register();
 export {};
 beforeAll(async () => {
   await levelRevTable.create();
@@ -78,6 +80,7 @@ beforeAll(async () => {
   await BugTypes.mock();
   await CustomBugTypes.mock();
   await bugStatus.create();
+  await cpSeverity.create();
 
   await paymentRequestTable.create();
   await sqlite3.run(`
