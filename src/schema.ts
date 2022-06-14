@@ -215,13 +215,19 @@ export interface paths {
      */
     get: operations["get-users-me-campaigns"];
   };
-  "/users/me/campaigns/{campaignId}/bugs": {
-    /** Send all user's bugs on a specific campaign */
-    post: operations["post-users-me-campaigns-campaign-bugs"];
-  };
   "/users/me/popups": {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
+  };
+  "/users/me/campaigns/{campaignId}/bugs": {
+    /** Send a user bug on a specific campaign */
+    post: operations["post-users-me-campaigns-campaign-bugs"];
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+      };
+    };
   };
   "/users/me/popups/{popup}": {
     /** Get a single popup. Will set the retrieved popup as expired */
@@ -1817,8 +1823,38 @@ export interface operations {
       404: unknown;
     };
   };
-  /** Send all user's bugs on a specific campaign */
+  /** Get all popup defined for your user */
+  "get-users-me-popups": {
+    parameters: {
+      query: {
+        /** Show all popup history, expired popups included */
+        showExpired?: boolean;
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id?: number;
+            title?: string;
+            content?: string;
+            once?: boolean;
+          }[];
+        };
+      };
+    };
+  };
+  /** Send a user bug on a specific campaign */
   "post-users-me-campaigns-campaign-bugs": {
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+      };
+    };
     responses: {
       /** OK */
       200: {
@@ -1837,10 +1873,20 @@ export interface operations {
             /** @enum {string} */
             replicability: "ONCE" | "SOMETIMES" | "NEVER";
             /** @enum {string} */
-            type: "TYPO";
+            type:
+              | "CRASH"
+              | "GRAPHIC"
+              | "MALFUNCTION"
+              | "OTHER"
+              | "PERFORMANCE"
+              | "SECURITY"
+              | "TYPO"
+              | "USABILITY";
             notes: string;
             usecase: string;
-            device: components["schemas"]["UserDevice"];
+            device: {
+              id?: number;
+            } & components["schemas"]["UserDevice"];
             media: string[];
             additional?: {
               name: string;
@@ -1864,7 +1910,15 @@ export interface operations {
           /** @enum {string} */
           replicability: "ONCE" | "SOMETIMES" | "NEVER";
           /** @enum {string} */
-          type: "TYPO";
+          type:
+            | "CRASH"
+            | "GRAPHIC"
+            | "MALFUNCTION"
+            | "OTHER"
+            | "PERFORMANCE"
+            | "SECURITY"
+            | "TYPO"
+            | "USABILITY";
           notes: string;
           usecase: number;
           device: number;
@@ -1872,30 +1926,6 @@ export interface operations {
           additional?: {
             name: string;
             value: string;
-          }[];
-        };
-      };
-    };
-  };
-  /** Get all popup defined for your user */
-  "get-users-me-popups": {
-    parameters: {
-      query: {
-        /** Show all popup history, expired popups included */
-        showExpired?: boolean;
-        /** How to order values (ASC, DESC) */
-        order?: components["parameters"]["order"];
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            id?: number;
-            title?: string;
-            content?: string;
-            once?: boolean;
           }[];
         };
       };
