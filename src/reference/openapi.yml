@@ -2342,7 +2342,7 @@ paths:
                     enum:
                       - ONCE
                       - SOMETIMES
-                      - NEVER
+                      - ALWAYS
                   type:
                     type: string
                     enum:
@@ -2445,7 +2445,7 @@ paths:
                   enum:
                     - ONCE
                     - SOMETIMES
-                    - NEVER
+                    - ALWAYS
                 type:
                   type: string
                   enum:
