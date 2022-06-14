@@ -8,7 +8,6 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    console.log("inside");
     const campaignId = c.request.params.campaignId;
 
     let existsCampaignQuery = `SELECT id FROM wp_appq_evd_campaign WHERE id=? ;`;
@@ -16,10 +15,20 @@ export default async (
       db.format(existsCampaignQuery, [campaignId.toString()])
     );
     if (!existsCampaign.length) {
-      console.log("ciao");
       throw {
         status_code: 404,
         message: `CampaignId ${campaignId}, does not exists.`,
+      };
+    }
+
+    let isCandidateQuery = `SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id=? AND campaign_id=? ;`;
+    let isCandidate = await db.query(
+      db.format(isCandidateQuery, [req.user.ID, campaignId.toString()])
+    );
+    if (!isCandidate.length) {
+      throw {
+        status_code: 403,
+        message: `T${req.user.testerId} is not candidate on CP${campaignId}.`,
       };
     }
 
@@ -35,8 +44,8 @@ export default async (
     //   if (process.env && process.env.DEBUG) console.log(e);
     //   throw Error("Failed to remove user Certification");
     // }
+    return {};
   } catch (error) {
-    console.log("ERR");
     if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = (error as OpenapiError).status_code || 400;
     return {
