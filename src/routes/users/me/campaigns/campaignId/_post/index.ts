@@ -14,6 +14,10 @@ export default async (
     await campaignExists();
     await testerIsCandidate();
     await severityIsAcceptable();
+    await replicabilityIsAcceptable();
+
+    res.statusCode = 200;
+    return {};
   } catch (error) {
     if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -73,6 +77,27 @@ export default async (
       throw {
         status_code: 403,
         message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
+      };
+    }
+  }
+
+  async function replicabilityIsAcceptable() {
+    let replicabilities = (
+      await db.query(
+        db.format(
+          `SELECT name FROM wp_appq_evd_bug_replicability rep
+          JOIN wp_appq_additional_bug_replicabilities cprep ON rep.id = cprep.bug_replicability_id
+         WHERE campaign_id=? ;
+         ;`,
+          [campaignId]
+        )
+      )
+    ).map((severity: { name: string }) => severity.name.toUpperCase());
+    console.log(replicabilities);
+    if (!replicabilities.includes(req.body.severity)) {
+      throw {
+        status_code: 403,
+        message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
       };
     }
   }
