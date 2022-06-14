@@ -3,6 +3,8 @@ import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cp_has_candi
 import app from "@src/app";
 import request from "supertest";
 
+//import { data as severityData } from '@src/__mocks__/mockedDb/severities';
+//import app from '@src/app';
 const bug = {
   title: "Camapign Title",
   description: "Camapign Description",
@@ -22,6 +24,9 @@ describe("Route POST a bug to a specific campaign", () => {
       await campaignData.basicCampaign();
       await campaignData.basicCampaign({ id: 3 });
       await cpCandidaturesData.candidate1();
+      //   await severityData.severity({ name: "LOW" });
+      //   await severityData.severity({ id: 2, name: "HIGTH" });
+      //   await cpSeverityData.cpSeverity({ bug_severity_id: 1, campaign_id: 1 });
 
       resolve(null);
     });
@@ -30,6 +35,8 @@ describe("Route POST a bug to a specific campaign", () => {
     return new Promise(async (resolve) => {
       await campaignData.drop();
       await cpCandidaturesData.drop();
+      //   await severityData.drop();
+      //   await cpSeverityData.drop();
 
       resolve(null);
     });
@@ -46,9 +53,9 @@ describe("Route POST a bug to a specific campaign", () => {
       .send(bug);
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
-      element: "post a bug",
+      element: "bugs",
       id: 0,
-      message: "CampaignId 2, does not exists.",
+      message: "CP2, does not exists.",
     });
   });
   it("Should answer 403 if user is not selected on CP", async () => {
@@ -58,7 +65,7 @@ describe("Route POST a bug to a specific campaign", () => {
       .send(bug);
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
-      element: "post a bug",
+      element: "bugs",
       id: 0,
       message: "T1 is not candidate on CP3.",
     });
