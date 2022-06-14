@@ -1871,7 +1871,7 @@ export interface operations {
             /** @enum {string} */
             severity: "LOW" | "MEDIUM" | "HIGHT" | "CRITICAL";
             /** @enum {string} */
-            replicability: "ONCE" | "SOMETIMES" | "NEVER";
+            replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
             /** @enum {string} */
             type:
               | "CRASH"
@@ -1908,7 +1908,7 @@ export interface operations {
           /** @enum {string} */
           severity: "LOW" | "MEDIUM" | "HIGHT" | "CRITICAL";
           /** @enum {string} */
-          replicability: "ONCE" | "SOMETIMES" | "NEVER";
+          replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
           /** @enum {string} */
           type:
             | "CRASH"
