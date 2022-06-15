@@ -1,6 +1,5 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as bugStatusData } from "@src/__mocks__/mockedDb/bugStatus";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
