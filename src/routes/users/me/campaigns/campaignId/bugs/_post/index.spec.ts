@@ -137,7 +137,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: "Severity HIGHT is not accepted from CP1.",
+      message: `Severity ${bugBadSeverity.severity} is not accepted from CP1.`,
     });
   });
   it("Should answer 403 if a user sends a unaccepted replicability on CP", async () => {
@@ -151,7 +151,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: "Replicability SOMETIMES is not accepted from CP1.",
+      message: `Replicability ${bugBadReplicability.replicability} is not accepted from CP1.`,
     });
   });
   it("Should answer 403 if a user sends a unaccepted bug-type on CP", async () => {
@@ -164,7 +164,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: "BugType TYPO is not accepted from CP1.",
+      message: `BugType ${bugBadBugType.type} is not accepted from CP1.`,
     });
   });
 });
