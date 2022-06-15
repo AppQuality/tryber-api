@@ -1884,7 +1884,7 @@ export interface operations {
               | "USABILITY";
             notes: string;
             usecase: string;
-            device: {
+            device?: {
               id?: number;
             } & components["schemas"]["UserDevice"];
             media: string[];
