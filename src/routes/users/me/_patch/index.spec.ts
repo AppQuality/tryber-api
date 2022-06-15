@@ -1,5 +1,3 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as attributions } from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
@@ -15,6 +13,8 @@ import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCert
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
 import { data as wpOptions } from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
@@ -385,7 +385,7 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responsePatch.body.phone).toBe("0000-1234567890");
   });
 
-  it("Should return tryber with new GENDER if send a new GENDER", async () => {
+  it("Should return tryber GENDER as female if change from male to female", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me?fields=gender`)
       .set("Authorization", `Bearer tester`);
@@ -401,6 +401,24 @@ describe("Route PATCH users-me accepted fields", () => {
       .set("Authorization", `Bearer tester`);
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.gender).toBe("female");
+  });
+
+  it("Should return tryber GENDER as not-specified if change from male to not-specified", async () => {
+    const responseGet1 = await request(app)
+      .get(`/users/me?fields=gender`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet1.body.gender).toBe("male");
+
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ gender: "not-specified" });
+
+    const responseGet2 = await request(app)
+      .get(`/users/me?fields=gender`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet2.status).toBe(200);
+    expect(responsePatch.body.gender).toBe("not-specified");
   });
 
   it("Should return tryber with new CITY if send a new CITY", async () => {
