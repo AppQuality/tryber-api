@@ -16,8 +16,22 @@ export default async (
     await severityIsAcceptable();
     await replicabilityIsAcceptable();
 
-    res.statusCode = 200;
-    return {};
+    res.status_code = 200;
+    return {
+      id: "1",
+      testerId: 1,
+      title: "Bug 1",
+      status: "PENDING",
+      description: "",
+      expected: "",
+      current: "",
+      severity: "LOW",
+      replicability: "ONCE",
+      type: "CRASH",
+      notes: "",
+      usecase: "",
+      media: ["the media1 url"],
+    };
   } catch (error) {
     if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = (error as OpenapiError).status_code || 400;

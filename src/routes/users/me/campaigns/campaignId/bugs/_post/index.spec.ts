@@ -1,9 +1,9 @@
+import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
+import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
-import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cp_has_candidates";
-import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cp_replicabilities";
-import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cp_severities";
-import { data as replicabilityData } from "@src/__mocks__/mockedDb/replicabilities";
-import { data as severityData } from "@src/__mocks__/mockedDb/severities";
+import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cpHasCandidates";
+import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
+import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
 import app from "@src/app";
 import request from "supertest";
 
@@ -41,6 +41,19 @@ const bugBadReplicability = {
   severity: "LOW",
   replicability: "SOMETIMES",
   type: "CRASH",
+  notes: "The bug notes",
+  usecase: 1,
+  device: 0,
+  media: ["the media1 url"],
+};
+const bugBadBugType = {
+  title: "Camapign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "TYPO",
   notes: "The bug notes",
   usecase: 1,
   device: 0,
