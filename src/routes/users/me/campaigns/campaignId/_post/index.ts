@@ -73,7 +73,7 @@ export default async (
       )
     ).map((severity: { name: string }) => severity.name);
 
-    if (!severities.includes(req.body.severity)) {
+    if (severities.length && !severities.includes(req.body.severity)) {
       throw {
         status_code: 403,
         message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
@@ -92,9 +92,13 @@ export default async (
           [campaignId]
         )
       )
-    ).map((severity: { name: string }) => severity.name.toUpperCase());
-    console.log(replicabilities);
-    if (!replicabilities.includes(req.body.severity)) {
+    ).map((replicability: { name: string }) =>
+      replicability.name.toUpperCase()
+    );
+    if (
+      replicabilities.length &&
+      !replicabilities.includes(req.body.replicability)
+    ) {
       throw {
         status_code: 403,
         message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
