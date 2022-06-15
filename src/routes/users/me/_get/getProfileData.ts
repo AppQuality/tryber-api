@@ -74,6 +74,8 @@ export default async (id: string, fields: string[]) => {
           ? "female"
           : user.gender == 1
           ? "male"
+          : user.gender == 2
+          ? "other"
           : "not-specified";
     return user;
   } catch (e) {

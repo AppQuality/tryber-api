@@ -79,7 +79,13 @@ export default async (
     if (Object.keys(req.body).includes("gender")) {
       profileSets.push("sex = ?");
       profileUpdateData.push(
-        req.body.gender === "male" ? 1 : req.body.gender === "female" ? 0 : -1
+        req.body.gender === "other"
+          ? 2
+          : req.body.gender === "male"
+          ? 1
+          : req.body.gender === "female"
+          ? 0
+          : -1
       );
     }
     if (Object.keys(req.body).includes("birthDate")) {

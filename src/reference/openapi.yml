@@ -1261,6 +1261,7 @@ paths:
                       - male
                       - female
                       - not-specified
+                      - other
                   birthDate:
                     type: string
                     format: date
@@ -1459,6 +1460,7 @@ paths:
                       - male
                       - female
                       - not-specified
+                      - other
                   birthDate:
                     type: string
                     format: date
@@ -1490,7 +1492,6 @@ paths:
                         items:
                           $ref: '#/components/schemas/Certification'
                       - type: boolean
-                        properties: {}
                   completionPercent:
                     type: number
                   country:
@@ -1564,6 +1565,7 @@ paths:
                     - male
                     - female
                     - not-specified
+                    - other
                 birthDate:
                   type: string
                 phone:
