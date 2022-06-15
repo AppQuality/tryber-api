@@ -15,6 +15,7 @@ export default async (
     await testerIsCandidate();
     await severityIsAcceptable();
     await replicabilityIsAcceptable();
+    await bugTypeIsAcceptable();
 
     res.status_code = 200;
     return {
@@ -116,6 +117,27 @@ export default async (
       throw {
         status_code: 403,
         message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
+      };
+    }
+  }
+
+  async function bugTypeIsAcceptable() {
+    let bugTypes = (
+      await db.query(
+        db.format(
+          `SELECT name FROM wp_appq_evd_bug_type bt
+          JOIN wp_appq_additional_bug_types cpbt ON bt.id = cpbt.bug_type_id
+         WHERE campaign_id=? AND  bt.is_enabled = 1
+         ;`,
+          [campaignId]
+        )
+      )
+    ).map((bugType: { name: string }) => bugType.name.toUpperCase());
+
+    if (bugTypes.length && !bugTypes.includes(req.body.type)) {
+      throw {
+        status_code: 403,
+        message: `BugType ${req.body.type} is not accepted from CP${campaignId}.`,
       };
     }
   }
