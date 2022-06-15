@@ -85,6 +85,8 @@ beforeAll(async () => {
   await cpSeverity.create();
   await replicabilitiesTable.create();
   await cpReplicabilitiesTable.create();
+  await bugTypesTable.create();
+  await cpHasBugTypesTable.create();
 
   await paymentRequestTable.create();
   await sqlite3.run(`

@@ -1,6 +1,8 @@
 import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
 import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
+import { data as bugTypesData } from "@src/__mocks__/mockedDb/bugTypes";
 import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
 import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
 import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
@@ -71,7 +73,15 @@ describe("Route POST a bug to a specific campaign", () => {
       await replicabilityData.replicability({ name: "Once" });
       await replicabilityData.replicability({ id: 2, name: "Sometimes" });
       await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
-
+      await bugTypesData.bugType({ name: "CRASH" });
+      await bugTypesData.bugType({ id: 2, name: "TYPO" });
+      await bugTypesData.bugType({ id: 3, name: "OTHER", is_enabled: 0 });
+      await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
+      await cpHasBugTypeData.cpBugType({
+        id: 2,
+        campaign_id: 1,
+        bug_type_id: 3,
+      });
       resolve(null);
     });
   });
@@ -83,6 +93,8 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpSeverityData.drop();
       await replicabilityData.drop();
       await cpReplicabilityData.drop();
+      await bugTypesData.drop();
+      await cpHasBugTypeData.drop();
 
       resolve(null);
     });
@@ -140,6 +152,19 @@ describe("Route POST a bug to a specific campaign", () => {
       element: "bugs",
       id: 0,
       message: "Replicability SOMETIMES is not accepted from CP1.",
+    });
+  });
+  it("Should answer 403 if a user sends a unaccepted bug-type on CP", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadBugType);
+    console.log(response.body);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: "BugType TYPO is not accepted from CP1.",
     });
   });
 });
