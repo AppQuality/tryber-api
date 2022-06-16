@@ -12,7 +12,8 @@ export default async (
   const campaignId = parseInt(params.campaignId);
   try {
     await campaignExists();
-    await testerIsCandidate();
+    const candidature = await getTesterCandidature();
+    if (await campaignHasTasks()) await useCaseIsValid(candidature.group_id);
     await severityIsAcceptable();
     await replicabilityIsAcceptable();
     await bugTypeIsAcceptable();
@@ -34,8 +35,9 @@ export default async (
       media: ["the media1 url"],
     };
   } catch (error) {
-    if (process.env && process.env.DEBUG) console.log(error);
-    res.status_code = (error as OpenapiError).status_code || 400;
+    if (process.env && process.env.DEBUG)
+      //console.log(error);
+      res.status_code = (error as OpenapiError).status_code || 400;
     return {
       element: "bugs",
       id: 0,
@@ -59,10 +61,10 @@ export default async (
     }
   }
 
-  async function testerIsCandidate() {
+  async function getTesterCandidature() {
     const result = await db.query(
       db.format(
-        `SELECT campaign_id FROM wp_crowd_appq_has_candidate WHERE user_id=? AND campaign_id=? ;`,
+        `SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id=? AND campaign_id=? ;`,
         [req.user.ID, campaignId]
       )
     );
@@ -72,6 +74,7 @@ export default async (
         message: `T${req.user.testerId} is not candidate on CP${campaignId}.`,
       };
     }
+    return result[0];
   }
 
   async function severityIsAcceptable() {
@@ -138,6 +141,39 @@ export default async (
       throw {
         status_code: 403,
         message: `BugType ${req.body.type} is not accepted from CP${campaignId}.`,
+      };
+    }
+  }
+  async function campaignHasTasks() {
+    let tasks = await db.query(
+      db.format(
+        `SELECT id
+          FROM wp_appq_campaign_task
+          WHERE campaign_id = ?
+         ;`,
+        [campaignId]
+      )
+    );
+    return tasks.length;
+  }
+
+  async function useCaseIsValid(group_id: number) {
+    let usecase = await db.query(
+      db.format(
+        `SELECT tsk.id AS id
+          FROM wp_appq_campaign_task tsk
+                   JOIN wp_appq_campaign_task_group tskgrp ON tskgrp.task_id = tsk.id
+          WHERE tsk.campaign_id = ?
+            AND (tskgrp.group_id = 0 || tskgrp.group_id = ?)
+            AND tsk.id = ?;
+         ;`,
+        [campaignId, group_id, req.body.usecase]
+      )
+    );
+    if (!usecase.length) {
+      throw {
+        status_code: 403,
+        message: `Usecase ${req.body.usecase} not found for CP${campaignId}.`,
       };
     }
   }
