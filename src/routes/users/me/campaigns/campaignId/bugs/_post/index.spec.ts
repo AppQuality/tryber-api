@@ -6,6 +6,8 @@ import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
 import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
 import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
+import { data as cpHasTaskGroupsData } from "@src/__mocks__/mockedDb/cpHasTaskGroups";
+import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
 import app from "@src/app";
 import request from "supertest";
 
@@ -61,6 +63,19 @@ const bugBadBugType = {
   device: 0,
   media: ["the media1 url"],
 };
+const bugBadUseCase = {
+  title: "Camapign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "CRASH",
+  notes: "The bug notes",
+  usecase: 69,
+  device: 0,
+  media: ["the media1 url"],
+};
 describe("Route POST a bug to a specific campaign", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
@@ -82,6 +97,10 @@ describe("Route POST a bug to a specific campaign", () => {
         campaign_id: 1,
         bug_type_id: 3,
       });
+      await cpUsecasesData.usecase1();
+      await cpUsecasesData.usecase1({ id: 2 });
+      await cpHasTaskGroupsData.group1();
+
       resolve(null);
     });
   });
@@ -95,6 +114,8 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpReplicabilityData.drop();
       await bugTypesData.drop();
       await cpHasBugTypeData.drop();
+      await cpUsecasesData.drop();
+      await cpHasTaskGroupsData.drop();
 
       resolve(null);
     });
@@ -146,8 +167,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .set("authorization", "Bearer tester")
       .send(bugBadReplicability);
     expect(response.status).toBe(403);
-    console.log(response.status);
-    console.log(response.body);
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
@@ -159,12 +178,23 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bugBadBugType);
-    console.log(response.body);
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
       message: `BugType ${bugBadBugType.type} is not accepted from CP1.`,
+    });
+  });
+  it("Should answer 403 if a user sends an unaccepted usecase on CP", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadUseCase);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
     });
   });
 });
