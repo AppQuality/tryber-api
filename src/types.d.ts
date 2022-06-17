@@ -1,10 +1,19 @@
 import { Response } from "express";
-import { FileArray } from "express-fileupload";
+import {
+  FileArray as ExpressFileArray,
+  UploadedFile as ExpressUploadedFile,
+} from "express-fileupload";
 import { Request } from "openapi-backend";
 
 import { components, operations, paths } from "./schema";
 
 declare global {
+  interface UploadedFile extends ExpressUploadedFile {
+    id: string;
+  }
+  class FileArray extends ExpressFileArray {
+    [index: string]: UploadedFile | UploadedFile[];
+  }
   interface OpenapiResponse extends Response {
     skip_post_response_handler?: boolean;
     status_code: number;

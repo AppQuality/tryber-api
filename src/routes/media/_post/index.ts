@@ -1,6 +1,5 @@
 import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
-import { UploadedFile } from "express-fileupload";
 import { Context } from "openapi-backend";
 import path from "path";
 
@@ -61,6 +60,7 @@ export default async (
         failedFiles.push({ name: media.name });
       else {
         uploadedFiles.push({
+          id: media.id,
           name: media.name,
           path: (
             await upload({
@@ -83,8 +83,5 @@ export default async (
   }
 };
 function isOversizedFile(media: UploadedFile): boolean {
-  return (
-    typeof media.size !== "number" ||
-    media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912")
-  );
+  return media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912");
 }
