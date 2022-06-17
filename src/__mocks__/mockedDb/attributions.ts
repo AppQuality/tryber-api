@@ -28,6 +28,7 @@ type AttributionParams = {
   work_type_id?: number;
   campaign_id?: number;
   is_requested?: 1 | 0;
+  is_paid?: 1 | 0;
 };
 const data: {
   [key: string]: (
