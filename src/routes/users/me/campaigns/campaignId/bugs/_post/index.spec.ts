@@ -11,6 +11,7 @@ import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
 import app from "@src/app";
 import request from "supertest";
 
+//import { data as bugData } from '@src/__mocks__/mockedDb/bugs';
 const bug = {
   title: "Camapign Title",
   description: "Camapign Description",
@@ -114,6 +115,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpUsecasesData.usecase1();
       await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
+      //await bugData.bug1();
 
       resolve(null);
     });
@@ -130,6 +132,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpHasBugTypeData.drop();
       await cpUsecasesData.drop();
       await cpHasTaskGroupsData.drop();
+      //await bugTypesData.dromp();
 
       resolve(null);
     });
@@ -143,7 +146,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/2/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
       element: "bugs",
@@ -199,7 +201,7 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `BugType ${bugBadBugType.type} is not accepted from CP1.`,
     });
   });
-  it("Should answer 403 if a user sends an unaccepted notesusecase on CP", async () => {
+  it("Should answer 403 if a user sends an unaccepted usecase on CP", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
@@ -229,11 +231,23 @@ describe("Route POST a bug to a specific campaign", () => {
   //     .post("/users/me/campaigns/1/bugs")
   //     .set("authorization", "Bearer tester")
   //     .send(bug);
+  //     console.log(response.body);
   //   expect(response.status).toBe(200);
   //   expect(response.body).toEqual({
-  //     element: "bugs",
-  //     id: 1,
-  //     message: "Bug created.",
+  //     id:'1',
+  //     testerId: 1,
+  //     title: "Camapign Title",
+  //     description: "Camapign Description",
+  //     expected: "The expected to reproduce the bug",
+  //     current: "Current case",
+  //     severity: "LOW",
+  //     status:"PENDING",
+  //     replicability: "ONCE",
+  //     type: "CRASH",
+  //     notes: "The bug notes",
+  //     usecase: "1",
+  //     device: 0,
+  //     media: ["the media1 url"],
   //   });
   // });
 });
