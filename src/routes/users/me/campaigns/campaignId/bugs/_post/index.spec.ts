@@ -76,6 +76,20 @@ const bugBadUseCase = {
   device: 0,
   media: ["the media1 url"],
 };
+const bugBadDevice = {
+  title: "Camapign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "CRASH",
+  notes: "The bug notes",
+  usecase: 1,
+  device: 696969,
+  media: ["the media1 url"],
+};
+
 describe("Route POST a bug to a specific campaign", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
@@ -185,7 +199,7 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `BugType ${bugBadBugType.type} is not accepted from CP1.`,
     });
   });
-  it("Should answer 403 if a user sends an unaccepted usecase on CP", async () => {
+  it("Should answer 403 if a user sends an unaccepted notesusecase on CP", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
@@ -197,4 +211,29 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
     });
   });
+  it("Should answer 403 if a user sends the not-candidate devices on CP", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadDevice);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Device is not candidate on CP1.`,
+    });
+  });
+
+  // it("Should answer 200 if a user sends a valid bug", async () => {
+  //   const response = await request(app)
+  //     .post("/users/me/campaigns/1/bugs")
+  //     .set("authorization", "Bearer tester")
+  //     .send(bug);
+  //   expect(response.status).toBe(200);
+  //   expect(response.body).toEqual({
+  //     element: "bugs",
+  //     id: 1,
+  //     message: "Bug created.",
+  //   });
+  // });
 });
