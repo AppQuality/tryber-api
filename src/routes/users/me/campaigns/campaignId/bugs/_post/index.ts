@@ -19,21 +19,7 @@ export default async (
     await bugTypeIsAcceptable();
 
     res.status_code = 200;
-    return {
-      id: "1",
-      testerId: 1,
-      title: "Bug 1",
-      status: "PENDING",
-      description: "",
-      expected: "",
-      current: "",
-      severity: "LOW",
-      replicability: "ONCE",
-      type: "CRASH",
-      notes: "",
-      usecase: "",
-      media: ["the media1 url"],
-    };
+    return {}; //await createBug();
   } catch (error) {
     if (process.env && process.env.DEBUG)
       //console.log(error);
@@ -72,6 +58,15 @@ export default async (
       throw {
         status_code: 403,
         message: `T${req.user.testerId} is not candidate on CP${campaignId}.`,
+      };
+    }
+    if (
+      result[0].selected_device !== "0" &&
+      result[0].selected_device !== req.body.device
+    ) {
+      throw {
+        status_code: 403,
+        message: `Device is not candidate on CP${campaignId}.`,
       };
     }
     return result[0];
@@ -156,7 +151,6 @@ export default async (
     );
     return tasks.length;
   }
-
   async function useCaseIsValid(group_id: number) {
     let usecase = await db.query(
       db.format(
@@ -165,7 +159,7 @@ export default async (
                    JOIN wp_appq_campaign_task_group tskgrp ON tskgrp.task_id = tsk.id
           WHERE tsk.campaign_id = ?
             AND (tskgrp.group_id = 0 || tskgrp.group_id = ?)
-            AND tsk.id = ?;
+            AND tsk.id = ?
          ;`,
         [campaignId, group_id, req.body.usecase]
       )
@@ -177,4 +171,37 @@ export default async (
       };
     }
   }
+  // async function createBug() {
+  //   let inserted = await db.query(
+  //     db.format(
+  //       `INSERT INTO table_name (message, campaign_id, status_id, wp_user_id, severity_id)
+  //       VALUES ('hola', ?, 1, ...);
+  //        ;`,
+  //       [campaignId]
+  //     )
+  //   );
+  //   if (inserted.affectedRows === 0) {
+  //     throw {
+  //       status_code: 403,
+  //       message: `Error on uploading Bug`,
+  //     };
+  //   }
+  //   return {
+  //     id: inserted.id,
+  //     testerId: req.user.testerId,
+  //     title: req.body.title,
+  //     status: req.body.status,
+  //     description: req.body.description,
+  //     expected: req.body.expected,
+  //     current: req.body.current,
+  //     severity: req.body.severity,
+  //     replicability: req.body.replicability,
+  //     type: req.body.type,
+  //     notes: req.body.notes,
+  //     usecase: req.body.usecase,
+  //     //device: ??
+  //     media: ["URL of media ?????"],
+  //     //additional: ??
+  //   };
+  // }
 };
