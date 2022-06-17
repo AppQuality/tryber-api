@@ -1,5 +1,6 @@
 import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
+import crypto from "crypto";
 import { UploadedFile } from "express-fileupload";
 import { Context } from "openapi-backend";
 import path from "path";
@@ -58,9 +59,10 @@ export default async (
     let failedFiles = [];
     for (const media of files) {
       if (!isAcceptableFile(media) || isOversizedFile(media))
-        failedFiles.push({ name: media.name });
+        failedFiles.push({ name: media.name, id: getMediaId(media.name) });
       else {
         uploadedFiles.push({
+          id: getMediaId(media.name),
           name: media.name,
           path: (
             await upload({
@@ -87,4 +89,11 @@ function isOversizedFile(media: UploadedFile): boolean {
     typeof media.size !== "number" ||
     media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912")
   );
+}
+
+function getMediaId(name: string): string {
+  return crypto
+    .createHash("md5")
+    .update(name + new Date().getTime().toString())
+    .digest("hex");
 }
