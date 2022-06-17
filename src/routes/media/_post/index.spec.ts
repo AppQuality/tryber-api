@@ -3,8 +3,10 @@ import upload from "@src/features/upload";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
+import getMediaId from "./getMediaId";
 
 jest.mock("@src/features/upload");
+jest.mock("./getMediaId");
 
 describe("Route POST /media", () => {
   beforeAll(async () => {
@@ -13,6 +15,7 @@ describe("Route POST /media", () => {
         return `https://s3.amazonaws.com/${bucket}/${key}`;
       }
     );
+    (getMediaId as jest.Mock).mockImplementation((name: string) => name);
     return new Promise(async (resolve) => {
       await profileData.basicTester();
       await wpUserData.basicUser();
@@ -46,9 +49,9 @@ describe("Route POST /media", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("failed", [
-      { name: "void.bat" },
-      { name: "void.sh" },
-      { name: "void.exe" },
+      { name: "void.bat", id: "void.bat" },
+      { name: "void.sh", id: "void.sh" },
+      { name: "void.exe", id: "void.exe" },
     ]);
   });
   it("Should answer 200 and mark as failed if try to send an oversized file", async () => {
@@ -62,6 +65,8 @@ describe("Route POST /media", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
 
-    expect(response.body).toHaveProperty("failed", [{ name: "oversized.png" }]);
+    expect(response.body).toHaveProperty("failed", [
+      { name: "oversized.png", id: "oversized.png" },
+    ]);
   });
 });
