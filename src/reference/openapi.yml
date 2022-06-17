@@ -1056,6 +1056,8 @@ paths:
                           type: string
                         path:
                           type: string
+                        id:
+                          type: string
                       required:
                         - name
                         - path
@@ -1065,6 +1067,8 @@ paths:
                       type: object
                       properties:
                         name:
+                          type: string
+                        id:
                           type: string
                       required:
                         - name
