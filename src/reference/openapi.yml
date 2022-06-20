@@ -2385,7 +2385,6 @@ paths:
                         - value
                 required:
                   - id
-                  - internalId
                   - testerId
                   - title
                   - status
