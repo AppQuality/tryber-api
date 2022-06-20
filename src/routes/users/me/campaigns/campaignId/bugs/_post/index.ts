@@ -10,38 +10,43 @@ export default async (
   const params = c.request
     .params as StoplightOperations["post-users-me-campaigns-campaign-bugs"]["parameters"]["path"];
   const campaignId = parseInt(params.campaignId);
+  let bug =
+    {} as StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
   try {
     await campaignExists();
     const candidature = await getTesterCandidature();
-    const usecase = await useCaseIsValid(candidature.group_id);
-    await severityIsAcceptable();
-    await replicabilityIsAcceptable();
-    await bugTypeIsAcceptable();
+    const usecase = await usecaseIsValid(candidature.group_id);
+    const severity = await severityIsAcceptable();
+    const replicability = await replicabilityIsAcceptable();
+
+    const bugtype = await bugTypeIsAcceptable();
+
+    const insertedBugId = await createBug(
+      usecase,
+      severity.id,
+      replicability.id,
+      bugtype.id
+    );
+    const internalBugID = await updateInternalBugId(insertedBugId);
+    bug = {
+      id: insertedBugId,
+      testerId: req.user.testerId,
+      internalId: internalBugID,
+      title: req.body.title,
+      description: req.body.description,
+      notes: req.body.notes,
+      severity: req.body.severity,
+      replicability: req.body.replicability,
+      type: req.body.type,
+      status: "PENDING",
+      expected: req.body.expected,
+      current: req.body.current,
+      usecase: usecase.title,
+      media: [],
+    };
 
     res.status_code = 200;
-    const insertedBug = await createBug(usecase);
-    await updateInternalBugId(insertedBug.id);
-    return {
-      id: insertedBug.id,
-      testerId: 1,
-      title: "Camapign Title",
-      description: "Camapign Description",
-      status: "PENDING",
-      expected: "The expected to reproduce the bug",
-      current: "Current case",
-      severity: "LOW",
-      replicability: "ONCE",
-      type: "CRASH",
-      notes: "The bug notes",
-      usecase: "1",
-      device: {
-        id: 0,
-        type: "DESKTOP",
-        device: { pc_type: "WINDOWS" },
-        operating_system: { id: 0, platform: "", version: "" },
-      },
-      media: ["the media1 url"],
-    };
+    return bug;
   } catch (error) {
     if (process.env && process.env.DEBUG) console.log(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -94,18 +99,23 @@ export default async (
   }
 
   async function severityIsAcceptable() {
-    let severities = (
-      await db.query(
-        db.format(
-          `SELECT name
+    let severities = await db.query(
+      db.format(
+        `SELECT sv.id as id, sv.name as name
         FROM wp_appq_evd_severity sv
                  JOIN wp_appq_additional_bug_severities cpsv ON sv.id = cpsv.bug_severity_id
         WHERE campaign_id=?;
          ;`,
-          [campaignId]
-        )
+        [campaignId]
       )
-    ).map((severity: { name: string }) => severity.name);
+    );
+    const severity = severities.find(
+      (severity: { id: number; name: string }) =>
+        severity.name === req.body.severity
+    );
+    severities = severities.map(
+      (severity: { id: number; name: string }) => severity.name
+    );
 
     if (severities.length && !severities.includes(req.body.severity)) {
       throw {
@@ -113,20 +123,24 @@ export default async (
         message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
       };
     }
+    return severity;
   }
 
   async function replicabilityIsAcceptable() {
-    let replicabilities = (
-      await db.query(
-        db.format(
-          `SELECT name FROM wp_appq_evd_bug_replicability rep
+    let replicabilities = await db.query(
+      db.format(
+        `SELECT rep.id AS id, rep.name AS name FROM wp_appq_evd_bug_replicability rep
           JOIN wp_appq_additional_bug_replicabilities cprep ON rep.id = cprep.bug_replicability_id
          WHERE campaign_id=? ;
          ;`,
-          [campaignId]
-        )
+        [campaignId]
       )
-    ).map((replicability: { name: string }) =>
+    );
+    const replicability = replicabilities.find(
+      (replicability: { id: number; name: string }) =>
+        replicability.name.toUpperCase() === req.body.replicability
+    );
+    replicabilities = replicabilities.map((replicability: { name: string }) =>
       replicability.name.toUpperCase()
     );
     if (
@@ -138,20 +152,26 @@ export default async (
         message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
       };
     }
+    return replicability;
   }
 
   async function bugTypeIsAcceptable() {
-    let bugTypes = (
-      await db.query(
-        db.format(
-          `SELECT name FROM wp_appq_evd_bug_type bt
+    let bugTypes = await db.query(
+      db.format(
+        `SELECT bt.id AS id, bt.name AS name FROM wp_appq_evd_bug_type bt
           JOIN wp_appq_additional_bug_types cpbt ON bt.id = cpbt.bug_type_id
          WHERE campaign_id=? AND  bt.is_enabled = 1
          ;`,
-          [campaignId]
-        )
+        [campaignId]
       )
-    ).map((bugType: { name: string }) => bugType.name.toUpperCase());
+    );
+    const bugType = bugTypes.find(
+      (bugType: { id: number; name: string }) =>
+        bugType.name.toUpperCase() === req.body.type
+    );
+    bugTypes = bugTypes.map((bugType: { id: number; name: string }) =>
+      bugType.name.toUpperCase()
+    );
 
     if (bugTypes.length && !bugTypes.includes(req.body.type)) {
       throw {
@@ -159,8 +179,9 @@ export default async (
         message: `BugType ${req.body.type} is not accepted from CP${campaignId}.`,
       };
     }
+    return bugType;
   }
-  async function useCaseIsValid(
+  async function usecaseIsValid(
     group_id: number
   ): Promise<{ id: number; title: string }> {
     let usecase = { id: 0, title: "" };
@@ -193,107 +214,28 @@ export default async (
   function isNotSpecificUsecase() {
     return req.body.usecase === -1;
   }
-  async function getSeverityIdFromName(): Promise<number> {
-    const severity = await db.query(
-      db.format(
-        `SELECT id
-        FROM wp_appq_evd_severity
-        WHERE name = ?        
-        ;`,
-        [req.body.severity]
-      )
-    );
-    if (!severity.length) {
-      throw {
-        status_code: 403,
-        message: `Severity ${req.body.severity} not found.`,
-      };
-    }
-    return severity[0].id;
+
+  function capitalize(str: string) {
+    str = str.toLowerCase();
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
-  async function getReplicabilityIdFromName(): Promise<number> {
-    const replicability = await db.query(
-      db.format(
-        `SELECT id
-        FROM wp_appq_evd_bug_replicability
-        WHERE name = ?     
-        ;`,
-        [req.body.replicability]
-      )
-    );
-    if (!replicability.length) {
-      throw {
-        status_code: 403,
-        message: `Replicability ${req.body.replicability} not found.`,
-      };
-    }
-    return replicability[0].id;
-  }
-  async function getBugTypeIdFromName(): Promise<number> {
-    const type = await db.query(
-      db.format(
-        `SELECT id
-        FROM wp_appq_evd_bug_type
-        WHERE name = ?           
-        ;`,
-        [req.body.type]
-      )
-    );
-    if (!type.length) {
-      throw {
-        status_code: 403,
-        message: `Type ${req.body.type} not found.`,
-      };
-    }
-    return type[0].id;
-  }
-  async function createBug(usecase: { id: number; title: string }) {
-    const severityId = await getSeverityIdFromName();
-    const replicabilityId = await getReplicabilityIdFromName();
-    const bugTypeId = await getBugTypeIdFromName();
-    const device = await getUserDevice();
+  async function createBug(
+    usecase: { id: number; title: string },
+    severityId: number,
+    replicabilityId: number,
+    bugTypeId: number
+  ) {
     let inserted = await db.query(
       db.format(
         `INSERT INTO wp_appq_evd_bug (
-          wp_user_id,
-          message,
-          description,
-          expected_result,
-          current_result,
-          campaign_id,
-
-          status_id,
-          publish,
-          status_reason,
-
-          severity_id,
-
-          created,
-          updated,
-
-          bug_replicability_id,
-          bug_type_id,
-          application_section,
-          application_section_id,
-          note,
-          dev_id,
-          manufacturer,
-          model,
-          os,
-          os_version,
-
-          version_id,
-          reviewer,
-          is_perfect,
-          last_editor_id,
-        )
+          wp_user_id, message, description, expected_result, current_result, campaign_id,
+          status_id, publish, status_reason, severity_id, created,
+          bug_replicability_id, bug_type_id, application_section, application_section_id,
+          note
+             )
         VALUES (
-          ?,?,?,?,?,?,
-          3,1,"Bug under review.",
-          ?,
-          NOW(),NULL,
-          ?,?,?,?,?,?,?,?,?,?,
-          -1,0,1,0,)
+          ?,?,?,?,?,?,3,1,"Bug under review.",?,NOW(),?,?,?,?,?
+          )
          ;`,
         [
           req.user.ID,
@@ -302,17 +244,13 @@ export default async (
           req.body.expected,
           req.body.current,
           campaignId,
+
           severityId,
           replicabilityId,
           bugTypeId,
           usecase.title,
           usecase.id,
-          req.body.note,
-          device.id,
-          device.manufacturer,
-          device.model,
-          device.os,
-          device.os_version,
+          req.body.notes,
         ]
       )
     );
@@ -322,23 +260,7 @@ export default async (
         message: `Error on uploading Bug`,
       };
     }
-    return {
-      id: inserted.id,
-      testerId: req.user.testerId,
-      title: req.body.title,
-      status: req.body.status,
-      description: req.body.description,
-      expected: req.body.expected,
-      current: req.body.current,
-      severity: req.body.severity,
-      replicability: req.body.replicability,
-      type: req.body.type,
-      notes: req.body.notes,
-      usecase: req.body.usecase,
-      //device: ??
-      media: req.body.media,
-      //additional: ??
-    };
+    return inserted.insertId;
   }
 
   async function updateInternalBugId(bugId: number) {
@@ -364,5 +286,6 @@ export default async (
         [internalBugId, bugId]
       )
     );
+    return internalBugId;
   }
 };
