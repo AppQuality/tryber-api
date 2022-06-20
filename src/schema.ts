@@ -1860,7 +1860,8 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            id: string;
+            id: number;
+            internalId: string;
             testerId: number;
             title: string;
             /** @enum {string} */
