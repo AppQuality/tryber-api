@@ -2312,6 +2312,8 @@ paths:
                         value: ''
                 properties:
                   id:
+                    type: number
+                  internalId:
                     type: string
                   testerId:
                     type: integer
@@ -2383,6 +2385,7 @@ paths:
                         - value
                 required:
                   - id
+                  - internalId
                   - testerId
                   - title
                   - status
