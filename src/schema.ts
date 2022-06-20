@@ -1861,7 +1861,7 @@ export interface operations {
         content: {
           "application/json": {
             id: number;
-            internalId: string;
+            internalId?: string;
             testerId: number;
             title: string;
             /** @enum {string} */
