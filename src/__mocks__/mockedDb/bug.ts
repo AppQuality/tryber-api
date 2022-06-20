@@ -13,25 +13,23 @@ export const table = {
       "current_result VARCHAR(255)",
       "campaign_id INTEGER",
       "status_id INTEGER",
-      "severity_id INTEGER DEFAULT 1",
       "publish INTEGER DEFAULT 1",
       "status_reason VARCHAR(255)",
+      "severity_id INTEGER DEFAULT 1",
       "created DATETIME",
-      "updated DATETIME",
       "bug_replicability_id INTEGER",
       "bug_type_id INTEGER",
       "application_section VARCHAR(255)",
       "application_section_id INTEGER",
       "note VARCHAR(3000)",
+
       "dev_id INTEGER",
       "manufacturer VARCHAR(65)",
       "model VARCHAR(65)",
       "os VARCHAR(45)",
       "os_version VARCHAR(45)",
       "version_id INTEGER",
-      "reviewer INTEGER NOT NULL",
       "is_perfect INTEGER DEFAULT 1",
-      "last_editor_id INTEGER NOT NULL",
     ]);
   },
   drop: async () => {
@@ -49,25 +47,23 @@ type BugParams = {
   current_result?: string;
   campaign_id?: number;
   status_id?: number;
-  severity_id?: number;
   publish?: number;
   status_reason?: string;
+  severity_id?: number;
   created?: string;
-  updated?: string;
   bug_replicability_id?: number;
   bug_type_id?: number;
   application_section?: string;
   application_section_id?: number;
   note?: string;
+
   dev_id?: number;
   manufacturer?: string;
   model?: string;
   os?: string;
   os_version?: string;
   version_id?: number;
-  reviewer?: number;
   is_perfect?: number;
-  last_editor_id?: number;
 };
 const data: {
   [key: string]: (params?: BugParams) => Promise<{ [key: string]: any }>;

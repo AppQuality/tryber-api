@@ -1,3 +1,4 @@
+import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
 import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as bugTypesData } from "@src/__mocks__/mockedDb/bugTypes";
@@ -9,9 +10,9 @@ import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities"
 import { data as cpHasTaskGroupsData } from "@src/__mocks__/mockedDb/cpHasTaskGroups";
 import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
 import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
-//import { data as bugData } from '@src/__mocks__/mockedDb/bugs';
 const bug = {
   title: "Camapign Title",
   description: "Camapign Description",
@@ -94,7 +95,9 @@ const bugBadDevice = {
 describe("Route POST a bug to a specific campaign", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await campaignData.basicCampaign();
+      await campaignData.basicCampaign({
+        base_bug_internal_id: "BASEBUGINTERNAL",
+      });
       await campaignData.basicCampaign({ id: 3 });
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
@@ -103,9 +106,9 @@ describe("Route POST a bug to a specific campaign", () => {
       await replicabilityData.replicability({ name: "Once" });
       await replicabilityData.replicability({ id: 2, name: "Sometimes" });
       await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
-      await bugTypesData.bugType({ name: "CRASH" });
-      await bugTypesData.bugType({ id: 2, name: "TYPO" });
-      await bugTypesData.bugType({ id: 3, name: "OTHER", is_enabled: 0 });
+      await bugTypesData.bugType({ name: "Crash" });
+      await bugTypesData.bugType({ id: 2, name: "Typo" });
+      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
       await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
       await cpHasBugTypeData.cpBugType({
         id: 2,
@@ -115,7 +118,6 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpUsecasesData.usecase1();
       await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
-      //await bugData.bug1();
 
       resolve(null);
     });
@@ -132,7 +134,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpHasBugTypeData.drop();
       await cpUsecasesData.drop();
       await cpHasTaskGroupsData.drop();
-      //await bugTypesData.dromp();
+      await bugData.drop();
 
       resolve(null);
     });
@@ -194,11 +196,12 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bugBadBugType);
+    console.log("suca", response.body);
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: `BugType ${bugBadBugType.type} is not accepted from CP1.`,
+      message: `BugType TYPO is not accepted from CP1.`,
     });
   });
   it("Should answer 403 if a user sends an unaccepted usecase on CP", async () => {
@@ -225,29 +228,106 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Device is not candidate on CP1.`,
     });
   });
-
-  // it("Should answer 200 if a user sends a valid bug", async () => {
-  //   const response = await request(app)
-  //     .post("/users/me/campaigns/1/bugs")
-  //     .set("authorization", "Bearer tester")
-  //     .send(bug);
-  //     console.log(response.body);
-  //   expect(response.status).toBe(200);
-  //   expect(response.body).toEqual({
-  //     id:'1',
-  //     testerId: 1,
-  //     title: "Camapign Title",
-  //     description: "Camapign Description",
-  //     expected: "The expected to reproduce the bug",
-  //     current: "Current case",
-  //     severity: "LOW",
-  //     status:"PENDING",
-  //     replicability: "ONCE",
-  //     type: "CRASH",
-  //     notes: "The bug notes",
-  //     usecase: "1",
-  //     device: 0,
-  //     media: ["the media1 url"],
-  //   });
-  // });
+  it("Should return inserted bug with testerId if a user sends a valid bug", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("testerId", 1);
+  });
+  it("Should return inserted bug with TITLE if a user sends the bug title", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("title", bug.title);
+  });
+  it("Should return inserted bug with DESCRIPTION if a user sends the bug description", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("description", bug.description);
+  });
+  it("Should return inserted bug with NOTES if a user sends the bug notes", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("notes", bug.notes);
+  });
+  it("Should return inserted bug with STATUS PENDING if a user sends a valid bug", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("status", "PENDING");
+  });
+  it("Should return inserted bug with USECASE if a user sends a bug with usecase value", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("usecase", "Title of usecase1");
+  });
+  it("Should return inserted bug with EXPECTED if a user sends a bug with expected value", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty(
+      "expected",
+      "The expected to reproduce the bug"
+    );
+  });
+  it("Should return inserted bug with CURRENT if a user sends a bug with current value", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("current", "Current case");
+  });
+  it("Should return inserted bug with SEVERITY if a user sends the bug severity", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("severity", "LOW");
+  });
+  it("Should return inserted bug with REPLICABILITY if a user sends the bug replicability", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("replicability", "ONCE");
+  });
+  it("Should return inserted bug with TYPE if a user sends the bug type", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("type", "CRASH");
+  });
+  it("Should update INTERNALID if a user sends a valid bug", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    const baseInternal = await sqlite3.get(
+      `SELECT internal_id FROM wp_appq_evd_bug WHERE id = 1`
+    );
+    expect(response.status).toBe(200);
+    expect(baseInternal.internal_id).toEqual("BASEBUGINTERNAL1");
+  });
 });
