@@ -3,6 +3,7 @@ import sqlite3 from "@src/features/sqlite";
 
 import { table as attributionsTable } from "./mockedDb/attributions";
 import { table as bugTable } from "./mockedDb/bug";
+import bugMedia from "./mockedDb/bugMedia";
 import { table as replicabilitiesTable } from "./mockedDb/bugReplicabilities";
 import { table as severityTable } from "./mockedDb/bugSeverities";
 import { table as bugStatus } from "./mockedDb/bugStatus";

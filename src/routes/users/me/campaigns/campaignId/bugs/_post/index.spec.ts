@@ -1,4 +1,5 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
 import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as bugTypesData } from "@src/__mocks__/mockedDb/bugTypes";
@@ -24,7 +25,7 @@ const bug = {
   notes: "The bug notes",
   usecase: 1,
   device: 0,
-  media: ["the media1 url"],
+  media: ["www.example.com/media69.jpg"],
 };
 const bugBadSeverity = {
   title: "Camapign Title",
@@ -135,6 +136,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpUsecasesData.drop();
       await cpHasTaskGroupsData.drop();
       await bugData.drop();
+      await bugMedia.clear();
 
       resolve(null);
     });
@@ -330,4 +332,15 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(baseInternal.internal_id).toEqual("BASEBUGINTERNAL1");
   });
+  // it("Should return inserted media if a user sends a bug with medias", async () => {
+  //   const response = await request(app)
+  //     .post("/users/me/campaigns/1/bugs")
+  //     .set("authorization", "Bearer tester")
+  //     .send(bug);
+  //   expect(response.status).toBe(200);
+  //   expect(response.body).toHaveProperty("media");
+  //   expect(Array.isArray(response.body.media)).toEqual(true);
+  //   expect(response.body.media).toEqual(["www.example.com/media69.jpg"]);
+
+  // });
 });
