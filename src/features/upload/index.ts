@@ -21,6 +21,7 @@ export default async ({ bucket, key, file }: UploadParams): Promise<string> => {
       Key: key,
       Body: pass,
       ACL: "public-read",
+      ContentType: file.mimetype,
     })
     .promise();
   const pipeline = file.stream.pipe(pass);
