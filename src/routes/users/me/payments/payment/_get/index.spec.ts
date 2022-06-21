@@ -47,7 +47,7 @@ describe("GET /users/me/payments/{payment}", () => {
         id: 2,
         tester_id: 2,
       });
-      data.payment1 = await attributionData.validAttribution({
+      data.payment1 = await Attributions.insert({
         id: 1,
         amount: 10,
         creation_date: new Date("01/01/1972").toISOString(),
@@ -56,7 +56,7 @@ describe("GET /users/me/payments/{payment}", () => {
         campaign_id: campaign1.id,
       });
 
-      data.payment2 = await attributionData.validAttribution({
+      data.payment2 = await Attributions.insert({
         id: 2,
         amount: 20,
         creation_date: new Date("01/02/1972").toISOString(),
@@ -64,7 +64,7 @@ describe("GET /users/me/payments/{payment}", () => {
         request_id: 1,
         campaign_id: campaign1.id,
       });
-      data.payment3 = await attributionData.validAttribution({
+      data.payment3 = await Attributions.insert({
         id: 4,
         amount: 30,
         creation_date: new Date("01/03/1972").toISOString(),
@@ -73,7 +73,7 @@ describe("GET /users/me/payments/{payment}", () => {
         campaign_id: campaign2.id,
       });
 
-      await attributionData.validAttribution({
+      await Attributions.insert({
         id: 3,
         amount: 40,
         creation_date: new Date("01/03/1972").toISOString(),
@@ -87,7 +87,7 @@ describe("GET /users/me/payments/{payment}", () => {
   afterAll(async () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
-      await attributionData.drop();
+      await Attributions.clear();
       await requestData.drop();
       await Campaigns.clear();
       await workTypeData.drop();
