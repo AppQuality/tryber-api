@@ -1,54 +1,33 @@
 import * as db from "@src/features/db";
+import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
+
+type RequestParams =
+  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["parameters"]["path"];
+type Bug =
+  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
+type Error =
+  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["404"]["content"]["application/json"];
 
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
 export default async (
   c: Context,
   req: OpenapiRequest,
   res: OpenapiResponse
-) => {
-  const params = c.request
-    .params as StoplightOperations["post-users-me-campaigns-campaign-bugs"]["parameters"]["path"];
+): Promise<Bug | Error> => {
+  const params = c.request.params as RequestParams;
   const campaignId = parseInt(params.campaignId);
-  let bug =
-    {} as StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
+
+  let candidature, usecase, severity, replicability, bugtype;
   try {
     await campaignExists();
-    const candidature = await getTesterCandidature();
-    const usecase = await usecaseIsValid(candidature.group_id);
-    const severity = await severityIsAcceptable();
-    const replicability = await replicabilityIsAcceptable();
-
-    const bugtype = await bugTypeIsAcceptable();
-
-    const insertedBugId = await createBug(
-      usecase,
-      severity.id,
-      replicability.id,
-      bugtype.id
-    );
-    const internalBugID = await updateInternalBugId(insertedBugId);
-    bug = {
-      id: insertedBugId,
-      testerId: req.user.testerId,
-      internalId: internalBugID,
-      title: req.body.title,
-      description: req.body.description,
-      notes: req.body.notes,
-      severity: req.body.severity,
-      replicability: req.body.replicability,
-      type: req.body.type,
-      status: "PENDING",
-      expected: req.body.expected,
-      current: req.body.current,
-      usecase: usecase.title,
-      media: [],
-    };
-
-    res.status_code = 200;
-    return bug;
+    candidature = await getTesterCandidature();
+    usecase = await usecaseIsValid(candidature.group_id);
+    severity = await severityIsAcceptable();
+    replicability = await replicabilityIsAcceptable();
+    bugtype = await bugTypeIsAcceptable();
   } catch (error) {
-    if (process.env && process.env.DEBUG) console.log(error);
+    debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
     return {
       element: "bugs",
@@ -57,7 +36,54 @@ export default async (
     };
   }
 
-  return {};
+  let insertedBugId;
+  try {
+    insertedBugId = await createBug(
+      usecase,
+      severity.id,
+      replicability.id,
+      bugtype.id
+    );
+  } catch (error) {
+    debugMessage(error);
+    res.status_code = 500;
+    return {
+      element: "bugs",
+      id: 0,
+      message: "Error creating bug",
+    };
+  }
+
+  let internalBugID;
+  try {
+    internalBugID = await updateInternalBugId(insertedBugId);
+  } catch (error) {
+    debugMessage(error);
+    res.status_code = 500;
+    return {
+      element: "bugs",
+      id: 0,
+      message: "Error updating internal bug id",
+    };
+  }
+
+  res.status_code = 200;
+  return {
+    id: insertedBugId,
+    testerId: req.user.testerId,
+    internalId: internalBugID,
+    title: req.body.title,
+    description: req.body.description,
+    notes: req.body.notes,
+    severity: severity.name,
+    replicability: req.body.replicability,
+    type: req.body.type,
+    status: "PENDING",
+    expected: req.body.expected,
+    current: req.body.current,
+    usecase: usecase.title,
+    media: [],
+  };
 
   async function campaignExists() {
     const result = await db.query(
@@ -215,10 +241,6 @@ export default async (
     return req.body.usecase === -1;
   }
 
-  function capitalize(str: string) {
-    str = str.toLowerCase();
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
   async function createBug(
     usecase: { id: number; title: string },
     severityId: number,
