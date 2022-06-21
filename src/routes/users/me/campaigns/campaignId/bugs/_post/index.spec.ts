@@ -1,3 +1,5 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
@@ -10,8 +12,6 @@ import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplic
 import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
 import { data as cpHasTaskGroupsData } from "@src/__mocks__/mockedDb/cpHasTaskGroups";
 import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const bug = {
@@ -103,19 +103,12 @@ describe("Route POST a bug to a specific campaign", () => {
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
       await severityData.severity({ id: 2, name: "HIGHT" });
-      await cpSeverityData.cpSeverity({ campaign_id: 1 });
       await replicabilityData.replicability({ name: "Once" });
       await replicabilityData.replicability({ id: 2, name: "Sometimes" });
-      await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
       await bugTypesData.bugType({ name: "Crash" });
       await bugTypesData.bugType({ id: 2, name: "Typo" });
       await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
-      await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
-      await cpHasBugTypeData.cpBugType({
-        id: 2,
-        campaign_id: 1,
-        bug_type_id: 3,
-      });
+
       await cpUsecasesData.usecase1();
       await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
@@ -343,4 +336,160 @@ describe("Route POST a bug to a specific campaign", () => {
   //   expect(response.body.media).toEqual(["www.example.com/media69.jpg"]);
 
   // });
+});
+
+describe("Route POST a bug to a specific campaign - with custom type", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await campaignData.basicCampaign({
+        base_bug_internal_id: "BASEBUGINTERNAL",
+      });
+      await campaignData.basicCampaign({ id: 3 });
+      await cpCandidaturesData.candidate1();
+      await severityData.severity({ name: "LOW" });
+      await severityData.severity({ id: 2, name: "HIGHT" });
+      await replicabilityData.replicability({ name: "Once" });
+      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
+      await bugTypesData.bugType({ name: "Crash" });
+      await bugTypesData.bugType({ id: 2, name: "Typo" });
+      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
+      await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
+      await cpHasBugTypeData.cpBugType({
+        id: 2,
+        campaign_id: 1,
+        bug_type_id: 3,
+      });
+
+      await cpUsecasesData.usecase1();
+      await cpUsecasesData.usecase1({ id: 2 });
+      await cpHasTaskGroupsData.group1();
+
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await campaignData.drop();
+      await cpCandidaturesData.drop();
+      await severityData.drop();
+      await cpSeverityData.drop();
+      await replicabilityData.drop();
+      await cpReplicabilityData.drop();
+      await bugTypesData.drop();
+      await cpHasBugTypeData.drop();
+      await cpUsecasesData.drop();
+      await cpHasTaskGroupsData.drop();
+      await bugData.drop();
+      await bugMedia.clear();
+
+      resolve(null);
+    });
+  });
+  it("Should return inserted bug with TYPE if a user sends the bug type", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("type", "CRASH");
+  });
+});
+
+describe("Route POST a bug to a specific campaign - with custom severities", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await campaignData.basicCampaign({
+        base_bug_internal_id: "BASEBUGINTERNAL",
+      });
+      await campaignData.basicCampaign({ id: 3 });
+      await cpCandidaturesData.candidate1();
+      await severityData.severity({ name: "LOW" });
+      await severityData.severity({ id: 2, name: "HIGHT" });
+      await cpSeverityData.cpSeverity({ campaign_id: 1 });
+      await cpUsecasesData.usecase1();
+      await cpUsecasesData.usecase1({ id: 2 });
+      await cpHasTaskGroupsData.group1();
+
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await campaignData.drop();
+      await cpCandidaturesData.drop();
+      await severityData.drop();
+      await cpSeverityData.drop();
+      await replicabilityData.drop();
+      await cpReplicabilityData.drop();
+      await bugTypesData.drop();
+      await cpHasBugTypeData.drop();
+      await cpUsecasesData.drop();
+      await cpHasTaskGroupsData.drop();
+      await bugData.drop();
+      await bugMedia.clear();
+
+      resolve(null);
+    });
+  });
+  it("Should return inserted bug with SEVERITY if a user sends the bug severity", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("severity", "LOW");
+  });
+});
+
+describe("Route POST a bug to a specific campaign - with custom replicability", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await campaignData.basicCampaign({
+        base_bug_internal_id: "BASEBUGINTERNAL",
+      });
+      await campaignData.basicCampaign({ id: 3 });
+      await cpCandidaturesData.candidate1();
+      await severityData.severity({ name: "LOW" });
+      await severityData.severity({ id: 2, name: "HIGHT" });
+      await replicabilityData.replicability({ name: "Once" });
+      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
+      await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
+      await bugTypesData.bugType({ name: "Crash" });
+      await bugTypesData.bugType({ id: 2, name: "Typo" });
+      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
+
+      await cpUsecasesData.usecase1();
+      await cpUsecasesData.usecase1({ id: 2 });
+      await cpHasTaskGroupsData.group1();
+
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await campaignData.drop();
+      await cpCandidaturesData.drop();
+      await severityData.drop();
+      await cpSeverityData.drop();
+      await replicabilityData.drop();
+      await cpReplicabilityData.drop();
+      await bugTypesData.drop();
+      await cpHasBugTypeData.drop();
+      await cpUsecasesData.drop();
+      await cpHasTaskGroupsData.drop();
+      await bugData.drop();
+      await bugMedia.clear();
+
+      resolve(null);
+    });
+  });
+
+  it("Should return inserted bug with REPLICABILITY if a user sends the bug replicability", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("replicability", "ONCE");
+  });
 });
