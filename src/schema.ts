@@ -1272,7 +1272,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "image/png": string;
+        "multipart/form-data": {
+          media?: string | string[];
+        };
       };
     };
   };
@@ -1367,7 +1369,7 @@ export interface operations {
             onboarding_completed?: boolean;
             additional?: components["schemas"]["AdditionalField"][];
             /** @enum {string} */
-            gender?: "male" | "female" | "not-specified";
+            gender?: "male" | "female" | "not-specified" | "other";
             /** Format: date */
             birthDate?: string;
             phone?: string;
@@ -1456,7 +1458,7 @@ export interface operations {
             onboarding_completed?: boolean;
             additional?: components["schemas"]["AdditionalField"][];
             /** @enum {string} */
-            gender?: "male" | "female" | "not-specified";
+            gender?: "male" | "female" | "not-specified" | "other";
             /** Format: date */
             birthDate?: string;
             phone?: string;
@@ -1490,7 +1492,7 @@ export interface operations {
           onboarding_completed?: boolean;
           surname?: string;
           /** @enum {string} */
-          gender?: "male" | "female" | "not-specified";
+          gender?: "male" | "female" | "not-specified" | "other";
           birthDate?: string;
           phone?: string;
           education?: number;
