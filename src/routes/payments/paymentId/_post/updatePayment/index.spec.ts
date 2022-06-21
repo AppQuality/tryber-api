@@ -1,5 +1,5 @@
 import sqlite3 from "@src/features/sqlite";
-import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import updatePayment from ".";
@@ -58,12 +58,12 @@ describe("updatePayment", () => {
           validBankTransferPayment
         );
         await sqlite3.insert("wp_appq_evd_profile", tester);
-        await sqlite3.insert("wp_appq_payment", {
+        await Attributions.insert({
           id: 1,
           is_paid: 0,
           request_id: 1,
         });
-        await sqlite3.insert("wp_appq_payment", {
+        await Attributions.insert({
           id: 2,
           is_paid: 0,
           request_id: 1,
@@ -78,7 +78,7 @@ describe("updatePayment", () => {
     return new Promise(async (resolve, reject) => {
       try {
         await paymentRequestData.drop();
-        await attributionData.drop();
+        await Attributions.clear();
         await profileData.drop();
         resolve(null);
       } catch (err) {
@@ -106,8 +106,9 @@ describe("updatePayment", () => {
       `SELECT is_paid FROM wp_appq_payment_request WHERE id = ${paymentWithFee.id} `
     );
     expect(paymentRequest.is_paid).toBe(1);
-    const paymentList = await sqlite3.all(
-      `SELECT is_paid FROM wp_appq_payment WHERE request_id = ${paymentWithFee.id} `
+    const paymentList = await Attributions.all(
+      ["is_paid"],
+      [{ request_id: paymentWithFee.id }]
     );
     expect(
       paymentList.every((payment: { is_paid: number }) => payment.is_paid === 1)

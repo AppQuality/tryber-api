@@ -1,7 +1,7 @@
-import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
 import sqlite3 from "@src/features/sqlite";
+import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
 
-import { table as attributionsTable } from "./mockedDb/attributions";
+import Attributions from "./mockedDb/attributions";
 import { table as bugTable } from "./mockedDb/bug";
 import bugMedia from "./mockedDb/bugMedia";
 import { table as replicabilitiesTable } from "./mockedDb/bugReplicabilities";
@@ -44,11 +44,6 @@ import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
-
-require("ts-node").register({
-  transpileOnly: true,
-});
-require("tsconfig-paths").register();
 export {};
 beforeAll(async () => {
   await levelRevTable.create();
