@@ -148,7 +148,7 @@ describe("Route PATCH users-me", () => {
 describe("Route PATCH users-me accepted fields", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await attributions.validAttribution();
+      await Attributions.insert();
 
       await wpUsers.basicUser({
         user_login: "bob_alice",

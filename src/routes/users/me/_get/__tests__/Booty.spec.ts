@@ -1,5 +1,5 @@
 import app from "@src/app";
-import { data as attributionsData } from "@src/__mocks__/mockedDb/attributions";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
@@ -15,35 +15,35 @@ describe("GET /users/me - booty data", () => {
       });
       data.attributionTotal = 0;
       data.attributionTotal += (
-        await attributionsData.validAttribution({
+        await Attributions.insert({
           id: 1,
           amount: 15,
           tester_id: data.tester.id,
         })
       ).amount;
       data.attributionTotal += (
-        await attributionsData.validAttribution({
+        await Attributions.insert({
           id: 2,
           amount: 14.99,
           tester_id: data.tester.id,
         })
       ).amount;
       data.attributionTotal += (
-        await attributionsData.validAttribution({
+        await Attributions.insert({
           id: 3,
           amount: 7.15,
           tester_id: data.tester.id,
         })
       ).amount;
 
-      await attributionsData.validAttribution({
+      await Attributions.insert({
         id: 4,
         amount: 50,
         tester_id: data.tester.id,
         is_requested: 1,
       });
 
-      await attributionsData.validAttribution({
+      await Attributions.insert({
         id: 5,
         amount: 50,
         tester_id: data.tester.id + 1,
@@ -55,7 +55,7 @@ describe("GET /users/me - booty data", () => {
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
-      await attributionsData.drop();
+      await Attributions.clear();
       await wpUsersData.drop();
       resolve(null);
     });
@@ -96,14 +96,14 @@ describe("GET /users/me - pending_booty threshold", () => {
     });
   });
   it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
-    await attributionsData.validAttribution({
+    await Attributions.insert({
       id: 1,
       amount: 15,
       tester_id: data.tester.id,
       is_requested: 1,
     });
 
-    await attributionsData.validAttribution({
+    await Attributions.insert({
       id: 2,
       amount: 15,
       tester_id: data.tester.id + 1,
@@ -119,7 +119,7 @@ describe("GET /users/me - pending_booty threshold", () => {
     });
   });
   it("Should return booty threshold.isOver=true if pending booty > threshold", async () => {
-    await attributionsData.validAttribution({
+    await Attributions.insert({
       id: 1,
       amount: 15,
       tester_id: data.tester.id,

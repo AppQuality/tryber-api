@@ -12,7 +12,7 @@ const campaign2 = {
   id: 2,
   title: "Absolut Best Campaign ever",
 };
-const attribution1 = {
+const attribution1: AttributionParams = {
   id: 1,
   tester_id: 1,
   campaign_id: 2,
@@ -21,7 +21,7 @@ const attribution1 = {
   is_paid: 0,
   is_requested: 0,
 };
-const attribution2 = {
+const attribution2: AttributionParams = {
   id: 2,
   tester_id: 1,
   campaign_id: 1,
@@ -30,7 +30,7 @@ const attribution2 = {
   is_paid: 0,
   is_requested: 0,
 };
-const attribution3 = {
+const attribution3: AttributionParams = {
   id: 3,
   tester_id: 1,
   campaign_id: 1,
@@ -39,7 +39,7 @@ const attribution3 = {
   is_paid: 0,
   is_requested: 0,
 };
-const attributionPaid = {
+const attributionPaid: AttributionParams = {
   id: 4,
   tester_id: 1,
   campaign_id: 3,
@@ -48,7 +48,7 @@ const attributionPaid = {
   is_paid: 1,
   is_requested: 0,
 };
-const attributionTryber2 = {
+const attributionTryber2: AttributionParams = {
   id: 333,
   tester_id: 2,
   campaign_id: 1,
@@ -56,7 +56,7 @@ const attributionTryber2 = {
   creation_date: "1969-06-09 00:00:00",
   is_paid: 1,
 };
-const attributionRequested = {
+const attributionRequested: AttributionParams = {
   id: 666,
   tester_id: 1,
   campaign_id: 1,
@@ -108,7 +108,7 @@ describe("GET /users/me/pending_booty", () => {
           value: attribution2.amount,
           currency: "EUR",
         },
-        attributionDate: attribution2.creation_date.substring(0, 10),
+        attributionDate: attribution2.creation_date?.substring(0, 10),
       },
       {
         id: attribution1.id,
@@ -117,7 +117,7 @@ describe("GET /users/me/pending_booty", () => {
           value: attribution1.amount,
           currency: "EUR",
         },
-        attributionDate: attribution1.creation_date.substring(0, 10),
+        attributionDate: attribution1.creation_date?.substring(0, 10),
       },
       {
         id: attribution3.id,
@@ -126,7 +126,7 @@ describe("GET /users/me/pending_booty", () => {
           value: attribution3.amount,
           currency: "EUR",
         },
-        attributionDate: attribution3.creation_date.substring(0, 10),
+        attributionDate: attribution3.creation_date?.substring(0, 10),
       },
     ]);
   });
