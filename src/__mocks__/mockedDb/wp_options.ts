@@ -1,36 +1,35 @@
-import sqlite3 from "@src/features/sqlite";
+import Table from "./table";
 
-const tableName = "wp_options";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "option_id INTEGER PRIMARY KEY",
-      "option_name VARCHAR(191)",
-      "option_value LONGTEXT",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
+type WpOptionType = {
+  option_id?: number;
+  option_name?: string;
+  option_value?: string;
 };
+class WpOptions extends Table<WpOptionType> {
+  protected name = "wp_options";
+  protected columns = [
+    "option_id INTEGER PRIMARY KEY",
+    "option_name VARCHAR(191)",
+    "option_value LONGTEXT",
+  ];
+  constructor() {
+    super({
+      option_id: 1,
+      option_name: "option",
+      option_value: "value",
+    });
+  }
 
-const data: {
-  [key: string]: (params?: any) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
-};
+  async crowdWpOptions() {
+    await this.insert({
+      option_id: 1,
+      option_name: "crowd_options_option_name",
+      option_value:
+        'a:17:{s:11:"facebook_id";s:3:"asd";s:20:"facebook_secret_code";s:3:"asd";s:11:"linkedin_id";s:3:"asd";s:20:"linkedin_secret_code";s:3:"asd";s:15:"paypal_live_env";s:15:"paypal_live_env";s:16:"paypal_client_id";s:3:"asd";s:18:"paypal_secret_code";s:3:"asd";s:22:"transfer_wise_live_env";s:22:"transfer_wise_live_env";s:25:"transfer_wise_secret_code";s:3:"asd";s:14:"analitycs_code";s:0:"";s:14:"minimum_payout";s:1:"2";s:13:"appq_cm_email";s:13:"a@example.com";s:9:"adv_email";s:13:"a@example.com";s:11:"adv_project";s:2:"59";s:21:"italian_payment_check";s:21:"italian_payment_check";s:15:"stamp_threshold";s:5:"77.47";s:15:"release_message";s:2:"[]";}',
+    });
+  }
+}
 
-data.crowdWpOptions = async () => {
-  const item = {
-    option_id: 1,
-    option_name: "crowd_options_option_name",
-    option_value:
-      'a:17:{s:11:"facebook_id";s:3:"asd";s:20:"facebook_secret_code";s:3:"asd";s:11:"linkedin_id";s:3:"asd";s:20:"linkedin_secret_code";s:3:"asd";s:15:"paypal_live_env";s:15:"paypal_live_env";s:16:"paypal_client_id";s:3:"asd";s:18:"paypal_secret_code";s:3:"asd";s:22:"transfer_wise_live_env";s:22:"transfer_wise_live_env";s:25:"transfer_wise_secret_code";s:3:"asd";s:14:"analitycs_code";s:0:"";s:14:"minimum_payout";s:1:"2";s:13:"appq_cm_email";s:13:"a@example.com";s:9:"adv_email";s:13:"a@example.com";s:11:"adv_project";s:2:"59";s:21:"italian_payment_check";s:21:"italian_payment_check";s:15:"stamp_threshold";s:5:"77.47";s:15:"release_message";s:2:"[]";}',
-  };
-  await sqlite3.insert(tableName, item);
-  return item;
-};
+const theTable = new WpOptions();
 
-export { data };
+export default theTable;

@@ -32,7 +32,7 @@ import { table as testerDeviceTable } from "./mockedDb/testerDevice";
 import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
-import { table as wpOptionsTable } from "./mockedDb/wp_options";
+import WpOptions from "./mockedDb/wp_options";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
 export {};
@@ -64,7 +64,7 @@ beforeAll(async () => {
   await testerLanguageTable.create();
   await cufTable.create();
   await cufExtraTable.create();
-  await wpOptionsTable.create();
+  await WpOptions.mock();
   await severityTable.create();
   await bugStatus.create();
 

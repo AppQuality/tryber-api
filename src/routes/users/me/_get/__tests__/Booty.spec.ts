@@ -1,7 +1,7 @@
 import app from "@src/app";
 import { data as attributionsData } from "@src/__mocks__/mockedDb/attributions";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
@@ -81,7 +81,7 @@ describe("GET /users/me - pending_booty threshold", () => {
       await wpUsersData.basicUser({
         ID: data.tester.wp_user_id,
       });
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
       resolve(null);
     });
   });
@@ -90,7 +90,7 @@ describe("GET /users/me - pending_booty threshold", () => {
       await profileData.drop();
       await wpUsersData.drop();
       await attributionsData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
 
       resolve(null);
     });
