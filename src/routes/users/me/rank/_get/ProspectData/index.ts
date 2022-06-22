@@ -1,6 +1,10 @@
 import getLevelDefinitions from "../getLevelDefinitions";
 import noLevel from "../noLevel";
 
+type ProspectLevel = {
+  level: { id: number; name: string };
+  next?: { level: { id: number; name: string }; points: number };
+};
 export default class ProspectData {
   ready: Promise<any>;
   private definitions: LevelDefinition[];
@@ -10,10 +14,7 @@ export default class ProspectData {
   private LEGENDARY_LEVEL = 100;
   private LEGENDARY_EXP_POINTS = 100000;
 
-  private prospectLevel: {
-    level: { id: number; name: string };
-    next?: { level: { id: number; name: string }; points: number };
-  };
+  private prospectLevel: ProspectLevel;
   private nextLevel: LevelDefinition | undefined;
 
   constructor(currentLevelId: number, monthlyExp: number, totalExp: number) {
@@ -132,9 +133,7 @@ export default class ProspectData {
     };
   };
 
-  getUpgradeOrMaintenanceLevel(
-    currentLevel?: LevelDefinition
-  ): typeof this.prospectLevel {
+  getUpgradeOrMaintenanceLevel(currentLevel?: LevelDefinition): ProspectLevel {
     const currentLevelDefinition = currentLevel || this.currentLevel;
     let prospectLevel = this.definitions.find(
       (level) =>

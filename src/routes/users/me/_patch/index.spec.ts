@@ -1,7 +1,9 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import { data as attributions } from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
-import { data as campaignsCandidatures } from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
 import { data as cuf } from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
 import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
@@ -13,8 +15,6 @@ import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCert
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
 import { data as wpOptions } from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
@@ -41,7 +41,7 @@ describe("Route PATCH users-me", () => {
         education_id: 1,
       });
       await bugs.basicBug({ status_id: 2 });
-      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
+      await Candidature.insert({ accepted: 1, results: 2 });
       await certificationsList.certification1();
       await testerCertifications.assignCertification({
         achievement_date: new Date("01/01/2021").toISOString(),
@@ -111,7 +111,7 @@ describe("Route PATCH users-me", () => {
       await wpOptions.drop();
       await profileData.drop();
       await bugs.drop();
-      await campaignsCandidatures.drop();
+      await Candidature.clear();
       await certificationsList.drop();
       await testerCertifications.drop();
       await employmentsList.drop();
@@ -174,7 +174,7 @@ describe("Route PATCH users-me accepted fields", () => {
         is_verified: 1,
       });
       await bugs.basicBug({ status_id: 2 });
-      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
+      await Candidature.insert({ accepted: 1, results: 2 });
       await certificationsList.certification1();
       await testerCertifications.assignCertification({
         achievement_date: new Date("01/01/2021").toISOString(),
@@ -249,7 +249,7 @@ describe("Route PATCH users-me accepted fields", () => {
       await wpOptions.drop();
       await profileData.drop();
       await bugs.drop();
-      await campaignsCandidatures.drop();
+      await Candidature.clear();
       await certificationsList.drop();
       await testerCertifications.drop();
       await employmentsList.drop();
