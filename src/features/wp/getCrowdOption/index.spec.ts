@@ -1,4 +1,4 @@
-import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import getCrowdOption from ".";
 
 jest.mock("@src/features/db");
@@ -6,13 +6,13 @@ jest.mock("@src/features/db");
 describe("getCrowdOption", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsData.drop();
+      await WpOptions.clear();
       resolve(null);
     });
   });

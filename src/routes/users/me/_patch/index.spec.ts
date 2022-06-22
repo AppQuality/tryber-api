@@ -13,7 +13,7 @@ import { data as languagesList } from "@src/__mocks__/mockedDb/languageList";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
-import { data as wpOptions } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
@@ -28,7 +28,7 @@ describe("Route PATCH users-me", () => {
         user_email: "bob.alice@example.com",
       });
       await attributions.validAttribution();
-      await wpOptions.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
       await profileData.basicTester({
         booty: 69,
         birth_date: "1996-03-21 00:00:00",
@@ -108,7 +108,7 @@ describe("Route PATCH users-me", () => {
     return new Promise(async (resolve) => {
       await wpUsers.drop();
       await attributions.drop();
-      await wpOptions.drop();
+      await WpOptions.clear();
       await profileData.drop();
       await bugs.drop();
       await Candidature.clear();
@@ -160,7 +160,7 @@ describe("Route PATCH users-me accepted fields", () => {
         user_login: "bob",
         user_email: "bob@example.com",
       });
-      wpOptions.crowdWpOptions();
+      WpOptions.crowdWpOptions();
       await profileData.basicTester({
         booty: 69,
         birth_date: "1996-03-21 00:00:00",
@@ -246,7 +246,7 @@ describe("Route PATCH users-me accepted fields", () => {
     return new Promise(async (resolve) => {
       await wpUsers.drop();
       await attributions.drop();
-      await wpOptions.drop();
+      await WpOptions.clear();
       await profileData.drop();
       await bugs.drop();
       await Candidature.clear();

@@ -11,7 +11,7 @@ import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
-import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
@@ -215,7 +215,7 @@ describe("Route GET users-me", () => {
 describe("Route GET users-me-full-fields", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      wpOptionsData.crowdWpOptions();
+      WpOptions.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -280,7 +280,7 @@ describe("Route GET users-me-full-fields", () => {
       await cufData.drop();
       await cufDataData.drop();
       await cufExtraData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
 
       resolve(null);
     });
