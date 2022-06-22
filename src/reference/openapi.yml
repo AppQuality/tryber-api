@@ -3922,6 +3922,412 @@ paths:
       description: Get all levels
       parameters: []
     parameters: []
+  '/users/me/campaigns/{campaignId}':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the data for a campaign you are selected in
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    id: 123
+                    title: My campaign
+                    language:
+                      code: IT
+                      message: In questa campagna vanno caricati i bug in italiano
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    additionalFields:
+                      - name: Browser Used
+                        slug: browser-used
+                        type: select
+                        options:
+                          - Chrome
+                          - Safari
+                        error: You have to select a browser
+                      - name: Codice Cliente
+                        slug: codice-cliente
+                        type: text
+                        regex: '[A-Z]{3}[0-9]{4}'
+                        error: Il codice cliente è obbligatorio nel formato AAA1234
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                      invalid:
+                        - PERFORMANCE
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                      invalid:
+                        - HIGH
+                        - CRITICAL
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                      invalid:
+                        - ONCE
+                    hasBugForm: true
+                    devices:
+                      - {}
+                    validFileExtesions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  language:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                  titleRule:
+                    type: boolean
+                  minimumMedia:
+                    type: integer
+                  useCases:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                  additionalFields:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            name:
+                              type: string
+                            slug:
+                              type: string
+                            error:
+                              type: string
+                          required:
+                            - name
+                            - slug
+                            - error
+                        - oneOf:
+                            - type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                    - select
+                                options:
+                                  type: array
+                                  items:
+                                    type: string
+                              required:
+                                - type
+                                - options
+                            - type: object
+                              properties:
+                                type:
+                                  type: string
+                                  enum:
+                                    - text
+                                regex:
+                                  type: string
+                              required:
+                                - type
+                                - regex
+                  bugTypes:
+                    type: object
+                    required:
+                      - valid
+                      - invalid
+                    properties:
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                  bugSeverity:
+                    type: object
+                    required:
+                      - valid
+                      - invalid
+                    properties:
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                  bugReplicability:
+                    type: object
+                    required:
+                      - valid
+                      - invalid
+                    properties:
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                  hasBugForm:
+                    type: boolean
+                  devices:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                        - $ref: '#/components/schemas/UserDevice'
+                  validFileExtesions:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - id
+                  - title
+                  - minimumMedia
+                  - useCases
+                  - bugTypes
+                  - bugSeverity
+                  - bugReplicability
+                  - hasBugForm
+                  - validFileExtesions
+              examples:
+                full:
+                  value:
+                    id: 123
+                    title: My campaign
+                    language:
+                      code: IT
+                      message: In questa campagna vanno caricati i bug in italiano
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    additionalFields:
+                      - name: Browser Used
+                        slug: browser-used
+                        type: select
+                        options:
+                          - Chrome
+                          - Safari
+                        error: You have to select a browser
+                      - name: Codice Cliente
+                        slug: codice-cliente
+                        type: text
+                        regex: '[A-Z]{3}[0-9]{4}'
+                        error: Il codice cliente è obbligatorio nel formato AAA1234
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                      invalid:
+                        - PERFORMANCE
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                      invalid:
+                        - HIGH
+                        - CRITICAL
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                      invalid:
+                        - ONCE
+                    hasBugForm: true
+                    devices:
+                      - id: 1
+                        type: Smartphone
+                        device:
+                          manufacturer: Apple
+                          model: iPhone X
+                          id: 123
+                        operating_system:
+                          id: 234
+                          platform: Apple
+                          version: iOs 12
+                      - id: 2
+                        type: Smartphone
+                        device:
+                          manufacturer: Apple
+                          model: iPhone 6
+                          id: 123
+                        operating_system:
+                          id: 234
+                          platform: Apple
+                          version: iOs 10
+                    validFileExtesions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                with-bugform-disabled:
+                  value:
+                    id: 123
+                    title: My campaign
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases: []
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                        - PERFORMANCE
+                      invalid: []
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                        - HIGH
+                        - CRITICAL
+                      invalid: []
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                        - ONCE
+                      invalid: []
+                    hasBugForm: false
+                    devices: []
+                    validFileExtesions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                with-only-one-device:
+                  value:
+                    id: 123
+                    title: My campaign
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                        - PERFORMANCE
+                      invalid: []
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                        - HIGH
+                        - CRITICAL
+                      invalid: []
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                        - ONCE
+                      invalid: []
+                    hasBugForm: true
+                    devices:
+                      - id: 1
+                        type: Smartphone
+                        device:
+                          manufacturer: Apple
+                          model: iPhone X
+                          id: 123
+                        operating_system:
+                          id: 234
+                          platform: Apple
+                          version: iOs 12
+                    validFileExtesions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                without-device:
+                  value:
+                    id: 123
+                    title: My campaign
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                        - PERFORMANCE
+                      invalid: []
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                        - HIGH
+                        - CRITICAL
+                      invalid: []
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                        - ONCE
+                      invalid: []
+                    hasBugForm: true
+                    validFileExtesions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+      operationId: get-users-me-campaigns-campaignId
+      description: ''
+      security:
+        - JWT: []
 components:
   schemas:
     Project:
