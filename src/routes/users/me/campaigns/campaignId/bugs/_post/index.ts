@@ -2,19 +2,12 @@ import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
 
-type RequestParams =
-  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["parameters"]["path"];
-type Bug =
-  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
-type Error =
-  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["404"]["content"]["application/json"];
-
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
 export default async (
   c: Context,
   req: OpenapiRequest,
   res: OpenapiResponse
-): Promise<Bug | Error> => {
+): Promise<Bug | CreateBugError> => {
   const params = c.request.params as RequestParams;
   const campaignId = parseInt(params.campaignId);
 
@@ -23,9 +16,9 @@ export default async (
     await campaignExists();
     candidature = await getTesterCandidature();
     usecase = await usecaseIsValid(candidature.group_id);
-    severity = await severityIsAcceptable();
-    replicability = await replicabilityIsAcceptable();
-    bugtype = await bugTypeIsAcceptable();
+    severity = await getSeverity();
+    replicability = await getReplicability();
+    bugtype = await getBugType();
   } catch (error) {
     debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -38,6 +31,7 @@ export default async (
 
   let insertedBugId;
   try {
+    //
     insertedBugId = await createBug(
       usecase,
       severity.id,
@@ -123,90 +117,101 @@ export default async (
     }
     return result[0];
   }
-
-  async function severityIsAcceptable() {
-    let severities = await db.query(
-      db.format(
-        `SELECT sv.id as id, sv.name as name
-        FROM wp_appq_evd_severity sv
-                 JOIN wp_appq_additional_bug_severities cpsv ON sv.id = cpsv.bug_severity_id
-        WHERE campaign_id=?;
-         ;`,
-        [campaignId]
-      )
-    );
-    const severity = severities.find(
-      (severity: { id: number; name: string }) =>
-        severity.name === req.body.severity
-    );
-    severities = severities.map(
-      (severity: { id: number; name: string }) => severity.name
-    );
-
-    if (severities.length && !severities.includes(req.body.severity)) {
-      throw {
-        status_code: 403,
-        message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
-      };
-    }
-    return severity;
+  function capitalize(str: string) {
+    str = str.toLowerCase();
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  async function replicabilityIsAcceptable() {
-    let replicabilities = await db.query(
-      db.format(
-        `SELECT rep.id AS id, rep.name AS name FROM wp_appq_evd_bug_replicability rep
-          JOIN wp_appq_additional_bug_replicabilities cprep ON rep.id = cprep.bug_replicability_id
-         WHERE campaign_id=? ;
-         ;`,
-        [campaignId]
-      )
-    );
-    const replicability = replicabilities.find(
-      (replicability: { id: number; name: string }) =>
-        replicability.name.toUpperCase() === req.body.replicability
-    );
-    replicabilities = replicabilities.map((replicability: { name: string }) =>
-      replicability.name.toUpperCase()
-    );
-    if (
-      replicabilities.length &&
-      !replicabilities.includes(req.body.replicability)
-    ) {
-      throw {
-        status_code: 403,
-        message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
-      };
+  async function getSeverity() {
+    const severities = await getSeverities();
+    const result = severities.find((item) => item.name === req.body.severity);
+    if (result) return result;
+    throw {
+      status_code: 403,
+      message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
+    };
+    async function getSeverities(): Promise<Severity[]> {
+      const data = await getCampaignAdditionalSeverities();
+      const result = (await db.query(
+        "SELECT id,name FROM wp_appq_evd_severity " +
+          (data.length ? `WHERE id IN (${data.join(",")})` : "")
+      )) as { id: number; name: string }[];
+      return result.map((item) => ({ ...item, name: item.name } as Severity));
     }
-    return replicability;
+    async function getCampaignAdditionalSeverities(): Promise<number[]> {
+      return (
+        (await db.query(
+          db.format(
+            "SELECT bug_severity_id AS id FROM wp_appq_additional_bug_severities WHERE campaign_id = ?",
+            [campaignId]
+          )
+        )) as { id: number }[]
+      ).map((item) => item.id);
+    }
   }
 
-  async function bugTypeIsAcceptable() {
-    let bugTypes = await db.query(
-      db.format(
-        `SELECT bt.id AS id, bt.name AS name FROM wp_appq_evd_bug_type bt
-          JOIN wp_appq_additional_bug_types cpbt ON bt.id = cpbt.bug_type_id
-         WHERE campaign_id=? AND  bt.is_enabled = 1
-         ;`,
-        [campaignId]
-      )
+  async function getReplicability() {
+    const replicabilities = await getReplicabilities();
+    const result = replicabilities.find(
+      (item) => item.name === req.body.replicability
     );
-    const bugType = bugTypes.find(
-      (bugType: { id: number; name: string }) =>
-        bugType.name.toUpperCase() === req.body.type
-    );
-    bugTypes = bugTypes.map((bugType: { id: number; name: string }) =>
-      bugType.name.toUpperCase()
-    );
-
-    if (bugTypes.length && !bugTypes.includes(req.body.type)) {
-      throw {
-        status_code: 403,
-        message: `BugType ${req.body.type} is not accepted from CP${campaignId}.`,
-      };
+    if (result) return result;
+    throw {
+      status_code: 403,
+      message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
+    };
+    async function getReplicabilities(): Promise<Replicability[]> {
+      const data = await getCampaignAdditionalReplicabilities();
+      const result = (await db.query(
+        "SELECT id,name FROM wp_appq_evd_bug_replicability " +
+          (data.length ? `WHERE id IN (${data.join(",")})` : "")
+      )) as { id: number; name: string }[];
+      return result.map(
+        (item) => ({ ...item, name: item.name.toUpperCase() } as Replicability)
+      );
     }
-    return bugType;
+    async function getCampaignAdditionalReplicabilities(): Promise<number[]> {
+      return (
+        (await db.query(
+          db.format(
+            "SELECT bug_replicability_id AS id FROM wp_appq_additional_bug_replicabilities WHERE campaign_id = ?",
+            [campaignId]
+          )
+        )) as { id: number }[]
+      ).map((item) => item.id);
+    }
   }
+
+  async function getBugType() {
+    const bugtypes = await getBugTypes();
+    const result = bugtypes.find((item) => item.name === req.body.type);
+    if (result) return result;
+    throw {
+      status_code: 403,
+      message: `BugType ${req.body.type} is not accepted from CP${campaignId}.`,
+    };
+    async function getBugTypes(): Promise<BugType[]> {
+      const data = await getCampaignAdditionalBugTypes();
+      const result = (await db.query(
+        "SELECT id,name FROM wp_appq_evd_bug_type " +
+          (data.length ? `WHERE id IN (${data.join(",")})` : "")
+      )) as { id: number; name: string }[];
+      return result.map(
+        (item) => ({ ...item, name: item.name.toUpperCase() } as BugType)
+      );
+    }
+    async function getCampaignAdditionalBugTypes(): Promise<number[]> {
+      return (
+        (await db.query(
+          db.format(
+            "SELECT bug_type_id AS id FROM wp_appq_additional_bug_types WHERE campaign_id = ?",
+            [campaignId]
+          )
+        )) as { id: number }[]
+      ).map((item) => item.id);
+    }
+  }
+
   async function usecaseIsValid(
     group_id: number
   ): Promise<{ id: number; title: string }> {
@@ -235,10 +240,10 @@ export default async (
       usecase = usecases[0];
     }
     return usecase;
-  }
 
-  function isNotSpecificUsecase() {
-    return req.body.usecase === -1;
+    function isNotSpecificUsecase() {
+      return req.body.usecase === -1;
+    }
   }
 
   async function createBug(
