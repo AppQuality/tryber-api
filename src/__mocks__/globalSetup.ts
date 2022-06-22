@@ -9,7 +9,7 @@ import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as cpTable } from "./mockedDb/campaign";
 import { table as certificationListTable } from "./mockedDb/certificationList";
-import { table as candidatesTable } from "./mockedDb/cp_has_candidates";
+import Candidature from "./mockedDb/cp_has_candidates";
 import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
@@ -48,7 +48,7 @@ beforeAll(async () => {
   await fiscalProfileTable.create();
   await expTable.create();
   await cpTable.create();
-  await candidatesTable.create();
+  await Candidature.mock();
   await testerTable.create();
   await wpUsersTable.create();
   await levelTable.create();

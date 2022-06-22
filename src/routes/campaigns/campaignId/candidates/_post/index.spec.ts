@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as cpData } from "@src/__mocks__/mockedDb/campaign";
-import { data as candidatesData } from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
 import { data as testerData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
@@ -20,7 +20,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       await cpData.drop();
       await testerData.drop();
       await wpUsersData.drop();
-      await candidatesData.drop();
+      await Candidature.clear();
       resolve(null);
     });
   });
@@ -47,7 +47,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   });
 
   it("Should return 403 if tester is already candidate on campaign", async () => {
-    await candidatesData.candidate1({ user_id: 1, campaign_id: 1 });
+    await Candidature.insert({ user_id: 1, campaign_id: 1 });
     const responseJustCandidate = await request(app)
       .post("/campaigns/1/candidates")
       .send({ tester_id: 1 })
