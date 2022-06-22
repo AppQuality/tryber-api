@@ -1,0 +1,108 @@
+import * as db from "@src/features/db";
+import postUserMedia from "@src/routes/media/_post";
+import { Context } from "openapi-backend";
+import path from "path";
+type PathParameters =
+  StoplightOperations["post-users-me-campaigns-campaignId-media"]["parameters"]["path"];
+type GenericMediaResult =
+  StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"];
+
+type Result =
+  StoplightOperations["post-users-me-campaigns-campaignId-media"]["responses"]["200"]["content"]["application/json"];
+/** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
+export default async (
+  c: Context,
+  req: OpenapiRequest,
+  res: OpenapiResponse
+): Promise<Result | ReturnErrorType> => {
+  const { campaignId } = c.request.params as PathParameters;
+  try {
+    await isCandidate();
+  } catch {
+    res.status_code = 403;
+    return {};
+  }
+  const media = Array.isArray(req.files.media)
+    ? req.files.media
+    : [req.files.media];
+
+  let invalidFileExtensionMedia: {
+    name: string;
+    code: "NOT_VALID_FILE_TYPE";
+  }[] = [];
+
+  const { valid, invalid } = await getInvalidExtensionMedia();
+  req.files.media = valid;
+  const basicMediaUpload = await postUserMedia(c, req, res);
+  if (!userMediaHasResults(basicMediaUpload)) {
+    return basicMediaUpload;
+  }
+
+  let failedMedia = !basicMediaUpload.failed
+    ? []
+    : basicMediaUpload.failed.map((value) => ({
+        name: value.name,
+        code: "GENERIC_ERROR",
+      }));
+  failedMedia = [...failedMedia, ...invalid];
+
+  return {
+    ...basicMediaUpload,
+    failed: failedMedia.length ? failedMedia : undefined,
+  };
+
+  async function getInvalidExtensionMedia() {
+    const validFileExtensions = await getValidFileExtensions();
+    if (!validFileExtensions.length) {
+      return { valid: media, invalid: [] };
+    }
+    const validMedia: typeof media = [];
+    const invalidFileExtensionMedia: {
+      name: string;
+      code: "NOT_VALID_FILE_TYPE";
+    }[] = [];
+    media.forEach((item) => {
+      if (
+        validFileExtensions.includes(path.extname(item.name).replace(".", ""))
+      ) {
+        validMedia.push(item);
+      } else {
+        invalidFileExtensionMedia.push({
+          name: item.name,
+          code: "NOT_VALID_FILE_TYPE",
+        });
+      }
+    });
+
+    return { valid: validMedia, invalid: invalidFileExtensionMedia };
+  }
+  async function getValidFileExtensions() {
+    const validFileExtensionsString = (
+      await db.query(
+        "SELECT option_value FROM wp_options WHERE option_name = 'options_appq_valid_upload_extensions'"
+      )
+    )[0].option_value;
+    let validFileExtensions: string[] = [];
+    if (validFileExtensionsString) {
+      validFileExtensions = validFileExtensionsString.split(",");
+    }
+    return validFileExtensions;
+  }
+
+  async function isCandidate() {
+    const candidature = await db.query(
+      db.format(
+        "SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
+        [req.user.ID, campaignId]
+      )
+    );
+    if (candidature.length === 0)
+      throw Error("You are not selected for this campaign");
+  }
+};
+
+function userMediaHasResults(
+  userMedia: Awaited<ReturnType<typeof postUserMedia>>
+): userMedia is GenericMediaResult {
+  return userMedia.hasOwnProperty("failed");
+}

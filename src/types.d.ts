@@ -33,6 +33,12 @@ declare global {
     };
   };
 
+  type ReturnErrorType = {
+    element: string;
+    id: number;
+    message: string;
+  };
+
   interface StoplightOperations extends operations {}
   interface StoplightComponents extends components {}
   interface StoplightPaths extends paths {}
