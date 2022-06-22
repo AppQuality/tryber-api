@@ -1,5 +1,3 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
@@ -12,10 +10,12 @@ import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplic
 import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
 import { data as cpHasTaskGroupsData } from "@src/__mocks__/mockedDb/cpHasTaskGroups";
 import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const bug = {
-  title: "Camapign Title",
+  title: "Campaign Title",
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
@@ -28,7 +28,7 @@ const bug = {
   media: ["www.example.com/media69.jpg"],
 };
 const bugBadSeverity = {
-  title: "Camapign Title",
+  title: "Campaign Title",
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
@@ -41,7 +41,7 @@ const bugBadSeverity = {
   media: ["the media1 url"],
 };
 const bugBadReplicability = {
-  title: "Camapign Title",
+  title: "Campaign Title",
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
@@ -54,7 +54,7 @@ const bugBadReplicability = {
   media: ["the media1 url"],
 };
 const bugBadBugType = {
-  title: "Camapign Title",
+  title: "Campaign Title",
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
@@ -67,7 +67,7 @@ const bugBadBugType = {
   media: ["the media1 url"],
 };
 const bugBadUseCase = {
-  title: "Camapign Title",
+  title: "Campaign Title",
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
@@ -80,7 +80,7 @@ const bugBadUseCase = {
   media: ["the media1 url"],
 };
 const bugBadDevice = {
-  title: "Camapign Title",
+  title: "Campaign Title",
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
@@ -108,7 +108,6 @@ describe("Route POST a bug to a specific campaign", () => {
       await bugTypesData.bugType({ name: "Crash" });
       await bugTypesData.bugType({ id: 2, name: "Typo" });
       await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
-
       await cpUsecasesData.usecase1();
       await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
@@ -160,43 +159,6 @@ describe("Route POST a bug to a specific campaign", () => {
       element: "bugs",
       id: 0,
       message: "T1 is not candidate on CP3.",
-    });
-  });
-  it("Should answer 403 if a user sends an unaccepted severity on CP", async () => {
-    const response = await request(app)
-      .post("/users/me/campaigns/1/bugs")
-      .set("authorization", "Bearer tester")
-      .send(bugBadSeverity);
-    expect(response.status).toBe(403);
-    expect(response.body).toEqual({
-      element: "bugs",
-      id: 0,
-      message: `Severity ${bugBadSeverity.severity} is not accepted from CP1.`,
-    });
-  });
-  it("Should answer 403 if a user sends a unaccepted replicability on CP", async () => {
-    const response = await request(app)
-      .post("/users/me/campaigns/1/bugs")
-      .set("authorization", "Bearer tester")
-      .send(bugBadReplicability);
-    expect(response.status).toBe(403);
-    expect(response.body).toEqual({
-      element: "bugs",
-      id: 0,
-      message: `Replicability ${bugBadReplicability.replicability} is not accepted from CP1.`,
-    });
-  });
-  it("Should answer 403 if a user sends a unaccepted bug-type on CP", async () => {
-    const response = await request(app)
-      .post("/users/me/campaigns/1/bugs")
-      .set("authorization", "Bearer tester")
-      .send(bugBadBugType);
-    console.log("suca", response.body);
-    expect(response.status).toBe(403);
-    expect(response.body).toEqual({
-      element: "bugs",
-      id: 0,
-      message: `BugType TYPO is not accepted from CP1.`,
     });
   });
   it("Should answer 403 if a user sends an unaccepted usecase on CP", async () => {
@@ -344,12 +306,12 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       await campaignData.basicCampaign({
         base_bug_internal_id: "BASEBUGINTERNAL",
       });
-      await campaignData.basicCampaign({ id: 3 });
+
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
       await severityData.severity({ id: 2, name: "HIGHT" });
+      await cpSeverityData.cpSeverity({ campaign_id: 1 });
       await replicabilityData.replicability({ name: "Once" });
-      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
       await bugTypesData.bugType({ name: "Crash" });
       await bugTypesData.bugType({ id: 2, name: "Typo" });
       await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
@@ -359,9 +321,7 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
         campaign_id: 1,
         bug_type_id: 3,
       });
-
       await cpUsecasesData.usecase1();
-      await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
 
       resolve(null);
@@ -393,6 +353,18 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("type", "CRASH");
   });
+  it("Should answer 403 if a user sends a unaccepted bug-type on CP", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadBugType);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `BugType TYPO is not accepted from CP1.`,
+    });
+  });
 });
 
 describe("Route POST a bug to a specific campaign - with custom severities", () => {
@@ -401,13 +373,13 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
       await campaignData.basicCampaign({
         base_bug_internal_id: "BASEBUGINTERNAL",
       });
-      await campaignData.basicCampaign({ id: 3 });
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
       await severityData.severity({ id: 2, name: "HIGHT" });
       await cpSeverityData.cpSeverity({ campaign_id: 1 });
+      await replicabilityData.replicability({ name: "Once" });
+      await bugTypesData.bugType({ name: "Crash" });
       await cpUsecasesData.usecase1();
-      await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
 
       resolve(null);
@@ -439,6 +411,18 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("severity", "LOW");
   });
+  it("Should answer 403 if a user sends an unaccepted severity on CP", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadSeverity);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Severity ${bugBadSeverity.severity} is not accepted from CP1.`,
+    });
+  });
 });
 
 describe("Route POST a bug to a specific campaign - with custom replicability", () => {
@@ -447,19 +431,14 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
       await campaignData.basicCampaign({
         base_bug_internal_id: "BASEBUGINTERNAL",
       });
-      await campaignData.basicCampaign({ id: 3 });
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGHT" });
       await replicabilityData.replicability({ name: "Once" });
       await replicabilityData.replicability({ id: 2, name: "Sometimes" });
       await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
       await bugTypesData.bugType({ name: "Crash" });
-      await bugTypesData.bugType({ id: 2, name: "Typo" });
-      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
 
       await cpUsecasesData.usecase1();
-      await cpUsecasesData.usecase1({ id: 2 });
       await cpHasTaskGroupsData.group1();
 
       resolve(null);
@@ -491,5 +470,17 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
       .send(bug);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("replicability", "ONCE");
+  });
+  it("Should answer 403 if a user sends a unaccepted replicability on CP", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadReplicability);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Replicability ${bugBadReplicability.replicability} is not accepted from CP1.`,
+    });
   });
 });
