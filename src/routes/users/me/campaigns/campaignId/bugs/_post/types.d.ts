@@ -11,3 +11,5 @@ type Usecase = { id: number; title: string };
 type BugMedia = { url: string; type: string }[] | undefined;
 type Media =
   StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"]["media"];
+type UserDevice =
+  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"]["device"];
