@@ -11,6 +11,7 @@ import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities"
 import { data as cpHasTaskGroupsData } from "@src/__mocks__/mockedDb/cpHasTaskGroups";
 import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
 import app from "@src/app";
+import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
@@ -25,7 +26,7 @@ const bug = {
   notes: "The bug notes",
   usecase: 1,
   device: 0,
-  media: ["www.example.com/media69.jpg"],
+  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
 };
 const bugBadSeverity = {
   title: "Campaign Title",
@@ -92,6 +93,9 @@ const bugBadDevice = {
   device: 696969,
   media: ["the media1 url"],
 };
+
+jest.mock("@src/features/getMimetypeFromS3");
+(getMimetypeFromS3 as jest.Mock).mockReturnValue("image");
 
 describe("Route POST a bug to a specific campaign", () => {
   beforeEach(async () => {
@@ -287,17 +291,20 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(baseInternal.internal_id).toEqual("BASEBUGINTERNAL1");
   });
-  // it("Should return inserted media if a user sends a bug with medias", async () => {
-  //   const response = await request(app)
-  //     .post("/users/me/campaigns/1/bugs")
-  //     .set("authorization", "Bearer tester")
-  //     .send(bug);
-  //   expect(response.status).toBe(200);
-  //   expect(response.body).toHaveProperty("media");
-  //   expect(Array.isArray(response.body.media)).toEqual(true);
-  //   expect(response.body.media).toEqual(["www.example.com/media69.jpg"]);
-
-  // });
+  it("Should return inserted media if a user sends a bug with medias", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    console.log(response.body);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("media");
+    expect(Array.isArray(response.body.media)).toEqual(true);
+    expect(response.body.media).toEqual([
+      "www.example.com/media69.jpg",
+      "www.example.com/media6969.jpg",
+    ]);
+  });
 });
 
 describe("Route POST a bug to a specific campaign - with custom type", () => {

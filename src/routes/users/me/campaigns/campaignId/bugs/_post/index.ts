@@ -1,5 +1,6 @@
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
+import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import { Context } from "openapi-backend";
 
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
@@ -11,7 +12,7 @@ export default async (
   const params = c.request.params as RequestParams;
   const campaignId = parseInt(params.campaignId);
 
-  let candidature, usecase, severity, replicability, bugtype;
+  let candidature, usecase, severity, replicability, bugtype, media: BugMedia;
   try {
     await campaignExists();
     candidature = await getTesterCandidature();
@@ -19,6 +20,7 @@ export default async (
     severity = await getSeverity();
     replicability = await getReplicability();
     bugtype = await getBugType();
+    media = await getMediaData();
   } catch (error) {
     debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -28,8 +30,7 @@ export default async (
       message: (error as OpenapiError).message,
     };
   }
-
-  let insertedBugId;
+  let insertedBugId: number;
   try {
     //
     insertedBugId = await createBug(
@@ -48,7 +49,7 @@ export default async (
     };
   }
 
-  let internalBugID;
+  let internalBugID: string;
   try {
     internalBugID = await updateInternalBugId(insertedBugId);
   } catch (error) {
@@ -58,6 +59,20 @@ export default async (
       element: "bugs",
       id: 0,
       message: "Error updating internal bug id",
+    };
+  }
+
+  let insertedMedia: Media;
+  try {
+    if (req.body.media)
+      insertedMedia = await createMediasBug(insertedBugId, media);
+  } catch (error) {
+    debugMessage(error);
+    res.status_code = 500;
+    return {
+      element: "bugs",
+      id: 0,
+      message: "Error on insert media",
     };
   }
 
@@ -76,7 +91,7 @@ export default async (
     expected: req.body.expected,
     current: req.body.current,
     usecase: usecase.title,
-    media: [],
+    media: insertedMedia,
   };
 
   async function campaignExists() {
@@ -211,7 +226,19 @@ export default async (
       ).map((item) => item.id);
     }
   }
+  async function getMediaData() {
+    let media: BugMedia;
+    if (req.body.media) {
+      media = [];
+      for (const url of req.body.media) {
+        const type = await getMimetypeFromS3({ url });
+        if (type) media.push({ url: url, type: type });
+      }
+    }
+    return media;
+  }
 
+  //TODO: refactor usecase
   async function usecaseIsValid(
     group_id: number
   ): Promise<{ id: number; title: string }> {
@@ -251,7 +278,7 @@ export default async (
     severityId: number,
     replicabilityId: number,
     bugTypeId: number
-  ) {
+  ): Promise<number> {
     let inserted = await db.query(
       db.format(
         `INSERT INTO wp_appq_evd_bug (
@@ -290,7 +317,7 @@ export default async (
     return inserted.insertId;
   }
 
-  async function updateInternalBugId(bugId: number) {
+  async function updateInternalBugId(bugId: number): Promise<string> {
     const internalBugId = (
       await db.query(
         db.format(
@@ -314,5 +341,36 @@ export default async (
       )
     );
     return internalBugId;
+  }
+  async function createMediasBug(
+    bugId: number,
+    medias: BugMedia
+  ): Promise<Media> {
+    if (medias) {
+      for (const media of medias) {
+        await db.query(
+          db.format(
+            `INSERT INTO wp_appq_evd_bug_media 
+          ( type, location, bug_id, uploaded )
+          VALUES ( ?,?,?, NOW() )
+           ;`,
+            [media.type, media.url, bugId]
+          )
+        );
+      }
+    }
+    const inserted = (
+      await db.query(
+        db.format(
+          `SELECT media.location AS url
+        FROM wp_appq_evd_bug bug
+                 JOIN wp_appq_evd_bug_media media ON bug.id = media.bug_id
+        WHERE bug.wp_user_id = ? AND bug.id = ?
+         ;`,
+          [req.user.ID, bugId]
+        )
+      )
+    ).map((item: { url: string }) => item.url);
+    return inserted.length ? inserted : undefined;
   }
 };
