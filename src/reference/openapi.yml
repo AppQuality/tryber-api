@@ -4120,7 +4120,7 @@ paths:
                           required:
                             - id
                         - $ref: '#/components/schemas/UserDevice'
-                  validFileExtesions:
+                  validFileExtensions:
                     type: array
                     items:
                       type: string
@@ -4133,7 +4133,7 @@ paths:
                   - bugSeverity
                   - bugReplicability
                   - hasBugForm
-                  - validFileExtesions
+                  - validFileExtensions
               examples:
                 full:
                   value:
@@ -4203,7 +4203,7 @@ paths:
                           id: 234
                           platform: Apple
                           version: iOs 10
-                    validFileExtesions:
+                    validFileExtensions:
                       - jpg
                       - png
                       - mov
@@ -4236,7 +4236,7 @@ paths:
                       invalid: []
                     hasBugForm: false
                     devices: []
-                    validFileExtesions:
+                    validFileExtensions:
                       - jpg
                       - png
                       - mov
@@ -4283,7 +4283,7 @@ paths:
                           id: 234
                           platform: Apple
                           version: iOs 12
-                    validFileExtesions:
+                    validFileExtensions:
                       - jpg
                       - png
                       - mov
@@ -4319,7 +4319,7 @@ paths:
                         - ONCE
                       invalid: []
                     hasBugForm: true
-                    validFileExtesions:
+                    validFileExtensions:
                       - jpg
                       - png
                       - mov
