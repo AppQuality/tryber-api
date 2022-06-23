@@ -1281,6 +1281,7 @@ export interface operations {
             }[];
             failed?: {
               name: string;
+              errorCode: string;
             }[];
           };
         };
