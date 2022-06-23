@@ -1,6 +1,6 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as cpData } from "@src/__mocks__/mockedDb/campaign";
+import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
 import { data as testerData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
@@ -9,7 +9,7 @@ import request from "supertest";
 describe("POST /campaigns/{campaignId}/candidates", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await cpData.basicCampaign();
+      await Campaigns.insert();
       await testerData.testerWithBooty();
       await wpUsersData.basicUser();
       resolve(null);
@@ -17,7 +17,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await cpData.drop();
+      await Campaigns.clear();
       await testerData.drop();
       await wpUsersData.drop();
       await Candidature.clear();
