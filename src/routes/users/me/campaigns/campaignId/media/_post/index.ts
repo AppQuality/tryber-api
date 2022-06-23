@@ -2,13 +2,6 @@ import * as db from "@src/features/db";
 import postUserMedia from "@src/routes/media/_post";
 import { Context } from "openapi-backend";
 import path from "path";
-type PathParameters =
-  StoplightOperations["post-users-me-campaigns-campaignId-media"]["parameters"]["path"];
-type GenericMediaResult =
-  StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"];
-
-type Result =
-  StoplightOperations["post-users-me-campaigns-campaignId-media"]["responses"]["200"]["content"]["application/json"];
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
 export default async (
   c: Context,
@@ -25,11 +18,6 @@ export default async (
   const media = Array.isArray(req.files.media)
     ? req.files.media
     : [req.files.media];
-
-  let invalidFileExtensionMedia: {
-    name: string;
-    code: "NOT_VALID_FILE_TYPE";
-  }[] = [];
 
   const { valid, invalid } = await getInvalidExtensionMedia();
   req.files.media = valid;
