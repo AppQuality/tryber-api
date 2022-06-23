@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
-import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import request from "supertest";
 
 const campaign1 = {
@@ -69,8 +69,8 @@ const attributionRequested = {
 describe("GET /users/me/pending_booty", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      sqlite3.insert("wp_appq_evd_campaign", campaign1);
-      sqlite3.insert("wp_appq_evd_campaign", campaign2);
+      Campaigns.insert(campaign1);
+      Campaigns.insert(campaign2);
       sqlite3.insert("wp_appq_payment", attribution1);
       sqlite3.insert("wp_appq_payment", attribution2);
       sqlite3.insert("wp_appq_payment", attribution3);
@@ -82,7 +82,7 @@ describe("GET /users/me/pending_booty", () => {
   afterAll(async () => {
     return new Promise(async (resolve) => {
       await attributionData.drop();
-      await campaignData.drop();
+      await Campaigns.clear();
       resolve(null);
     });
   });

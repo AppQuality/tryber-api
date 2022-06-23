@@ -1,6 +1,6 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as experienceData } from "@src/__mocks__/mockedDb/experience";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
@@ -41,8 +41,8 @@ describe("GET /users/me/experience", () => {
     return new Promise(async (resolve) => {
       await sqlite3.insert("wp_appq_exp_points", exp1);
       await sqlite3.insert("wp_appq_exp_points", exp2);
-      await sqlite3.insert("wp_appq_evd_campaign", campaign1);
-      await sqlite3.insert("wp_appq_evd_campaign", campaign2);
+      await Campaigns.insert(campaign1);
+      await Campaigns.insert(campaign2);
       await sqlite3.insert("wp_appq_evd_profile", tester1);
 
       resolve(null);
@@ -50,7 +50,7 @@ describe("GET /users/me/experience", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await campaignData.drop();
+      await Campaigns.clear();
       await experienceData.drop();
       await profileData.drop();
 
@@ -150,7 +150,7 @@ describe("GET /users/me/experience - user without experience points", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await campaignData.drop();
+      await Campaigns.clear();
       await experienceData.drop();
       await profileData.drop();
 

@@ -7,7 +7,7 @@ import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition
 import { table as attributionsTable } from "./mockedDb/attributions";
 import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
-import { table as cpTable } from "./mockedDb/campaign";
+import Campaigns from "./mockedDb/campaign";
 import { table as certificationListTable } from "./mockedDb/certificationList";
 import Candidature from "./mockedDb/cp_has_candidates";
 import { table as cufTable } from "./mockedDb/customUserFields";
@@ -47,7 +47,7 @@ beforeAll(async () => {
   await deletionReasonTable.create();
   await fiscalProfileTable.create();
   await expTable.create();
-  await cpTable.create();
+  await Campaigns.mock();
   await Candidature.mock();
   await testerTable.create();
   await wpUsersTable.create();
