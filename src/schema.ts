@@ -2525,7 +2525,7 @@ export interface operations {
             devices?: ({
               id: number;
             } & components["schemas"]["UserDevice"])[];
-            validFileExtesions: string[];
+            validFileExtensions: string[];
           };
         };
       };
