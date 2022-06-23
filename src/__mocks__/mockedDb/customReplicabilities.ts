@@ -6,7 +6,7 @@ type CustomReplicabilityParams = {
   bug_replicability_id?: number;
 };
 class CustomReplicability extends Table<CustomReplicabilityParams> {
-  protected name = "wp_appq_additional_bug_severities";
+  protected name = "wp_appq_additional_bug_replicabilities";
   protected columns = [
     "id INTEGER PRIMARY KEY",
     "campaign_id INTEGER(11)",
