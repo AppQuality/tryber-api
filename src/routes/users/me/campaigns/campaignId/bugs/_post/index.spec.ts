@@ -32,7 +32,7 @@ const bugBadSeverity = {
   description: "Camapign Description",
   expected: "The expected to reproduce the bug",
   current: "Current case",
-  severity: "HIGHT",
+  severity: "HIGH",
   replicability: "ONCE",
   type: "CRASH",
   notes: "The bug notes",
@@ -102,7 +102,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await campaignData.basicCampaign({ id: 3 });
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGHT" });
+      await severityData.severity({ id: 2, name: "HIGH" });
       await replicabilityData.replicability({ name: "Once" });
       await replicabilityData.replicability({ id: 2, name: "Sometimes" });
       await bugTypesData.bugType({ name: "Crash" });
@@ -309,7 +309,7 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
 
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGHT" });
+      await severityData.severity({ id: 2, name: "HIGH" });
       await cpSeverityData.cpSeverity({ campaign_id: 1 });
       await replicabilityData.replicability({ name: "Once" });
       await bugTypesData.bugType({ name: "Crash" });
@@ -375,7 +375,7 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
       });
       await cpCandidaturesData.candidate1();
       await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGHT" });
+      await severityData.severity({ id: 2, name: "HIGH" });
       await cpSeverityData.cpSeverity({ campaign_id: 1 });
       await replicabilityData.replicability({ name: "Once" });
       await bugTypesData.bugType({ name: "Crash" });
