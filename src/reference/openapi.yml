@@ -2361,12 +2361,7 @@ paths:
                   usecase:
                     type: string
                   device:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: number
-                      - $ref: '#/components/schemas/UserDevice'
+                    $ref: '#/components/schemas/UserDevice'
                   media:
                     type: array
                     items:
@@ -2376,12 +2371,12 @@ paths:
                     items:
                       type: object
                       properties:
-                        name:
+                        slug:
                           type: string
                         value:
                           type: string
                       required:
-                        - name
+                        - slug
                         - value
                 required:
                   - id
@@ -2473,12 +2468,12 @@ paths:
                   items:
                     type: object
                     properties:
-                      name:
+                      slug:
                         type: string
                       value:
                         type: string
                     required:
-                      - name
+                      - slug
                       - value
               required:
                 - title
