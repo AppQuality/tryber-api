@@ -12,7 +12,12 @@ export default async (
   const params = c.request.params as RequestParams;
   const campaignId = parseInt(params.campaignId);
 
-  let candidature, usecase, severity, replicability, bugtype, media: BugMedia;
+  let candidature,
+    usecase: Usecase,
+    severity: Severity,
+    replicability: Replicability,
+    bugtype: BugType,
+    media: BugMedia;
   try {
     await campaignExists();
     candidature = await getTesterCandidature();
@@ -111,7 +116,10 @@ export default async (
   async function getTesterCandidature() {
     const result = await db.query(
       db.format(
-        `SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id=? AND campaign_id=? ;`,
+        `SELECT group_id, selected_device 
+          FROM wp_crowd_appq_has_candidate 
+          WHERE user_id=? AND campaign_id=? 
+        ;`,
         [req.user.ID, campaignId]
       )
     );
@@ -238,11 +246,8 @@ export default async (
     return media;
   }
 
-  //TODO: refactor usecase
-  async function usecaseIsValid(
-    group_id: number
-  ): Promise<{ id: number; title: string }> {
-    let usecase = { id: 0, title: "" };
+  async function usecaseIsValid(group_id: number): Promise<Usecase> {
+    let usecase: Usecase;
     if (isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
 
