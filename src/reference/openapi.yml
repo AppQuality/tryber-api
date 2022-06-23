@@ -2391,7 +2391,6 @@ paths:
                   - type
                   - notes
                   - usecase
-                  - media
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
