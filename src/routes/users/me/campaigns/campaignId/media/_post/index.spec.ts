@@ -11,6 +11,8 @@ jest.mock("@src/features/upload");
 jest.mock("./crypt");
 
 const mockFileBuffer = Buffer.from("some data");
+process.env.MEDIA_BUCKET = "tryber.media.staging";
+process.env.MEDIA_FOLDER = "media";
 describe("Route POST /users/me/campaign/{campaignId}/media", () => {
   beforeAll(async () => {
     (upload as jest.Mock).mockImplementation(
