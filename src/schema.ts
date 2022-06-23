@@ -1870,7 +1870,7 @@ export interface operations {
             expected: string;
             current: string;
             /** @enum {string} */
-            severity: "LOW" | "MEDIUM" | "HIGHT" | "CRITICAL";
+            severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
             /** @enum {string} */
             replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
             /** @enum {string} */
@@ -1907,7 +1907,7 @@ export interface operations {
           expected: string;
           current: string;
           /** @enum {string} */
-          severity: "LOW" | "MEDIUM" | "HIGHT" | "CRITICAL";
+          severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
           /** @enum {string} */
           replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
           /** @enum {string} */
