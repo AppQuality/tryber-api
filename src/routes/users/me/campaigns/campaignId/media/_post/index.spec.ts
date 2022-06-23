@@ -98,4 +98,20 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       code: "NOT_VALID_FILE_TYPE",
     });
   });
+
+  it("Should add the campaign id to the path on s3", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/media")
+      .attach("media", mockFileBuffer, "void.png")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("files");
+    expect(response.body.files.length).toBe(1);
+    expect(response.body.files[0]).toHaveProperty("path");
+    expect(
+      response.body.files[0].path.startsWith(
+        "https://s3.amazonaws.com/tryber.media.staging/media/T1/CP1/"
+      )
+    ).toBe(true);
+  });
 });
