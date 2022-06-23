@@ -26,7 +26,7 @@ import { table as paymentRequestTable } from "./mockedDb/paymentRequest";
 import { table as popupTable } from "./mockedDb/popups";
 import { table as testerTable } from "./mockedDb/profile";
 import { table as receiptTable } from "./mockedDb/receipt";
-import { table as severityTable } from "./mockedDb/severities";
+import Severities from "./mockedDb/severities";
 import { table as testerCertificationTable } from "./mockedDb/testerCertification";
 import { table as testerDeviceTable } from "./mockedDb/testerDevice";
 import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
@@ -65,7 +65,7 @@ beforeAll(async () => {
   await cufTable.create();
   await cufExtraTable.create();
   await WpOptions.mock();
-  await severityTable.create();
+  await Severities.mock();
   await bugStatus.create();
 
   await paymentRequestTable.create();

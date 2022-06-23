@@ -1,27 +1,20 @@
-import sqlite3 from "@src/features/sqlite";
-
-const tableName = "wp_appq_evd_severity";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "id INTEGER PRIMARY KEY",
-      "name VARCHAR(255)",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
-};
+import Table from "./table";
 
 type SeverityParams = {
   id?: number;
+  name?: string;
 };
-const data: {
-  [key: string]: (params?: SeverityParams) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
-};
+class Severity extends Table<SeverityParams> {
+  protected name = "wp_appq_evd_severity";
+  protected columns = ["id INTEGER PRIMARY KEY", "name VARCHAR(255)"];
+  constructor() {
+    super({
+      id: 1,
+      name: "Test Severity",
+    });
+  }
+}
 
-export { data };
+const theTable = new Severity();
+
+export default theTable;
