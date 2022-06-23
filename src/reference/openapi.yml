@@ -2337,7 +2337,7 @@ paths:
                     enum:
                       - LOW
                       - MEDIUM
-                      - HIGHT
+                      - HIGH
                       - CRITICAL
                   replicability:
                     type: string
@@ -2439,7 +2439,7 @@ paths:
                   enum:
                     - LOW
                     - MEDIUM
-                    - HIGHT
+                    - HIGH
                     - CRITICAL
                 replicability:
                   type: string
