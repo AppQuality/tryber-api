@@ -1,7 +1,8 @@
-import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import sqlite3 from "@src/features/sqlite";
+
 import updatePayment from ".";
 
 jest.mock("@src/features/db");
@@ -110,9 +111,7 @@ describe("updatePayment", () => {
       ["is_paid"],
       [{ request_id: paymentWithFee.id }]
     );
-    expect(
-      paymentList.every((payment: { is_paid: number }) => payment.is_paid === 1)
-    ).toBe(true);
+    expect(paymentList.every((payment) => payment.is_paid === 1)).toBe(true);
 
     const testerStatus = await sqlite3.get(
       `SELECT payment_status  FROM wp_appq_evd_profile WHERE id = ${paymentWithFee.tester_id} `
