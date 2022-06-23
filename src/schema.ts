@@ -1885,12 +1885,10 @@ export interface operations {
               | "USABILITY";
             notes: string;
             usecase: string;
-            device?: {
-              id?: number;
-            } & components["schemas"]["UserDevice"];
-            media: string[];
+            device?: components["schemas"]["UserDevice"];
+            media?: string[];
             additional?: {
-              name: string;
+              slug: string;
               value: string;
             }[];
           };
@@ -1925,7 +1923,7 @@ export interface operations {
           device: number;
           media: string[];
           additional?: {
-            name: string;
+            slug: string;
             value: string;
           }[];
         };
