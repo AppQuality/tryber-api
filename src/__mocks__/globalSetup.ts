@@ -10,6 +10,7 @@ import { table as bugStatus } from "./mockedDb/bugStatus";
 import Campaigns from "./mockedDb/campaign";
 import { table as certificationListTable } from "./mockedDb/certificationList";
 import Candidature from "./mockedDb/cp_has_candidates";
+import CustomSeverities from "./mockedDb/customSeverities";
 import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
@@ -77,4 +78,5 @@ beforeAll(async () => {
     END`);
 
   await attributionsTable.create();
+  await CustomSeverities.mock();
 });
