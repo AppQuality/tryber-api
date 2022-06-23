@@ -1066,8 +1066,11 @@ paths:
                       properties:
                         name:
                           type: string
+                        errorCode:
+                          type: string
                       required:
                         - name
+                        - errorCode
                 required:
                   - files
               examples: {}
