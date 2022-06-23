@@ -5,8 +5,10 @@ import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
+import crypt from "./crypt";
 
 jest.mock("@src/features/upload");
+jest.mock("./crypt");
 
 const mockFileBuffer = Buffer.from("some data");
 describe("Route POST /users/me/campaign/{campaignId}/media", () => {
@@ -16,6 +18,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
         return `https://s3.amazonaws.com/${bucket}/${key}`;
       }
     );
+    (crypt as jest.Mock).mockImplementation((string: string) => `crypted`);
     await profileData.basicTester();
     await wpUserData.basicUser();
     await WpOptions.validUploadExtensions(["jpg", "mov", "png"]);
@@ -110,8 +113,21 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     expect(response.body.files[0]).toHaveProperty("path");
     expect(
       response.body.files[0].path.startsWith(
-        "https://s3.amazonaws.com/tryber.media.staging/media/T1/CP1/"
+        "https://s3.amazonaws.com/tryber.media.staging/media/T1/CP1/bugs/"
       )
     ).toBe(true);
+  });
+  it("Should crypt the filename on s3", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/media")
+      .attach("media", mockFileBuffer, "void.png")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("files");
+    expect(response.body.files.length).toBe(1);
+    expect(response.body.files[0]).toHaveProperty(
+      "path",
+      "https://s3.amazonaws.com/tryber.media.staging/media/T1/CP1/bugs/crypted.png"
+    );
   });
 });
