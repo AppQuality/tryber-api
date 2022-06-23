@@ -40,9 +40,9 @@ export default async (
     extension: string;
     folder?: string;
   }): string {
-    return `${process.env.MEDIA_FOLDER || "media"}/T${testerId}/${
-      folder || ""
-    }${filename}_${new Date().getTime()}${extension}`;
+    return `${
+      process.env.MEDIA_FOLDER || "media"
+    }/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
   }
 
   function isAcceptableFile(file: ApiUploadedFile): boolean {
@@ -61,16 +61,16 @@ export default async (
       if (!isAcceptableFile(media) || isOversizedFile(media))
         failedFiles.push({ name: media.name });
       else {
+        const keyEnhancer = media.keyEnhancer ? media.keyEnhancer : getKey;
         uploadedFiles.push({
           name: media.name,
           path: (
             await upload({
               bucket: process.env.MEDIA_BUCKET || "",
-              key: getKey({
+              key: keyEnhancer({
                 testerId: testerId,
                 filename: path.basename(media.name, path.extname(media.name)),
                 extension: path.extname(media.name),
-                folder: media.folder,
               }),
               file: media,
             })

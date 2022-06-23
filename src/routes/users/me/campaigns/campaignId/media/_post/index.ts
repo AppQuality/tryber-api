@@ -2,6 +2,7 @@ import * as db from "@src/features/db";
 import postUserMedia from "@src/routes/media/_post";
 import { Context } from "openapi-backend";
 import path from "path";
+import crypt from "./crypt";
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
 export default async (
   c: Context,
@@ -23,10 +24,17 @@ export default async (
   req.files.media = valid;
 
   req.files.media = req.files.media.map((file) => {
-    return {
+    const enhancedFile: ApiUploadedFile = {
       ...file,
-      folder: "CP1/bugs/",
+      keyEnhancer: ({ testerId, filename, extension }) => {
+        return `${
+          process.env.MEDIA_FOLDER || "media"
+        }/T${testerId}/CP${campaignId}/bugs/${crypt(
+          `${filename}_${new Date().getTime()}`
+        )}${extension}`;
+      },
     };
+    return enhancedFile;
   });
   const basicMediaUpload = await postUserMedia(c, req, res);
   if (!userMediaHasResults(basicMediaUpload)) {

@@ -40,7 +40,11 @@ declare global {
   };
 
   interface ApiUploadedFile extends UploadedFile {
-    folder?: string;
+    keyEnhancer?: ({
+      testerId: number,
+      filename: string,
+      extension: string,
+    }) => string;
   }
   interface StoplightOperations extends operations {}
   interface StoplightComponents extends components {}
