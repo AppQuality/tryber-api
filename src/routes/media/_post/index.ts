@@ -58,8 +58,13 @@ export default async (
     let uploadedFiles = [];
     let failedFiles = [];
     for (const media of files) {
-      if (!isAcceptableFile(media) || isOversizedFile(media))
-        failedFiles.push({ name: media.name });
+      if (!isAcceptableFile(media))
+        failedFiles.push({
+          name: media.name,
+          errorCode: "INVALID_FILE_EXTENSION",
+        });
+      if (isOversizedFile(media))
+        failedFiles.push({ name: media.name, errorCode: "FILE_TOO_BIG" });
       else {
         const keyEnhancer = media.keyEnhancer ? media.keyEnhancer : getKey;
         uploadedFiles.push({

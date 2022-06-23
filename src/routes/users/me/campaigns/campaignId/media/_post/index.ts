@@ -45,7 +45,7 @@ export default async (
     ? []
     : basicMediaUpload.failed.map((value) => ({
         name: value.name,
-        code: "GENERIC_ERROR",
+        errorCode: "GENERIC_ERROR",
       }));
   failedMedia = [...failedMedia, ...invalid];
 
@@ -62,7 +62,7 @@ export default async (
     const validMedia: typeof media = [];
     const invalidFileExtensionMedia: {
       name: string;
-      code: "NOT_VALID_FILE_TYPE";
+      errorCode: "NOT_VALID_FILE_TYPE";
     }[] = [];
     media.forEach((item) => {
       if (
@@ -72,7 +72,7 @@ export default async (
       } else {
         invalidFileExtensionMedia.push({
           name: item.name,
-          code: "NOT_VALID_FILE_TYPE",
+          errorCode: "NOT_VALID_FILE_TYPE",
         });
       }
     });

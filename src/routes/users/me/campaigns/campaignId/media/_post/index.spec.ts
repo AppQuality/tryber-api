@@ -70,9 +70,9 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("failed", [
-      { name: "void.bat" },
-      { name: "void.sh" },
-      { name: "void.exe" },
+      { errorCode: "INVALID_FILE_EXTENSION", name: "void.bat" },
+      { errorCode: "INVALID_FILE_EXTENSION", name: "void.sh" },
+      { errorCode: "INVALID_FILE_EXTENSION", name: "void.exe" },
     ]);
   });
   it("Should answer 200 and mark as failed if try to send an oversized file", async () => {
@@ -86,7 +86,9 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
 
-    expect(response.body).toHaveProperty("failed", [{ name: "oversized.png" }]);
+    expect(response.body).toHaveProperty("failed", [
+      { errorCode: "FILE_TOO_BIG", name: "oversized.png" },
+    ]);
   });
 
   it("Should answer 200 with error code NOT_VALID_FILE_TYPE if the extension is not in the whitelist", async () => {
@@ -98,7 +100,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     expect(response.body).toHaveProperty("failed");
     expect(response.body.failed.length).toBe(1);
     expect(response.body.failed[0]).toMatchObject({
-      code: "NOT_VALID_FILE_TYPE",
+      errorCode: "NOT_VALID_FILE_TYPE",
     });
   });
 
