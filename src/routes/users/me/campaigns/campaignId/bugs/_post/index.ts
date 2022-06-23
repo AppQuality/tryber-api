@@ -243,29 +243,29 @@ export default async (
     group_id: number
   ): Promise<{ id: number; title: string }> {
     let usecase = { id: 0, title: "" };
-    if (isNotSpecificUsecase()) {
-      usecase = { id: -1, title: "Not a specific use case" };
-    } else {
-      let usecases = await db.query(
-        db.format(
-          `SELECT tsk.id AS id, tsk.title AS title
+    if (isNotSpecificUsecase())
+      return { id: -1, title: "Not a specific use case" };
+
+    let usecases = await db.query(
+      db.format(
+        `SELECT tsk.id AS id, tsk.title AS title
           FROM wp_appq_campaign_task tsk
                    JOIN wp_appq_campaign_task_group tskgrp ON tskgrp.task_id = tsk.id
           WHERE tsk.campaign_id = ?
             AND (tskgrp.group_id = 0 || tskgrp.group_id = ?)
             AND tsk.id = ?
          ;`,
-          [campaignId, group_id, req.body.usecase]
-        )
-      );
-      if (!usecases.length) {
-        throw {
-          status_code: 403,
-          message: `Usecase ${req.body.usecase} not found for CP${campaignId}.`,
-        };
-      }
-      usecase = usecases[0];
+        [campaignId, group_id, req.body.usecase]
+      )
+    );
+    if (!usecases.length) {
+      throw {
+        status_code: 403,
+        message: `Usecase ${req.body.usecase} not found for CP${campaignId}.`,
+      };
     }
+    usecase = usecases[0];
+
     return usecase;
 
     function isNotSpecificUsecase() {
