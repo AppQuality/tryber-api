@@ -1,6 +1,5 @@
 import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
-import { UploadedFile } from "express-fileupload";
 import { Context } from "openapi-backend";
 import path from "path";
 
@@ -34,22 +33,24 @@ export default async (
     testerId,
     filename,
     extension,
+    folder,
   }: {
     testerId: number;
     filename: string;
     extension: string;
+    folder?: string;
   }): string {
-    return `${
-      process.env.MEDIA_FOLDER || "media"
-    }/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
+    return `${process.env.MEDIA_FOLDER || "media"}/T${testerId}/${
+      folder || ""
+    }${filename}_${new Date().getTime()}${extension}`;
   }
 
-  function isAcceptableFile(file: UploadedFile): boolean {
+  function isAcceptableFile(file: ApiUploadedFile): boolean {
     return ![".bat", ".sh", ".exe"].includes(path.extname(file.name));
   }
 
   async function uploadFiles(
-    files: UploadedFile[],
+    files: ApiUploadedFile[],
     testerId: number
   ): Promise<
     StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]
@@ -69,6 +70,7 @@ export default async (
                 testerId: testerId,
                 filename: path.basename(media.name, path.extname(media.name)),
                 extension: path.extname(media.name),
+                folder: media.folder,
               }),
               file: media,
             })
@@ -82,7 +84,7 @@ export default async (
     };
   }
 };
-function isOversizedFile(media: UploadedFile): boolean {
+function isOversizedFile(media: ApiUploadedFile): boolean {
   return (
     typeof media.size !== "number" ||
     media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912")

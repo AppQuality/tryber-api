@@ -21,6 +21,13 @@ export default async (
 
   const { valid, invalid } = await getInvalidExtensionMedia();
   req.files.media = valid;
+
+  req.files.media = req.files.media.map((file) => {
+    return {
+      ...file,
+      folder: "CP1/bugs/",
+    };
+  });
   const basicMediaUpload = await postUserMedia(c, req, res);
   if (!userMediaHasResults(basicMediaUpload)) {
     return basicMediaUpload;
