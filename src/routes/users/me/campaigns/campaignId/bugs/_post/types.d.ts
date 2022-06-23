@@ -7,3 +7,6 @@ type CreateBugError =
 type Severity = { id: number; name: Bug["severity"] };
 type Replicability = { id: number; name: Bug["replicability"] };
 type BugType = { id: number; name: Bug["type"] };
+type BugMedia = { url: string; type: string }[] | undefined;
+type Media =
+  StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"]["media"];
