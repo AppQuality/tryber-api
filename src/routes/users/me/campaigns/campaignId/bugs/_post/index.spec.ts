@@ -80,6 +80,19 @@ const bugBadUseCase = {
   device: 0,
   media: ["the media1 url"],
 };
+const bugNotSpecificUsecase = {
+  title: "Campaign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "CRASH",
+  notes: "The bug notes",
+  usecase: -1,
+  device: 0,
+  media: ["the media1 url"],
+};
 const bugBadDevice = {
   title: "Campaign Title",
   description: "Camapign Description",
@@ -237,6 +250,14 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("usecase", "Title of usecase1");
   });
+  it("Should return (USECASE = Not a specific use case)  if a user sends a usecase = -1", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugNotSpecificUsecase);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("usecase", "Not a specific use case");
+  });
   it("Should return inserted bug with EXPECTED if a user sends a bug with expected value", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
@@ -296,7 +317,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("media");
     expect(Array.isArray(response.body.media)).toEqual(true);
