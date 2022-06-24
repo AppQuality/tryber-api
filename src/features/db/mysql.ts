@@ -15,7 +15,6 @@ export default {
   },
 
   getConnection: function () {
-    console.log("#" + _connectionId);
     _connectionId = (_connectionId + 1) % _maxConnection;
     return _connection[_connectionId];
   },
