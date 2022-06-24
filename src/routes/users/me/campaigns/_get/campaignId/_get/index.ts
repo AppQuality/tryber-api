@@ -36,6 +36,7 @@ export default async (
       bugTypes: await campaign.getAvailableTypes(),
       validFileExtensions: await campaign.getAvailableFileExtensions(),
       additionalFields: await campaign.getAdditionalFields(),
+      language: await campaign.getBugLanguageMessage(),
     };
   } catch (err) {
     res.status_code = 500;

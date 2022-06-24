@@ -6,6 +6,7 @@ class Campaign {
   public title: string = "";
   public min_allowed_media: number = 0;
   public campaign_type: -1 | 0 | 1 = 0;
+  public bug_lang: 0 | 1 = 0;
   public ready: Promise<boolean>;
   constructor(id: number, init: boolean = true) {
     this.id = id;
@@ -19,7 +20,7 @@ class Campaign {
     this.ready = new Promise(async (resolve, reject) => {
       const campaignData = await db.query(
         db.format(
-          `SELECT id,title,min_allowed_media,campaign_type FROM wp_appq_evd_campaign WHERE id = ?`,
+          `SELECT id,title,min_allowed_media,campaign_type,bug_lang FROM wp_appq_evd_campaign WHERE id = ?`,
           [this.id]
         )
       );
@@ -29,18 +30,11 @@ class Campaign {
       this.title = campaignData[0].title;
       this.min_allowed_media = campaignData[0].min_allowed_media;
       this.campaign_type = campaignData[0].campaign_type;
+      this.bug_lang = campaignData[0].bug_lang;
+      this.ready = Promise.resolve(true);
       resolve(true);
     });
   }
-
-  public getData = () => {
-    return {
-      id: this.id,
-      title: this.title,
-      min_allowed_media: this.min_allowed_media,
-      campaign_type: this.campaign_type,
-    };
-  };
 
   private async getCustomSelectItem(
     name: string,
@@ -231,6 +225,29 @@ class Campaign {
       }
       throw new Error("Invalid additional field type");
     });
+  }
+
+  public async getBugLanguageMessage() {
+    if (!(await this.ready)) throw Error("Campaign not initialized");
+    if (this.bug_lang === 0) return undefined;
+
+    const meta: { meta_key: string; meta_value: string }[] = await db.query(
+      db.format(
+        `SELECT meta_key,meta_value 
+        FROM wp_appq_cp_meta
+        WHERE campaign_id = ? AND meta_key IN ("bug_lang_message","bug_lang_code")`,
+        [this.id]
+      )
+    );
+    if (meta.length === 0) return undefined;
+    const message = meta.find(
+      (m) => m.meta_key === "bug_lang_message"
+    )?.meta_value;
+    const code = meta
+      .find((m) => m.meta_key === "bug_lang_code")
+      ?.meta_value.toUpperCase();
+    if (!message || !code) return undefined;
+    return { message, code };
   }
 }
 
