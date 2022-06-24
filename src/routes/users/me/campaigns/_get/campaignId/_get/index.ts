@@ -25,6 +25,7 @@ export default async (
     campaign.init();
     await campaign.ready;
     res.status_code = 200;
+    const additionals = await campaign.getAdditionalFields();
     return {
       id: campaign.id,
       title: campaign.title,
@@ -35,6 +36,7 @@ export default async (
       useCases: await campaign.getUserUseCases(req.user.ID),
       bugTypes: await campaign.getAvailableTypes(),
       validFileExtensions: await campaign.getAvailableFileExtensions(),
+      additionalFields: additionals.length ? additionals : undefined,
     };
   } catch (err) {
     res.status_code = 500;
