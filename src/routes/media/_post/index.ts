@@ -1,6 +1,5 @@
 import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
-import { UploadedFile } from "express-fileupload";
 import { Context } from "openapi-backend";
 import path from "path";
 
@@ -34,22 +33,24 @@ export default async (
     testerId,
     filename,
     extension,
+    folder,
   }: {
     testerId: number;
     filename: string;
     extension: string;
+    folder?: string;
   }): string {
     return `${
       process.env.MEDIA_FOLDER || "media"
     }/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
   }
 
-  function isAcceptableFile(file: UploadedFile): boolean {
+  function isAcceptableFile(file: ApiUploadedFile): boolean {
     return ![".bat", ".sh", ".exe"].includes(path.extname(file.name));
   }
 
   async function uploadFiles(
-    files: UploadedFile[],
+    files: ApiUploadedFile[],
     testerId: number
   ): Promise<
     StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]
@@ -57,15 +58,21 @@ export default async (
     let uploadedFiles = [];
     let failedFiles = [];
     for (const media of files) {
-      if (!isAcceptableFile(media) || isOversizedFile(media))
-        failedFiles.push({ name: media.name });
+      if (!isAcceptableFile(media))
+        failedFiles.push({
+          name: media.name,
+          errorCode: "INVALID_FILE_EXTENSION",
+        });
+      if (isOversizedFile(media))
+        failedFiles.push({ name: media.name, errorCode: "FILE_TOO_BIG" });
       else {
+        const keyEnhancer = media.keyEnhancer ? media.keyEnhancer : getKey;
         uploadedFiles.push({
           name: media.name,
           path: (
             await upload({
               bucket: process.env.MEDIA_BUCKET || "",
-              key: getKey({
+              key: keyEnhancer({
                 testerId: testerId,
                 filename: path.basename(media.name, path.extname(media.name)),
                 extension: path.extname(media.name),
@@ -82,7 +89,7 @@ export default async (
     };
   }
 };
-function isOversizedFile(media: UploadedFile): boolean {
+function isOversizedFile(media: ApiUploadedFile): boolean {
   return (
     typeof media.size !== "number" ||
     media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912")

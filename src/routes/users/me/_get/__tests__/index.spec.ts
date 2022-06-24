@@ -1,6 +1,7 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationListData } from "@src/__mocks__/mockedDb/certificationList";
-import { data as candidateData } from "@src/__mocks__/mockedDb/cp_has_candidates";
 import { data as cufData } from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufDataData } from "@src/__mocks__/mockedDb/customUserFieldsData";
 import { data as cufExtraData } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
@@ -10,10 +11,8 @@ import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
-import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const tester1 = {
@@ -216,7 +215,7 @@ describe("Route GET users-me", () => {
 describe("Route GET users-me-full-fields", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      wpOptionsData.crowdWpOptions();
+      WpOptions.crowdWpOptions();
       await sqlite3.insert("wp_appq_evd_profile", testerFull);
       await sqlite3.insert("wp_users", wpTester1);
       await sqlite3.insert("wp_appq_evd_bug", bug1);
@@ -271,7 +270,6 @@ describe("Route GET users-me-full-fields", () => {
       await wpUserData.drop();
 
       await bugData.drop();
-      await candidateData.drop();
       await certificationListData.drop();
       await testerCertificationData.drop();
       await testerCertificationData.drop();
@@ -282,7 +280,7 @@ describe("Route GET users-me-full-fields", () => {
       await cufData.drop();
       await cufDataData.drop();
       await cufExtraData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
 
       resolve(null);
     });

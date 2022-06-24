@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { FileArray } from "express-fileupload";
+import { FileArray, UploadedFile } from "express-fileupload";
 import { Request } from "openapi-backend";
 
 import { components, operations, paths } from "./schema";
@@ -33,6 +33,19 @@ declare global {
     };
   };
 
+  type ReturnErrorType = {
+    element: string;
+    id: number;
+    message: string;
+  };
+
+  interface ApiUploadedFile extends UploadedFile {
+    keyEnhancer?: ({
+      testerId: number,
+      filename: string,
+      extension: string,
+    }) => string;
+  }
   interface StoplightOperations extends operations {}
   interface StoplightComponents extends components {}
   interface StoplightPaths extends paths {}

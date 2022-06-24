@@ -9,7 +9,7 @@ import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as cpTable } from "./mockedDb/campaign";
 import { table as certificationListTable } from "./mockedDb/certificationList";
-import { table as candidatesTable } from "./mockedDb/cp_has_candidates";
+import Candidature from "./mockedDb/cp_has_candidates";
 import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
@@ -32,7 +32,7 @@ import { table as testerDeviceTable } from "./mockedDb/testerDevice";
 import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
-import { table as wpOptionsTable } from "./mockedDb/wp_options";
+import WpOptions from "./mockedDb/wp_options";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
 export {};
@@ -48,7 +48,7 @@ beforeAll(async () => {
   await fiscalProfileTable.create();
   await expTable.create();
   await cpTable.create();
-  await candidatesTable.create();
+  await Candidature.mock();
   await testerTable.create();
   await wpUsersTable.create();
   await levelTable.create();
@@ -64,7 +64,7 @@ beforeAll(async () => {
   await testerLanguageTable.create();
   await cufTable.create();
   await cufExtraTable.create();
-  await wpOptionsTable.create();
+  await WpOptions.mock();
   await severityTable.create();
   await bugStatus.create();
 

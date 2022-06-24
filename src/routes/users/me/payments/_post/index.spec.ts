@@ -1,11 +1,11 @@
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
 import { data as fiscalProfileData } from "@src/__mocks__/mockedDb/fiscalProfile";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import { data as wpOptionsData } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 describe("POST /users/me/payments - valid paypal", () => {
@@ -40,7 +40,7 @@ describe("POST /users/me/payments - valid paypal", () => {
         amount: 70,
       });
 
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
 
       resolve(null);
     });
@@ -50,7 +50,7 @@ describe("POST /users/me/payments - valid paypal", () => {
       await wpUsersData.drop();
       await profileData.drop();
       await fiscalProfileData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
       await paymentRequestData.drop();
       await attributionData.drop();
       resolve(null);
@@ -210,7 +210,7 @@ describe("POST /users/me/payments - valid iban", () => {
         amount: 70,
       });
 
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
       resolve(null);
     });
   });
@@ -220,7 +220,7 @@ describe("POST /users/me/payments - valid iban", () => {
       await attributionData.drop();
       await profileData.drop();
       await fiscalProfileData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
       await paymentRequestData.drop();
       resolve(null);
     });
@@ -350,13 +350,13 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
   const data: any = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsData.drop();
+      await WpOptions.clear();
       resolve(null);
     });
   });
@@ -643,7 +643,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
 describe("POST /users/me/payments - stamp required", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
       resolve(null);
     });
   });
@@ -652,7 +652,7 @@ describe("POST /users/me/payments - stamp required", () => {
       await profileData.drop();
       await attributionData.drop();
       await fiscalProfileData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
       await paymentRequestData.drop();
       await wpUsersData.drop();
       resolve(null);
@@ -725,7 +725,7 @@ describe("POST /users/me/payments - stamp required", () => {
 describe("POST /users/me/payments - invalid data", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await wpOptionsData.crowdWpOptions();
+      await WpOptions.crowdWpOptions();
 
       resolve(null);
     });
@@ -734,7 +734,7 @@ describe("POST /users/me/payments - invalid data", () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
       await fiscalProfileData.drop();
-      await wpOptionsData.drop();
+      await WpOptions.clear();
       await paymentRequestData.drop();
       await attributionData.drop();
       await wpUsersData.drop();
