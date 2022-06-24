@@ -197,4 +197,5 @@ type Campaign = {
   campaign_type: -1 | 0 | 1;
   severities: { valid: string[]; invalid: string[] };
   types: { valid: string[]; invalid: string[] };
+  replicabilities: { valid: string[]; invalid: string[] };
 };
