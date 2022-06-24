@@ -1,6 +1,7 @@
 import app from "@src/app";
 import BugTypes from "@src/__mocks__/mockedDb/bugTypes";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
+import CampaignMeta from "@src/__mocks__/mockedDb/campaignMeta";
 import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
 import CustomBugTypes from "@src/__mocks__/mockedDb/customBugTypes";
 import CustomReplicabilities from "@src/__mocks__/mockedDb/customReplicabilities";
@@ -111,7 +112,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
     const response = await request(app)
       .get("/users/me/campaigns/1")
       .set("Authorization", "Bearer tester");
-    expect(response.body).toMatchObject({
+    expect(response.body).toEqual({
       id: 1,
       title: "My campaign",
       minimumMedia: 4,
@@ -254,6 +255,58 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", 
           error: "Inserisci un codice cliente valido (es. ABC1234)",
         },
       ],
+    });
+  });
+});
+
+describe("Route GET /users/me/campaigns/{campaignId}/ - bug language set", () => {
+  beforeAll(async () => {
+    await Campaigns.clear();
+
+    await Campaigns.insert({
+      id: 1,
+      title: "My campaign",
+      min_allowed_media: 4,
+      campaign_type: 0,
+      bug_lang: 1,
+    });
+    await CampaignMeta.insert({
+      meta_id: 1,
+      campaign_id: 5,
+      meta_key: "bug_lang_code",
+      meta_value: "en",
+    });
+    await CampaignMeta.insert({
+      meta_id: 2,
+      campaign_id: 5,
+      meta_key: "bug_lang_message",
+      meta_value: "Bug in english",
+    });
+    await CampaignMeta.insert({
+      meta_id: 3,
+      campaign_id: 1,
+      meta_key: "bug_lang_code",
+      meta_value: "it",
+    });
+    await CampaignMeta.insert({
+      meta_id: 4,
+      campaign_id: 1,
+      meta_key: "bug_lang_message",
+      meta_value: "Bug in italiano",
+    });
+  });
+  afterAll(async () => {
+    await CampaignMeta.clear();
+  });
+  it("Should return a the language with a message", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toMatchObject({
+      language: {
+        code: "IT",
+        message: "Bug in italiano",
+      },
     });
   });
 });
