@@ -182,6 +182,14 @@ class Campaign {
   get hasBugForm() {
     return this.campaign_type !== -1;
   }
+
+  public async getAvailableFileExtensions() {
+    const option = await db.query(
+      `SELECT option_value FROM wp_options WHERE option_name = 'options_appq_valid_upload_extensions'`
+    );
+    if (option.length === 0) return [];
+    return option[0].option_value.split(",");
+  }
 }
 
 export default Campaign;
