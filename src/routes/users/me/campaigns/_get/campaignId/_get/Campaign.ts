@@ -159,6 +159,26 @@ class Campaign {
     return true;
   }
 
+  public async getUserUseCases(userId: string) {
+    const candidatureData = await db.query(
+      db.format(
+        "SELECT group_id FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
+        [userId, this.id]
+      )
+    );
+    if (candidatureData.length === 0) return [];
+    const useCases = await db.query(
+      db.format(
+        `SELECT id,title as name FROM wp_appq_campaign_task 
+          WHERE group_id IN (?,0) 
+          AND campaign_id = ?
+          ORDER BY position ASC, id ASC`,
+        [candidatureData[0].group_id, this.id]
+      )
+    );
+    return [{ id: 0, name: "Not a specific usecase" }, ...useCases];
+  }
+
   get hasBugForm() {
     return this.campaign_type !== -1;
   }

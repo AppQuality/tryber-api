@@ -9,19 +9,63 @@ import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import Replicabilities from "@src/__mocks__/mockedDb/replicabilities";
 import Severities from "@src/__mocks__/mockedDb/severities";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
+import UseCases from "@src/__mocks__/mockedDb/usecases";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 beforeAll(async () => {
   await profileData.basicTester();
   await wpUserData.basicUser();
-  await Candidature.insert({ campaign_id: 1, user_id: 1 });
+  await Candidature.insert({ campaign_id: 1, user_id: 1, group_id: 1 });
   await Severities.insert({ id: 1, name: "Low" });
   await Severities.insert({ id: 2, name: "Medium" });
   await BugTypes.insert({ id: 1, name: "Typo" });
   await BugTypes.insert({ id: 2, name: "Crash" });
   await Replicabilities.insert({ id: 1, name: "Once" });
   await Replicabilities.insert({ id: 2, name: "Always" });
+
+  await UseCases.insert({
+    id: 2,
+    title: "First Usecase All groups",
+    group_id: 0,
+    position: 1,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 1,
+    title: "Second Usecase All groups",
+    group_id: 0,
+    position: 2,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 3,
+    title: "Third Usecase All groups",
+    group_id: 0,
+    position: 2,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 4,
+    title: "Fourth Usecase Group 1",
+    group_id: 1,
+    position: 4,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 5,
+    title: "Fourth Usecase Group 2",
+    group_id: 2,
+    position: 4,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 6,
+    title: "Usecase of another campaign",
+    group_id: 0,
+    position: 0,
+    campaign_id: 2,
+  });
   await Campaigns.insert({
     id: 1,
     title: "My campaign",
@@ -38,6 +82,7 @@ afterAll(async () => {
   await Campaigns.clear();
   await BugTypes.clear();
   await Replicabilities.clear();
+  await UseCases.clear();
 });
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   it("Should return 403 if user is not logged in", () => {
@@ -67,6 +112,28 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       bugSeverity: { valid: ["LOW", "MEDIUM"], invalid: [] },
       bugTypes: { valid: ["TYPO", "CRASH"], invalid: [] },
       bugReplicability: { valid: ["ONCE", "ALWAYS"], invalid: [] },
+      useCases: [
+        {
+          id: 0,
+          name: "Not a specific usecase",
+        },
+        {
+          id: 2,
+          name: "First Usecase All groups",
+        },
+        {
+          id: 1,
+          name: "Second Usecase All groups",
+        },
+        {
+          id: 3,
+          name: "Third Usecase All groups",
+        },
+        {
+          id: 4,
+          name: "Fourth Usecase Group 1",
+        },
+      ],
     });
   });
 });
