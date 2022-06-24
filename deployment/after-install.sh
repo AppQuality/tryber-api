@@ -71,6 +71,7 @@ services:
       MEDIA_BUCKET: '${MEDIA_BUCKET}'
       MEDIA_FOLDER: 'media'
       MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+      CONNECTION_COUNT: ${CONNECTION_COUNT}
     volumes:
       - /var/docker/keys:/app/keys
     logging:
