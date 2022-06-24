@@ -32,7 +32,7 @@ export default async (
       hasBugForm: campaign.hasBugForm,
       bugSeverity: await campaign.getAvailableSeverities(),
       bugReplicability: await campaign.getAvailableReplicabilities(),
-      useCases: [],
+      useCases: await campaign.getUserUseCases(req.user.ID),
       bugTypes: await campaign.getAvailableTypes(),
       validFileExtensions: [],
     };
