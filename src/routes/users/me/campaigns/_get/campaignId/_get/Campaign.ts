@@ -249,6 +249,19 @@ class Campaign {
     if (!message || !code) return undefined;
     return { message, code };
   }
+  public async getTitleRule() {
+    const meta: { meta_key: string; meta_value: string }[] = await db.query(
+      db.format(
+        `SELECT meta_key,meta_value 
+        FROM wp_appq_cp_meta
+        WHERE campaign_id = ? AND meta_key = "bug_title_rule"`,
+        [this.id]
+      )
+    );
+    if (meta.length === 0) return undefined;
+    if (meta[0].meta_value === "1") return true;
+    return undefined;
+  }
 }
 
 export default Campaign;

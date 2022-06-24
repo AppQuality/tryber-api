@@ -37,6 +37,7 @@ export default async (
       validFileExtensions: await campaign.getAvailableFileExtensions(),
       additionalFields: await campaign.getAdditionalFields(),
       language: await campaign.getBugLanguageMessage(),
+      titleRule: await campaign.getTitleRule(),
     };
   } catch (err) {
     res.status_code = 500;
