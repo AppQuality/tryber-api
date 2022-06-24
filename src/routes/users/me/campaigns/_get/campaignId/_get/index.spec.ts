@@ -72,6 +72,11 @@ beforeAll(async () => {
     min_allowed_media: 4,
     campaign_type: 0,
   });
+
+  await WpOptions.insert({
+    option_name: "options_appq_valid_upload_extensions",
+    option_value: "jpg,png,gif",
+  });
 });
 afterAll(async () => {
   await wpUserData.drop();
@@ -83,6 +88,7 @@ afterAll(async () => {
   await BugTypes.clear();
   await Replicabilities.clear();
   await UseCases.clear();
+  await WpOptions.clear();
 });
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   it("Should return 403 if user is not logged in", () => {
@@ -134,6 +140,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
           name: "Fourth Usecase Group 1",
         },
       ],
+      validFileExtensions: ["jpg", "png", "gif"],
     });
   });
 });

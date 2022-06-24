@@ -34,7 +34,7 @@ export default async (
       bugReplicability: await campaign.getAvailableReplicabilities(),
       useCases: await campaign.getUserUseCases(req.user.ID),
       bugTypes: await campaign.getAvailableTypes(),
-      validFileExtensions: [],
+      validFileExtensions: await campaign.getAvailableFileExtensions(),
     };
   } catch (err) {
     res.status_code = 500;
