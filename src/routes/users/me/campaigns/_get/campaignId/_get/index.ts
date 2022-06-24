@@ -36,7 +36,8 @@ export default async (
       useCases: await campaign.getUserUseCases(req.user.ID),
       bugTypes: await campaign.getAvailableTypes(),
       validFileExtensions: await campaign.getAvailableFileExtensions(),
-      additionalFields: additionals.length ? additionals : undefined,
+      additionalFields:
+        additionals && additionals.length ? additionals : undefined,
     };
   } catch (err) {
     res.status_code = 500;
