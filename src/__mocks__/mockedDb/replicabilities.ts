@@ -5,7 +5,7 @@ type ReplicabilityParams = {
   name?: string;
 };
 class Replicability extends Table<ReplicabilityParams> {
-  protected name = "wp_appq_evd_replicability";
+  protected name = "wp_appq_evd_bug_replicability";
   protected columns = ["id INTEGER PRIMARY KEY", "name VARCHAR(255)"];
   constructor() {
     super({
