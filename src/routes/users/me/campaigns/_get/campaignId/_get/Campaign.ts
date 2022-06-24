@@ -190,6 +190,48 @@ class Campaign {
     if (option.length === 0) return [];
     return option[0].option_value.split(",");
   }
+
+  public async getAdditionalFields(): Promise<Result["additionalFields"]> {
+    const additionals: {
+      id: number;
+      slug: string;
+      title: string;
+      type: "regex" | "select";
+      validation: string;
+      error_message: string;
+    }[] = await db.query(
+      db.format(
+        `SELECT id,slug,title,type,validation,error_message 
+          FROM wp_appq_campaign_additional_fields 
+          WHERE cp_id = ?`,
+        [this.id]
+      )
+    );
+    if (additionals.length === 0) return [];
+    return additionals.map((item) => {
+      const result = {
+        id: item.id,
+        slug: item.slug,
+        name: item.title,
+        error: item.error_message,
+      };
+      if (item.type === "regex") {
+        return {
+          ...result,
+          type: "text",
+          regex: item.validation,
+        };
+      }
+      if (item.type === "select") {
+        return {
+          ...result,
+          type: "select",
+          options: item.validation.split(","),
+        };
+      }
+      throw new Error("Invalid additional field type");
+    });
+  }
 }
 
 export default Campaign;

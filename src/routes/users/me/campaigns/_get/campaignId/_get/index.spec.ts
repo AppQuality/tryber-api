@@ -10,6 +10,7 @@ import Replicabilities from "@src/__mocks__/mockedDb/replicabilities";
 import Severities from "@src/__mocks__/mockedDb/severities";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import UseCases from "@src/__mocks__/mockedDb/usecases";
+import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
@@ -195,6 +196,64 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom replicabilities s
       .set("Authorization", "Bearer tester");
     expect(response.body).toMatchObject({
       bugReplicability: { valid: ["ONCE"], invalid: ["ALWAYS"] },
+    });
+  });
+});
+
+describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", () => {
+  beforeAll(async () => {
+    await CampaignAdditionals.insert({
+      id: 1,
+      cp_id: 1,
+      slug: "browser",
+      title: "Browser",
+      type: "select",
+      validation: "Chrome,Safari",
+      error_message: "Please select the browser used",
+    });
+    await CampaignAdditionals.insert({
+      id: 2,
+      cp_id: 1,
+      slug: "codice-cliente",
+      title: "Codice Cliente",
+      type: "regex",
+      validation: "^[A-Z]{3}[0-9]{4}$",
+      error_message: "Inserisci un codice cliente valido (es. ABC1234)",
+    });
+    await CampaignAdditionals.insert({
+      id: 3,
+      cp_id: 2,
+      slug: "altra-cp",
+      title: "Altra CP",
+      type: "regex",
+      validation: "",
+      error_message: "",
+    });
+  });
+  afterAll(async () => {
+    await CampaignAdditionals.clear();
+  });
+  it("Should return a list of additional fields", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toMatchObject({
+      additionalFields: [
+        {
+          type: "select",
+          name: "Browser",
+          slug: "browser",
+          options: ["Chrome", "Safari"],
+          error: "Please select the browser used",
+        },
+        {
+          type: "text",
+          slug: "codice-cliente",
+          name: "Codice Cliente",
+          regex: "^[A-Z]{3}[0-9]{4}$",
+          error: "Inserisci un codice cliente valido (es. ABC1234)",
+        },
+      ],
     });
   });
 });

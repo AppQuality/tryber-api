@@ -39,6 +39,7 @@ import UseCases from "./mockedDb/usecases";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
 import WpOptions from "./mockedDb/wp_options";
+import CampaignAdditionals from "./mockedDb/campaignAdditionals";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
 export {};
@@ -89,4 +90,5 @@ beforeAll(async () => {
   await Replicabilities.mock();
   await CustomReplicabilities.mock();
   await UseCases.mock();
+  await CampaignAdditionals.mock();
 });
