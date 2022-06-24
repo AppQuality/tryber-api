@@ -35,6 +35,7 @@ import Severities from "./mockedDb/severities";
 import { table as testerCertificationTable } from "./mockedDb/testerCertification";
 import { table as testerDeviceTable } from "./mockedDb/testerDevice";
 import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
+import UseCases from "./mockedDb/usecases";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
 import WpOptions from "./mockedDb/wp_options";
@@ -87,4 +88,5 @@ beforeAll(async () => {
   await CustomSeverities.mock();
   await Replicabilities.mock();
   await CustomReplicabilities.mock();
+  await UseCases.mock();
 });
