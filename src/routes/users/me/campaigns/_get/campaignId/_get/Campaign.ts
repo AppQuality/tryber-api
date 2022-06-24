@@ -55,15 +55,6 @@ class Campaign {
     ).map((s: { [key: string]: number }) => s[name]);
   }
 
-  private async getSeverities(): Promise<CampaignSelectItem[]> {
-    return (await db.query(`SELECT id,name FROM wp_appq_evd_severity `)).map(
-      (s: CampaignSelectItem) => ({
-        ...s,
-        name: s.name.toUpperCase(),
-      })
-    );
-  }
-
   public async getAvailableSeverities() {
     const customSeverities = await this.getCustomSelectItem(
       "bug_severity_id",
