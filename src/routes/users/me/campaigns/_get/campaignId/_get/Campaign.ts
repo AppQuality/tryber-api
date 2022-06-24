@@ -207,7 +207,7 @@ class Campaign {
         [this.id]
       )
     );
-    if (additionals.length === 0) return [];
+    if (additionals.length === 0) return undefined;
     return additionals.map((item) => {
       const result = {
         id: item.id,
