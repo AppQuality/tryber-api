@@ -310,3 +310,25 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - bug language set", () =>
     });
   });
 });
+
+describe("Route GET /users/me/campaigns/{campaignId}/ - title rule set", () => {
+  beforeAll(async () => {
+    await CampaignMeta.insert({
+      meta_id: 1,
+      campaign_id: 1,
+      meta_key: "bug_title_rule",
+      meta_value: "1",
+    });
+  });
+  afterAll(async () => {
+    await CampaignMeta.clear();
+  });
+  it("Should return title rule = true", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toMatchObject({
+      titleRule: true,
+    });
+  });
+});
