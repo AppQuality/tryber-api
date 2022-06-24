@@ -7,9 +7,12 @@ import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition
 import { table as attributionsTable } from "./mockedDb/attributions";
 import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
+import BugTypes from "./mockedDb/bugTypes";
 import Campaigns from "./mockedDb/campaign";
 import { table as certificationListTable } from "./mockedDb/certificationList";
 import Candidature from "./mockedDb/cp_has_candidates";
+import CustomBugTypes from "./mockedDb/customBugTypes";
+import CustomReplicabilities from "./mockedDb/customReplicabilities";
 import CustomSeverities from "./mockedDb/customSeverities";
 import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
@@ -27,6 +30,7 @@ import { table as paymentRequestTable } from "./mockedDb/paymentRequest";
 import { table as popupTable } from "./mockedDb/popups";
 import { table as testerTable } from "./mockedDb/profile";
 import { table as receiptTable } from "./mockedDb/receipt";
+import Replicabilities from "./mockedDb/replicabilities";
 import Severities from "./mockedDb/severities";
 import { table as testerCertificationTable } from "./mockedDb/testerCertification";
 import { table as testerDeviceTable } from "./mockedDb/testerDevice";
@@ -67,6 +71,8 @@ beforeAll(async () => {
   await cufExtraTable.create();
   await WpOptions.mock();
   await Severities.mock();
+  await BugTypes.mock();
+  await CustomBugTypes.mock();
   await bugStatus.create();
 
   await paymentRequestTable.create();
@@ -79,4 +85,6 @@ beforeAll(async () => {
 
   await attributionsTable.create();
   await CustomSeverities.mock();
+  await Replicabilities.mock();
+  await CustomReplicabilities.mock();
 });
