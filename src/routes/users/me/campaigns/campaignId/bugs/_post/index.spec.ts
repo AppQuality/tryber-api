@@ -4,6 +4,7 @@ import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabil
 import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as bugTypesData } from "@src/__mocks__/mockedDb/bugTypes";
 import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import { data as additionalFields } from "@src/__mocks__/mockedDb/cpHasAdditionalFields";
 import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
 import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
@@ -32,6 +33,20 @@ const bug = {
   usecase: 1,
   device: 1,
   media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+};
+const bugBadAdditionalFields = {
+  title: "Campaign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "CRASH",
+  notes: "The bug notes",
+  usecase: 1,
+  device: 1,
+  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+  additional: [{ slug: "browser", value: "Chrome" }],
 };
 const bugCampaignAnyDevice = {
   title: "Campaign Title",
@@ -178,7 +193,11 @@ describe("Route POST a bug to a specific campaign", () => {
         form_factor: "Tablet",
         source_id: 950,
       });
-
+      await additionalFields.additional1({
+        slug: "codice-cliente",
+        type: "regex",
+        validation: "^[0-9]+$",
+      });
       resolve(null);
     });
   });
@@ -201,6 +220,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await platformDeviceData.drop();
       await userDeviceData.drop();
       await osDeviceData.drop();
+      await additionalFields.drop();
 
       resolve(null);
     });
@@ -250,7 +270,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bugBadDevice);
-    console.log(response.body);
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
@@ -258,12 +277,23 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Device is not candidate on CP1.`,
     });
   });
+  it("Should answer 403 if a user sends a bug with uncorrect additional-fields", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadAdditionalFields);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Additional fields are not correct for CP1.`,
+    });
+  });
   it("Should answer 200 if a sends a bug with any user-device on a CP selected_device = 0", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
       .set("authorization", "Bearer tester")
       .send(bugCampaignAnyDevice);
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("Should return inserted bug with testerId if a user sends a valid bug", async () => {
@@ -404,6 +434,16 @@ describe("Route POST a bug to a specific campaign", () => {
       type: "Tablet",
     });
   });
+  // it("Should return ADDITIONAL fields if user sends a bug with additional fields", async () => {
+  //   const response = await request(app)
+  //     .post("/users/me/campaigns/5/bugs")
+  //     .set("authorization", "Bearer tester")
+  //     .send(bug);
+  //   expect(response.status).toBe(200);
+  //   console.log(response.body)
+  //   expect(response.body).toHaveProperty("additional");
+  //   expect(response.body.additional).toMatchObject({});
+  // });
 });
 
 describe("Route POST a bug to a specific campaign - with custom type", () => {
@@ -642,7 +682,6 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("replicability", "ONCE");
   });
