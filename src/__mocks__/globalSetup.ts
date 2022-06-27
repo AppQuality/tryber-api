@@ -1,5 +1,6 @@
-import sqlite3 from "@src/features/sqlite";
+import { table as cpAdditionalFields } from "@src/__mocks__/mockedDb/cpHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
+import sqlite3 from "@src/features/sqlite";
 
 import Attributions from "./mockedDb/attributions";
 import { table as bugTable } from "./mockedDb/bug";
@@ -44,6 +45,7 @@ import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
+
 export {};
 beforeAll(async () => {
   await levelRevTable.create();
@@ -85,6 +87,7 @@ beforeAll(async () => {
   await cpHasBugTypesTable.create();
   await usecasesTable.create();
   await cpHasGroupsTable.create();
+  await cpAdditionalFields.create();
 
   await paymentRequestTable.create();
   await sqlite3.run(`
