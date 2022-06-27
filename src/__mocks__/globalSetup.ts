@@ -41,6 +41,7 @@ import { table as workTypeTable } from "./mockedDb/workType";
 import WpOptions from "./mockedDb/wp_options";
 import CampaignAdditionals from "./mockedDb/campaignAdditionals";
 import CampaignMeta from "./mockedDb/campaignMeta";
+import UseCaseGroups from "./mockedDb/usecasesGroups";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
 export {};
@@ -93,4 +94,5 @@ beforeAll(async () => {
   await UseCases.mock();
   await CampaignAdditionals.mock();
   await CampaignMeta.mock();
+  await UseCaseGroups.mock();
 });
