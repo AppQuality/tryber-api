@@ -20,7 +20,8 @@ export default async (
     replicability: Replicability,
     bugtype: BugType,
     media: BugMedia,
-    device: UserDevice;
+    device: UserDevice,
+    additional: Additional;
   try {
     await campaignExists();
     candidature = await getTesterCandidature();
@@ -30,6 +31,7 @@ export default async (
     bugtype = await getBugType();
     media = await getMediaData();
     device = await getUserDevice(req.body.device, parseInt(req.user.ID));
+    additional = await getAdditionalFields();
   } catch (error) {
     debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -235,25 +237,6 @@ export default async (
       ).map((item) => item.id);
     }
   }
-  // async function getDevice(): Promise<UserDevice> {
-  //   const result = await db.query(
-  //     db.format(
-  //       `
-  //     SELECT *
-  //       FROM wp_crowd_appq_device
-  //       WHERE id_profile = ?
-  //       AND enabled = 1
-  //       AND id = ?
-  //     ;`,
-  //       [req.user.testerId, req.body.device]
-  //     )
-  //   );
-  //   if (result) return result[0];
-  //   throw {
-  //     status_code: 403,
-  //     message: `Device_Id = ${req.body.device} Not Found`,
-  //   };
-  // }
 
   async function getMediaData() {
     let media: BugMedia;
@@ -298,7 +281,41 @@ export default async (
       return req.body.usecase === -1;
     }
   }
+  async function getAdditionalFields(): Promise<Additional> {
+    let additional: Additional;
+    if (!req.body.additional) return additional;
 
+    let additionalFields = await db.query(
+      db.format(
+        `
+        SELECT * 
+        FROM wp_appq_campaign_additional_fields 
+        WHERE cp_id = ?
+         ;`,
+        [campaignId]
+      )
+    );
+
+    if (!additionalFields.length) {
+      throw {
+        status_code: 403,
+        message: `CP${campaignId} has not addtitional fields.`,
+      };
+    }
+    const slugs = additionalFields.map((item: { slug: string }) => item.slug);
+    const requetedSlugs = req.body.additional.map(
+      (item: { slug: string }) => item.slug
+    );
+    for (const reqSlug of requetedSlugs) {
+      if (!slugs.includes(reqSlug))
+        throw {
+          status_code: 403,
+          message: `Additional fields are not correct for CP${campaignId}.`,
+        };
+    }
+
+    return additional;
+  }
   async function createBug(
     usecase: { id: number; title: string },
     severityId: number,
