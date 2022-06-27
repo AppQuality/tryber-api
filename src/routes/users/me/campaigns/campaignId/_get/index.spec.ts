@@ -209,7 +209,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", 
       slug: "browser",
       title: "Browser",
       type: "select",
-      validation: "Chrome,Safari",
+      validation: "Chrome;Safari",
       error_message: "Please select the browser used",
     });
     await CampaignAdditionals.insert({

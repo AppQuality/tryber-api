@@ -221,7 +221,7 @@ class Campaign {
         return {
           ...result,
           type: "select",
-          options: item.validation.split(","),
+          options: item.validation.split(";"),
         };
       }
       throw new Error("Invalid additional field type");
