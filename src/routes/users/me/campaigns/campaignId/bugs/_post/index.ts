@@ -3,6 +3,8 @@ import debugMessage from "@src/features/debugMessage";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import { Context } from "openapi-backend";
 
+import getUserDevice from "./getUserDevice";
+
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
 export default async (
   c: Context,
@@ -17,7 +19,8 @@ export default async (
     severity: Severity,
     replicability: Replicability,
     bugtype: BugType,
-    media: BugMedia;
+    media: BugMedia,
+    device: UserDevice;
   try {
     await campaignExists();
     candidature = await getTesterCandidature();
@@ -26,6 +29,7 @@ export default async (
     replicability = await getReplicability();
     bugtype = await getBugType();
     media = await getMediaData();
+    device = await getUserDevice(req.body.device, parseInt(req.user.ID));
   } catch (error) {
     debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -37,12 +41,12 @@ export default async (
   }
   let insertedBugId: number;
   try {
-    //
     insertedBugId = await createBug(
       usecase,
       severity.id,
       replicability.id,
-      bugtype.id
+      bugtype.id,
+      device
     );
   } catch (error) {
     debugMessage(error);
@@ -67,7 +71,7 @@ export default async (
     };
   }
 
-  let insertedMedia: Media;
+  let insertedMedia: Media = [];
   try {
     if (req.body.media)
       insertedMedia = await createMediasBug(insertedBugId, media);
@@ -97,6 +101,7 @@ export default async (
     current: req.body.current,
     usecase: usecase.title,
     media: insertedMedia,
+    device: device,
   };
 
   async function campaignExists() {
@@ -130,7 +135,7 @@ export default async (
       };
     }
     if (
-      result[0].selected_device !== "0" &&
+      result[0].selected_device !== 0 &&
       result[0].selected_device !== req.body.device
     ) {
       throw {
@@ -139,10 +144,6 @@ export default async (
       };
     }
     return result[0];
-  }
-  function capitalize(str: string) {
-    str = str.toLowerCase();
-    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
   async function getSeverity() {
@@ -234,6 +235,26 @@ export default async (
       ).map((item) => item.id);
     }
   }
+  // async function getDevice(): Promise<UserDevice> {
+  //   const result = await db.query(
+  //     db.format(
+  //       `
+  //     SELECT *
+  //       FROM wp_crowd_appq_device
+  //       WHERE id_profile = ?
+  //       AND enabled = 1
+  //       AND id = ?
+  //     ;`,
+  //       [req.user.testerId, req.body.device]
+  //     )
+  //   );
+  //   if (result) return result[0];
+  //   throw {
+  //     status_code: 403,
+  //     message: `Device_Id = ${req.body.device} Not Found`,
+  //   };
+  // }
+
   async function getMediaData() {
     let media: BugMedia;
     if (req.body.media) {
@@ -282,37 +303,39 @@ export default async (
     usecase: { id: number; title: string },
     severityId: number,
     replicabilityId: number,
-    bugTypeId: number
+    bugTypeId: number,
+    device: UserDevice
   ): Promise<number> {
-    let inserted = await db.query(
-      db.format(
-        `INSERT INTO wp_appq_evd_bug (
-          wp_user_id, message, description, expected_result, current_result, campaign_id,
-          status_id, publish, status_reason, severity_id, created,
-          bug_replicability_id, bug_type_id, application_section, application_section_id,
-          note
-             )
-        VALUES (
-          ?,?,?,?,?,?,3,1,"Bug under review.",?,NOW(),?,?,?,?,?
-          )
-         ;`,
-        [
-          req.user.ID,
-          req.body.title,
-          req.body.description,
-          req.body.expected,
-          req.body.current,
-          campaignId,
+    let format = db.format(
+      `INSERT INTO wp_appq_evd_bug (
+        wp_user_id, message, description, expected_result, current_result, campaign_id,
+        status_id, publish, status_reason, severity_id, created,
+        bug_replicability_id, bug_type_id, application_section, application_section_id,note, 
+        dev_id
+           )
+      VALUES (
+        ?,?,?,?,?,?,3,1,"Bug under review.",?,NOW(),?,?,?,?,?,
+        ?
+        )
+       ;`,
+      [
+        req.user.ID,
+        req.body.title,
+        req.body.description,
+        req.body.expected,
+        req.body.current,
+        campaignId,
+        severityId,
+        replicabilityId,
+        bugTypeId,
+        usecase.title,
+        usecase.id,
+        req.body.notes,
 
-          severityId,
-          replicabilityId,
-          bugTypeId,
-          usecase.title,
-          usecase.id,
-          req.body.notes,
-        ]
-      )
+        device.id,
+      ]
     );
+    let inserted = await db.query(format);
     if (inserted.affectedRows === 0) {
       throw {
         status_code: 403,
@@ -376,6 +399,6 @@ export default async (
         )
       )
     ).map((item: { url: string }) => item.url);
-    return inserted.length ? inserted : undefined;
+    return inserted.length ? inserted : [];
   }
 };
