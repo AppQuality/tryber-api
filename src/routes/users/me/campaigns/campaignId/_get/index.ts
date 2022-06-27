@@ -1,5 +1,6 @@
 import { Context } from "openapi-backend";
 import Campaign from "./Campaign";
+import { Result } from "./types.d";
 
 /** OPENAPI-ROUTE: get-users-me-campaigns-campaignId */
 export default async (
