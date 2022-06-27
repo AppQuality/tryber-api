@@ -1,4 +1,5 @@
 import * as db from "@src/features/db";
+import { Result } from "./types.d";
 
 type CampaignSelectItem = { id: number; name: string };
 class Campaign {
