@@ -11,6 +11,7 @@ import Replicabilities from "@src/__mocks__/mockedDb/replicabilities";
 import Severities from "@src/__mocks__/mockedDb/severities";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import UseCases from "@src/__mocks__/mockedDb/usecases";
+import UseCaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
 import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
@@ -68,6 +69,33 @@ beforeAll(async () => {
     position: 0,
     campaign_id: 2,
   });
+  await UseCases.insert({
+    id: 7,
+    title: "Usecase multigroup",
+    group_id: -1,
+    position: 5,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 9,
+    title: "Usecase multigroup without current user",
+    group_id: -1,
+    position: 5,
+    campaign_id: 1,
+  });
+  await UseCases.insert({
+    id: 8,
+    title: "Usecase multigroup of another campaign",
+    group_id: -1,
+    position: 5,
+    campaign_id: 2,
+  });
+  await UseCaseGroups.insert({ task_id: 7, group_id: 1 });
+  await UseCaseGroups.insert({ task_id: 7, group_id: 2 });
+  await UseCaseGroups.insert({ task_id: 8, group_id: 1 });
+  await UseCaseGroups.insert({ task_id: 8, group_id: 2 });
+  await UseCaseGroups.insert({ task_id: 9, group_id: 2 });
+  await UseCaseGroups.insert({ task_id: 9, group_id: 3 });
   await Campaigns.insert({
     id: 1,
     title: "My campaign",
@@ -91,6 +119,7 @@ afterAll(async () => {
   await Replicabilities.clear();
   await UseCases.clear();
   await WpOptions.clear();
+  await UseCaseGroups.clear();
 });
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   it("Should return 403 if user is not logged in", () => {
@@ -140,6 +169,10 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
         {
           id: 4,
           name: "Fourth Usecase Group 1",
+        },
+        {
+          id: 7,
+          name: "Usecase multigroup",
         },
       ],
       validFileExtensions: ["jpg", "png", "gif"],

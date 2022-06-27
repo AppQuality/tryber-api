@@ -162,16 +162,37 @@ class Campaign {
       )
     );
     if (candidatureData.length === 0) return [];
-    const useCases = await db.query(
-      db.format(
-        `SELECT id,title as name FROM wp_appq_campaign_task 
-          WHERE group_id IN (?,0) 
+    let useCases: { id: number; name: string; group_id: number }[] =
+      await db.query(
+        db.format(
+          `SELECT id,title as name,group_id FROM wp_appq_campaign_task 
+          WHERE group_id IN (?,0, -1) 
           AND campaign_id = ?
           ORDER BY position ASC, id ASC`,
-        [candidatureData[0].group_id, this.id]
-      )
-    );
-    return [{ id: 0, name: "Not a specific usecase" }, ...useCases];
+          [candidatureData[0].group_id, this.id]
+        )
+      );
+    const multigroupUsecase = useCases.filter((u) => u.group_id === -1);
+    if (multigroupUsecase.length) {
+      const UseCaseGroups: number[] = (
+        await db.query(
+          db.format(
+            `SELECT task_id FROM wp_appq_campaign_task_group
+          WHERE group_id = ?`,
+            [candidatureData[0].group_id]
+          )
+        )
+      ).map((g: { task_id: number }) => g.task_id);
+      useCases = useCases.filter(
+        (u) => u.group_id !== -1 || UseCaseGroups.includes(u.id)
+      );
+    }
+
+    const result = useCases.map((u) => ({
+      id: u.id,
+      name: u.name,
+    }));
+    return [{ id: 0, name: "Not a specific usecase" }, ...result];
   }
 
   get hasBugForm() {
