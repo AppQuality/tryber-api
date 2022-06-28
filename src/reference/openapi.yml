@@ -4426,7 +4426,7 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-campaign-campaignId-devices
+      operationId: get-users-me-campaigns-campaignId-devices
       security:
         - JWT: []
 components:
