@@ -473,7 +473,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .set("authorization", "Bearer tester")
       .send(bugWithAdditional);
     expect(response.status).toBe(200);
-    console.log(response.body);
     expect(response.body).toHaveProperty("additional");
     expect(response.body.additional).toMatchObject({});
   });
@@ -554,7 +553,6 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("type", "CRASH");
   });
