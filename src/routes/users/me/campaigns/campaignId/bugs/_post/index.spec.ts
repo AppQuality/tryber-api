@@ -1,4 +1,5 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import { data as additionalFieldsData } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
 import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
@@ -34,6 +35,43 @@ const bug = {
   device: 1,
   media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
 };
+const bugWithAdditional = {
+  title: "Campaign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "CRASH",
+  notes: "The bug notes",
+  usecase: 1,
+  device: 1,
+  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+  additional: [
+    { slug: "browser", value: "Chrome" },
+    { slug: "codice-cliente", value: "google" },
+    { slug: "nome-banca", value: "intesa" },
+  ],
+};
+const bugPartiallyInvalidAdditionalFields = {
+  title: "Campaign Title",
+  description: "Camapign Description",
+  expected: "The expected to reproduce the bug",
+  current: "Current case",
+  severity: "LOW",
+  replicability: "ONCE",
+  type: "CRASH",
+  notes: "The bug notes",
+  usecase: 1,
+  device: 1,
+  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+  additional: [
+    { slug: "browser", value: "Chrome" },
+    { slug: "codice-cliente", value: "google" },
+    { slug: "nome-banca", value: "intendiamoci" },
+  ],
+};
+
 const bugBadAdditionalFields = {
   title: "Campaign Title",
   description: "Camapign Description",
@@ -196,7 +234,13 @@ describe("Route POST a bug to a specific campaign", () => {
       await additionalFields.additional1({
         slug: "codice-cliente",
         type: "regex",
-        validation: "^[0-9]+$",
+        validation: "^[0-9a-zA-Z]+$",
+      });
+      await additionalFields.additional1({
+        id: 2,
+        slug: "nome-banca",
+        type: "select",
+        validation: "intesa; etruria; sanpaolo",
       });
       resolve(null);
     });
@@ -221,6 +265,7 @@ describe("Route POST a bug to a specific campaign", () => {
       await userDeviceData.drop();
       await osDeviceData.drop();
       await additionalFields.drop();
+      await additionalFieldsData.drop();
 
       resolve(null);
     });
@@ -275,18 +320,6 @@ describe("Route POST a bug to a specific campaign", () => {
       element: "bugs",
       id: 0,
       message: `Device is not candidate on CP1.`,
-    });
-  });
-  it("Should answer 403 if a user sends a bug with uncorrect additional-fields", async () => {
-    const response = await request(app)
-      .post("/users/me/campaigns/1/bugs")
-      .set("authorization", "Bearer tester")
-      .send(bugBadAdditionalFields);
-    expect(response.status).toBe(403);
-    expect(response.body).toEqual({
-      element: "bugs",
-      id: 0,
-      message: `Additional fields are not correct for CP1.`,
     });
   });
   it("Should answer 200 if a sends a bug with any user-device on a CP selected_device = 0", async () => {
@@ -434,16 +467,16 @@ describe("Route POST a bug to a specific campaign", () => {
       type: "Tablet",
     });
   });
-  // it("Should return ADDITIONAL fields if user sends a bug with additional fields", async () => {
-  //   const response = await request(app)
-  //     .post("/users/me/campaigns/5/bugs")
-  //     .set("authorization", "Bearer tester")
-  //     .send(bug);
-  //   expect(response.status).toBe(200);
-  //   console.log(response.body)
-  //   expect(response.body).toHaveProperty("additional");
-  //   expect(response.body.additional).toMatchObject({});
-  // });
+  it("Should return ADDITIONAL fields if user sends a bug with additional fields", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugWithAdditional);
+    expect(response.status).toBe(200);
+    console.log(response.body);
+    expect(response.body).toHaveProperty("additional");
+    expect(response.body.additional).toMatchObject({});
+  });
 });
 
 describe("Route POST a bug to a specific campaign - with custom type", () => {
@@ -510,6 +543,8 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       await platformDeviceData.drop();
       await osDeviceData.drop();
       await userDeviceData.drop();
+      await additionalFields.drop();
+      await additionalFieldsData.drop();
 
       resolve(null);
     });
@@ -519,6 +554,7 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("type", "CRASH");
   });
@@ -591,6 +627,8 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
       await platformDeviceData.drop();
       await osDeviceData.drop();
       await userDeviceData.drop();
+      await additionalFields.drop();
+      await additionalFieldsData.drop();
 
       resolve(null);
     });
@@ -672,6 +710,8 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
       await platformDeviceData.drop();
       await osDeviceData.drop();
       await userDeviceData.drop();
+      await additionalFields.drop();
+      await additionalFieldsData.drop();
 
       resolve(null);
     });
@@ -735,6 +775,8 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
       await bugData.drop();
       await bugMedia.clear();
       await userDeviceData.drop();
+      await additionalFields.drop();
+      await additionalFieldsData.drop();
 
       resolve(null);
     });
@@ -746,5 +788,116 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
       .set("authorization", "Bearer tester")
       .send(bug);
     expect(response.status).toBe(403);
+  });
+});
+
+describe("Route POST a bug to a specific campaign - with invalid additional fields", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await wpUserData.basicUser();
+      await profileData.basicTester();
+      await campaignData.basicCampaign({
+        base_bug_internal_id: "BASE1BUGINTERNAL",
+      });
+      await campaignData.basicCampaign({ id: 3 });
+      await campaignData.basicCampaign({
+        id: 4,
+        base_bug_internal_id: "BASE4BUGINTERNAL",
+      });
+
+      await cpCandidaturesData.candidate1({
+        selected_device: 1,
+        accepted: 1,
+        campaign_id: 1,
+      });
+      await cpCandidaturesData.candidate1({
+        selected_device: 0,
+        accepted: 1,
+        campaign_id: 4,
+      });
+      await severityData.severity({ name: "LOW" });
+      await severityData.severity({ id: 2, name: "HIGH" });
+      await replicabilityData.replicability({ name: "Once" });
+      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
+      await bugTypesData.bugType({ name: "Crash" });
+      await bugTypesData.bugType({ id: 2, name: "Typo" });
+      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
+      await cpUsecasesData.usecase1();
+      await cpUsecasesData.usecase1({ id: 2 });
+      await cpHasTaskGroupsData.group1();
+      await platformDeviceData.platform1({ name: "Android" });
+      await osDeviceData.os1({
+        id: 798,
+        version_number: "11",
+        display_name: "11",
+      });
+      await userDeviceData.device1({
+        manufacturer: "Acer",
+        model: "Iconia A1",
+        platform_id: 1,
+        os_version_id: 798,
+        os_version: "11 (11)",
+        operating_system: "Android",
+        form_factor: "Tablet",
+        source_id: 950,
+      });
+      await additionalFields.additional1({
+        slug: "codice-cliente",
+        type: "regex",
+        validation: "^[0-9a-zA-Z]+$",
+      });
+      await additionalFields.additional1({
+        id: 2,
+        slug: "nome-banca",
+        type: "select",
+        validation: "intesa; etruria; sanpaolo",
+      });
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await wpUserData.drop();
+      await profileData.drop();
+      await campaignData.drop();
+      await cpCandidaturesData.drop();
+      await severityData.drop();
+      await cpSeverityData.drop();
+      await replicabilityData.drop();
+      await cpReplicabilityData.drop();
+      await bugTypesData.drop();
+      await cpHasBugTypeData.drop();
+      await cpUsecasesData.drop();
+      await cpHasTaskGroupsData.drop();
+      await bugData.drop();
+      await bugMedia.clear();
+      await userDeviceData.drop();
+      await platformDeviceData.drop();
+      await osDeviceData.drop();
+      await additionalFields.drop();
+      await additionalFieldsData.drop();
+
+      resolve(null);
+    });
+  });
+
+  it("Should return inserted bug without additional if a user send invalid additional fields", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugBadAdditionalFields);
+    expect(response.status).toBe(200);
+    expect(response.body.additional).toBe(undefined);
+  });
+  it("Should return inserted with accpted additional fields if a user sends partially invalid additional fields ", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugPartiallyInvalidAdditionalFields);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("additional");
+    expect(response.body.additional).toMatchObject([
+      { slug: "codice-cliente", value: "google" },
+    ]);
   });
 });
