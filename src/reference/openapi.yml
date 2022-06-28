@@ -3976,44 +3976,7 @@ paths:
                   additionalFields:
                     type: array
                     items:
-                      allOf:
-                        - type: object
-                          properties:
-                            name:
-                              type: string
-                            slug:
-                              type: string
-                            error:
-                              type: string
-                          required:
-                            - name
-                            - slug
-                            - error
-                        - oneOf:
-                            - type: object
-                              properties:
-                                type:
-                                  type: string
-                                  enum:
-                                    - select
-                                options:
-                                  type: array
-                                  items:
-                                    type: string
-                              required:
-                                - type
-                                - options
-                            - type: object
-                              properties:
-                                type:
-                                  type: string
-                                  enum:
-                                    - text
-                                regex:
-                                  type: string
-                              required:
-                                - type
-                                - regex
+                      $ref: '#/components/schemas/CampaignAdditionalField'
                   bugTypes:
                     type: object
                     required:
@@ -5068,6 +5031,48 @@ components:
       required:
         - id
         - name
+    CampaignAdditionalField:
+      title: CampaignAdditionalField
+      x-stoplight:
+        id: sg1ne4iv5euue
+      allOf:
+        - type: object
+          properties:
+            name:
+              type: string
+            slug:
+              type: string
+            error:
+              type: string
+          required:
+            - name
+            - slug
+            - error
+        - oneOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - select
+                options:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - type
+                - options
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - text
+                regex:
+                  type: string
+              required:
+                - type
+                - regex
   securitySchemes:
     JWT:
       type: http
