@@ -359,6 +359,14 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/devices": {
+    get: operations["get-users-me-campaigns-campaignId-devices"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -588,6 +596,23 @@ export interface components {
       reach?: number;
       hold?: number;
     };
+    /** CampaignAdditionalField */
+    CampaignAdditionalField: {
+      name: string;
+      slug: string;
+      error: string;
+    } & (
+      | {
+          /** @enum {string} */
+          type: "select";
+          options: string[];
+        }
+      | {
+          /** @enum {string} */
+          type: "text";
+          regex: string;
+        }
+    );
   };
   responses: {
     /** A user */
@@ -2493,22 +2518,7 @@ export interface operations {
               id: number;
               name: string;
             }[];
-            additionalFields?: ({
-              name: string;
-              slug: string;
-              error: string;
-            } & (
-              | {
-                  /** @enum {string} */
-                  type: "select";
-                  options: string[];
-                }
-              | {
-                  /** @enum {string} */
-                  type: "text";
-                  regex: string;
-                }
-            ))[];
+            additionalFields?: components["schemas"]["CampaignAdditionalField"][];
             bugTypes: {
               valid: string[];
               invalid: string[];
@@ -2564,6 +2574,23 @@ export interface operations {
           media?: string | string[];
         };
       };
+    };
+  };
+  "get-users-me-campaigns-campaignId-devices": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserDevice"][];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
 }
