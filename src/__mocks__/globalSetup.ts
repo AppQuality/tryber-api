@@ -17,7 +17,7 @@ import CustomSeverities from "./mockedDb/customSeverities";
 import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
-import { table as deviceOsTable } from "./mockedDb/deviceOs";
+import deviceOs from "./mockedDb/deviceOs";
 import { table as devicePlatformTable } from "./mockedDb/devicePlatform";
 import { table as educationListTable } from "./mockedDb/educationList";
 import { table as employmentListTable } from "./mockedDb/employmentList";
@@ -51,7 +51,7 @@ beforeAll(async () => {
   await workTypeTable.create();
   await popupTable.create();
   await devicePlatformTable.create();
-  await deviceOsTable.create();
+  await deviceOs.mock();
   await wpUserMetaTable.create();
   await deletionReasonTable.create();
   await fiscalProfileTable.create();
