@@ -235,16 +235,14 @@ class Campaign {
         return {
           ...result,
           type: "text",
-          regex: item.validation.replace(/(?:\\(.))/g, "$1"),
+          regex: item.validation,
         };
       }
       if (item.type === "select") {
         return {
           ...result,
           type: "select",
-          options: item.validation
-            .split(";")
-            .map((o) => o.replace(/(?:\\(.))/g, "$1")),
+          options: item.validation.split(";"),
         };
       }
       throw new Error("Invalid additional field type");
