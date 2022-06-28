@@ -1,6 +1,6 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as deviceOsData } from "@src/__mocks__/mockedDb/deviceOs";
+import deviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import { data as devicePlatformData } from "@src/__mocks__/mockedDb/devicePlatform";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
@@ -46,21 +46,18 @@ const os1 = {
 
 describe("Route GET users-me-devices", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
+    await sqlite3.insert("wp_appq_evd_profile", tester1);
 
-      await TesterDevice.insert(device1);
-      await sqlite3.insert("wp_appq_evd_platform", platform1);
-      await sqlite3.insert("wp_appq_os", os1);
-      resolve(null);
-    });
+    await TesterDevice.insert(device1);
+    await sqlite3.insert("wp_appq_evd_platform", platform1);
+    await deviceOs.insert(os1);
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
       await TesterDevice.clear();
       await devicePlatformData.drop();
-      await deviceOsData.drop();
+      await deviceOs.clear();
       resolve(null);
     });
   });
@@ -129,22 +126,16 @@ describe("Route GET users-me-devices when the user hasn't devices", () => {
 
 describe("Route GET users-me-devices when the user devices are all disabled", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-      await TesterDevice.insert(deviceDisabled);
-      await sqlite3.insert("wp_appq_evd_platform", platform1);
-      await sqlite3.insert("wp_appq_os", os1);
-      resolve(null);
-    });
+    await sqlite3.insert("wp_appq_evd_profile", tester1);
+    await TesterDevice.insert(deviceDisabled);
+    await sqlite3.insert("wp_appq_evd_platform", platform1);
+    await deviceOs.insert(os1);
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await profileData.drop();
-      await TesterDevice.clear();
-      await devicePlatformData.drop();
-      await deviceOsData.drop();
-      resolve(null);
-    });
+    await profileData.drop();
+    await TesterDevice.clear();
+    await devicePlatformData.drop();
+    await deviceOs.clear();
   });
   it("Should answer 404 if the user devices are all disabled", async () => {
     const response = await request(app)
