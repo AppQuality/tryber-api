@@ -1,5 +1,6 @@
 import * as db from "@src/features/db";
-import { Result } from "./types.d";
+type AdditionalField =
+  StoplightComponents["schemas"]["CampaignAdditionalField"];
 
 type CampaignSelectItem = { id: number; name: string };
 class Campaign {
@@ -209,7 +210,7 @@ class Campaign {
       .map((option: string) => `.${option}`);
   }
 
-  public async getAdditionalFields(): Promise<Result["additionalFields"]> {
+  public async getAdditionalFields(): Promise<AdditionalField[] | undefined> {
     const additionals: {
       id: number;
       slug: string;
