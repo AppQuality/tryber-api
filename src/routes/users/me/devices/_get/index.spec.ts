@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import deviceOs from "@src/__mocks__/mockedDb/deviceOs";
-import { data as devicePlatformData } from "@src/__mocks__/mockedDb/devicePlatform";
+import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
@@ -49,14 +49,14 @@ describe("Route GET users-me-devices", () => {
     await sqlite3.insert("wp_appq_evd_profile", tester1);
 
     await TesterDevice.insert(device1);
-    await sqlite3.insert("wp_appq_evd_platform", platform1);
+    await DevicePlatform.insert(platform1);
     await deviceOs.insert(os1);
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
       await TesterDevice.clear();
-      await devicePlatformData.drop();
+      await DevicePlatform.clear();
       await deviceOs.clear();
       resolve(null);
     });
@@ -128,13 +128,13 @@ describe("Route GET users-me-devices when the user devices are all disabled", ()
   beforeEach(async () => {
     await sqlite3.insert("wp_appq_evd_profile", tester1);
     await TesterDevice.insert(deviceDisabled);
-    await sqlite3.insert("wp_appq_evd_platform", platform1);
+    await DevicePlatform.insert(platform1);
     await deviceOs.insert(os1);
   });
   afterEach(async () => {
     await profileData.drop();
     await TesterDevice.clear();
-    await devicePlatformData.drop();
+    await DevicePlatform.clear();
     await deviceOs.clear();
   });
   it("Should answer 404 if the user devices are all disabled", async () => {
