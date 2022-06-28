@@ -4338,7 +4338,7 @@ paths:
                     - type: array
                       items:
                         type: string
-  '/users/me/campaign/{campaignId}/devices':
+  '/users/me/campaigns/{campaignId}/devices':
     parameters:
       - schema:
           type: string
