@@ -520,13 +520,13 @@ export default async (
           [bugId]
         )
       );
-      console.log("additional on db", inserted);
-      return additionals.map(
-        (item: { id: number; slug: string; value: string }) => ({
-          slug: item.slug,
-          value: item.value,
-        })
-      );
+      if (additionals.length === inserted.length)
+        return additionals.map(
+          (item: { id: number; slug: string; value: string }) => ({
+            slug: item.slug,
+            value: item.value,
+          })
+        );
     }
   }
 };
