@@ -21,7 +21,7 @@ export default async (
     bugtype: BugType,
     media: BugMedia,
     device: UserDevice,
-    additional: Additional;
+    additional: CreateAdditionals;
   try {
     await campaignExists();
     candidature = await getTesterCandidature();
@@ -86,6 +86,23 @@ export default async (
       message: "Error on insert media",
     };
   }
+  let insertedAdditional: UserAdditionals;
+  if (additional) {
+    try {
+      insertedAdditional = await createAdditionalFields(
+        insertedBugId,
+        additional
+      );
+    } catch (error) {
+      debugMessage(error);
+      res.status_code = 500;
+      return {
+        element: "bugs",
+        id: 0,
+        message: "Error on insert additional fields",
+      };
+    }
+  }
 
   res.status_code = 200;
   return {
@@ -104,6 +121,7 @@ export default async (
     usecase: usecase.title,
     media: insertedMedia,
     device: device,
+    additional: insertedAdditional,
   };
 
   async function campaignExists() {
@@ -119,7 +137,6 @@ export default async (
       };
     }
   }
-
   async function getTesterCandidature() {
     const result = await db.query(
       db.format(
@@ -147,7 +164,6 @@ export default async (
     }
     return result[0];
   }
-
   async function getSeverity() {
     const severities = await getSeverities();
     const result = severities.find((item) => item.name === req.body.severity);
@@ -175,7 +191,6 @@ export default async (
       ).map((item) => item.id);
     }
   }
-
   async function getReplicability() {
     const replicabilities = await getReplicabilities();
     const result = replicabilities.find(
@@ -207,7 +222,6 @@ export default async (
       ).map((item) => item.id);
     }
   }
-
   async function getBugType() {
     const bugtypes = await getBugTypes();
     const result = bugtypes.find((item) => item.name === req.body.type);
@@ -237,7 +251,6 @@ export default async (
       ).map((item) => item.id);
     }
   }
-
   async function getMediaData() {
     let media: BugMedia;
     if (req.body.media) {
@@ -249,7 +262,6 @@ export default async (
     }
     return media;
   }
-
   async function usecaseIsValid(group_id: number): Promise<Usecase> {
     let usecase: Usecase;
     if (isNotSpecificUsecase())
@@ -281,40 +293,101 @@ export default async (
       return req.body.usecase === -1;
     }
   }
-  async function getAdditionalFields(): Promise<Additional> {
-    let additional: Additional;
-    if (!req.body.additional) return additional;
+  async function getAdditionalFields(): Promise<CreateAdditionals> {
+    if (!req.body.additional) return undefined;
 
-    let additionalFields = await db.query(
-      db.format(
-        `
-        SELECT * 
-        FROM wp_appq_campaign_additional_fields 
-        WHERE cp_id = ?
-         ;`,
-        [campaignId]
-      )
-    );
+    let campaignAdditionalFields = await getCampaignAdditionalFields();
 
-    if (!additionalFields.length) {
+    if (!campaignAdditionalFields.length) {
       throw {
         status_code: 403,
         message: `CP${campaignId} has not addtitional fields.`,
       };
     }
-    const slugs = additionalFields.map((item: { slug: string }) => item.slug);
-    const requetedSlugs = req.body.additional.map(
+    const acceptedSlugs = campaignAdditionalFields.map(
       (item: { slug: string }) => item.slug
     );
-    for (const reqSlug of requetedSlugs) {
-      if (!slugs.includes(reqSlug))
-        throw {
-          status_code: 403,
-          message: `Additional fields are not correct for CP${campaignId}.`,
-        };
-    }
+    const bugSlugs = req.body.additional.map(
+      (item: { slug: string }) => item.slug
+    );
+    //filter additionals in request that are acceptable
+    return getValidAdditionalFields();
 
-    return additional;
+    async function getCampaignAdditionalFields(): Promise<
+      CampaignAdditional[]
+    > {
+      return await db.query(
+        db.format(
+          `SELECT id, slug, type, validation 
+          FROM wp_appq_campaign_additional_fields 
+          WHERE cp_id = ?
+         ;`,
+          [campaignId]
+        )
+      );
+    }
+    function getValidAdditionalFields() {
+      let acceptableAdditional: CreateAdditionals = [];
+      for (const slug of bugSlugs) {
+        if (acceptedSlugs.includes(slug)) {
+          const currentBugAdditional = req.body.additional.find(
+            (item: { slug: string }) => item.slug == slug
+          );
+          const currentCpAdditional = campaignAdditionalFields.find(
+            (item: { slug: string }) => item.slug == slug
+          );
+          //if  requested is type is select
+          if (currentCpAdditional && isSelect(currentCpAdditional)) {
+            //check the option is in select options
+            if (hasValidOption(currentBugAdditional, currentCpAdditional))
+              acceptableAdditional.push({
+                id: currentCpAdditional.id,
+                value: currentBugAdditional.value,
+                slug: currentBugAdditional.slug,
+              });
+          }
+          //if  requested is type is regex
+          if (currentCpAdditional && isRegex(currentCpAdditional)) {
+            //check the value repspect the regex
+            if (respectRegex(currentBugAdditional, currentCpAdditional))
+              acceptableAdditional.push({
+                id: currentCpAdditional.id,
+                value: currentBugAdditional.value,
+                slug: currentBugAdditional.slug,
+              });
+          }
+        }
+      }
+      return acceptableAdditional.length ? acceptableAdditional : undefined;
+    }
+    function isSelect(item: { type: string }) {
+      return item.type === "select";
+    }
+    function isRegex(item: { type: string }) {
+      return item.type === "regex";
+    }
+    function hasValidOption(
+      bugAdditional: { value: string },
+      cpAdditional: { validation: string }
+    ) {
+      if (cpAdditional.validation) {
+        const options = cpAdditional.validation.split(";").map((s) => s.trim());
+        return options.includes(bugAdditional.value);
+      }
+      return false;
+    }
+    function respectRegex(
+      bugAdditional: { value: string },
+      cpAdditional: { validation: string }
+    ) {
+      if (cpAdditional.validation) {
+        const regexp = new RegExp(
+          cpAdditional.validation.replace(/(?:\\(.))/g, "$1")
+        );
+        return regexp.test(bugAdditional.value);
+      }
+      return false;
+    }
   }
   async function createBug(
     usecase: { id: number; title: string },
@@ -361,7 +434,6 @@ export default async (
     }
     return inserted.insertId;
   }
-
   async function updateInternalBugId(bugId: number): Promise<string> {
     const internalBugId = (
       await db.query(
@@ -417,5 +489,44 @@ export default async (
       )
     ).map((item: { url: string }) => item.url);
     return inserted.length ? inserted : [];
+  }
+  async function createAdditionalFields(
+    bugId: number,
+    additionals: CreateAdditionals
+  ): Promise<UserAdditionals> {
+    if (additionals) {
+      for (const additional of additionals) {
+        const inserted = await db.query(
+          db.format(
+            `
+          INSERT INTO wp_appq_campaign_additional_fields_data (bug_id, type_id, value)
+            VALUES (?, ?, ? ) ;`,
+            [bugId, additional.id, additional.value]
+          )
+        );
+        // if (inserted.affectedRows === 0) {
+        //   throw {
+        //     status_code: 403,
+        //     message: `Error on uploading additional fields`,
+        //   };
+        // }
+      }
+      const inserted = await db.query(
+        db.format(
+          `
+        SELECT * 
+        FROM wp_appq_campaign_additional_fields_data 
+        WHERE bug_id = ? ;`,
+          [bugId]
+        )
+      );
+      console.log("additional on db", inserted);
+      return additionals.map(
+        (item: { id: number; slug: string; value: string }) => ({
+          slug: item.slug,
+          value: item.value,
+        })
+      );
+    }
   }
 };
