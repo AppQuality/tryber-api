@@ -175,7 +175,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
           name: "Usecase multigroup",
         },
       ],
-      validFileExtensions: ["jpg", "png", "gif"],
+      validFileExtensions: [".jpg", ".png", ".gif"],
     });
   });
 });
