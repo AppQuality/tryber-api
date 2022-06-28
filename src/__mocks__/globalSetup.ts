@@ -18,7 +18,7 @@ import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
 import deviceOs from "./mockedDb/deviceOs";
-import { table as devicePlatformTable } from "./mockedDb/devicePlatform";
+import DevicePlatform from "./mockedDb/devicePlatform";
 import { table as educationListTable } from "./mockedDb/educationList";
 import { table as employmentListTable } from "./mockedDb/employmentList";
 import { table as expTable } from "./mockedDb/experience";
@@ -50,7 +50,7 @@ beforeAll(async () => {
   await receiptTable.create();
   await workTypeTable.create();
   await popupTable.create();
-  await devicePlatformTable.create();
+  await DevicePlatform.mock();
   await deviceOs.mock();
   await wpUserMetaTable.create();
   await deletionReasonTable.create();
