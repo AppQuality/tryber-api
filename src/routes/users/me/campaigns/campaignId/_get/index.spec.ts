@@ -242,7 +242,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", 
       slug: "browser",
       title: "Browser",
       type: "select",
-      validation: 'Chromé\\\\;Sa Fari\\"',
+      validation: 'Chromé;Sa Fari\\"',
       error_message: "Please select the browser used",
     });
     await CampaignAdditionals.insert({
@@ -251,7 +251,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", 
       slug: "codice-cliente",
       title: "Codice Cliente",
       type: "regex",
-      validation: '^[A-Z]{3}[0-9]{4}\\"\\\\$',
+      validation: '^[A-Z]{3}[0-9]{4}"\\$',
       error_message: "Inserisci un codice cliente valido (es. ABC1234)",
     });
     await CampaignAdditionals.insert({
@@ -277,7 +277,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", 
           type: "select",
           name: "Browser",
           slug: "browser",
-          options: ["Chromé\\", 'Sa Fari"'],
+          options: ["Chromé", 'Sa Fari\\"'],
           error: "Please select the browser used",
         },
         {
