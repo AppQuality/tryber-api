@@ -23,8 +23,10 @@ export default async (
     };
   }
 
-  const devices = await campaign.getAvailableDevices(req.user.ID);
-  console.log(devices);
+  const devices = await campaign.getAvailableDevices({
+    userId: req.user.ID,
+    testerId: req.user.testerId,
+  });
   res.status_code = 200;
   return [devices];
 };
