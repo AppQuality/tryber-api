@@ -1,20 +1,20 @@
 import Table from "./table";
 
-type SeverityParams = {
+type BugTypeParams = {
   id?: number;
   name?: string;
 };
-class Severity extends Table<SeverityParams> {
-  protected name = "wp_appq_evd_severity";
+class BugType extends Table<BugTypeParams> {
+  protected name = "wp_appq_evd_bug_type";
   protected columns = ["id INTEGER PRIMARY KEY", "name VARCHAR(255)"];
   constructor() {
     super({
       id: 1,
-      name: "Test Severity",
+      name: "Test Bug Type",
     });
   }
 }
 
-const theTable = new Severity();
+const theTable = new BugType();
 
 export default theTable;

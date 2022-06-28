@@ -1,20 +1,20 @@
 openapi: 3.0.0
 info:
   title: AppQualityApi
-  version: '1.0'
+  version: "1.0"
   description: An API to get all data for your bugfinding and ux research needs!
   contact:
     name: Developers
     email: it@app-quality.com
 servers:
-  - url: 'https://api.app-quality.com'
+  - url: "https://api.app-quality.com"
 paths:
   /:
     get:
       summary: Get API description
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -33,9 +33,9 @@ paths:
       summary: Authenticate to the API
       operationId: post-authenticate
       responses:
-        '200':
-          $ref: '#/components/responses/Authentication'
-        '401':
+        "200":
+          $ref: "#/components/responses/Authentication"
+        "401":
           description: Unauthorized
           content:
             application/json:
@@ -73,7 +73,7 @@ paths:
       tags:
         - Projects
       responses:
-        '200':
+        "200":
           description: A list of projects
           content:
             application/json:
@@ -81,22 +81,22 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/Project'
+                    - $ref: "#/components/schemas/Project"
                     - type: object
                       properties:
                         campaigns:
                           type: array
                           items:
                             allOf:
-                              - $ref: '#/components/schemas/Campaign'
+                              - $ref: "#/components/schemas/Campaign"
                               - type: object
                                 properties:
                                   id:
                                     type: integer
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-projects
       parameters: []
       security:
@@ -107,7 +107,7 @@ paths:
       tags:
         - Customer
       responses:
-        '200':
+        "200":
           description: An array of Customer objects
           content:
             application/json:
@@ -115,7 +115,7 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/Customer'
+                    - $ref: "#/components/schemas/Customer"
                     - type: object
                       properties:
                         id:
@@ -126,8 +126,8 @@ paths:
                     - username: Elon71
                       customer_name: Elon71
                       id: 0
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       operationId: get-customers
       description: Get all the customers you have access to
       security:
@@ -136,12 +136,12 @@ paths:
       summary: Create Customers
       operationId: post-customers
       responses:
-        '201':
+        "201":
           description: Created
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       description: Add a new Customer to the platform
       tags:
         - Customer
@@ -149,7 +149,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Customer'
+              $ref: "#/components/schemas/Customer"
             examples:
               example-1:
                 value:
@@ -159,29 +159,29 @@ paths:
       security:
         - JWT: []
     parameters: []
-  '/customers/{customer}':
+  "/customers/{customer}":
     parameters:
-      - $ref: '#/components/parameters/customer'
+      - $ref: "#/components/parameters/customer"
     get:
       summary: Get a specific Customer
       tags:
         - Customer
       responses:
-        '200':
+        "200":
           description: The Customer data you requested
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Customer'
+                $ref: "#/components/schemas/Customer"
               examples:
                 example-1:
                   value:
                     username: Elon71
                     customer_name: Elon71
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-customers-customer_id
       description: Get the data for a Customer if you have access to it
       security:
@@ -190,14 +190,14 @@ paths:
       summary: Edit a Customer
       operationId: put-customers-customer
       responses:
-        '200':
+        "200":
           description: OK
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       description: Change the data of a Customer if you have access to it
       tags:
         - Customer
@@ -205,7 +205,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Customer'
+              $ref: "#/components/schemas/Customer"
             examples:
               example-1:
                 value:
@@ -214,10 +214,10 @@ paths:
         description: The Customer data to edit
       security:
         - JWT: []
-  '/customers/{customer}/projects/{project}/campaigns':
+  "/customers/{customer}/projects/{project}/campaigns":
     parameters:
-      - $ref: '#/components/parameters/customer'
-      - $ref: '#/components/parameters/project'
+      - $ref: "#/components/parameters/customer"
+      - $ref: "#/components/parameters/project"
     get:
       summary: Get all Campaigns in a Project
       tags:
@@ -225,12 +225,12 @@ paths:
         - Customer
         - Projects
       responses:
-        '200':
-          $ref: '#/components/responses/ListOfCampaigns'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "200":
+          $ref: "#/components/responses/ListOfCampaigns"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-customer-customer_id-project-project_id-campaigns
       security:
         - JWT: []
@@ -239,17 +239,17 @@ paths:
       summary: Create a new Campaign in a Project
       operationId: post-customers-customer_id-projects-project_id-campaigns
       responses:
-        '201':
-          $ref: '#/components/responses/SingleCampaign'
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "201":
+          $ref: "#/components/responses/SingleCampaign"
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Campaign'
+              $ref: "#/components/schemas/Campaign"
             examples:
               example-1:
                 value:
@@ -266,7 +266,7 @@ paths:
                   public: true
                   hasBugParade: true
                   devices:
-                    - id: '2'
+                    - id: "2"
                   minNumberOfMedia: 0
                   titleRule: true
                   allowed:
@@ -275,7 +275,7 @@ paths:
                     bug_types:
                       - id: 1
                     replicabilities:
-                      - id: '1'
+                      - id: "1"
                   projectManager:
                     username: Elon Musk
                   customerCanViewReviewing: true
@@ -293,12 +293,12 @@ paths:
       summary: Create a new Campaign
       operationId: post-campaigns
       responses:
-        '201':
-          $ref: '#/components/responses/SingleCampaign'
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "201":
+          $ref: "#/components/responses/SingleCampaign"
+        "400":
+          $ref: "#/components/responses/MissingParameters"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       security:
         - JWT: []
       requestBody:
@@ -306,7 +306,7 @@ paths:
           application/json:
             schema:
               allOf:
-                - $ref: '#/components/schemas/Campaign'
+                - $ref: "#/components/schemas/Campaign"
                 - type: object
                   properties:
                     project_id:
@@ -327,7 +327,7 @@ paths:
                   public: true
                   hasBugParade: true
                   devices:
-                    - id: '2'
+                    - id: "2"
                   minNumberOfMedia: 0
                   titleRule: true
                   allowed:
@@ -336,14 +336,14 @@ paths:
                     bug_types:
                       - id: 3
                     replicabilities:
-                      - id: '1'
+                      - id: "1"
                   projectManager:
                     username: Elon Musk
                   customerCanViewReviewing: true
                   additionalFields:
                     - id: 2
                   project_id: 42
-        description: 'The Campaign data to set on the newly created Campaign, including the id of the Project to link the Campaign to'
+        description: "The Campaign data to set on the newly created Campaign, including the id of the Project to link the Campaign to"
       description: Create a new Campaign if you have access to the creation
       tags:
         - Campaign
@@ -351,53 +351,53 @@ paths:
       summary: Get all available Campaigns
       operationId: get-campaigns
       responses:
-        '200':
-          $ref: '#/components/responses/ListOfCampaigns'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "200":
+          $ref: "#/components/responses/ListOfCampaigns"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       security:
         - JWT: []
       description: Get all the Campaigns you have access to
       tags:
         - Campaign
-  '/campaigns/{campaign}':
+  "/campaigns/{campaign}":
     parameters:
-      - $ref: '#/components/parameters/campaign'
+      - $ref: "#/components/parameters/campaign"
     get:
       summary: Get a Campaign
       tags:
         - Campaign
       responses:
-        '200':
-          $ref: '#/components/responses/SingleCampaign'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
+        "200":
+          $ref: "#/components/responses/SingleCampaign"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
           description: Not Found
       operationId: get-campaigns-campaign
-      description: 'Get the data of a Campaign if you have access to it '
+      description: "Get the data of a Campaign if you have access to it "
       security:
         - JWT: []
     put:
       summary: Edit a Campaign
       operationId: put-campaigns-campaign
       responses:
-        '200':
-          $ref: '#/components/responses/SingleCampaign'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: 'Edit the data of a Campaign if you have access to it '
+        "200":
+          $ref: "#/components/responses/SingleCampaign"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+      description: "Edit the data of a Campaign if you have access to it "
       tags:
         - Campaign
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CampaignOptional'
+              $ref: "#/components/schemas/CampaignOptional"
             examples:
               full-example:
                 value:
@@ -413,7 +413,7 @@ paths:
                   public: true
                   hasBugParade: true
                   devices:
-                    - id: '2'
+                    - id: "2"
                   minNumberOfMedia: 0
                   titleRule: true
                   allowed:
@@ -422,7 +422,7 @@ paths:
                     bug_types:
                       - id: 3
                     replicabilities:
-                      - id: '1'
+                      - id: "1"
                   projectManager:
                     username: Elon Musk
                   customerCanViewReviewing: true
@@ -437,16 +437,16 @@ paths:
         description: The Campaign data to edit
       security:
         - JWT: []
-  '/campaigns/{campaign}/tasks':
+  "/campaigns/{campaign}/tasks":
     parameters:
-      - $ref: '#/components/parameters/campaign'
+      - $ref: "#/components/parameters/campaign"
     get:
       summary: Get all Tasks in a Campaign
       tags:
         - Campaign
         - Task
       responses:
-        '200':
+        "200":
           description: A list of UseCase linked with the Campaign
           content:
             application/json:
@@ -454,7 +454,7 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/Task'
+                    - $ref: "#/components/schemas/Task"
                     - type: object
                       properties:
                         id:
@@ -468,10 +468,10 @@ paths:
                       group: 4
                       allow_media: true
                       id: 2
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-campaigns-campaign-tasks
       description: |
         Get all UseCases linked to a Campaign
@@ -481,19 +481,19 @@ paths:
       summary: Create a new Task in a Campaign
       operationId: post-campaigns-campaign-tasks
       responses:
-        '201':
+        "201":
           description: Created
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       description: |
         Create a new UseCase and link it to a Campaign
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TaskOptional'
+              $ref: "#/components/schemas/TaskOptional"
             examples:
               example:
                 value:
@@ -509,22 +509,22 @@ paths:
         - Task
       security:
         - JWT: []
-  '/campaigns/{campaign}/tasks/{task}':
+  "/campaigns/{campaign}/tasks/{task}":
     parameters:
-      - $ref: '#/components/parameters/campaign'
-      - $ref: '#/components/parameters/task'
+      - $ref: "#/components/parameters/campaign"
+      - $ref: "#/components/parameters/task"
     get:
       summary: Get a specific Task in a Campaign
       tags:
         - Campaign
         - Task
       responses:
-        '200':
+        "200":
           description: A UseCase linked with the Campaign
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Task'
+                $ref: "#/components/schemas/Task"
               examples:
                 example:
                   value:
@@ -533,10 +533,10 @@ paths:
                     campaign_id: 42
                     group: 4
                     allow_media: true
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-campaigns-campaign-tasks-task
       description: Get the data of a UseCase in a Campaign
       security:
@@ -545,12 +545,12 @@ paths:
       summary: Edit a Task
       operationId: put-campaigns-campaign-tasks-task
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Task'
+                $ref: "#/components/schemas/Task"
               examples:
                 example:
                   value:
@@ -559,10 +559,10 @@ paths:
                     campaign_id: 42
                     group: 4
                     allow_media: true
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       description: Edit a UseCase in a Campaign
       tags:
         - Campaign
@@ -571,7 +571,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TaskOptional'
+              $ref: "#/components/schemas/TaskOptional"
             examples:
               example:
                 value:
@@ -583,7 +583,7 @@ paths:
         description: The data to edit in the UseCase linked to the Campaign
       security:
         - JWT: []
-  '/campaigns/{campaign}/candidates':
+  "/campaigns/{campaign}/candidates":
     parameters:
       - name: campaign
         in: path
@@ -592,10 +592,10 @@ paths:
           type: string
         description: A campaign id
     post:
-      summary: ''
+      summary: ""
       operationId: post-campaigns-campaign-candidates
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -619,16 +619,16 @@ paths:
                       - type: string
                         enum:
                           - any
-                      - $ref: '#/components/schemas/UserDevice'
+                      - $ref: "#/components/schemas/UserDevice"
                 required:
                   - tester_id
                   - accepted
                   - status
                   - device
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       description: The Tryber will be inserted as a candidate Tryber on a specific Campaign
       security:
         - JWT: []
@@ -646,12 +646,12 @@ paths:
     get:
       summary: Get all popups
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 x-examples:
                   example-1:
                     - id: string
@@ -666,7 +666,7 @@ paths:
                       properties:
                         id:
                           type: integer
-                    - $ref: '#/components/schemas/Popup'
+                    - $ref: "#/components/schemas/Popup"
               examples:
                 example-1:
                   value:
@@ -675,24 +675,24 @@ paths:
                         - 0
                       once: true
                       content: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-popups
       security:
         - JWT: []
       tags:
         - Admin
       parameters:
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/start'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/start"
       description: Retrieve all available popups for admin operations
     post:
       summary: Create a new popup
       operationId: post-popups
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -702,21 +702,21 @@ paths:
                     properties:
                       id:
                         type: integer
-                  - $ref: '#/components/schemas/Popup'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+                  - $ref: "#/components/schemas/Popup"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Popup'
+              $ref: "#/components/schemas/Popup"
       tags:
         - Admin
       description: The new popup will be inserted as an available popup on admin areas
       security:
         - JWT: []
     parameters: []
-  '/popups/{popup}':
+  "/popups/{popup}":
     parameters:
       - schema:
           type: number
@@ -728,7 +728,7 @@ paths:
       tags:
         - Admin
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           content:
@@ -739,9 +739,9 @@ paths:
                     properties:
                       id:
                         type: integer
-                  - $ref: '#/components/schemas/Popup'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+                  - $ref: "#/components/schemas/Popup"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       operationId: get-popups-popup
       security:
         - JWT: []
@@ -750,7 +750,7 @@ paths:
       summary: Update popup
       operationId: patch-popups-popup
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -760,26 +760,26 @@ paths:
                     properties:
                       id:
                         type: integer
-                  - $ref: '#/components/schemas/Popup'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+                  - $ref: "#/components/schemas/Popup"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Popup'
+              $ref: "#/components/schemas/Popup"
       security:
         - JWT: []
       tags:
         - Admin
       description: Edit your popup with a new content or new rules
-  '/devices/{device_type}/models':
+  "/devices/{device_type}/models":
     get:
       summary: Retrive manufacturers and models of devices
       tags:
         - Devices
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -799,16 +799,16 @@ paths:
                             type: number
                           name:
                             type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-devices-devices-type-model
       security:
         - JWT: []
       description: Get all model of devices with theirs manufacturers
       parameters:
-        - $ref: '#/components/parameters/filterBy'
+        - $ref: "#/components/parameters/filterBy"
     parameters:
       - schema:
           type: string
@@ -821,7 +821,7 @@ paths:
       tags:
         - Devices
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -843,24 +843,24 @@ paths:
                     - name
                     - area
                     - institute
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-certifications
       security:
         - JWT: []
       description: Get all certificatio
       parameters:
-        - $ref: '#/components/parameters/filterBy'
+        - $ref: "#/components/parameters/filterBy"
     parameters: []
-  '/devices/{device_type}/operating_systems':
+  "/devices/{device_type}/operating_systems":
     get:
       summary: Retrive operating systems list of a device type
       tags:
         - Devices
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -873,29 +873,29 @@ paths:
                       type: integer
                     name:
                       type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-devices-operating-systems
       security:
         - JWT: []
       description: Get all operating systems of a device type
       parameters:
-        - $ref: '#/components/parameters/filterBy'
+        - $ref: "#/components/parameters/filterBy"
     parameters:
       - schema:
           type: string
         name: device_type
         in: path
         required: true
-  '/devices/{device_type}/os_versions':
+  "/devices/{device_type}/os_versions":
     get:
       summary: Retrive versions list of an operating systems
       tags:
         - Devices
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -908,16 +908,16 @@ paths:
                       type: integer
                     name:
                       type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-devices-os-versions
       security:
         - JWT: []
       description: Get all versions of an operating systems
       parameters:
-        - $ref: '#/components/parameters/filterBy'
+        - $ref: "#/components/parameters/filterBy"
     parameters:
       - schema:
           type: string
@@ -929,7 +929,7 @@ paths:
       summary: Get All Languages
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -945,10 +945,10 @@ paths:
                   required:
                     - id
                     - name
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-languages
       description: Get all languages
       parameters: []
@@ -959,13 +959,13 @@ paths:
       summary: Get All Employements
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                description: ''
+                description: ""
                 minItems: 1
                 uniqueItems: true
                 items:
@@ -983,10 +983,10 @@ paths:
                   example-1:
                     - id: 0
                       name: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-employments
       security:
         - JWT: []
@@ -996,13 +996,13 @@ paths:
       summary: Get all education levels
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
-                description: ''
+                description: ""
                 minItems: 1
                 uniqueItems: true
                 items:
@@ -1020,20 +1020,20 @@ paths:
                   example-1:
                     - id: 0
                       name: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-education
       security:
         - JWT: []
       description: Get all education levels
   /media:
     post:
-      summary: ''
+      summary: ""
       operationId: post-media
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -1074,7 +1074,7 @@ paths:
                 required:
                   - files
               examples: {}
-      description: 'Send a media for my bug to AppQuality Bucket. '
+      description: "Send a media for my bug to AppQuality Bucket. "
       security:
         - JWT: []
       requestBody:
@@ -1094,13 +1094,13 @@ paths:
                         format: binary
     parameters: []
     delete:
-      summary: ''
+      summary: ""
       operationId: delete-media
       responses:
-        '200':
+        "200":
           description: OK
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "404":
+          $ref: "#/components/responses/NotFound"
       security:
         - JWT: []
       requestBody:
@@ -1120,14 +1120,14 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
       operationId: get-users
       security:
         - JWT: []
@@ -1136,12 +1136,12 @@ paths:
       summary: Create a new user
       operationId: post-users
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
       description: Create a new user
       requestBody:
         content:
@@ -1182,7 +1182,7 @@ paths:
                   email: elon.musk@tesla.com
                   password: Elon78
                   country: Italy
-                  birthDate: '1971-06-28'
+                  birthDate: "1971-06-28"
       tags:
         - User
   /users/me:
@@ -1191,12 +1191,12 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -1204,7 +1204,7 @@ paths:
                     name: string
                     surname: string
                     email: user@example.com
-                    image: 'http://example.com'
+                    image: "http://example.com"
                     id: 0
                     wp_user_id: 0
                     role: string
@@ -1257,7 +1257,7 @@ paths:
                   additional:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AdditionalField'
+                      $ref: "#/components/schemas/AdditionalField"
                   gender:
                     type: string
                     enum:
@@ -1294,7 +1294,7 @@ paths:
                     oneOf:
                       - type: array
                         items:
-                          $ref: '#/components/schemas/Certification'
+                          $ref: "#/components/schemas/Certification"
                       - type: boolean
                   completionPercent:
                     type: number
@@ -1332,12 +1332,12 @@ paths:
       summary: Edit your user data
       operationId: put-users-me
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
       description: Edit your user data
       requestBody:
         content:
@@ -1361,12 +1361,12 @@ paths:
       summary: Edit a field of your user
       operationId: patch-users-me
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -1394,7 +1394,7 @@ paths:
                         text: string
                         is_candidate: true
                     gender: male
-                    birthDate: '2019-08-24'
+                    birthDate: "2019-08-24"
                     phone: string
                     education:
                       id: 0
@@ -1407,7 +1407,7 @@ paths:
                         name: string
                         area: string
                         institute: string
-                        achievement_date: '2019-08-24'
+                        achievement_date: "2019-08-24"
                     completionPercent: 0
                     country: string
                     city: string
@@ -1456,7 +1456,7 @@ paths:
                     type: array
                     uniqueItems: false
                     items:
-                      $ref: '#/components/schemas/AdditionalField'
+                      $ref: "#/components/schemas/AdditionalField"
                   gender:
                     type: string
                     enum:
@@ -1493,7 +1493,7 @@ paths:
                     oneOf:
                       - type: array
                         items:
-                          $ref: '#/components/schemas/Certification'
+                          $ref: "#/components/schemas/Certification"
                       - type: boolean
                   completionPercent:
                     type: number
@@ -1507,17 +1507,17 @@ paths:
                     type: number
                 required:
                   - id
-        '400':
+        "400":
           description: Bad Request
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       security:
         - JWT: []
       requestBody:
         content:
           application/json:
             schema:
-              description: ''
+              description: ""
               type: object
               x-examples:
                 example-1:
@@ -1540,7 +1540,7 @@ paths:
                   additional:
                     - {}
                   gender: string
-                  birthDate: '2019-08-24'
+                  birthDate: "2019-08-24"
                   phone: string
                   education: string
                   profession: string
@@ -1548,7 +1548,7 @@ paths:
                     - name: string
                       area: string
                       institute: string
-                      achievement_date: '2019-08-24'
+                      achievement_date: "2019-08-24"
                   completionPercent: 0
                   country: string
                   city: string
@@ -1596,10 +1596,10 @@ paths:
       summary: Delete your user
       operationId: delete-users-me
       responses:
-        '200':
+        "200":
           description: OK
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       requestBody:
         content:
           application/json:
@@ -1620,7 +1620,7 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -1637,7 +1637,7 @@ paths:
                               type: integer
                           required:
                             - id
-                        - $ref: '#/components/schemas/Bug'
+                        - $ref: "#/components/schemas/Bug"
                   limit:
                     type: integer
                   size:
@@ -1667,17 +1667,17 @@ paths:
                     size: 1
                     start: 10
                     total: 100
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-bugs
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/filterBy'
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/filterBy"
         - schema:
             type: string
             enum:
@@ -1689,8 +1689,8 @@ paths:
           in: query
           name: orderBy
           description: The field for item order
-        - $ref: '#/components/parameters/order'
-      description: 'Get all the bugs that you uploaded to AppQuality. '
+        - $ref: "#/components/parameters/order"
+      description: "Get all the bugs that you uploaded to AppQuality. "
     parameters: []
   /users/me/experience:
     get:
@@ -1698,12 +1698,12 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -1777,21 +1777,21 @@ paths:
                 required:
                   - results
                   - sum
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-experience
-      description: 'Get all the experience points earned in AppQuality. '
+      description: "Get all the experience points earned in AppQuality. "
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/filterBy'
-        - $ref: '#/components/parameters/order'
-        - $ref: '#/components/parameters/searchBy'
-        - $ref: '#/components/parameters/search'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/filterBy"
+        - $ref: "#/components/parameters/order"
+        - $ref: "#/components/parameters/searchBy"
+        - $ref: "#/components/parameters/search"
         - schema:
             type: string
             enum:
@@ -1810,12 +1810,12 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -1853,7 +1853,7 @@ paths:
                       cityCode:
                         type: string
                   type:
-                    $ref: '#/components/schemas/FiscalType'
+                    $ref: "#/components/schemas/FiscalType"
                   birthPlace:
                     type: object
                     properties:
@@ -1881,10 +1881,10 @@ paths:
                   - fiscalStatus
                   - gender
               examples: {}
-        '401':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "401":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-fiscal
       security:
         - JWT: []
@@ -1893,12 +1893,12 @@ paths:
       summary: Create a new fiscal profile
       operationId: post-users-me-fiscal
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -1936,7 +1936,7 @@ paths:
                       cityCode:
                         type: string
                   type:
-                    $ref: '#/components/schemas/FiscalType'
+                    $ref: "#/components/schemas/FiscalType"
                   birthPlace:
                     type: object
                     properties:
@@ -1976,8 +1976,8 @@ paths:
                     fiscalId: string
                     fiscalStatus: Verified
                     gender: male
-        '401':
-          $ref: '#/components/responses/NotAuthorized'
+        "401":
+          $ref: "#/components/responses/NotAuthorized"
       description: Create a new fiscal data entry from empty state
       security:
         - JWT: []
@@ -1985,7 +1985,7 @@ paths:
         content:
           application/json:
             schema:
-              description: ''
+              description: ""
               type: object
               x-examples:
                 example-1:
@@ -2024,9 +2024,9 @@ paths:
                     cityCode:
                       type: string
                 type:
-                  $ref: '#/components/schemas/FiscalType'
+                  $ref: "#/components/schemas/FiscalType"
                 birthPlace:
-                  $ref: '#/components/schemas/FiscalBirthCity'
+                  $ref: "#/components/schemas/FiscalBirthCity"
                 fiscalId:
                   type: string
                 gender:
@@ -2046,12 +2046,12 @@ paths:
       summary: Edit your fiscal profile
       operationId: put-users-me-fiscal
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -2089,7 +2089,7 @@ paths:
                       cityCode:
                         type: string
                   type:
-                    $ref: '#/components/schemas/FiscalType'
+                    $ref: "#/components/schemas/FiscalType"
                   birthPlace:
                     type: object
                     properties:
@@ -2115,8 +2115,8 @@ paths:
                   - fiscalId
                   - fiscalStatus
                   - gender
-        '401':
-          $ref: '#/components/responses/NotAuthorized'
+        "401":
+          $ref: "#/components/responses/NotAuthorized"
       description: Update your fiscal data
       security:
         - JWT: []
@@ -2124,7 +2124,7 @@ paths:
         content:
           application/json:
             schema:
-              description: ''
+              description: ""
               type: object
               x-examples:
                 example-1:
@@ -2163,9 +2163,9 @@ paths:
                     cityCode:
                       type: string
                 type:
-                  $ref: '#/components/schemas/FiscalType'
+                  $ref: "#/components/schemas/FiscalType"
                 birthPlace:
-                  $ref: '#/components/schemas/FiscalBirthCity'
+                  $ref: "#/components/schemas/FiscalBirthCity"
                 fiscalId:
                   type: string
                 gender:
@@ -2186,7 +2186,7 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2203,7 +2203,7 @@ paths:
                               type: integer
                           required:
                             - id
-                        - $ref: '#/components/schemas/Campaign'
+                        - $ref: "#/components/schemas/Campaign"
                   limit:
                     type: integer
                   size:
@@ -2213,9 +2213,9 @@ paths:
                   total:
                     type: integer
               examples: {}
-        '403':
+        "403":
           description: Forbidden
-        '404':
+        "404":
           description: Not Found
       operationId: get-users-me-campaigns
       description: |-
@@ -2228,11 +2228,11 @@ paths:
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/filterBy'
-        - $ref: '#/components/parameters/locale'
-        - $ref: '#/components/parameters/order'
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/filterBy"
+        - $ref: "#/components/parameters/locale"
+        - $ref: "#/components/parameters/order"
         - schema:
             type: string
             enum:
@@ -2249,7 +2249,7 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           content:
@@ -2276,9 +2276,9 @@ paths:
             type: boolean
           in: query
           name: showExpired
-          description: 'Show all popup history, expired popups included'
-        - $ref: '#/components/parameters/order'
-  '/users/me/popups/{popup}':
+          description: "Show all popup history, expired popups included"
+        - $ref: "#/components/parameters/order"
+  "/users/me/popups/{popup}":
     parameters:
       - schema:
           type: integer
@@ -2290,7 +2290,7 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           content:
@@ -2301,7 +2301,7 @@ paths:
                     properties:
                       id:
                         type: integer
-                  - $ref: '#/components/schemas/Popup'
+                  - $ref: "#/components/schemas/Popup"
       operationId: get-users-me-popups-popup
       security:
         - JWT: []
@@ -2312,7 +2312,7 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2324,11 +2324,11 @@ paths:
                       properties:
                         id:
                           type: number
-                    - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                    - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-devices
       security:
         - JWT: []
@@ -2337,7 +2337,7 @@ paths:
       summary: Add a new device to your user
       operationId: post-users-me-devices
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -2347,9 +2347,9 @@ paths:
                       id:
                         type: number
                     type: object
-                  - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+                  - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       description: Add a new device to your user
       tags:
         - User
@@ -2379,8 +2379,8 @@ paths:
               required:
                 - device
                 - operating_system
-        description: ''
-  '/users/me/devices/{deviceId}':
+        description: ""
+  "/users/me/devices/{deviceId}":
     parameters:
       - schema:
           type: number
@@ -2392,7 +2392,7 @@ paths:
       tags:
         - User
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2402,11 +2402,11 @@ paths:
                     properties:
                       id:
                         type: number
-                  - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                  - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-devices-deviceId
       security:
         - JWT: []
@@ -2415,7 +2415,7 @@ paths:
       summary: Edit one of your devices
       operationId: patch-users-me-devices-deviceId
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2425,8 +2425,8 @@ paths:
                     properties:
                       id:
                         type: number
-                  - $ref: '#/components/schemas/UserDevice'
-        '304':
+                  - $ref: "#/components/schemas/UserDevice"
+        "304":
           description: Not Modified
           content:
             application/json:
@@ -2436,11 +2436,11 @@ paths:
                     properties:
                       id:
                         type: number
-                  - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                  - $ref: "#/components/schemas/UserDevice"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       requestBody:
         content:
           application/json:
@@ -2461,7 +2461,7 @@ paths:
       summary: Remove one of your devices
       operationId: delete-users-me-devices-deviceId
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2470,10 +2470,10 @@ paths:
                 properties:
                   message:
                     type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       security:
         - JWT: []
       tags:
@@ -2485,20 +2485,20 @@ paths:
       summary: Add one certification to your profile
       operationId: post-users-me-certifications
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 x-examples:
                   example-1:
                     name: string
                     area: string
                     institute: string
-                    achievement_date: '2019-08-24'
+                    achievement_date: "2019-08-24"
                 oneOf:
-                  - $ref: '#/components/schemas/Certification'
+                  - $ref: "#/components/schemas/Certification"
                   - type: object
                     properties:
                       message:
@@ -2506,8 +2506,8 @@ paths:
                     required:
                       - message
               examples: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       security:
         - JWT: []
       requestBody:
@@ -2533,7 +2533,7 @@ paths:
       tags:
         - User
       description: Add one certification to your profile
-  '/users/me/certifications/{certificationId}':
+  "/users/me/certifications/{certificationId}":
     parameters:
       - schema:
           type: integer
@@ -2545,7 +2545,7 @@ paths:
       summary: Remove a certification from your profile
       operationId: delete-users-me-certifications-certificationId
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2554,10 +2554,10 @@ paths:
                 properties:
                   message:
                     type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       security:
         - JWT: []
       description: The certification will be removed
@@ -2568,7 +2568,7 @@ paths:
       summary: Add one language to your profile
       operationId: post-users-me-languages
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
@@ -2583,8 +2583,8 @@ paths:
                   - id
                   - name
               examples: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       security:
         - JWT: []
       requestBody:
@@ -2602,7 +2602,7 @@ paths:
       summary: Update your languages
       operationId: put-users-me-languages
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2615,8 +2615,8 @@ paths:
                       type: integer
                     name:
                       type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       requestBody:
         content:
           application/json:
@@ -2629,7 +2629,7 @@ paths:
         - JWT: []
       tags:
         - User
-  '/users/me/languages/{languageId}':
+  "/users/me/languages/{languageId}":
     parameters:
       - schema:
           type: integer
@@ -2641,7 +2641,7 @@ paths:
       summary: Remove one of your languages
       operationId: delete-users-me-languages-languageId
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2650,16 +2650,16 @@ paths:
                 properties:
                   message:
                     type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       security:
         - JWT: []
       tags:
         - User
       description: The language will be removed from your profile
-  '/users/me/additionals/{fieldId}':
+  "/users/me/additionals/{fieldId}":
     parameters:
       - schema:
           type: integer
@@ -2671,26 +2671,26 @@ paths:
       summary: Edit your custom user fields
       operationId: put-users-me-additionals-fieldId
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 x-examples:
                   example-1:
                     - field_id: 23
                       name: Linkedin Profile
-                      value: 'https://www.linkedin.com/in/gianpaolosinatra/'
+                      value: "https://www.linkedin.com/in/gianpaolosinatra/"
                 oneOf:
                   - type: array
                     items:
-                      $ref: '#/components/schemas/AdditionalField'
-                  - $ref: '#/components/schemas/AdditionalField'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                      $ref: "#/components/schemas/AdditionalField"
+                  - $ref: "#/components/schemas/AdditionalField"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       requestBody:
         content:
           application/json:
@@ -2724,7 +2724,7 @@ paths:
       summary: Get all your payments
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2774,11 +2774,11 @@ paths:
                   value:
                     results:
                       - id: 1
-                        name: ''
+                        name: ""
                         amount:
                           value: 10
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                     limit: 10
                     size: 1
                     start: 0
@@ -2787,80 +2787,80 @@ paths:
                   value:
                     results:
                       - id: 1
-                        name: ''
+                        name: ""
                         amount:
                           value: 10
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 2
-                        name: ''
+                        name: ""
                         amount:
                           value: 12
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 3
-                        name: ''
+                        name: ""
                         amount:
                           value: 13
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 4
-                        name: ''
+                        name: ""
                         amount:
                           value: 14
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 5
-                        name: ''
+                        name: ""
                         amount:
                           value: 15
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 6
-                        name: ''
+                        name: ""
                         amount:
                           value: 16
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 7
-                        name: ''
+                        name: ""
                         amount:
                           value: 17
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 8
-                        name: ''
+                        name: ""
                         amount:
                           value: 18
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 9
-                        name: ''
+                        name: ""
                         amount:
                           value: 19
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                       - id: 10
-                        name: ''
+                        name: ""
                         amount:
                           value: 20
                           currency: EUR
-                        attributionDate: '2019-08-24'
+                        attributionDate: "2019-08-24"
                     limit: 10
                     size: 10
                     start: 0
                     total: 20
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-pending-booty
       description: Return all single attributions that dials the pending booty
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
         - schema:
             type: string
             enum:
@@ -2871,14 +2871,14 @@ paths:
           in: query
           description: The field for item order
           name: orderBy
-        - $ref: '#/components/parameters/order'
+        - $ref: "#/components/parameters/order"
     parameters: []
   /users/me/payments:
     get:
       summary: Get all your payments
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -2911,7 +2911,7 @@ paths:
                               oneOf:
                                 - format: date
                                 - enum:
-                                    - '-'
+                                    - "-"
                               type: string
                             method:
                               type: object
@@ -2955,11 +2955,11 @@ paths:
                         amount:
                           value: 10
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                     limit: 10
                     size: 1
                     start: 0
@@ -2972,21 +2972,21 @@ paths:
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '-'
+                        paidDate: "-"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 1
                         status: paid
                         amount:
                           value: 10
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                     limit: 10
                     size: 2
                     start: 0
@@ -2996,131 +2996,131 @@ paths:
                     results:
                       - id: 2
                         status: processing
-                        paidDate: '-'
+                        paidDate: "-"
                         amount:
                           value: 5
                           currency: EUR
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 1
                         status: paid
                         amount:
                           value: 10
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: iban
                           note: Iban ********************8020
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 3
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: iban
                           note: Iban ********************8020
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 4
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 5
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 6
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 7
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 8
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 9
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: paypal
                           note: me@example.com
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                       - id: 10
                         status: paid
                         amount:
                           value: 5
                           currency: EUR
-                        paidDate: '2019-08-24'
+                        paidDate: "2019-08-24"
                         method:
                           type: iban
                           note: Iban ********************8020
-                        receipt: 'http://example.com'
+                        receipt: "http://example.com"
                     limit: 10
                     size: 10
                     start: 0
                     total: 20
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-payments
-      description: ''
+      description: ""
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
         - schema:
             type: string
           in: query
           description: The field for item order
           name: orderBy
-        - $ref: '#/components/parameters/order'
+        - $ref: "#/components/parameters/order"
     parameters: []
     post:
       summary: Request your booty
       operationId: post-users-me-payments
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -3131,7 +3131,7 @@ paths:
                     type: number
                   amount:
                     type: number
-        '403':
+        "403":
           description: Forbidden
       security:
         - JWT: []
@@ -3183,7 +3183,7 @@ paths:
                     type: iban
                     accountHolderName: Pippo Franco
                     iban: IT42E0300203280581481468634
-  '/users/me/payments/{payment}':
+  "/users/me/payments/{payment}":
     parameters:
       - schema:
           type: string
@@ -3194,7 +3194,7 @@ paths:
       summary: Details of a single payment
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -3255,7 +3255,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3272,7 +3272,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3282,7 +3282,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3292,7 +3292,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3302,7 +3302,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3312,7 +3312,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3322,7 +3322,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3332,7 +3332,7 @@ paths:
                           id: 12
                           name: My campaign 2
                         type: Community
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3342,7 +3342,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3352,7 +3352,7 @@ paths:
                           id: 123
                           name: My campaign
                         type: Test
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 10
@@ -3362,7 +3362,7 @@ paths:
                           id: 12
                           name: My campaign 2
                         type: Community
-                        date: '2019-08-24'
+                        date: "2019-08-24"
                         activity: Tryber Testing
                         amount:
                           value: 5
@@ -3371,17 +3371,17 @@ paths:
                     size: 1
                     total: 1
                     start: 0
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-payments-payment
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/order'
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/order"
         - schema:
             type: string
             enum:
@@ -3398,7 +3398,7 @@ paths:
       summary: Details of tryber ranking
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -3406,9 +3406,9 @@ paths:
                 type: object
                 properties:
                   level:
-                    $ref: '#/components/schemas/MonthlyLevel'
+                    $ref: "#/components/schemas/MonthlyLevel"
                   previousLevel:
-                    $ref: '#/components/schemas/MonthlyLevel'
+                    $ref: "#/components/schemas/MonthlyLevel"
                   rank:
                     type: number
                   points:
@@ -3419,7 +3419,7 @@ paths:
                       - level
                     properties:
                       level:
-                        $ref: '#/components/schemas/MonthlyLevel'
+                        $ref: "#/components/schemas/MonthlyLevel"
                       maintenance:
                         type: number
                       next:
@@ -3428,7 +3428,7 @@ paths:
                           points:
                             type: number
                           level:
-                            $ref: '#/components/schemas/MonthlyLevel'
+                            $ref: "#/components/schemas/MonthlyLevel"
                         required:
                           - points
                           - level
@@ -3473,8 +3473,8 @@ paths:
                         id: 30
                         name: Silver
                       manteinance: 10
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       operationId: get-users-me-rank
       security:
         - JWT: []
@@ -3484,7 +3484,7 @@ paths:
       summary: Get your ranking list
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -3494,11 +3494,11 @@ paths:
                   tops:
                     type: array
                     items:
-                      $ref: '#/components/schemas/RankingItem'
+                      $ref: "#/components/schemas/RankingItem"
                   peers:
                     type: array
                     items:
-                      $ref: '#/components/schemas/RankingItem'
+                      $ref: "#/components/schemas/RankingItem"
                 required:
                   - tops
                   - peers
@@ -3507,70 +3507,70 @@ paths:
                   value:
                     tops:
                       - position: 1
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 1
                         name: Pippo F.
                         monthly_exp: 100
                       - position: 2
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 2
                         name: Ciccio P.
                         monthly_exp: 90
                       - position: 3
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 3
                         name: Ciccio I.
                         monthly_exp: 100
                     peers:
                       - position: 50
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 41
                         name: Peppe F.
                         monthly_exp: 50
                       - position: 51
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 42
                         name: Rosario M.
                         monthly_exp: 50
                       - position: 52
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 49
                         name: Giuseppe S.
                         monthly_exp: 49
                       - position: 53
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 20
                         name: Maria D.
                         monthly_exp: 48
                       - position: 54
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 40
                         name: Luca F.
                         monthly_exp: 49
                       - position: 55
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 100
                         name: Maurizio C.
                         monthly_exp: 46
                       - position: 56
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 123
                         name: Vittorio S.
                         monthly_exp: 45
                       - position: 57
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 49
                         name: Fabrizio C.
                         monthly_exp: 44
                       - position: 58
-                        image: 'https://placekitten.com/200/200'
+                        image: "https://placekitten.com/200/200"
                         id: 49
                         name: Antonio Z.
                         monthly_exp: 40
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-users-me-rank-list
       security:
         - JWT: []
@@ -3579,7 +3579,7 @@ paths:
       summary: Get all custom user fields
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -3597,27 +3597,27 @@ paths:
                         id:
                           type: number
                         name:
-                          $ref: '#/components/schemas/TranslatablePage'
+                          $ref: "#/components/schemas/TranslatablePage"
                         description:
-                          $ref: '#/components/schemas/TranslatablePage'
+                          $ref: "#/components/schemas/TranslatablePage"
                     fields:
                       type: array
                       items:
-                        $ref: '#/components/schemas/CustomUserFieldsData'
+                        $ref: "#/components/schemas/CustomUserFieldsData"
                   required:
                     - group
               examples: {}
       operationId: get-customUserFields
-      description: ''
+      description: ""
       security:
         - JWT: []
     parameters: []
-  '/countries/{code}/region':
+  "/countries/{code}/region":
     get:
       summary: Get regions
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -3653,7 +3653,7 @@ paths:
       summary: Get all payments
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           headers: {}
           content:
@@ -3731,8 +3731,8 @@ paths:
                     start: 2
                     total: 100
                     items:
-                      - created: '1645096692'
-                        updated: '1645096692'
+                      - created: "1645096692"
+                        updated: "1645096692"
                         id: 123
                         amount:
                           value: 100
@@ -3743,8 +3743,8 @@ paths:
                           name: John
                           surname: Doe
                         error: INSUFFICIENT_FUNDS
-                      - created: '1645096692'
-                        updated: '1645096692'
+                      - created: "1645096692"
+                        updated: "1645096692"
                         id: 1
                         amount:
                           value: 100
@@ -3755,8 +3755,8 @@ paths:
                           name: John
                           surname: Doe
                         error: GENERIC_ERROR
-                      - created: '1645096692'
-                        updated: '1645096692'
+                      - created: "1645096692"
+                        updated: "1645096692"
                         id: 12
                         amount:
                           value: 100
@@ -3767,8 +3767,8 @@ paths:
                           name: Pippo
                           surname: Franco
                         error: RECEIVER_UNREGISTERED
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
       operationId: get-payments
       security:
         - JWT: []
@@ -3781,7 +3781,7 @@ paths:
           in: query
           name: status
           description: The status of the payment
-        - $ref: '#/components/parameters/order'
+        - $ref: "#/components/parameters/order"
         - schema:
             type: string
             enum:
@@ -3791,11 +3791,11 @@ paths:
           in: query
           name: orderBy
           description: The value to order by
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/filterBy'
+        - $ref: "#/components/parameters/start"
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/filterBy"
     parameters: []
-  '/payments/{paymentId}':
+  "/payments/{paymentId}":
     parameters:
       - schema:
           type: string
@@ -3806,15 +3806,15 @@ paths:
       summary: Pay a request
       operationId: post-payments-paymentId
       responses:
-        '200':
+        "200":
           description: OK
-        '400':
+        "400":
           description: Bad Request
           headers: {}
           content:
             application/json:
               schema:
-                description: ''
+                description: ""
                 type: object
                 x-examples:
                   example-1:
@@ -3846,11 +3846,11 @@ paths:
                   - element
                   - id
                   - message
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
           description: Unprocessable Entity (WebDAV)
           content:
             application/json:
@@ -3885,19 +3885,19 @@ paths:
                   - id
                   - message
               examples: {}
-      description: ''
+      description: ""
       security:
         - JWT: []
     delete:
       summary: Delete payment request from id
       operationId: delete-payments-paymentId
       responses:
-        '200':
+        "200":
           description: OK
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       description: delete a specific payment request
       security:
         - JWT: []
@@ -3907,25 +3907,25 @@ paths:
       tags:
         - Devices
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/LevelDefinition'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                  $ref: "#/components/schemas/LevelDefinition"
+        "403":
+          $ref: "#/components/responses/NotAuthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
       operationId: get-levels
       security:
         - JWT: []
       description: Get all levels
       parameters: []
     parameters: []
-  '/users/me/campaigns/{campaignId}':
+  "/users/me/campaigns/{campaignId}":
     parameters:
       - schema:
           type: string
@@ -3936,66 +3936,12 @@ paths:
       summary: Get the data for a campaign you are selected in
       tags: []
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: object
-                x-examples:
-                  example-1:
-                    id: 123
-                    title: My campaign
-                    language:
-                      code: IT
-                      message: In questa campagna vanno caricati i bug in italiano
-                    titleRule: true
-                    minimumMedia: 3
-                    useCases:
-                      - id: 0
-                        name: Not a specific Use Case
-                      - id: 4123
-                        name: Use case 1 - Signup
-                    additionalFields:
-                      - name: Browser Used
-                        slug: browser-used
-                        type: select
-                        options:
-                          - Chrome
-                          - Safari
-                        error: You have to select a browser
-                      - name: Codice Cliente
-                        slug: codice-cliente
-                        type: text
-                        regex: '[A-Z]{3}[0-9]{4}'
-                        error: Il codice cliente è obbligatorio nel formato AAA1234
-                    bugTypes:
-                      valid:
-                        - CRASH
-                        - TYPO
-                      invalid:
-                        - PERFORMANCE
-                    bugSeverity:
-                      valid:
-                        - LOW
-                        - MEDIUM
-                      invalid:
-                        - HIGH
-                        - CRITICAL
-                    bugReplicability:
-                      valid:
-                        - ALWAYS
-                        - SOMETIMES
-                      invalid:
-                        - ONCE
-                    hasBugForm: true
-                    devices:
-                      - {}
-                    validFileExtesions:
-                      - jpg
-                      - png
-                      - mov
-                      - mp4
                 properties:
                   id:
                     type: integer
@@ -4122,7 +4068,7 @@ paths:
                               type: integer
                           required:
                             - id
-                        - $ref: '#/components/schemas/UserDevice'
+                        - $ref: "#/components/schemas/UserDevice"
                   validFileExtensions:
                     type: array
                     items:
@@ -4163,7 +4109,7 @@ paths:
                       - name: Codice Cliente
                         slug: codice-cliente
                         type: text
-                        regex: '[A-Z]{3}[0-9]{4}'
+                        regex: "[A-Z]{3}[0-9]{4}"
                         error: Il codice cliente è obbligatorio nel formato AAA1234
                     bugTypes:
                       valid:
@@ -4328,7 +4274,7 @@ paths:
                       - mov
                       - mp4
       operationId: get-users-me-campaigns-campaignId
-      description: ''
+      description: ""
       security:
         - JWT: []
   '/users/me/campaigns/{campaignId}/media':
@@ -4424,11 +4370,11 @@ components:
         name:
           type: string
     Campaign:
-      description: ''
+      description: ""
       x-examples: {}
       allOf:
-        - $ref: '#/components/schemas/CampaignOptional'
-        - $ref: '#/components/schemas/CampaignRequired'
+        - $ref: "#/components/schemas/CampaignOptional"
+        - $ref: "#/components/schemas/CampaignRequired"
     BugSeverity:
       title: BugSeverity
       type: object
@@ -4460,17 +4406,17 @@ components:
       required:
         - id
         - name
-      description: ''
+      description: ""
       x-internal: false
       x-examples: {}
     Task:
       title: Task
       allOf:
-        - $ref: '#/components/schemas/TaskOptional'
-        - $ref: '#/components/schemas/TaskRequired'
+        - $ref: "#/components/schemas/TaskOptional"
+        - $ref: "#/components/schemas/TaskRequired"
     Customer:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: "#/components/schemas/User"
         - properties:
             customer_name:
               type: string
@@ -4482,7 +4428,7 @@ components:
         id:
           type: integer
     CampaignOptional:
-      description: ''
+      description: ""
       type: object
       x-examples:
         example-1:
@@ -4515,7 +4461,7 @@ components:
               name: string
               surname: string
               email: user@example.com
-              image: 'http://example.com'
+              image: "http://example.com"
               id: 0
               wp_user_id: 0
               role: string
@@ -4586,21 +4532,21 @@ components:
               uniqueItems: true
               minItems: 1
               items:
-                $ref: '#/components/schemas/BugSeverity'
+                $ref: "#/components/schemas/BugSeverity"
             bug_types:
               type: array
               uniqueItems: true
               minItems: 1
               items:
-                $ref: '#/components/schemas/BugType'
+                $ref: "#/components/schemas/BugType"
             replicabilities:
               type: array
               uniqueItems: true
               minItems: 1
               items:
-                $ref: '#/components/schemas/Replicability'
+                $ref: "#/components/schemas/Replicability"
         projectManager:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
         customerCanViewReviewing:
           type: boolean
         additionalFields:
@@ -4608,7 +4554,7 @@ components:
           uniqueItems: true
           minItems: 1
           items:
-            $ref: '#/components/schemas/CampaignField'
+            $ref: "#/components/schemas/CampaignField"
         tokens:
           type: number
           default: 0
@@ -4619,21 +4565,21 @@ components:
           type: number
           default: 0
         preview_link:
-          $ref: '#/components/schemas/TranslatablePage'
+          $ref: "#/components/schemas/TranslatablePage"
         manual_link:
-          $ref: '#/components/schemas/TranslatablePage'
+          $ref: "#/components/schemas/TranslatablePage"
         bugform_link:
           oneOf:
             - properties: {}
               type: boolean
               description: Exists only when the campaign bugform is deactivated. It is FALSE
-            - $ref: '#/components/schemas/TranslatablePage'
+            - $ref: "#/components/schemas/TranslatablePage"
           description: If bugform is deactivated is a boolean else contains URLs to bugforms for each languages
         applied:
           type: boolean
           description: True if you applied on this Campaign
     CampaignRequired:
-      description: ''
+      description: ""
       type: object
       properties:
         name:
@@ -4670,9 +4616,9 @@ components:
             required:
               - id
         projectManager:
-          $ref: '#/components/schemas/User'
+          $ref: "#/components/schemas/User"
         campaign_type:
-          $ref: '#/components/schemas/CampaignType'
+          $ref: "#/components/schemas/CampaignType"
       required:
         - name
         - internal_id
@@ -4681,7 +4627,7 @@ components:
         - projectManager
         - campaign_type
     TaskOptional:
-      description: ''
+      description: ""
       type: object
       properties:
         name:
@@ -4699,7 +4645,7 @@ components:
         allow_media:
           type: boolean
     TaskRequired:
-      description: ''
+      description: ""
       type: object
       x-examples:
         example-1:
@@ -4730,7 +4676,7 @@ components:
     User:
       title: User
       type: object
-      description: ''
+      description: ""
       properties:
         username:
           type: string
@@ -4759,7 +4705,7 @@ components:
             name: string
             surname: string
             email: user@example.com
-            image: 'http://example.com'
+            image: "http://example.com"
             id: 0
             wp_user_id: 0
             role: string
@@ -4770,12 +4716,12 @@ components:
       x-examples: {}
       properties:
         severity:
-          $ref: '#/components/schemas/BugSeverity'
+          $ref: "#/components/schemas/BugSeverity"
         status:
-          $ref: '#/components/schemas/BugStatus'
+          $ref: "#/components/schemas/BugStatus"
         campaign:
           allOf:
-            - $ref: '#/components/schemas/CampaignOptional'
+            - $ref: "#/components/schemas/CampaignOptional"
             - type: object
               properties:
                 id:
@@ -4793,7 +4739,7 @@ components:
         description:
           type: string
     Popup:
-      description: ''
+      description: ""
       type: object
       x-examples: {}
       properties:
@@ -4872,7 +4818,7 @@ components:
         - device
         - operating_system
     AdditionalField:
-      description: ''
+      description: ""
       type: object
       x-examples:
         example-1:
@@ -4896,14 +4842,14 @@ components:
         - name
         - value
     Certification:
-      description: ''
+      description: ""
       type: object
       x-examples:
         example-1:
           name: Certification
           area: Area
           institute: Institute
-          achievement_date: '2019-08-24'
+          achievement_date: "2019-08-24"
       properties:
         id:
           type: integer
@@ -4942,17 +4888,17 @@ components:
             - multiselect
             - text
         placeholder:
-          $ref: '#/components/schemas/TranslatablePage'
+          $ref: "#/components/schemas/TranslatablePage"
         allow_other:
           type: boolean
         name:
-          $ref: '#/components/schemas/TranslatablePage'
+          $ref: "#/components/schemas/TranslatablePage"
         format:
           type: string
         options:
           type: array
           items:
-            $ref: '#/components/schemas/CustomUserFieldsDataOption'
+            $ref: "#/components/schemas/CustomUserFieldsDataOption"
       required:
         - id
         - type
@@ -5008,7 +4954,7 @@ components:
     LevelDefinition:
       title: LevelDefinition
       type: object
-      description: ''
+      description: ""
       properties:
         id:
           type: number
@@ -5025,14 +4971,14 @@ components:
     JWT:
       type: http
       scheme: bearer
-      description: ''
+      description: ""
   responses:
     UserData:
       description: A user
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
           examples:
             example:
               value:
@@ -5070,7 +5016,7 @@ components:
             type: array
             items:
               allOf:
-                - $ref: '#/components/schemas/Campaign'
+                - $ref: "#/components/schemas/Campaign"
                 - type: object
                   properties:
                     id:
@@ -5094,7 +5040,7 @@ components:
                   public: true
                   hasBugParade: true
                   devices:
-                    - id: '2'
+                    - id: "2"
                   minNumberOfMedia: 0
                   titleRule: true
                   allowed:
@@ -5103,7 +5049,7 @@ components:
                     bug_types:
                       - id: 3
                     replicabilities:
-                      - id: '1'
+                      - id: "1"
                   projectManager:
                     username: Elon Musk
                   customerCanViewReviewing: true
@@ -5121,7 +5067,7 @@ components:
                     end: 17/08/2021
                     close: 17/09/2021
                   devices:
-                    - id: '2'
+                    - id: "2"
                   projectManager:
                     username: Elon Musk
             tester-example:
@@ -5137,7 +5083,7 @@ components:
                   status: true
                   language: English (England)
                   devices:
-                    - id: '2'
+                    - id: "2"
                   minNumberOfMedia: 0
                   titleRule: true
                   allowed:
@@ -5146,7 +5092,7 @@ components:
                     bug_types:
                       - id: 3
                     replicabilities:
-                      - id: '1'
+                      - id: "1"
                   projectManager:
                     username: Elon Musk
                   additionalFields:
@@ -5157,7 +5103,7 @@ components:
         application/json:
           schema:
             allOf:
-              - $ref: '#/components/schemas/Campaign'
+              - $ref: "#/components/schemas/Campaign"
               - type: object
                 properties:
                   id:
@@ -5168,7 +5114,7 @@ components:
                 properties:
                   project:
                     allOf:
-                      - $ref: '#/components/schemas/Project'
+                      - $ref: "#/components/schemas/Project"
                       - type: object
                         properties:
                           id:
@@ -5190,7 +5136,7 @@ components:
                 public: true
                 hasBugParade: true
                 devices:
-                  - id: '2'
+                  - id: "2"
                 minNumberOfMedia: 0
                 titleRule: true
                 allowed:
@@ -5199,7 +5145,7 @@ components:
                   bug_types:
                     - id: 2
                   replicabilities:
-                    - id: '1'
+                    - id: "1"
                 projectManager:
                   username: Elon Musk
                 customerCanViewReviewing: true
@@ -5220,7 +5166,7 @@ components:
                   end: 17/08/2021
                   close: 17/09/2021
                 devices:
-                  - id: '2'
+                  - id: "2"
                 projectManager:
                   username: Elon Musk
                 project:
@@ -5239,7 +5185,7 @@ components:
                 status: true
                 language: English (England)
                 devices:
-                  - id: '2'
+                  - id: "2"
                 minNumberOfMedia: 0
                 titleRule: true
                 allowed:
@@ -5248,7 +5194,7 @@ components:
                   bug_types:
                     - id: 3
                   replicabilities:
-                    - id: '1'
+                    - id: "1"
                 projectManager:
                   username: Elon Musk
                 additionalFields:
@@ -5364,7 +5310,7 @@ components:
           - ASC
           - DESC
         default: DESC
-      description: 'How to order values (ASC, DESC)'
+      description: "How to order values (ASC, DESC)"
     locale:
       name: locale
       in: query

@@ -2,9 +2,9 @@ import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as bugStatusData } from "@src/__mocks__/mockedDb/bugStatus";
-import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import { data as severityData } from "@src/__mocks__/mockedDb/severities";
+import Severities from "@src/__mocks__/mockedDb/severities";
 import request from "supertest";
 
 const campaign1 = {
@@ -46,9 +46,9 @@ describe("GET /users/me/bugs", () => {
     return new Promise(async (resolve) => {
       await sqlite3.insert("wp_appq_evd_bug", bug1);
       await sqlite3.insert("wp_appq_evd_bug", bug2);
-      await sqlite3.insert("wp_appq_evd_campaign", campaign1);
-      await sqlite3.insert("wp_appq_evd_campaign", campaign2);
-      await sqlite3.insert("wp_appq_evd_severity", severity1);
+      await Campaigns.insert(campaign1);
+      await Campaigns.insert(campaign2);
+      await Severities.insert(severity1);
       await sqlite3.insert("wp_appq_evd_bug_status", status1);
 
       resolve(null);
@@ -57,8 +57,8 @@ describe("GET /users/me/bugs", () => {
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
-      await campaignData.drop();
-      await severityData.drop();
+      await Campaigns.clear();
+      await Severities.clear();
       await bugData.drop();
       await bugStatusData.drop();
 

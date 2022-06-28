@@ -1,20 +1,20 @@
 import Table from "./table";
 
-type SeverityParams = {
+type ReplicabilityParams = {
   id?: number;
   name?: string;
 };
-class Severity extends Table<SeverityParams> {
-  protected name = "wp_appq_evd_severity";
+class Replicability extends Table<ReplicabilityParams> {
+  protected name = "wp_appq_evd_bug_replicability";
   protected columns = ["id INTEGER PRIMARY KEY", "name VARCHAR(255)"];
   constructor() {
     super({
       id: 1,
-      name: "Test Severity",
+      name: "Test Replicability",
     });
   }
 }
 
-const theTable = new Severity();
+const theTable = new Replicability();
 
 export default theTable;

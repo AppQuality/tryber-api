@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
-import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
@@ -28,8 +28,8 @@ describe("GET /users/me/payments/{payment}", () => {
   const data: any = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_campaign", campaign1);
-      await sqlite3.insert("wp_appq_evd_campaign", campaign2);
+      await Campaigns.insert(campaign1);
+      await Campaigns.insert(campaign2);
       await sqlite3.insert("wp_appq_payment_work_types", work_type1);
       await sqlite3.insert("wp_appq_payment_work_types", work_type2);
 
@@ -89,7 +89,7 @@ describe("GET /users/me/payments/{payment}", () => {
       await profileData.drop();
       await attributionData.drop();
       await requestData.drop();
-      await campaignData.drop();
+      await Campaigns.clear();
       await workTypeData.drop();
       resolve(null);
     });

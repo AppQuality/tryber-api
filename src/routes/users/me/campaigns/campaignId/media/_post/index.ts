@@ -14,7 +14,11 @@ export default async (
     await isCandidate();
   } catch {
     res.status_code = 403;
-    return {};
+    return {
+      element: "campaign",
+      id: parseInt(campaignId),
+      message: "You are not allowed to upload media for this campaign",
+    };
   }
   const media = Array.isArray(req.files.media)
     ? req.files.media

@@ -1,35 +1,32 @@
-import sqlite3 from "@src/features/sqlite";
-
-export const table = {
-  create: async () => {
-    await sqlite3.createTable("wp_appq_evd_campaign", [
-      "id INTEGER(11) PRIMARY KEY",
-      "title VARCHAR(255)",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable("wp_appq_evd_campaign");
-  },
-};
+import Table from "./table";
 
 type CampaignParams = {
   id?: number;
+  title?: string;
+  min_allowed_media?: number;
+  campaign_type?: -1 | 0 | 1;
+  bug_lang?: 0 | 1;
 };
-const data: {
-  [key: string]: (params?: CampaignParams) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run("DELETE FROM wp_appq_evd_campaign");
-  },
-};
+class Campaign extends Table<CampaignParams> {
+  protected name = "wp_appq_evd_campaign";
+  protected columns = [
+    "id INTEGER(11) PRIMARY KEY",
+    "title VARCHAR(255)",
+    "min_allowed_media INTEGER(11)",
+    "campaign_type INTEGER(11)",
+    "bug_lang INTEGER(11)",
+  ];
+  constructor() {
+    super({
+      id: 1,
+      title: "Test Campaign",
+      min_allowed_media: 1,
+      campaign_type: 0,
+      bug_lang: 0,
+    });
+  }
+}
 
-data.basicCampaign = async (params) => {
-  const item = {
-    id: 1,
-    ...params,
-  };
-  await sqlite3.insert("wp_appq_evd_campaign", item);
-  return item;
-};
+const theTable = new Campaign();
 
-export { data };
+export default theTable;
