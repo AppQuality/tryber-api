@@ -204,7 +204,9 @@ class Campaign {
       `SELECT option_value FROM wp_options WHERE option_name = 'options_appq_valid_upload_extensions'`
     );
     if (option.length === 0) return [];
-    return option[0].option_value.split(",");
+    return option[0].option_value
+      .split(",")
+      .map((option: string) => `.${option}`);
   }
 
   public async getAdditionalFields(): Promise<Result["additionalFields"]> {
