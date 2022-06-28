@@ -1,3 +1,4 @@
+import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as cpAdditionalFields } from "@src/__mocks__/mockedDb/cpHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
 import sqlite3 from "@src/features/sqlite";
@@ -88,6 +89,7 @@ beforeAll(async () => {
   await usecasesTable.create();
   await cpHasGroupsTable.create();
   await cpAdditionalFields.create();
+  await bugAdditionalFields.create();
 
   await paymentRequestTable.create();
   await sqlite3.run(`
