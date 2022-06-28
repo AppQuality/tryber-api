@@ -13,5 +13,14 @@ type Media =
   StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"]["media"];
 type UserDevice =
   StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"]["device"];
-type Additional =
+type UserAdditionals =
   StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"]["additional"];
+type CampaignAdditional = {
+  id: number;
+  slug: string;
+  type: string;
+  validation: string;
+};
+type CreateAdditionals =
+  | { id: number; slug: string; value: string }[]
+  | undefined;
