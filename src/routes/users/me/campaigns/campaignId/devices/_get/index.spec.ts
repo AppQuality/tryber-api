@@ -42,6 +42,26 @@ beforeAll(async () => {
     manufacturer: "Google",
     model: "Pixel 3",
   });
+
+  await DeviceOS.insert({
+    id: 2,
+    display_name: "XP",
+    version_number: "1.0",
+  });
+  await DevicePlatform.insert({
+    id: 2,
+    name: "Windows",
+  });
+  await TesterDevice.insert({
+    id: 2,
+    id_profile: 1,
+    platform_id: 2,
+    os_version_id: 2,
+    enabled: 1,
+    form_factor: "PC",
+    manufacturer: "Acer",
+    model: "Aspire",
+  });
 });
 afterAll(async () => {
   await wpUserData.drop();
@@ -115,5 +135,53 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
         version: "Lollipop (5.1.1)",
       },
     });
+  });
+});
+
+describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () => {
+  beforeAll(async () => {
+    await Candidature.insert({
+      campaign_id: 1,
+      user_id: 1,
+      group_id: 1,
+      selected_device: 0,
+    });
+  });
+  afterAll(async () => {
+    await Candidature.clear();
+  });
+  it("Should answer 200 with device data", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/devices/")
+      .set("Authorization", "Bearer tester");
+    expect(response.body.length).toBe(2);
+    expect(response.body).toEqual([
+      {
+        id: 1,
+        type: "Smartphone",
+        device: {
+          manufacturer: "Google",
+          model: "Pixel 3",
+        },
+        operating_system: {
+          id: 1,
+          platform: "Android",
+          version: "Lollipop (5.1.1)",
+        },
+      },
+      {
+        id: 2,
+        type: "PC",
+        device: {
+          manufacturer: "Acer",
+          model: "Aspire",
+        },
+        operating_system: {
+          id: 2,
+          platform: "Windows",
+          version: "XP (1.0)",
+        },
+      },
+    ]);
   });
 });
