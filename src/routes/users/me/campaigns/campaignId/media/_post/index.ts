@@ -45,7 +45,7 @@ export default async (
     return basicMediaUpload;
   }
 
-  let failedMedia = !basicMediaUpload.failed
+  let failedMedia: Result["failed"] = !basicMediaUpload.failed
     ? []
     : basicMediaUpload.failed.map((value) => ({
         name: value.name,
