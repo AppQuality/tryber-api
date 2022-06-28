@@ -2543,12 +2543,16 @@ export interface operations {
         content: {
           "application/json": {
             files?: {
-              name?: string;
-              path?: string;
+              name: string;
+              path: string;
             }[];
             failed?: {
-              name?: string;
-              errorCode?: string;
+              name: string;
+              /** @enum {string} */
+              errorCode:
+                | "FILE_TOO_BIG"
+                | "INVALID_FILE_EXTENSION"
+                | "GENERIC_ERROR";
             }[];
           };
         };
