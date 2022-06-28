@@ -93,7 +93,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     ]);
   });
 
-  it("Should answer 200 with error code NOT_VALID_FILE_TYPE if the extension is not in the whitelist", async () => {
+  it("Should answer 200 with error code INVALID_FILE_EXTENSION if the extension is not in the whitelist", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/media")
       .attach("media", mockFileBuffer, "void.ext")
@@ -102,7 +102,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     expect(response.body).toHaveProperty("failed");
     expect(response.body.failed.length).toBe(1);
     expect(response.body.failed[0]).toMatchObject({
-      errorCode: "NOT_VALID_FILE_TYPE",
+      errorCode: "INVALID_FILE_EXTENSION",
     });
   });
 

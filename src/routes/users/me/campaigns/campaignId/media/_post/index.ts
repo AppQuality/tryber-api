@@ -66,7 +66,7 @@ export default async (
     const validMedia: typeof media = [];
     const invalidFileExtensionMedia: {
       name: string;
-      errorCode: "NOT_VALID_FILE_TYPE";
+      errorCode: "INVALID_FILE_EXTENSION";
     }[] = [];
     media.forEach((item) => {
       if (
@@ -76,7 +76,7 @@ export default async (
       } else {
         invalidFileExtensionMedia.push({
           name: item.name,
-          errorCode: "NOT_VALID_FILE_TYPE",
+          errorCode: "INVALID_FILE_EXTENSION",
         });
       }
     });
