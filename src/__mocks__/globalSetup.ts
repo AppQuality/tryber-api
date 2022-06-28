@@ -33,7 +33,7 @@ import { table as receiptTable } from "./mockedDb/receipt";
 import Replicabilities from "./mockedDb/replicabilities";
 import Severities from "./mockedDb/severities";
 import { table as testerCertificationTable } from "./mockedDb/testerCertification";
-import { table as testerDeviceTable } from "./mockedDb/testerDevice";
+import TesterDevice from "./mockedDb/testerDevice";
 import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
 import UseCases from "./mockedDb/usecases";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
@@ -63,7 +63,7 @@ beforeAll(async () => {
   await levelTable.create();
   await levelDefTable.create();
   await cufDataTable.create();
-  await testerDeviceTable.create();
+  await TesterDevice.mock();
   await bugTable.create();
   await certificationListTable.create();
   await testerCertificationTable.create();
