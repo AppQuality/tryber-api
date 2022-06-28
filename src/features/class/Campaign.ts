@@ -294,12 +294,15 @@ class Campaign {
       )
     );
   }
-  public async getAvailableDevices(userId: string) {
-    const candidature = await this.getUserCandidature(userId);
+  public async getAvailableDevices(user: { userId: string; testerId: number }) {
+    const candidature = await this.getUserCandidature(user.userId);
     if (candidature.length === 0) return false;
     const { selected_device } = candidature[0];
     try {
       const devices = new Devices();
+      if (selected_device === 0) {
+        return await devices.getMany({ testerId });
+      }
       return await devices.getOne(selected_device);
     } catch {
       return false;
