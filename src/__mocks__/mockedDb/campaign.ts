@@ -6,6 +6,7 @@ type CampaignParams = {
   min_allowed_media?: number;
   campaign_type?: -1 | 0 | 1;
   bug_lang?: 0 | 1;
+  base_bug_internal_id?: string;
 };
 class Campaign extends Table<CampaignParams> {
   protected name = "wp_appq_evd_campaign";
@@ -15,6 +16,7 @@ class Campaign extends Table<CampaignParams> {
     "min_allowed_media INTEGER(11)",
     "campaign_type INTEGER(11)",
     "bug_lang INTEGER(11)",
+    "base_bug_internal_id VARCHAR(255)",
   ];
   constructor() {
     super({
@@ -23,6 +25,7 @@ class Campaign extends Table<CampaignParams> {
       min_allowed_media: 1,
       campaign_type: 0,
       bug_lang: 0,
+      base_bug_internal_id: "I",
     });
   }
 }

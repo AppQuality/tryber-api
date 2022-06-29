@@ -14,7 +14,7 @@ type CandidacyParams = {
 
 class Candidature extends Table<CandidacyParams> {
   protected columns = [
-    "user_id INTEGER(11) NOT NULL PRIMARY KEY",
+    "user_id INTEGER(11) NOT NULL",
     "campaign_id INTEGER(11)",
     "subscription_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP",
     "accepted INTEGER(1)",

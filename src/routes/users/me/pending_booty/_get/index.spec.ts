@@ -1,6 +1,8 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
+import Attributions, {
+  AttributionParams,
+} from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import request from "supertest";
 
@@ -81,7 +83,7 @@ describe("GET /users/me/pending_booty", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await attributionData.drop();
+      await Attributions.clear();
       await Campaigns.clear();
       resolve(null);
     });

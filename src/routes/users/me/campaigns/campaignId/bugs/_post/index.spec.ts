@@ -1,17 +1,17 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as additionalFieldsData } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
-import { data as replicabilityData } from "@src/__mocks__/mockedDb/bugReplicabilities";
-import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
-import { data as bugTypesData } from "@src/__mocks__/mockedDb/bugTypes";
-import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
-import { data as additionalFields } from "@src/__mocks__/mockedDb/cpHasAdditionalFields";
+import Replicability from "@src/__mocks__/mockedDb/bugReplicabilities";
+import Severity from "@src/__mocks__/mockedDb/bugSeverities";
+import BugType from "@src/__mocks__/mockedDb/bugTypes";
+import Campaign from "@src/__mocks__/mockedDb/campaign";
+import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
-import { data as cpCandidaturesData } from "@src/__mocks__/mockedDb/cpHasCandidates";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
+import Usecases from "@src/__mocks__/mockedDb/usecases";
+import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
 import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
 import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
-import { data as cpHasTaskGroupsData } from "@src/__mocks__/mockedDb/cpHasTaskGroups";
-import { data as cpUsecasesData } from "@src/__mocks__/mockedDb/cpHasUsecases";
 import { data as osDeviceData } from "@src/__mocks__/mockedDb/deviceOs";
 import { data as platformDeviceData } from "@src/__mocks__/mockedDb/devicePlatform";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
@@ -183,92 +183,85 @@ jest.mock("@src/features/getMimetypeFromS3");
 
 describe("Route POST a bug to a specific campaign", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.basicUser();
-      await profileData.basicTester();
-      await campaignData.basicCampaign({
-        base_bug_internal_id: "BASE1BUGINTERNAL",
-      });
-      await campaignData.basicCampaign({ id: 3 });
-      await campaignData.basicCampaign({
-        id: 4,
-        base_bug_internal_id: "BASE4BUGINTERNAL",
-      });
+    await wpUserData.basicUser();
+    await profileData.basicTester();
+    await Campaign.insert({
+      base_bug_internal_id: "BASE1BUGINTERNAL",
+    });
+    await Campaign.insert({ id: 3 });
+    await Campaign.insert({
+      id: 4,
+      base_bug_internal_id: "BASE4BUGINTERNAL",
+    });
 
-      await cpCandidaturesData.candidate1({
-        selected_device: 1,
-        accepted: 1,
-        campaign_id: 1,
-      });
-      await cpCandidaturesData.candidate1({
-        selected_device: 0,
-        accepted: 1,
-        campaign_id: 4,
-      });
-      await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGH" });
-      await replicabilityData.replicability({ name: "Once" });
-      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
-      await bugTypesData.bugType({ name: "Crash" });
-      await bugTypesData.bugType({ id: 2, name: "Typo" });
-      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
-      await cpUsecasesData.usecase1();
-      await cpUsecasesData.usecase1({ id: 2 });
-      await cpHasTaskGroupsData.group1();
-      await platformDeviceData.platform1({ name: "Android" });
-      await osDeviceData.os1({
-        id: 798,
-        version_number: "11",
-        display_name: "11",
-      });
-      await userDeviceData.device1({
-        manufacturer: "Acer",
-        model: "Iconia A1",
-        platform_id: 1,
-        os_version_id: 798,
-        os_version: "11 (11)",
-        operating_system: "Android",
-        form_factor: "Tablet",
-        source_id: 950,
-      });
-      await additionalFields.additional1({
-        slug: "codice-cliente",
-        type: "regex",
-        validation: "^[0-9a-zA-Z]+$",
-      });
-      await additionalFields.additional1({
-        id: 2,
-        slug: "nome-banca",
-        type: "select",
-        validation: "intesa; etruria; sanpaolo",
-      });
-      resolve(null);
+    await Candidature.insert({
+      selected_device: 1,
+      accepted: 1,
+      campaign_id: 1,
+    });
+    await Candidature.insert({
+      selected_device: 0,
+      accepted: 1,
+      campaign_id: 4,
+    });
+    await Severity.insert({ name: "LOW" });
+    await Severity.insert({ id: 2, name: "HIGH" });
+    await Replicability.insert({ name: "Once" });
+    await Replicability.insert({ id: 2, name: "Sometimes" });
+    await BugType.insert({ name: "Crash" });
+    await BugType.insert({ id: 2, name: "Typo" });
+    await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
+    await Usecases.insert({ title: "Title of usecase1" });
+    await Usecases.insert({ id: 2 });
+    await UsecaseGroups.insert();
+    await platformDeviceData.platform1({ name: "Android" });
+    await osDeviceData.os1({
+      id: 798,
+      version_number: "11",
+      display_name: "11",
+    });
+    await userDeviceData.device1({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      os_version: "11 (11)",
+      operating_system: "Android",
+      form_factor: "Tablet",
+      source_id: 950,
+    });
+    await CampaignAdditionals.insert({
+      slug: "codice-cliente",
+      type: "regex",
+      validation: "^[0-9a-zA-Z]+$",
+    });
+    await CampaignAdditionals.insert({
+      id: 2,
+      slug: "nome-banca",
+      type: "select",
+      validation: "intesa; etruria; sanpaolo",
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.drop();
-      await profileData.drop();
-      await campaignData.drop();
-      await cpCandidaturesData.drop();
-      await severityData.drop();
-      await cpSeverityData.drop();
-      await replicabilityData.drop();
-      await cpReplicabilityData.drop();
-      await bugTypesData.drop();
-      await cpHasBugTypeData.drop();
-      await cpUsecasesData.drop();
-      await cpHasTaskGroupsData.drop();
-      await bugData.drop();
-      await bugMedia.clear();
-      await platformDeviceData.drop();
-      await userDeviceData.drop();
-      await osDeviceData.drop();
-      await additionalFields.drop();
-      await additionalFieldsData.drop();
-
-      resolve(null);
-    });
+    await wpUserData.drop();
+    await profileData.drop();
+    await Campaign.clear();
+    await Candidature.clear();
+    await Severity.clear();
+    await cpSeverityData.drop();
+    await Replicability.clear();
+    await cpReplicabilityData.drop();
+    await BugType.clear();
+    await cpHasBugTypeData.drop();
+    await Usecases.clear();
+    await UsecaseGroups.clear();
+    await bugData.drop();
+    await bugMedia.clear();
+    await platformDeviceData.drop();
+    await userDeviceData.drop();
+    await osDeviceData.drop();
+    await CampaignAdditionals.clear();
+    await additionalFieldsData.drop();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).post("/users/me/campaigns/1/bugs");
@@ -480,73 +473,65 @@ describe("Route POST a bug to a specific campaign", () => {
 
 describe("Route POST a bug to a specific campaign - with custom type", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.basicUser();
-      await profileData.basicTester();
-      await campaignData.basicCampaign({
-        base_bug_internal_id: "BASEBUGINTERNAL",
-      });
+    await wpUserData.basicUser();
+    await profileData.basicTester();
+    await Campaign.insert({
+      base_bug_internal_id: "BASEBUGINTERNAL",
+    });
 
-      await cpCandidaturesData.candidate1();
-      await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGH" });
-      await cpSeverityData.cpSeverity({ campaign_id: 1 });
-      await replicabilityData.replicability({ name: "Once" });
-      await bugTypesData.bugType({ name: "Crash" });
-      await bugTypesData.bugType({ id: 2, name: "Typo" });
-      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
-      await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
-      await cpHasBugTypeData.cpBugType({
-        id: 2,
-        campaign_id: 1,
-        bug_type_id: 3,
-      });
-      await cpUsecasesData.usecase1();
-      await cpHasTaskGroupsData.group1();
-      await platformDeviceData.platform1({ name: "Android" });
-      await osDeviceData.os1({
-        id: 798,
-        version_number: "11",
-        display_name: "11",
-      });
-      await userDeviceData.device1({
-        manufacturer: "Acer",
-        model: "Iconia A1",
-        platform_id: 1,
-        os_version_id: 798,
-        os_version: "11 (11)",
-        operating_system: "Android",
-        form_factor: "Tablet",
-        source_id: 950,
-      });
-
-      resolve(null);
+    await Candidature.insert();
+    await Severity.insert({ name: "LOW" });
+    await Severity.insert({ id: 2, name: "HIGH" });
+    await cpSeverityData.cpSeverity({ campaign_id: 1 });
+    await Replicability.insert({ name: "Once" });
+    await BugType.insert({ name: "Crash" });
+    await BugType.insert({ id: 2, name: "Typo" });
+    await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
+    await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
+    await cpHasBugTypeData.cpBugType({
+      id: 2,
+      campaign_id: 1,
+      bug_type_id: 3,
+    });
+    await Usecases.insert();
+    await UsecaseGroups.insert();
+    await platformDeviceData.platform1({ name: "Android" });
+    await osDeviceData.os1({
+      id: 798,
+      version_number: "11",
+      display_name: "11",
+    });
+    await userDeviceData.device1({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      os_version: "11 (11)",
+      operating_system: "Android",
+      form_factor: "Tablet",
+      source_id: 950,
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await profileData.drop();
-      await wpUserData.drop();
-      await campaignData.drop();
-      await cpCandidaturesData.drop();
-      await severityData.drop();
-      await cpSeverityData.drop();
-      await replicabilityData.drop();
-      await cpReplicabilityData.drop();
-      await bugTypesData.drop();
-      await cpHasBugTypeData.drop();
-      await cpUsecasesData.drop();
-      await cpHasTaskGroupsData.drop();
-      await bugData.drop();
-      await bugMedia.clear();
-      await platformDeviceData.drop();
-      await osDeviceData.drop();
-      await userDeviceData.drop();
-      await additionalFields.drop();
-      await additionalFieldsData.drop();
-
-      resolve(null);
-    });
+    await profileData.drop();
+    await wpUserData.drop();
+    await Campaign.clear();
+    await Candidature.clear();
+    await Severity.clear();
+    await cpSeverityData.drop();
+    await Replicability.clear();
+    await cpReplicabilityData.drop();
+    await BugType.clear();
+    await cpHasBugTypeData.drop();
+    await Usecases.clear();
+    await UsecaseGroups.clear();
+    await bugData.drop();
+    await bugMedia.clear();
+    await platformDeviceData.drop();
+    await osDeviceData.drop();
+    await userDeviceData.drop();
+    await CampaignAdditionals.clear();
+    await additionalFieldsData.drop();
   });
   it("Should return inserted bug with TYPE if a user sends the bug type", async () => {
     const response = await request(app)
@@ -572,64 +557,56 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
 
 describe("Route POST a bug to a specific campaign - with custom severities", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.basicUser();
-      await profileData.basicTester();
-      await campaignData.basicCampaign({
-        base_bug_internal_id: "BASEBUGINTERNAL",
-      });
-      await cpCandidaturesData.candidate1();
-      await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGH" });
-      await cpSeverityData.cpSeverity({ campaign_id: 1 });
-      await replicabilityData.replicability({ name: "Once" });
-      await bugTypesData.bugType({ name: "Crash" });
-      await cpUsecasesData.usecase1();
-      await cpHasTaskGroupsData.group1();
-      await platformDeviceData.platform1({ name: "Android" });
-      await osDeviceData.os1({
-        id: 798,
-        version_number: "11",
-        display_name: "11",
-      });
-      await userDeviceData.device1({
-        manufacturer: "Acer",
-        model: "Iconia A1",
-        platform_id: 1,
-        os_version_id: 798,
-        os_version: "11 (11)",
-        operating_system: "Android",
-        form_factor: "Tablet",
-        source_id: 950,
-      });
-
-      resolve(null);
+    await wpUserData.basicUser();
+    await profileData.basicTester();
+    await Campaign.insert({
+      base_bug_internal_id: "BASEBUGINTERNAL",
+    });
+    await Candidature.insert();
+    await Severity.insert({ name: "LOW" });
+    await Severity.insert({ id: 2, name: "HIGH" });
+    await cpSeverityData.cpSeverity({ campaign_id: 1 });
+    await Replicability.insert({ name: "Once" });
+    await BugType.insert({ name: "Crash" });
+    await Usecases.insert();
+    await UsecaseGroups.insert();
+    await platformDeviceData.platform1({ name: "Android" });
+    await osDeviceData.os1({
+      id: 798,
+      version_number: "11",
+      display_name: "11",
+    });
+    await userDeviceData.device1({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      os_version: "11 (11)",
+      operating_system: "Android",
+      form_factor: "Tablet",
+      source_id: 950,
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.drop();
-      await profileData.drop();
-      await campaignData.drop();
-      await cpCandidaturesData.drop();
-      await severityData.drop();
-      await cpSeverityData.drop();
-      await replicabilityData.drop();
-      await cpReplicabilityData.drop();
-      await bugTypesData.drop();
-      await cpHasBugTypeData.drop();
-      await cpUsecasesData.drop();
-      await cpHasTaskGroupsData.drop();
-      await bugData.drop();
-      await bugMedia.clear();
-      await platformDeviceData.drop();
-      await osDeviceData.drop();
-      await userDeviceData.drop();
-      await additionalFields.drop();
-      await additionalFieldsData.drop();
-
-      resolve(null);
-    });
+    await wpUserData.drop();
+    await profileData.drop();
+    await Campaign.clear();
+    await Candidature.clear();
+    await Severity.clear();
+    await cpSeverityData.drop();
+    await Replicability.clear();
+    await cpReplicabilityData.drop();
+    await BugType.clear();
+    await cpHasBugTypeData.drop();
+    await Usecases.clear();
+    await UsecaseGroups.clear();
+    await bugData.drop();
+    await bugMedia.clear();
+    await platformDeviceData.drop();
+    await osDeviceData.drop();
+    await userDeviceData.drop();
+    await CampaignAdditionals.clear();
+    await additionalFieldsData.drop();
   });
   it("Should return inserted bug with SEVERITY if a user sends the bug severity", async () => {
     const response = await request(app)
@@ -655,64 +632,56 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
 
 describe("Route POST a bug to a specific campaign - with custom replicability", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.basicUser();
-      await profileData.basicTester();
-      await campaignData.basicCampaign({
-        base_bug_internal_id: "BASEBUGINTERNAL",
-      });
-      await cpCandidaturesData.candidate1();
-      await severityData.severity({ name: "LOW" });
-      await replicabilityData.replicability({ name: "Once" });
-      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
-      await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
-      await bugTypesData.bugType({ name: "Crash" });
-      await cpUsecasesData.usecase1();
-      await cpHasTaskGroupsData.group1();
-      await platformDeviceData.platform1({ name: "Android" });
-      await osDeviceData.os1({
-        id: 798,
-        version_number: "11",
-        display_name: "11",
-      });
-      await userDeviceData.device1({
-        manufacturer: "Acer",
-        model: "Iconia A1",
-        platform_id: 1,
-        os_version_id: 798,
-        os_version: "11 (11)",
-        operating_system: "Android",
-        form_factor: "Tablet",
-        source_id: 950,
-      });
-
-      resolve(null);
+    await wpUserData.basicUser();
+    await profileData.basicTester();
+    await Campaign.insert({
+      base_bug_internal_id: "BASEBUGINTERNAL",
+    });
+    await Candidature.insert();
+    await Severity.insert({ name: "LOW" });
+    await Replicability.insert({ name: "Once" });
+    await Replicability.insert({ id: 2, name: "Sometimes" });
+    await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
+    await BugType.insert({ name: "Crash" });
+    await Usecases.insert();
+    await UsecaseGroups.insert();
+    await platformDeviceData.platform1({ name: "Android" });
+    await osDeviceData.os1({
+      id: 798,
+      version_number: "11",
+      display_name: "11",
+    });
+    await userDeviceData.device1({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      os_version: "11 (11)",
+      operating_system: "Android",
+      form_factor: "Tablet",
+      source_id: 950,
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.drop();
-      await profileData.drop();
-      await campaignData.drop();
-      await cpCandidaturesData.drop();
-      await severityData.drop();
-      await cpSeverityData.drop();
-      await replicabilityData.drop();
-      await cpReplicabilityData.drop();
-      await bugTypesData.drop();
-      await cpHasBugTypeData.drop();
-      await cpUsecasesData.drop();
-      await cpHasTaskGroupsData.drop();
-      await bugData.drop();
-      await bugMedia.clear();
-      await platformDeviceData.drop();
-      await osDeviceData.drop();
-      await userDeviceData.drop();
-      await additionalFields.drop();
-      await additionalFieldsData.drop();
-
-      resolve(null);
-    });
+    await wpUserData.drop();
+    await profileData.drop();
+    await Campaign.clear();
+    await Candidature.clear();
+    await Severity.clear();
+    await cpSeverityData.drop();
+    await Replicability.clear();
+    await cpReplicabilityData.drop();
+    await BugType.clear();
+    await cpHasBugTypeData.drop();
+    await Usecases.clear();
+    await UsecaseGroups.clear();
+    await bugData.drop();
+    await bugMedia.clear();
+    await platformDeviceData.drop();
+    await osDeviceData.drop();
+    await userDeviceData.drop();
+    await CampaignAdditionals.clear();
+    await additionalFieldsData.drop();
   });
 
   it("Should return inserted bug with REPLICABILITY if a user sends the bug replicability", async () => {
@@ -738,46 +707,38 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
 });
 describe("Route POST a bug to a specific campaign - with user has not devices", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.basicUser();
-      await profileData.basicTester();
-      await campaignData.basicCampaign({
-        base_bug_internal_id: "BASEBUGINTERNAL",
-      });
-      await cpCandidaturesData.candidate1();
-      await severityData.severity({ name: "LOW" });
-      await replicabilityData.replicability({ name: "Once" });
-      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
-      await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
-      await bugTypesData.bugType({ name: "Crash" });
-      await cpUsecasesData.usecase1();
-      await cpHasTaskGroupsData.group1();
-
-      resolve(null);
+    await wpUserData.basicUser();
+    await profileData.basicTester();
+    await Campaign.insert({
+      base_bug_internal_id: "BASEBUGINTERNAL",
     });
+    await Candidature.insert();
+    await Severity.insert({ name: "LOW" });
+    await Replicability.insert({ name: "Once" });
+    await Replicability.insert({ id: 2, name: "Sometimes" });
+    await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
+    await BugType.insert({ name: "Crash" });
+    await Usecases.insert();
+    await UsecaseGroups.insert();
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.drop();
-      await profileData.drop();
-      await campaignData.drop();
-      await cpCandidaturesData.drop();
-      await severityData.drop();
-      await cpSeverityData.drop();
-      await replicabilityData.drop();
-      await cpReplicabilityData.drop();
-      await bugTypesData.drop();
-      await cpHasBugTypeData.drop();
-      await cpUsecasesData.drop();
-      await cpHasTaskGroupsData.drop();
-      await bugData.drop();
-      await bugMedia.clear();
-      await userDeviceData.drop();
-      await additionalFields.drop();
-      await additionalFieldsData.drop();
-
-      resolve(null);
-    });
+    await wpUserData.drop();
+    await profileData.drop();
+    await Campaign.clear();
+    await Candidature.clear();
+    await Severity.clear();
+    await cpSeverityData.drop();
+    await Replicability.clear();
+    await cpReplicabilityData.drop();
+    await BugType.clear();
+    await cpHasBugTypeData.drop();
+    await Usecases.clear();
+    await UsecaseGroups.clear();
+    await bugData.drop();
+    await bugMedia.clear();
+    await userDeviceData.drop();
+    await CampaignAdditionals.clear();
+    await additionalFieldsData.drop();
   });
 
   it("Should return 403 if a user has no device", async () => {
@@ -791,92 +752,85 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
 
 describe("Route POST a bug to a specific campaign - with invalid additional fields", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.basicUser();
-      await profileData.basicTester();
-      await campaignData.basicCampaign({
-        base_bug_internal_id: "BASE1BUGINTERNAL",
-      });
-      await campaignData.basicCampaign({ id: 3 });
-      await campaignData.basicCampaign({
-        id: 4,
-        base_bug_internal_id: "BASE4BUGINTERNAL",
-      });
+    await wpUserData.basicUser();
+    await profileData.basicTester();
+    await Campaign.insert({
+      base_bug_internal_id: "BASE1BUGINTERNAL",
+    });
+    await Campaign.insert({ id: 3 });
+    await Campaign.insert({
+      id: 4,
+      base_bug_internal_id: "BASE4BUGINTERNAL",
+    });
 
-      await cpCandidaturesData.candidate1({
-        selected_device: 1,
-        accepted: 1,
-        campaign_id: 1,
-      });
-      await cpCandidaturesData.candidate1({
-        selected_device: 0,
-        accepted: 1,
-        campaign_id: 4,
-      });
-      await severityData.severity({ name: "LOW" });
-      await severityData.severity({ id: 2, name: "HIGH" });
-      await replicabilityData.replicability({ name: "Once" });
-      await replicabilityData.replicability({ id: 2, name: "Sometimes" });
-      await bugTypesData.bugType({ name: "Crash" });
-      await bugTypesData.bugType({ id: 2, name: "Typo" });
-      await bugTypesData.bugType({ id: 3, name: "Other", is_enabled: 0 });
-      await cpUsecasesData.usecase1();
-      await cpUsecasesData.usecase1({ id: 2 });
-      await cpHasTaskGroupsData.group1();
-      await platformDeviceData.platform1({ name: "Android" });
-      await osDeviceData.os1({
-        id: 798,
-        version_number: "11",
-        display_name: "11",
-      });
-      await userDeviceData.device1({
-        manufacturer: "Acer",
-        model: "Iconia A1",
-        platform_id: 1,
-        os_version_id: 798,
-        os_version: "11 (11)",
-        operating_system: "Android",
-        form_factor: "Tablet",
-        source_id: 950,
-      });
-      await additionalFields.additional1({
-        slug: "codice-cliente",
-        type: "regex",
-        validation: "^[0-9a-zA-Z]+$",
-      });
-      await additionalFields.additional1({
-        id: 2,
-        slug: "nome-banca",
-        type: "select",
-        validation: "intesa; etruria; sanpaolo",
-      });
-      resolve(null);
+    await Candidature.insert({
+      selected_device: 1,
+      accepted: 1,
+      campaign_id: 1,
+    });
+    await Candidature.insert({
+      selected_device: 0,
+      accepted: 1,
+      campaign_id: 4,
+    });
+    await Severity.insert({ name: "LOW" });
+    await Severity.insert({ id: 2, name: "HIGH" });
+    await Replicability.insert({ name: "Once" });
+    await Replicability.insert({ id: 2, name: "Sometimes" });
+    await BugType.insert({ name: "Crash" });
+    await BugType.insert({ id: 2, name: "Typo" });
+    await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
+    await Usecases.insert();
+    await Usecases.insert({ id: 2 });
+    await UsecaseGroups.insert();
+    await platformDeviceData.platform1({ name: "Android" });
+    await osDeviceData.os1({
+      id: 798,
+      version_number: "11",
+      display_name: "11",
+    });
+    await userDeviceData.device1({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      os_version: "11 (11)",
+      operating_system: "Android",
+      form_factor: "Tablet",
+      source_id: 950,
+    });
+    await CampaignAdditionals.insert({
+      slug: "codice-cliente",
+      type: "regex",
+      validation: "^[0-9a-zA-Z]+$",
+    });
+    await CampaignAdditionals.insert({
+      id: 2,
+      slug: "nome-banca",
+      type: "select",
+      validation: "intesa; etruria; sanpaolo",
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUserData.drop();
-      await profileData.drop();
-      await campaignData.drop();
-      await cpCandidaturesData.drop();
-      await severityData.drop();
-      await cpSeverityData.drop();
-      await replicabilityData.drop();
-      await cpReplicabilityData.drop();
-      await bugTypesData.drop();
-      await cpHasBugTypeData.drop();
-      await cpUsecasesData.drop();
-      await cpHasTaskGroupsData.drop();
-      await bugData.drop();
-      await bugMedia.clear();
-      await userDeviceData.drop();
-      await platformDeviceData.drop();
-      await osDeviceData.drop();
-      await additionalFields.drop();
-      await additionalFieldsData.drop();
-
-      resolve(null);
-    });
+    await wpUserData.drop();
+    await profileData.drop();
+    await Campaign.clear();
+    await Candidature.clear();
+    await Severity.clear();
+    await cpSeverityData.drop();
+    await Replicability.clear();
+    await cpReplicabilityData.drop();
+    await BugType.clear();
+    await cpHasBugTypeData.drop();
+    await Usecases.clear();
+    await UsecaseGroups.clear();
+    await bugData.drop();
+    await bugMedia.clear();
+    await userDeviceData.drop();
+    await platformDeviceData.drop();
+    await osDeviceData.drop();
+    await CampaignAdditionals.clear();
+    await additionalFieldsData.drop();
   });
 
   it("Should return inserted bug without additional if a user send invalid additional fields", async () => {

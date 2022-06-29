@@ -1,21 +1,27 @@
-import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
-import { table as cpAdditionalFields } from "@src/__mocks__/mockedDb/cpHasAdditionalFields";
-import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
-import sqlite3 from "@src/features/sqlite";
-
 import Attributions from "./mockedDb/attributions";
-import { table as bugTable } from "./mockedDb/bug";
 import bugMedia from "./mockedDb/bugMedia";
-import { table as replicabilitiesTable } from "./mockedDb/bugReplicabilities";
-import { table as severityTable } from "./mockedDb/bugSeverities";
-import { table as bugStatus } from "./mockedDb/bugStatus";
-import BugTypes from "./mockedDb/bugTypes";
-import Campaigns from "./mockedDb/campaign";
-import { table as certificationListTable } from "./mockedDb/certificationList";
-import Candidature from "./mockedDb/cp_has_candidates";
+import Candidature from "./mockedDb/cpHasCandidates";
 import CustomBugTypes from "./mockedDb/customBugTypes";
 import CustomReplicabilities from "./mockedDb/customReplicabilities";
 import CustomSeverities from "./mockedDb/customSeverities";
+
+import Campaigns from "./mockedDb/campaign";
+import BugTypes from "./mockedDb/bugTypes";
+import Replicabilities from "./mockedDb/bugReplicabilities";
+import Severities from "./mockedDb/bugSeverities";
+import WpOptions from "./mockedDb/wp_options";
+import CampaignAdditionals from "./mockedDb/campaignAdditionals";
+import CampaignMeta from "./mockedDb/campaignMeta";
+import UseCaseGroups from "./mockedDb/usecasesGroups";
+import UseCases from "./mockedDb/usecases";
+
+import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
+import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
+import sqlite3 from "@src/features/sqlite";
+
+import { table as bugTable } from "./mockedDb/bug";
+import { table as bugStatus } from "./mockedDb/bugStatus";
+import { table as certificationListTable } from "./mockedDb/certificationList";
 import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
@@ -32,18 +38,11 @@ import { table as paymentRequestTable } from "./mockedDb/paymentRequest";
 import { table as popupTable } from "./mockedDb/popups";
 import { table as testerTable } from "./mockedDb/profile";
 import { table as receiptTable } from "./mockedDb/receipt";
-import Replicabilities from "./mockedDb/replicabilities";
-import Severities from "./mockedDb/severities";
 import { table as testerCertificationTable } from "./mockedDb/testerCertification";
 import TesterDevice from "./mockedDb/testerDevice";
 import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
-import UseCases from "./mockedDb/usecases";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
-import WpOptions from "./mockedDb/wp_options";
-import CampaignAdditionals from "./mockedDb/campaignAdditionals";
-import CampaignMeta from "./mockedDb/campaignMeta";
-import UseCaseGroups from "./mockedDb/usecasesGroups";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
 
@@ -81,14 +80,6 @@ beforeAll(async () => {
   await BugTypes.mock();
   await CustomBugTypes.mock();
   await bugStatus.create();
-  await cpSeverity.create();
-  await replicabilitiesTable.create();
-  await cpReplicabilitiesTable.create();
-  await bugTypesTable.create();
-  await cpHasBugTypesTable.create();
-  await usecasesTable.create();
-  await cpHasGroupsTable.create();
-  await cpAdditionalFields.create();
   await bugAdditionalFields.create();
 
   await paymentRequestTable.create();
@@ -99,7 +90,6 @@ beforeAll(async () => {
     UPDATE wp_appq_payment_request set update_date = CURRENT_TIMESTAMP where id = NEW.id;
     END`);
 
-  await attributionsTable.create();
   await CustomSeverities.mock();
   await Replicabilities.mock();
   await CustomReplicabilities.mock();
@@ -107,4 +97,6 @@ beforeAll(async () => {
   await CampaignAdditionals.mock();
   await CampaignMeta.mock();
   await UseCaseGroups.mock();
+  await Attributions.mock();
+  await bugMedia.mock();
 });

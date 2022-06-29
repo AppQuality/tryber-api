@@ -8,48 +8,44 @@ import request from "supertest";
 describe("GET /users/me - booty data", () => {
   const data: any = {};
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      data.tester = await profileData.testerWithoutBooty();
-      await wpUsersData.basicUser({
-        ID: data.tester.wp_user_id,
-      });
-      data.attributionTotal = 0;
-      data.attributionTotal += (
-        await Attributions.insert({
-          id: 1,
-          amount: 15,
-          tester_id: data.tester.id,
-        })
-      ).amount;
-      data.attributionTotal += (
-        await Attributions.insert({
-          id: 2,
-          amount: 14.99,
-          tester_id: data.tester.id,
-        })
-      ).amount;
-      data.attributionTotal += (
-        await Attributions.insert({
-          id: 3,
-          amount: 7.15,
-          tester_id: data.tester.id,
-        })
-      ).amount;
-
+    data.tester = await profileData.testerWithoutBooty();
+    await wpUsersData.basicUser({
+      ID: data.tester.wp_user_id,
+    });
+    data.attributionTotal = 0;
+    data.attributionTotal += (
       await Attributions.insert({
-        id: 4,
-        amount: 50,
+        id: 1,
+        amount: 15,
         tester_id: data.tester.id,
-        is_requested: 1,
-      });
-
+      })
+    ).amount;
+    data.attributionTotal += (
       await Attributions.insert({
-        id: 5,
-        amount: 50,
-        tester_id: data.tester.id + 1,
-      });
+        id: 2,
+        amount: 14.99,
+        tester_id: data.tester.id,
+      })
+    ).amount;
+    data.attributionTotal += (
+      await Attributions.insert({
+        id: 3,
+        amount: 7.15,
+        tester_id: data.tester.id,
+      })
+    ).amount;
 
-      resolve(null);
+    await Attributions.insert({
+      id: 4,
+      amount: 50,
+      tester_id: data.tester.id,
+      is_requested: 1,
+    });
+
+    await Attributions.insert({
+      id: 5,
+      amount: 50,
+      tester_id: data.tester.id + 1,
     });
   });
   afterEach(async () => {
@@ -76,24 +72,17 @@ describe("GET /users/me - booty data", () => {
 describe("GET /users/me - pending_booty threshold", () => {
   const data: any = {};
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      data.tester = await profileData.testerWithoutBooty();
-      await wpUsersData.basicUser({
-        ID: data.tester.wp_user_id,
-      });
-      await WpOptions.crowdWpOptions();
-      resolve(null);
+    data.tester = await profileData.testerWithoutBooty();
+    await wpUsersData.basicUser({
+      ID: data.tester.wp_user_id,
     });
+    await WpOptions.crowdWpOptions();
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await profileData.drop();
-      await wpUsersData.drop();
-      await attributionsData.drop();
-      await WpOptions.clear();
-
-      resolve(null);
-    });
+    await profileData.drop();
+    await wpUsersData.drop();
+    await WpOptions.clear();
+    await Attributions.clear();
   });
   it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
     await Attributions.insert({
