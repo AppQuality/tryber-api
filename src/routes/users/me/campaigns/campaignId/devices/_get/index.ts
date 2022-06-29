@@ -28,5 +28,5 @@ export default async (
     testerId: req.user.testerId,
   });
   res.status_code = 200;
-  return [devices];
+  return devices;
 };
