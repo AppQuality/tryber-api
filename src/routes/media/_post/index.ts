@@ -3,38 +3,7 @@ import upload from "@src/features/upload";
 import { Context } from "openapi-backend";
 import path from "path";
 import fs from "fs";
-
-const parseForm = async (req: OpenapiRequest): Promise<Media[]> => {
-  return new Promise((resolve, reject) => {
-    const form = req.busboy;
-    const files: Media[] = []; // create an empty array to hold the processed files
-    form.on("file", (field: any, readableStream: any, fileData: any) => {
-      const filePath = path.join("./tmp", fileData.filename);
-      const fstream = fs.createWriteStream(filePath);
-      const readStream = fs.createReadStream(filePath);
-
-      readableStream.on("data", (data: any) => {
-        fstream.write(data);
-      });
-      readableStream.on("end", () => {
-        files.push({
-          stream: readStream,
-          mimeType: fileData.mimeType,
-          name: fileData.filename,
-          size: fstream.bytesWritten,
-          tmpPath: filePath,
-        });
-      });
-    });
-    form.on("error", (err: any) => {
-      reject(err);
-    });
-    form.on("finish", () => {
-      resolve(files);
-    });
-    req.pipe(form); // pipe the request to the form handler
-  });
-};
+import busboyMapper from "@src/features/busboyMapper";
 
 /** OPENAPI-ROUTE: post-media */
 export default async (
@@ -43,13 +12,17 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    if (!fs.existsSync("./tmp")) {
-      fs.mkdirSync("./tmp");
-    }
-    const filesToUpload = await parseForm(req);
-    console.log(filesToUpload);
+    const { valid, invalid } = await busboyMapper(req, (file) => {
+      if (!isAcceptableFile(file)) {
+        return "INVALID_FILE_EXTENSION";
+      }
+      return false;
+    });
     res.status_code = 200;
-    return await uploadFiles(filesToUpload, req.user.testerId);
+    return {
+      files: await uploadFiles(valid, req.user.testerId),
+      failed: invalid.length ? invalid : undefined,
+    };
   } catch (err) {
     debugMessage(err);
     res.status_code = 404;
@@ -82,43 +55,25 @@ export default async (
     files: Media[],
     testerId: number
   ): Promise<
-    StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]
+    StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]["files"]
   > {
     let uploadedFiles = [];
-    let failedFiles = [];
     for (const media of files) {
-      if (!isAcceptableFile(media))
-        failedFiles.push({
-          name: media.name,
-          errorCode: "INVALID_FILE_EXTENSION",
-        });
-      if (isOversizedFile(media))
-        failedFiles.push({ name: media.name, errorCode: "FILE_TOO_BIG" });
-      else {
-        const keyEnhancer = media.keyEnhancer ? media.keyEnhancer : getKey;
-        uploadedFiles.push({
-          name: media.name,
-          path: (
-            await upload({
-              bucket: process.env.MEDIA_BUCKET || "",
-              key: keyEnhancer({
-                testerId: testerId,
-                filename: path.basename(media.name, path.extname(media.name)),
-                extension: path.extname(media.name),
-              }),
-              file: media,
-            })
-          ).toString(),
-        });
-      }
-      fs.unlinkSync(media.tmpPath);
+      uploadedFiles.push({
+        name: media.name,
+        path: (
+          await upload({
+            bucket: process.env.MEDIA_BUCKET || "",
+            key: getKey({
+              testerId: testerId,
+              filename: path.basename(media.name, path.extname(media.name)),
+              extension: path.extname(media.name),
+            }),
+            file: media,
+          })
+        ).toString(),
+      });
     }
-    return {
-      files: uploadedFiles,
-      failed: failedFiles.length ? failedFiles : undefined,
-    };
+    return uploadedFiles;
   }
 };
-function isOversizedFile(media: Media): boolean {
-  return media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912");
-}
