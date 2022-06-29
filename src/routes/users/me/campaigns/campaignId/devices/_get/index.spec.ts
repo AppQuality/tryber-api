@@ -59,6 +59,7 @@ beforeAll(async () => {
     os_version_id: 2,
     enabled: 1,
     form_factor: "PC",
+    pc_type: "Desktop",
     manufacturer: "Acer",
     model: "Aspire",
   });
@@ -173,8 +174,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
         id: 2,
         type: "PC",
         device: {
-          manufacturer: "Acer",
-          model: "Aspire",
+          pc_type: "Desktop",
         },
         operating_system: {
           id: 2,
