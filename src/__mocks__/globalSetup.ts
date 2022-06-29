@@ -4,7 +4,6 @@ import Candidature from "./mockedDb/cpHasCandidates";
 import CustomBugTypes from "./mockedDb/customBugTypes";
 import CustomReplicabilities from "./mockedDb/customReplicabilities";
 import CustomSeverities from "./mockedDb/customSeverities";
-
 import Campaigns from "./mockedDb/campaign";
 import BugTypes from "./mockedDb/bugTypes";
 import Replicabilities from "./mockedDb/bugReplicabilities";
@@ -14,11 +13,8 @@ import CampaignAdditionals from "./mockedDb/campaignAdditionals";
 import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import UseCases from "./mockedDb/usecases";
-
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
-import sqlite3 from "@src/features/sqlite";
-
 import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as certificationListTable } from "./mockedDb/certificationList";
@@ -45,6 +41,7 @@ import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import { table as wpUsersTable } from "./mockedDb/wp_users";
+import sqlite3 from "@src/features/sqlite";
 
 export {};
 beforeAll(async () => {
