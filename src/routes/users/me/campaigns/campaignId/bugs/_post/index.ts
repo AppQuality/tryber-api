@@ -13,6 +13,8 @@ export default async (
 ): Promise<Bug | CreateBugError> => {
   const params = c.request.params as RequestParams;
   const campaignId = parseInt(params.campaignId);
+  const body: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["requestBody"]["content"]["application/json"] =
+    req.body;
 
   let candidature,
     usecase: Usecase,
@@ -30,7 +32,7 @@ export default async (
     replicability = await getReplicability();
     bugtype = await getBugType();
     media = await getMediaData();
-    device = await getUserDevice(req.body.device, parseInt(req.user.ID));
+    device = await getUserDevice(body.device, parseInt(req.user.ID));
     additional = await getAdditionalFields();
   } catch (error) {
     debugMessage(error);
@@ -75,8 +77,7 @@ export default async (
 
   let insertedMedia: Media = [];
   try {
-    if (req.body.media)
-      insertedMedia = await createMediasBug(insertedBugId, media);
+    if (body.media) insertedMedia = await createMediasBug(insertedBugId, media);
   } catch (error) {
     debugMessage(error);
     res.status_code = 500;
@@ -109,15 +110,15 @@ export default async (
     id: insertedBugId,
     testerId: req.user.testerId,
     internalId: internalBugID,
-    title: req.body.title,
-    description: req.body.description,
-    notes: req.body.notes,
+    title: body.title,
+    description: body.description,
+    notes: body.notes,
     severity: severity.name,
-    replicability: req.body.replicability,
-    type: req.body.type,
+    replicability: body.replicability,
+    type: body.type,
     status: "PENDING",
-    expected: req.body.expected,
-    current: req.body.current,
+    expected: body.expected,
+    current: body.current,
     usecase: usecase.title,
     media: insertedMedia,
     device: device,
@@ -155,7 +156,7 @@ export default async (
     }
     if (
       result[0].selected_device !== 0 &&
-      result[0].selected_device !== req.body.device
+      result[0].selected_device !== body.device
     ) {
       throw {
         status_code: 403,
@@ -166,11 +167,11 @@ export default async (
   }
   async function getSeverity() {
     const severities = await getSeverities();
-    const result = severities.find((item) => item.name === req.body.severity);
+    const result = severities.find((item) => item.name === body.severity);
     if (result) return result;
     throw {
       status_code: 403,
-      message: `Severity ${req.body.severity} is not accepted from CP${campaignId}.`,
+      message: `Severity ${body.severity} is not accepted from CP${campaignId}.`,
     };
     async function getSeverities(): Promise<Severity[]> {
       const data = await getCampaignAdditionalSeverities();
@@ -194,12 +195,12 @@ export default async (
   async function getReplicability() {
     const replicabilities = await getReplicabilities();
     const result = replicabilities.find(
-      (item) => item.name === req.body.replicability
+      (item) => item.name === body.replicability
     );
     if (result) return result;
     throw {
       status_code: 403,
-      message: `Replicability ${req.body.replicability} is not accepted from CP${campaignId}.`,
+      message: `Replicability ${body.replicability} is not accepted from CP${campaignId}.`,
     };
     async function getReplicabilities(): Promise<Replicability[]> {
       const data = await getCampaignAdditionalReplicabilities();
@@ -224,11 +225,11 @@ export default async (
   }
   async function getBugType() {
     const bugtypes = await getBugTypes();
-    const result = bugtypes.find((item) => item.name === req.body.type);
+    const result = bugtypes.find((item) => item.name === body.type);
     if (result) return result;
     throw {
       status_code: 403,
-      message: `BugType ${req.body.type} is not accepted from CP${campaignId}.`,
+      message: `BugType ${body.type} is not accepted from CP${campaignId}.`,
     };
     async function getBugTypes(): Promise<BugType[]> {
       const data = await getCampaignAdditionalBugTypes();
@@ -253,9 +254,9 @@ export default async (
   }
   async function getMediaData() {
     let media: BugMedia;
-    if (req.body.media) {
+    if (body.media) {
       media = [];
-      for (const url of req.body.media) {
+      for (const url of body.media) {
         const type = await getMimetypeFromS3({ url });
         if (type) media.push({ url: url, type: type });
       }
@@ -276,13 +277,13 @@ export default async (
             AND (tskgrp.group_id = 0 || tskgrp.group_id = ?)
             AND tsk.id = ?
          ;`,
-        [campaignId, group_id, req.body.usecase]
+        [campaignId, group_id, body.usecase]
       )
     );
     if (!usecases.length) {
       throw {
         status_code: 403,
-        message: `Usecase ${req.body.usecase} not found for CP${campaignId}.`,
+        message: `Usecase ${body.usecase} not found for CP${campaignId}.`,
       };
     }
     usecase = usecases[0];
@@ -290,11 +291,11 @@ export default async (
     return usecase;
 
     function isNotSpecificUsecase() {
-      return req.body.usecase === -1;
+      return body.usecase === -1;
     }
   }
   async function getAdditionalFields(): Promise<CreateAdditionals> {
-    if (!req.body.additional) return undefined;
+    if (!body.additional) return undefined;
 
     let campaignAdditionalFields = await getCampaignAdditionalFields();
 
@@ -307,11 +308,9 @@ export default async (
     const acceptedSlugs = campaignAdditionalFields.map(
       (item: { slug: string }) => item.slug
     );
-    const bugSlugs = req.body.additional.map(
-      (item: { slug: string }) => item.slug
-    );
+    const bugSlugs = body.additional.map((item: { slug: string }) => item.slug);
     //filter additionals in request that are acceptable
-    return getValidAdditionalFields();
+    return getValidAdditionalFields(body.additional);
 
     async function getCampaignAdditionalFields(): Promise<
       CampaignAdditional[]
@@ -326,37 +325,51 @@ export default async (
         )
       );
     }
-    function getValidAdditionalFields() {
+    function getValidAdditionalFields(
+      bodyAdditional: { slug: string; value: string }[]
+    ) {
       let acceptableAdditional: CreateAdditionals = [];
       for (const slug of bugSlugs) {
-        if (acceptedSlugs.includes(slug)) {
-          const currentBugAdditional = req.body.additional.find(
-            (item: { slug: string }) => item.slug == slug
-          );
-          const currentCpAdditional = campaignAdditionalFields.find(
-            (item: { slug: string }) => item.slug == slug
-          );
-          //if  requested is type is select
-          if (currentCpAdditional && isSelect(currentCpAdditional)) {
-            //check the option is in select options
-            if (hasValidOption(currentBugAdditional, currentCpAdditional))
-              acceptableAdditional.push({
-                id: currentCpAdditional.id,
-                value: currentBugAdditional.value,
-              });
-          }
-          //if  requested is type is regex
-          if (currentCpAdditional && isRegex(currentCpAdditional)) {
-            //check the value repspect the regex
-            if (respectRegex(currentBugAdditional, currentCpAdditional))
-              acceptableAdditional.push({
-                id: currentCpAdditional.id,
-                value: currentBugAdditional.value,
-              });
-          }
+        if (!acceptedSlugs.includes(slug)) continue;
+        const currentBugAdditional = bodyAdditional.find(
+          (item) => item.slug == slug
+        );
+        if (!currentBugAdditional) continue;
+        const currentCpAdditional = campaignAdditionalFields.find(
+          (item) => item.slug == slug
+        );
+        if (!currentCpAdditional) continue;
+        if (
+          isValidSelect(currentCpAdditional, currentBugAdditional) ||
+          isValidRegex(currentCpAdditional, currentBugAdditional)
+        ) {
+          acceptableAdditional.push({
+            id: currentCpAdditional.id,
+            value: currentBugAdditional.value,
+          });
         }
       }
       return acceptableAdditional.length ? acceptableAdditional : undefined;
+
+      function isValidRegex(
+        currentCpAdditional: CampaignAdditional,
+        currentBugAdditional: any
+      ) {
+        return (
+          isRegex(currentCpAdditional) &&
+          respectRegex(currentBugAdditional, currentCpAdditional)
+        );
+      }
+
+      function isValidSelect(
+        currentCpAdditional: CampaignAdditional,
+        currentBugAdditional: any
+      ) {
+        return (
+          isSelect(currentCpAdditional) &&
+          hasValidOption(currentBugAdditional, currentCpAdditional)
+        );
+      }
     }
     function isSelect(item: { type: string }) {
       return item.type === "select";
@@ -408,17 +421,17 @@ export default async (
        ;`,
       [
         req.user.ID,
-        req.body.title,
-        req.body.description,
-        req.body.expected,
-        req.body.current,
+        body.title,
+        body.description,
+        body.expected,
+        body.current,
         campaignId,
         severityId,
         replicabilityId,
         bugTypeId,
         usecase.title,
         usecase.id,
-        req.body.notes,
+        body.notes,
 
         device.id,
       ]
