@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { FileArray, UploadedFile } from "express-fileupload";
 import { Request } from "openapi-backend";
-
+import { Busboy } from "connect-busboy";
 import { components, operations, paths } from "./schema";
 
 declare global {
@@ -13,6 +13,8 @@ declare global {
     user: UserType;
     query: { [key: string]: string | { [key: string]: string } };
     files: FileArray;
+    pipe: (stream: NodeJS.Readable) => void;
+    busboy: Busboy;
   }
   interface OpenapiError extends Error {
     status_code: number;
@@ -46,6 +48,15 @@ declare global {
       extension: string,
     }) => string;
   }
+
+  type Media = {
+    name: string;
+    keyEnhancer?: ({}) => string;
+    size: number;
+    stream: fs.ReadStream;
+    mimeType: string;
+    tmpPath: string;
+  };
   interface StoplightOperations extends operations {}
   interface StoplightComponents extends components {}
   interface StoplightPaths extends paths {}
