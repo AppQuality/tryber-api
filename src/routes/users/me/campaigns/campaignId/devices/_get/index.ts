@@ -27,6 +27,14 @@ export default async (
     userId: req.user.ID,
     testerId: req.user.testerId,
   });
+  if (devices.length === 0) {
+    res.status_code = 404;
+    return {
+      id: campaignId,
+      element: "campaigns",
+      message: "There are no devices available for this campaign",
+    };
+  }
   res.status_code = 200;
   return devices;
 };
