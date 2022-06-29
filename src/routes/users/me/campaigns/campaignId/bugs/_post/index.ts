@@ -343,7 +343,6 @@ export default async (
               acceptableAdditional.push({
                 id: currentCpAdditional.id,
                 value: currentBugAdditional.value,
-                slug: currentBugAdditional.slug,
               });
           }
           //if  requested is type is regex
@@ -353,7 +352,6 @@ export default async (
               acceptableAdditional.push({
                 id: currentCpAdditional.id,
                 value: currentBugAdditional.value,
-                slug: currentBugAdditional.slug,
               });
           }
         }
@@ -494,39 +492,33 @@ export default async (
     bugId: number,
     additionals: CreateAdditionals
   ): Promise<UserAdditionals> {
-    if (additionals) {
-      for (const additional of additionals) {
-        const inserted = await db.query(
-          db.format(
-            `
-          INSERT INTO wp_appq_campaign_additional_fields_data (bug_id, type_id, value)
-            VALUES (?, ?, ? ) ;`,
-            [bugId, additional.id, additional.value]
-          )
-        );
-        // if (inserted.affectedRows === 0) {
-        //   throw {
-        //     status_code: 403,
-        //     message: `Error on uploading additional fields`,
-        //   };
-        // }
-      }
-      const inserted = await db.query(
+    if (!additionals) {
+      return undefined;
+    }
+
+    for (const additional of additionals) {
+      await db.query(
         db.format(
           `
-        SELECT * 
-        FROM wp_appq_campaign_additional_fields_data 
-        WHERE bug_id = ? ;`,
-          [bugId]
+          INSERT INTO wp_appq_campaign_additional_fields_data (bug_id, type_id, value)
+            VALUES (?, ?, ? ) ;`,
+          [bugId, additional.id, additional.value]
         )
       );
-      if (additionals.length === inserted.length)
-        return additionals.map(
-          (item: { id: number; slug: string; value: string }) => ({
-            slug: item.slug,
-            value: item.value,
-          })
-        );
     }
+    const inserted: { value: string; slug: string }[] = await db.query(
+      db.format(
+        `
+        SELECT  data.value, field.slug
+        FROM wp_appq_campaign_additional_fields_data data
+        JOIN wp_appq_campaign_additional_fields field ON field.id = data.type_id
+        WHERE data.bug_id = ? ;`,
+        [bugId]
+      )
+    );
+    return inserted.map((item) => ({
+      slug: item.slug,
+      value: item.value,
+    }));
   }
 };

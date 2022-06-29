@@ -322,7 +322,7 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Device is not candidate on CP1.`,
     });
   });
-  it("Should answer 200 if a sends a bug with any user-device on a CP selected_device = 0", async () => {
+  it("Should answer 200 if user sends a bug with any user-device on a CP selected_device = 0", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
       .set("authorization", "Bearer tester")
