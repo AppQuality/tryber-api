@@ -302,7 +302,7 @@ export default async (
     if (!campaignAdditionalFields.length) {
       throw {
         status_code: 403,
-        message: `CP${campaignId} has not addtitional fields.`,
+        message: `CP${campaignId} has not additional fields.`,
       };
     }
     const acceptedSlugs = campaignAdditionalFields.map(
