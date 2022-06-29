@@ -21,6 +21,4 @@ type CampaignAdditional = {
   type: string;
   validation: string;
 };
-type CreateAdditionals =
-  | { id: number; slug: string; value: string }[]
-  | undefined;
+type CreateAdditionals = { id: number; value: string }[] | undefined;
