@@ -32,16 +32,6 @@ beforeAll(async () => {
     id: 1,
     name: "Android",
   });
-  await TesterDevice.insert({
-    id: 1,
-    id_profile: 1,
-    platform_id: 1,
-    os_version_id: 1,
-    enabled: 1,
-    form_factor: "Smartphone",
-    manufacturer: "Google",
-    model: "Pixel 3",
-  });
 
   await DeviceOS.insert({
     id: 2,
@@ -52,17 +42,6 @@ beforeAll(async () => {
     id: 2,
     name: "Windows",
   });
-  await TesterDevice.insert({
-    id: 2,
-    id_profile: 1,
-    platform_id: 2,
-    os_version_id: 2,
-    enabled: 1,
-    form_factor: "PC",
-    pc_type: "Desktop",
-    manufacturer: "Acer",
-    model: "Aspire",
-  });
 });
 afterAll(async () => {
   await wpUserData.drop();
@@ -72,6 +51,27 @@ afterAll(async () => {
 });
 describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
   beforeAll(async () => {
+    await TesterDevice.insert({
+      id: 1,
+      id_profile: 1,
+      platform_id: 1,
+      os_version_id: 1,
+      enabled: 1,
+      form_factor: "Smartphone",
+      manufacturer: "Google",
+      model: "Pixel 3",
+    });
+    await TesterDevice.insert({
+      id: 2,
+      id_profile: 1,
+      platform_id: 2,
+      os_version_id: 2,
+      enabled: 1,
+      form_factor: "PC",
+      pc_type: "Desktop",
+      manufacturer: "Acer",
+      model: "Aspire",
+    });
     await Candidature.insert({
       campaign_id: 1,
       user_id: 1,
@@ -81,6 +81,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
   });
   afterAll(async () => {
     await Candidature.clear();
+    await TesterDevice.clear();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get("/users/me/campaigns/1/devices");
@@ -108,6 +109,27 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
 
 describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", () => {
   beforeAll(async () => {
+    await TesterDevice.insert({
+      id: 1,
+      id_profile: 1,
+      platform_id: 1,
+      os_version_id: 1,
+      enabled: 1,
+      form_factor: "Smartphone",
+      manufacturer: "Google",
+      model: "Pixel 3",
+    });
+    await TesterDevice.insert({
+      id: 2,
+      id_profile: 1,
+      platform_id: 2,
+      os_version_id: 2,
+      enabled: 1,
+      form_factor: "PC",
+      pc_type: "Desktop",
+      manufacturer: "Acer",
+      model: "Aspire",
+    });
     await Candidature.insert({
       campaign_id: 1,
       user_id: 1,
@@ -117,6 +139,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
   });
   afterAll(async () => {
     await Candidature.clear();
+    await TesterDevice.clear();
   });
   it("Should answer 200 with device data", async () => {
     const response = await request(app)
@@ -141,6 +164,27 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
 
 describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () => {
   beforeAll(async () => {
+    await TesterDevice.insert({
+      id: 1,
+      id_profile: 1,
+      platform_id: 1,
+      os_version_id: 1,
+      enabled: 1,
+      form_factor: "Smartphone",
+      manufacturer: "Google",
+      model: "Pixel 3",
+    });
+    await TesterDevice.insert({
+      id: 2,
+      id_profile: 1,
+      platform_id: 2,
+      os_version_id: 2,
+      enabled: 1,
+      form_factor: "PC",
+      pc_type: "Desktop",
+      manufacturer: "Acer",
+      model: "Aspire",
+    });
     await Candidature.insert({
       campaign_id: 1,
       user_id: 1,
@@ -150,6 +194,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
   });
   afterAll(async () => {
     await Candidature.clear();
+    await TesterDevice.clear();
   });
   it("Should answer 200 with device data", async () => {
     const response = await request(app)
@@ -183,5 +228,25 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
         },
       },
     ]);
+  });
+});
+
+describe("Route GET /users/me/campaign/{campaignId}/devices - selected with all devices but have none", () => {
+  beforeAll(async () => {
+    await Candidature.insert({
+      campaign_id: 1,
+      user_id: 1,
+      group_id: 1,
+      selected_device: 0,
+    });
+  });
+  afterAll(async () => {
+    await Candidature.clear();
+  });
+  it("Should answer 404 with device data", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/devices/")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(404);
   });
 });
