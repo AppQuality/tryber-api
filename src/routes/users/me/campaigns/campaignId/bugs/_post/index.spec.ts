@@ -6,10 +6,10 @@ import Severity from "@src/__mocks__/mockedDb/bugSeverities";
 import BugType from "@src/__mocks__/mockedDb/bugTypes";
 import Campaign from "@src/__mocks__/mockedDb/campaign";
 import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
-import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import Usecases from "@src/__mocks__/mockedDb/usecases";
 import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
+import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
 import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
 import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
 import { data as osDeviceData } from "@src/__mocks__/mockedDb/deviceOs";
@@ -35,18 +35,9 @@ const bug = {
   device: 1,
   media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
 };
+
 const bugWithAdditional = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: 1,
-  device: 1,
-  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+  ...bug,
   additional: [
     { slug: "browser", value: "Chrome" },
     { slug: "codice-cliente", value: "google" },
@@ -54,17 +45,7 @@ const bugWithAdditional = {
   ],
 };
 const bugPartiallyInvalidAdditionalFields = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: 1,
-  device: 1,
-  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+  ...bug,
   additional: [
     { slug: "browser", value: "Chrome" },
     { slug: "codice-cliente", value: "google" },
@@ -73,137 +54,79 @@ const bugPartiallyInvalidAdditionalFields = {
 };
 
 const bugBadAdditionalFields = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: 1,
-  device: 1,
-  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
+  ...bug,
   additional: [{ slug: "browser", value: "Chrome" }],
 };
-const bugCampaignAnyDevice = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: -1,
-  device: 1,
-  media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
-};
 const bugBadSeverity = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
+  ...bug,
   severity: "HIGH",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: 1,
-  device: 1,
-  media: ["the media1 url"],
 };
 const bugBadReplicability = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
+  ...bug,
   replicability: "SOMETIMES",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: 1,
-  device: 1,
-  media: ["the media1 url"],
 };
 const bugBadBugType = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
+  ...bug,
   type: "TYPO",
-  notes: "The bug notes",
-  usecase: 1,
-  device: 1,
-  media: ["the media1 url"],
 };
 const bugBadUseCase = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
+  ...bug,
   usecase: 69,
-  device: 1,
-  media: ["the media1 url"],
 };
 const bugNotSpecificUsecase = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
+  ...bug,
   usecase: -1,
-  device: 1,
-  media: ["the media1 url"],
 };
 const bugBadDevice = {
-  title: "Campaign Title",
-  description: "Camapign Description",
-  expected: "The expected to reproduce the bug",
-  current: "Current case",
-  severity: "LOW",
-  replicability: "ONCE",
-  type: "CRASH",
-  notes: "The bug notes",
-  usecase: 1,
+  ...bug,
   device: 696969,
-  media: ["the media1 url"],
 };
+
+beforeAll(async () => {
+  await wpUserData.basicUser();
+  await profileData.basicTester();
+
+  await Campaign.insert({
+    base_bug_internal_id: "BASE1BUGINTERNAL",
+  });
+  await Campaign.insert({ id: 3 });
+  await Campaign.insert({
+    id: 4,
+    base_bug_internal_id: "BASE4BUGINTERNAL",
+  });
+
+  await Candidature.insert({
+    selected_device: 1,
+    accepted: 1,
+    campaign_id: 1,
+  });
+  await Candidature.insert({
+    selected_device: 0,
+    accepted: 1,
+    campaign_id: 4,
+  });
+
+  await Usecases.insert({ id: 1, title: "Title of usecase1" });
+  await Usecases.insert({ id: 2 });
+  await Usecases.insert({ id: 3, campaign_id: 4 });
+  await UsecaseGroups.insert();
+});
+
+afterAll(async () => {
+  await Candidature.clear();
+  await Campaign.clear();
+  await wpUserData.drop();
+  await profileData.drop();
+
+  await Usecases.clear();
+  await UsecaseGroups.clear();
+});
 
 jest.mock("@src/features/getMimetypeFromS3");
 (getMimetypeFromS3 as jest.Mock).mockReturnValue("image");
 
 describe("Route POST a bug to a specific campaign", () => {
   beforeEach(async () => {
-    await wpUserData.basicUser();
-    await profileData.basicTester();
-    await Campaign.insert({
-      base_bug_internal_id: "BASE1BUGINTERNAL",
-    });
-    await Campaign.insert({ id: 3 });
-    await Campaign.insert({
-      id: 4,
-      base_bug_internal_id: "BASE4BUGINTERNAL",
-    });
-
-    await Candidature.insert({
-      selected_device: 1,
-      accepted: 1,
-      campaign_id: 1,
-    });
-    await Candidature.insert({
-      selected_device: 0,
-      accepted: 1,
-      campaign_id: 4,
-    });
     await Severity.insert({ name: "LOW" });
     await Severity.insert({ id: 2, name: "HIGH" });
     await Replicability.insert({ name: "Once" });
@@ -211,9 +134,6 @@ describe("Route POST a bug to a specific campaign", () => {
     await BugType.insert({ name: "Crash" });
     await BugType.insert({ id: 2, name: "Typo" });
     await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await Usecases.insert({ title: "Title of usecase1" });
-    await Usecases.insert({ id: 2 });
-    await UsecaseGroups.insert();
     await platformDeviceData.platform1({ name: "Android" });
     await osDeviceData.os1({
       id: 798,
@@ -243,18 +163,12 @@ describe("Route POST a bug to a specific campaign", () => {
     });
   });
   afterEach(async () => {
-    await wpUserData.drop();
-    await profileData.drop();
-    await Campaign.clear();
-    await Candidature.clear();
     await Severity.clear();
     await cpSeverityData.drop();
     await Replicability.clear();
     await cpReplicabilityData.drop();
     await BugType.clear();
     await cpHasBugTypeData.drop();
-    await Usecases.clear();
-    await UsecaseGroups.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -319,7 +233,8 @@ describe("Route POST a bug to a specific campaign", () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
       .set("authorization", "Bearer tester")
-      .send(bugCampaignAnyDevice);
+      .send({ ...bug, usecase: 3 });
+    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("Should return inserted bug with testerId if a user sends a valid bug", async () => {
@@ -473,16 +388,9 @@ describe("Route POST a bug to a specific campaign", () => {
 
 describe("Route POST a bug to a specific campaign - with custom type", () => {
   beforeEach(async () => {
-    await wpUserData.basicUser();
-    await profileData.basicTester();
-    await Campaign.insert({
-      base_bug_internal_id: "BASEBUGINTERNAL",
-    });
-
-    await Candidature.insert();
-    await Severity.insert({ name: "LOW" });
+    await Severity.insert({ id: 1, name: "LOW" });
     await Severity.insert({ id: 2, name: "HIGH" });
-    await cpSeverityData.cpSeverity({ campaign_id: 1 });
+    await cpSeverityData.cpSeverity({ bug_severity_id: 1, campaign_id: 1 });
     await Replicability.insert({ name: "Once" });
     await BugType.insert({ name: "Crash" });
     await BugType.insert({ id: 2, name: "Typo" });
@@ -493,8 +401,6 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       campaign_id: 1,
       bug_type_id: 3,
     });
-    await Usecases.insert();
-    await UsecaseGroups.insert();
     await platformDeviceData.platform1({ name: "Android" });
     await osDeviceData.os1({
       id: 798,
@@ -513,18 +419,12 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
     });
   });
   afterEach(async () => {
-    await profileData.drop();
-    await wpUserData.drop();
-    await Campaign.clear();
-    await Candidature.clear();
     await Severity.clear();
     await cpSeverityData.drop();
     await Replicability.clear();
     await cpReplicabilityData.drop();
     await BugType.clear();
     await cpHasBugTypeData.drop();
-    await Usecases.clear();
-    await UsecaseGroups.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -557,19 +457,11 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
 
 describe("Route POST a bug to a specific campaign - with custom severities", () => {
   beforeEach(async () => {
-    await wpUserData.basicUser();
-    await profileData.basicTester();
-    await Campaign.insert({
-      base_bug_internal_id: "BASEBUGINTERNAL",
-    });
-    await Candidature.insert();
     await Severity.insert({ name: "LOW" });
     await Severity.insert({ id: 2, name: "HIGH" });
     await cpSeverityData.cpSeverity({ campaign_id: 1 });
     await Replicability.insert({ name: "Once" });
     await BugType.insert({ name: "Crash" });
-    await Usecases.insert();
-    await UsecaseGroups.insert();
     await platformDeviceData.platform1({ name: "Android" });
     await osDeviceData.os1({
       id: 798,
@@ -588,18 +480,12 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
     });
   });
   afterEach(async () => {
-    await wpUserData.drop();
-    await profileData.drop();
-    await Campaign.clear();
-    await Candidature.clear();
     await Severity.clear();
     await cpSeverityData.drop();
     await Replicability.clear();
     await cpReplicabilityData.drop();
     await BugType.clear();
     await cpHasBugTypeData.drop();
-    await Usecases.clear();
-    await UsecaseGroups.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -632,19 +518,11 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
 
 describe("Route POST a bug to a specific campaign - with custom replicability", () => {
   beforeEach(async () => {
-    await wpUserData.basicUser();
-    await profileData.basicTester();
-    await Campaign.insert({
-      base_bug_internal_id: "BASEBUGINTERNAL",
-    });
-    await Candidature.insert();
     await Severity.insert({ name: "LOW" });
     await Replicability.insert({ name: "Once" });
     await Replicability.insert({ id: 2, name: "Sometimes" });
     await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
     await BugType.insert({ name: "Crash" });
-    await Usecases.insert();
-    await UsecaseGroups.insert();
     await platformDeviceData.platform1({ name: "Android" });
     await osDeviceData.os1({
       id: 798,
@@ -663,18 +541,12 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
     });
   });
   afterEach(async () => {
-    await wpUserData.drop();
-    await profileData.drop();
-    await Campaign.clear();
-    await Candidature.clear();
     await Severity.clear();
     await cpSeverityData.drop();
     await Replicability.clear();
     await cpReplicabilityData.drop();
     await BugType.clear();
     await cpHasBugTypeData.drop();
-    await Usecases.clear();
-    await UsecaseGroups.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -707,33 +579,19 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
 });
 describe("Route POST a bug to a specific campaign - with user has not devices", () => {
   beforeEach(async () => {
-    await wpUserData.basicUser();
-    await profileData.basicTester();
-    await Campaign.insert({
-      base_bug_internal_id: "BASEBUGINTERNAL",
-    });
-    await Candidature.insert();
     await Severity.insert({ name: "LOW" });
     await Replicability.insert({ name: "Once" });
     await Replicability.insert({ id: 2, name: "Sometimes" });
     await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
     await BugType.insert({ name: "Crash" });
-    await Usecases.insert();
-    await UsecaseGroups.insert();
   });
   afterEach(async () => {
-    await wpUserData.drop();
-    await profileData.drop();
-    await Campaign.clear();
-    await Candidature.clear();
     await Severity.clear();
     await cpSeverityData.drop();
     await Replicability.clear();
     await cpReplicabilityData.drop();
     await BugType.clear();
     await cpHasBugTypeData.drop();
-    await Usecases.clear();
-    await UsecaseGroups.clear();
     await bugData.drop();
     await bugMedia.clear();
     await userDeviceData.drop();
@@ -752,27 +610,6 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
 
 describe("Route POST a bug to a specific campaign - with invalid additional fields", () => {
   beforeEach(async () => {
-    await wpUserData.basicUser();
-    await profileData.basicTester();
-    await Campaign.insert({
-      base_bug_internal_id: "BASE1BUGINTERNAL",
-    });
-    await Campaign.insert({ id: 3 });
-    await Campaign.insert({
-      id: 4,
-      base_bug_internal_id: "BASE4BUGINTERNAL",
-    });
-
-    await Candidature.insert({
-      selected_device: 1,
-      accepted: 1,
-      campaign_id: 1,
-    });
-    await Candidature.insert({
-      selected_device: 0,
-      accepted: 1,
-      campaign_id: 4,
-    });
     await Severity.insert({ name: "LOW" });
     await Severity.insert({ id: 2, name: "HIGH" });
     await Replicability.insert({ name: "Once" });
@@ -780,8 +617,6 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     await BugType.insert({ name: "Crash" });
     await BugType.insert({ id: 2, name: "Typo" });
     await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await Usecases.insert();
-    await Usecases.insert({ id: 2 });
     await UsecaseGroups.insert();
     await platformDeviceData.platform1({ name: "Android" });
     await osDeviceData.os1({
@@ -812,18 +647,12 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     });
   });
   afterEach(async () => {
-    await wpUserData.drop();
-    await profileData.drop();
-    await Campaign.clear();
-    await Candidature.clear();
     await Severity.clear();
     await cpSeverityData.drop();
     await Replicability.clear();
     await cpReplicabilityData.drop();
     await BugType.clear();
     await cpHasBugTypeData.drop();
-    await Usecases.clear();
-    await UsecaseGroups.clear();
     await bugData.drop();
     await bugMedia.clear();
     await userDeviceData.drop();
