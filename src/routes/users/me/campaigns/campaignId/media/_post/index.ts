@@ -1,8 +1,10 @@
 import * as db from "@src/features/db";
 import postUserMedia from "@src/routes/media/_post";
 import { Context } from "openapi-backend";
+import busboyMapper from "@src/features/busboyMapper";
 import path from "path";
 import crypt from "./crypt";
+import upload from "@src/features/upload";
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
 export default async (
   c: Context,
@@ -20,69 +22,25 @@ export default async (
       message: "You are not allowed to upload media for this campaign",
     };
   }
-  const media = Array.isArray(req.files.media)
-    ? req.files.media
-    : [req.files.media];
 
-  const { valid, invalid } = await getInvalidExtensionMedia();
-  req.files.media = valid;
-
-  req.files.media = req.files.media.map((file) => {
-    const enhancedFile: ApiUploadedFile = {
-      ...file,
-      keyEnhancer: ({ testerId, filename, extension }) => {
-        return `${
-          process.env.MEDIA_FOLDER || "media"
-        }/T${testerId}/CP${campaignId}/bugs/${crypt(
-          `${filename}_${new Date().getTime()}`
-        )}${extension}`;
-      },
-    };
-    return enhancedFile;
-  });
-  const basicMediaUpload = await postUserMedia(c, req, res);
-  if (!userMediaHasResults(basicMediaUpload)) {
-    return basicMediaUpload;
-  }
-
-  let failedMedia: Result["failed"] = !basicMediaUpload.failed
-    ? []
-    : basicMediaUpload.failed.map((value) => ({
-        name: value.name,
-        errorCode: "GENERIC_ERROR",
-      }));
-  failedMedia = [...failedMedia, ...invalid];
-
-  return {
-    ...basicMediaUpload,
-    failed: failedMedia.length ? failedMedia : undefined,
-  };
-
-  async function getInvalidExtensionMedia() {
-    const validFileExtensions = await getValidFileExtensions();
+  const validFileExtensions = await getValidFileExtensions();
+  const { valid, invalid } = await busboyMapper(req, (file) => {
     if (!validFileExtensions.length) {
-      return { valid: media, invalid: [] };
+      return false;
     }
-    const validMedia: typeof media = [];
-    const invalidFileExtensionMedia: {
-      name: string;
-      errorCode: "INVALID_FILE_EXTENSION";
-    }[] = [];
-    media.forEach((item) => {
-      if (
-        validFileExtensions.includes(path.extname(item.name).replace(".", ""))
-      ) {
-        validMedia.push(item);
-      } else {
-        invalidFileExtensionMedia.push({
-          name: item.name,
-          errorCode: "INVALID_FILE_EXTENSION",
-        });
-      }
-    });
-
-    return { valid: validMedia, invalid: invalidFileExtensionMedia };
-  }
+    if (
+      !validFileExtensions.includes(path.extname(file.name).replace(".", ""))
+    ) {
+      return "INVALID_FILE_EXTENSION";
+    }
+    return false;
+  });
+  const result = {
+    files: await uploadFiles(valid, req.user.testerId),
+    failed: invalid.length ? invalid : undefined,
+  };
+  res.status_code = 200;
+  return result;
   async function getValidFileExtensions() {
     const validFileExtensionsString = (
       await db.query(
@@ -106,10 +64,44 @@ export default async (
     if (candidature.length === 0)
       throw Error("You are not selected for this campaign");
   }
+  async function uploadFiles(
+    files: Media[],
+    testerId: number
+  ): Promise<
+    StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]["files"]
+  > {
+    let uploadedFiles = [];
+    for (const media of files) {
+      uploadedFiles.push({
+        name: media.name,
+        path: (
+          await upload({
+            bucket: process.env.MEDIA_BUCKET || "",
+            key: getKey({
+              testerId: testerId,
+              filename: path.basename(media.name, path.extname(media.name)),
+              extension: path.extname(media.name),
+            }),
+            file: media,
+          })
+        ).toString(),
+      });
+    }
+    return uploadedFiles;
+  }
+  function getKey({
+    testerId,
+    filename,
+    extension,
+  }: {
+    testerId: number;
+    filename: string;
+    extension: string;
+  }) {
+    return `${
+      process.env.MEDIA_FOLDER || "media"
+    }/T${testerId}/CP${campaignId}/bugs/${crypt(
+      `${filename}_${new Date().getTime()}`
+    )}${extension}`;
+  }
 };
-
-function userMediaHasResults(
-  userMedia: Awaited<ReturnType<typeof postUserMedia>>
-): userMedia is GenericMediaResult {
-  return userMedia.hasOwnProperty("failed");
-}
