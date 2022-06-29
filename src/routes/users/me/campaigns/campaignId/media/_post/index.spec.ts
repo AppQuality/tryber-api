@@ -1,6 +1,6 @@
 import app from "@src/app";
 import upload from "@src/features/upload";
-import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";

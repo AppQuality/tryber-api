@@ -1,9 +1,9 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as attributions } from "@src/__mocks__/mockedDb/attributions";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
-import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as cuf } from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
 import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
@@ -27,7 +27,7 @@ describe("Route PATCH users-me", () => {
         user_login: "bob_alice",
         user_email: "bob.alice@example.com",
       });
-      await attributions.validAttribution();
+      await Attributions.insert();
       await WpOptions.crowdWpOptions();
       await profileData.basicTester({
         booty: 69,
@@ -105,24 +105,21 @@ describe("Route PATCH users-me", () => {
     });
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await wpUsers.drop();
-      await attributions.drop();
-      await WpOptions.clear();
-      await profileData.drop();
-      await bugs.drop();
-      await Candidature.clear();
-      await certificationsList.drop();
-      await testerCertifications.drop();
-      await employmentsList.drop();
-      await educationsList.drop();
-      await languagesList.drop();
-      await testerLanguages.drop();
-      await cuf.drop();
-      await cufData.drop();
-      await cufExtras.drop();
-      resolve(null);
-    });
+    await wpUsers.drop();
+    await Attributions.clear();
+    await WpOptions.clear();
+    await profileData.drop();
+    await bugs.drop();
+    await Candidature.clear();
+    await certificationsList.drop();
+    await testerCertifications.drop();
+    await employmentsList.drop();
+    await educationsList.drop();
+    await languagesList.drop();
+    await testerLanguages.drop();
+    await cuf.drop();
+    await cufData.drop();
+    await cufExtras.drop();
   });
   it("Should not update user when no parameters were given", async () => {
     const responseGetBeforePatch = await request(app)
@@ -243,24 +240,21 @@ describe("Route PATCH users-me accepted fields", () => {
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUsers.drop();
-      await attributions.drop();
-      await WpOptions.clear();
-      await profileData.drop();
-      await bugs.drop();
-      await Candidature.clear();
-      await certificationsList.drop();
-      await testerCertifications.drop();
-      await employmentsList.drop();
-      await educationsList.drop();
-      await languagesList.drop();
-      await testerLanguages.drop();
-      await cuf.drop();
-      await cufData.drop();
-      await cufExtras.drop();
-      resolve(null);
-    });
+    await wpUsers.drop();
+    await Attributions.clear();
+    await WpOptions.clear();
+    await profileData.drop();
+    await bugs.drop();
+    await Candidature.clear();
+    await certificationsList.drop();
+    await testerCertifications.drop();
+    await employmentsList.drop();
+    await educationsList.drop();
+    await languagesList.drop();
+    await testerLanguages.drop();
+    await cuf.drop();
+    await cufData.drop();
+    await cufExtras.drop();
   });
   it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)

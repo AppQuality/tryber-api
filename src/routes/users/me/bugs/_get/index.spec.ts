@@ -1,11 +1,11 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
-import { data as severityData } from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as bugStatusData } from "@src/__mocks__/mockedDb/bugStatus";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import Severities from "@src/__mocks__/mockedDb/severities";
+import Severities from "@src/__mocks__/mockedDb/bugSeverities";
+import app from "@src/app";
 import request from "supertest";
-
+import sqlite3 from "@src/features/sqlite";
 const campaign1 = {
   id: 1,
   title: "This is the Campaign title",
