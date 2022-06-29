@@ -1,6 +1,6 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
