@@ -33,7 +33,7 @@ export default async (
     bugtype = await getBugType();
     media = await getMediaData();
     device = await getUserDevice(body.device, parseInt(req.user.ID));
-    additional = await getAdditionalFields();
+    additional = await filterValidAdditionalFields();
   } catch (error) {
     debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -294,7 +294,7 @@ export default async (
       return body.usecase === -1;
     }
   }
-  async function getAdditionalFields(): Promise<CreateAdditionals> {
+  async function filterValidAdditionalFields(): Promise<CreateAdditionals> {
     if (!body.additional) return undefined;
 
     let campaignAdditionalFields = await getCampaignAdditionalFields();
