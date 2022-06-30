@@ -32,7 +32,6 @@ export default async (
         `${new Date().getTime()}-${fileData.filename}`
       );
       const fstream = fs.createWriteStream(filePath);
-      const readStream = fs.createReadStream(filePath);
 
       readableStream.on("data", (data: Buffer) => {
         size += data.byteLength;
@@ -49,6 +48,7 @@ export default async (
       });
 
       readableStream.on("close", () => {
+        const readStream = fs.createReadStream(filePath);
         if (!isInvalid) {
           valid.push({
             stream: readStream,
