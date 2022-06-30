@@ -264,6 +264,7 @@ export default async (
     return media;
   }
   async function usecaseIsValid(group_id: number): Promise<Usecase> {
+    console.log("group_id", group_id);
     let usecase: Usecase;
     if (isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
