@@ -1,4 +1,7 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import AdditionalReplicability from "@src/__mocks__/mockedDb/bugAdditionalReplicabilities";
+import AdditionalSeverity from "@src/__mocks__/mockedDb/bugAdditionalSeverities";
+import AdditionalBugType from "@src/__mocks__/mockedDb/bugAdditionalTypes";
 import { data as additionalFieldsData } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import Replicability from "@src/__mocks__/mockedDb/bugReplicabilities";
@@ -7,15 +10,12 @@ import BugType from "@src/__mocks__/mockedDb/bugTypes";
 import Campaign from "@src/__mocks__/mockedDb/campaign";
 import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import Usecases from "@src/__mocks__/mockedDb/usecases";
-import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
-import { data as cpHasBugTypeData } from "@src/__mocks__/mockedDb/cpHasBugType";
-import { data as cpReplicabilityData } from "@src/__mocks__/mockedDb/cpHasReplicabilities";
-import { data as cpSeverityData } from "@src/__mocks__/mockedDb/cpHasSeverities";
 import { data as osDeviceData } from "@src/__mocks__/mockedDb/deviceOs";
 import { data as platformDeviceData } from "@src/__mocks__/mockedDb/devicePlatform";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as userDeviceData } from "@src/__mocks__/mockedDb/testerDevice";
+import Usecases from "@src/__mocks__/mockedDb/usecases";
+import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
@@ -73,6 +73,10 @@ const bugBadUseCase = {
   ...bug,
   usecase: 69,
 };
+const bugUsecaseWithGroupNoUusers = {
+  ...bug,
+  usecase: 2,
+};
 const bugNotSpecificUsecase = {
   ...bug,
   usecase: -1,
@@ -110,6 +114,7 @@ beforeAll(async () => {
   await Usecases.insert({ id: 2 });
   await Usecases.insert({ id: 3, campaign_id: 4 });
   await UsecaseGroups.insert();
+  await UsecaseGroups.insert({ task_id: 3, group_id: 1 });
 });
 
 afterAll(async () => {
@@ -164,11 +169,11 @@ describe("Route POST a bug to a specific campaign", () => {
   });
   afterEach(async () => {
     await Severity.clear();
-    await cpSeverityData.drop();
+    await AdditionalSeverity.clear();
     await Replicability.clear();
-    await cpReplicabilityData.drop();
+    await AdditionalReplicability.clear();
     await BugType.clear();
-    await cpHasBugTypeData.drop();
+    await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -217,6 +222,18 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
     });
   });
+  // it("Should answer 403 if a user sends a usecase that has group where tester is not selected", async () => {
+  //   const response = await request(app)
+  //     .post("/users/me/campaigns/1/bugs")
+  //     .set("authorization", "Bearer tester")
+  //     .send(bugUsecaseWithGroupNoUusers);
+  //   expect(response.status).toBe(403);
+  //   expect(response.body).toEqual({
+  //     element: "bugs",
+  //     id: 0,
+  //     message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
+  //   });
+  // });
   it("Should answer 403 if a user sends the not-candidate devices on CP", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
@@ -234,7 +251,7 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/4/bugs")
       .set("authorization", "Bearer tester")
       .send({ ...bug, usecase: 3 });
-    console.log(response.body);
+    console.log("selDev0", response.body);
     expect(response.status).toBe(200);
   });
   it("Should return inserted bug with testerId if a user sends a valid bug", async () => {
@@ -390,13 +407,13 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
   beforeEach(async () => {
     await Severity.insert({ id: 1, name: "LOW" });
     await Severity.insert({ id: 2, name: "HIGH" });
-    await cpSeverityData.cpSeverity({ bug_severity_id: 1, campaign_id: 1 });
+    await AdditionalSeverity.insert({ bug_severity_id: 1, campaign_id: 1 });
     await Replicability.insert({ name: "Once" });
     await BugType.insert({ name: "Crash" });
     await BugType.insert({ id: 2, name: "Typo" });
     await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await cpHasBugTypeData.cpBugType({ campaign_id: 1 });
-    await cpHasBugTypeData.cpBugType({
+    await AdditionalBugType.insert({ campaign_id: 1 });
+    await AdditionalBugType.insert({
       id: 2,
       campaign_id: 1,
       bug_type_id: 3,
@@ -420,11 +437,11 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
   });
   afterEach(async () => {
     await Severity.clear();
-    await cpSeverityData.drop();
+    await AdditionalSeverity.clear();
     await Replicability.clear();
-    await cpReplicabilityData.drop();
+    await AdditionalReplicability.clear();
     await BugType.clear();
-    await cpHasBugTypeData.drop();
+    await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -459,7 +476,7 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
   beforeEach(async () => {
     await Severity.insert({ name: "LOW" });
     await Severity.insert({ id: 2, name: "HIGH" });
-    await cpSeverityData.cpSeverity({ campaign_id: 1 });
+    await AdditionalSeverity.insert({ campaign_id: 1 });
     await Replicability.insert({ name: "Once" });
     await BugType.insert({ name: "Crash" });
     await platformDeviceData.platform1({ name: "Android" });
@@ -481,11 +498,11 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
   });
   afterEach(async () => {
     await Severity.clear();
-    await cpSeverityData.drop();
+    await AdditionalSeverity.clear();
     await Replicability.clear();
-    await cpReplicabilityData.drop();
+    await AdditionalReplicability.clear();
     await BugType.clear();
-    await cpHasBugTypeData.drop();
+    await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -521,7 +538,7 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
     await Severity.insert({ name: "LOW" });
     await Replicability.insert({ name: "Once" });
     await Replicability.insert({ id: 2, name: "Sometimes" });
-    await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
+    await AdditionalReplicability.insert({ campaign_id: 1 });
     await BugType.insert({ name: "Crash" });
     await platformDeviceData.platform1({ name: "Android" });
     await osDeviceData.os1({
@@ -542,11 +559,11 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
   });
   afterEach(async () => {
     await Severity.clear();
-    await cpSeverityData.drop();
+    await AdditionalSeverity.clear();
     await Replicability.clear();
-    await cpReplicabilityData.drop();
+    await AdditionalReplicability.clear();
     await BugType.clear();
-    await cpHasBugTypeData.drop();
+    await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
     await platformDeviceData.drop();
@@ -582,16 +599,16 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
     await Severity.insert({ name: "LOW" });
     await Replicability.insert({ name: "Once" });
     await Replicability.insert({ id: 2, name: "Sometimes" });
-    await cpReplicabilityData.cpReplicability({ campaign_id: 1 });
+    await AdditionalReplicability.insert({ campaign_id: 1 });
     await BugType.insert({ name: "Crash" });
   });
   afterEach(async () => {
     await Severity.clear();
-    await cpSeverityData.drop();
+    await AdditionalSeverity.clear();
     await Replicability.clear();
-    await cpReplicabilityData.drop();
+    await AdditionalReplicability.clear();
     await BugType.clear();
-    await cpHasBugTypeData.drop();
+    await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
     await userDeviceData.drop();
@@ -648,11 +665,11 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
   });
   afterEach(async () => {
     await Severity.clear();
-    await cpSeverityData.drop();
+    await AdditionalSeverity.clear();
     await Replicability.clear();
-    await cpReplicabilityData.drop();
+    await AdditionalReplicability.clear();
     await BugType.clear();
-    await cpHasBugTypeData.drop();
+    await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
     await userDeviceData.drop();
