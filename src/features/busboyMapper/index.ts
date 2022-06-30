@@ -27,7 +27,10 @@ export default async (
         }
       }
 
-      const filePath = path.join(os.tmpdir(), fileData.filename);
+      const filePath = path.join(
+        os.tmpdir(),
+        `${new Date().getTime()}-${fileData.filename}`
+      );
       const fstream = fs.createWriteStream(filePath);
       const readStream = fs.createReadStream(filePath);
 
