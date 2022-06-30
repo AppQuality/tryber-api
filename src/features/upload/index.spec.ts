@@ -1,6 +1,7 @@
-import AWS from "aws-sdk";
+import AWS from 'aws-sdk';
+import stream from 'stream';
 
-import upload from ".";
+import upload from '.';
 
 jest.mock("aws-sdk", () => {
   let instance = {
@@ -18,25 +19,24 @@ describe("Upload to S3", () => {
     });
   });
   it("should upload a file to S3 with correct mimetype", async () => {
-    const file = {
+    const fileStream = stream.Readable.from(Buffer.from("pippo").toString());
+
+    const file: Media = {
       name: "test.txt",
-      encoding: "7bit",
-      mimetype: "text/plain",
+      mimeType: "text/plain",
       size: 12,
-      md5: "d41d8cd98f00b204e9800998ecf8427e",
-      truncated: false,
-      data: Buffer.from(""),
-      tempFilePath: "",
-      mv: jest.fn(),
+      stream: fileStream,
+      tmpPath: "",
     };
-    const result = await upload({
+
+    await upload({
       bucket: "",
       key: "",
       file: file,
     });
     expect(mockedS3.upload).toBeCalledWith({
       ACL: "public-read",
-      Body: Buffer.from(""),
+      Body: expect.anything(),
       Bucket: "",
       Key: "",
       ContentType: "text/plain",

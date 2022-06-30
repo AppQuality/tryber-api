@@ -1,9 +1,24 @@
-import * as db from "@src/features/db";
-import debugMessage from "@src/features/debugMessage";
-import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
-import { Context } from "openapi-backend";
+import * as db from '@src/features/db';
+import debugMessage from '@src/features/debugMessage';
+import getMimetypeFromS3 from '@src/features/getMimetypeFromS3';
+import { Context } from 'openapi-backend';
 
-import getUserDevice from "./getUserDevice";
+import getUserDevice from './getUserDevice';
+import {
+  Bug,
+  BugMedia,
+  BugType,
+  CampaignAdditional,
+  CreateAdditionals,
+  CreateBugError,
+  Media,
+  Replicability,
+  RequestParams,
+  Severity,
+  Usecase,
+  UserAdditionals,
+  UserDevice,
+} from './types';
 
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
 export default async (

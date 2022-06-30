@@ -1,5 +1,7 @@
-import * as db from "@src/features/db";
-import debugMessage from "@src/features/debugMessage";
+import * as db from '@src/features/db';
+import debugMessage from '@src/features/debugMessage';
+
+import { UserDevice } from '../types';
 
 export default async (
   deviceId: number,
