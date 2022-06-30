@@ -251,7 +251,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/4/bugs")
       .set("authorization", "Bearer tester")
       .send({ ...bug, usecase: 3 });
-    console.log("selDev0", response.body);
     expect(response.status).toBe(200);
   });
   it("Should return inserted bug with testerId if a user sends a valid bug", async () => {
