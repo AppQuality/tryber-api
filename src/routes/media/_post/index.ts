@@ -2,6 +2,8 @@ import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
 import { Context } from "openapi-backend";
 import path from "path";
+import fs from "fs";
+import busboyMapper from "@src/features/busboyMapper";
 
 /** OPENAPI-ROUTE: post-media */
 export default async (
@@ -10,15 +12,17 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    if (!req.files.media) {
-      throw new Error("No file was uploaded");
-    }
-    const files = Array.isArray(req.files.media)
-      ? req.files.media
-      : [req.files.media];
-
+    const { valid, invalid } = await busboyMapper(req, (file) => {
+      if (!isAcceptableFile(file)) {
+        return "INVALID_FILE_EXTENSION";
+      }
+      return false;
+    });
     res.status_code = 200;
-    return await uploadFiles(files, req.user.testerId);
+    return {
+      files: await uploadFiles(valid, req.user.testerId),
+      failed: invalid.length ? invalid : undefined,
+    };
   } catch (err) {
     debugMessage(err);
     res.status_code = 404;
@@ -33,65 +37,43 @@ export default async (
     testerId,
     filename,
     extension,
-    folder,
   }: {
     testerId: number;
     filename: string;
     extension: string;
-    folder?: string;
   }): string {
     return `${
       process.env.MEDIA_FOLDER || "media"
     }/T${testerId}/${filename}_${new Date().getTime()}${extension}`;
   }
 
-  function isAcceptableFile(file: ApiUploadedFile): boolean {
+  function isAcceptableFile(file: { name: string }): boolean {
     return ![".bat", ".sh", ".exe"].includes(path.extname(file.name));
   }
 
   async function uploadFiles(
-    files: ApiUploadedFile[],
+    files: Media[],
     testerId: number
   ): Promise<
-    StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]
+    StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]["files"]
   > {
     let uploadedFiles = [];
-    let failedFiles = [];
     for (const media of files) {
-      if (!isAcceptableFile(media))
-        failedFiles.push({
-          name: media.name,
-          errorCode: "INVALID_FILE_EXTENSION",
-        });
-      if (isOversizedFile(media))
-        failedFiles.push({ name: media.name, errorCode: "FILE_TOO_BIG" });
-      else {
-        const keyEnhancer = media.keyEnhancer ? media.keyEnhancer : getKey;
-        uploadedFiles.push({
-          name: media.name,
-          path: (
-            await upload({
-              bucket: process.env.MEDIA_BUCKET || "",
-              key: keyEnhancer({
-                testerId: testerId,
-                filename: path.basename(media.name, path.extname(media.name)),
-                extension: path.extname(media.name),
-              }),
-              file: media,
-            })
-          ).toString(),
-        });
-      }
+      uploadedFiles.push({
+        name: media.name,
+        path: (
+          await upload({
+            bucket: process.env.MEDIA_BUCKET || "",
+            key: getKey({
+              testerId: testerId,
+              filename: path.basename(media.name, path.extname(media.name)),
+              extension: path.extname(media.name),
+            }),
+            file: media,
+          })
+        ).toString(),
+      });
     }
-    return {
-      files: uploadedFiles,
-      failed: failedFiles.length ? failedFiles : undefined,
-    };
+    return uploadedFiles;
   }
 };
-function isOversizedFile(media: ApiUploadedFile): boolean {
-  return (
-    typeof media.size !== "number" ||
-    media.size > parseInt(process.env.MAX_FILE_SIZE || "536870912")
-  );
-}

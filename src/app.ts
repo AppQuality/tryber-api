@@ -7,6 +7,7 @@ import config from "./config";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
 import routes from "./routes";
+import busboy from "connect-busboy";
 
 const opts: Options = {
   definition: __dirname + "/reference/openapi.yml",
@@ -33,7 +34,14 @@ routes(api);
 api.init();
 
 const app = express();
-
+app.use(
+  busboy({
+    highWaterMark: 2 * 1024 * 1024,
+    headers: {
+      "content-type": "multipart/form-data",
+    },
+  })
+);
 app.use(cors());
 app.use(bodyParser.json());
 app.use(
@@ -41,7 +49,6 @@ app.use(
     extended: true,
   })
 );
-app.use(upload());
 
 app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
