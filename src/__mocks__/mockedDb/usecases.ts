@@ -21,7 +21,7 @@ class UseCases extends Table<UseCasesParams> {
       id: 1,
       title: "My Usecase",
       campaign_id: 1,
-      group_id: 0,
+      group_id: -1,
       position: 0,
     });
   }
