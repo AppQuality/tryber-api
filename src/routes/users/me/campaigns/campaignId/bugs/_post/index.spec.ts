@@ -152,6 +152,18 @@ describe("Route POST a bug to a specific campaign", () => {
       form_factor: "Tablet",
       source_id: 950,
     });
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
+      id: 3,
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      form_factor: "PC",
+      source_id: 950,
+      pc_type: "Notebook",
+    });
     await CampaignAdditionals.insert({
       slug: "codice-cliente",
       type: "regex",
@@ -268,6 +280,40 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("testerId", 1);
     expect(response.body).toHaveProperty("id", 1);
+  });
+  it("Should serialize device data on the bug on success", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id", 1);
+    const bugData = await sqlite3.get(
+      `SELECT manufacturer,model,os,os_version FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
+    );
+    expect(bugData).toEqual({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      os: "Android",
+      os_version: "11 (11)",
+    });
+  });
+  it("Should serialize device data on the bug on success - pc", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/3/bugs")
+      .set("authorization", "Bearer tester")
+      .send({ ...bug, device: 3, usecase: 5 });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id", 1);
+    const bugData = await sqlite3.get(
+      `SELECT manufacturer,model,os,os_version FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
+    );
+    expect(bugData).toEqual({
+      manufacturer: "-",
+      model: "Notebook",
+      os: "Android",
+      os_version: "11 (11)",
+    });
   });
   it("Should return inserted bug with TITLE if a user sends the bug title", async () => {
     const response = await request(app)
