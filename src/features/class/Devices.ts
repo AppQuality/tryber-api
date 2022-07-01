@@ -27,7 +27,7 @@ class Devices {
       db.format(`${this.baseQuery} AND d.id = ?`, [id])
     );
     if (!data.length) {
-      throw Error("Invalid device data");
+      return false;
     }
     return this.format(data[0]);
   }

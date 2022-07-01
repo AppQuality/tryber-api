@@ -303,7 +303,9 @@ class Campaign {
       if (selected_device === 0) {
         return await devices.getMany({ testerId: user.testerId });
       }
-      return [await devices.getOne(selected_device)];
+      const device = await devices.getOne(selected_device);
+      if (!device) return [];
+      return [device];
     } catch {
       return false;
     }
