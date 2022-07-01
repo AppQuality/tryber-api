@@ -1,9 +1,9 @@
-import * as db from '@src/features/db';
-import debugMessage from '@src/features/debugMessage';
-import getMimetypeFromS3 from '@src/features/getMimetypeFromS3';
-import { Context } from 'openapi-backend';
+import * as db from "@src/features/db";
+import debugMessage from "@src/features/debugMessage";
+import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
+import { Context } from "openapi-backend";
 
-import getUserDevice from './getUserDevice';
+import getUserDevice from "./getUserDevice";
 import {
   Bug,
   BugMedia,
@@ -18,7 +18,7 @@ import {
   Usecase,
   UserAdditionals,
   UserDevice,
-} from './types';
+} from "./types";
 
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
 export default async (
@@ -283,18 +283,30 @@ export default async (
     if (isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
 
-    let usecases = await db.query(
-      db.format(
-        `SELECT tsk.id AS id, tsk.title AS title
-          FROM wp_appq_campaign_task tsk
-                   JOIN wp_appq_campaign_task_group tskgrp ON tskgrp.task_id = tsk.id
-          WHERE tsk.campaign_id = ?
-            AND (tskgrp.group_id = 0 || tskgrp.group_id = ?)
+    let query = db.format(
+      `SELECT tsk.id AS id, tsk.title AS title
+        FROM wp_appq_campaign_task tsk
+                 JOIN wp_appq_campaign_task_group tskgrp ON tskgrp.task_id = tsk.id
+        WHERE tsk.campaign_id = ?
+          AND (tskgrp.group_id = 0 OR tskgrp.group_id = ?)
+          AND tsk.id = ?
+       ;`,
+      [campaignId, group_id, body.usecase]
+    );
+
+    if (group_id === 0) {
+      query = db.format(
+        `SELECT id, title
+          FROM wp_appq_campaign_task usecase
+          WHERE campaign_id = ?
+            AND group_id = 0 
             AND tsk.id = ?
          ;`,
-        [campaignId, group_id, body.usecase]
-      )
-    );
+        [campaignId, body.usecase]
+      );
+    }
+
+    let usecases = await db.query(query);
     if (!usecases.length) {
       throw {
         status_code: 403,
