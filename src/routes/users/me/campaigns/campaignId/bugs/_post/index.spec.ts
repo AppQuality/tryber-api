@@ -10,10 +10,10 @@ import BugType from "@src/__mocks__/mockedDb/bugTypes";
 import Campaign from "@src/__mocks__/mockedDb/campaign";
 import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import { data as osDeviceData } from "@src/__mocks__/mockedDb/deviceOs";
-import { data as platformDeviceData } from "@src/__mocks__/mockedDb/devicePlatform";
+import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
+import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import { data as userDeviceData } from "@src/__mocks__/mockedDb/testerDevice";
+import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import Usecases from "@src/__mocks__/mockedDb/usecases";
 import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
@@ -124,30 +124,30 @@ describe("Route POST a bug to a specific campaign", () => {
     await BugType.insert({ name: "Crash" });
     await BugType.insert({ id: 2, name: "Typo" });
     await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await platformDeviceData.platform1({ name: "Android" });
-    await osDeviceData.os1({
+    await DevicePlatform.insert({ name: "Android" });
+    await DeviceOs.insert({
       id: 798,
       version_number: "11",
       display_name: "11",
     });
-    await userDeviceData.device1({
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
       os_version_id: 798,
-      os_version: "11 (11)",
-      operating_system: "Android",
       form_factor: "Tablet",
       source_id: 950,
     });
-    await userDeviceData.device1({
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
       id: 2,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
       os_version_id: 798,
-      os_version: "11 (11)",
-      operating_system: "Android",
       form_factor: "Tablet",
       source_id: 950,
     });
@@ -172,9 +172,9 @@ describe("Route POST a bug to a specific campaign", () => {
     await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
-    await platformDeviceData.drop();
-    await userDeviceData.drop();
-    await osDeviceData.drop();
+    await DevicePlatform.clear();
+    await TesterDevice.clear();
+    await DeviceOs.clear();
     await CampaignAdditionals.clear();
     await additionalFieldsData.drop();
   });
@@ -433,19 +433,19 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       campaign_id: 1,
       bug_type_id: 3,
     });
-    await platformDeviceData.platform1({ name: "Android" });
-    await osDeviceData.os1({
+    await DevicePlatform.insert({ name: "Android" });
+    await DeviceOs.insert({
       id: 798,
       version_number: "11",
       display_name: "11",
     });
-    await userDeviceData.device1({
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
       os_version_id: 798,
-      os_version: "11 (11)",
-      operating_system: "Android",
       form_factor: "Tablet",
       source_id: 950,
     });
@@ -459,9 +459,9 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
     await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
-    await platformDeviceData.drop();
-    await osDeviceData.drop();
-    await userDeviceData.drop();
+    await DevicePlatform.clear();
+    await DeviceOs.clear();
+    await TesterDevice.clear();
     await CampaignAdditionals.clear();
     await additionalFieldsData.drop();
   });
@@ -494,19 +494,19 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
     await AdditionalSeverity.insert({ campaign_id: 1 });
     await Replicability.insert({ name: "Once" });
     await BugType.insert({ name: "Crash" });
-    await platformDeviceData.platform1({ name: "Android" });
-    await osDeviceData.os1({
+    await DevicePlatform.insert({ name: "Android" });
+    await DeviceOs.insert({
       id: 798,
       version_number: "11",
       display_name: "11",
     });
-    await userDeviceData.device1({
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
       os_version_id: 798,
-      os_version: "11 (11)",
-      operating_system: "Android",
       form_factor: "Tablet",
       source_id: 950,
     });
@@ -520,9 +520,9 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
     await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
-    await platformDeviceData.drop();
-    await osDeviceData.drop();
-    await userDeviceData.drop();
+    await DevicePlatform.clear();
+    await DeviceOs.clear();
+    await TesterDevice.clear();
     await CampaignAdditionals.clear();
     await additionalFieldsData.drop();
   });
@@ -555,19 +555,19 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
     await Replicability.insert({ id: 2, name: "Sometimes" });
     await AdditionalReplicability.insert({ campaign_id: 1 });
     await BugType.insert({ name: "Crash" });
-    await platformDeviceData.platform1({ name: "Android" });
-    await osDeviceData.os1({
+    await DevicePlatform.insert({ name: "Android" });
+    await DeviceOs.insert({
       id: 798,
       version_number: "11",
       display_name: "11",
     });
-    await userDeviceData.device1({
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
       os_version_id: 798,
-      os_version: "11 (11)",
-      operating_system: "Android",
       form_factor: "Tablet",
       source_id: 950,
     });
@@ -581,9 +581,9 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
     await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
-    await platformDeviceData.drop();
-    await osDeviceData.drop();
-    await userDeviceData.drop();
+    await DevicePlatform.clear();
+    await DeviceOs.clear();
+    await TesterDevice.clear();
     await CampaignAdditionals.clear();
     await additionalFieldsData.drop();
   });
@@ -626,7 +626,7 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
     await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
-    await userDeviceData.drop();
+    await TesterDevice.clear();
     await CampaignAdditionals.clear();
     await additionalFieldsData.drop();
   });
@@ -650,19 +650,19 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     await BugType.insert({ id: 2, name: "Typo" });
     await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
     await UsecaseGroups.insert();
-    await platformDeviceData.platform1({ name: "Android" });
-    await osDeviceData.os1({
+    await DevicePlatform.insert({ name: "Android" });
+    await DeviceOs.insert({
       id: 798,
       version_number: "11",
       display_name: "11",
     });
-    await userDeviceData.device1({
+    await TesterDevice.insert({
+      enabled: 1,
+      id_profile: 1,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
       os_version_id: 798,
-      os_version: "11 (11)",
-      operating_system: "Android",
       form_factor: "Tablet",
       source_id: 950,
     });
@@ -687,9 +687,9 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     await AdditionalBugType.clear();
     await bugData.drop();
     await bugMedia.clear();
-    await userDeviceData.drop();
-    await platformDeviceData.drop();
-    await osDeviceData.drop();
+    await TesterDevice.clear();
+    await DevicePlatform.clear();
+    await DeviceOs.clear();
     await CampaignAdditionals.clear();
     await additionalFieldsData.drop();
   });
@@ -717,6 +717,7 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
           { slug: "nome-banca", value: "intendiamoci" },
         ],
       });
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("additional");
     expect(response.body.additional).toMatchObject([
