@@ -250,3 +250,23 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - selected with all 
     expect(response.status).toBe(404);
   });
 });
+
+describe("Route GET /users/me/campaign/{campaignId}/devices - selected with a device but have none", () => {
+  beforeAll(async () => {
+    await Candidature.insert({
+      campaign_id: 1,
+      user_id: 1,
+      group_id: 1,
+      selected_device: 100,
+    });
+  });
+  afterAll(async () => {
+    await Candidature.clear();
+  });
+  it("Should answer 404 with device data", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/devices/")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
+});
