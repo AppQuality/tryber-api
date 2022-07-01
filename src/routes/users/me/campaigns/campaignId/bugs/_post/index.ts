@@ -445,16 +445,24 @@ export default async (
     bugTypeId: number,
     device: UserDevice
   ): Promise<number> {
+    const deviceData = device.device;
+    const deviceOsData = device.operating_system;
+    const isPC = (d: typeof deviceData): d is { pc_type: string } => {
+      return !!d.hasOwnProperty("pc_type");
+    };
+
     let format = db.format(
       `INSERT INTO wp_appq_evd_bug (
         wp_user_id, message, description, expected_result, current_result, campaign_id,
         status_id, publish, status_reason, severity_id, created,
         bug_replicability_id, bug_type_id, application_section, application_section_id,note, 
         dev_id, last_seen
+        ,manufacturer,model,os,os_version
            )
       VALUES (
         ?,?,?,?,?,?,3,1,"Bug under review.",?,NOW(),?,?,?,?,?,
         ?,?
+        ,?,?,?,?
         )
        ;`,
       [
@@ -473,6 +481,10 @@ export default async (
 
         device.id,
         body.lastSeen,
+        isPC(deviceData) ? "-" : deviceData.manufacturer,
+        isPC(deviceData) ? deviceData.pc_type : deviceData.model,
+        deviceOsData.platform,
+        deviceOsData.version,
       ]
     );
     let inserted = await db.query(format);
