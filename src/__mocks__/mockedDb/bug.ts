@@ -22,6 +22,7 @@ export const table = {
       "application_section VARCHAR(255)",
       "application_section_id INTEGER",
       "note VARCHAR(3000)",
+      "last_seen VARCHAR(30)",
 
       "dev_id INTEGER",
       "manufacturer VARCHAR(65)",
@@ -56,6 +57,7 @@ type BugParams = {
   application_section?: string;
   application_section_id?: number;
   note?: string;
+  last_seen?: string;
 
   dev_id?: number;
   manufacturer?: string;
