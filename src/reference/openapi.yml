@@ -5255,8 +5255,6 @@ components:
         - name
     CampaignAdditionalField:
       title: CampaignAdditionalField
-      x-stoplight:
-        id: sg1ne4iv5euue
       allOf:
         - type: object
           properties:
