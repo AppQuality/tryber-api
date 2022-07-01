@@ -439,11 +439,11 @@ export default async (
         wp_user_id, message, description, expected_result, current_result, campaign_id,
         status_id, publish, status_reason, severity_id, created,
         bug_replicability_id, bug_type_id, application_section, application_section_id,note, 
-        dev_id
+        dev_id, last_seen
            )
       VALUES (
         ?,?,?,?,?,?,3,1,"Bug under review.",?,NOW(),?,?,?,?,?,
-        ?
+        ?,?
         )
        ;`,
       [
@@ -461,6 +461,7 @@ export default async (
         body.notes,
 
         device.id,
+        body.lastSeen,
       ]
     );
     let inserted = await db.query(format);
