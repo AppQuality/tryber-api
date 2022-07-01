@@ -36,27 +36,6 @@ const bug = {
   media: ["www.example.com/media69.jpg", "www.example.com/media6969.jpg"],
 };
 
-const bugWithAdditional = {
-  ...bug,
-  additional: [
-    { slug: "browser", value: "Chrome" },
-    { slug: "codice-cliente", value: "google" },
-    { slug: "nome-banca", value: "intesa" },
-  ],
-};
-const bugPartiallyInvalidAdditionalFields = {
-  ...bug,
-  additional: [
-    { slug: "browser", value: "Chrome" },
-    { slug: "codice-cliente", value: "google" },
-    { slug: "nome-banca", value: "intendiamoci" },
-  ],
-};
-
-const bugBadAdditionalFields = {
-  ...bug,
-  additional: [{ slug: "browser", value: "Chrome" }],
-};
 const bugBadSeverity = {
   ...bug,
   severity: "HIGH",
@@ -69,25 +48,9 @@ const bugBadBugType = {
   ...bug,
   type: "TYPO",
 };
-const bugBadUseCase = {
-  ...bug,
-  usecase: 69,
-};
-const bugUsecaseWithGroupNoUusers = {
-  ...bug,
-  usecase: 2,
-};
-const bugUsecaseAllGroups = {
-  ...bug,
-  usecase: 4,
-};
 const bugNotSpecificUsecase = {
   ...bug,
   usecase: -1,
-};
-const bugBadDevice = {
-  ...bug,
-  device: 696969,
 };
 
 beforeAll(async () => {
@@ -98,38 +61,45 @@ beforeAll(async () => {
     id: 1,
     base_bug_internal_id: "BASE1BUGINTERNAL",
   });
-  await Campaign.insert({ id: 2 });
-  await Campaign.insert({ id: 3, base_bug_internal_id: "BASE3BUGINTERNAL" });
-  await Campaign.insert({
-    id: 4,
-    base_bug_internal_id: "BASE4BUGINTERNAL",
-  });
-
   await Candidature.insert({
     selected_device: 1,
     accepted: 1,
     campaign_id: 1,
   });
+  await Usecases.insert({ id: 1, title: "Title of usecase1", campaign_id: 1 });
+  await UsecaseGroups.insert({ task_id: 1, group_id: 1 });
+  await Usecases.insert({ id: 2, campaign_id: 1 });
+
+  await Campaign.insert({ id: 2 });
+
+  await Campaign.insert({ id: 3, base_bug_internal_id: "BASE3BUGINTERNAL" });
   await Candidature.insert({
     selected_device: 0,
     accepted: 1,
     campaign_id: 3,
     group_id: 1,
   });
+  await Usecases.insert({ id: 4, campaign_id: 3 });
+  await Usecases.insert({ id: 5, campaign_id: 3, group_id: 1 });
+  await UsecaseGroups.insert({ task_id: 5, group_id: 1 });
+
+  await Campaign.insert({
+    id: 4,
+    base_bug_internal_id: "BASE4BUGINTERNAL",
+  });
+  await Usecases.insert({ id: 3, campaign_id: 4 });
+  await UsecaseGroups.insert({ task_id: 3, group_id: 1 });
+  await Usecases.insert({ id: 6, campaign_id: 4 });
+  await UsecaseGroups.insert({ task_id: 6, group_id: 2 });
+  await Usecases.insert({ id: 7, campaign_id: 4 });
+  await UsecaseGroups.insert({ task_id: 7, group_id: 0 });
+
   await Candidature.insert({
     selected_device: 0,
     accepted: 1,
     campaign_id: 4,
+    group_id: 1,
   });
-
-  await Usecases.insert({ id: 1, title: "Title of usecase1" });
-  await Usecases.insert({ id: 2 });
-  await Usecases.insert({ id: 3, campaign_id: 4 });
-  await Usecases.insert({ id: 4, campaign_id: 3 });
-  await Usecases.insert({ id: 5, campaign_id: 3, group_id: 1 });
-  await UsecaseGroups.insert();
-  await UsecaseGroups.insert({ task_id: 3, group_id: 1 });
-  await UsecaseGroups.insert({ task_id: 5, group_id: 1 });
 });
 
 afterAll(async () => {
@@ -161,6 +131,17 @@ describe("Route POST a bug to a specific campaign", () => {
       display_name: "11",
     });
     await userDeviceData.device1({
+      manufacturer: "Acer",
+      model: "Iconia A1",
+      platform_id: 1,
+      os_version_id: 798,
+      os_version: "11 (11)",
+      operating_system: "Android",
+      form_factor: "Tablet",
+      source_id: 950,
+    });
+    await userDeviceData.device1({
+      id: 2,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
@@ -203,14 +184,14 @@ describe("Route POST a bug to a specific campaign", () => {
   });
   it("Should answer 404 if campaign does not exist", async () => {
     const response = await request(app)
-      .post("/users/me/campaigns/2/bugs")
+      .post("/users/me/campaigns/100/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: "CP2, does not exists.",
+      message: "CP100, does not exists.",
     });
   });
   it("Should answer 403 if user is not selected on CP", async () => {
@@ -229,37 +210,41 @@ describe("Route POST a bug to a specific campaign", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
-      .send(bugBadUseCase);
+      .send({ ...bug, usecase: 100 });
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
+      message: `Usecase 100 not found for CP1.`,
     });
   });
-  //
-  // it("Should answer 403 if a user sends a usecase that has group where tester is not selected", async () => {
-  //   const response = await request(app)
-  //     .post("/users/me/campaigns/1/bugs")
-  //     .set("authorization", "Bearer tester")
-  //     .send(bugUsecaseWithGroupNoUusers);
-  //   expect(response.status).toBe(403);
-  //   expect(response.body).toEqual({
-  //     element: "bugs",
-  //     id: 0,
-  //     message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
-  //   });
-  // });
-  //
+
+  it("Should answer 403 if a user sends a bug to a usecase for another group", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/4/bugs")
+      .set("authorization", "Bearer tester")
+      .send({ ...bug, usecase: 6 });
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Usecase 6 not found for CP4.`,
+    });
+  });
+
   it("Should answer 200 if a user sends a usecase that has all groups", async () => {
-    expect(1).toBe(2);
+    const response = await request(app)
+      .post("/users/me/campaigns/4/bugs")
+      .set("authorization", "Bearer tester")
+      .send({ ...bug, usecase: 7 });
+    expect(response.status).toBe(200);
   });
   //
-  it("Should answer 403 if a user sends the not-candidate devices on CP", async () => {
+  it("Should answer 403 if a user sends a bug with a device that's not the candidate one", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
-      .send(bugBadDevice);
+      .send({ ...bug, device: 2 });
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
@@ -267,7 +252,7 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Device is not candidate on CP1.`,
     });
   });
-  it("Should answer 200 if user sends a bug with any user-device on a CP selected_device = 0", async () => {
+  it("Should answer 200 if user sends a bug with any device on a CP that accepts all devices", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
       .set("authorization", "Bearer tester")
@@ -281,6 +266,7 @@ describe("Route POST a bug to a specific campaign", () => {
       .send(bug);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("testerId", 1);
+    expect(response.body).toHaveProperty("id", 1);
   });
   it("Should return inserted bug with TITLE if a user sends the bug title", async () => {
     const response = await request(app)
@@ -416,10 +402,19 @@ describe("Route POST a bug to a specific campaign", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
-      .send(bugWithAdditional);
+      .send({
+        ...bug,
+        additional: [
+          { slug: "codice-cliente", value: "google" },
+          { slug: "nome-banca", value: "intesa" },
+        ],
+      });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("additional");
-    expect(response.body.additional).toMatchObject({});
+    expect(response.body.additional).toMatchObject([
+      { slug: "codice-cliente", value: "google" },
+      { slug: "nome-banca", value: "intesa" },
+    ]);
   });
 });
 
@@ -703,7 +698,10 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
-      .send(bugBadAdditionalFields);
+      .send({
+        ...bug,
+        additional: [{ slug: "browser", value: "Chrome" }],
+      });
     expect(response.status).toBe(200);
     expect(response.body.additional).toBe(undefined);
   });
@@ -711,7 +709,14 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
-      .send(bugPartiallyInvalidAdditionalFields);
+      .send({
+        ...bug,
+        additional: [
+          { slug: "browser", value: "Chrome" },
+          { slug: "codice-cliente", value: "google" },
+          { slug: "nome-banca", value: "intendiamoci" },
+        ],
+      });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("additional");
     expect(response.body.additional).toMatchObject([
