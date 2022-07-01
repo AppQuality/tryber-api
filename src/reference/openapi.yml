@@ -2319,6 +2319,8 @@ paths:
                     type: integer
                   title:
                     type: string
+                  description:
+                    type: string
                   status:
                     type: string
                     enum:
@@ -2326,8 +2328,6 @@ paths:
                       - APPROVED
                       - REFUSED
                       - NEED-REVIEW
-                  description:
-                    type: string
                   expected:
                     type: string
                   current:
@@ -2382,8 +2382,8 @@ paths:
                   - id
                   - testerId
                   - title
-                  - status
                   - description
+                  - status
                   - expected
                   - current
                   - severity
@@ -2456,6 +2456,8 @@ paths:
                     - USABILITY
                 notes:
                   type: string
+                lastSeen:
+                  type: string
                 usecase:
                   type: integer
                 device:
@@ -2485,6 +2487,7 @@ paths:
                 - replicability
                 - type
                 - notes
+                - lastSeen
                 - usecase
                 - device
                 - media
