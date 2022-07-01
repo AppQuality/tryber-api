@@ -49,6 +49,7 @@ export default async (
     media = await getMediaData();
     device = await getUserDevice(body.device, parseInt(req.user.ID));
     additional = await filterValidAdditionalFields();
+    checkIsoStringDate();
   } catch (error) {
     debugMessage(error);
     res.status_code = (error as OpenapiError).status_code || 400;
@@ -425,6 +426,16 @@ export default async (
         return regexp.test(bugAdditional.value);
       }
       return false;
+    }
+  }
+  function checkIsoStringDate() {
+    const regexpISOString =
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}\+[0-9]{2}:[0-9]{2}/gm;
+    if (!regexpISOString.test(body.lastSeen)) {
+      throw {
+        status_code: 403,
+        message: `Date format is not correct.`,
+      };
     }
   }
   async function createBug(

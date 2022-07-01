@@ -371,17 +371,18 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(baseInternal.internal_id).toEqual("BASE1BUGINTERNAL1");
   });
-  it("Should update LASTSEEN if a user sends a valid bug", async () => {
+  it("Should return 403 if a user sends an invalid lastSeen date", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
-      .send(bug);
+      .send({ ...bug, lastSeen: "THIS IS NOT AN ISOSTRING-DATE" });
     console.log(response.body);
-    const insertedLastSeen = await sqlite3.get(
-      `SELECT last_seen FROM wp_appq_evd_bug WHERE id = 1`
-    );
-    expect(response.status).toBe(200);
-    expect(insertedLastSeen.last_seen).toEqual("2022-07-01T13:44:00.000+02:00");
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Date format is not correct.`,
+    });
   });
   it("Should return inserted MEDIA if a user sends a bug with medias", async () => {
     const response = await request(app)
@@ -730,7 +731,6 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
           { slug: "nome-banca", value: "intendiamoci" },
         ],
       });
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("additional");
     expect(response.body.additional).toMatchObject([
