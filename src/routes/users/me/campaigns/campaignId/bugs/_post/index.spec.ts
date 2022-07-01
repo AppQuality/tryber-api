@@ -77,6 +77,10 @@ const bugUsecaseWithGroupNoUusers = {
   ...bug,
   usecase: 2,
 };
+const bugUsecaseAllGroups = {
+  ...bug,
+  usecase: 4,
+};
 const bugNotSpecificUsecase = {
   ...bug,
   usecase: -1,
@@ -93,7 +97,7 @@ beforeAll(async () => {
   await Campaign.insert({
     base_bug_internal_id: "BASE1BUGINTERNAL",
   });
-  await Campaign.insert({ id: 3 });
+  await Campaign.insert({ id: 3, base_bug_internal_id: "BASE3BUGINTERNAL" });
   await Campaign.insert({
     id: 4,
     base_bug_internal_id: "BASE4BUGINTERNAL",
@@ -107,14 +111,22 @@ beforeAll(async () => {
   await Candidature.insert({
     selected_device: 0,
     accepted: 1,
+    campaign_id: 3,
+  });
+  await Candidature.insert({
+    selected_device: 0,
+    accepted: 1,
     campaign_id: 4,
   });
 
   await Usecases.insert({ id: 1, title: "Title of usecase1" });
   await Usecases.insert({ id: 2 });
   await Usecases.insert({ id: 3, campaign_id: 4 });
+  await Usecases.insert({ id: 4, campaign_id: 3 });
+  await Usecases.insert({ id: 5, campaign_id: 3 });
   await UsecaseGroups.insert();
   await UsecaseGroups.insert({ task_id: 3, group_id: 1 });
+  await UsecaseGroups.insert({ task_id: 4, group_id: 0 });
 });
 
 afterAll(async () => {
@@ -202,7 +214,7 @@ describe("Route POST a bug to a specific campaign", () => {
     const response = await request(app)
       .post("/users/me/campaigns/3/bugs")
       .set("authorization", "Bearer tester")
-      .send(bug);
+      .send({ ...bug, usecase: 5 });
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
@@ -222,6 +234,7 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
     });
   });
+  //
   // it("Should answer 403 if a user sends a usecase that has group where tester is not selected", async () => {
   //   const response = await request(app)
   //     .post("/users/me/campaigns/1/bugs")
@@ -234,6 +247,20 @@ describe("Route POST a bug to a specific campaign", () => {
   //     message: `Usecase ${bugBadUseCase.usecase} not found for CP1.`,
   //   });
   // });
+  //
+  it("Should answer 200 if a user sends a usecase that has all groups", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/4/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bugUsecaseAllGroups);
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 0,
+      message: `Usecase ${bugUsecaseAllGroups.usecase} not found for CP1.`,
+    });
+  });
+  //
   it("Should answer 403 if a user sends the not-candidate devices on CP", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
