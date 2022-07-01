@@ -384,6 +384,17 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Date format is not correct.`,
     });
   });
+  it("Should update LASTSEEN if a user sends a valid bug", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    const insertedLastSeen = await sqlite3.get(
+      `SELECT last_seen FROM wp_appq_evd_bug WHERE id = 1`
+    );
+    expect(response.status).toBe(200);
+    expect(insertedLastSeen.last_seen).toEqual("2022-07-01T13:44:00.000+02:00");
+  });
   it("Should return inserted MEDIA if a user sends a bug with medias", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
