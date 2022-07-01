@@ -95,8 +95,10 @@ beforeAll(async () => {
   await profileData.basicTester();
 
   await Campaign.insert({
+    id: 1,
     base_bug_internal_id: "BASE1BUGINTERNAL",
   });
+  await Campaign.insert({ id: 2 });
   await Campaign.insert({ id: 3, base_bug_internal_id: "BASE3BUGINTERNAL" });
   await Campaign.insert({
     id: 4,
@@ -112,6 +114,7 @@ beforeAll(async () => {
     selected_device: 0,
     accepted: 1,
     campaign_id: 3,
+    group_id: 1,
   });
   await Candidature.insert({
     selected_device: 0,
@@ -123,10 +126,10 @@ beforeAll(async () => {
   await Usecases.insert({ id: 2 });
   await Usecases.insert({ id: 3, campaign_id: 4 });
   await Usecases.insert({ id: 4, campaign_id: 3 });
-  await Usecases.insert({ id: 5, campaign_id: 3 });
+  await Usecases.insert({ id: 5, campaign_id: 3, group_id: 1 });
   await UsecaseGroups.insert();
   await UsecaseGroups.insert({ task_id: 3, group_id: 1 });
-  await UsecaseGroups.insert({ task_id: 4, group_id: 0 });
+  await UsecaseGroups.insert({ task_id: 5, group_id: 1 });
 });
 
 afterAll(async () => {
@@ -212,14 +215,14 @@ describe("Route POST a bug to a specific campaign", () => {
   });
   it("Should answer 403 if user is not selected on CP", async () => {
     const response = await request(app)
-      .post("/users/me/campaigns/3/bugs")
+      .post("/users/me/campaigns/2/bugs")
       .set("authorization", "Bearer tester")
-      .send({ ...bug, usecase: 5 });
+      .send({ ...bug });
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
       id: 0,
-      message: "T1 is not candidate on CP3.",
+      message: "T1 is not candidate on CP2.",
     });
   });
   it("Should answer 403 if a user sends an unaccepted usecase on CP", async () => {
@@ -249,16 +252,7 @@ describe("Route POST a bug to a specific campaign", () => {
   // });
   //
   it("Should answer 200 if a user sends a usecase that has all groups", async () => {
-    const response = await request(app)
-      .post("/users/me/campaigns/4/bugs")
-      .set("authorization", "Bearer tester")
-      .send(bugUsecaseAllGroups);
-    expect(response.status).toBe(403);
-    expect(response.body).toEqual({
-      element: "bugs",
-      id: 0,
-      message: `Usecase ${bugUsecaseAllGroups.usecase} not found for CP1.`,
-    });
+    expect(1).toBe(2);
   });
   //
   it("Should answer 403 if a user sends the not-candidate devices on CP", async () => {
