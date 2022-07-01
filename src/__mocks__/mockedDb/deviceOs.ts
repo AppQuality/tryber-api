@@ -1,28 +1,26 @@
-import sqlite3 from "@src/features/sqlite";
-
-const tableName = "wp_appq_os";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "id INTEGER PRIMARY KEY",
-      "display_name VARCHAR(255)",
-      "version_number VARCHAR(255)",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
-};
+import Table from "./table";
 
 type DeviceOsParams = {
   id?: number;
-};
-const data: {
-  [key: string]: (params?: DeviceOsParams) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
+  display_name?: string;
+  version_number?: string;
 };
 
-export { data };
+class DeviceOs extends Table<DeviceOsParams> {
+  protected columns = [
+    "id INTEGER PRIMARY KEY",
+    "display_name VARCHAR(255)",
+    "version_number VARCHAR(255)",
+  ];
+  protected name = "wp_appq_os";
+  constructor() {
+    super({
+      id: 1,
+      display_name: "OS",
+      version_number: "1.0",
+    });
+  }
+}
+
+const theTable = new DeviceOs();
+export default theTable;

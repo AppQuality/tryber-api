@@ -3976,44 +3976,7 @@ paths:
                   additionalFields:
                     type: array
                     items:
-                      allOf:
-                        - type: object
-                          properties:
-                            name:
-                              type: string
-                            slug:
-                              type: string
-                            error:
-                              type: string
-                          required:
-                            - name
-                            - slug
-                            - error
-                        - oneOf:
-                            - type: object
-                              properties:
-                                type:
-                                  type: string
-                                  enum:
-                                    - select
-                                options:
-                                  type: array
-                                  items:
-                                    type: string
-                              required:
-                                - type
-                                - options
-                            - type: object
-                              properties:
-                                type:
-                                  type: string
-                                  enum:
-                                    - text
-                                regex:
-                                  type: string
-                              required:
-                                - type
-                                - regex
+                      $ref: '#/components/schemas/CampaignAdditionalField'
                   bugTypes:
                     type: object
                     required:
@@ -4338,6 +4301,97 @@ paths:
                     - type: array
                       items:
                         type: string
+  '/users/me/campaigns/{campaignId}/devices':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the device available for this campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDevice'
+              examples:
+                single-device:
+                  value:
+                    - type: PC
+                      id: 1
+                      device:
+                        pc_type: Desktop
+                      operating_system:
+                        id: 781
+                        platform: MacOS
+                        version: Mac OS X 10.15 (Catalina) (10.15.5)
+                multiple-devices:
+                  value:
+                    - type: Smartphone
+                      id: 28440
+                      device:
+                        manufacturer: Airo Wireless
+                        model: A25is
+                        id: 5333
+                      operating_system:
+                        id: 729
+                        platform: Windows Mobile Professional
+                        version: Windows Mobile 6.5 (6.5)
+                    - type: PC
+                      id: 27723
+                      device:
+                        pc_type: Desktop
+                      operating_system:
+                        id: 781
+                        platform: MacOS
+                        version: Mac OS X 10.15 (Catalina) (10.15.5)
+                    - type: PC
+                      id: 28438
+                      device:
+                        pc_type: Desktop
+                      operating_system:
+                        id: 792
+                        platform: MacOS
+                        version: Mac OS X 10.15 (Catalina) (10.15.6)
+                    - type: PC
+                      id: 27721
+                      device:
+                        pc_type: Notebook
+                      operating_system:
+                        id: 772
+                        platform: Windows
+                        version: Windows 10 November 2019 Update (18363.778)
+                    - type: PC
+                      id: 27722
+                      device:
+                        pc_type: Ultrabook
+                      operating_system:
+                        id: 771
+                        platform: Windows
+                        version: Windows 10 May 2019 Update (18362)
+                    - type: Smart-tv
+                      id: 28439
+                      device:
+                        manufacturer: Bang & Olufsen
+                        model: BeoVision 11 40"
+                        id: 47400
+                      operating_system:
+                        id: 822
+                        platform: Fire TV
+                        version: Fire OS 7 (7)
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaigns-campaignId-devices
+      security:
+        - JWT: []
 components:
   schemas:
     Project:
@@ -4977,6 +5031,48 @@ components:
       required:
         - id
         - name
+    CampaignAdditionalField:
+      title: CampaignAdditionalField
+      x-stoplight:
+        id: sg1ne4iv5euue
+      allOf:
+        - type: object
+          properties:
+            name:
+              type: string
+            slug:
+              type: string
+            error:
+              type: string
+          required:
+            - name
+            - slug
+            - error
+        - oneOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - select
+                options:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - type
+                - options
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - text
+                regex:
+                  type: string
+              required:
+                - type
+                - regex
   securitySchemes:
     JWT:
       type: http

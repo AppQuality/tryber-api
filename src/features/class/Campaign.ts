@@ -1,5 +1,7 @@
 import * as db from "@src/features/db";
-import { Result } from "./types.d";
+import Devices from "./Devices";
+type AdditionalField =
+  StoplightComponents["schemas"]["CampaignAdditionalField"];
 
 type CampaignSelectItem = { id: number; name: string };
 class Campaign {
@@ -144,12 +146,7 @@ class Campaign {
   }
 
   public async isUserCandidate(userId: string) {
-    const candidature = await db.query(
-      db.format(
-        "SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
-        [userId, this.id]
-      )
-    );
+    const candidature = await this.getUserCandidature(userId);
     if (candidature.length === 0) return false;
     return true;
   }
@@ -209,7 +206,7 @@ class Campaign {
       .map((option: string) => `.${option}`);
   }
 
-  public async getAdditionalFields(): Promise<Result["additionalFields"]> {
+  public async getAdditionalFields(): Promise<AdditionalField[] | undefined> {
     const additionals: {
       id: number;
       slug: string;
@@ -285,6 +282,33 @@ class Campaign {
     if (meta.length === 0) return undefined;
     if (meta[0].meta_value === "1") return true;
     return undefined;
+  }
+
+  public async getUserCandidature(
+    userId: string
+  ): Promise<{ selected_device: number }[]> {
+    return await db.query(
+      db.format(
+        "SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
+        [userId, this.id]
+      )
+    );
+  }
+  public async getAvailableDevices(user: { userId: string; testerId: number }) {
+    const candidature = await this.getUserCandidature(user.userId);
+    if (candidature.length === 0) return false;
+    const { selected_device } = candidature[0];
+    try {
+      const devices = new Devices();
+      if (selected_device === 0) {
+        return await devices.getMany({ testerId: user.testerId });
+      }
+      const device = await devices.getOne(selected_device);
+      if (!device) return [];
+      return [device];
+    } catch {
+      return false;
+    }
   }
 }
 
