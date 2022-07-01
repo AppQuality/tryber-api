@@ -273,8 +273,15 @@ export default async (
     if (body.media) {
       media = [];
       for (const url of body.media) {
-        const type = await getMimetypeFromS3({ url });
-        if (type) media.push({ url: url, type: type });
+        const mimeType = await getMimetypeFromS3({ url });
+        if (!mimeType) media.push({ url: url, type: "other" });
+        else {
+          if (mimeType.startsWith("image"))
+            media.push({ url: url, type: "image" });
+          else if (mimeType.startsWith("video"))
+            media.push({ url: url, type: "video" });
+          else media.push({ url: url, type: mimeType });
+        }
       }
     }
     return media;
