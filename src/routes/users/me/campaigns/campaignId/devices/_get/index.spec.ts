@@ -77,6 +77,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
       user_id: 1,
       group_id: 1,
       selected_device: 1,
+      accepted: 1,
     });
   });
   afterAll(async () => {
@@ -135,6 +136,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
       user_id: 1,
       group_id: 1,
       selected_device: 1,
+      accepted: 1,
     });
   });
   afterAll(async () => {
@@ -190,6 +192,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
       user_id: 1,
       group_id: 1,
       selected_device: 0,
+      accepted: 1,
     });
   });
   afterAll(async () => {
@@ -238,6 +241,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - selected with all 
       user_id: 1,
       group_id: 1,
       selected_device: 0,
+      accepted: 1,
     });
   });
   afterAll(async () => {
@@ -257,6 +261,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - selected with a de
       campaign_id: 1,
       user_id: 1,
       group_id: 1,
+      accepted: 1,
       selected_device: 100,
     });
   });
