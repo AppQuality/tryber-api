@@ -189,7 +189,7 @@ class Campaign {
       id: u.id,
       name: u.name,
     }));
-    return [{ id: 0, name: "Not a specific usecase" }, ...result];
+    return [{ id: -1, name: "Not a specific usecase" }, ...result];
   }
 
   get hasBugForm() {
