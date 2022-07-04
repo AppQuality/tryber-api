@@ -19,7 +19,12 @@ import request from "supertest";
 beforeAll(async () => {
   await profileData.basicTester();
   await wpUserData.basicUser();
-  await Candidature.insert({ campaign_id: 1, user_id: 1, group_id: 1 });
+  await Candidature.insert({
+    campaign_id: 1,
+    user_id: 1,
+    group_id: 1,
+    accepted: 1,
+  });
   await Severities.insert({ id: 1, name: "Low" });
   await Severities.insert({ id: 2, name: "Medium" });
   await BugTypes.insert({ id: 1, name: "Typo" });
