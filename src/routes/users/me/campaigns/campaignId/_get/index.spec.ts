@@ -175,10 +175,6 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       bugReplicability: { valid: ["ONCE", "ALWAYS"], invalid: [] },
       useCases: [
         {
-          id: -1,
-          name: "Not a specific usecase",
-        },
-        {
           id: 2,
           name: "First Usecase All groups",
         },
@@ -201,6 +197,10 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
         {
           id: 10,
           name: "Usecase multigroup all groups",
+        },
+        {
+          id: -1,
+          name: "Not a specific usecase",
         },
       ],
       validFileExtensions: [".jpg", ".png", ".gif"],
