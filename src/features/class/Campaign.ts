@@ -289,7 +289,9 @@ class Campaign {
   ): Promise<{ selected_device: number; group_id: number }[]> {
     return await db.query(
       db.format(
-        "SELECT selected_device, group_id FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
+        `SELECT selected_device, group_id 
+          FROM wp_crowd_appq_has_candidate 
+          WHERE user_id = ? AND campaign_id = ? AND accepted = 1`,
         [userId, this.id]
       )
     );
