@@ -1,6 +1,6 @@
-import { S3 } from "aws-sdk";
-import { UploadedFile } from "express-fileupload";
-import stream from "stream";
+import { S3 } from 'aws-sdk';
+import stream from 'stream';
+
 type UploadParams = {
   bucket: string;
   key: string;
@@ -21,9 +21,10 @@ export default async ({ bucket, key, file }: UploadParams): Promise<string> => {
       Key: key,
       Body: pass,
       ACL: "public-read",
+      ContentType: file.mimeType,
     })
     .promise();
-  const pipeline = file.stream.pipe(pass);
+  file.stream.pipe(pass);
   const data = await promise;
 
   return data.Location; // returns the url location

@@ -1,6 +1,6 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as attributionsData } from "@src/__mocks__/mockedDb/attributions";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import request from "supertest";
 
@@ -9,12 +9,12 @@ describe("DELETE /payments/{paymentId}", () => {
     return new Promise(async (resolve) => {
       await paymentRequestData.processingPaypalPayment({ id: 1, amount: 2 });
       await paymentRequestData.paidPaypalPayment({ id: 2 });
-      await attributionsData.validAttribution({
+      await Attributions.insert({
         id: 1,
         request_id: 1,
         is_requested: 1,
       });
-      await attributionsData.validAttribution({
+      await Attributions.insert({
         id: 2,
         request_id: 1,
         is_requested: 1,
@@ -25,7 +25,7 @@ describe("DELETE /payments/{paymentId}", () => {
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await paymentRequestData.drop();
-      await attributionsData.drop();
+      await Attributions.clear();
       resolve(null);
     });
   });
@@ -66,7 +66,7 @@ describe("DELETE /payments/{paymentId}", () => {
     expect(resAfterDeletion.length).toBe(resBeforeDeletion.length);
   });
   it("Should set the attribution of the payments as unrequested", async () => {
-    const attributions = await sqlite3.all(`SELECT * FROM wp_appq_payment`);
+    const attributions = await Attributions.all();
     expect(attributions[0].is_requested).toBe(1);
     expect(attributions[1].is_requested).toBe(1);
 
@@ -74,9 +74,7 @@ describe("DELETE /payments/{paymentId}", () => {
       .delete("/payments/1")
       .set("authorization", "Bearer admin");
 
-    const attributionsAfterDeletion = await sqlite3.all(
-      `SELECT * FROM wp_appq_payment`
-    );
+    const attributionsAfterDeletion = await Attributions.all();
     expect(attributionsAfterDeletion[0].is_requested).toBe(0);
     expect(attributionsAfterDeletion[1].is_requested).toBe(0);
   });

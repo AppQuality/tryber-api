@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as testerData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";

@@ -2278,6 +2278,228 @@ paths:
           name: showExpired
           description: 'Show all popup history, expired popups included'
         - $ref: '#/components/parameters/order'
+  '/users/me/campaigns/{campaignId}/bugs':
+    post:
+      summary: POST a user bug on a specific campaign
+      operationId: post-users-me-campaigns-campaign-bugs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    id: ''
+                    testerId: 1
+                    title: ''
+                    status: ''
+                    description: ''
+                    expected: ''
+                    current: ''
+                    severity: ''
+                    replicability: ''
+                    type: ''
+                    notes: ''
+                    usecase: ''
+                    device: {}
+                    media:
+                      - ''
+                      - ''
+                    additional:
+                      - name: ''
+                        value: ''
+                properties:
+                  id:
+                    type: number
+                  internalId:
+                    type: string
+                  testerId:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - APPROVED
+                      - REFUSED
+                      - NEED-REVIEW
+                  expected:
+                    type: string
+                  current:
+                    type: string
+                  severity:
+                    type: string
+                    enum:
+                      - LOW
+                      - MEDIUM
+                      - HIGH
+                      - CRITICAL
+                  replicability:
+                    type: string
+                    enum:
+                      - ONCE
+                      - SOMETIMES
+                      - ALWAYS
+                  type:
+                    type: string
+                    enum:
+                      - CRASH
+                      - GRAPHIC
+                      - MALFUNCTION
+                      - OTHER
+                      - PERFORMANCE
+                      - SECURITY
+                      - TYPO
+                      - USABILITY
+                  notes:
+                    type: string
+                  usecase:
+                    type: string
+                  device:
+                    $ref: '#/components/schemas/UserDevice'
+                  media:
+                    type: array
+                    items:
+                      type: string
+                  additional:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - slug
+                        - value
+                required:
+                  - id
+                  - testerId
+                  - title
+                  - description
+                  - status
+                  - expected
+                  - current
+                  - severity
+                  - replicability
+                  - type
+                  - notes
+                  - usecase
+                  - device
+                  - media
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Send a user bug on a specific campaign
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  title: ''
+                  description: ''
+                  expected: ''
+                  current: ''
+                  severity: LOW
+                  replicability: ONCE
+                  type: TYPO
+                  notes: ''
+                  usecase: 1
+                  device: 1
+                  media:
+                    - ''
+                    - ''
+                  additional:
+                    - name: ''
+                      value: ''
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                expected:
+                  type: string
+                current:
+                  type: string
+                severity:
+                  type: string
+                  enum:
+                    - LOW
+                    - MEDIUM
+                    - HIGH
+                    - CRITICAL
+                replicability:
+                  type: string
+                  enum:
+                    - ONCE
+                    - SOMETIMES
+                    - ALWAYS
+                type:
+                  type: string
+                  enum:
+                    - CRASH
+                    - GRAPHIC
+                    - MALFUNCTION
+                    - OTHER
+                    - PERFORMANCE
+                    - SECURITY
+                    - TYPO
+                    - USABILITY
+                notes:
+                  type: string
+                lastSeen:
+                  type: string
+                usecase:
+                  type: integer
+                device:
+                  type: integer
+                media:
+                  type: array
+                  items:
+                    type: string
+                additional:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slug:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - slug
+                      - value
+              required:
+                - title
+                - description
+                - expected
+                - current
+                - severity
+                - replicability
+                - type
+                - notes
+                - lastSeen
+                - usecase
+                - device
+                - media
+      security:
+        - JWT: []
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+        description: the campaign id
   '/users/me/popups/{popup}':
     parameters:
       - schema:
@@ -5033,8 +5255,6 @@ components:
         - name
     CampaignAdditionalField:
       title: CampaignAdditionalField
-      x-stoplight:
-        id: sg1ne4iv5euue
       allOf:
         - type: object
           properties:

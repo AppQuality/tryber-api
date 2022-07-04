@@ -2,7 +2,7 @@ import app from "@src/app";
 import request from "supertest";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import Candidature from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOS from "@src/__mocks__/mockedDb/deviceOs";

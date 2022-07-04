@@ -219,6 +219,16 @@ export interface paths {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
   };
+  "/users/me/campaigns/{campaignId}/bugs": {
+    /** Send a user bug on a specific campaign */
+    post: operations["post-users-me-campaigns-campaign-bugs"];
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+      };
+    };
+  };
   "/users/me/popups/{popup}": {
     /** Get a single popup. Will set the retrieved popup as expired */
     get: operations["get-users-me-popups-popup"];
@@ -1832,6 +1842,90 @@ export interface operations {
             title?: string;
             content?: string;
             once?: boolean;
+          }[];
+        };
+      };
+    };
+  };
+  /** Send a user bug on a specific campaign */
+  "post-users-me-campaigns-campaign-bugs": {
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            internalId?: string;
+            testerId: number;
+            title: string;
+            description: string;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REFUSED" | "NEED-REVIEW";
+            expected: string;
+            current: string;
+            /** @enum {string} */
+            severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+            /** @enum {string} */
+            replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
+            /** @enum {string} */
+            type:
+              | "CRASH"
+              | "GRAPHIC"
+              | "MALFUNCTION"
+              | "OTHER"
+              | "PERFORMANCE"
+              | "SECURITY"
+              | "TYPO"
+              | "USABILITY";
+            notes: string;
+            usecase: string;
+            device: components["schemas"]["UserDevice"];
+            media: string[];
+            additional?: {
+              slug: string;
+              value: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          title: string;
+          description: string;
+          expected: string;
+          current: string;
+          /** @enum {string} */
+          severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+          /** @enum {string} */
+          replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
+          /** @enum {string} */
+          type:
+            | "CRASH"
+            | "GRAPHIC"
+            | "MALFUNCTION"
+            | "OTHER"
+            | "PERFORMANCE"
+            | "SECURITY"
+            | "TYPO"
+            | "USABILITY";
+          notes: string;
+          lastSeen: string;
+          usecase: number;
+          device: number;
+          media: string[];
+          additional?: {
+            slug: string;
+            value: string;
           }[];
         };
       };
