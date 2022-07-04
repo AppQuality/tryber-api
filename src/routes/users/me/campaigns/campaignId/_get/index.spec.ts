@@ -90,12 +90,20 @@ beforeAll(async () => {
     position: 5,
     campaign_id: 2,
   });
+  await UseCases.insert({
+    id: 10,
+    title: "Usecase multigroup all groups",
+    group_id: -1,
+    position: 10,
+    campaign_id: 1,
+  });
   await UseCaseGroups.insert({ task_id: 7, group_id: 1 });
   await UseCaseGroups.insert({ task_id: 7, group_id: 2 });
   await UseCaseGroups.insert({ task_id: 8, group_id: 1 });
   await UseCaseGroups.insert({ task_id: 8, group_id: 2 });
   await UseCaseGroups.insert({ task_id: 9, group_id: 2 });
   await UseCaseGroups.insert({ task_id: 9, group_id: 3 });
+  await UseCaseGroups.insert({ task_id: 10, group_id: 0 });
   await Campaigns.insert({
     id: 1,
     title: "My campaign",
@@ -173,6 +181,10 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
         {
           id: 7,
           name: "Usecase multigroup",
+        },
+        {
+          id: 10,
+          name: "Usecase multigroup all groups",
         },
       ],
       validFileExtensions: [".jpg", ".png", ".gif"],
