@@ -48,7 +48,9 @@ export default async (
   }
 
   function isAcceptableFile(file: { name: string }): boolean {
-    return ![".bat", ".sh", ".exe"].includes(path.extname(file.name));
+    return ![".bat", ".sh", ".exe"].includes(
+      path.extname(file.name).toLowerCase()
+    );
   }
 
   async function uploadFiles(
