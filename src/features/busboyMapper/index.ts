@@ -48,6 +48,7 @@ export default async (
       });
 
       readableStream.on("close", () => {
+        while (!fs.existsSync(filePath)) {}
         const readStream = fs.createReadStream(filePath);
         if (!isInvalid) {
           valid.push({
