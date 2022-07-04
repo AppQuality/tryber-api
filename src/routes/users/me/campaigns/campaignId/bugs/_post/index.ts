@@ -330,22 +330,28 @@ export default async (
     }
   }
   async function filterValidAdditionalFields(): Promise<CreateAdditionals> {
-    if (!body.additional) return undefined;
-
+    let additionals = body.additional || [];
     let campaignAdditionalFields = await getCampaignAdditionalFields();
 
     if (!campaignAdditionalFields.length) {
-      throw {
-        status_code: 403,
-        message: `CP${campaignId} has not additional fields.`,
-      };
+      return undefined;
+    }
+    for (const campaignAdditionalField of campaignAdditionalFields) {
+      if (
+        !additionals.find((item) => item.slug === campaignAdditionalField.slug)
+      ) {
+        additionals.push({
+          slug: campaignAdditionalField.slug,
+          value: "",
+        });
+      }
     }
     const acceptedSlugs = campaignAdditionalFields.map(
       (item: { slug: string }) => item.slug
     );
-    const bugSlugs = body.additional.map((item: { slug: string }) => item.slug);
+    const bugSlugs = additionals.map((item: { slug: string }) => item.slug);
     //filter additionals in request that are acceptable
-    return getValidAdditionalFields(body.additional);
+    return getValidAdditionalFields(additionals);
 
     async function getCampaignAdditionalFields(): Promise<
       CampaignAdditional[]
