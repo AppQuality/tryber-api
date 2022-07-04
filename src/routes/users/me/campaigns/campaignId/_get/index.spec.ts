@@ -151,7 +151,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       bugReplicability: { valid: ["ONCE", "ALWAYS"], invalid: [] },
       useCases: [
         {
-          id: 0,
+          id: -1,
           name: "Not a specific usecase",
         },
         {
