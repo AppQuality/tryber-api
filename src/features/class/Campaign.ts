@@ -171,7 +171,7 @@ class Campaign {
         await db.query(
           db.format(
             `SELECT task_id FROM wp_appq_campaign_task_group
-          WHERE group_id = ?`,
+          WHERE group_id IN (?,0)`,
             [candidatureData[0].group_id]
           )
         )
