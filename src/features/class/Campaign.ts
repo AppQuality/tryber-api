@@ -1,5 +1,7 @@
 import * as db from "@src/features/db";
+
 import Devices from "./Devices";
+
 type AdditionalField =
   StoplightComponents["schemas"]["CampaignAdditionalField"];
 
@@ -103,12 +105,14 @@ class Campaign {
     };
 
     async function getTypes(): Promise<{ id: number; name: string }[]> {
-      return (await db.query(`SELECT id,name FROM wp_appq_evd_bug_type `)).map(
-        (s: typeof types[0]) => ({
-          ...s,
-          name: s.name.toUpperCase(),
-        })
-      );
+      return (
+        await db.query(
+          `SELECT id,name FROM wp_appq_evd_bug_type WHERE  is_enabled = 1 `
+        )
+      ).map((s: typeof types[0]) => ({
+        ...s,
+        name: s.name.toUpperCase(),
+      }));
     }
   }
 

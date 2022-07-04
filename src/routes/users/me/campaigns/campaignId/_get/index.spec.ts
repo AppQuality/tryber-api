@@ -1,19 +1,19 @@
-import app from "@src/app";
+import Replicabilities from "@src/__mocks__/mockedDb/bugReplicabilities";
+import Severities from "@src/__mocks__/mockedDb/bugSeverities";
 import BugTypes from "@src/__mocks__/mockedDb/bugTypes";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
+import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import CampaignMeta from "@src/__mocks__/mockedDb/campaignMeta";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import CustomBugTypes from "@src/__mocks__/mockedDb/customBugTypes";
 import CustomReplicabilities from "@src/__mocks__/mockedDb/customReplicabilities";
 import CustomSeverities from "@src/__mocks__/mockedDb/customSeverities";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
-import Replicabilities from "@src/__mocks__/mockedDb/bugReplicabilities";
-import Severities from "@src/__mocks__/mockedDb/bugSeverities";
-import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import UseCases from "@src/__mocks__/mockedDb/usecases";
 import UseCaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
-import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
 import request from "supertest";
 
 beforeAll(async () => {
@@ -24,6 +24,7 @@ beforeAll(async () => {
   await Severities.insert({ id: 2, name: "Medium" });
   await BugTypes.insert({ id: 1, name: "Typo" });
   await BugTypes.insert({ id: 2, name: "Crash" });
+  await BugTypes.insert({ id: 3, name: "Atomic", is_enabled: 0 });
   await Replicabilities.insert({ id: 1, name: "Once" });
   await Replicabilities.insert({ id: 2, name: "Always" });
 
@@ -144,6 +145,16 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       .get("/users/me/campaigns/1")
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
+  });
+  it("Should return only active and accepted bugTypes if user is logged and selected", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("bugTypes");
+    expect(response.body.bugTypes).toEqual({
+      valid: ["TYPO", "CRASH"],
+      invalid: [],
+    });
   });
   it("Should return campaign data if user is logged and selected", async () => {
     const response = await request(app)
