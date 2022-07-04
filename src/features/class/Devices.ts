@@ -55,7 +55,23 @@ class Devices {
     }
   }
 
-  private format(device: DeviceType) {
+  private format(device: DeviceType): {
+    id: number;
+    type: string;
+    device:
+      | {
+          pc_type: string;
+        }
+      | {
+          manufacturer: string;
+          model: string;
+        };
+    operating_system: {
+      id: number;
+      platform: string;
+      version: string;
+    };
+  } {
     return {
       id: device.id,
       type: device.form_factor,

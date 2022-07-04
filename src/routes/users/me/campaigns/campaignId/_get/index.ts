@@ -12,7 +12,7 @@ export default async (
   const campaignId = parseInt(params.campaignId);
   const campaign = new Campaign(campaignId, false);
   try {
-    if (!(await campaign.isUserCandidate(req.user.ID)))
+    if (!(await campaign.isUserCandidate(req.user.ID, isAdmin())))
       throw new Error("You are not selected for this campaign");
   } catch {
     res.status_code = 404;
@@ -47,5 +47,14 @@ export default async (
       element: "campaigns",
       message: (err as OpenapiError).message,
     };
+  }
+
+  function isAdmin(): any {
+    if (!req.user.permission.admin) return false;
+    if (!req.user.permission.admin.appq_campaign) return false;
+    if (req.user.permission.admin.appq_campaign === true) return true;
+    if (req.user.permission.admin.appq_campaign.includes(campaignId))
+      return true;
+    return false;
   }
 };

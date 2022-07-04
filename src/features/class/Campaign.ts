@@ -149,14 +149,14 @@ class Campaign {
     }
   }
 
-  public async isUserCandidate(userId: string) {
-    const candidature = await this.getUserCandidature(userId);
+  public async isUserCandidate(userId: string, isAdmin: boolean = false) {
+    const candidature = await this.getUserCandidature(userId, isAdmin);
     if (candidature.length === 0) return false;
     return true;
   }
 
-  public async getUserUseCases(userId: string) {
-    const candidatureData = await this.getUserCandidature(userId);
+  public async getUserUseCases(userId: string, isAdmin: boolean = false) {
+    const candidatureData = await this.getUserCandidature(userId, isAdmin);
 
     if (candidatureData.length === 0) return [];
     let useCases: { id: number; name: string; group_id: number }[] =
@@ -285,9 +285,10 @@ class Campaign {
   }
 
   public async getUserCandidature(
-    userId: string
+    userId: string,
+    isAdmin: boolean
   ): Promise<{ selected_device: number; group_id: number }[]> {
-    return await db.query(
+    const candidature = await db.query(
       db.format(
         `SELECT selected_device, group_id 
           FROM wp_crowd_appq_has_candidate 
@@ -295,12 +296,55 @@ class Campaign {
         [userId, this.id]
       )
     );
+    if (isAdmin && candidature.length === 0)
+      return [{ selected_device: -1, group_id: 0 }];
+    return candidature;
   }
-  public async getAvailableDevices(user: { userId: string; testerId: number }) {
-    const candidature = await this.getUserCandidature(user.userId);
+  public async getAvailableDevices(user: {
+    userId: string;
+    testerId: number;
+    isAdmin: boolean;
+  }): Promise<
+    | {
+        id: number;
+        type: string;
+        device:
+          | {
+              pc_type: string;
+            }
+          | {
+              manufacturer: string;
+              model: string;
+            };
+        operating_system: {
+          id: number;
+          platform: string;
+          version: string;
+        };
+      }[]
+    | false
+  > {
+    const candidature = await this.getUserCandidature(
+      user.userId,
+      user.isAdmin
+    );
     if (candidature.length === 0) return false;
     const { selected_device } = candidature[0];
     try {
+      if (selected_device === -1) {
+        return [
+          {
+            id: -1,
+            type: "PC",
+            device: { pc_type: "Notebook" },
+            operating_system: {
+              id: -1,
+              platform: "Platform",
+              version: "Version",
+            },
+          },
+        ];
+      }
       const devices = new Devices();
       if (selected_device === 0) {
         return await devices.getMany({ testerId: user.testerId });
