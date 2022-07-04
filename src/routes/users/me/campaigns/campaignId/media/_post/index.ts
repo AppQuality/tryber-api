@@ -29,7 +29,9 @@ export default async (
       return false;
     }
     if (
-      !validFileExtensions.includes(path.extname(file.name).replace(".", ""))
+      !validFileExtensions.includes(
+        path.extname(file.name).toLowerCase().replace(".", "")
+      )
     ) {
       return "INVALID_FILE_EXTENSION";
     }
