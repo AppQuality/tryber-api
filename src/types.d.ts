@@ -23,6 +23,7 @@ declare global {
     code: string;
   }
 
+  type Olp = boolean | number[];
   type UserType = {
     ID: string;
     testerId: number;
@@ -31,7 +32,11 @@ declare global {
     role: string;
     capabilities: string[];
     permission: {
-      admin?: { appq_prospect?: boolean; appq_message_center?: boolean };
+      admin?: {
+        appq_prospect?: Olp;
+        appq_message_center?: Olp;
+        appq_campaign?: Olp;
+      };
     };
   };
 
