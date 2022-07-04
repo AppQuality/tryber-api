@@ -432,6 +432,7 @@ export default async (
       bugAdditional: { value: string },
       cpAdditional: { validation: string }
     ) {
+      if (cpAdditional.validation === "") return true;
       if (cpAdditional.validation) {
         const regexp = new RegExp(
           cpAdditional.validation.replace(/(?:\\(.))/g, "$1")
