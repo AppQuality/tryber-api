@@ -152,12 +152,8 @@ class Campaign {
   }
 
   public async getUserUseCases(userId: string) {
-    const candidatureData = await db.query(
-      db.format(
-        "SELECT group_id FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
-        [userId, this.id]
-      )
-    );
+    const candidatureData = await this.getUserCandidature(userId);
+
     if (candidatureData.length === 0) return [];
     let useCases: { id: number; name: string; group_id: number }[] =
       await db.query(
@@ -286,10 +282,10 @@ class Campaign {
 
   public async getUserCandidature(
     userId: string
-  ): Promise<{ selected_device: number }[]> {
+  ): Promise<{ selected_device: number; group_id: number }[]> {
     return await db.query(
       db.format(
-        "SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
+        "SELECT selected_device, group_id FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
         [userId, this.id]
       )
     );
