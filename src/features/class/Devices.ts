@@ -10,11 +10,12 @@ type DeviceType = {
   osVersionNumber: string;
   os_version_id: number;
   pc_type: string;
+  source_id: number;
 };
 
 class Devices {
   private baseQuery = `SELECT
-    d.id,d.form_factor,d.manufacturer,d.model,d.os_version_id, d.pc_type,
+    d.id,d.form_factor,d.manufacturer,d.model,d.os_version_id, d.pc_type, d.source_id,
     osVersion.display_name as osVersion, osVersion.version_number as osVersionNumber,
     os.name as os
     FROM wp_crowd_appq_device d
@@ -63,6 +64,7 @@ class Devices {
           pc_type: string;
         }
       | {
+          id: number;
           manufacturer: string;
           model: string;
         };
@@ -81,6 +83,7 @@ class Devices {
               pc_type: device.pc_type,
             }
           : {
+              id: device.source_id,
               manufacturer: device.manufacturer,
               model: device.model,
             },
