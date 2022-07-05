@@ -47,7 +47,7 @@ export default async (
     replicability = await getReplicability();
     bugtype = await getBugType();
     media = await getMediaData();
-    device = await getUserDevice(body.device, parseInt(req.user.ID));
+    device = await getUserDevice(body.device);
     additional = await filterValidAdditionalFields();
     checkIsoStringDate();
   } catch (error) {
