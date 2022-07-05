@@ -1,4 +1,3 @@
-import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import AdditionalReplicability from "@src/__mocks__/mockedDb/bugAdditionalReplicabilities";
 import AdditionalSeverity from "@src/__mocks__/mockedDb/bugAdditionalSeverities";
 import AdditionalBugType from "@src/__mocks__/mockedDb/bugAdditionalTypes";
@@ -21,6 +20,7 @@ import app from "@src/app";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
+import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 
 const bug = {
   title: "Campaign Title",
@@ -459,8 +459,8 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
+    console.log("response", response.body);
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("device");
     expect(response.body).toHaveProperty("device");
     expect(response.body.device).toMatchObject({
       device: { id: 950, manufacturer: "Acer", model: "Iconia A1" },

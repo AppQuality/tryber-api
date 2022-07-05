@@ -60,6 +60,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
       form_factor: "Smartphone",
       manufacturer: "Google",
       model: "Pixel 3",
+      source_id: 10,
     });
     await TesterDevice.insert({
       id: 2,
@@ -71,6 +72,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
       pc_type: "Desktop",
       manufacturer: "Acer",
       model: "Aspire",
+      source_id: 15,
     });
     await Candidature.insert({
       campaign_id: 1,
@@ -119,6 +121,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
       form_factor: "Smartphone",
       manufacturer: "Google",
       model: "Pixel 3",
+      source_id: 10,
     });
     await TesterDevice.insert({
       id: 2,
@@ -130,6 +133,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
       pc_type: "Desktop",
       manufacturer: "Acer",
       model: "Aspire",
+      source_id: 15,
     });
     await Candidature.insert({
       campaign_id: 1,
@@ -152,6 +156,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
       id: 1,
       type: "Smartphone",
       device: {
+        id: 10,
         manufacturer: "Google",
         model: "Pixel 3",
       },
@@ -175,6 +180,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
       form_factor: "Smartphone",
       manufacturer: "Google",
       model: "Pixel 3",
+      source_id: 10,
     });
     await TesterDevice.insert({
       id: 2,
@@ -186,6 +192,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
       pc_type: "Desktop",
       manufacturer: "Acer",
       model: "Aspire",
+      source_id: 15,
     });
     await Candidature.insert({
       campaign_id: 1,
@@ -209,6 +216,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
         id: 1,
         type: "Smartphone",
         device: {
+          id: 10,
           manufacturer: "Google",
           model: "Pixel 3",
         },
