@@ -1,9 +1,8 @@
+import Devices from "@src/features/class/Devices";
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import { Context } from "openapi-backend";
-
-import getUserDevice from "./getUserDevice";
 import {
   Bug,
   BugMedia,
@@ -509,6 +508,19 @@ export default async (
       };
     }
     return inserted.insertId;
+  }
+  async function getUserDevice(deviceId: number): Promise<UserDevice> {
+    try {
+      const device = await new Devices().getOne(deviceId);
+      if (!device) throw Error("No device on your user");
+      return device;
+    } catch (error) {
+      debugMessage(error);
+      throw {
+        status_code: 403,
+        message: (error as OpenapiError).message,
+      };
+    }
   }
   async function updateInternalBugId(bugId: number): Promise<string> {
     const internalBugId = (
