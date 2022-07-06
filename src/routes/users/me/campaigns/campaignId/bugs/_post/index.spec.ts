@@ -422,7 +422,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send({ ...bug, lastSeen: "THIS IS NOT AN ISOSTRING-DATE" });
-    console.log(response.body);
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
@@ -459,7 +458,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-    console.log("response", response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("device");
     expect(response.body.device).toMatchObject({
