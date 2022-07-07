@@ -47,8 +47,15 @@ const os1 = {
 describe("Route GET users-me-devices", () => {
   beforeEach(async () => {
     await sqlite3.insert("wp_appq_evd_profile", tester1);
-
-    await TesterDevice.insert(device1);
+    await TesterDevice.insert({ ...device1, id: 1, form_factor: "Smart-tv" });
+    await TesterDevice.insert({ ...device1, id: 2, form_factor: "Tablet" });
+    await TesterDevice.insert({
+      ...device1,
+      id: 3,
+      form_factor: "PC",
+      pc_type: "Notebook",
+    });
+    await TesterDevice.insert({ ...device1, id: 4, form_factor: "Smartphone" });
     await DevicePlatform.insert(platform1);
     await deviceOs.insert(os1);
   });
@@ -78,22 +85,63 @@ describe("Route GET users-me-devices", () => {
       .get("/users/me/devices")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body.length).toBe(1);
-    const expectDevice = {
-      id: device1.id,
-      type: device1.form_factor,
-      operating_system: {
-        id: os1.id,
-        platform: platform1.name,
-        version: os1.display_name + " (" + os1.version_number + ")",
+    expect(response.body.length).toBe(4);
+    expect(response.body).toEqual([
+      {
+        id: 4,
+        type: "Smartphone",
+        operating_system: {
+          id: os1.id,
+          platform: platform1.name,
+          version: os1.display_name + " (" + os1.version_number + ")",
+        },
+        device: {
+          id: device1.id,
+          manufacturer: device1.manufacturer,
+          model: device1.model,
+        },
       },
-      device: {
-        id: device1.id,
-        manufacturer: device1.manufacturer,
-        model: device1.model,
+      {
+        id: 3,
+        type: "PC",
+        operating_system: {
+          id: os1.id,
+          platform: platform1.name,
+          version: os1.display_name + " (" + os1.version_number + ")",
+        },
+        device: {
+          pc_type: "Notebook",
+        },
       },
-    };
-    expect(response.body[0]).toMatchObject(expectDevice);
+      {
+        id: 2,
+        type: "Tablet",
+        operating_system: {
+          id: os1.id,
+          platform: platform1.name,
+          version: os1.display_name + " (" + os1.version_number + ")",
+        },
+        device: {
+          id: device1.id,
+          manufacturer: device1.manufacturer,
+          model: device1.model,
+        },
+      },
+      {
+        id: 1,
+        type: "Smart-tv",
+        operating_system: {
+          id: os1.id,
+          platform: platform1.name,
+          version: os1.display_name + " (" + os1.version_number + ")",
+        },
+        device: {
+          id: device1.id,
+          manufacturer: device1.manufacturer,
+          model: device1.model,
+        },
+      },
+    ]);
   });
 });
 
