@@ -1,7 +1,9 @@
-import { data as attributions } from "@src/__mocks__/mockedDb/attributions";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
-import { data as campaignsCandidatures } from "@src/__mocks__/mockedDb/cp_has_candidates";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as cuf } from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
 import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
@@ -11,10 +13,8 @@ import { data as languagesList } from "@src/__mocks__/mockedDb/languageList";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
-import { data as wpOptions } from "@src/__mocks__/mockedDb/wp_options";
+import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
@@ -27,8 +27,8 @@ describe("Route PATCH users-me", () => {
         user_login: "bob_alice",
         user_email: "bob.alice@example.com",
       });
-      await attributions.validAttribution();
-      await wpOptions.crowdWpOptions();
+      await Attributions.insert();
+      await WpOptions.crowdWpOptions();
       await profileData.basicTester({
         booty: 69,
         birth_date: "1996-03-21 00:00:00",
@@ -41,7 +41,7 @@ describe("Route PATCH users-me", () => {
         education_id: 1,
       });
       await bugs.basicBug({ status_id: 2 });
-      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
+      await Candidature.insert({ accepted: 1, results: 2 });
       await certificationsList.certification1();
       await testerCertifications.assignCertification({
         achievement_date: new Date("01/01/2021").toISOString(),
@@ -105,24 +105,21 @@ describe("Route PATCH users-me", () => {
     });
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await wpUsers.drop();
-      await attributions.drop();
-      await wpOptions.drop();
-      await profileData.drop();
-      await bugs.drop();
-      await campaignsCandidatures.drop();
-      await certificationsList.drop();
-      await testerCertifications.drop();
-      await employmentsList.drop();
-      await educationsList.drop();
-      await languagesList.drop();
-      await testerLanguages.drop();
-      await cuf.drop();
-      await cufData.drop();
-      await cufExtras.drop();
-      resolve(null);
-    });
+    await wpUsers.drop();
+    await Attributions.clear();
+    await WpOptions.clear();
+    await profileData.drop();
+    await bugs.drop();
+    await Candidature.clear();
+    await certificationsList.drop();
+    await testerCertifications.drop();
+    await employmentsList.drop();
+    await educationsList.drop();
+    await languagesList.drop();
+    await testerLanguages.drop();
+    await cuf.drop();
+    await cufData.drop();
+    await cufExtras.drop();
   });
   it("Should not update user when no parameters were given", async () => {
     const responseGetBeforePatch = await request(app)
@@ -148,7 +145,7 @@ describe("Route PATCH users-me", () => {
 describe("Route PATCH users-me accepted fields", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await attributions.validAttribution();
+      await Attributions.insert();
 
       await wpUsers.basicUser({
         user_login: "bob_alice",
@@ -160,7 +157,7 @@ describe("Route PATCH users-me accepted fields", () => {
         user_login: "bob",
         user_email: "bob@example.com",
       });
-      wpOptions.crowdWpOptions();
+      WpOptions.crowdWpOptions();
       await profileData.basicTester({
         booty: 69,
         birth_date: "1996-03-21 00:00:00",
@@ -174,7 +171,7 @@ describe("Route PATCH users-me accepted fields", () => {
         is_verified: 1,
       });
       await bugs.basicBug({ status_id: 2 });
-      await campaignsCandidatures.candidate1({ accepted: 1, results: 2 });
+      await Candidature.insert({ accepted: 1, results: 2 });
       await certificationsList.certification1();
       await testerCertifications.assignCertification({
         achievement_date: new Date("01/01/2021").toISOString(),
@@ -243,24 +240,21 @@ describe("Route PATCH users-me accepted fields", () => {
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await wpUsers.drop();
-      await attributions.drop();
-      await wpOptions.drop();
-      await profileData.drop();
-      await bugs.drop();
-      await campaignsCandidatures.drop();
-      await certificationsList.drop();
-      await testerCertifications.drop();
-      await employmentsList.drop();
-      await educationsList.drop();
-      await languagesList.drop();
-      await testerLanguages.drop();
-      await cuf.drop();
-      await cufData.drop();
-      await cufExtras.drop();
-      resolve(null);
-    });
+    await wpUsers.drop();
+    await Attributions.clear();
+    await WpOptions.clear();
+    await profileData.drop();
+    await bugs.drop();
+    await Candidature.clear();
+    await certificationsList.drop();
+    await testerCertifications.drop();
+    await employmentsList.drop();
+    await educationsList.drop();
+    await languagesList.drop();
+    await testerLanguages.drop();
+    await cuf.drop();
+    await cufData.drop();
+    await cufExtras.drop();
   });
   it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)

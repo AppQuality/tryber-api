@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as attributionData } from "@src/__mocks__/mockedDb/attributions";
-import { data as campaignData } from "@src/__mocks__/mockedDb/campaign";
+import Attributions from "@src/__mocks__/mockedDb/attributions";
+import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
@@ -28,8 +28,8 @@ describe("GET /users/me/payments/{payment}", () => {
   const data: any = {};
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_campaign", campaign1);
-      await sqlite3.insert("wp_appq_evd_campaign", campaign2);
+      await Campaigns.insert(campaign1);
+      await Campaigns.insert(campaign2);
       await sqlite3.insert("wp_appq_payment_work_types", work_type1);
       await sqlite3.insert("wp_appq_payment_work_types", work_type2);
 
@@ -47,7 +47,7 @@ describe("GET /users/me/payments/{payment}", () => {
         id: 2,
         tester_id: 2,
       });
-      data.payment1 = await attributionData.validAttribution({
+      data.payment1 = await Attributions.insert({
         id: 1,
         amount: 10,
         creation_date: new Date("01/01/1972").toISOString(),
@@ -56,7 +56,7 @@ describe("GET /users/me/payments/{payment}", () => {
         campaign_id: campaign1.id,
       });
 
-      data.payment2 = await attributionData.validAttribution({
+      data.payment2 = await Attributions.insert({
         id: 2,
         amount: 20,
         creation_date: new Date("01/02/1972").toISOString(),
@@ -64,7 +64,7 @@ describe("GET /users/me/payments/{payment}", () => {
         request_id: 1,
         campaign_id: campaign1.id,
       });
-      data.payment3 = await attributionData.validAttribution({
+      data.payment3 = await Attributions.insert({
         id: 4,
         amount: 30,
         creation_date: new Date("01/03/1972").toISOString(),
@@ -73,7 +73,7 @@ describe("GET /users/me/payments/{payment}", () => {
         campaign_id: campaign2.id,
       });
 
-      await attributionData.validAttribution({
+      await Attributions.insert({
         id: 3,
         amount: 40,
         creation_date: new Date("01/03/1972").toISOString(),
@@ -87,9 +87,9 @@ describe("GET /users/me/payments/{payment}", () => {
   afterAll(async () => {
     return new Promise(async (resolve) => {
       await profileData.drop();
-      await attributionData.drop();
+      await Attributions.clear();
       await requestData.drop();
-      await campaignData.drop();
+      await Campaigns.clear();
       await workTypeData.drop();
       resolve(null);
     });

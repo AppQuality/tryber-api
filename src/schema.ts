@@ -219,6 +219,16 @@ export interface paths {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
   };
+  "/users/me/campaigns/{campaignId}/bugs": {
+    /** Send a user bug on a specific campaign */
+    post: operations["post-users-me-campaigns-campaign-bugs"];
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+      };
+    };
+  };
   "/users/me/popups/{popup}": {
     /** Get a single popup. Will set the retrieved popup as expired */
     get: operations["get-users-me-popups-popup"];
@@ -342,6 +352,30 @@ export interface paths {
     /** Get all levels */
     get: operations["get-levels"];
     parameters: {};
+  };
+  "/users/me/campaigns/{campaignId}": {
+    get: operations["get-users-me-campaigns-campaignId"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
+  "/users/me/campaigns/{campaignId}/media": {
+    post: operations["post-users-me-campaigns-campaignId-media"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
+  "/users/me/campaigns/{campaignId}/devices": {
+    get: operations["get-users-me-campaigns-campaignId-devices"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
   };
 }
 
@@ -572,6 +606,23 @@ export interface components {
       reach?: number;
       hold?: number;
     };
+    /** CampaignAdditionalField */
+    CampaignAdditionalField: {
+      name: string;
+      slug: string;
+      error: string;
+    } & (
+      | {
+          /** @enum {string} */
+          type: "select";
+          options: string[];
+        }
+      | {
+          /** @enum {string} */
+          type: "text";
+          regex: string;
+        }
+    );
   };
   responses: {
     /** A user */
@@ -1265,6 +1316,7 @@ export interface operations {
             }[];
             failed?: {
               name: string;
+              errorCode: string;
             }[];
           };
         };
@@ -1790,6 +1842,90 @@ export interface operations {
             title?: string;
             content?: string;
             once?: boolean;
+          }[];
+        };
+      };
+    };
+  };
+  /** Send a user bug on a specific campaign */
+  "post-users-me-campaigns-campaign-bugs": {
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            internalId?: string;
+            testerId: number;
+            title: string;
+            description: string;
+            /** @enum {string} */
+            status: "PENDING" | "APPROVED" | "REFUSED" | "NEED-REVIEW";
+            expected: string;
+            current: string;
+            /** @enum {string} */
+            severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+            /** @enum {string} */
+            replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
+            /** @enum {string} */
+            type:
+              | "CRASH"
+              | "GRAPHIC"
+              | "MALFUNCTION"
+              | "OTHER"
+              | "PERFORMANCE"
+              | "SECURITY"
+              | "TYPO"
+              | "USABILITY";
+            notes: string;
+            usecase: string;
+            device: components["schemas"]["UserDevice"];
+            media: string[];
+            additional?: {
+              slug: string;
+              value: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          title: string;
+          description: string;
+          expected: string;
+          current: string;
+          /** @enum {string} */
+          severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+          /** @enum {string} */
+          replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
+          /** @enum {string} */
+          type:
+            | "CRASH"
+            | "GRAPHIC"
+            | "MALFUNCTION"
+            | "OTHER"
+            | "PERFORMANCE"
+            | "SECURITY"
+            | "TYPO"
+            | "USABILITY";
+          notes: string;
+          lastSeen: string;
+          usecase: number;
+          device: number;
+          media: string[];
+          additional?: {
+            slug: string;
+            value: string;
           }[];
         };
       };
@@ -2447,6 +2583,104 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["LevelDefinition"][];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "get-users-me-campaigns-campaignId": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: string;
+            language?: {
+              code: string;
+              message: string;
+            };
+            titleRule?: boolean;
+            minimumMedia: number;
+            useCases: {
+              id: number;
+              name: string;
+            }[];
+            additionalFields?: components["schemas"]["CampaignAdditionalField"][];
+            bugTypes: {
+              valid: string[];
+              invalid: string[];
+            };
+            bugSeverity: {
+              valid: string[];
+              invalid: string[];
+            };
+            bugReplicability: {
+              valid: string[];
+              invalid: string[];
+            };
+            hasBugForm: boolean;
+            devices?: ({
+              id: number;
+            } & components["schemas"]["UserDevice"])[];
+            validFileExtensions: string[];
+          };
+        };
+      };
+    };
+  };
+  "post-users-me-campaigns-campaignId-media": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            files?: {
+              name: string;
+              path: string;
+            }[];
+            failed?: {
+              name: string;
+              /** @enum {string} */
+              errorCode:
+                | "FILE_TOO_BIG"
+                | "INVALID_FILE_EXTENSION"
+                | "GENERIC_ERROR";
+            }[];
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          media?: string | string[];
+        };
+      };
+    };
+  };
+  "get-users-me-campaigns-campaignId-devices": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserDevice"][];
         };
       };
       403: components["responses"]["NotAuthorized"];

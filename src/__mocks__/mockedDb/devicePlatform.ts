@@ -1,30 +1,21 @@
-import sqlite3 from "@src/features/sqlite";
+import Table from "./table";
 
-const tableName = "wp_appq_evd_platform";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "id INTEGER PRIMARY KEY",
-      "name VARCHAR(255)",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
-};
-
-type UsersDeletionReasonParams = {
+type DevicePlatformParams = {
   id?: number;
   name?: string;
 };
-const data: {
-  [key: string]: (
-    params?: UsersDeletionReasonParams
-  ) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
-};
 
-export { data };
+class DevicePlatform extends Table<DevicePlatformParams> {
+  protected columns = ["id INTEGER PRIMARY KEY", "name VARCHAR(255)"];
+  protected name = "wp_appq_evd_platform";
+  constructor() {
+    super({
+      id: 1,
+      name: "Platform",
+    });
+  }
+}
+
+const theTable = new DevicePlatform();
+
+export default theTable;

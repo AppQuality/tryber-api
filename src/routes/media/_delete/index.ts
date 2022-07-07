@@ -1,6 +1,7 @@
 import debugMessage from "@src/features/debugMessage";
 import deleteFromS3 from "@src/features/deleteFromS3";
 import { Context } from "openapi-backend";
+import * as db from "@src/features/db";
 
 /** OPENAPI-ROUTE: delete-media */
 export default async (
@@ -22,9 +23,6 @@ export default async (
     if (!isValidPath(url, "eu-west-1", bucket)) {
       throw new Error("Invalid path");
     }
-    res.status_code = 200;
-    await deleteFromS3({ url });
-    return {};
   } catch (err) {
     debugMessage(err);
     res.status_code = 404;
@@ -35,11 +33,31 @@ export default async (
     };
   }
 
+  if (await mediaIsAlreadyLinked()) {
+    res.status_code = 403;
+    return {
+      element: "delete-media",
+      id: 0,
+      message: "Bad file path",
+    };
+  }
+
+  res.status_code = 200;
+  await deleteFromS3({ url });
+  return {};
   function isValidPath(path: string, region: string, bucket: string): boolean {
     return path.startsWith(
       `https://s3.${region}.amazonaws.com/${bucket}/${
         process.env.MEDIA_FOLDER || "media"
       }/T${req.user.testerId}/`
     );
+  }
+  async function mediaIsAlreadyLinked(): Promise<boolean> {
+    const bugMedia = await db.query(
+      db.format(`SELECT id FROM wp_appq_evd_bug_media WHERE location = ?`, [
+        url,
+      ])
+    );
+    return bugMedia.length > 0;
   }
 };
