@@ -51,18 +51,20 @@ mockDb.all = (query: string): Promise<any> => {
     }
   });
 };
-mockDb.get = (query: string): Promise<any> => {
-  return new Promise(async (resolve, reject) => {
-    const data = await db.prepare(query).get();
-    resolve(data);
-  });
+mockDb.get = async (query: string): Promise<any> => {
+  try {
+    return await db.prepare(query).get();
+  } catch (e) {
+    throw e;
+  }
 };
 
-mockDb.run = (query: string): Promise<any> => {
-  return new Promise(async (resolve, reject) => {
-    const data = await db.prepare(query).run();
-    resolve(data);
-  });
+mockDb.run = async (query: string): Promise<any> => {
+  try {
+    return await db.prepare(query).run();
+  } catch (e) {
+    throw e;
+  }
 };
 
 mockDb.insert = (table: string, data: any): Promise<any> => {
