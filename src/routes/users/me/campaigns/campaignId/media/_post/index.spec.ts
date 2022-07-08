@@ -132,7 +132,6 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     expect(response.status).toBe(200);
     const insertedMedia = await sqlite3.get(`
       SELECT url, creation_date from wp_appq_uploaded_media`);
-    console.log("inserted", insertedMedia);
     expect(insertedMedia).not.toEqual(undefined);
     expect(insertedMedia.url).toEqual(response.body.files[0].path);
     expect(
