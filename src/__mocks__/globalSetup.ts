@@ -13,6 +13,8 @@ import CampaignAdditionals from "./mockedDb/campaignAdditionals";
 import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import UseCases from "./mockedDb/usecases";
+import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
+
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
 import { table as bugTable } from "./mockedDb/bug";
@@ -78,7 +80,6 @@ beforeAll(async () => {
   await CustomBugTypes.mock();
   await bugStatus.create();
   await bugAdditionalFields.create();
-
   await paymentRequestTable.create();
   await sqlite3.run(`
   CREATE TRIGGER "on_update__update_date"
@@ -96,4 +97,5 @@ beforeAll(async () => {
   await UseCaseGroups.mock();
   await Attributions.mock();
   await bugMedia.mock();
+  await UploadedMedia.mock();
 });
