@@ -1,5 +1,4 @@
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import upload from "@src/features/upload";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
@@ -130,15 +129,16 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       .attach("media", mockFileBuffer, "void.png")
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    const insertedMedia = await sqlite3.get(`
-      SELECT url, creation_date from wp_appq_uploaded_media`);
+    const insertedMedia = await UploadedMedia.all();
     expect(insertedMedia).not.toEqual(undefined);
-    expect(insertedMedia.url).toEqual(response.body.files[0].path);
-    expect(
-      insertedMedia.creation_date.startsWith(
-        new Date().toISOString().substring(0, 10)
-      )
-    ).toBe(true);
+    expect(insertedMedia[0].url).toEqual(response.body.files[0].path);
+    console.log(insertedMedia[0].creation_date);
+    if (insertedMedia[0].creation_date)
+      expect(
+        insertedMedia[0].creation_date.startsWith(
+          new Date().toISOString().substring(0, 10)
+        )
+      ).toBe(true);
   });
   it("Should crypt the filename on s3", async () => {
     const response = await request(app)
