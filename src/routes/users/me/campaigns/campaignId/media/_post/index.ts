@@ -5,6 +5,8 @@ import busboyMapper from "@src/features/busboyMapper";
 import path from "path";
 import crypt from "./crypt";
 import upload from "@src/features/upload";
+import stringToUuid from "@src/features/tranferwise/stringToUuid";
+import debugMessage from "@src/features/debugMessage";
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
 export default async (
   c: Context,
@@ -89,6 +91,12 @@ export default async (
         ).toString(),
       });
     }
+    for (const uploaded of uploadedFiles) {
+      await createUploadedFile(
+        uploaded.path,
+        new Date().toISOString().split(".")[0].replace("T", " ")
+      );
+    }
     return uploadedFiles;
   }
   function getKey({
@@ -105,5 +113,21 @@ export default async (
     }/T${testerId}/CP${campaignId}/bugs/${crypt(
       `${filename}_${new Date().getTime()}`
     )}${extension}`;
+  }
+
+  async function createUploadedFile(path: string, creationDate: string) {
+    try {
+      await db.query(
+        db.format(
+          `
+        INSERT INTO wp_appq_uploaded_media (url, creation_date)
+        VALUES (?, ?);`,
+          [path, creationDate]
+        )
+      );
+    } catch (e) {
+      debugMessage(e);
+      throw Error("Failed to insert uploaded media");
+    }
   }
 };
