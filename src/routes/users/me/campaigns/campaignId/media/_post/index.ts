@@ -1,11 +1,9 @@
 import * as db from "@src/features/db";
-import postUserMedia from "@src/routes/media/_post";
 import { Context } from "openapi-backend";
 import busboyMapper from "@src/features/busboyMapper";
 import path from "path";
 import crypt from "./crypt";
 import upload from "@src/features/upload";
-import stringToUuid from "@src/features/tranferwise/stringToUuid";
 import debugMessage from "@src/features/debugMessage";
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
 export default async (
