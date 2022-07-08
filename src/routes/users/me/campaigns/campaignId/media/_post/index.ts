@@ -74,24 +74,24 @@ export default async (
   > {
     let uploadedFiles = [];
     for (const media of files) {
+      const currentPath = (
+        await upload({
+          bucket: process.env.MEDIA_BUCKET || "",
+          key: getKey({
+            testerId: testerId,
+            filename: path.basename(media.name, path.extname(media.name)),
+            extension: path.extname(media.name),
+          }),
+          file: media,
+        })
+      ).toString();
+
       uploadedFiles.push({
         name: media.name,
-        path: (
-          await upload({
-            bucket: process.env.MEDIA_BUCKET || "",
-            key: getKey({
-              testerId: testerId,
-              filename: path.basename(media.name, path.extname(media.name)),
-              extension: path.extname(media.name),
-            }),
-            file: media,
-          })
-        ).toString(),
+        path: currentPath,
       });
-    }
-    for (const uploaded of uploadedFiles) {
       await createUploadedFile(
-        uploaded.path,
+        currentPath,
         new Date().toISOString().split(".")[0].replace("T", " ")
       );
     }
@@ -125,7 +125,6 @@ export default async (
       );
     } catch (e) {
       debugMessage(e);
-      throw Error("Failed to insert uploaded media");
     }
   }
 };
