@@ -4,6 +4,7 @@ import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
 import request from "supertest";
 import crypt from "./crypt";
 
@@ -31,6 +32,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     await profileData.drop();
     await WpOptions.clear();
     await Candidature.clear();
+    await UploadedMedia.clear();
   });
   afterEach(async () => {
     jest.clearAllMocks();
@@ -120,6 +122,23 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
         "https://s3.amazonaws.com/tryber.media.staging/media/T1/CP1/bugs/"
       )
     ).toBe(true);
+  });
+  it("Should insert on DB uploaded files", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/media")
+      .attach("media", mockFileBuffer, "void.png")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const insertedMedia = await UploadedMedia.all();
+    expect(insertedMedia).not.toEqual(undefined);
+    expect(insertedMedia[0].url).toEqual(response.body.files[0].path);
+    console.log(insertedMedia[0].creation_date);
+    if (insertedMedia[0].creation_date)
+      expect(
+        insertedMedia[0].creation_date.startsWith(
+          new Date().toISOString().substring(0, 10)
+        )
+      ).toBe(true);
   });
   it("Should crypt the filename on s3", async () => {
     const response = await request(app)

@@ -1,10 +1,10 @@
 import * as db from "@src/features/db";
-import postUserMedia from "@src/routes/media/_post";
 import { Context } from "openapi-backend";
 import busboyMapper from "@src/features/busboyMapper";
 import path from "path";
 import crypt from "./crypt";
 import upload from "@src/features/upload";
+import debugMessage from "@src/features/debugMessage";
 /** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
 export default async (
   c: Context,
@@ -74,20 +74,26 @@ export default async (
   > {
     let uploadedFiles = [];
     for (const media of files) {
+      const currentPath = (
+        await upload({
+          bucket: process.env.MEDIA_BUCKET || "",
+          key: getKey({
+            testerId: testerId,
+            filename: path.basename(media.name, path.extname(media.name)),
+            extension: path.extname(media.name),
+          }),
+          file: media,
+        })
+      ).toString();
+
       uploadedFiles.push({
         name: media.name,
-        path: (
-          await upload({
-            bucket: process.env.MEDIA_BUCKET || "",
-            key: getKey({
-              testerId: testerId,
-              filename: path.basename(media.name, path.extname(media.name)),
-              extension: path.extname(media.name),
-            }),
-            file: media,
-          })
-        ).toString(),
+        path: currentPath,
       });
+      await createUploadedFile(
+        currentPath,
+        new Date().toISOString().split(".")[0].replace("T", " ")
+      );
     }
     return uploadedFiles;
   }
@@ -105,5 +111,20 @@ export default async (
     }/T${testerId}/CP${campaignId}/bugs/${crypt(
       `${filename}_${new Date().getTime()}`
     )}${extension}`;
+  }
+
+  async function createUploadedFile(path: string, creationDate: string) {
+    try {
+      await db.query(
+        db.format(
+          `
+        INSERT INTO wp_appq_uploaded_media (url, creation_date)
+        VALUES (?, ?);`,
+          [path, creationDate]
+        )
+      );
+    } catch (e) {
+      debugMessage(e);
+    }
   }
 };
