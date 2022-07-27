@@ -90,7 +90,6 @@ async function assignCertification(
   let inserted;
   try {
     inserted = await db.query(db.format(insertSql, insertData));
-    console.log("INS: ", inserted);
     return inserted;
   } catch (e) {
     if (process.env && process.env.DEBUG) console.log(e);
