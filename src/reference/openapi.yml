@@ -642,6 +642,11 @@ paths:
                   type: number
               required:
                 - tester_id
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: device
   /popups:
     get:
       summary: Get all popups
