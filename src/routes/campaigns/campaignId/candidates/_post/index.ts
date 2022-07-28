@@ -29,10 +29,10 @@ const testerShouldExist = async (testerId: number) => {
 const getSelectedDeviceId = async (
   testerId: number,
   params: StoplightOperations["post-campaigns-campaign-candidates"]["parameters"]["query"]
-) => {
+): Promise<number> => {
   const userDevices = await new Devices().getMany({ testerId });
   if (params.device?.toString() === "random" && userDevices.length) {
-    return userDevices[0].id;
+    return userDevices[Math.floor(Math.random() * userDevices.length)].id;
   }
   return 0;
 };

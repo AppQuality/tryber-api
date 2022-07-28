@@ -211,7 +211,6 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
     const testerDevices = await sqlite3.all(`
     SELECT * FROM wp_crowd_appq_device WHERE id_profile = 1;
   `);
-    console.log("testerDevices2", testerDevices);
 
     expect(beforeCandidature).toBe(undefined);
     await request(app)
@@ -225,12 +224,19 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
       JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
       WHERE t.id = 1 AND c.campaign_id = 1
     `);
-
-    expect(afterCandidature).toEqual({
-      accepted: 1,
-      results: 0,
-      selected_device: 1,
-    });
+    console.log(afterCandidature);
+    expect([
+      {
+        accepted: 1,
+        results: 0,
+        selected_device: 1,
+      },
+      {
+        accepted: 1,
+        results: 0,
+        selected_device: 2,
+      },
+    ]).toContainEqual(afterCandidature);
   });
   it("Should return the candidature on success with the first available device as the selected device", async () => {
     const response = await request(app)
@@ -238,12 +244,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
       .send({ tester_id: 1 })
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({
-      tester_id: 1,
-      campaign_id: 1,
-      accepted: true,
-      status: "ready",
-      device: {
+    expect([
+      {
         id: 1,
         type: "PC",
         device: { pc_type: "Laptop" },
@@ -253,6 +255,16 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
           version: "Linux (1.0)",
         },
       },
-    });
+      {
+        id: 2,
+        type: "PC",
+        device: { pc_type: "Server" },
+        operating_system: {
+          id: 1,
+          platform: "Platform 1",
+          version: "Linux (1.0)",
+        },
+      },
+    ]).toContainEqual(response.body.device);
   });
 });
