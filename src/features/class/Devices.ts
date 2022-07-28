@@ -12,6 +12,7 @@ type DeviceType = {
   pc_type: string;
   source_id: number;
 };
+export type UserDevice = StoplightComponents["schemas"]["UserDevice"];
 
 class Devices {
   private baseQuery = `SELECT
@@ -30,7 +31,7 @@ class Devices {
   else 5
 end asc , os.name ASC`;
 
-  public async getOne(id: number) {
+  public async getOne(id: number): Promise<UserDevice | false> {
     const data = await db.query(
       db.format(`${this.baseQuery} AND d.id = ?`, [id])
     );
@@ -40,7 +41,7 @@ end asc , os.name ASC`;
     return this.format(data[0]);
   }
 
-  public async getMany(where: { testerId: number }) {
+  public async getMany(where: { testerId: number }): Promise<UserDevice[]> {
     const { query, data } = mapQuery();
     const results = await db.query(
       db.format(`${this.baseQuery} ${query} ${this.baseOrder}`, [...data])
