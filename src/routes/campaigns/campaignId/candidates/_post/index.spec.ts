@@ -116,15 +116,15 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
       resolve(null);
     });
   });
-  it("Should candidate the user on success", async () => {
+  it("Should candidate the user on success with selected_device=0", async () => {
     const beforeCandidature = await sqlite3.get(`
       SELECT c.accepted,c.results FROM 
       wp_crowd_appq_has_candidate c
       JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
       WHERE t.id = 1 AND c.campaign_id = 1
     `);
-
     expect(beforeCandidature).toBe(undefined);
+
     await request(app)
       .post("/campaigns/1/candidates?device=random")
       .send({ tester_id: 1 })
@@ -136,14 +136,13 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
       JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
       WHERE t.id = 1 AND c.campaign_id = 1
     `);
-
     expect(afterCandidature).toEqual({
       accepted: 1,
       results: 0,
       selected_device: 0,
     });
   });
-  it("Should return the candidature on success", async () => {
+  it("Should return the candidature on success with device=any", async () => {
     const response = await request(app)
       .post("/campaigns/1/candidates?device=random")
       .send({ tester_id: 1 })
@@ -200,19 +199,15 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
       resolve(null);
     });
   });
-  it("Should candidate the user on success", async () => {
+  it("Should candidate the user on success with selected_device one of user devices", async () => {
     const beforeCandidature = await sqlite3.get(`
       SELECT c.accepted,c.results FROM 
       wp_crowd_appq_has_candidate c
       JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
       WHERE t.id = 1 AND c.campaign_id = 1
     `);
-
-    const testerDevices = await sqlite3.all(`
-    SELECT * FROM wp_crowd_appq_device WHERE id_profile = 1;
-  `);
-
     expect(beforeCandidature).toBe(undefined);
+
     await request(app)
       .post("/campaigns/1/candidates?device=random")
       .send({ tester_id: 1 })
@@ -224,7 +219,6 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
       JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
       WHERE t.id = 1 AND c.campaign_id = 1
     `);
-    console.log(afterCandidature);
     expect([
       {
         accepted: 1,
@@ -238,7 +232,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
       },
     ]).toContainEqual(afterCandidature);
   });
-  it("Should return the candidature on success with the first available device as the selected device", async () => {
+  it("Should return the candidature with random device from user device", async () => {
     const response = await request(app)
       .post("/campaigns/1/candidates?device=random")
       .send({ tester_id: 1 })
