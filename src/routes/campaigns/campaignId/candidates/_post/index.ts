@@ -1,9 +1,11 @@
+import Devices from "@src/features/class/Devices";
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import adminOnly from "@src/features/preconditions/adminOnly";
 import { Context } from "openapi-backend";
 import createCandidature from "./createCandidature";
 import testerShouldNotBeCandidate from "./testerShouldNotBeCandidate";
+import { UserDevice } from "@src/routes/users/me/campaigns/campaignId/bugs/_post/types";
 
 const campaignShouldExist = async (campaignId: number) => {
   const campaign = await db.query(
@@ -13,6 +15,9 @@ const campaignShouldExist = async (campaignId: number) => {
     throw { status_code: 404, message: "Campaign does not exist" };
   }
 };
+function userHasdevice(deviceId: number, userDevices: UserDevice[]): boolean {
+  return userDevices.map((device) => device.id).includes(deviceId);
+}
 const testerShouldExist = async (testerId: number) => {
   const tester = await db.query(
     db.format(`SELECT id,wp_user_id FROM wp_appq_evd_profile WHERE id = ? `, [
@@ -25,6 +30,28 @@ const testerShouldExist = async (testerId: number) => {
   return tester[0];
 };
 
+const getSelectedDeviceId = async (
+  testerId: number,
+  params: StoplightOperations["post-campaigns-campaign-candidates"]["parameters"]["query"]
+): Promise<number> => {
+  const userDevices = await new Devices().getMany({ testerId });
+  if (params.device) {
+    if (params.device.toString() === "random" && userDevices.length) {
+      return userDevices[Math.floor(Math.random() * userDevices.length)].id;
+    }
+    if (parseInt(params.device) > 0) {
+      if (userHasdevice(parseInt(params.device), userDevices)) {
+        return parseInt(params.device);
+      }
+      throw {
+        status_code: 404,
+        message: "Device does not exist for this Tester",
+      };
+    }
+  }
+
+  return 0;
+};
 /** OPENAPI-ROUTE: post-campaigns-campaign-candidates */
 export default async (
   c: Context,
@@ -38,6 +65,8 @@ export default async (
       ? c.request.params.campaign
       : "-1"
   );
+  const params =
+    req.query as StoplightOperations["post-campaigns-campaign-candidates"]["parameters"]["query"];
   const testerId = body.tester_id;
   let tester;
   try {
@@ -54,14 +83,24 @@ export default async (
       message: (err as OpenapiError).message,
     };
   }
-
+  let selectedDeviceId;
   let candidature;
   try {
-    candidature = await createCandidature(tester.wp_user_id, campaignId);
+    selectedDeviceId = await getSelectedDeviceId(testerId, params);
+    candidature = await createCandidature(
+      tester.wp_user_id,
+      campaignId,
+      selectedDeviceId
+    );
+    if (candidature.device > 0) {
+      candidature.device = await new Devices().getOne(candidature.device);
+    }
   } catch (err) {
     debugMessage(err);
     res.status_code = (err as OpenapiError).status_code || 500;
     return {
+      id: testerId,
+      element: "candidate",
       message: (err as OpenapiError).message,
     };
   }
@@ -82,6 +121,6 @@ export default async (
         : candidature.status === 3
         ? "completed"
         : "unknown",
-    device: candidature.device == 0 ? "any" : "invalid",
+    device: candidature.device == 0 ? "any" : candidature.device,
   };
 };

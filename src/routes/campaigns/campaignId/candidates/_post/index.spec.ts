@@ -4,22 +4,25 @@ import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import { data as testerData } from "@src/__mocks__/mockedDb/profile";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
+import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
+import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
+import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
 
 describe("POST /campaigns/{campaignId}/candidates", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await Campaigns.insert();
       await testerData.testerWithBooty();
       await wpUsersData.basicUser();
+      await Campaigns.insert();
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await Campaigns.clear();
       await testerData.drop();
       await wpUsersData.drop();
+      await Campaigns.clear();
       await Candidature.clear();
       resolve(null);
     });
@@ -68,7 +71,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       .send({ tester_id: 1 })
       .set("authorization", "Bearer admin");
     const afterCandidature = await sqlite3.get(`
-      SELECT c.accepted,c.results FROM 
+      SELECT c.accepted,c.results, c.selected_device FROM 
       wp_crowd_appq_has_candidate c
       JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
       WHERE t.id = 1 AND c.campaign_id = 1
@@ -76,6 +79,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
     expect(afterCandidature).toEqual({
       accepted: 1,
       results: 0,
+      selected_device: 0,
     });
   });
   it("Should return the candidature on success", async () => {
@@ -90,6 +94,269 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       accepted: true,
       status: "ready",
       device: "any",
+    });
+  });
+});
+
+describe("POST /campaigns/{campaignId}/candidates?device=random when user has not devices", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await testerData.testerWithBooty();
+      await wpUsersData.basicUser();
+      await Campaigns.insert();
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await testerData.drop();
+      await wpUsersData.drop();
+      await Campaigns.clear();
+      await Candidature.clear();
+      resolve(null);
+    });
+  });
+  it("Should candidate the user on success with selected_device=0", async () => {
+    const beforeCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(beforeCandidature).toBe(undefined);
+
+    await request(app)
+      .post("/campaigns/1/candidates?device=random")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+
+    const afterCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results, c.selected_device FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(afterCandidature).toEqual({
+      accepted: 1,
+      results: 0,
+      selected_device: 0,
+    });
+  });
+  it("Should return the candidature on success with device=any", async () => {
+    const response = await request(app)
+      .post("/campaigns/1/candidates?device=random")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      tester_id: 1,
+      campaign_id: 1,
+      accepted: true,
+      status: "ready",
+      device: "any",
+    });
+  });
+});
+
+describe("POST /campaigns/{campaignId}/candidates?device=random when user has two devices", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await testerData.testerWithBooty();
+      await wpUsersData.basicUser();
+      await Campaigns.insert();
+      await DeviceOs.insert({ id: 1, display_name: "Linux" });
+      await DevicePlatform.insert({ id: 1, name: "Platform 1" });
+      await TesterDevice.insert({
+        id: 1,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Laptop",
+        os_version_id: 1,
+        platform_id: 1,
+      });
+      await TesterDevice.insert({
+        id: 2,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Server",
+        os_version_id: 1,
+        platform_id: 1,
+      });
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await testerData.drop();
+      await wpUsersData.drop();
+      await Campaigns.clear();
+      await Candidature.clear();
+      await TesterDevice.clear();
+      await DeviceOs.clear();
+      await DevicePlatform.clear();
+      resolve(null);
+    });
+  });
+  it("Should candidate the user on success with selected_device one of user devices", async () => {
+    const beforeCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(beforeCandidature).toBe(undefined);
+
+    await request(app)
+      .post("/campaigns/1/candidates?device=random")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+
+    const afterCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results, c.selected_device FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect([
+      {
+        accepted: 1,
+        results: 0,
+        selected_device: 1,
+      },
+      {
+        accepted: 1,
+        results: 0,
+        selected_device: 2,
+      },
+    ]).toContainEqual(afterCandidature);
+  });
+  it("Should return the candidature with random device from user device", async () => {
+    const response = await request(app)
+      .post("/campaigns/1/candidates?device=random")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect([
+      {
+        id: 1,
+        type: "PC",
+        device: { pc_type: "Laptop" },
+        operating_system: {
+          id: 1,
+          platform: "Platform 1",
+          version: "Linux (1.0)",
+        },
+      },
+      {
+        id: 2,
+        type: "PC",
+        device: { pc_type: "Server" },
+        operating_system: {
+          id: 1,
+          platform: "Platform 1",
+          version: "Linux (1.0)",
+        },
+      },
+    ]).toContainEqual(response.body.device);
+  });
+});
+
+describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device", () => {
+  beforeEach(async () => {
+    return new Promise(async (resolve) => {
+      await testerData.testerWithBooty();
+      await wpUsersData.basicUser();
+      await Campaigns.insert();
+      await DeviceOs.insert({ id: 1, display_name: "Linux" });
+      await DevicePlatform.insert({ id: 1, name: "Platform 1" });
+      await TesterDevice.insert({
+        id: 1,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Laptop",
+        os_version_id: 1,
+        platform_id: 1,
+      });
+      await TesterDevice.insert({
+        id: 2,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Server",
+        os_version_id: 1,
+        platform_id: 1,
+      });
+      resolve(null);
+    });
+  });
+  afterEach(async () => {
+    return new Promise(async (resolve) => {
+      await testerData.drop();
+      await wpUsersData.drop();
+      await Campaigns.clear();
+      await Candidature.clear();
+      await TesterDevice.clear();
+      await DeviceOs.clear();
+      await DevicePlatform.clear();
+      resolve(null);
+    });
+  });
+  it("Should candidate the user on success and seleceted_device id as choosen in query param", async () => {
+    const beforeCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(beforeCandidature).toBe(undefined);
+
+    await request(app)
+      .post("/campaigns/1/candidates?device=2")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+
+    const afterCandidature = await sqlite3.get(`
+      SELECT c.accepted,c.results, c.selected_device FROM 
+      wp_crowd_appq_has_candidate c
+      JOIN wp_appq_evd_profile t ON (t.wp_user_id = c.user_id)
+      WHERE t.id = 1 AND c.campaign_id = 1
+    `);
+    expect(afterCandidature).toEqual({
+      accepted: 1,
+      results: 0,
+      selected_device: 2,
+    });
+  });
+  it("Should return the candidature with device as choosen in query param", async () => {
+    const response = await request(app)
+      .post("/campaigns/1/candidates?device=2")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.device).toEqual({
+      id: 2,
+      type: "PC",
+      device: { pc_type: "Server" },
+      operating_system: {
+        id: 1,
+        platform: "Platform 1",
+        version: "Linux (1.0)",
+      },
+    });
+  });
+  it("Should return 404 with error if try to candidate with an nonexistent device", async () => {
+    const response = await request(app)
+      .post("/campaigns/1/candidates?device=6969696")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      id: 1,
+      element: "candidate",
+      message: "Device does not exist for this Tester",
     });
   });
 });
