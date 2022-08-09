@@ -1,17 +1,21 @@
 import * as db from "@src/features/db";
 
-export default async (wpId: number, campaignId: number) => {
-  let candidatureCreation = await db.query(
+export default async (
+  wpId: number,
+  campaignId: number,
+  selectedDevice: number
+) => {
+  //create candidature
+  await db.query(
     db.format(
       `INSERT INTO wp_crowd_appq_has_candidate 
             (user_id, campaign_id, accepted, results, devices, selected_device, group_id)
           VALUES 
-            (?, ?, 1 , 0 , 0 , 0 , 1)`,
-      [wpId, campaignId]
+            (?, ?, 1 , 0 , 0 , ? , 1)`,
+      [wpId, campaignId, selectedDevice]
     )
   );
   let candidature = await db.query(
-    //get candidature
     db.format(
       `
         SELECT t.id as tester_id, 

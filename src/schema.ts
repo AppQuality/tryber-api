@@ -1035,6 +1035,9 @@ export interface operations {
         /** A campaign id */
         campaign: string;
       };
+      query: {
+        device?: string;
+      };
     };
     responses: {
       /** OK */

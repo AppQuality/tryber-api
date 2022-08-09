@@ -10,11 +10,13 @@ type DeviceType = {
   osVersionNumber: string;
   os_version_id: number;
   pc_type: string;
+  source_id: number;
 };
+export type UserDevice = StoplightComponents["schemas"]["UserDevice"];
 
 class Devices {
   private baseQuery = `SELECT
-    d.id,d.form_factor,d.manufacturer,d.model,d.os_version_id, d.pc_type,
+    d.id,d.form_factor,d.manufacturer,d.model,d.os_version_id, d.pc_type, d.source_id,
     osVersion.display_name as osVersion, osVersion.version_number as osVersionNumber,
     os.name as os
     FROM wp_crowd_appq_device d
@@ -22,7 +24,14 @@ class Devices {
     JOIN wp_appq_evd_platform os ON d.platform_id = os.id
     WHERE d.enabled = 1`;
 
-  public async getOne(id: number) {
+  private baseOrder = `ORDER BY case when d.form_factor = 'Smartphone' then 1
+  when d.form_factor = 'PC' then 2
+  when d.form_factor = 'Tablet' then 3
+  when d.form_factor = 'Smart-tv' then 4
+  else 5
+end asc , os.name ASC`;
+
+  public async getOne(id: number): Promise<UserDevice | false> {
     const data = await db.query(
       db.format(`${this.baseQuery} AND d.id = ?`, [id])
     );
@@ -32,10 +41,10 @@ class Devices {
     return this.format(data[0]);
   }
 
-  public async getMany(where: { testerId: number }) {
+  public async getMany(where: { testerId: number }): Promise<UserDevice[]> {
     const { query, data } = mapQuery();
     const results = await db.query(
-      db.format(`${this.baseQuery} ${query}`, [...data])
+      db.format(`${this.baseQuery} ${query} ${this.baseOrder}`, [...data])
     );
 
     return results.map(this.format);
@@ -63,6 +72,7 @@ class Devices {
           pc_type: string;
         }
       | {
+          id: number;
           manufacturer: string;
           model: string;
         };
@@ -81,6 +91,7 @@ class Devices {
               pc_type: device.pc_type,
             }
           : {
+              id: device.source_id,
               manufacturer: device.manufacturer,
               model: device.model,
             },
