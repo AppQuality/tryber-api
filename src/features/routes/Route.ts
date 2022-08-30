@@ -1,6 +1,6 @@
 import debugMessage from "@src/features/debugMessage";
 
-export default class Route<RESPONSE, BODY = void> {
+export default class Route<T extends RouteClassTypes> {
   private errorMessage: StoplightComponents["responses"]["NotFound"]["content"]["application/json"] =
     {
       element: "element",
@@ -8,12 +8,12 @@ export default class Route<RESPONSE, BODY = void> {
       message: "Generic error",
     };
   private responseData:
-    | RESPONSE
+    | T["response"]
     | StoplightComponents["responses"]["NotAuthorized"]["content"]["application/json"]
     | StoplightComponents["responses"]["NotFound"]["content"]["application/json"]
     | undefined;
 
-  private body: BODY | undefined;
+  private body: T["body"] | undefined;
 
   constructor(
     protected configuration: RouteClassConfiguration & {

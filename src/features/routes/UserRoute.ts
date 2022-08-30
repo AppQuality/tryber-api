@@ -1,9 +1,6 @@
 import Route from "./Route";
 
-export default class UserRoute<RESPONSE, BODY = void> extends Route<
-  RESPONSE,
-  BODY
-> {
+export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   private testerId: number;
   private wordpressId: number;
 

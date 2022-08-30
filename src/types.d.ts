@@ -73,6 +73,11 @@ declare global {
     response: OpenapiResponse;
   };
 
+  type PartialRecord<K extends keyof any, T> = {
+    [P in K]?: T;
+  };
+  type RouteClassTypes = Record<"response", any> & PartialRecord<"body", any>;
+
   interface Object {
     hasOwnProperty<K extends PropertyKey>(key: K): this is Record<K, unknown>;
   }

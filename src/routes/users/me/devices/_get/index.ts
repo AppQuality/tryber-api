@@ -3,9 +3,9 @@ import UserRoute from "@src/features/routes/UserRoute";
 
 /** OPENAPI-CLASS: get-users-me-devices */
 
-export default class UserDeviceRoute extends UserRoute<
-  | StoplightOperations["get-users-me-devices"]["responses"]["200"]["content"]["application/json"]
-> {
+export default class UserDeviceRoute extends UserRoute<{
+  response: StoplightOperations["get-users-me-devices"]["responses"]["200"]["content"]["application/json"];
+}> {
   constructor(protected configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "devices" });
   }
