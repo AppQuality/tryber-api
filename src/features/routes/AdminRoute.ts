@@ -1,6 +1,6 @@
 import UserRoute from "./UserRoute";
 
-class AdminRoute<T> extends UserRoute<T> {
+class AdminRoute<RESPONSE, BODY = void> extends UserRoute<RESPONSE, BODY> {
   protected async filter() {
     if (this.configuration.request.user.role !== "administrator") {
       const error = new Error(

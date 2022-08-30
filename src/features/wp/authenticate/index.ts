@@ -60,7 +60,9 @@ export default async (userData: {
     const results = await db.query(db.format(sql, [user.ID]));
     results.forEach((item: { type: string; main_id: string }) => {
       if (!permissions.hasOwnProperty(item.type)) {
-        permissions[item.type] = [];
+        const emptyPermission: { [key: string]: boolean | string[] } = {};
+        emptyPermission[item.type] = [];
+        Object.assign(permissions, emptyPermission);
       }
       let permission = permissions[item.type];
       if (Array.isArray(permission)) {
@@ -70,7 +72,7 @@ export default async (userData: {
     });
 
     if (!user.hasOwnProperty("permission")) {
-      user.permission = {};
+      Object.assign(user, { permission: {} });
     }
     if (!user.permission.hasOwnProperty("admin")) {
       user.permission.admin = {};

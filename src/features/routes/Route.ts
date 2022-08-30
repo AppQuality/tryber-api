@@ -1,6 +1,6 @@
 import debugMessage from "@src/features/debugMessage";
 
-export default class Route<T> {
+export default class Route<RESPONSE, BODY = void> {
   private errorMessage: StoplightComponents["responses"]["NotFound"]["content"]["application/json"] =
     {
       element: "element",
@@ -8,10 +8,12 @@ export default class Route<T> {
       message: "Generic error",
     };
   private responseData:
-    | T
+    | RESPONSE
     | StoplightComponents["responses"]["NotAuthorized"]["content"]["application/json"]
     | StoplightComponents["responses"]["NotFound"]["content"]["application/json"]
     | undefined;
+
+  private body: BODY | undefined;
 
   constructor(
     protected configuration: RouteClassConfiguration & {
@@ -22,6 +24,7 @@ export default class Route<T> {
     if (configuration.element)
       this.errorMessage.element = configuration.element;
     if (configuration.id) this.errorMessage.id = configuration.id;
+    if (configuration.request.body) this.body = configuration.request.body;
   }
 
   protected async prepare() {}
@@ -39,6 +42,11 @@ export default class Route<T> {
     debugMessage(error);
 
     this.responseData = { ...this.errorMessage, message: error.message };
+  }
+
+  protected getBody() {
+    if (typeof this.body === "undefined") throw new Error("Invalid body");
+    return this.body;
   }
 
   async resolve() {
