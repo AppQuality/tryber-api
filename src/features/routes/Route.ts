@@ -58,6 +58,10 @@ export default class Route<T extends RouteClassTypes> {
     return this.parameters;
   }
 
+  protected setId(id: number) {
+    this.errorMessage.id = id;
+  }
+
   async resolve() {
     if (await this.filter()) {
       await this.prepare();
