@@ -1,29 +1,29 @@
 import Devices from "@src/features/class/Devices";
-import * as db from "@src/features/db";
-import debugMessage from "@src/features/debugMessage";
-import { Context } from "openapi-backend";
+import UserRoute from "@src/features/routes/UserRoute";
 
-/** OPENAPI-ROUTE: get-users-me-devices */
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    const devices = await new Devices().getMany({
-      testerId: req.user.testerId,
-    });
-    if (!devices.length) throw Error("No device on your user");
-    res.status_code = 200;
-    return devices;
-  } catch (error) {
-    res.status_code = 404;
-    debugMessage(error);
+/** OPENAPI-CLASS: get-users-me-devices */
 
-    return {
-      element: "devices",
-      id: parseInt(req.user.ID),
-      message: (error as OpenapiError).message,
-    };
+export default class UserDeviceRoute extends UserRoute<
+  | StoplightOperations["get-users-me-devices"]["responses"]["200"]["content"]["application/json"]
+> {
+  constructor(protected configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "devices" });
   }
-};
+
+  protected async prepare() {
+    try {
+      const devices = await this.getUserDevices();
+      this.setSuccess(200, devices);
+    } catch (error) {
+      this.setError(404, error as OpenapiError);
+    }
+  }
+
+  private async getUserDevices() {
+    const result = await new Devices().getMany({
+      testerId: this.getTesterId(),
+    });
+    if (!result.length) throw Error("No device on your user");
+    return result;
+  }
+}

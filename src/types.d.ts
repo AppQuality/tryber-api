@@ -3,6 +3,7 @@ import { FileArray, UploadedFile } from "express-fileupload";
 import { Request } from "openapi-backend";
 import { Busboy } from "connect-busboy";
 import { components, operations, paths } from "./schema";
+import { Context } from "openapi-backend";
 
 declare global {
   interface OpenapiResponse extends Response {
@@ -65,4 +66,10 @@ declare global {
   interface StoplightOperations extends operations {}
   interface StoplightComponents extends components {}
   interface StoplightPaths extends paths {}
+
+  type RouteClassConfiguration = {
+    context: Context;
+    request: OpenapiRequest;
+    response: OpenapiResponse;
+  };
 }
