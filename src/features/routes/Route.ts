@@ -14,6 +14,7 @@ export default class Route<T extends RouteClassTypes> {
     | undefined;
 
   private body: T["body"] | undefined;
+  private parameters: T["parameters"] | undefined;
 
   constructor(
     protected configuration: RouteClassConfiguration & {
@@ -25,6 +26,8 @@ export default class Route<T extends RouteClassTypes> {
       this.errorMessage.element = configuration.element;
     if (configuration.id) this.errorMessage.id = configuration.id;
     if (configuration.request.body) this.body = configuration.request.body;
+    if (configuration.context.request.params)
+      this.parameters = configuration.context.request.params;
   }
 
   protected async prepare() {}
@@ -47,6 +50,12 @@ export default class Route<T extends RouteClassTypes> {
   protected getBody() {
     if (typeof this.body === "undefined") throw new Error("Invalid body");
     return this.body;
+  }
+
+  protected getParameters() {
+    if (typeof this.parameters === "undefined")
+      throw new Error("Invalid parameters");
+    return this.parameters;
   }
 
   async resolve() {

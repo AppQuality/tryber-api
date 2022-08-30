@@ -56,9 +56,14 @@ class Routes {
       request: OpenapiRequest,
       response: OpenapiResponse
     ) => {
-      let Class = require(this.formatPath(file)).default;
-      const route = new Class({ context, request, response });
-      return route.resolve();
+      try {
+        let Class = require(this.formatPath(file)).default;
+        const route = new Class({ context, request, response });
+        return route.resolve();
+      } catch (e) {
+        response.status_code = 500;
+        return { message: (e as OpenapiError).message };
+      }
     };
   }
 }
