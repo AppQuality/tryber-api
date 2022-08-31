@@ -1,10 +1,7 @@
 /**  OPENAPI-CLASS : get-users-me-pending-booty */
 import debugMessage from "@src/features/debugMessage";
-import { Context } from "openapi-backend";
 import UserRoute from "@src/features/routes/UserRoute";
 import * as db from "@src/features/db";
-
-import getPendBootiesFromQuery from "./getPendBootiesFromQuery";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-users-me-pending-booty"]["responses"]["200"]["content"]["application/json"];
