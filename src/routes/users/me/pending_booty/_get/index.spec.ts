@@ -370,7 +370,7 @@ describe("Route GET payment-pending-booty when no data", () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
       element: "pending booty",
-      id: 0,
+      id: 1,
       message: "No booty until now",
     });
   });
