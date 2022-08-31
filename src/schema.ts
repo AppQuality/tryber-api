@@ -636,6 +636,29 @@ export interface components {
      * @enum {string}
      */
     CustomUserFieldsType: "text" | "select" | "multiselect";
+    /** PreselectionFormQuestion */
+    PreselectionFormQuestion: {
+      id: number;
+      question: string;
+    } & (
+      | {
+          /** @enum {string} */
+          type: "text";
+        }
+      | {
+          /** @enum {string} */
+          type: "multiselect" | "select" | "radio";
+          options: string[];
+        }
+      | {
+          type: string;
+          options?: number[];
+        }
+      | {
+          /** @enum {string} */
+          type: "gender" | "phone_number" | "address";
+        }
+    );
   };
   responses: {
     /** A user */
@@ -2719,30 +2742,7 @@ export interface operations {
             id: number;
             /** @example My form */
             name: string;
-            fields: ({
-              /** @example 3 */
-              id: number;
-              /** @example What's your [info]? */
-              question: string;
-            } & (
-              | {
-                  /** @enum {string} */
-                  type: "text";
-                }
-              | {
-                  /** @enum {string} */
-                  type: "multiselect" | "select" | "radio";
-                  options: string[];
-                }
-              | {
-                  type: string;
-                  options?: number[];
-                }
-              | {
-                  /** @enum {string} */
-                  type: "gender" | "phone_number" | "address";
-                }
-            ))[];
+            fields: components["schemas"]["PreselectionFormQuestion"][];
           };
         };
       };

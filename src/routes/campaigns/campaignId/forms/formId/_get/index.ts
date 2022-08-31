@@ -49,10 +49,48 @@ export default class RouteItem extends AdminRoute<{
   }
 
   protected async prepare() {
+    const form = await this.getForm();
     this.setSuccess(200, {
-      id: 0,
-      name: "My form",
-      fields: [],
+      id: this.id,
+      name: form.name,
+      fields: form.fields,
     });
+  }
+
+  private async getForm(): Promise<{ name: string; fields: any[] }> {
+    const sql = `SELECT name 
+        FROM wp_appq_campaign_preselection_form 
+        WHERE id = ? AND campaign_id = ? 
+        LIMIT 1`;
+    const results = await db.query(db.format(sql, [this.id, this.campaignId]));
+    const form = results.pop();
+    form.fields = await this.getFormFields();
+    return form;
+  }
+
+  private async getFormFields() {
+    const sql = `SELECT id, type, question, options
+        FROM wp_appq_campaign_preselection_form_fields
+        WHERE form_id = ?`;
+    const results: {
+      id: number;
+      type: string;
+      question: string;
+      options?: string;
+    }[] = await db.query(db.format(sql, [this.id]));
+    return results.map((item) => {
+      if (isFieldTypeWithOptions(item.type)) {
+        item.options = JSON.parse(item.options || "");
+      }
+      if (item.options === "") delete item.options;
+      return item;
+    });
+
+    function isFieldTypeWithOptions(type: string) {
+      return (
+        ["select", "multiselect", "radio"].includes(type) ||
+        type.match("^cuf_[0-9]*$")
+      );
+    }
   }
 }

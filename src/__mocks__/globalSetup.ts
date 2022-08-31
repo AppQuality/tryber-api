@@ -15,6 +15,7 @@ import UseCaseGroups from "./mockedDb/usecasesGroups";
 import UseCases from "./mockedDb/usecases";
 import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
 import PreselectionForm from "./mockedDb/preselectionForm";
+import PreselectionFormFields from "./mockedDb/preselectionFormFields";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
@@ -100,4 +101,5 @@ beforeAll(async () => {
   await bugMedia.mock();
   await UploadedMedia.mock();
   await PreselectionForm.mock();
+  await PreselectionFormFields.mock();
 });
