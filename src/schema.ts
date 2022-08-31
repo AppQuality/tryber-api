@@ -377,6 +377,15 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaignId}/forms/{formId}": {
+    get: operations["get-campaigns-campaignId-forms"];
+    parameters: {
+      path: {
+        campaignId: string;
+        formId: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -569,8 +578,7 @@ export interface components {
     /** CustomUserFieldsData */
     CustomUserFieldsData: {
       id: number;
-      /** @enum {string} */
-      type: "select" | "multiselect" | "text";
+      type: components["schemas"]["CustomUserFieldsType"];
       placeholder?: components["schemas"]["TranslatablePage"];
       allow_other?: boolean;
       name: components["schemas"]["TranslatablePage"];
@@ -623,6 +631,11 @@ export interface components {
           regex: string;
         }
     );
+    /**
+     * CustomUserFieldsType
+     * @enum {string}
+     */
+    CustomUserFieldsType: "text" | "select" | "multiselect";
   };
   responses: {
     /** A user */
@@ -2684,6 +2697,53 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["UserDevice"][];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "get-campaigns-campaignId-forms": {
+    parameters: {
+      path: {
+        campaignId: string;
+        formId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            /** @example 15 */
+            id: number;
+            /** @example My form */
+            name: string;
+            fields: ({
+              /** @example 3 */
+              id: number;
+              /** @example What's your [info]? */
+              question: string;
+            } & (
+              | {
+                  /** @enum {string} */
+                  type: "text";
+                }
+              | {
+                  /** @enum {string} */
+                  type: "multiselect" | "select" | "radio";
+                  options: string[];
+                }
+              | {
+                  type: string;
+                  options?: number[];
+                }
+              | {
+                  /** @enum {string} */
+                  type: "gender" | "phone_number" | "address";
+                }
+            ))[];
+          };
         };
       };
       403: components["responses"]["NotAuthorized"];

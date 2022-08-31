@@ -14,6 +14,7 @@ import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import UseCases from "./mockedDb/usecases";
 import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
+import PreselectionForm from "./mockedDb/preselectionForm";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
@@ -98,4 +99,5 @@ beforeAll(async () => {
   await Attributions.mock();
   await bugMedia.mock();
   await UploadedMedia.mock();
+  await PreselectionForm.mock();
 });
