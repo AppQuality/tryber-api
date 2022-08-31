@@ -77,7 +77,7 @@ declare global {
     [P in K]?: T;
   };
   type RouteClassTypes = Record<"response", any> &
-    PartialRecord<"body" | "parameters", any>;
+    PartialRecord<"body" | "parameters" | "query", any>;
 
   interface Object {
     hasOwnProperty<K extends PropertyKey>(key: K): this is Record<K, unknown>;

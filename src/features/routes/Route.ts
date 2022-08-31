@@ -15,6 +15,7 @@ export default class Route<T extends RouteClassTypes> {
 
   private body: T["body"] | undefined;
   private parameters: T["parameters"] | undefined;
+  protected query: T["query"] | undefined;
 
   constructor(
     protected configuration: RouteClassConfiguration & {
@@ -28,6 +29,7 @@ export default class Route<T extends RouteClassTypes> {
     if (configuration.request.body) this.body = configuration.request.body;
     if (configuration.context.request.params)
       this.parameters = configuration.context.request.params;
+    if (configuration.request.query) this.query = configuration.request.query;
   }
 
   protected async prepare() {}
@@ -56,6 +58,11 @@ export default class Route<T extends RouteClassTypes> {
     if (typeof this.parameters === "undefined")
       throw new Error("Invalid parameters");
     return this.parameters;
+  }
+
+  protected getQuery() {
+    if (typeof this.query === "undefined") throw new Error("Invalid query");
+    return this.query;
   }
 
   protected setId(id: number) {
