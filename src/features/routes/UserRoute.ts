@@ -3,6 +3,7 @@ import Route from "./Route";
 export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   private testerId: number;
   private wordpressId: number;
+  private capabilities: string[];
 
   constructor(
     configuration: RouteClassConfiguration & {
@@ -16,6 +17,7 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
     });
     this.testerId = this.configuration.request.user.testerId;
     this.wordpressId = parseInt(this.configuration.request.user.ID);
+    this.capabilities = this.configuration.request.user.capabilities;
   }
 
   protected getTesterId() {
@@ -23,5 +25,12 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   }
   protected getWordpressId() {
     return this.wordpressId;
+  }
+  protected getCapabilities() {
+    return this.capabilities;
+  }
+
+  protected hasCapability(capability: string) {
+    return !!(this.capabilities && this.capabilities.includes(capability));
   }
 }
