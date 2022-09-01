@@ -4899,11 +4899,11 @@ paths:
       description: ''
   /campaigns/forms:
     post:
-      summary: ''
+      summary: Create a new preselection form
       operationId: post-campaigns-forms
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
