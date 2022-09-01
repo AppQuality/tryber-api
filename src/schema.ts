@@ -377,14 +377,17 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaignId}/forms/{formId}": {
-    get: operations["get-campaigns-campaignId-forms"];
+  "/campaigns/forms/{formId}": {
+    get: operations["get-campaigns-forms-formId"];
+    put: operations["put-campaigns-forms-formId"];
     parameters: {
       path: {
-        campaignId: string;
         formId: string;
       };
     };
+  };
+  "/campaigns/forms/": {
+    post: operations["post-campaigns-forms"];
   };
 }
 
@@ -638,7 +641,7 @@ export interface components {
     CustomUserFieldsType: "text" | "select" | "multiselect";
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
-      id: number;
+      id?: number;
       question: string;
     } & (
       | {
@@ -2726,10 +2729,9 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
-  "get-campaigns-campaignId-forms": {
+  "get-campaigns-forms-formId": {
     parameters: {
       path: {
-        campaignId: string;
         formId: string;
       };
     };
@@ -2742,12 +2744,76 @@ export interface operations {
             id: number;
             /** @example My form */
             name: string;
-            fields: components["schemas"]["PreselectionFormQuestion"][];
+            campaign?: {
+              id: number;
+              name: string;
+            };
+            fields: ({
+              id: number;
+            } & components["schemas"]["PreselectionFormQuestion"])[];
           };
         };
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "put-campaigns-forms-formId": {
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            fields: ({
+              id: number;
+            } & components["schemas"]["PreselectionFormQuestion"])[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name?: string;
+          campaign?: number;
+          fields?: components["schemas"]["PreselectionFormQuestion"][];
+        };
+      };
+    };
+  };
+  "post-campaigns-forms": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            fields?: ({
+              id: number;
+            } & components["schemas"]["PreselectionFormQuestion"])[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+          fields: components["schemas"]["PreselectionFormQuestion"][];
+        };
+      };
     };
   };
 }
