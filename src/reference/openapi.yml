@@ -4619,13 +4619,8 @@ paths:
       operationId: get-users-me-campaigns-campaignId-devices
       security:
         - JWT: []
-  '/campaigns/{campaignId}/forms/{formId}':
+  '/campaigns/forms/{formId}':
     parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
       - schema:
           type: string
         name: formId
@@ -4648,6 +4643,8 @@ paths:
                   name:
                     type: string
                     example: My form
+                  campaignId:
+                    type: number
                   fields:
                     type: array
                     items:
@@ -4694,7 +4691,7 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaignId-forms
+      operationId: get-campaigns-forms
       description: ''
       security:
         - JWT: []
