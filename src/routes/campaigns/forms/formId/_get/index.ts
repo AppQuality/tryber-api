@@ -1,8 +1,8 @@
-import AdminRoute from "@src/features/routes/AdminRoute";
+import UserRoute from "@src/features/routes/UserRoute";
 import * as db from "@src/features/db";
 /** OPENAPI-CLASS: get-campaigns-forms-formId */
 
-export default class RouteItem extends AdminRoute<{
+export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-forms-formId"]["parameters"]["path"];
 }> {
@@ -17,6 +17,13 @@ export default class RouteItem extends AdminRoute<{
 
   protected async filter() {
     if ((await super.filter()) === false) return false;
+    if (this.hasCapability("manage_preselection_forms") === false) {
+      this.setError(
+        403,
+        new Error(`You are not authorized to do this`) as OpenapiError
+      );
+      return false;
+    }
 
     if ((await this.formExists()) === false) {
       this.setError(
