@@ -4644,7 +4644,15 @@ paths:
                     type: string
                     example: My form
                   campaignId:
-                    type: number
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
                   fields:
                     type: array
                     items:
