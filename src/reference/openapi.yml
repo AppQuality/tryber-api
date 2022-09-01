@@ -4691,7 +4691,7 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-forms
+      operationId: get-campaigns-forms-formId
       description: ''
       security:
         - JWT: []
