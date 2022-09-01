@@ -4897,7 +4897,7 @@ paths:
                     - question: 'What''s your [profile question]?'
                       type: gender
       description: ''
-  /campaigns/forms/:
+  /campaigns/forms:
     post:
       summary: ''
       operationId: post-campaigns-forms
@@ -5041,6 +5041,8 @@ paths:
               required:
                 - name
                 - fields
+      description: ''
+    parameters: []
 components:
   schemas:
     Project:
