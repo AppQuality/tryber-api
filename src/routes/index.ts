@@ -1,3 +1,4 @@
+import debugMessage from "@src/features/debugMessage";
 import fs from "fs";
 import glob from "glob";
 import OpenAPIBackend, { Context } from "openapi-backend";
@@ -51,7 +52,7 @@ class Routes {
     };
   }
   private getClassHandler(file: string) {
-    return (
+    return async (
       context: Context,
       request: OpenapiRequest,
       response: OpenapiResponse
@@ -59,8 +60,9 @@ class Routes {
       try {
         let Class = require(this.formatPath(file)).default;
         const route = new Class({ context, request, response });
-        return route.resolve();
+        return await route.resolve();
       } catch (e) {
+        debugMessage((e as OpenapiError).message);
         response.status_code = 500;
         return { message: (e as OpenapiError).message };
       }
