@@ -4,7 +4,7 @@ import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import Campaign from "@src/__mocks__/mockedDb/campaign";
 
-describe("GET /campaigns/{campaignId}/forms/{formId}", () => {
+describe("GET /campaigns/forms/{formId}", () => {
   beforeAll(() => {
     Campaign.insert({ id: 1, title: "My campaign" });
     PreselectionForm.insert({ id: 2, campaign_id: 1, name: "The form" });
