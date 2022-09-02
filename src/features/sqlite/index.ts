@@ -60,11 +60,7 @@ mockDb.get = async (query: string): Promise<any> => {
 };
 
 mockDb.run = async (query: string): Promise<any> => {
-  try {
-    return await db.prepare(query).run();
-  } catch (e) {
-    throw e;
-  }
+  return await db.prepare(query).run();
 };
 
 mockDb.insert = (table: string, data: any): Promise<any> => {
