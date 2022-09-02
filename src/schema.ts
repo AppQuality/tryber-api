@@ -386,8 +386,9 @@ export interface paths {
       };
     };
   };
-  "/campaigns/forms/": {
+  "/campaigns/forms": {
     post: operations["post-campaigns-forms"];
+    parameters: {};
   };
 }
 
@@ -2791,9 +2792,10 @@ export interface operations {
     };
   };
   "post-campaigns-forms": {
+    parameters: {};
     responses: {
-      /** OK */
-      200: {
+      /** Created */
+      201: {
         content: {
           "application/json": {
             id: number;
