@@ -4,7 +4,7 @@ import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import { data as cuf } from "@src/__mocks__/mockedDb/customUserFields";
+import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
 import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationsList } from "@src/__mocks__/mockedDb/educationList";
@@ -51,7 +51,7 @@ describe("Route PATCH users-me", () => {
       await languagesList.lenguage1({ display_name: "Sicilian" });
       await testerLanguages.assignLanguage();
       //insert cuf_text
-      await cuf.insertCuf({
+      await CustomUserFields.insert({
         name: "Username Tetris",
         type: "text",
       });
@@ -60,7 +60,7 @@ describe("Route PATCH users-me", () => {
         candidate: 0,
       });
       //insert cuf_select
-      await cuf.insertCuf({
+      await CustomUserFields.insert({
         id: 2,
         name: "Tipologia di spezie preferita",
         type: "select",
@@ -75,7 +75,7 @@ describe("Route PATCH users-me", () => {
         candidate: 0,
       });
       //insert cuf_multiselect
-      await cuf.insertCuf({
+      await CustomUserFields.insert({
         id: 3,
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
@@ -117,7 +117,7 @@ describe("Route PATCH users-me", () => {
     await educationsList.drop();
     await languagesList.drop();
     await testerLanguages.drop();
-    await cuf.drop();
+    await CustomUserFields.clear();
     await cufData.drop();
     await cufExtras.drop();
   });
@@ -186,7 +186,7 @@ describe("Route PATCH users-me accepted fields", () => {
       await languagesList.lenguage1({ display_name: "Sicilian" });
       await testerLanguages.assignLanguage();
       //insert cuf_text
-      await cuf.insertCuf({
+      await CustomUserFields.insert({
         name: "Username Tetris",
         type: "text",
       });
@@ -195,7 +195,7 @@ describe("Route PATCH users-me accepted fields", () => {
         candidate: 0,
       });
       //insert cuf_select
-      await cuf.insertCuf({
+      await CustomUserFields.insert({
         id: 2,
         name: "Tipologia di spezie preferita",
         type: "select",
@@ -210,7 +210,7 @@ describe("Route PATCH users-me accepted fields", () => {
         candidate: 0,
       });
       //insert cuf_multiselect
-      await cuf.insertCuf({
+      await CustomUserFields.insert({
         id: 3,
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
@@ -252,7 +252,7 @@ describe("Route PATCH users-me accepted fields", () => {
     await educationsList.drop();
     await languagesList.drop();
     await testerLanguages.drop();
-    await cuf.drop();
+    await CustomUserFields.clear();
     await cufData.drop();
     await cufExtras.drop();
   });
