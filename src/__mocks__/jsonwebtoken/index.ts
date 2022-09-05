@@ -1,10 +1,13 @@
 const verify = (token: string, secret: string): any => {
+  const tokenItems = token.split(" ");
+  const role = tokenItems[0];
   if (token === "tester") {
     return {
       ID: 1,
       testerId: 1,
       role: "tester",
-      permission: {},
+      permission: { admin: {} },
+      capabilities: [],
       iat: new Date().getTime() + 24 * 60 * 60,
       exp: new Date().getTime() + 24 * 60 * 60,
     };
@@ -15,6 +18,7 @@ const verify = (token: string, secret: string): any => {
       ID: 1,
       testerId: 1,
       role: "administrator",
+      capabilities: [],
       permission: {
         admin: {
           appq_bug: true,
@@ -45,43 +49,24 @@ const verify = (token: string, secret: string): any => {
     };
   }
 
-  if (token === "campaign_edit") {
-    return {
-      ID: 1,
-      testerId: 1,
-      role: "tester",
-      permission: {
-        admin: {
-          appq_campaign: true,
-        },
-      },
-      iat: new Date().getTime() + 24 * 60 * 60,
-      exp: new Date().getTime() + 24 * 60 * 60,
-    };
+  const result = verify(role, "");
+  if (result) {
+    if (token.includes("capability ")) {
+      const capabilityIndex = tokenItems.indexOf("capability") + 1;
+      if (capabilityIndex < tokenItems.length) {
+        const capabilities = JSON.parse(tokenItems[capabilityIndex].trim());
+        result.capabilities = [...result.capabilities, ...capabilities];
+      }
+    }
+    if (token.includes("olp ")) {
+      const olpIndex = tokenItems.indexOf("olp") + 1;
+      if (olpIndex < tokenItems.length) {
+        const olp = JSON.parse(tokenItems[olpIndex].trim());
+        result.permission.admin = { ...result.permission.admin, ...olp };
+      }
+    }
   }
-
-  if (token === "campaign_edit_campaign_1") {
-    return {
-      ID: 1,
-      testerId: 1,
-      role: "tester",
-      permission: {
-        admin: {
-          appq_campaign: [1],
-        },
-      },
-      iat: new Date().getTime() + 24 * 60 * 60,
-      exp: new Date().getTime() + 24 * 60 * 60,
-    };
-  }
-
-  if (token.includes("capability ")) {
-    const multipartToken = token.split("capability ");
-    const basicPermission = multipartToken[0].trim();
-    const permission = verify(basicPermission, "");
-    const capabilities = JSON.parse(multipartToken[1].trim());
-    return { ...permission, capabilities };
-  }
+  return result;
 };
 
 export default {
