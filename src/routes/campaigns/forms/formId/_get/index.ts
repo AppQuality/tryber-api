@@ -6,13 +6,10 @@ export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-forms-formId"]["parameters"]["path"];
 }> {
-  private id: number;
-
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const { formId } = this.getParameters();
-    this.id = parseInt(formId);
-    this.setId(this.id);
+    this.setId(parseInt(formId));
   }
 
   protected async filter() {
@@ -28,7 +25,7 @@ export default class RouteItem extends UserRoute<{
     if ((await this.formExists()) === false) {
       this.setError(
         404,
-        new Error(`Form ${this.id} doesn't exist`) as OpenapiError
+        new Error(`Form ${this.getId()} doesn't exist`) as OpenapiError
       );
       return false;
     }
@@ -37,7 +34,7 @@ export default class RouteItem extends UserRoute<{
 
   private async formExists() {
     const sql = `SELECT id FROM wp_appq_campaign_preselection_form WHERE id = ? `;
-    const results = await db.query(db.format(sql, [this.id]));
+    const results = await db.query(db.format(sql, [this.getId()]));
     return results.length !== 0;
   }
 
@@ -45,7 +42,7 @@ export default class RouteItem extends UserRoute<{
     try {
       const { name, fields, campaign } = await this.getForm();
       this.setSuccess(200, {
-        id: this.id,
+        id: this.getId(),
         name,
         fields,
         campaign,
@@ -62,7 +59,7 @@ export default class RouteItem extends UserRoute<{
         WHERE id = ?  
         LIMIT 1`;
     const results: { name: string }[] = await db.query(
-      db.format(sql, [this.id])
+      db.format(sql, [this.getId()])
     );
     const form = results.pop();
     if (!form) throw new Error("Can't find the form");
@@ -79,7 +76,7 @@ export default class RouteItem extends UserRoute<{
         JOIN wp_appq_campaign_preselection_form form ON (cp.id = form.campaign_id)
         WHERE form.id = ?  
         LIMIT 1`;
-    const results = await db.query(db.format(sql, [this.id]));
+    const results = await db.query(db.format(sql, [this.getId()]));
 
     if (results.length === 0) return undefined;
 
@@ -96,7 +93,7 @@ export default class RouteItem extends UserRoute<{
       type: string;
       question: string;
       options?: string;
-    }[] = await db.query(db.format(sql, [this.id]));
+    }[] = await db.query(db.format(sql, [this.getId()]));
     return results.map((item) => {
       return {
         ...item,
