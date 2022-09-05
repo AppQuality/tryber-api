@@ -7,7 +7,6 @@ type PreselectionFormParams = {
 };
 const defaultItem: PreselectionFormParams = {
   id: 1,
-  campaign_id: 1,
   name: "",
 };
 class PreselectionForm extends Table<PreselectionFormParams> {

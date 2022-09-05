@@ -642,7 +642,6 @@ export interface components {
     CustomUserFieldsType: "text" | "select" | "multiselect";
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
-      id?: number;
       question: string;
     } & (
       | {
@@ -2741,7 +2740,6 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            /** @example 15 */
             id: number;
             /** @example My form */
             name: string;
@@ -2784,9 +2782,11 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          name?: string;
+          name: string;
           campaign?: number;
-          fields?: components["schemas"]["PreselectionFormQuestion"][];
+          fields: ({
+            id: number;
+          } & components["schemas"]["PreselectionFormQuestion"])[];
         };
       };
     };
