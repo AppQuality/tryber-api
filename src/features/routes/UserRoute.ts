@@ -33,4 +33,10 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   protected hasCapability(capability: string) {
     return !!(this.capabilities && this.capabilities.includes(capability));
   }
+
+  protected hasAccessToCampaign(campaignId: number) {
+    const olp = this.configuration.request.user.permission.admin?.appq_campaign;
+    if (!olp) return false;
+    return olp === true || olp?.includes(campaignId);
+  }
 }
