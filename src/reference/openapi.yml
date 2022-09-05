@@ -4865,7 +4865,12 @@ paths:
                         properties:
                           id:
                             type: number
+                        required:
+                          - id
                       - $ref: '#/components/schemas/PreselectionFormQuestion'
+              required:
+                - name
+                - fields
             examples:
               Basic Example:
                 value:
