@@ -1,6 +1,7 @@
 import * as db from "@src/features/db";
 
 export default class FieldCreator {
+  private formId: number;
   private type: string;
   private question: string;
   private options: string | undefined;
@@ -13,10 +14,12 @@ export default class FieldCreator {
   ];
 
   constructor({
+    formId,
     question,
     type,
     options,
   }: {
+    formId: number;
     question: string;
     type: string;
     options?: string[] | number[];
@@ -25,6 +28,7 @@ export default class FieldCreator {
     if (!this.isTypeValid()) {
       throw new Error(`Invalid type ${type}`);
     }
+    this.formId = formId;
     this.question = question;
     this.options = options ? JSON.stringify(options) : undefined;
   }
@@ -43,8 +47,8 @@ export default class FieldCreator {
         `{"id": ${this.type.split("_")[1]}, "error": "Invalid cuf field"}`
       );
     }
-    const fields = ["question", "type"];
-    const data = [this.question, this.type];
+    const fields = ["question", "type", "form_id"];
+    const data = [this.question, this.type, this.formId];
     if (this.options) {
       fields.push("options");
       data.push(this.options);

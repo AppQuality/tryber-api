@@ -23,7 +23,7 @@ export default class RouteItem extends UserRoute<{
   protected async prepare() {
     try {
       const form = await this.createForm();
-      const fields = await this.createFields();
+      const fields = await this.createFields(form.id);
       this.setSuccess(201, {
         ...form,
         fields,
@@ -55,11 +55,12 @@ export default class RouteItem extends UserRoute<{
     return result[0];
   }
 
-  private async createFields() {
+  private async createFields(formId: number) {
     const body = this.getBody();
     const results = [];
     for (const field of body.fields) {
       const item = new FieldCreator({
+        formId: formId,
         question: field.question,
         type: field.type,
         options: field.hasOwnProperty("options") ? field.options : undefined,
