@@ -14,6 +14,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       form_id: 1,
       type: "text",
       question: "Text question",
+      priority: 8,
     });
     PreselectionFormFields.insert({
       id: 2,
@@ -21,6 +22,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       question: "Select question",
       type: "select",
       options: JSON.stringify(["Option 1", "Option 2"]),
+      priority: 2,
     });
     PreselectionFormFields.insert({
       id: 3,
@@ -28,6 +30,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       question: "Multiselect question",
       type: "multiselect",
       options: JSON.stringify(["Option 3", "Option 4"]),
+      priority: 3,
     });
     PreselectionFormFields.insert({
       id: 4,
@@ -35,24 +38,28 @@ describe("GET /campaigns/forms/{formId}", () => {
       question: "Radio question",
       type: "radio",
       options: JSON.stringify(["Yes", "No"]),
+      priority: 4,
     });
     PreselectionFormFields.insert({
       id: 5,
       form_id: 1,
       question: "Gender question",
       type: "gender",
+      priority: 5,
     });
     PreselectionFormFields.insert({
       id: 6,
       form_id: 1,
       question: "Phone question",
       type: "phone_number",
+      priority: 6,
     });
     PreselectionFormFields.insert({
       id: 7,
       form_id: 1,
       question: "Address question",
       type: "address",
+      priority: 7,
     });
     PreselectionFormFields.insert({
       id: 8,
@@ -60,6 +67,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       question: "Cuf question",
       type: "cuf_1",
       options: JSON.stringify([1, 2, 3]),
+      priority: 1,
     });
   });
   afterAll(() => {
@@ -114,7 +122,7 @@ describe("GET /campaigns/forms/{formId}", () => {
     expect(response.body).toHaveProperty("name", "The form");
   });
 
-  it("Should return a list of fields", async () => {
+  it("Should return a list of fields, the lowest priority fields are returned first", async () => {
     const response = await request(app)
       .get("/campaigns/forms/1")
       .set(
@@ -123,7 +131,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       );
     expect(response.body).toHaveProperty("fields");
     expect(response.body.fields).toEqual([
-      { id: 1, type: "text", question: "Text question" },
+      { id: 8, type: "cuf_1", options: [1, 2, 3], question: "Cuf question" },
       {
         id: 2,
         type: "select",
@@ -145,7 +153,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       { id: 5, type: "gender", question: "Gender question" },
       { id: 6, type: "phone_number", question: "Phone question" },
       { id: 7, type: "address", question: "Address question" },
-      { id: 8, type: "cuf_1", options: [1, 2, 3], question: "Cuf question" },
+      { id: 1, type: "text", question: "Text question" },
     ]);
   });
 

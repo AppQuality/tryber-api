@@ -14,6 +14,7 @@ type PreselectionFormFieldsParams = {
     | `cuf_${number}`;
   options?: string;
   question?: string;
+  priority?: number;
 };
 const defaultItem: PreselectionFormFieldsParams = {
   id: 1,
@@ -21,6 +22,7 @@ const defaultItem: PreselectionFormFieldsParams = {
   question: "The question",
   type: "text",
   options: "",
+  priority: 1,
 };
 class PreselectionFormFields extends Table<PreselectionFormFieldsParams> {
   protected name = "wp_appq_campaign_preselection_form_fields";
@@ -30,6 +32,7 @@ class PreselectionFormFields extends Table<PreselectionFormFieldsParams> {
     "question VARCHAR(511)",
     "type VARCHAR(255)",
     "options TEXT",
+    "priority INTEGER",
   ];
   constructor() {
     super(defaultItem);

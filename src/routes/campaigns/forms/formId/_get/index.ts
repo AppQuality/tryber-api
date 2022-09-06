@@ -87,7 +87,7 @@ export default class RouteItem extends UserRoute<{
   private async getFormFields() {
     const sql = `SELECT id, type, question, options
         FROM wp_appq_campaign_preselection_form_fields
-        WHERE form_id = ?`;
+        WHERE form_id = ? ORDER BY priority ASC`;
     const results: {
       id: number;
       type: string;
