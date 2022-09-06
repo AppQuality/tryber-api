@@ -2785,7 +2785,7 @@ export interface operations {
           name: string;
           campaign?: number;
           fields: ({
-            id: number;
+            id?: number;
           } & components["schemas"]["PreselectionFormQuestion"])[];
         };
       };

@@ -79,14 +79,17 @@ export default class RouteItem extends UserRoute<{
   private async editFields() {
     const { fields } = this.getBody();
     for (const field of fields) {
-      if (!field.id) {
+      if (typeof field.id === "undefined") {
         const fieldCreator = new FieldCreator({
           ...field,
           formId: this.getId(),
         });
         await fieldCreator.create();
       } else {
-        await this.editField(field);
+        await this.editField({
+          ...field,
+          id: field.id,
+        });
       }
     }
   }
