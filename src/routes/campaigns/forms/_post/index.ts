@@ -58,12 +58,14 @@ export default class RouteItem extends UserRoute<{
   private async createFields(formId: number) {
     const body = this.getBody();
     const results = [];
+    let i = 1;
     for (const field of body.fields) {
       const item = new FieldCreator({
         formId: formId,
         question: field.question,
         type: field.type,
         options: field.hasOwnProperty("options") ? field.options : undefined,
+        priority: i++,
       });
       try {
         results.push(await item.create());

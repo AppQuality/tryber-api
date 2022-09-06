@@ -72,23 +72,27 @@ describe("PUT /campaigns/forms/", () => {
       id: 1,
       form_id: 3,
       type: "text",
+      priority: 3,
     });
     PreselectionFormFields.insert({
       id: 2,
       form_id: 3,
       type: "cuf_1",
+      priority: 2,
     });
     PreselectionFormFields.insert({
       id: 3,
       form_id: 3,
       type: "cuf_2",
       options: JSON.stringify([1, 2]),
+      priority: 4,
     });
     PreselectionFormFields.insert({
       id: 4,
       form_id: 3,
       type: "select",
       options: JSON.stringify(["option1", "option2"]),
+      priority: 1,
     });
   });
   afterEach(() => {
@@ -221,7 +225,37 @@ describe("PUT /campaigns/forms/", () => {
     expect(changedFields.length).toBe(1);
     expect(changedFields[0]).toHaveProperty("question", "New question");
   });
+  it("should update priority of form fields", async () => {
+    const beforeOrderResponse = await request(app)
+      .get("/campaigns/forms/3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const newOrderFields = beforeOrderResponse.body.fields;
+    const first = newOrderFields[0];
+    const last = newOrderFields[newOrderFields.length - 1];
+    newOrderFields[0] = last;
+    newOrderFields[newOrderFields.length - 1] = first;
 
+    await request(app)
+      .put("/campaigns/forms/3")
+      .send({
+        ...sampleBodyWithFields,
+        fields: newOrderFields,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const afterOrderResponse = await request(app)
+      .get("/campaigns/forms/3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(afterOrderResponse.body.fields).toEqual(newOrderFields);
+  });
   it("Should allow removing a question", async () => {
     const fieldsBeforeRequest = await PreselectionFormFields.all(undefined, [
       { form_id: 3 },

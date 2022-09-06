@@ -6,6 +6,7 @@ export default class FieldCreator {
   private question: string;
   private options: string | undefined;
   private id: number | undefined;
+  private priority: number;
 
   private VALID_CUSTOM_TYPES = ["text", "select", "multiselect", "radio"];
   private VALID_PROFILE_TYPES = ["gender", "address", "phone_number"];
@@ -20,12 +21,14 @@ export default class FieldCreator {
     type,
     options,
     id,
+    priority,
   }: {
     formId: number;
     question: string;
     type: string;
     options?: string[] | number[];
     id?: number;
+    priority: number;
   }) {
     this.type = type;
     if (!this.isTypeValid()) {
@@ -35,6 +38,7 @@ export default class FieldCreator {
     this.question = question;
     this.options = options ? JSON.stringify(options) : undefined;
     this.id = id;
+    this.priority = priority;
   }
 
   private isTypeValid() {
@@ -51,19 +55,19 @@ export default class FieldCreator {
         `{"id": ${this.type.split("_")[1]}, "error": "Invalid cuf field"}`
       );
     }
-    const fields = ["question", "type", "form_id"];
-    const data = [this.question, this.type, this.formId];
+    const columns = ["question", "type", "form_id", "priority"];
+    const data = [this.question, this.type, this.formId, this.priority];
     if (this.options) {
-      fields.push("options");
+      columns.push("options");
       data.push(this.options);
     }
     if (this.id) {
-      fields.push("id");
+      columns.push("id");
       data.push(this.id);
     }
     const sql = db.format(
       `INSERT INTO wp_appq_campaign_preselection_form_fields 
-          (${fields.join(",")}) VALUES (${Array(data.length)
+          (${columns.join(",")}) VALUES (${Array(data.length)
         .fill("?")
         .join(",")})`,
       data

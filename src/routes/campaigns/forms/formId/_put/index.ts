@@ -79,10 +79,12 @@ export default class RouteItem extends UserRoute<{
   private async editFields() {
     const { fields } = this.getBody();
     await this.clearFields();
+    let i = 1;
     for (const field of fields) {
       const fieldCreator = new FieldCreator({
         ...field,
         formId: this.getId(),
+        priority: i++,
       });
       await fieldCreator.create();
     }
