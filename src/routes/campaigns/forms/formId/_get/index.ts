@@ -97,9 +97,10 @@ export default class RouteItem extends UserRoute<{
     return results.map((item) => {
       return {
         ...item,
-        options: isFieldTypeWithOptions(item.type)
-          ? parseOptions(item.options || "")
-          : undefined,
+        options:
+          isFieldTypeWithOptions(item.type) && item.options
+            ? parseOptions(item.options)
+            : undefined,
       };
     });
 

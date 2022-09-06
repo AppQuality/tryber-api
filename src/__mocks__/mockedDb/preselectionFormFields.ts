@@ -21,7 +21,6 @@ const defaultItem: PreselectionFormFieldsParams = {
   form_id: 1,
   question: "The question",
   type: "text",
-  options: "",
   priority: 1,
 };
 class PreselectionFormFields extends Table<PreselectionFormFieldsParams> {
