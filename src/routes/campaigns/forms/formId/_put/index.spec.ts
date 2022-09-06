@@ -221,4 +221,29 @@ describe("PUT /campaigns/forms/", () => {
     expect(changedFields.length).toBe(1);
     expect(changedFields[0]).toHaveProperty("question", "New question");
   });
+
+  it("Should allow removing a question", async () => {
+    const fieldsBeforeRequest = await PreselectionFormFields.all(undefined, [
+      { form_id: 3 },
+    ]);
+    const response = await request(app)
+      .put("/campaigns/forms/3")
+      .send({
+        ...sampleBodyWithFields,
+        fields: sampleBodyWithFields.fields.filter((field) => field.id !== 1),
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.status).toBe(200);
+    const fieldsAfterRequest = await PreselectionFormFields.all(undefined, [
+      { form_id: 3 },
+    ]);
+    expect(fieldsAfterRequest.length).toBe(fieldsBeforeRequest.length - 1);
+    const removedField = await PreselectionFormFields.all(undefined, [
+      { id: 1 },
+    ]);
+    expect(removedField.length).toBe(0);
+  });
 });

@@ -78,20 +78,19 @@ export default class RouteItem extends UserRoute<{
 
   private async editFields() {
     const { fields } = this.getBody();
+    await this.clearFields();
     for (const field of fields) {
-      if (typeof field.id === "undefined") {
-        const fieldCreator = new FieldCreator({
-          ...field,
-          formId: this.getId(),
-        });
-        await fieldCreator.create();
-      } else {
-        await this.editField({
-          ...field,
-          id: field.id,
-        });
-      }
+      const fieldCreator = new FieldCreator({
+        ...field,
+        formId: this.getId(),
+      });
+      await fieldCreator.create();
     }
+  }
+
+  private async clearFields() {
+    const sql = `DELETE FROM wp_appq_campaign_preselection_form_fields WHERE form_id = ?`;
+    await db.query(db.format(sql, [this.getId()]));
   }
 
   private async getForm() {

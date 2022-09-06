@@ -5,6 +5,7 @@ export default class FieldCreator {
   private type: string;
   private question: string;
   private options: string | undefined;
+  private id: number | undefined;
 
   private VALID_CUSTOM_TYPES = ["text", "select", "multiselect", "radio"];
   private VALID_PROFILE_TYPES = ["gender", "address", "phone_number"];
@@ -18,11 +19,13 @@ export default class FieldCreator {
     question,
     type,
     options,
+    id,
   }: {
     formId: number;
     question: string;
     type: string;
     options?: string[] | number[];
+    id?: number;
   }) {
     this.type = type;
     if (!this.isTypeValid()) {
@@ -31,6 +34,7 @@ export default class FieldCreator {
     this.formId = formId;
     this.question = question;
     this.options = options ? JSON.stringify(options) : undefined;
+    this.id = id;
   }
 
   private isTypeValid() {
@@ -52,6 +56,10 @@ export default class FieldCreator {
     if (this.options) {
       fields.push("options");
       data.push(this.options);
+    }
+    if (this.id) {
+      fields.push("id");
+      data.push(this.id);
     }
     const sql = db.format(
       `INSERT INTO wp_appq_campaign_preselection_form_fields 
