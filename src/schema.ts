@@ -2800,7 +2800,10 @@ export interface operations {
           "application/json": {
             id: number;
             name: string;
-            campaign?: number;
+            campaign?: {
+              id: number;
+              name: string;
+            };
             fields?: ({
               id: number;
             } & components["schemas"]["PreselectionFormQuestion"])[];
