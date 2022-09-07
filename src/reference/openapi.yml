@@ -66,41 +66,6 @@ paths:
                   password: my-strong-password
         description: A JSON containing username and password
       parameters: []
-  /projects:
-    get:
-      description: Get all projects that you can view. A project is a collection of campaigns linked with your account.
-      summary: Get All Projects
-      tags:
-        - Projects
-      responses:
-        '200':
-          description: A list of projects
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/Project'
-                    - type: object
-                      properties:
-                        campaigns:
-                          type: array
-                          items:
-                            allOf:
-                              - $ref: '#/components/schemas/Campaign'
-                              - type: object
-                                properties:
-                                  id:
-                                    type: integer
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-projects
-      parameters: []
-      security:
-        - JWT: []
   /customers:
     get:
       summary: Get Customers
@@ -214,80 +179,6 @@ paths:
         description: The Customer data to edit
       security:
         - JWT: []
-  '/customers/{customer}/projects/{project}/campaigns':
-    parameters:
-      - $ref: '#/components/parameters/customer'
-      - $ref: '#/components/parameters/project'
-    get:
-      summary: Get all Campaigns in a Project
-      tags:
-        - Campaign
-        - Customer
-        - Projects
-      responses:
-        '200':
-          $ref: '#/components/responses/ListOfCampaigns'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-customer-customer_id-project-project_id-campaigns
-      security:
-        - JWT: []
-      description: Get all the Campaigns registered in a Project
-    post:
-      summary: Create a new Campaign in a Project
-      operationId: post-customers-customer_id-projects-project_id-campaigns
-      responses:
-        '201':
-          $ref: '#/components/responses/SingleCampaign'
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Campaign'
-            examples:
-              example-1:
-                value:
-                  campaign_type: 1
-                  name: UX test for a selfdrive service
-                  customer_title: Tesla Model 3 selfdrive UX
-                  internal_id: TSL3
-                  dates:
-                    start: 17/02/2021
-                    end: 17/08/2021
-                    close: 17/09/2021
-                  status: true
-                  language: English (England)
-                  public: true
-                  hasBugParade: true
-                  devices:
-                    - id: '2'
-                  minNumberOfMedia: 0
-                  titleRule: true
-                  allowed:
-                    severities:
-                      - id: 3
-                    bug_types:
-                      - id: 1
-                    replicabilities:
-                      - id: '1'
-                  projectManager:
-                    username: Elon Musk
-                  customerCanViewReviewing: true
-                  additionalFields:
-                    - id: 2
-        description: The Campaign data to set on the newly created Campaign
-      security:
-        - JWT: []
-      description: Create a new Campaign and register it to a Project
-      tags:
-        - Campaign
-        - Customer
   /campaigns:
     post:
       summary: Create a new Campaign
