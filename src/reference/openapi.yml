@@ -4921,7 +4921,15 @@ paths:
                   name:
                     type: string
                   campaign:
-                    type: integer
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
                   fields:
                     type: array
                     items:
