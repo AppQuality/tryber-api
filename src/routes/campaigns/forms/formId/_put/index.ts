@@ -117,7 +117,6 @@ export default class RouteItem extends UserRoute<{
         fields: [],
       };
     }
-
     return {
       name: form?.name,
       fields: [],
@@ -125,7 +124,7 @@ export default class RouteItem extends UserRoute<{
     };
 
     async function getCampaign(id: number) {
-      const campaigns: { name: string; campaign_id: number }[] = await db.query(
+      const campaigns: { name: string; id: number }[] = await db.query(
         db.format(
           `SELECT id, title as name FROM wp_appq_evd_campaign 
             WHERE id = ? `,
