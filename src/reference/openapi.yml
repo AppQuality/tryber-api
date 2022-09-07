@@ -352,7 +352,18 @@ paths:
       operationId: get-campaigns
       responses:
         '200':
-          $ref: '#/components/responses/ListOfCampaigns'
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -5818,95 +5829,6 @@ components:
                 lastName: Musk
                 token: my-jwt-token
                 username: Elon71
-    ListOfCampaigns:
-      description: A list of Campaigns with the Campaign id
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              allOf:
-                - $ref: '#/components/schemas/Campaign'
-                - type: object
-                  properties:
-                    id:
-                      type: integer
-                  required:
-                    - id
-          examples:
-            full-example:
-              value:
-                - id: 1
-                  campaign_type: 1
-                  name: UX test for a selfdrive service
-                  customer_title: Tesla Model 3 selfdrive UX
-                  internal_id: TSL3
-                  dates:
-                    start: 17/02/2021
-                    end: 17/08/2021
-                    close: 17/09/2021
-                  status: true
-                  language: English (England)
-                  public: true
-                  hasBugParade: true
-                  devices:
-                    - id: '2'
-                  minNumberOfMedia: 0
-                  titleRule: true
-                  allowed:
-                    severities:
-                      - id: 3
-                    bug_types:
-                      - id: 3
-                    replicabilities:
-                      - id: '1'
-                  projectManager:
-                    username: Elon Musk
-                  customerCanViewReviewing: true
-                  additionalFields:
-                    - id: 2
-            minimal-example:
-              value:
-                - id: 1
-                  campaign_type: 1
-                  name: UX test for a selfdrive service
-                  customer_title: Tesla Model 3 selfdrive UX
-                  internal_id: TSL3
-                  dates:
-                    start: 17/02/2021
-                    end: 17/08/2021
-                    close: 17/09/2021
-                  devices:
-                    - id: '2'
-                  projectManager:
-                    username: Elon Musk
-            tester-example:
-              value:
-                - id: 1
-                  campaign_type: 1
-                  name: UX test for a selfdrive service
-                  internal_id: TSL3
-                  dates:
-                    start: 17/02/2021
-                    end: 17/08/2021
-                    close: 17/09/2021
-                  status: true
-                  language: English (England)
-                  devices:
-                    - id: '2'
-                  minNumberOfMedia: 0
-                  titleRule: true
-                  allowed:
-                    severities:
-                      - id: 3
-                    bug_types:
-                      - id: 3
-                    replicabilities:
-                      - id: '1'
-                  projectManager:
-                    username: Elon Musk
-                  additionalFields:
-                    - id: 2
     SingleCampaign:
       description: A single Campaigns with the Campaign id and Project data
       content:
