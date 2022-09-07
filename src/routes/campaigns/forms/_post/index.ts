@@ -2,6 +2,7 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import * as db from "@src/features/db";
 import FieldCreator from "../FieldCreator";
+import { ConfigurationOptions } from "aws-sdk";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-campaigns-forms"]["responses"]["201"]["content"]["application/json"];
@@ -36,12 +37,35 @@ export default class RouteItem extends UserRoute<{
 
   private async createForm() {
     const body = this.getBody();
-    const { insertId } = await db.query(
-      db.format(
-        `INSERT INTO wp_appq_campaign_preselection_form (name) VALUES (?)`,
-        [body.name]
-      )
-    );
+    let insertId;
+    let campaign;
+    if (body.campaign) {
+      insertId = (
+        await db.query(
+          db.format(
+            `INSERT INTO wp_appq_campaign_preselection_form (name, campaign_id) VALUES (?, ?)`,
+            [body.name, body.campaign]
+          )
+        )
+      ).insertId;
+      campaign = (
+        await db.query(
+          db.format(
+            `SELECT id, title as name FROM wp_appq_evd_campaign WHERE id = ? `,
+            [body.campaign]
+          )
+        )
+      )[0];
+    } else {
+      insertId = (
+        await db.query(
+          db.format(
+            `INSERT INTO wp_appq_campaign_preselection_form (name) VALUES (?)`,
+            [body.name]
+          )
+        )
+      ).insertId;
+    }
 
     const result: { id: number; name: string }[] = await db.query(
       db.format(
@@ -52,7 +76,7 @@ export default class RouteItem extends UserRoute<{
 
     if (result.length === 0) throw new Error("Failed to create form");
 
-    return result[0];
+    return { ...result[0], campaign };
   }
 
   private async createFields(formId: number) {

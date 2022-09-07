@@ -3,6 +3,8 @@ import request from "supertest";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
+import Campaign from "@src/__mocks__/mockedDb/campaign";
+import sqlite3 from "@src/features/sqlite";
 
 const sampleBody = {
   name: "My form",
@@ -10,6 +12,7 @@ const sampleBody = {
 };
 describe("POST /campaigns/forms/", () => {
   beforeAll(() => {
+    Campaign.insert();
     CustomUserFields.insert({
       id: 1,
     });
@@ -19,6 +22,7 @@ describe("POST /campaigns/forms/", () => {
   });
   afterAll(() => {
     CustomUserFields.clear();
+    Campaign.clear();
   });
   afterEach(() => {
     PreselectionForm.clear();
@@ -181,6 +185,59 @@ describe("POST /campaigns/forms/", () => {
         `Bearer tester capability ["manage_preselection_forms"]`
       );
     expect(response.status).toBe(406);
+  });
+  it("should create a new form with campaign id", async () => {
+    const textField = {
+      question: "My text question",
+      type: "text",
+    };
+    const body = {
+      ...sampleBody,
+      fields: [],
+      campaign: 1,
+    };
+    await request(app)
+      .post("/campaigns/forms/")
+      .send(body)
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const campaignId = (
+      await sqlite3.get(
+        `SELECT campaign_id FROM wp_appq_campaign_preselection_form WHERE id = 1`
+      )
+    ).campaign_id;
+    expect(campaignId).toEqual(body.campaign);
+    const responseGetNewForm = await request(app)
+      .get("/campaigns/forms/1")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(responseGetNewForm.body).toHaveProperty("campaign", {
+      id: 1,
+      name: "Test Campaign",
+    });
+  });
+  it("should return new form with campaign (id and name)", async () => {
+    const body = {
+      ...sampleBody,
+      fields: [],
+      campaign: 1,
+    };
+    const response = await request(app)
+      .post("/campaigns/forms/")
+      .send(body)
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    console.log(response.body);
+    expect(response.body).toHaveProperty("campaign", {
+      id: 1,
+      name: "Test Campaign",
+    });
   });
 });
 
