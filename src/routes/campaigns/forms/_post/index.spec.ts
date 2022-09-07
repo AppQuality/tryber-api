@@ -4,7 +4,6 @@ import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import Campaign from "@src/__mocks__/mockedDb/campaign";
-import sqlite3 from "@src/features/sqlite";
 
 const sampleBody = {
   name: "My form",
@@ -187,10 +186,6 @@ describe("POST /campaigns/forms/", () => {
     expect(response.status).toBe(406);
   });
   it("should create a new form with campaign id", async () => {
-    const textField = {
-      question: "My text question",
-      type: "text",
-    };
     const body = {
       ...sampleBody,
       fields: [],
@@ -203,22 +198,9 @@ describe("POST /campaigns/forms/", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    const campaignId = (
-      await sqlite3.get(
-        `SELECT campaign_id FROM wp_appq_campaign_preselection_form WHERE id = 1`
-      )
-    ).campaign_id;
-    expect(campaignId).toEqual(body.campaign);
-    const responseGetNewForm = await request(app)
-      .get("/campaigns/forms/1")
-      .set(
-        "authorization",
-        `Bearer tester capability ["manage_preselection_forms"]`
-      );
-    expect(responseGetNewForm.body).toHaveProperty("campaign", {
-      id: 1,
-      name: "Test Campaign",
-    });
+    const result = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
+    expect(result.length).toBe(1);
+    expect(result[0]).toHaveProperty("campaign_id", body.campaign);
   });
   it("should return new form with campaign (id and name)", async () => {
     const body = {
@@ -233,7 +215,6 @@ describe("POST /campaigns/forms/", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.body).toHaveProperty("campaign", {
       id: 1,
       name: "Test Campaign",
