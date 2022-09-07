@@ -4804,6 +4804,16 @@ paths:
                           required:
                             - id
                         - $ref: '#/components/schemas/PreselectionFormQuestion'
+                  campaign:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
                 required:
                   - id
                   - name
