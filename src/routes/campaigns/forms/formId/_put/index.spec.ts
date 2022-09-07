@@ -3,6 +3,7 @@ import request from "supertest";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
+import Campaign from "@src/__mocks__/mockedDb/campaign";
 
 const sampleBody = {
   name: "My form",
@@ -37,6 +38,8 @@ const sampleBodyWithFields = {
 };
 describe("PUT /campaigns/forms/", () => {
   beforeAll(() => {
+    Campaign.insert({ id: 2 });
+    Campaign.insert({ id: 3 });
     CustomUserFields.insert({
       id: 1,
       type: "text",
@@ -48,6 +51,7 @@ describe("PUT /campaigns/forms/", () => {
   });
   afterAll(() => {
     CustomUserFields.clear();
+    Campaign.clear();
   });
   beforeEach(() => {
     PreselectionForm.insert({
@@ -279,5 +283,33 @@ describe("PUT /campaigns/forms/", () => {
       { id: 1 },
     ]);
     expect(removedField.length).toBe(0);
+  });
+  it("should update campaign id", async () => {
+    await request(app)
+      .put("/campaigns/forms/1")
+      .send({
+        ...sampleBodyWithFields,
+        fields: [],
+        campaign: 2,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"] olp {"appq_campaign":true}`
+      );
+    const updateCampaignIdResponse = await request(app)
+      .put("/campaigns/forms/1")
+      .send({
+        ...sampleBodyWithFields,
+        fields: [],
+        campaign: 3,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"] olp {"appq_campaign":[2,3]}`
+      );
+    expect(updateCampaignIdResponse.body.campaign.id).toEqual(3);
+    const results = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
+    expect(results.length).toBe(1);
+    expect(results[0].campaign_id).toBe(3);
   });
 });

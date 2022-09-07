@@ -72,6 +72,12 @@ export default class RouteItem extends UserRoute<{
 
   private async editForm() {
     const { name } = this.getBody();
+    const { campaign } = this.getBody();
+    if (campaign) {
+      const sql = `UPDATE wp_appq_campaign_preselection_form SET campaign_id = ? WHERE id = ?`;
+      await db.query(db.format(sql, [campaign, this.getId()]));
+    }
+
     const sql = `UPDATE wp_appq_campaign_preselection_form SET name = ? WHERE id = ?`;
     await db.query(db.format(sql, [name, this.getId()]));
   }
@@ -96,33 +102,38 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getForm() {
-    const sql = `SELECT name 
+    const sql = `SELECT name, campaign_id
         FROM wp_appq_campaign_preselection_form 
         WHERE id = ?  
         LIMIT 1`;
-    const results: { name: string }[] = await db.query(
+    const results: { name: string; campaign_id: number }[] = await db.query(
       db.format(sql, [this.getId()])
     );
     const form = results.pop();
     if (!form) throw new Error("Can't find the form");
+    if (!form.campaign_id) {
+      return {
+        name: form?.name,
+        fields: [],
+      };
+    }
+
     return {
       name: form?.name,
       fields: [],
+      campaign: await getCampaign(form.campaign_id),
     };
-  }
 
-  private async editField(
-    field: ReturnType<RouteItem["getBody"]>["fields"][0] & { id: number }
-  ) {
-    const fieldsToUpdate = ["question", "type"];
-    const data = [field.question, field.type];
-    if (field.hasOwnProperty("options")) {
-      fieldsToUpdate.push("options");
-      data.push(JSON.stringify(field.options));
+    async function getCampaign(id: number) {
+      const campaigns: { name: string; campaign_id: number }[] = await db.query(
+        db.format(
+          `SELECT id, title as name FROM wp_appq_evd_campaign 
+            WHERE id = ? `,
+          [id]
+        )
+      );
+      if (!campaigns.length) throw new Error("Can't find campaign");
+      return campaigns[0];
     }
-    const sql = `UPDATE wp_appq_campaign_preselection_form_fields
-          SET ${fieldsToUpdate.map((field) => `${field} = ?`).join(", ")}
-          WHERE id = ?`;
-    await db.query(db.format(sql, [...data, field.id]));
   }
 }
