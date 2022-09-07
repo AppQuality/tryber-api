@@ -13,10 +13,6 @@ export interface paths {
     /** A request to login with your username and password */
     post: operations["post-authenticate"];
   };
-  "/projects": {
-    /** Get all projects that you can view. A project is a collection of campaigns linked with your account. */
-    get: operations["get-projects"];
-  };
   "/customers": {
     /** Get all the customers you have access to */
     get: operations["get-customers"];
@@ -33,20 +29,6 @@ export interface paths {
       path: {
         /** A customer id */
         customer: components["parameters"]["customer"];
-      };
-    };
-  };
-  "/customers/{customer}/projects/{project}/campaigns": {
-    /** Get all the Campaigns registered in a Project */
-    get: operations["get-customer-customer_id-project-project_id-campaigns"];
-    /** Create a new Campaign and register it to a Project */
-    post: operations["post-customers-customer_id-projects-project_id-campaigns"];
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-        /** A project id */
-        project: components["parameters"]["project"];
       };
     };
   };
@@ -682,14 +664,6 @@ export interface components {
         };
       };
     };
-    /** A list of Campaigns with the Campaign id */
-    ListOfCampaigns: {
-      content: {
-        "application/json": (components["schemas"]["Campaign"] & {
-          id: number;
-        })[];
-      };
-    };
     /** A single Campaigns with the Campaign id and Project data */
     SingleCampaign: {
       content: {
@@ -790,24 +764,6 @@ export interface operations {
       };
     };
   };
-  /** Get all projects that you can view. A project is a collection of campaigns linked with your account. */
-  "get-projects": {
-    parameters: {};
-    responses: {
-      /** A list of projects */
-      200: {
-        content: {
-          "application/json": (components["schemas"]["Project"] & {
-            campaigns?: (components["schemas"]["Campaign"] & {
-              id?: number;
-            })[];
-          })[];
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
   /** Get all the customers you have access to */
   "get-customers": {
     parameters: {};
@@ -880,48 +836,18 @@ export interface operations {
       };
     };
   };
-  /** Get all the Campaigns registered in a Project */
-  "get-customer-customer_id-project-project_id-campaigns": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-        /** A project id */
-        project: components["parameters"]["project"];
-      };
-    };
-    responses: {
-      200: components["responses"]["ListOfCampaigns"];
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
-  /** Create a new Campaign and register it to a Project */
-  "post-customers-customer_id-projects-project_id-campaigns": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-        /** A project id */
-        project: components["parameters"]["project"];
-      };
-    };
-    responses: {
-      201: components["responses"]["SingleCampaign"];
-      400: components["responses"]["MissingParameters"];
-      403: components["responses"]["NotAuthorized"];
-    };
-    /** The Campaign data to set on the newly created Campaign */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["Campaign"];
-      };
-    };
-  };
   /** Get all the Campaigns you have access to */
   "get-campaigns": {
     responses: {
-      200: components["responses"]["ListOfCampaigns"];
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id?: number;
+            name?: string;
+          }[];
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
