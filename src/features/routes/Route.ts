@@ -16,6 +16,7 @@ export default class Route<T extends RouteClassTypes> {
   private body: T["body"] | undefined;
   private parameters: T["parameters"] | undefined;
   protected query: T["query"] | undefined;
+  private id: number | undefined;
 
   constructor(
     protected configuration: RouteClassConfiguration & {
@@ -32,6 +33,7 @@ export default class Route<T extends RouteClassTypes> {
     if (configuration.request.query) this.query = configuration.request.query;
   }
 
+  protected async init() {}
   protected async prepare() {}
   protected async filter() {
     return true;
@@ -65,11 +67,22 @@ export default class Route<T extends RouteClassTypes> {
     return this.query;
   }
 
+  protected getId() {
+    if (typeof this.id === "undefined") throw new Error("No id");
+    return this.id;
+  }
+
   protected setId(id: number) {
     this.errorMessage.id = id;
+    this.id = id;
   }
 
   async resolve() {
+    try {
+      await this.init();
+    } catch (e) {
+      return this.responseData;
+    }
     if (await this.filter()) {
       await this.prepare();
     }

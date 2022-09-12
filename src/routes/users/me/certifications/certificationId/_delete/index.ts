@@ -8,13 +8,10 @@ export default class RouteItem extends UserRoute<{
   response: StoplightOperations["delete-users-me-certifications-certificationId"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["delete-users-me-certifications-certificationId"]["parameters"]["path"];
 }> {
-  private id: number;
-
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "certifications" });
     const parameters = this.getParameters();
-    this.id = parseInt(parameters.certificationId as unknown as string);
-    this.setId(this.id);
+    this.setId(parseInt(parameters.certificationId as unknown as string));
   }
 
   protected async prepare() {
@@ -37,7 +34,7 @@ export default class RouteItem extends UserRoute<{
         `SELECT id 
         FROM wp_appq_profile_certifications 
         WHERE cert_id=? AND tester_id=?;`,
-        [this.id, this.getTesterId()]
+        [this.getId(), this.getTesterId()]
       )
     );
     if (!result.length) {
@@ -55,7 +52,7 @@ export default class RouteItem extends UserRoute<{
           `DELETE 
           FROM wp_appq_profile_certifications 
           WHERE cert_id=? AND tester_id=?;`,
-          [this.id, this.getTesterId()]
+          [this.getId(), this.getTesterId()]
         )
       );
     } catch (e) {

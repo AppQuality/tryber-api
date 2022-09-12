@@ -14,13 +14,15 @@ import CampaignMeta from "./mockedDb/campaignMeta";
 import UseCaseGroups from "./mockedDb/usecasesGroups";
 import UseCases from "./mockedDb/usecases";
 import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
+import PreselectionForm from "./mockedDb/preselectionForm";
+import PreselectionFormFields from "./mockedDb/preselectionFormFields";
+import CustomUserFields from "./mockedDb/customUserFields";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
 import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as certificationListTable } from "./mockedDb/certificationList";
-import { table as cufTable } from "./mockedDb/customUserFields";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
 import deviceOs from "./mockedDb/deviceOs";
@@ -72,7 +74,6 @@ beforeAll(async () => {
   await employmentListTable.create();
   await educationListTable.create();
   await testerLanguageTable.create();
-  await cufTable.create();
   await cufExtraTable.create();
   await WpOptions.mock();
   await Severities.mock();
@@ -98,4 +99,7 @@ beforeAll(async () => {
   await Attributions.mock();
   await bugMedia.mock();
   await UploadedMedia.mock();
+  await PreselectionForm.mock();
+  await PreselectionFormFields.mock();
+  await CustomUserFields.mock();
 });

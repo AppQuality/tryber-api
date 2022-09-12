@@ -2,7 +2,7 @@ import sqlite from "@src/features/sqlite";
 import mysql from "mysql";
 
 export const format = (query: string, data: (string | number)[]) =>
-  mysql.format(query.replace(/"/g, "'"), data);
+  mysql.format(query.replace(/"/g, "'"), data).replace(/\\"/g, '"');
 
 export const query = async (query: string): Promise<any> => {
   try {
