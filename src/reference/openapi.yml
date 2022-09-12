@@ -561,6 +561,72 @@ paths:
                 - fields
       description: ''
     parameters: []
+    get:
+      summary: Get all forms
+      operationId: get-campaigns-forms
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    results:
+                      - id: 3
+                        name: Form Name
+                    total: 2
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        campaign:
+                          type: integer
+                      required:
+                        - id
+                        - name
+                  limit:
+                    type: integer
+                  start:
+                    type: integer
+                  size:
+                    type: integer
+                  total:
+                    type: integer
+                required:
+                  - results
+                  - start
+                  - size
+              examples:
+                example-1:
+                  value:
+                    results:
+                      - id: 1
+                        name: Form Name
+                        campaign: 1
+                      - id: 2
+                        name: Form without Campaign
+                    limit: 10
+                    start: 0
+                    size: 2
+                    total: 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters:
+        - $ref: '#/components/parameters/searchBy'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
+      description: ''
   '/campaigns/forms/{formId}':
     parameters:
       - schema:
