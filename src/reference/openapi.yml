@@ -66,119 +66,6 @@ paths:
                   password: my-strong-password
         description: A JSON containing username and password
       parameters: []
-  /customers:
-    get:
-      summary: Get Customers
-      tags:
-        - Customer
-      responses:
-        '200':
-          description: An array of Customer objects
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/Customer'
-                    - type: object
-                      properties:
-                        id:
-                          type: integer
-              examples:
-                example-1:
-                  value:
-                    - username: Elon71
-                      customer_name: Elon71
-                      id: 0
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      operationId: get-customers
-      description: Get all the customers you have access to
-      security:
-        - JWT: []
-    post:
-      summary: Create Customers
-      operationId: post-customers
-      responses:
-        '201':
-          description: Created
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      description: Add a new Customer to the platform
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The customer you want to create
-      security:
-        - JWT: []
-    parameters: []
-  '/customers/{customer}':
-    parameters:
-      - $ref: '#/components/parameters/customer'
-    get:
-      summary: Get a specific Customer
-      tags:
-        - Customer
-      responses:
-        '200':
-          description: The Customer data you requested
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-              examples:
-                example-1:
-                  value:
-                    username: Elon71
-                    customer_name: Elon71
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-customers-customer_id
-      description: Get the data for a Customer if you have access to it
-      security:
-        - JWT: []
-    put:
-      summary: Edit a Customer
-      operationId: put-customers-customer
-      responses:
-        '200':
-          description: OK
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: Change the data of a Customer if you have access to it
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The Customer data to edit
-      security:
-        - JWT: []
   /campaigns:
     post:
       summary: Create a new Campaign
@@ -339,6 +226,70 @@ paths:
         description: The Campaign data to edit
       security:
         - JWT: []
+  '/campaigns/{campaign}/candidates':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: ''
+      operationId: post-campaigns-campaign-candidates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tester_id:
+                    type: number
+                  accepted:
+                    type: boolean
+                  status:
+                    type: string
+                    enum:
+                      - ready
+                      - in-progress
+                      - completed
+                      - excluded
+                      - removed
+                  device:
+                    oneOf:
+                      - type: string
+                        enum:
+                          - any
+                      - $ref: '#/components/schemas/UserDevice'
+                required:
+                  - tester_id
+                  - accepted
+                  - status
+                  - device
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: The Tryber will be inserted as a candidate Tryber on a specific Campaign
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tester_id:
+                  type: number
+              required:
+                - tester_id
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: device
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -485,17 +436,141 @@ paths:
         description: The data to edit in the UseCase linked to the Campaign
       security:
         - JWT: []
-  '/campaigns/{campaign}/candidates':
+  /campaigns/forms:
+    post:
+      summary: Create a new preselection form
+      operationId: post-campaigns-forms
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  campaign:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  fields:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                        - $ref: '#/components/schemas/PreselectionFormQuestion'
+                required:
+                  - id
+                  - name
+              examples:
+                Basic Example:
+                  value:
+                    id: 15
+                    name: My form
+                    fields:
+                      - id: 3
+                        question: 'What''s your [custom question]?'
+                        type: text
+                      - id: 12
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 9
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 24
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_1
+                      - id: 29
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_12
+                        options:
+                          - 1
+                          - 5
+                          - 14
+                      - id: 89
+                        question: 'What''s your [profile question]?'
+                        type: gender
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  name: My form
+                  fields:
+                    - question: 'What''s your [custom question]?'
+                      type: text
+                    - question: 'What''s your [custom selectable question]?'
+                      type: select
+                      options:
+                        - Option1
+                        - Option2
+                    - question: 'What''s your [custom selectable question]?'
+                      type: select
+                      options:
+                        - Option1
+                        - Option2
+                    - question: 'What''s your [cuf text question]?'
+                      type: cuf_1
+                    - question: 'What''s your [cuf text question]?'
+                      type: cuf_12
+                      options:
+                        - 1
+                        - 5
+                        - 14
+                    - question: 'What''s your [profile question]?'
+                      type: gender
+              properties:
+                name:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PreselectionFormQuestion'
+                campaign:
+                  type: integer
+              required:
+                - name
+                - fields
+      description: ''
+    parameters: []
+  '/campaigns/forms/{formId}':
     parameters:
-      - name: campaign
+      - schema:
+          type: string
+        name: formId
         in: path
         required: true
-        schema:
-          type: string
-        description: A campaign id
-    post:
-      summary: ''
-      operationId: post-campaigns-campaign-candidates
+    get:
+      summary: Get a preselection form
+      tags: []
       responses:
         '200':
           description: OK
@@ -504,34 +579,822 @@ paths:
               schema:
                 type: object
                 properties:
-                  tester_id:
+                  id:
                     type: number
-                  accepted:
-                    type: boolean
-                  status:
+                  name:
                     type: string
-                    enum:
-                      - ready
-                      - in-progress
-                      - completed
-                      - excluded
-                      - removed
-                  device:
-                    oneOf:
-                      - type: string
-                        enum:
-                          - any
-                      - $ref: '#/components/schemas/UserDevice'
+                    example: My form
+                  campaign:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                  fields:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: number
+                          required:
+                            - id
+                        - $ref: '#/components/schemas/PreselectionFormQuestion'
                 required:
-                  - tester_id
-                  - accepted
-                  - status
-                  - device
+                  - id
+                  - name
+                  - fields
+              examples:
+                Basic Example:
+                  value:
+                    id: 15
+                    name: My form
+                    fields:
+                      - id: 3
+                        question: 'What''s your [custom question]?'
+                        type: text
+                      - id: 12
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 9
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 24
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_1
+                      - id: 29
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_12
+                        options:
+                          - 1
+                          - 5
+                          - 14
+                      - id: 89
+                        question: 'What''s your [profile question]?'
+                        type: gender
+                Basic Example with linked Campaign:
+                  value:
+                    id: 15
+                    name: My form
+                    campaign:
+                      id: 1
+                      name: My campaign
+                    fields:
+                      - id: 3
+                        question: 'What''s your [custom question]?'
+                        type: text
+                      - id: 12
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 9
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 24
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_1
+                      - id: 29
+                        question: 'What''s your [cuf select question]?'
+                        type: cuf_12
+                        options:
+                          - 1
+                          - 5
+                          - 14
+                      - id: 89
+                        question: 'What''s your [profile question]?'
+                        type: gender
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      description: The Tryber will be inserted as a candidate Tryber on a specific Campaign
+      operationId: get-campaigns-forms-formId
+      description: ''
+      security:
+        - JWT: []
+    put:
+      summary: Edit a preselection form
+      operationId: put-campaigns-forms-formId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    id: 15
+                    name: My form
+                    fields:
+                      - id: 3
+                        question: 'What''s your [custom question]?'
+                        type: text
+                      - id: 12
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 9
+                        question: 'What''s your [custom selectable question]?'
+                        type: select
+                        options:
+                          - Option1
+                          - Option2
+                      - id: 24
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_1
+                      - id: 29
+                        question: 'What''s your [cuf text question]?'
+                        type: cuf_12
+                        options:
+                          - 1
+                          - 5
+                          - 14
+                      - id: 89
+                        question: 'What''s your [profile question]?'
+                        type: gender
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  fields:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: number
+                          required:
+                            - id
+                        - $ref: '#/components/schemas/PreselectionFormQuestion'
+                  campaign:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
+                required:
+                  - id
+                  - name
+                  - fields
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  name: My form
+                  campaign: 1
+                  fields:
+                    - id: 3
+                      question: 'What''s your [custom question]?'
+                      type: text
+                    - id: 12
+                      question: 'What''s your [custom selectable question]?'
+                      type: select
+                      options:
+                        - Option1
+                        - Option2
+                    - id: 9
+                      question: 'What''s your [custom selectable question]?'
+                      type: select
+                      options:
+                        - Option1
+                        - Option2
+                    - id: 24
+                      question: 'What''s your [cuf text question]?'
+                      type: cuf_1
+                    - id: 29
+                      question: 'What''s your [cuf select question]?'
+                      type: cuf_12
+                      options:
+                        - 1
+                        - 5
+                        - 7
+                        - 14
+                    - question: 'What''s your [profile question]?'
+                      type: gender
+              properties:
+                name:
+                  type: string
+                campaign:
+                  type: integer
+                fields:
+                  type: array
+                  items:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: number
+                      - $ref: '#/components/schemas/PreselectionFormQuestion'
+              required:
+                - name
+                - fields
+            examples:
+              Basic Example:
+                value:
+                  name: My form
+                  campaign: 2
+                  fields:
+                    - id: 3
+                      question: 'What''s your [custom question]?'
+                      type: text
+                    - id: 12
+                      question: 'What''s your [custom selectable question]?'
+                      type: select
+                      options:
+                        - Option1
+                        - Option2
+                    - id: 9
+                      question: 'What''s your [custom selectable question]?'
+                      type: select
+                      options:
+                        - Option1
+                        - Option2
+                    - id: 24
+                      question: 'What''s your [cuf text question]?'
+                      type: cuf_1
+                    - id: 29
+                      question: 'What''s your [cuf select question]?'
+                      type: cuf_12
+                      options:
+                        - 1
+                        - 5
+                        - 9
+                        - 14
+                    - question: 'What''s your [profile question]?'
+                      type: gender
+      description: ''
+  /certifications:
+    get:
+      summary: Retrive and filter all certifications
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    area:
+                      type: string
+                    institute:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - area
+                    - institute
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-certifications
+      security:
+        - JWT: []
+      description: Get all certificatio
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
+    parameters: []
+  '/countries/{code}/region':
+    get:
+      summary: Get regions
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                  required:
+                    - name
+                    - value
+      operationId: get-regions
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: string
+            default: en
+          in: query
+          name: languageCode
+    parameters:
+      - schema:
+          type: string
+        name: code
+        in: path
+        required: true
+  /customers:
+    get:
+      summary: Get Customers
+      tags:
+        - Customer
+      responses:
+        '200':
+          description: An array of Customer objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Customer'
+                    - type: object
+                      properties:
+                        id:
+                          type: integer
+              examples:
+                example-1:
+                  value:
+                    - username: Elon71
+                      customer_name: Elon71
+                      id: 0
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      operationId: get-customers
+      description: Get all the customers you have access to
+      security:
+        - JWT: []
+    post:
+      summary: Create Customers
+      operationId: post-customers
+      responses:
+        '201':
+          description: Created
+        '400':
+          $ref: '#/components/responses/MissingParameters'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      description: Add a new Customer to the platform
+      tags:
+        - Customer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+            examples:
+              example-1:
+                value:
+                  username: Elon71
+                  customer_name: Elon71
+        description: The customer you want to create
+      security:
+        - JWT: []
+    parameters: []
+  '/customers/{customer}':
+    parameters:
+      - $ref: '#/components/parameters/customer'
+    get:
+      summary: Get a specific Customer
+      tags:
+        - Customer
+      responses:
+        '200':
+          description: The Customer data you requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+              examples:
+                example-1:
+                  value:
+                    username: Elon71
+                    customer_name: Elon71
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-customers-customer_id
+      description: Get the data for a Customer if you have access to it
+      security:
+        - JWT: []
+    put:
+      summary: Edit a Customer
+      operationId: put-customers-customer
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/MissingParameters'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Change the data of a Customer if you have access to it
+      tags:
+        - Customer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+            examples:
+              example-1:
+                value:
+                  username: Elon71
+                  customer_name: Elon71
+        description: The Customer data to edit
+      security:
+        - JWT: []
+  /custom_user_fields:
+    get:
+      summary: Get all custom user fields
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    group:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          $ref: '#/components/schemas/TranslatablePage'
+                        description:
+                          $ref: '#/components/schemas/TranslatablePage'
+                    fields:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/CustomUserFieldsData'
+                  required:
+                    - group
+              examples: {}
+      operationId: get-customUserFields
+      description: ''
+      security:
+        - JWT: []
+    parameters: []
+  '/devices/{device_type}/models':
+    get:
+      summary: Retrive manufacturers and models of devices
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    manufacturer:
+                      type: string
+                    models:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          name:
+                            type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-devices-devices-type-model
+      security:
+        - JWT: []
+      description: Get all model of devices with theirs manufacturers
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
+    parameters:
+      - schema:
+          type: string
+        name: device_type
+        in: path
+        required: true
+  '/devices/{device_type}/operating_systems':
+    get:
+      summary: Retrive operating systems list of a device type
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-devices-operating-systems
+      security:
+        - JWT: []
+      description: Get all operating systems of a device type
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
+    parameters:
+      - schema:
+          type: string
+        name: device_type
+        in: path
+        required: true
+  '/devices/{device_type}/os_versions':
+    get:
+      summary: Retrive versions list of an operating systems
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-devices-os-versions
+      security:
+        - JWT: []
+      description: Get all versions of an operating systems
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
+    parameters:
+      - schema:
+          type: string
+        name: device_type
+        in: path
+        required: true
+  /education:
+    get:
+      summary: Get all education levels
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                      minLength: 1
+                x-examples:
+                  example-1:
+                    - id: 0
+                      name: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-education
+      security:
+        - JWT: []
+      description: Get all education levels
+  /employments:
+    get:
+      summary: Get All Employements
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  required:
+                    - id
+                    - name
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                      minLength: 1
+                x-examples:
+                  example-1:
+                    - id: 0
+                      name: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-employments
+      security:
+        - JWT: []
+      description: Get all employments
+  /languages:
+    get:
+      summary: Get All Languages
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-languages
+      description: Get all languages
+      parameters: []
+      security:
+        - JWT: []
+  /levels:
+    get:
+      summary: Retrive levels definitions
+      tags:
+        - Devices
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LevelDefinition'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-levels
+      security:
+        - JWT: []
+      description: Get all levels
+      parameters: []
+    parameters: []
+  /media:
+    post:
+      summary: ''
+      operationId: post-media
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    files:
+                      - name: string
+                        path: string
+                    failed:
+                      - name: string
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                  failed:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        errorCode:
+                          type: string
+                      required:
+                        - name
+                        - errorCode
+                required:
+                  - files
+              examples: {}
+      description: 'Send a media for my bug to AppQuality Bucket. '
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - type: string
+                      properties: {}
+                      format: binary
+                    - type: array
+                      items:
+                        type: string
+                        format: binary
+    parameters: []
+    delete:
+      summary: ''
+      operationId: delete-media
+      responses:
+        '200':
+          description: OK
+        '404':
+          $ref: '#/components/responses/NotFound'
       security:
         - JWT: []
       requestBody:
@@ -540,15 +1403,264 @@ paths:
             schema:
               type: object
               properties:
-                tester_id:
-                  type: number
+                url:
+                  type: string
+                  format: uri
               required:
-                - tester_id
+                - url
+  /payments:
+    get:
+      summary: Get all payments
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  start:
+                    type: number
+                  total:
+                    type: number
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        created:
+                          type: string
+                          description: The timestamp (GMT) of the request creation
+                        updated:
+                          type: string
+                          description: The timestamp (GMT) of the request last update
+                        id:
+                          type: number
+                        amount:
+                          type: object
+                          required:
+                            - value
+                            - currency
+                          properties:
+                            value:
+                              type: number
+                            currency:
+                              type: string
+                        type:
+                          type: string
+                          enum:
+                            - paypal
+                            - transferwise
+                        tryber:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                          properties:
+                            id:
+                              type: number
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                        error:
+                          type: string
+                      required:
+                        - created
+                        - updated
+                        - id
+                        - amount
+                        - type
+                        - tryber
+                required:
+                  - size
+                  - start
+                  - items
+              examples:
+                example-1:
+                  value:
+                    limit: 3
+                    size: 3
+                    start: 2
+                    total: 100
+                    items:
+                      - created: '1645096692'
+                        updated: '1645096692'
+                        id: 123
+                        amount:
+                          value: 100
+                          currency: EUR
+                        type: paypal
+                        tryber:
+                          id: 1
+                          name: John
+                          surname: Doe
+                        error: INSUFFICIENT_FUNDS
+                      - created: '1645096692'
+                        updated: '1645096692'
+                        id: 1
+                        amount:
+                          value: 100
+                          currency: EUR
+                        type: paypal
+                        tryber:
+                          id: 1
+                          name: John
+                          surname: Doe
+                        error: GENERIC_ERROR
+                      - created: '1645096692'
+                        updated: '1645096692'
+                        id: 12
+                        amount:
+                          value: 100
+                          currency: EUR
+                        type: transferwise
+                        tryber:
+                          id: 5
+                          name: Pippo
+                          surname: Franco
+                        error: RECEIVER_UNREGISTERED
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      operationId: get-payments
+      security:
+        - JWT: []
       parameters:
         - schema:
             type: string
+            enum:
+              - pending
+              - failed
           in: query
-          name: device
+          name: status
+          description: The status of the payment
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - created
+              - updated
+              - id
+          in: query
+          name: orderBy
+          description: The value to order by
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filterBy'
+    parameters: []
+  '/payments/{paymentId}':
+    parameters:
+      - schema:
+          type: string
+        name: paymentId
+        in: path
+        required: true
+    post:
+      summary: Pay a request
+      operationId: post-payments-paymentId
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          headers: {}
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                x-examples:
+                  example-1:
+                    element: payments
+                    id: 0
+                    message:
+                      code: GENERIC_ERROR
+                      data: string
+                properties:
+                  element:
+                    type: string
+                    enum:
+                      - payments
+                  id:
+                    type: number
+                  message:
+                    type: object
+                    required:
+                      - code
+                      - data
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - GENERIC_ERROR
+                      data:
+                        type: string
+                required:
+                  - element
+                  - id
+                  - message
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unprocessable Entity (WebDAV)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  element:
+                    type: string
+                    enum:
+                      - payments
+                  id:
+                    type: number
+                  message:
+                    type: object
+                    required:
+                      - code
+                      - data
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                          - GENERIC_ERROR
+                          - NO_FUNDS
+                          - DUPLICATE_PAYMENT
+                          - IBAN_NOT_VALID
+                          - INSUFFICIENT_FUNDS
+                          - RECEIVER_UNREGISTERED
+                      data:
+                        type: string
+                required:
+                  - element
+                  - id
+                  - message
+              examples: {}
+      description: ''
+      security:
+        - JWT: []
+    delete:
+      summary: Delete payment request from id
+      operationId: delete-payments-paymentId
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: delete a specific payment request
+      security:
+        - JWT: []
   /popups:
     get:
       summary: Get all popups
@@ -680,347 +1792,6 @@ paths:
       tags:
         - Admin
       description: Edit your popup with a new content or new rules
-  '/devices/{device_type}/models':
-    get:
-      summary: Retrive manufacturers and models of devices
-      tags:
-        - Devices
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    manufacturer:
-                      type: string
-                    models:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: number
-                          name:
-                            type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-devices-devices-type-model
-      security:
-        - JWT: []
-      description: Get all model of devices with theirs manufacturers
-      parameters:
-        - $ref: '#/components/parameters/filterBy'
-    parameters:
-      - schema:
-          type: string
-        name: device_type
-        in: path
-        required: true
-  /certifications:
-    get:
-      summary: Retrive and filter all certifications
-      tags:
-        - Devices
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    area:
-                      type: string
-                    institute:
-                      type: string
-                  required:
-                    - id
-                    - name
-                    - area
-                    - institute
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-certifications
-      security:
-        - JWT: []
-      description: Get all certificatio
-      parameters:
-        - $ref: '#/components/parameters/filterBy'
-    parameters: []
-  '/devices/{device_type}/operating_systems':
-    get:
-      summary: Retrive operating systems list of a device type
-      tags:
-        - Devices
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-devices-operating-systems
-      security:
-        - JWT: []
-      description: Get all operating systems of a device type
-      parameters:
-        - $ref: '#/components/parameters/filterBy'
-    parameters:
-      - schema:
-          type: string
-        name: device_type
-        in: path
-        required: true
-  '/devices/{device_type}/os_versions':
-    get:
-      summary: Retrive versions list of an operating systems
-      tags:
-        - Devices
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-devices-os-versions
-      security:
-        - JWT: []
-      description: Get all versions of an operating systems
-      parameters:
-        - $ref: '#/components/parameters/filterBy'
-    parameters:
-      - schema:
-          type: string
-        name: device_type
-        in: path
-        required: true
-  /languages:
-    get:
-      summary: Get All Languages
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                  required:
-                    - id
-                    - name
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-languages
-      description: Get all languages
-      parameters: []
-      security:
-        - JWT: []
-  /employments:
-    get:
-      summary: Get All Employements
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                description: ''
-                minItems: 1
-                uniqueItems: true
-                items:
-                  type: object
-                  required:
-                    - id
-                    - name
-                  properties:
-                    id:
-                      type: number
-                    name:
-                      type: string
-                      minLength: 1
-                x-examples:
-                  example-1:
-                    - id: 0
-                      name: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-employments
-      security:
-        - JWT: []
-      description: Get all employments
-  /education:
-    get:
-      summary: Get all education levels
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                description: ''
-                minItems: 1
-                uniqueItems: true
-                items:
-                  type: object
-                  required:
-                    - id
-                    - name
-                  properties:
-                    id:
-                      type: number
-                    name:
-                      type: string
-                      minLength: 1
-                x-examples:
-                  example-1:
-                    - id: 0
-                      name: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-education
-      security:
-        - JWT: []
-      description: Get all education levels
-  /media:
-    post:
-      summary: ''
-      operationId: post-media
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  example-1:
-                    files:
-                      - name: string
-                        path: string
-                    failed:
-                      - name: string
-                properties:
-                  files:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        path:
-                          type: string
-                      required:
-                        - name
-                        - path
-                  failed:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        errorCode:
-                          type: string
-                      required:
-                        - name
-                        - errorCode
-                required:
-                  - files
-              examples: {}
-      description: 'Send a media for my bug to AppQuality Bucket. '
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                media:
-                  oneOf:
-                    - type: string
-                      properties: {}
-                      format: binary
-                    - type: array
-                      items:
-                        type: string
-                        format: binary
-    parameters: []
-    delete:
-      summary: ''
-      operationId: delete-media
-      responses:
-        '200':
-          description: OK
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                url:
-                  type: string
-                  format: uri
-              required:
-                - url
   /users:
     get:
       summary: Get all users
@@ -1521,6 +2292,66 @@ paths:
         - JWT: []
       tags:
         - User
+  '/users/me/additionals/{fieldId}':
+    parameters:
+      - schema:
+          type: integer
+        name: fieldId
+        in: path
+        required: true
+        description: The id of the field to edit
+    put:
+      summary: Edit your custom user fields
+      operationId: put-users-me-additionals-fieldId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                x-examples:
+                  example-1:
+                    - field_id: 23
+                      name: Linkedin Profile
+                      value: 'https://www.linkedin.com/in/gianpaolosinatra/'
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/AdditionalField'
+                  - $ref: '#/components/schemas/AdditionalField'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: string
+                      is_candidate:
+                        type: boolean
+                    required:
+                      - value
+                - type: object
+                  properties:
+                    value:
+                      type: string
+                    is_candidate:
+                      type: boolean
+                  required:
+                    - value
+      security:
+        - JWT: []
+      tags:
+        - User
+      description: The field data will be replaced with your new data
   /users/me/bugs:
     get:
       summary: Get your uploaded bugs
@@ -1599,6 +2430,1015 @@ paths:
         - $ref: '#/components/parameters/order'
       description: 'Get all the bugs that you uploaded to AppQuality. '
     parameters: []
+  /users/me/campaigns:
+    get:
+      summary: GET user campaign
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                        - $ref: '#/components/schemas/Campaign'
+                  limit:
+                    type: integer
+                  size:
+                    type: integer
+                  start:
+                    type: integer
+                  total:
+                    type: integer
+              examples: {}
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      operationId: get-users-me-campaigns
+      description: |-
+        get available, and selected campaigns for a single user.
+        filterBy[accepted] = 1 retrieve accepted campaign only, otherwise retrieve available campaign.
+        filterBy[completed] = 1 get completed campaigns only (end date in the past)
+        filterBy[completed] = 0 get not completed campaigns only (end date today or in the future)
+        filterBy[statusID] = 1 get open campaigns
+        filterBy[statusID] = 2 get closed campaigns
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/filterBy'
+        - $ref: '#/components/parameters/locale'
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - name
+              - start_date
+              - end_date
+              - close_date
+          in: query
+          name: orderBy
+          description: The field for item order
+  '/users/me/campaigns/{campaignId}':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the data for a campaign you are selected in
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  language:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                  titleRule:
+                    type: boolean
+                  minimumMedia:
+                    type: integer
+                  useCases:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                  additionalFields:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CampaignAdditionalField'
+                  bugTypes:
+                    type: object
+                    required:
+                      - valid
+                      - invalid
+                    properties:
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                  bugSeverity:
+                    type: object
+                    required:
+                      - valid
+                      - invalid
+                    properties:
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                  bugReplicability:
+                    type: object
+                    required:
+                      - valid
+                      - invalid
+                    properties:
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                  hasBugForm:
+                    type: boolean
+                  devices:
+                    type: array
+                    items:
+                      allOf:
+                        - type: object
+                          properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                        - $ref: '#/components/schemas/UserDevice'
+                  validFileExtensions:
+                    type: array
+                    items:
+                      type: string
+                required:
+                  - id
+                  - title
+                  - minimumMedia
+                  - useCases
+                  - bugTypes
+                  - bugSeverity
+                  - bugReplicability
+                  - hasBugForm
+                  - validFileExtensions
+              examples:
+                full:
+                  value:
+                    id: 123
+                    title: My campaign
+                    language:
+                      code: IT
+                      message: In questa campagna vanno caricati i bug in italiano
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    additionalFields:
+                      - name: Browser Used
+                        slug: browser-used
+                        type: select
+                        options:
+                          - Chrome
+                          - Safari
+                        error: You have to select a browser
+                      - name: Codice Cliente
+                        slug: codice-cliente
+                        type: text
+                        regex: '[A-Z]{3}[0-9]{4}'
+                        error: Il codice cliente è obbligatorio nel formato AAA1234
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                      invalid:
+                        - PERFORMANCE
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                      invalid:
+                        - HIGH
+                        - CRITICAL
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                      invalid:
+                        - ONCE
+                    hasBugForm: true
+                    devices:
+                      - id: 1
+                        type: Smartphone
+                        device:
+                          manufacturer: Apple
+                          model: iPhone X
+                          id: 123
+                        operating_system:
+                          id: 234
+                          platform: Apple
+                          version: iOs 12
+                      - id: 2
+                        type: Smartphone
+                        device:
+                          manufacturer: Apple
+                          model: iPhone 6
+                          id: 123
+                        operating_system:
+                          id: 234
+                          platform: Apple
+                          version: iOs 10
+                    validFileExtensions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                with-bugform-disabled:
+                  value:
+                    id: 123
+                    title: My campaign
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases: []
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                        - PERFORMANCE
+                      invalid: []
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                        - HIGH
+                        - CRITICAL
+                      invalid: []
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                        - ONCE
+                      invalid: []
+                    hasBugForm: false
+                    devices: []
+                    validFileExtensions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                with-only-one-device:
+                  value:
+                    id: 123
+                    title: My campaign
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                        - PERFORMANCE
+                      invalid: []
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                        - HIGH
+                        - CRITICAL
+                      invalid: []
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                        - ONCE
+                      invalid: []
+                    hasBugForm: true
+                    devices:
+                      - id: 1
+                        type: Smartphone
+                        device:
+                          manufacturer: Apple
+                          model: iPhone X
+                          id: 123
+                        operating_system:
+                          id: 234
+                          platform: Apple
+                          version: iOs 12
+                    validFileExtensions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+                without-device:
+                  value:
+                    id: 123
+                    title: My campaign
+                    titleRule: true
+                    minimumMedia: 3
+                    useCases:
+                      - id: 0
+                        name: Not a specific Use Case
+                      - id: 4123
+                        name: Use case 1 - Signup
+                    bugTypes:
+                      valid:
+                        - CRASH
+                        - TYPO
+                        - PERFORMANCE
+                      invalid: []
+                    bugSeverity:
+                      valid:
+                        - LOW
+                        - MEDIUM
+                        - HIGH
+                        - CRITICAL
+                      invalid: []
+                    bugReplicability:
+                      valid:
+                        - ALWAYS
+                        - SOMETIMES
+                        - ONCE
+                      invalid: []
+                    hasBugForm: true
+                    validFileExtensions:
+                      - jpg
+                      - png
+                      - mov
+                      - mp4
+      operationId: get-users-me-campaigns-campaignId
+      description: ''
+      security:
+        - JWT: []
+  '/users/me/campaigns/{campaignId}/bugs':
+    post:
+      summary: POST a user bug on a specific campaign
+      operationId: post-users-me-campaigns-campaign-bugs
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  example-1:
+                    id: ''
+                    testerId: 1
+                    title: ''
+                    status: ''
+                    description: ''
+                    expected: ''
+                    current: ''
+                    severity: ''
+                    replicability: ''
+                    type: ''
+                    notes: ''
+                    usecase: ''
+                    device: {}
+                    media:
+                      - ''
+                      - ''
+                    additional:
+                      - name: ''
+                        value: ''
+                properties:
+                  id:
+                    type: number
+                  internalId:
+                    type: string
+                  testerId:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - PENDING
+                      - APPROVED
+                      - REFUSED
+                      - NEED-REVIEW
+                  expected:
+                    type: string
+                  current:
+                    type: string
+                  severity:
+                    type: string
+                    enum:
+                      - LOW
+                      - MEDIUM
+                      - HIGH
+                      - CRITICAL
+                  replicability:
+                    type: string
+                    enum:
+                      - ONCE
+                      - SOMETIMES
+                      - ALWAYS
+                  type:
+                    type: string
+                    enum:
+                      - CRASH
+                      - GRAPHIC
+                      - MALFUNCTION
+                      - OTHER
+                      - PERFORMANCE
+                      - SECURITY
+                      - TYPO
+                      - USABILITY
+                  notes:
+                    type: string
+                  usecase:
+                    type: string
+                  device:
+                    $ref: '#/components/schemas/UserDevice'
+                  media:
+                    type: array
+                    items:
+                      type: string
+                  additional:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        slug:
+                          type: string
+                        value:
+                          type: string
+                      required:
+                        - slug
+                        - value
+                required:
+                  - id
+                  - testerId
+                  - title
+                  - description
+                  - status
+                  - expected
+                  - current
+                  - severity
+                  - replicability
+                  - type
+                  - notes
+                  - usecase
+                  - device
+                  - media
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Send a user bug on a specific campaign
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  title: ''
+                  description: ''
+                  expected: ''
+                  current: ''
+                  severity: LOW
+                  replicability: ONCE
+                  type: TYPO
+                  notes: ''
+                  usecase: 1
+                  device: 1
+                  media:
+                    - ''
+                    - ''
+                  additional:
+                    - name: ''
+                      value: ''
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                expected:
+                  type: string
+                current:
+                  type: string
+                severity:
+                  type: string
+                  enum:
+                    - LOW
+                    - MEDIUM
+                    - HIGH
+                    - CRITICAL
+                replicability:
+                  type: string
+                  enum:
+                    - ONCE
+                    - SOMETIMES
+                    - ALWAYS
+                type:
+                  type: string
+                  enum:
+                    - CRASH
+                    - GRAPHIC
+                    - MALFUNCTION
+                    - OTHER
+                    - PERFORMANCE
+                    - SECURITY
+                    - TYPO
+                    - USABILITY
+                notes:
+                  type: string
+                lastSeen:
+                  type: string
+                usecase:
+                  type: integer
+                device:
+                  type: integer
+                media:
+                  type: array
+                  items:
+                    type: string
+                additional:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slug:
+                        type: string
+                      value:
+                        type: string
+                    required:
+                      - slug
+                      - value
+              required:
+                - title
+                - description
+                - expected
+                - current
+                - severity
+                - replicability
+                - type
+                - notes
+                - lastSeen
+                - usecase
+                - device
+                - media
+      security:
+        - JWT: []
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+        description: the campaign id
+  '/users/me/campaigns/{campaignId}/devices':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the device available for this campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDevice'
+              examples:
+                single-device:
+                  value:
+                    - type: PC
+                      id: 1
+                      device:
+                        pc_type: Desktop
+                      operating_system:
+                        id: 781
+                        platform: MacOS
+                        version: Mac OS X 10.15 (Catalina) (10.15.5)
+                multiple-devices:
+                  value:
+                    - type: Smartphone
+                      id: 28440
+                      device:
+                        manufacturer: Airo Wireless
+                        model: A25is
+                        id: 5333
+                      operating_system:
+                        id: 729
+                        platform: Windows Mobile Professional
+                        version: Windows Mobile 6.5 (6.5)
+                    - type: PC
+                      id: 27723
+                      device:
+                        pc_type: Desktop
+                      operating_system:
+                        id: 781
+                        platform: MacOS
+                        version: Mac OS X 10.15 (Catalina) (10.15.5)
+                    - type: PC
+                      id: 28438
+                      device:
+                        pc_type: Desktop
+                      operating_system:
+                        id: 792
+                        platform: MacOS
+                        version: Mac OS X 10.15 (Catalina) (10.15.6)
+                    - type: PC
+                      id: 27721
+                      device:
+                        pc_type: Notebook
+                      operating_system:
+                        id: 772
+                        platform: Windows
+                        version: Windows 10 November 2019 Update (18363.778)
+                    - type: PC
+                      id: 27722
+                      device:
+                        pc_type: Ultrabook
+                      operating_system:
+                        id: 771
+                        platform: Windows
+                        version: Windows 10 May 2019 Update (18362)
+                    - type: Smart-tv
+                      id: 28439
+                      device:
+                        manufacturer: Bang & Olufsen
+                        model: BeoVision 11 40"
+                        id: 47400
+                      operating_system:
+                        id: 822
+                        platform: Fire TV
+                        version: Fire OS 7 (7)
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaigns-campaignId-devices
+      security:
+        - JWT: []
+  '/users/me/campaigns/{campaignId}/media':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    post:
+      summary: Upload media for a bug
+      operationId: post-users-me-campaigns-campaignId-media
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                  failed:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        errorCode:
+                          type: string
+                          enum:
+                            - FILE_TOO_BIG
+                            - INVALID_FILE_EXTENSION
+                            - GENERIC_ERROR
+                      required:
+                        - name
+                        - errorCode
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - type: string
+                      properties: {}
+                    - type: array
+                      items:
+                        type: string
+  /users/me/certifications:
+    post:
+      summary: Add one certification to your profile
+      operationId: post-users-me-certifications
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                description: ''
+                x-examples:
+                  example-1:
+                    name: string
+                    area: string
+                    institute: string
+                    achievement_date: '2019-08-24'
+                oneOf:
+                  - $ref: '#/components/schemas/Certification'
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                    required:
+                      - message
+              examples: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - properties:
+                    certifications:
+                      type: boolean
+                  required:
+                    - certifications
+                - properties:
+                    certification_id:
+                      type: integer
+                    achievement_date:
+                      type: string
+                      format: date
+                  required:
+                    - certification_id
+                    - achievement_date
+              type: object
+      tags:
+        - User
+      description: Add one certification to your profile
+  '/users/me/certifications/{certificationId}':
+    parameters:
+      - schema:
+          type: integer
+        name: certificationId
+        in: path
+        required: true
+        description: The id of the certification
+    delete:
+      summary: Remove a certification from your profile
+      operationId: delete-users-me-certifications-certificationId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      description: The certification will be removed
+      tags:
+        - User
+  /users/me/devices:
+    get:
+      summary: Get all your devices
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - type: object
+                      properties:
+                        id:
+                          type: number
+                    - $ref: '#/components/schemas/UserDevice'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-devices
+      security:
+        - JWT: []
+      description: Get all your device data
+    post:
+      summary: Add a new device to your user
+      operationId: post-users-me-devices
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      id:
+                        type: number
+                    type: object
+                  - $ref: '#/components/schemas/UserDevice'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      description: Add a new device to your user
+      tags:
+        - User
+        - Devices
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device:
+                  oneOf:
+                    - type: integer
+                      properties: {}
+                    - type: string
+                      properties: {}
+                      enum:
+                        - Notebook
+                        - Desktop
+                        - Ultrabook
+                        - Gaming PC
+                        - Tablet PC / Hybrid
+                operating_system:
+                  type: integer
+              required:
+                - device
+                - operating_system
+        description: ''
+  '/users/me/devices/{deviceId}':
+    parameters:
+      - schema:
+          type: number
+        name: deviceId
+        in: path
+        required: true
+    get:
+      summary: Get one of your devices
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                  - $ref: '#/components/schemas/UserDevice'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-devices-deviceId
+      security:
+        - JWT: []
+      description: Retrieve a single device
+    patch:
+      summary: Edit one of your devices
+      operationId: patch-users-me-devices-deviceId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                  - $ref: '#/components/schemas/UserDevice'
+        '304':
+          description: Not Modified
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: number
+                  - $ref: '#/components/schemas/UserDevice'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operating_system:
+                  type: integer
+              required:
+                - operating_system
+      security:
+        - JWT: []
+      tags:
+        - Devices
+        - User
+      description: You can change only operating system version
+    delete:
+      summary: Remove one of your devices
+      operationId: delete-users-me-devices-deviceId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags:
+        - Devices
+        - User
+      description: The device will be disabled and won't be available for selections and bugs submission. You can't remove a device currently involved in a campaign
   /users/me/experience:
     get:
       summary: Get your experience points
@@ -2087,611 +3927,6 @@ paths:
                 - gender
       tags:
         - User
-  /users/me/campaigns:
-    get:
-      summary: GET user campaign
-      tags:
-        - User
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          properties:
-                            id:
-                              type: integer
-                          required:
-                            - id
-                        - $ref: '#/components/schemas/Campaign'
-                  limit:
-                    type: integer
-                  size:
-                    type: integer
-                  start:
-                    type: integer
-                  total:
-                    type: integer
-              examples: {}
-        '403':
-          description: Forbidden
-        '404':
-          description: Not Found
-      operationId: get-users-me-campaigns
-      description: |-
-        get available, and selected campaigns for a single user.
-        filterBy[accepted] = 1 retrieve accepted campaign only, otherwise retrieve available campaign.
-        filterBy[completed] = 1 get completed campaigns only (end date in the past)
-        filterBy[completed] = 0 get not completed campaigns only (end date today or in the future)
-        filterBy[statusID] = 1 get open campaigns
-        filterBy[statusID] = 2 get closed campaigns
-      security:
-        - JWT: []
-      parameters:
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/filterBy'
-        - $ref: '#/components/parameters/locale'
-        - $ref: '#/components/parameters/order'
-        - schema:
-            type: string
-            enum:
-              - name
-              - start_date
-              - end_date
-              - close_date
-          in: query
-          name: orderBy
-          description: The field for item order
-  /users/me/popups:
-    get:
-      summary: Get your popups
-      tags:
-        - User
-      responses:
-        '200':
-          description: OK
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    title:
-                      type: string
-                    content:
-                      type: string
-                    once:
-                      type: boolean
-      operationId: get-users-me-popups
-      description: Get all popup defined for your user
-      security:
-        - JWT: []
-      parameters:
-        - schema:
-            type: boolean
-          in: query
-          name: showExpired
-          description: 'Show all popup history, expired popups included'
-        - $ref: '#/components/parameters/order'
-  '/users/me/campaigns/{campaignId}/bugs':
-    post:
-      summary: POST a user bug on a specific campaign
-      operationId: post-users-me-campaigns-campaign-bugs
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  example-1:
-                    id: ''
-                    testerId: 1
-                    title: ''
-                    status: ''
-                    description: ''
-                    expected: ''
-                    current: ''
-                    severity: ''
-                    replicability: ''
-                    type: ''
-                    notes: ''
-                    usecase: ''
-                    device: {}
-                    media:
-                      - ''
-                      - ''
-                    additional:
-                      - name: ''
-                        value: ''
-                properties:
-                  id:
-                    type: number
-                  internalId:
-                    type: string
-                  testerId:
-                    type: integer
-                  title:
-                    type: string
-                  description:
-                    type: string
-                  status:
-                    type: string
-                    enum:
-                      - PENDING
-                      - APPROVED
-                      - REFUSED
-                      - NEED-REVIEW
-                  expected:
-                    type: string
-                  current:
-                    type: string
-                  severity:
-                    type: string
-                    enum:
-                      - LOW
-                      - MEDIUM
-                      - HIGH
-                      - CRITICAL
-                  replicability:
-                    type: string
-                    enum:
-                      - ONCE
-                      - SOMETIMES
-                      - ALWAYS
-                  type:
-                    type: string
-                    enum:
-                      - CRASH
-                      - GRAPHIC
-                      - MALFUNCTION
-                      - OTHER
-                      - PERFORMANCE
-                      - SECURITY
-                      - TYPO
-                      - USABILITY
-                  notes:
-                    type: string
-                  usecase:
-                    type: string
-                  device:
-                    $ref: '#/components/schemas/UserDevice'
-                  media:
-                    type: array
-                    items:
-                      type: string
-                  additional:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        slug:
-                          type: string
-                        value:
-                          type: string
-                      required:
-                        - slug
-                        - value
-                required:
-                  - id
-                  - testerId
-                  - title
-                  - description
-                  - status
-                  - expected
-                  - current
-                  - severity
-                  - replicability
-                  - type
-                  - notes
-                  - usecase
-                  - device
-                  - media
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: Send a user bug on a specific campaign
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              x-examples:
-                example-1:
-                  title: ''
-                  description: ''
-                  expected: ''
-                  current: ''
-                  severity: LOW
-                  replicability: ONCE
-                  type: TYPO
-                  notes: ''
-                  usecase: 1
-                  device: 1
-                  media:
-                    - ''
-                    - ''
-                  additional:
-                    - name: ''
-                      value: ''
-              properties:
-                title:
-                  type: string
-                description:
-                  type: string
-                expected:
-                  type: string
-                current:
-                  type: string
-                severity:
-                  type: string
-                  enum:
-                    - LOW
-                    - MEDIUM
-                    - HIGH
-                    - CRITICAL
-                replicability:
-                  type: string
-                  enum:
-                    - ONCE
-                    - SOMETIMES
-                    - ALWAYS
-                type:
-                  type: string
-                  enum:
-                    - CRASH
-                    - GRAPHIC
-                    - MALFUNCTION
-                    - OTHER
-                    - PERFORMANCE
-                    - SECURITY
-                    - TYPO
-                    - USABILITY
-                notes:
-                  type: string
-                lastSeen:
-                  type: string
-                usecase:
-                  type: integer
-                device:
-                  type: integer
-                media:
-                  type: array
-                  items:
-                    type: string
-                additional:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      slug:
-                        type: string
-                      value:
-                        type: string
-                    required:
-                      - slug
-                      - value
-              required:
-                - title
-                - description
-                - expected
-                - current
-                - severity
-                - replicability
-                - type
-                - notes
-                - lastSeen
-                - usecase
-                - device
-                - media
-      security:
-        - JWT: []
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-        description: the campaign id
-  '/users/me/popups/{popup}':
-    parameters:
-      - schema:
-          type: integer
-        name: popup
-        in: path
-        required: true
-    get:
-      summary: Retrieve and expire popup
-      tags:
-        - User
-      responses:
-        '200':
-          description: OK
-          headers: {}
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - type: object
-                    properties:
-                      id:
-                        type: integer
-                  - $ref: '#/components/schemas/Popup'
-      operationId: get-users-me-popups-popup
-      security:
-        - JWT: []
-      description: Get a single popup. Will set the retrieved popup as expired
-  /users/me/devices:
-    get:
-      summary: Get all your devices
-      tags:
-        - User
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  allOf:
-                    - type: object
-                      properties:
-                        id:
-                          type: number
-                    - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-devices
-      security:
-        - JWT: []
-      description: Get all your device data
-    post:
-      summary: Add a new device to your user
-      operationId: post-users-me-devices
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - properties:
-                      id:
-                        type: number
-                    type: object
-                  - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      description: Add a new device to your user
-      tags:
-        - User
-        - Devices
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                device:
-                  oneOf:
-                    - type: integer
-                      properties: {}
-                    - type: string
-                      properties: {}
-                      enum:
-                        - Notebook
-                        - Desktop
-                        - Ultrabook
-                        - Gaming PC
-                        - Tablet PC / Hybrid
-                operating_system:
-                  type: integer
-              required:
-                - device
-                - operating_system
-        description: ''
-  '/users/me/devices/{deviceId}':
-    parameters:
-      - schema:
-          type: number
-        name: deviceId
-        in: path
-        required: true
-    get:
-      summary: Get one of your devices
-      tags:
-        - User
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - type: object
-                    properties:
-                      id:
-                        type: number
-                  - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-devices-deviceId
-      security:
-        - JWT: []
-      description: Retrieve a single device
-    patch:
-      summary: Edit one of your devices
-      operationId: patch-users-me-devices-deviceId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - type: object
-                    properties:
-                      id:
-                        type: number
-                  - $ref: '#/components/schemas/UserDevice'
-        '304':
-          description: Not Modified
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - type: object
-                    properties:
-                      id:
-                        type: number
-                  - $ref: '#/components/schemas/UserDevice'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                operating_system:
-                  type: integer
-              required:
-                - operating_system
-      security:
-        - JWT: []
-      tags:
-        - Devices
-        - User
-      description: You can change only operating system version
-    delete:
-      summary: Remove one of your devices
-      operationId: delete-users-me-devices-deviceId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      tags:
-        - Devices
-        - User
-      description: The device will be disabled and won't be available for selections and bugs submission. You can't remove a device currently involved in a campaign
-  /users/me/certifications:
-    post:
-      summary: Add one certification to your profile
-      operationId: post-users-me-certifications
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                description: ''
-                x-examples:
-                  example-1:
-                    name: string
-                    area: string
-                    institute: string
-                    achievement_date: '2019-08-24'
-                oneOf:
-                  - $ref: '#/components/schemas/Certification'
-                  - type: object
-                    properties:
-                      message:
-                        type: string
-                    required:
-                      - message
-              examples: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - properties:
-                    certifications:
-                      type: boolean
-                  required:
-                    - certifications
-                - properties:
-                    certification_id:
-                      type: integer
-                    achievement_date:
-                      type: string
-                      format: date
-                  required:
-                    - certification_id
-                    - achievement_date
-              type: object
-      tags:
-        - User
-      description: Add one certification to your profile
-  '/users/me/certifications/{certificationId}':
-    parameters:
-      - schema:
-          type: integer
-        name: certificationId
-        in: path
-        required: true
-        description: The id of the certification
-    delete:
-      summary: Remove a certification from your profile
-      operationId: delete-users-me-certifications-certificationId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      description: The certification will be removed
-      tags:
-        - User
   /users/me/languages:
     post:
       summary: Add one language to your profile
@@ -2788,220 +4023,6 @@ paths:
       tags:
         - User
       description: The language will be removed from your profile
-  '/users/me/additionals/{fieldId}':
-    parameters:
-      - schema:
-          type: integer
-        name: fieldId
-        in: path
-        required: true
-        description: The id of the field to edit
-    put:
-      summary: Edit your custom user fields
-      operationId: put-users-me-additionals-fieldId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                description: ''
-                x-examples:
-                  example-1:
-                    - field_id: 23
-                      name: Linkedin Profile
-                      value: 'https://www.linkedin.com/in/gianpaolosinatra/'
-                oneOf:
-                  - type: array
-                    items:
-                      $ref: '#/components/schemas/AdditionalField'
-                  - $ref: '#/components/schemas/AdditionalField'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - type: array
-                  items:
-                    type: object
-                    properties:
-                      value:
-                        type: string
-                      is_candidate:
-                        type: boolean
-                    required:
-                      - value
-                - type: object
-                  properties:
-                    value:
-                      type: string
-                    is_candidate:
-                      type: boolean
-                  required:
-                    - value
-      security:
-        - JWT: []
-      tags:
-        - User
-      description: The field data will be replaced with your new data
-  /users/me/pending_booty:
-    get:
-      summary: Get all your payments
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      allOf:
-                        - properties:
-                            id:
-                              type: number
-                          required:
-                            - id
-                        - properties:
-                            name:
-                              type: string
-                            amount:
-                              type: object
-                              properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
-                            attributionDate:
-                              type: string
-                              format: date
-                          required:
-                            - name
-                            - amount
-                            - attributionDate
-                      type: object
-                  limit:
-                    type: number
-                  size:
-                    type: number
-                  start:
-                    type: number
-                  total:
-                    type: number
-                required:
-                  - size
-                  - start
-              examples:
-                single-attribution:
-                  value:
-                    results:
-                      - id: 1
-                        name: ''
-                        amount:
-                          value: 10
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                    limit: 10
-                    size: 1
-                    start: 0
-                    total: 1
-                multiple-attributions:
-                  value:
-                    results:
-                      - id: 1
-                        name: ''
-                        amount:
-                          value: 10
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 2
-                        name: ''
-                        amount:
-                          value: 12
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 3
-                        name: ''
-                        amount:
-                          value: 13
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 4
-                        name: ''
-                        amount:
-                          value: 14
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 5
-                        name: ''
-                        amount:
-                          value: 15
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 6
-                        name: ''
-                        amount:
-                          value: 16
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 7
-                        name: ''
-                        amount:
-                          value: 17
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 8
-                        name: ''
-                        amount:
-                          value: 18
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 9
-                        name: ''
-                        amount:
-                          value: 19
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 10
-                        name: ''
-                        amount:
-                          value: 20
-                          currency: EUR
-                        attributionDate: '2019-08-24'
-                    limit: 10
-                    size: 10
-                    start: 0
-                    total: 20
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-pending-booty
-      description: Return all single attributions that dials the pending booty
-      security:
-        - JWT: []
-      parameters:
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
-        - schema:
-            type: string
-            enum:
-              - id
-              - attributionDate
-              - amount
-              - activityName
-          in: query
-          description: The field for item order
-          name: orderBy
-        - $ref: '#/components/parameters/order'
-    parameters: []
   /users/me/payments:
     get:
       summary: Get all your payments
@@ -3521,6 +4542,223 @@ paths:
           in: query
           name: orderBy
           description: The value to order by
+  /users/me/pending_booty:
+    get:
+      summary: Get all your payments
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      allOf:
+                        - properties:
+                            id:
+                              type: number
+                          required:
+                            - id
+                        - properties:
+                            name:
+                              type: string
+                            amount:
+                              type: object
+                              properties:
+                                value:
+                                  type: number
+                                currency:
+                                  type: string
+                            attributionDate:
+                              type: string
+                              format: date
+                          required:
+                            - name
+                            - amount
+                            - attributionDate
+                      type: object
+                  limit:
+                    type: number
+                  size:
+                    type: number
+                  start:
+                    type: number
+                  total:
+                    type: number
+                required:
+                  - size
+                  - start
+              examples:
+                single-attribution:
+                  value:
+                    results:
+                      - id: 1
+                        name: ''
+                        amount:
+                          value: 10
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                    limit: 10
+                    size: 1
+                    start: 0
+                    total: 1
+                multiple-attributions:
+                  value:
+                    results:
+                      - id: 1
+                        name: ''
+                        amount:
+                          value: 10
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 2
+                        name: ''
+                        amount:
+                          value: 12
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 3
+                        name: ''
+                        amount:
+                          value: 13
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 4
+                        name: ''
+                        amount:
+                          value: 14
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 5
+                        name: ''
+                        amount:
+                          value: 15
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 6
+                        name: ''
+                        amount:
+                          value: 16
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 7
+                        name: ''
+                        amount:
+                          value: 17
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 8
+                        name: ''
+                        amount:
+                          value: 18
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 9
+                        name: ''
+                        amount:
+                          value: 19
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                      - id: 10
+                        name: ''
+                        amount:
+                          value: 20
+                          currency: EUR
+                        attributionDate: '2019-08-24'
+                    limit: 10
+                    size: 10
+                    start: 0
+                    total: 20
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-pending-booty
+      description: Return all single attributions that dials the pending booty
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - schema:
+            type: string
+            enum:
+              - id
+              - attributionDate
+              - amount
+              - activityName
+          in: query
+          description: The field for item order
+          name: orderBy
+        - $ref: '#/components/parameters/order'
+    parameters: []
+  /users/me/popups:
+    get:
+      summary: Get your popups
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    once:
+                      type: boolean
+      operationId: get-users-me-popups
+      description: Get all popup defined for your user
+      security:
+        - JWT: []
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: showExpired
+          description: 'Show all popup history, expired popups included'
+        - $ref: '#/components/parameters/order'
+  '/users/me/popups/{popup}':
+    parameters:
+      - schema:
+          type: integer
+        name: popup
+        in: path
+        required: true
+    get:
+      summary: Retrieve and expire popup
+      tags:
+        - User
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                  - $ref: '#/components/schemas/Popup'
+      operationId: get-users-me-popups-popup
+      security:
+        - JWT: []
+      description: Get a single popup. Will set the retrieved popup as expired
   /users/me/rank:
     parameters: []
     get:
@@ -3703,1291 +4941,50 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
-  /custom_user_fields:
-    get:
-      summary: Get all custom user fields
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    group:
-                      type: object
-                      required:
-                        - id
-                        - name
-                      properties:
-                        id:
-                          type: number
-                        name:
-                          $ref: '#/components/schemas/TranslatablePage'
-                        description:
-                          $ref: '#/components/schemas/TranslatablePage'
-                    fields:
-                      type: array
-                      items:
-                        $ref: '#/components/schemas/CustomUserFieldsData'
-                  required:
-                    - group
-              examples: {}
-      operationId: get-customUserFields
-      description: ''
-      security:
-        - JWT: []
-    parameters: []
-  '/countries/{code}/region':
-    get:
-      summary: Get regions
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    value:
-                      type: string
-                  required:
-                    - name
-                    - value
-      operationId: get-regions
-      security:
-        - JWT: []
-      parameters:
-        - schema:
-            type: string
-            default: en
-          in: query
-          name: languageCode
-    parameters:
-      - schema:
-          type: string
-        name: code
-        in: path
-        required: true
-  /payments:
-    get:
-      summary: Get all payments
-      tags: []
-      responses:
-        '200':
-          description: OK
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  limit:
-                    type: number
-                  size:
-                    type: number
-                  start:
-                    type: number
-                  total:
-                    type: number
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        created:
-                          type: string
-                          description: The timestamp (GMT) of the request creation
-                        updated:
-                          type: string
-                          description: The timestamp (GMT) of the request last update
-                        id:
-                          type: number
-                        amount:
-                          type: object
-                          required:
-                            - value
-                            - currency
-                          properties:
-                            value:
-                              type: number
-                            currency:
-                              type: string
-                        type:
-                          type: string
-                          enum:
-                            - paypal
-                            - transferwise
-                        tryber:
-                          type: object
-                          required:
-                            - id
-                            - name
-                            - surname
-                          properties:
-                            id:
-                              type: number
-                            name:
-                              type: string
-                            surname:
-                              type: string
-                        error:
-                          type: string
-                      required:
-                        - created
-                        - updated
-                        - id
-                        - amount
-                        - type
-                        - tryber
-                required:
-                  - size
-                  - start
-                  - items
-              examples:
-                example-1:
-                  value:
-                    limit: 3
-                    size: 3
-                    start: 2
-                    total: 100
-                    items:
-                      - created: '1645096692'
-                        updated: '1645096692'
-                        id: 123
-                        amount:
-                          value: 100
-                          currency: EUR
-                        type: paypal
-                        tryber:
-                          id: 1
-                          name: John
-                          surname: Doe
-                        error: INSUFFICIENT_FUNDS
-                      - created: '1645096692'
-                        updated: '1645096692'
-                        id: 1
-                        amount:
-                          value: 100
-                          currency: EUR
-                        type: paypal
-                        tryber:
-                          id: 1
-                          name: John
-                          surname: Doe
-                        error: GENERIC_ERROR
-                      - created: '1645096692'
-                        updated: '1645096692'
-                        id: 12
-                        amount:
-                          value: 100
-                          currency: EUR
-                        type: transferwise
-                        tryber:
-                          id: 5
-                          name: Pippo
-                          surname: Franco
-                        error: RECEIVER_UNREGISTERED
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      operationId: get-payments
-      security:
-        - JWT: []
-      parameters:
-        - schema:
-            type: string
-            enum:
-              - pending
-              - failed
-          in: query
-          name: status
-          description: The status of the payment
-        - $ref: '#/components/parameters/order'
-        - schema:
-            type: string
-            enum:
-              - created
-              - updated
-              - id
-          in: query
-          name: orderBy
-          description: The value to order by
-        - $ref: '#/components/parameters/start'
-        - $ref: '#/components/parameters/limit'
-        - $ref: '#/components/parameters/filterBy'
-    parameters: []
-  '/payments/{paymentId}':
-    parameters:
-      - schema:
-          type: string
-        name: paymentId
-        in: path
-        required: true
-    post:
-      summary: Pay a request
-      operationId: post-payments-paymentId
-      responses:
-        '200':
-          description: OK
-        '400':
-          description: Bad Request
-          headers: {}
-          content:
-            application/json:
-              schema:
-                description: ''
-                type: object
-                x-examples:
-                  example-1:
-                    element: payments
-                    id: 0
-                    message:
-                      code: GENERIC_ERROR
-                      data: string
-                properties:
-                  element:
-                    type: string
-                    enum:
-                      - payments
-                  id:
-                    type: number
-                  message:
-                    type: object
-                    required:
-                      - code
-                      - data
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - GENERIC_ERROR
-                      data:
-                        type: string
-                required:
-                  - element
-                  - id
-                  - message
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '422':
-          description: Unprocessable Entity (WebDAV)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  element:
-                    type: string
-                    enum:
-                      - payments
-                  id:
-                    type: number
-                  message:
-                    type: object
-                    required:
-                      - code
-                      - data
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - GENERIC_ERROR
-                          - NO_FUNDS
-                          - DUPLICATE_PAYMENT
-                          - IBAN_NOT_VALID
-                          - INSUFFICIENT_FUNDS
-                          - RECEIVER_UNREGISTERED
-                      data:
-                        type: string
-                required:
-                  - element
-                  - id
-                  - message
-              examples: {}
-      description: ''
-      security:
-        - JWT: []
-    delete:
-      summary: Delete payment request from id
-      operationId: delete-payments-paymentId
-      responses:
-        '200':
-          description: OK
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: delete a specific payment request
-      security:
-        - JWT: []
-  /levels:
-    get:
-      summary: Retrive levels definitions
-      tags:
-        - Devices
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/LevelDefinition'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-levels
-      security:
-        - JWT: []
-      description: Get all levels
-      parameters: []
-    parameters: []
-  '/users/me/campaigns/{campaignId}':
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-    get:
-      summary: Get the data for a campaign you are selected in
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  title:
-                    type: string
-                  language:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                    required:
-                      - code
-                      - message
-                  titleRule:
-                    type: boolean
-                  minimumMedia:
-                    type: integer
-                  useCases:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                  additionalFields:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CampaignAdditionalField'
-                  bugTypes:
-                    type: object
-                    required:
-                      - valid
-                      - invalid
-                    properties:
-                      valid:
-                        type: array
-                        items:
-                          type: string
-                      invalid:
-                        type: array
-                        items:
-                          type: string
-                  bugSeverity:
-                    type: object
-                    required:
-                      - valid
-                      - invalid
-                    properties:
-                      valid:
-                        type: array
-                        items:
-                          type: string
-                      invalid:
-                        type: array
-                        items:
-                          type: string
-                  bugReplicability:
-                    type: object
-                    required:
-                      - valid
-                      - invalid
-                    properties:
-                      valid:
-                        type: array
-                        items:
-                          type: string
-                      invalid:
-                        type: array
-                        items:
-                          type: string
-                  hasBugForm:
-                    type: boolean
-                  devices:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          properties:
-                            id:
-                              type: integer
-                          required:
-                            - id
-                        - $ref: '#/components/schemas/UserDevice'
-                  validFileExtensions:
-                    type: array
-                    items:
-                      type: string
-                required:
-                  - id
-                  - title
-                  - minimumMedia
-                  - useCases
-                  - bugTypes
-                  - bugSeverity
-                  - bugReplicability
-                  - hasBugForm
-                  - validFileExtensions
-              examples:
-                full:
-                  value:
-                    id: 123
-                    title: My campaign
-                    language:
-                      code: IT
-                      message: In questa campagna vanno caricati i bug in italiano
-                    titleRule: true
-                    minimumMedia: 3
-                    useCases:
-                      - id: 0
-                        name: Not a specific Use Case
-                      - id: 4123
-                        name: Use case 1 - Signup
-                    additionalFields:
-                      - name: Browser Used
-                        slug: browser-used
-                        type: select
-                        options:
-                          - Chrome
-                          - Safari
-                        error: You have to select a browser
-                      - name: Codice Cliente
-                        slug: codice-cliente
-                        type: text
-                        regex: '[A-Z]{3}[0-9]{4}'
-                        error: Il codice cliente è obbligatorio nel formato AAA1234
-                    bugTypes:
-                      valid:
-                        - CRASH
-                        - TYPO
-                      invalid:
-                        - PERFORMANCE
-                    bugSeverity:
-                      valid:
-                        - LOW
-                        - MEDIUM
-                      invalid:
-                        - HIGH
-                        - CRITICAL
-                    bugReplicability:
-                      valid:
-                        - ALWAYS
-                        - SOMETIMES
-                      invalid:
-                        - ONCE
-                    hasBugForm: true
-                    devices:
-                      - id: 1
-                        type: Smartphone
-                        device:
-                          manufacturer: Apple
-                          model: iPhone X
-                          id: 123
-                        operating_system:
-                          id: 234
-                          platform: Apple
-                          version: iOs 12
-                      - id: 2
-                        type: Smartphone
-                        device:
-                          manufacturer: Apple
-                          model: iPhone 6
-                          id: 123
-                        operating_system:
-                          id: 234
-                          platform: Apple
-                          version: iOs 10
-                    validFileExtensions:
-                      - jpg
-                      - png
-                      - mov
-                      - mp4
-                with-bugform-disabled:
-                  value:
-                    id: 123
-                    title: My campaign
-                    titleRule: true
-                    minimumMedia: 3
-                    useCases: []
-                    bugTypes:
-                      valid:
-                        - CRASH
-                        - TYPO
-                        - PERFORMANCE
-                      invalid: []
-                    bugSeverity:
-                      valid:
-                        - LOW
-                        - MEDIUM
-                        - HIGH
-                        - CRITICAL
-                      invalid: []
-                    bugReplicability:
-                      valid:
-                        - ALWAYS
-                        - SOMETIMES
-                        - ONCE
-                      invalid: []
-                    hasBugForm: false
-                    devices: []
-                    validFileExtensions:
-                      - jpg
-                      - png
-                      - mov
-                      - mp4
-                with-only-one-device:
-                  value:
-                    id: 123
-                    title: My campaign
-                    titleRule: true
-                    minimumMedia: 3
-                    useCases:
-                      - id: 0
-                        name: Not a specific Use Case
-                      - id: 4123
-                        name: Use case 1 - Signup
-                    bugTypes:
-                      valid:
-                        - CRASH
-                        - TYPO
-                        - PERFORMANCE
-                      invalid: []
-                    bugSeverity:
-                      valid:
-                        - LOW
-                        - MEDIUM
-                        - HIGH
-                        - CRITICAL
-                      invalid: []
-                    bugReplicability:
-                      valid:
-                        - ALWAYS
-                        - SOMETIMES
-                        - ONCE
-                      invalid: []
-                    hasBugForm: true
-                    devices:
-                      - id: 1
-                        type: Smartphone
-                        device:
-                          manufacturer: Apple
-                          model: iPhone X
-                          id: 123
-                        operating_system:
-                          id: 234
-                          platform: Apple
-                          version: iOs 12
-                    validFileExtensions:
-                      - jpg
-                      - png
-                      - mov
-                      - mp4
-                without-device:
-                  value:
-                    id: 123
-                    title: My campaign
-                    titleRule: true
-                    minimumMedia: 3
-                    useCases:
-                      - id: 0
-                        name: Not a specific Use Case
-                      - id: 4123
-                        name: Use case 1 - Signup
-                    bugTypes:
-                      valid:
-                        - CRASH
-                        - TYPO
-                        - PERFORMANCE
-                      invalid: []
-                    bugSeverity:
-                      valid:
-                        - LOW
-                        - MEDIUM
-                        - HIGH
-                        - CRITICAL
-                      invalid: []
-                    bugReplicability:
-                      valid:
-                        - ALWAYS
-                        - SOMETIMES
-                        - ONCE
-                      invalid: []
-                    hasBugForm: true
-                    validFileExtensions:
-                      - jpg
-                      - png
-                      - mov
-                      - mp4
-      operationId: get-users-me-campaigns-campaignId
-      description: ''
-      security:
-        - JWT: []
-  '/users/me/campaigns/{campaignId}/media':
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-    post:
-      summary: Upload media for a bug
-      operationId: post-users-me-campaigns-campaignId-media
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  files:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        path:
-                          type: string
-                      required:
-                        - name
-                        - path
-                  failed:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        errorCode:
-                          type: string
-                          enum:
-                            - FILE_TOO_BIG
-                            - INVALID_FILE_EXTENSION
-                            - GENERIC_ERROR
-                      required:
-                        - name
-                        - errorCode
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                media:
-                  oneOf:
-                    - type: string
-                      properties: {}
-                    - type: array
-                      items:
-                        type: string
-  '/users/me/campaigns/{campaignId}/devices':
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-    get:
-      summary: Get the device available for this campaign
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserDevice'
-              examples:
-                single-device:
-                  value:
-                    - type: PC
-                      id: 1
-                      device:
-                        pc_type: Desktop
-                      operating_system:
-                        id: 781
-                        platform: MacOS
-                        version: Mac OS X 10.15 (Catalina) (10.15.5)
-                multiple-devices:
-                  value:
-                    - type: Smartphone
-                      id: 28440
-                      device:
-                        manufacturer: Airo Wireless
-                        model: A25is
-                        id: 5333
-                      operating_system:
-                        id: 729
-                        platform: Windows Mobile Professional
-                        version: Windows Mobile 6.5 (6.5)
-                    - type: PC
-                      id: 27723
-                      device:
-                        pc_type: Desktop
-                      operating_system:
-                        id: 781
-                        platform: MacOS
-                        version: Mac OS X 10.15 (Catalina) (10.15.5)
-                    - type: PC
-                      id: 28438
-                      device:
-                        pc_type: Desktop
-                      operating_system:
-                        id: 792
-                        platform: MacOS
-                        version: Mac OS X 10.15 (Catalina) (10.15.6)
-                    - type: PC
-                      id: 27721
-                      device:
-                        pc_type: Notebook
-                      operating_system:
-                        id: 772
-                        platform: Windows
-                        version: Windows 10 November 2019 Update (18363.778)
-                    - type: PC
-                      id: 27722
-                      device:
-                        pc_type: Ultrabook
-                      operating_system:
-                        id: 771
-                        platform: Windows
-                        version: Windows 10 May 2019 Update (18362)
-                    - type: Smart-tv
-                      id: 28439
-                      device:
-                        manufacturer: Bang & Olufsen
-                        model: BeoVision 11 40"
-                        id: 47400
-                      operating_system:
-                        id: 822
-                        platform: Fire TV
-                        version: Fire OS 7 (7)
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-campaigns-campaignId-devices
-      security:
-        - JWT: []
-  '/campaigns/forms/{formId}':
-    parameters:
-      - schema:
-          type: string
-        name: formId
-        in: path
-        required: true
-    get:
-      summary: Get a preselection form
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: number
-                  name:
-                    type: string
-                    example: My form
-                  campaign:
-                    type: object
-                    properties:
-                      id:
-                        type: number
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
-                  fields:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          properties:
-                            id:
-                              type: number
-                          required:
-                            - id
-                        - $ref: '#/components/schemas/PreselectionFormQuestion'
-                required:
-                  - id
-                  - name
-                  - fields
-              examples:
-                Basic Example:
-                  value:
-                    id: 15
-                    name: My form
-                    fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
-                        type: gender
-                Basic Example with linked Campaign:
-                  value:
-                    id: 15
-                    name: My form
-                    campaign:
-                      id: 1
-                      name: My campaign
-                    fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf select question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
-                        type: gender
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-forms-formId
-      description: ''
-      security:
-        - JWT: []
-    put:
-      summary: Edit a preselection form
-      operationId: put-campaigns-forms-formId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  example-1:
-                    id: 15
-                    name: My form
-                    fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
-                        type: gender
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  fields:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          properties:
-                            id:
-                              type: number
-                          required:
-                            - id
-                        - $ref: '#/components/schemas/PreselectionFormQuestion'
-                  campaign:
-                    type: object
-                    properties:
-                      id:
-                        type: number
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
-                required:
-                  - id
-                  - name
-                  - fields
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              x-examples:
-                example-1:
-                  name: My form
-                  campaign: 1
-                  fields:
-                    - id: 3
-                      question: 'What''s your [custom question]?'
-                      type: text
-                    - id: 12
-                      question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - id: 9
-                      question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - id: 24
-                      question: 'What''s your [cuf text question]?'
-                      type: cuf_1
-                    - id: 29
-                      question: 'What''s your [cuf select question]?'
-                      type: cuf_12
-                      options:
-                        - 1
-                        - 5
-                        - 7
-                        - 14
-                    - question: 'What''s your [profile question]?'
-                      type: gender
-              properties:
-                name:
-                  type: string
-                campaign:
-                  type: integer
-                fields:
-                  type: array
-                  items:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: number
-                      - $ref: '#/components/schemas/PreselectionFormQuestion'
-              required:
-                - name
-                - fields
-            examples:
-              Basic Example:
-                value:
-                  name: My form
-                  campaign: 2
-                  fields:
-                    - id: 3
-                      question: 'What''s your [custom question]?'
-                      type: text
-                    - id: 12
-                      question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - id: 9
-                      question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - id: 24
-                      question: 'What''s your [cuf text question]?'
-                      type: cuf_1
-                    - id: 29
-                      question: 'What''s your [cuf select question]?'
-                      type: cuf_12
-                      options:
-                        - 1
-                        - 5
-                        - 9
-                        - 14
-                    - question: 'What''s your [profile question]?'
-                      type: gender
-      description: ''
-  /campaigns/forms:
-    post:
-      summary: Create a new preselection form
-      operationId: post-campaigns-forms
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                  campaign:
-                    type: object
-                    properties:
-                      id:
-                        type: number
-                      name:
-                        type: string
-                    required:
-                      - id
-                      - name
-                  fields:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          properties:
-                            id:
-                              type: integer
-                          required:
-                            - id
-                        - $ref: '#/components/schemas/PreselectionFormQuestion'
-                required:
-                  - id
-                  - name
-              examples:
-                Basic Example:
-                  value:
-                    id: 15
-                    name: My form
-                    fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
-                        type: gender
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              x-examples:
-                example-1:
-                  name: My form
-                  fields:
-                    - question: 'What''s your [custom question]?'
-                      type: text
-                    - question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - question: 'What''s your [cuf text question]?'
-                      type: cuf_1
-                    - question: 'What''s your [cuf text question]?'
-                      type: cuf_12
-                      options:
-                        - 1
-                        - 5
-                        - 14
-                    - question: 'What''s your [profile question]?'
-                      type: gender
-              properties:
-                name:
-                  type: string
-                fields:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/PreselectionFormQuestion'
-                campaign:
-                  type: integer
-              required:
-                - name
-                - fields
-      description: ''
-    parameters: []
 components:
   schemas:
-    Project:
-      title: Project
+    AdditionalField:
+      description: ''
       type: object
       x-examples:
         example-1:
-          name: string
-          campaigns:
-            - name: string
-              customer_title: string
-              internal_id: string
-              dates:
-                start: string
-                end: string
-                close: string
-              status: true
-              language: string
-              public: true
-              hasBugParade: true
-              devices:
-                - id: string
-              minNumberOfMedia: 0
-              titleRule: true
-              allowed:
-                severities:
-                  - id: string
-                bug_types:
-                  - id: string
-                replicabilities:
-                  - id: string
-              projectManager:
-                id: 0
-                name: string
-              customerCanViewReviewing: true
-              additionalFields:
-                - id: string
-              id: 0
+          field_id: 12
+          name: My field name
+          value: My field value
       properties:
+        field_id:
+          type: number
         name:
           type: string
-    Campaign:
-      description: ''
+          minLength: 1
+        value:
+          type: string
+        text:
+          type: string
+        is_candidate:
+          type: boolean
+      required:
+        - field_id
+        - name
+        - value
+    Bug:
+      title: Bug
+      type: object
       x-examples: {}
-      allOf:
-        - $ref: '#/components/schemas/CampaignOptional'
-        - $ref: '#/components/schemas/CampaignRequired'
+      properties:
+        severity:
+          $ref: '#/components/schemas/BugSeverity'
+        status:
+          $ref: '#/components/schemas/BugStatus'
+        campaign:
+          allOf:
+            - $ref: '#/components/schemas/CampaignOptional'
+            - type: object
+              properties:
+                id:
+                  type: integer
+        title:
+          type: string
     BugSeverity:
       title: BugSeverity
       type: object
@@ -4996,44 +4993,68 @@ components:
           type: integer
         name:
           type: string
+    BugStatus:
+      title: BugStatus
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
     BugType:
       title: BugType
       type: object
       properties:
         id:
           type: integer
-    Replicability:
-      title: Replicability
-      type: object
-      properties:
-        id:
-          type: string
-    MonthlyLevel:
-      title: MonthlyLevel
-      type: object
-      properties:
-        id:
-          type: number
-        name:
-          type: string
-      required:
-        - id
-        - name
+    Campaign:
       description: ''
-      x-internal: false
       x-examples: {}
-    Task:
-      title: Task
       allOf:
-        - $ref: '#/components/schemas/TaskOptional'
-        - $ref: '#/components/schemas/TaskRequired'
-    Customer:
+        - $ref: '#/components/schemas/CampaignOptional'
+        - $ref: '#/components/schemas/CampaignRequired'
+    CampaignAdditionalField:
+      title: CampaignAdditionalField
       allOf:
-        - $ref: '#/components/schemas/User'
-        - properties:
-            customer_name:
+        - type: object
+          properties:
+            name:
               type: string
-          type: object
+            slug:
+              type: string
+            error:
+              type: string
+          required:
+            - name
+            - slug
+            - error
+        - oneOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - select
+                options:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - type
+                - options
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - text
+                regex:
+                  type: string
+              required:
+                - type
+                - regex
     CampaignField:
       title: CampaignField
       type: object
@@ -5239,221 +5260,12 @@ components:
         - devices
         - projectManager
         - campaign_type
-    TaskOptional:
-      description: ''
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-        content:
-          type: string
-          minLength: 1
-        campaign_id:
-          type: number
-        group:
-          type: number
-          minimum: 0
-          maximum: 4
-        allow_media:
-          type: boolean
-    TaskRequired:
-      description: ''
-      type: object
-      x-examples:
-        example-1:
-          name: string
-          content: string
-          campaign_id: 0
-          group: 0
-          allow_media: true
-      properties:
-        name:
-          type: string
-          minLength: 1
-        content:
-          type: string
-          minLength: 1
-        campaign_id:
-          type: number
-      required:
-        - name
-        - content
-        - campaign_id
     CampaignType:
       oneOf:
         - type: string
           properties: {}
         - properties: {}
           type: number
-    User:
-      title: User
-      type: object
-      description: ''
-      properties:
-        username:
-          type: string
-        name:
-          type: string
-        surname:
-          type: string
-        email:
-          type: string
-          format: email
-        image:
-          type: string
-          format: uri
-        id:
-          type: integer
-        wp_user_id:
-          type: integer
-        role:
-          type: string
-        is_verified:
-          type: boolean
-      x-examples:
-        example-1:
-          value:
-            username: string
-            name: string
-            surname: string
-            email: user@example.com
-            image: 'http://example.com'
-            id: 0
-            wp_user_id: 0
-            role: string
-            is_verified: true
-    Bug:
-      title: Bug
-      type: object
-      x-examples: {}
-      properties:
-        severity:
-          $ref: '#/components/schemas/BugSeverity'
-        status:
-          $ref: '#/components/schemas/BugStatus'
-        campaign:
-          allOf:
-            - $ref: '#/components/schemas/CampaignOptional'
-            - type: object
-              properties:
-                id:
-                  type: integer
-        title:
-          type: string
-    BugStatus:
-      title: BugStatus
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        description:
-          type: string
-    Popup:
-      description: ''
-      type: object
-      x-examples: {}
-      properties:
-        profiles:
-          oneOf:
-            - type: array
-              items:
-                type: integer
-            - type: string
-              enum:
-                - all
-                - italian
-                - non-italian
-                - logged-in-year
-                - not-logged-in-year
-              example: all
-        once:
-          type: boolean
-        content:
-          type: string
-          minLength: 1
-        title:
-          type: string
-    TranslatablePage:
-      title: TranslatablePage
-      type: object
-      properties:
-        en:
-          type: string
-        it:
-          type: string
-        es:
-          type: string
-    UserDevice:
-      title: UserDevice
-      type: object
-      properties:
-        type:
-          type: string
-        id:
-          type: number
-        device:
-          oneOf:
-            - properties:
-                manufacturer:
-                  type: string
-                model:
-                  type: string
-                id:
-                  type: number
-              required:
-                - manufacturer
-                - model
-            - properties:
-                pc_type:
-                  type: string
-              required:
-                - pc_type
-          type: object
-        operating_system:
-          type: object
-          required:
-            - id
-            - platform
-            - version
-          properties:
-            id:
-              type: number
-            platform:
-              type: string
-            version:
-              type: string
-      required:
-        - type
-        - id
-        - device
-        - operating_system
-    AdditionalField:
-      description: ''
-      type: object
-      x-examples:
-        example-1:
-          field_id: 12
-          name: My field name
-          value: My field value
-      properties:
-        field_id:
-          type: number
-        name:
-          type: string
-          minLength: 1
-        value:
-          type: string
-        text:
-          type: string
-        is_candidate:
-          type: boolean
-      required:
-        - field_id
-        - name
-        - value
     Certification:
       description: ''
       type: object
@@ -5480,14 +5292,13 @@ components:
         - area
         - institute
         - achievement_date
-    FiscalType:
-      type: string
-      title: FiscalType
-      enum:
-        - withholding
-        - witholding-extra
-        - other
-        - non-italian
+    Customer:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - properties:
+            customer_name:
+              type: string
+          type: object
     CustomUserFieldsData:
       title: CustomUserFieldsData
       type: object
@@ -5523,6 +5334,15 @@ components:
       required:
         - id
         - name
+    CustomUserFieldsType:
+      type: string
+      title: CustomUserFieldsType
+      x-stoplight:
+        id: owpjzbp3zweqe
+      enum:
+        - text
+        - select
+        - multiselect
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:
@@ -5541,25 +5361,14 @@ components:
           required:
             - placeId
       type: object
-    RankingItem:
-      type: object
-      properties:
-        position:
-          type: integer
-        image:
-          type: string
-        id:
-          type: integer
-        name:
-          type: string
-        monthly_exp:
-          type: integer
-      required:
-        - position
-        - image
-        - id
-        - name
-        - monthly_exp
+    FiscalType:
+      type: string
+      title: FiscalType
+      enum:
+        - withholding
+        - witholding-extra
+        - other
+        - non-italian
     LevelDefinition:
       title: LevelDefinition
       type: object
@@ -5576,55 +5385,45 @@ components:
       required:
         - id
         - name
-    CampaignAdditionalField:
-      title: CampaignAdditionalField
-      allOf:
-        - type: object
-          properties:
-            name:
-              type: string
-            slug:
-              type: string
-            error:
-              type: string
-          required:
-            - name
-            - slug
-            - error
-        - oneOf:
-            - type: object
-              properties:
-                type:
-                  type: string
-                  enum:
-                    - select
-                options:
-                  type: array
-                  items:
-                    type: string
-              required:
-                - type
-                - options
-            - type: object
-              properties:
-                type:
-                  type: string
-                  enum:
-                    - text
-                regex:
-                  type: string
-              required:
-                - type
-                - regex
-    CustomUserFieldsType:
-      type: string
-      title: CustomUserFieldsType
-      x-stoplight:
-        id: owpjzbp3zweqe
-      enum:
-        - text
-        - select
-        - multiselect
+    MonthlyLevel:
+      title: MonthlyLevel
+      type: object
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+      required:
+        - id
+        - name
+      description: ''
+      x-internal: false
+      x-examples: {}
+    Popup:
+      description: ''
+      type: object
+      x-examples: {}
+      properties:
+        profiles:
+          oneOf:
+            - type: array
+              items:
+                type: integer
+            - type: string
+              enum:
+                - all
+                - italian
+                - non-italian
+                - logged-in-year
+                - not-logged-in-year
+              example: all
+        once:
+          type: boolean
+        content:
+          type: string
+          minLength: 1
+        title:
+          type: string
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
@@ -5679,6 +5478,207 @@ components:
                     - address
               required:
                 - type
+    Project:
+      title: Project
+      type: object
+      x-examples:
+        example-1:
+          name: string
+          campaigns:
+            - name: string
+              customer_title: string
+              internal_id: string
+              dates:
+                start: string
+                end: string
+                close: string
+              status: true
+              language: string
+              public: true
+              hasBugParade: true
+              devices:
+                - id: string
+              minNumberOfMedia: 0
+              titleRule: true
+              allowed:
+                severities:
+                  - id: string
+                bug_types:
+                  - id: string
+                replicabilities:
+                  - id: string
+              projectManager:
+                id: 0
+                name: string
+              customerCanViewReviewing: true
+              additionalFields:
+                - id: string
+              id: 0
+      properties:
+        name:
+          type: string
+    RankingItem:
+      type: object
+      properties:
+        position:
+          type: integer
+        image:
+          type: string
+        id:
+          type: integer
+        name:
+          type: string
+        monthly_exp:
+          type: integer
+      required:
+        - position
+        - image
+        - id
+        - name
+        - monthly_exp
+    Replicability:
+      title: Replicability
+      type: object
+      properties:
+        id:
+          type: string
+    Task:
+      title: Task
+      allOf:
+        - $ref: '#/components/schemas/TaskOptional'
+        - $ref: '#/components/schemas/TaskRequired'
+    TaskOptional:
+      description: ''
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        campaign_id:
+          type: number
+        group:
+          type: number
+          minimum: 0
+          maximum: 4
+        allow_media:
+          type: boolean
+    TaskRequired:
+      description: ''
+      type: object
+      x-examples:
+        example-1:
+          name: string
+          content: string
+          campaign_id: 0
+          group: 0
+          allow_media: true
+      properties:
+        name:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+        campaign_id:
+          type: number
+      required:
+        - name
+        - content
+        - campaign_id
+    TranslatablePage:
+      title: TranslatablePage
+      type: object
+      properties:
+        en:
+          type: string
+        it:
+          type: string
+        es:
+          type: string
+    User:
+      title: User
+      type: object
+      description: ''
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+          format: email
+        image:
+          type: string
+          format: uri
+        id:
+          type: integer
+        wp_user_id:
+          type: integer
+        role:
+          type: string
+        is_verified:
+          type: boolean
+      x-examples:
+        example-1:
+          value:
+            username: string
+            name: string
+            surname: string
+            email: user@example.com
+            image: 'http://example.com'
+            id: 0
+            wp_user_id: 0
+            role: string
+            is_verified: true
+    UserDevice:
+      title: UserDevice
+      type: object
+      properties:
+        type:
+          type: string
+        id:
+          type: number
+        device:
+          oneOf:
+            - properties:
+                manufacturer:
+                  type: string
+                model:
+                  type: string
+                id:
+                  type: number
+              required:
+                - manufacturer
+                - model
+            - properties:
+                pc_type:
+                  type: string
+              required:
+                - pc_type
+          type: object
+        operating_system:
+          type: object
+          required:
+            - id
+            - platform
+            - version
+          properties:
+            id:
+              type: number
+            platform:
+              type: string
+            version:
+              type: string
+      required:
+        - type
+        - id
+        - device
+        - operating_system
   securitySchemes:
     JWT:
       type: http
