@@ -60,6 +60,13 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     await db.query(sql);
   }
 
+  public async insert(
+    data: Partial<T["fields"]>
+  ): Promise<{ insertId: number }> {
+    const sql = this.constructInsertQuery({ data });
+    return await db.query(sql);
+  }
+
   public async delete(where: Partial<T["fields"]>[]) {
     const sql = this.constructDeleteQuery({ where });
     await db.query(sql);
@@ -95,6 +102,18 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
       `UPDATE ${this.table} SET ${dataKeys
         .map((key) => `${key} = ?`)
         .join(",")} ${where ? this.constructWhereQuery(where) : ""}`,
+      dataValues
+    );
+    return sql;
+  }
+
+  private constructInsertQuery({ data }: { data: Partial<T["fields"]> }) {
+    const dataKeys = Object.keys(data);
+    const dataValues = Object.values(data);
+    const sql = db.format(
+      `INSERT INTO ${this.table} (${dataKeys
+        .map((key) => `${key}`)
+        .join(",")}) VALUES (${dataValues.map((value) => `?`).join(",")})`,
       dataValues
     );
     return sql;

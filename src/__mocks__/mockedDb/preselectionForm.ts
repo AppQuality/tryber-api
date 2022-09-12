@@ -4,6 +4,7 @@ type PreselectionFormParams = {
   id?: number;
   campaign_id?: number;
   name?: string;
+  author?: number;
 };
 const defaultItem: PreselectionFormParams = {
   id: 1,
@@ -15,6 +16,7 @@ class PreselectionForm extends Table<PreselectionFormParams> {
     "id INTEGER PRIMARY KEY",
     "campaign_id INTEGER",
     "name VARCHAR(255)",
+    "author INTEGER",
   ];
   constructor() {
     super(defaultItem);

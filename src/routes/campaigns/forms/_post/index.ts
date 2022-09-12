@@ -1,13 +1,25 @@
 /** OPENAPI-CLASS: post-campaigns-forms */
 import UserRoute from "@src/features/routes/UserRoute";
-import * as db from "@src/features/db";
 import FieldCreator from "../FieldCreator";
-import { ConfigurationOptions } from "aws-sdk";
+import PreselectionForms from "@src/features/db/class/PreselectionForms";
+import Campaigns from "@src/features/db/class/Campaigns";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-campaigns-forms"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-campaigns-forms"]["requestBody"]["content"]["application/json"];
 }> {
+  private db: {
+    forms: PreselectionForms;
+    campaigns: Campaigns;
+  };
+
+  constructor(options: RouteItem["configuration"]) {
+    super(options);
+    this.db = {
+      forms: new PreselectionForms(),
+      campaigns: new Campaigns(),
+    };
+  }
   protected async filter() {
     if ((await super.filter()) === false) return false;
 
@@ -38,53 +50,31 @@ export default class RouteItem extends UserRoute<{
   private async createForm() {
     const body = this.getBody();
 
-    const columns = ["name"];
-    const data: (number | string)[] = [body.name];
-    if (body.campaign) {
-      columns.push("campaign_id");
-      data.push(body.campaign);
-    }
+    const result = await this.db.forms.insert({
+      name: body.name,
+      campaign_id: body.campaign ? body.campaign : undefined,
+    });
 
-    const result = await db.query(
-      db.format(
-        `INSERT INTO wp_appq_campaign_preselection_form
-     ( ${columns.join(",")} ) 
-     VALUES (${Array(columns.length).fill("?").join(",")})`,
-        data
-      )
-    );
     return await this.getForm(result.insertId);
   }
 
   private async getForm(id: number) {
-    const forms: { id: number; name: string; campaign_id: number }[] =
-      await db.query(
-        db.format(
-          `SELECT id, name, campaign_id FROM wp_appq_campaign_preselection_form WHERE id = ? LIMIT 1`,
-          [id]
-        )
-      );
-
-    if (forms.length === 0) throw new Error("Failed to create form");
-    const result = forms[0];
-
-    return {
-      id: result.id,
-      name: result.name,
-      campaign: result.campaign_id
-        ? await getCampaign(result.campaign_id)
-        : undefined,
+    const form = await this.db.forms.get(id);
+    const result = {
+      id: form.id,
+      name: form.name,
     };
-
-    async function getCampaign(campaign_id: number) {
-      const result: { id: number; name: string }[] = await db.query(
-        db.format(
-          `SELECT id, title as name FROM wp_appq_evd_campaign WHERE id = ? `,
-          [campaign_id]
-        )
-      );
-      return result[0];
+    if (form.campaign_id) {
+      const campaign = await this.db.campaigns.get(form.campaign_id);
+      return {
+        ...result,
+        campaign: {
+          id: campaign.id,
+          name: campaign.title,
+        },
+      };
     }
+    return result;
   }
 
   private async createFields(formId: number) {
