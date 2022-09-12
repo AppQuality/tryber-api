@@ -80,6 +80,26 @@ describe("POST /campaigns/forms/", () => {
     expect(response.body).toHaveProperty("name", sampleBody.name);
   });
 
+  it("Should save the operator id in the form", async () => {
+    const response = await request(app)
+      .post("/campaigns/forms/")
+      .send(sampleBody)
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const newForm = await PreselectionForm.all(
+      ["author"],
+      [
+        {
+          id: response.body.id,
+        },
+      ]
+    );
+    expect(newForm.length).toBe(1);
+    expect(newForm[0]).toHaveProperty("author", 1);
+  });
+
   it("Should create a field for each field passed as body", async () => {
     const textField = {
       question: "My text question",

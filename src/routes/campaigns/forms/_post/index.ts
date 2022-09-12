@@ -52,6 +52,7 @@ export default class RouteItem extends UserRoute<{
 
     const result = await this.db.forms.insert({
       name: body.name,
+      author: this.getTesterId(),
       campaign_id: body.campaign ? body.campaign : undefined,
     });
 
