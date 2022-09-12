@@ -1,7 +1,9 @@
 /** OPENAPI-CLASS: put-campaigns-forms-formId */
 import UserRoute from "@src/features/routes/UserRoute";
 import FieldCreator from "../../FieldCreator";
-import * as db from "@src/features/db";
+import Campaigns from "@src/features/db/class/Campaigns";
+import PreselectionForms from "@src/features/db/class/PreselectionForms";
+import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["put-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
@@ -9,6 +11,21 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["put-campaigns-forms-formId"]["parameters"]["path"];
 }> {
   private campaignId: number | undefined;
+  private db: {
+    forms: PreselectionForms;
+    campaigns: Campaigns;
+    fields: PreselectionFormFields;
+  };
+
+  constructor(options: RouteItem["configuration"]) {
+    super(options);
+    this.db = {
+      forms: new PreselectionForms(),
+      campaigns: new Campaigns(),
+      fields: new PreselectionFormFields(),
+    };
+  }
+
   protected async init() {
     const { formId } = this.getParameters();
     this.setId(parseInt(formId));
@@ -21,37 +38,32 @@ export default class RouteItem extends UserRoute<{
       throw new Error("Form doesn't exist");
     }
 
-    const sql = `SELECT campaign_id FROM wp_appq_campaign_preselection_form WHERE id = ? `;
-    const results = await db.query(db.format(sql, [this.getId()]));
-    this.campaignId = results[0].campaign_id
-      ? results[0].campaign_id
-      : undefined;
+    const { campaign_id } = await this.db.forms.get(this.getId());
+    this.campaignId = campaign_id ? campaign_id : undefined;
   }
 
   private async formExists() {
-    const sql = `SELECT id FROM wp_appq_campaign_preselection_form WHERE id = ? `;
-    const results = await db.query(db.format(sql, [this.getId()]));
-    return results.length !== 0;
+    return this.db.forms.exists(this.getId());
   }
 
   protected async filter() {
     if ((await super.filter()) === false) return false;
 
     if (this.hasCapability("manage_preselection_forms") === false) {
-      this.setError(
-        403,
-        new Error(`You are not authorized to do this`) as OpenapiError
-      );
-      return false;
+      return this.setUnauthorizedError();
     }
     if (this.campaignId && !this.hasAccessToCampaign(this.campaignId)) {
-      this.setError(
-        403,
-        new Error(`You are not authorized to do this`) as OpenapiError
-      );
-      return false;
+      return this.setUnauthorizedError();
     }
     return true;
+  }
+
+  private setUnauthorizedError() {
+    this.setError(
+      403,
+      new Error(`You are not authorized to do this`) as OpenapiError
+    );
+    return false;
   }
 
   protected async prepare() {
@@ -71,15 +83,14 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async editForm() {
-    const { name } = this.getBody();
-    const { campaign } = this.getBody();
-    if (campaign) {
-      const sql = `UPDATE wp_appq_campaign_preselection_form SET campaign_id = ? WHERE id = ?`;
-      await db.query(db.format(sql, [campaign, this.getId()]));
-    }
-
-    const sql = `UPDATE wp_appq_campaign_preselection_form SET name = ? WHERE id = ?`;
-    await db.query(db.format(sql, [name, this.getId()]));
+    const { name, campaign } = this.getBody();
+    await this.db.forms.update({
+      data: {
+        name,
+        campaign_id: campaign ? campaign : undefined,
+      },
+      where: [{ id: this.getId() }],
+    });
   }
 
   private async editFields() {
@@ -97,42 +108,23 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async clearFields() {
-    const sql = `DELETE FROM wp_appq_campaign_preselection_form_fields WHERE form_id = ?`;
-    await db.query(db.format(sql, [this.getId()]));
+    await this.db.fields.delete([{ form_id: this.getId() }]);
   }
 
   private async getForm() {
-    const sql = `SELECT name, campaign_id
-        FROM wp_appq_campaign_preselection_form 
-        WHERE id = ?  
-        LIMIT 1`;
-    const results: { name: string; campaign_id: number }[] = await db.query(
-      db.format(sql, [this.getId()])
-    );
-    const form = results.pop();
-    if (!form) throw new Error("Can't find the form");
-    if (!form.campaign_id) {
-      return {
-        name: form?.name,
-        fields: [],
-      };
-    }
+    const form = await this.db.forms.get(this.getId());
+    const campaign = form.campaign_id
+      ? await this.db.campaigns.get(form.campaign_id)
+      : undefined;
     return {
-      name: form?.name,
+      name: form.name,
       fields: [],
-      campaign: await getCampaign(form.campaign_id),
+      campaign: campaign
+        ? {
+            id: campaign.id,
+            name: campaign.title,
+          }
+        : undefined,
     };
-
-    async function getCampaign(id: number) {
-      const campaigns: { name: string; id: number }[] = await db.query(
-        db.format(
-          `SELECT id, title as name FROM wp_appq_evd_campaign 
-            WHERE id = ? `,
-          [id]
-        )
-      );
-      if (!campaigns.length) throw new Error("Can't find campaign");
-      return campaigns[0];
-    }
   }
 }
