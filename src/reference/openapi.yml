@@ -627,6 +627,8 @@ paths:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/start'
       description: ''
+      security:
+        - JWT: []
   '/campaigns/forms/{formId}':
     parameters:
       - schema:
