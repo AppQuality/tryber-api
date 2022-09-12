@@ -87,6 +87,7 @@ export default class RouteItem extends UserRoute<{
     await this.db.forms.update({
       data: {
         name,
+        author: this.getTesterId(),
         campaign_id: campaign ? campaign : undefined,
       },
       where: [{ id: this.getId() }],

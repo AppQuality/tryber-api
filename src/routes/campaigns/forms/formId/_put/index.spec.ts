@@ -168,6 +168,20 @@ describe("PUT /campaigns/forms/", () => {
     expect(form[0]).toHaveProperty("name", "New name");
   });
 
+  it("Should save the operator id in the form", async () => {
+    const response = await request(app)
+      .put("/campaigns/forms/1")
+      .send({ ...sampleBody, name: "New name" })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toHaveProperty("name", "New name");
+    const form = await PreselectionForm.all(["author"], [{ id: 1 }]);
+    expect(form.length).toBe(1);
+    expect(form[0]).toHaveProperty("author", 1);
+  });
+
   it("Should allow adding a new question", async () => {
     const fieldsBeforeRequest = await PreselectionFormFields.all(undefined, [
       { form_id: 3 },
