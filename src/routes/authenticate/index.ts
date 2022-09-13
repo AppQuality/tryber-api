@@ -37,6 +37,7 @@ export default async (c: Context, req: Request, res: OpenapiResponse) => {
       testerId: data.testerId,
       role: data.role,
       permission: data.permission,
+      capabilities: data.capabilities,
     };
 
     const token = jwt.sign(user, config.jwt.secret, {

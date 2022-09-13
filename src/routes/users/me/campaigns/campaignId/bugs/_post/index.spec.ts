@@ -792,4 +792,20 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
       { slug: "codice-cliente", value: "google" },
     ]);
   });
+  it("Should create with application_section_id 0 if not a specific usecase is selected", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send({
+        ...bug,
+        usecase: -1,
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("usecase", "Not a specific use case");
+    expect(response.body).toHaveProperty("id");
+    const bugData = await sqlite3.get(
+      `SELECT application_section_id FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
+    );
+    expect(bugData).toHaveProperty("application_section_id", 0);
+  });
 });

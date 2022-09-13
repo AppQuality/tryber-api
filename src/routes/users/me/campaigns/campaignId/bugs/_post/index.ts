@@ -489,7 +489,7 @@ export default async (
         replicabilityId,
         bugTypeId,
         usecase.title,
-        usecase.id,
+        usecase.id === -1 ? 0 : usecase.id,
         body.notes,
 
         device.id,

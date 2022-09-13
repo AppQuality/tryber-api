@@ -13,10 +13,6 @@ export interface paths {
     /** A request to login with your username and password */
     post: operations["post-authenticate"];
   };
-  "/projects": {
-    /** Get all projects that you can view. A project is a collection of campaigns linked with your account. */
-    get: operations["get-projects"];
-  };
   "/customers": {
     /** Get all the customers you have access to */
     get: operations["get-customers"];
@@ -33,20 +29,6 @@ export interface paths {
       path: {
         /** A customer id */
         customer: components["parameters"]["customer"];
-      };
-    };
-  };
-  "/customers/{customer}/projects/{project}/campaigns": {
-    /** Get all the Campaigns registered in a Project */
-    get: operations["get-customer-customer_id-project-project_id-campaigns"];
-    /** Create a new Campaign and register it to a Project */
-    post: operations["post-customers-customer_id-projects-project_id-campaigns"];
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-        /** A project id */
-        project: components["parameters"]["project"];
       };
     };
   };
@@ -377,6 +359,19 @@ export interface paths {
       };
     };
   };
+  "/campaigns/forms/{formId}": {
+    get: operations["get-campaigns-forms-formId"];
+    put: operations["put-campaigns-forms-formId"];
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+  };
+  "/campaigns/forms": {
+    post: operations["post-campaigns-forms"];
+    parameters: {};
+  };
 }
 
 export interface components {
@@ -569,8 +564,7 @@ export interface components {
     /** CustomUserFieldsData */
     CustomUserFieldsData: {
       id: number;
-      /** @enum {string} */
-      type: "select" | "multiselect" | "text";
+      type: components["schemas"]["CustomUserFieldsType"];
       placeholder?: components["schemas"]["TranslatablePage"];
       allow_other?: boolean;
       name: components["schemas"]["TranslatablePage"];
@@ -623,6 +617,33 @@ export interface components {
           regex: string;
         }
     );
+    /**
+     * CustomUserFieldsType
+     * @enum {string}
+     */
+    CustomUserFieldsType: "text" | "select" | "multiselect";
+    /** PreselectionFormQuestion */
+    PreselectionFormQuestion: {
+      question: string;
+    } & (
+      | {
+          /** @enum {string} */
+          type: "text";
+        }
+      | {
+          /** @enum {string} */
+          type: "multiselect" | "select" | "radio";
+          options: string[];
+        }
+      | {
+          type: string;
+          options?: number[];
+        }
+      | {
+          /** @enum {string} */
+          type: "gender" | "phone_number" | "address";
+        }
+    );
   };
   responses: {
     /** A user */
@@ -641,14 +662,6 @@ export interface components {
           token?: string;
           username?: string;
         };
-      };
-    };
-    /** A list of Campaigns with the Campaign id */
-    ListOfCampaigns: {
-      content: {
-        "application/json": (components["schemas"]["Campaign"] & {
-          id: number;
-        })[];
       };
     };
     /** A single Campaigns with the Campaign id and Project data */
@@ -751,24 +764,6 @@ export interface operations {
       };
     };
   };
-  /** Get all projects that you can view. A project is a collection of campaigns linked with your account. */
-  "get-projects": {
-    parameters: {};
-    responses: {
-      /** A list of projects */
-      200: {
-        content: {
-          "application/json": (components["schemas"]["Project"] & {
-            campaigns?: (components["schemas"]["Campaign"] & {
-              id?: number;
-            })[];
-          })[];
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
   /** Get all the customers you have access to */
   "get-customers": {
     parameters: {};
@@ -841,48 +836,18 @@ export interface operations {
       };
     };
   };
-  /** Get all the Campaigns registered in a Project */
-  "get-customer-customer_id-project-project_id-campaigns": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-        /** A project id */
-        project: components["parameters"]["project"];
-      };
-    };
-    responses: {
-      200: components["responses"]["ListOfCampaigns"];
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
-  /** Create a new Campaign and register it to a Project */
-  "post-customers-customer_id-projects-project_id-campaigns": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-        /** A project id */
-        project: components["parameters"]["project"];
-      };
-    };
-    responses: {
-      201: components["responses"]["SingleCampaign"];
-      400: components["responses"]["MissingParameters"];
-      403: components["responses"]["NotAuthorized"];
-    };
-    /** The Campaign data to set on the newly created Campaign */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["Campaign"];
-      };
-    };
-  };
   /** Get all the Campaigns you have access to */
   "get-campaigns": {
     responses: {
-      200: components["responses"]["ListOfCampaigns"];
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id?: number;
+            name?: string;
+          }[];
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
@@ -2688,6 +2653,104 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-campaigns-forms-formId": {
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            /** @example My form */
+            name: string;
+            campaign?: {
+              id: number;
+              name: string;
+            };
+            fields: ({
+              id: number;
+            } & components["schemas"]["PreselectionFormQuestion"])[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "put-campaigns-forms-formId": {
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            fields: ({
+              id: number;
+            } & components["schemas"]["PreselectionFormQuestion"])[];
+            campaign?: {
+              id: number;
+              name: string;
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+          campaign?: number;
+          fields: ({
+            id?: number;
+          } & components["schemas"]["PreselectionFormQuestion"])[];
+        };
+      };
+    };
+  };
+  "post-campaigns-forms": {
+    parameters: {};
+    responses: {
+      /** Created */
+      201: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            campaign?: {
+              id: number;
+              name: string;
+            };
+            fields?: ({
+              id: number;
+            } & components["schemas"]["PreselectionFormQuestion"])[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+          fields: components["schemas"]["PreselectionFormQuestion"][];
+          campaign?: number;
+        };
+      };
     };
   };
 }

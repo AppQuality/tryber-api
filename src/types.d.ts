@@ -3,6 +3,7 @@ import { FileArray, UploadedFile } from "express-fileupload";
 import { Request } from "openapi-backend";
 import { Busboy } from "connect-busboy";
 import { components, operations, paths } from "./schema";
+import { Context } from "openapi-backend";
 
 declare global {
   interface OpenapiResponse extends Response {
@@ -65,4 +66,20 @@ declare global {
   interface StoplightOperations extends operations {}
   interface StoplightComponents extends components {}
   interface StoplightPaths extends paths {}
+
+  type RouteClassConfiguration = {
+    context: Context;
+    request: OpenapiRequest;
+    response: OpenapiResponse;
+  };
+
+  type PartialRecord<K extends keyof any, T> = {
+    [P in K]?: T;
+  };
+  type RouteClassTypes = Record<"response", any> &
+    PartialRecord<"body" | "parameters" | "query", any>;
+
+  interface Object {
+    hasOwnProperty<K extends PropertyKey>(key: K): this is Record<K, unknown>;
+  }
 }

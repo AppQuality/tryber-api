@@ -1,12 +1,14 @@
-/**  OPENAPI-ROUTE : get-root */
-import { Context } from "openapi-backend";
-
+/**  OPENAPI-CLASS : get-root */
+import Route from "@src/features/routes/Route";
 import getBranch from "./getBranch";
 import getRevision from "./getRevision";
 
-export default (c: Context, req: Request, res: OpenapiResponse) => {
-  res.status_code = 200;
-  let revision = getRevision();
-  let branch = getBranch();
-  return { branch, revision };
-};
+export default class RouteItem extends Route<{
+  response: StoplightOperations["get-root"]["responses"]["200"]["content"]["application/json"];
+}> {
+  protected async prepare() {
+    let revision = getRevision();
+    let branch = getBranch();
+    this.setSuccess(200, { branch, revision });
+  }
+}

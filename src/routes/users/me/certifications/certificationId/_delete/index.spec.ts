@@ -37,4 +37,10 @@ describe("Route DELETE single-certification", () => {
     expect(response.body).toHaveProperty("message");
     expect(response.body.message).toBe("Certification successfully removed");
   });
+  it("Should answer 404 if certification does not exists", async () => {
+    const response = await request(app)
+      .delete("/users/me/certifications/199")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
 });
