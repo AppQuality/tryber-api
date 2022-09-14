@@ -107,4 +107,68 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body).not.toHaveProperty("total");
   });
+  it("should return start = 0 if start is not  provided", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toHaveProperty("start", 0);
+  });
+  it("should return start if start is provided", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?start=10")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toHaveProperty("start", 10);
+  });
+  it("should return size if size is not  provided", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toHaveProperty("size", 3);
+  });
+  it("should return third form if searchBy=id,name and search=3", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?searchBy=id,name&search=3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    console.log(response.body);
+    expect(response.body).toHaveProperty("size", 1);
+    expect(response.body.results[0]).toMatchObject({
+      id: 3,
+      name: "Form Name3 with campaign Id",
+      campaign: 1,
+    });
+  });
+});
+
+describe("GET /campaigns/forms when no forms", () => {
+  it("should return size = 0 if size is not  provided", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toHaveProperty("size", 0);
+  });
+  it("Should return the total number of elements if limit is set", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?limit=1")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toHaveProperty("total");
+    expect(response.body.total).toBe(0);
+  });
 });
