@@ -106,7 +106,7 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body).not.toHaveProperty("total");
   });
-  it("should return start = 0 if start is not provided", async () => {
+  it("should return start = 0 if start is not  provided", async () => {
     const response = await request(app)
       .get("/campaigns/forms/")
       .set(
@@ -117,7 +117,7 @@ describe("GET /campaigns/forms ", () => {
   });
   it("should return start if start is provided", async () => {
     const response = await request(app)
-      .get("/campaigns/forms/?start=10") //
+      .get("/campaigns/forms/?start=10")
       .set(
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
@@ -140,6 +140,7 @@ describe("GET /campaigns/forms ", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
+    console.log(response.body);
     expect(response.body).toHaveProperty("size", 1);
     expect(response.body.results[0]).toMatchObject({
       id: 3,
@@ -219,7 +220,7 @@ describe("GET /campaigns/forms ", () => {
 });
 
 describe("GET /campaigns/forms when no forms", () => {
-  it("should return size = 0 if size is not provided", async () => {
+  it("should return size = 0 if size is not  provided", async () => {
     const response = await request(app)
       .get("/campaigns/forms/")
       .set(
