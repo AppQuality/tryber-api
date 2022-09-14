@@ -18,6 +18,7 @@ export default class RouteItem extends UserRoute<{
     const query = this.getQuery();
     this.limit = parseInt(query.limit as unknown as string) || undefined;
     this.start = parseInt((query.start as unknown as string) || "0");
+    if (this.start && !this.limit) this.limit = 1000;
     this.searchBy = query.searchBy
       ? [...new Set(query.searchBy.split(","))].filter(
           (value: string): value is "id" | "name" | "campaign_id" => {
@@ -50,6 +51,7 @@ export default class RouteItem extends UserRoute<{
     const results = await this.db.forms.query({
       limit: this.limit,
       where: this.getWhere(),
+      offset: this.start,
     });
     return results.map((form) => {
       return {

@@ -106,7 +106,7 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body).not.toHaveProperty("total");
   });
-  it("should return start = 0 if start is not  provided", async () => {
+  it("should return start = 0 if start is not provided", async () => {
     const response = await request(app)
       .get("/campaigns/forms/")
       .set(
@@ -117,7 +117,7 @@ describe("GET /campaigns/forms ", () => {
   });
   it("should return start if start is provided", async () => {
     const response = await request(app)
-      .get("/campaigns/forms/?start=10")
+      .get("/campaigns/forms/?start=10") //
       .set(
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
@@ -140,7 +140,6 @@ describe("GET /campaigns/forms ", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.body).toHaveProperty("size", 1);
     expect(response.body.results[0]).toMatchObject({
       id: 3,
@@ -156,14 +155,71 @@ describe("GET /campaigns/forms ", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.body).toHaveProperty("total", 1);
-    console.log(response.body);
+  });
+
+  it("Should skip the first result and limit 2 results if are set start and limit parameters with start 1, limit 2", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?start=1&limit=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body.results.map((item: any) => item.id)).toEqual([2, 3]);
+    const response2 = await request(app)
+      .get("/campaigns/forms/?start=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response2.body.results[0].id).toBe(3);
+  });
+  it("Should return limit=1000 if is set start and limit is not provided", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?start=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body.results[0].id).toBe(3);
+    expect(response.body).toHaveProperty("limit", 1000);
+  });
+  it("Should return the size that is equal to number of results", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?start=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body.size).toBe(response.body.results.length);
+    const responseStart = await request(app)
+      .get("/campaigns/forms/?start=2&limit=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(responseStart.body.size).toBe(responseStart.body.results.length);
+  });
+  it("Should return number of skipped elements", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body.start).toBe(0);
+    const responseStart = await request(app)
+      .get("/campaigns/forms/?start=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(responseStart.body.start).toBe(2);
   });
 });
 
 describe("GET /campaigns/forms when no forms", () => {
-  it("should return size = 0 if size is not  provided", async () => {
+  it("should return size = 0 if size is not provided", async () => {
     const response = await request(app)
       .get("/campaigns/forms/")
       .set(
