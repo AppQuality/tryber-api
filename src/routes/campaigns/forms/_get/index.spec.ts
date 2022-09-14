@@ -95,8 +95,7 @@ describe("GET /campaigns/forms ", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    expect(response.body).toHaveProperty("total");
-    expect(response.body.total).toBe(3);
+    expect(response.body).toHaveProperty("total", 3);
   });
   it("should not return total if limit is not  provided", async () => {
     const response = await request(app)
@@ -148,6 +147,18 @@ describe("GET /campaigns/forms ", () => {
       name: "Form Name3 with campaign Id",
       campaign: 1,
     });
+  });
+
+  it("should return total if limit=2, searchBy=id,name and search=3", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?searchBy=id,name&search=3&limit=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    console.log(response.body);
+    expect(response.body).toHaveProperty("total", 1);
+    console.log(response.body);
   });
 });
 
