@@ -29,6 +29,7 @@ class PreselectionFormFields extends Table<PreselectionFormFieldsParams> {
     "id INTEGER PRIMARY KEY",
     "form_id INTEGER",
     "question VARCHAR(511)",
+    "short_name VARCHAR(255)",
     "type VARCHAR(255)",
     "options TEXT",
     "priority INTEGER",
