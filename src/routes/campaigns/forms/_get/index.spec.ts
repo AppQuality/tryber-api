@@ -140,7 +140,6 @@ describe("GET /campaigns/forms ", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.body).toHaveProperty("size", 1);
     expect(response.body.results[0]).toMatchObject({
       id: 3,
@@ -157,23 +156,6 @@ describe("GET /campaigns/forms ", () => {
         `Bearer tester capability ["manage_preselection_forms"]`
       );
     expect(response.body).toHaveProperty("total", 1);
-  });
-
-  it("Should skip the first result and limit 2 results if are set start and limit parameters with start 1, limit 2", async () => {
-    const response = await request(app)
-      .get("/campaigns/forms/?start=1&limit=2")
-      .set(
-        "authorization",
-        `Bearer tester capability ["manage_preselection_forms"]`
-      );
-    expect(response.body.results.map((item: any) => item.id)).toEqual([2, 3]);
-    const response2 = await request(app)
-      .get("/campaigns/forms/?start=2")
-      .set(
-        "authorization",
-        `Bearer tester capability ["manage_preselection_forms"]`
-      );
-    expect(response2.body.results[0].id).toBe(3);
   });
   it("Should return limit=1000 if is set start and limit is not provided", async () => {
     const response = await request(app)
