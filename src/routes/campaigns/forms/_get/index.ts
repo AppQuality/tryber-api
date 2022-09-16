@@ -77,7 +77,9 @@ export default class RouteItem extends UserRoute<{
           break;
         case "id":
         case "campaign_id":
-          orQuery.push({ [el]: parseInt(this.search) });
+          if (!isNaN(parseInt(this.search)))
+            orQuery.push({ [el]: parseInt(this.search) });
+          else orQuery.push({ [el]: this.search, isLike: true });
           break;
         default:
           break;
