@@ -4,6 +4,7 @@ export default class FieldCreator {
   private formId: number;
   private type: string;
   private question: string;
+  private short_name: string | undefined;
   private options: string | undefined;
   private id: number | undefined;
   private priority: number;
@@ -18,6 +19,7 @@ export default class FieldCreator {
   constructor({
     formId,
     question,
+    short_name,
     type,
     options,
     id,
@@ -25,6 +27,7 @@ export default class FieldCreator {
   }: {
     formId: number;
     question: string;
+    short_name?: string;
     type: string;
     options?: string[] | number[];
     id?: number;
@@ -36,6 +39,7 @@ export default class FieldCreator {
     }
     this.formId = formId;
     this.question = question;
+    this.short_name = short_name;
     this.options = options ? JSON.stringify(options) : undefined;
     this.id = id;
     this.priority = priority;
@@ -61,6 +65,10 @@ export default class FieldCreator {
       columns.push("options");
       data.push(this.options);
     }
+    if (this.short_name) {
+      columns.push("short_name");
+      data.push(this.short_name);
+    }
     if (this.id) {
       columns.push("id");
       data.push(this.id);
@@ -73,19 +81,23 @@ export default class FieldCreator {
       data
     );
     const { insertId } = await db.query(sql);
-
-    const result: { id: number; question: string; options: string }[] =
-      await db.query(
-        db.format(
-          `SELECT id, question,options 
+    const result: {
+      id: number;
+      question: string;
+      short_name?: string;
+      options: string;
+    }[] = await db.query(
+      db.format(
+        `SELECT id, question, options, short_name
             FROM wp_appq_campaign_preselection_form_fields 
             WHERE id = ? LIMIT 1`,
-          [insertId]
-        )
-      );
+        [insertId]
+      )
+    );
     if (result.length === 0) throw new Error("Failed to create field");
     return {
       ...result[0],
+      short_name: result[0].short_name ? result[0].short_name : undefined,
       options: result[0].options ? JSON.parse(result[0].options) : undefined,
       type: this.type,
     };

@@ -123,6 +123,7 @@ describe("POST /campaigns/forms/", () => {
   it("Should allow creating a text field", async () => {
     await checkValidTextField({
       question: "My text question",
+      short_name: "My short name",
       type: "text",
     });
   });
@@ -244,9 +245,11 @@ describe("POST /campaigns/forms/", () => {
 
 async function checkValidTextField({
   question,
+  short_name,
   type,
 }: {
   question: string;
+  short_name?: string;
   type: string;
 }) {
   const body = {
@@ -254,6 +257,7 @@ async function checkValidTextField({
     fields: [
       {
         question,
+        short_name,
         type,
       },
     ],
@@ -273,6 +277,8 @@ async function checkValidTextField({
     ]);
     expect(fieldInDatabase.length).toBe(1);
     expect(fieldInDatabase[0]).toHaveProperty("question", question);
+    if (short_name)
+      expect(fieldInDatabase[0]).toHaveProperty("short_name", short_name);
     expect(fieldInDatabase[0]).toHaveProperty("type", type);
   }
 }
