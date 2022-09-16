@@ -13,6 +13,8 @@ db.function("COALESCE", { varargs: true }, (...args: string[]) =>
 
 const mockDb: any = {};
 
+mockDb.prepare = (query: string) => db.prepare(query.replace(/\bIF\b/g, "IIF"));
+
 mockDb.createTable = (table: string, columns: string[]) => {
   return new Promise(async (resolve, reject) => {
     const query = `CREATE TABLE IF NOT EXISTS ${table} (${columns.join(
@@ -42,7 +44,7 @@ mockDb.dropTable = (table: string) => {
 mockDb.all = (query: string): Promise<any> => {
   return new Promise(async (resolve, reject) => {
     try {
-      const data = await db.prepare(query.replace(/"/g, "'")).all();
+      const data = await mockDb.prepare(query.replace(/"/g, "'")).all();
       resolve(data);
     } catch (err) {
       console.log(query);
@@ -53,14 +55,14 @@ mockDb.all = (query: string): Promise<any> => {
 };
 mockDb.get = async (query: string): Promise<any> => {
   try {
-    return await db.prepare(query).get();
+    return await mockDb.prepare(query).get();
   } catch (e) {
     throw e;
   }
 };
 
 mockDb.run = async (query: string): Promise<any> => {
-  return await db.prepare(query).run();
+  return await mockDb.prepare(query).run();
 };
 
 mockDb.insert = (table: string, data: any): Promise<any> => {
@@ -70,7 +72,7 @@ mockDb.insert = (table: string, data: any): Promise<any> => {
       .join(",")}) VALUES (${Object.keys(data)
       .map(() => "?")
       .join(",")});`;
-    const res = await db.prepare(sql).run(...Object.values(data));
+    const res = await mockDb.prepare(sql).run(...Object.values(data));
     resolve(res);
   });
 };
