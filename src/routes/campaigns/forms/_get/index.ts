@@ -69,22 +69,28 @@ export default class RouteItem extends UserRoute<{
 
   private getWhere() {
     if (!this.searchBy || !this.search) return undefined;
-    let orQuery: PreselectionForms["where"][number] = [];
-    for (const el of this.searchBy) {
-      switch (el) {
-        case "name":
-          orQuery.push({ name: "%" + this.search + "%", isLike: true });
-          break;
-        case "id":
-        case "campaign_id":
-          if (!isNaN(parseInt(this.search)))
-            orQuery.push({ [el]: parseInt(this.search) });
-          else orQuery.push({ [el]: this.search, isLike: true });
-          break;
-        default:
-          break;
+    const searchFields = this.searchBy;
+    const search = this.search;
+    const orQuery: PreselectionForms["where"][number] = searchFields.map(
+      (searchField) => {
+        if (isSearchString(searchField))
+          return { name: "%" + search + "%", isLike: true };
+        if (isSearchNumeric(searchField, search))
+          return { [searchField]: parseInt(search) };
+        throw new Error("Invalid field: " + searchField);
       }
-    }
+    );
+
     return [orQuery];
+
+    function isSearchString(searchField: string) {
+      return ["name"].includes(searchField);
+    }
+
+    function isSearchNumeric(searchField: string, value: string) {
+      return (
+        ["id", "campaign_id"].includes(searchField) && !isNaN(parseInt(value))
+      );
+    }
   }
 }
