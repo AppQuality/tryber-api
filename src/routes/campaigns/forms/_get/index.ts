@@ -18,7 +18,7 @@ export default class RouteItem extends UserRoute<{
     const query = this.getQuery();
     this.limit = parseInt(query.limit as unknown as string) || undefined;
     this.start = parseInt((query.start as unknown as string) || "0");
-    if (this.start && !this.limit) this.limit = 1000;
+    if (this.start && !this.limit) this.limit = 100;
     this.searchBy = query.searchBy
       ? [...new Set(query.searchBy.split(","))].filter(
           (value: string): value is "id" | "name" | "campaign_id" => {

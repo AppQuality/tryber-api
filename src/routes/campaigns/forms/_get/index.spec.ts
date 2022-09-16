@@ -177,7 +177,7 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body).toHaveProperty("total", 1);
   });
-  it("should return limit=1000 if is set start and limit is not provided", async () => {
+  it("should return limit=100 if is set start and limit is not provided", async () => {
     const response = await request(app)
       .get("/campaigns/forms/?start=2")
       .set(
@@ -185,7 +185,7 @@ describe("GET /campaigns/forms ", () => {
         `Bearer tester capability ["manage_preselection_forms"]`
       );
     expect(response.body.results[0].id).toBe(3);
-    expect(response.body).toHaveProperty("limit", 1000);
+    expect(response.body).toHaveProperty("limit", 100);
   });
   it("should return the size that is equal to number of results", async () => {
     const response = await request(app)
