@@ -14,6 +14,7 @@ type PreselectionFormFieldsParams = {
     | `cuf_${number}`;
   options?: string;
   question?: string;
+  short_name?: string;
   priority?: number;
 };
 const defaultItem: PreselectionFormFieldsParams = {
