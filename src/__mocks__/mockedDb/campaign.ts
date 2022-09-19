@@ -17,6 +17,7 @@ type CampaignParams = {
   is_public?: 0 | 1;
   page_preview_id?: number;
   page_manual_id?: number;
+  status_id?: 1 | 2;
 };
 class Campaign extends Table<CampaignParams> {
   protected name = "wp_appq_evd_campaign";
@@ -37,6 +38,7 @@ class Campaign extends Table<CampaignParams> {
     "is_public BOOLEAN",
     "page_preview_id INTEGER(11)",
     "page_manual_id INTEGER(11)",
+    "status_id INTEGER(11)",
   ];
   constructor() {
     super({
@@ -56,6 +58,7 @@ class Campaign extends Table<CampaignParams> {
       is_public: 0,
       page_manual_id: 0,
       page_preview_id: 0,
+      status_id: 1,
     });
   }
 }
