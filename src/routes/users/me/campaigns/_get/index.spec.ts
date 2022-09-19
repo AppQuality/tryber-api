@@ -67,4 +67,15 @@ describe("GET /users/me/campaigns", () => {
     expect(response.body).toHaveProperty("results");
     expect(response.body.results[0]).toHaveProperty("name", "Public campaign");
   });
+  it("should answer with a single campaign with startDate = today", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results[0]).toHaveProperty("dates");
+    expect(response.body.results[0].dates).toHaveProperty(
+      "start",
+      new Date().toISOString().split("T")[0]
+    );
+  });
 });
