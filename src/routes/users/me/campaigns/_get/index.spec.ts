@@ -116,4 +116,16 @@ describe("GET /users/me/campaigns", () => {
     console.log(response.body.results[0]);
     expect(response.body.results[0]).toHaveProperty("applied", false);
   });
+  it("should answer with a single campaign with manuals", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    console.log(response.body.results[0]);
+    expect(response.body.results[0]).toHaveProperty("manual_link", {
+      en: "en/test2",
+      it: "it/test2",
+      es: "es/test2",
+    });
+  });
 });
