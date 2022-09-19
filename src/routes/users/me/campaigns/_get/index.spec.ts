@@ -108,4 +108,12 @@ describe("GET /users/me/campaigns", () => {
     console.log(response.body.results[0]);
     expect(response.body.results[0]).toHaveProperty("campaign_type", "Type");
   });
+  it("should answer with a single campaign with applied = false", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    console.log(response.body.results[0]);
+    expect(response.body.results[0]).toHaveProperty("applied", false);
+  });
 });
