@@ -4,17 +4,15 @@ import campaigns from "@src/__mocks__/mockedDb/campaign";
 import campaignTypes from "@src/__mocks__/mockedDb/campaignType";
 import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 
-jest.mock("@src/features/wp/resolvePermalinks", () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      1: { en: "en/test1", it: "it/test1", es: "es/test1" },
-      2: { en: "en/test2", it: "it/test2", es: "es/test2" },
-    };
-  });
-});
-
+jest.mock("@src/features/wp/resolvePermalinks");
 describe("GET /users/me/campaigns", () => {
   beforeAll(() => {
+    (resolvePermalinks as jest.Mock).mockImplementation(() => {
+      return {
+        1: { en: "en/test1", it: "it/test1", es: "es/test1" },
+        2: { en: "en/test2", it: "it/test2", es: "es/test2" },
+      };
+    });
     campaignTypes.insert({
       id: 1,
     });
@@ -46,6 +44,7 @@ describe("GET /users/me/campaigns", () => {
   afterAll(() => {
     campaigns.clear();
     campaignTypes.clear();
+    jest.resetAllMocks();
   });
   it("should answer 403 if not logged in", () => {
     return request(app).get("/users/me/campaigns").expect(403);
