@@ -6,6 +6,8 @@ import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 
 jest.mock("@src/features/wp/resolvePermalinks");
 describe("GET /users/me/campaigns", () => {
+  const sevenDaysFromNow = new Date().setDate(new Date().getDate() + 7);
+  const endDate = new Date(sevenDaysFromNow).toISOString().split("T")[0];
   beforeAll(() => {
     (resolvePermalinks as jest.Mock).mockImplementation(() => {
       return {
@@ -21,7 +23,7 @@ describe("GET /users/me/campaigns", () => {
       id: 1,
       title: "Public campaign",
       start_date: new Date().toISOString().split("T")[0],
-      end_date: new Date().toISOString().split("T")[0],
+      end_date: endDate,
       close_date: new Date().toISOString().split("T")[0],
       campaign_type_id: 1,
       page_preview_id: 1,
@@ -33,7 +35,7 @@ describe("GET /users/me/campaigns", () => {
       id: 2,
       title: "Small Group campaign",
       start_date: new Date().toISOString().split("T")[0],
-      end_date: new Date().toISOString().split("T")[0],
+      end_date: endDate,
       close_date: new Date().toISOString().split("T")[0],
       campaign_type_id: 1,
       page_preview_id: 1,
@@ -77,5 +79,14 @@ describe("GET /users/me/campaigns", () => {
       "start",
       new Date().toISOString().split("T")[0]
     );
+  });
+  it("should answer with a single campaign with endDate = seven days from now", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results[0]).toHaveProperty("dates");
+    console.log(response.body.results[0]);
+    expect(response.body.results[0].dates).toHaveProperty("end", endDate);
   });
 });
