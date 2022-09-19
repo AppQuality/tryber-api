@@ -88,7 +88,6 @@ describe("GET /users/me/campaigns", () => {
       .set("Authorization", "Bearer tester");
     expect(response.body).toHaveProperty("results");
     expect(response.body.results[0]).toHaveProperty("dates");
-    console.log(response.body.results[0]);
     expect(response.body.results[0].dates).toHaveProperty("end", endDate);
   });
   it("should answer with a single campaign with closeDate = fourteen days from now", async () => {
@@ -97,7 +96,6 @@ describe("GET /users/me/campaigns", () => {
       .set("Authorization", "Bearer tester");
     expect(response.body).toHaveProperty("results");
     expect(response.body.results[0]).toHaveProperty("dates");
-    console.log(response.body.results[0]);
     expect(response.body.results[0].dates).toHaveProperty("close", closeDate);
   });
   it("should answer with a single campaign with campaign type", async () => {
@@ -105,7 +103,6 @@ describe("GET /users/me/campaigns", () => {
       .get("/users/me/campaigns")
       .set("Authorization", "Bearer tester");
     expect(response.body).toHaveProperty("results");
-    console.log(response.body.results[0]);
     expect(response.body.results[0]).toHaveProperty("campaign_type", "Type");
   });
   it("should answer with a single campaign with applied = false", async () => {
@@ -113,7 +110,6 @@ describe("GET /users/me/campaigns", () => {
       .get("/users/me/campaigns")
       .set("Authorization", "Bearer tester");
     expect(response.body).toHaveProperty("results");
-    console.log(response.body.results[0]);
     expect(response.body.results[0]).toHaveProperty("applied", false);
   });
   it("should answer with a single campaign with manuals", async () => {
@@ -121,7 +117,6 @@ describe("GET /users/me/campaigns", () => {
       .get("/users/me/campaigns")
       .set("Authorization", "Bearer tester");
     expect(response.body).toHaveProperty("results");
-    console.log(response.body.results[0]);
     expect(response.body.results[0]).toHaveProperty("manual_link", {
       en: "en/test2",
       it: "it/test2",
@@ -133,7 +128,6 @@ describe("GET /users/me/campaigns", () => {
       .get("/users/me/campaigns")
       .set("Authorization", "Bearer tester");
     expect(response.body).toHaveProperty("results");
-    console.log(response.body.results[0]);
     expect(response.body.results[0]).toHaveProperty("preview_link", {
       en: "en/test1",
       it: "it/test1",
