@@ -253,6 +253,18 @@ describe("GET /campaigns/forms ", () => {
       message: "Invalid field: id",
     });
   });
+  it("should return forms ordered by id desc as default", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms?searchBy=name,campaign_id")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+
+    expect(
+      response.body.results.map((form: { id: number; name: string }) => form.id)
+    ).toEqual([5, 4, 3, 2, 1]);
+  });
 });
 
 describe("GET /campaigns/forms when no forms", () => {

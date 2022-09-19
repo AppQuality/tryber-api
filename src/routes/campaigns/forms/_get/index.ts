@@ -53,6 +53,7 @@ export default class RouteItem extends UserRoute<{
     const results = await this.db.forms.query({
       limit: this.limit,
       where: this.getWhere(),
+      orderBy: [{ field: "id", order: "DESC" }],
       offset: this.start,
     });
     return results.map((form) => {
