@@ -4,6 +4,9 @@ const db = new sqlite3(":memory:");
 db.function("NOW", () =>
   new Date().toISOString().split(".")[0].replace("T", " ")
 );
+db.function("DATEDIFF", (arg1: string, arg2: string) => {
+  return new Date(arg1).getTime() - new Date(arg2).getTime();
+});
 db.function("MONTH", (args: string) => parseInt(args.split("-")[1]));
 db.function("YEAR", (args: string) => parseInt(args.split("-")[0]));
 db.function("CONCAT", { varargs: true }, (...args: string[]) => args.join(""));
