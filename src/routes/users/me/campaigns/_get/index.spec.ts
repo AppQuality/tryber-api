@@ -100,4 +100,12 @@ describe("GET /users/me/campaigns", () => {
     console.log(response.body.results[0]);
     expect(response.body.results[0].dates).toHaveProperty("close", closeDate);
   });
+  it("should answer with a single campaign with campaign type", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    console.log(response.body.results[0]);
+    expect(response.body.results[0]).toHaveProperty("campaign_type", "Type");
+  });
 });
