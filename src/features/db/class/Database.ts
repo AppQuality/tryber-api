@@ -56,7 +56,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     limit?: number;
     offset?: number;
   }): Promise<T["fields"][]> {
-    const sql = this.constructSelectQuery({ where, limit, offset });
+    const sql = this.constructSelectQuery({ where, orderBy, limit, offset });
     return db.query(sql);
   }
 
