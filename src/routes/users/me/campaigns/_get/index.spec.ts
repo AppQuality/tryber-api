@@ -128,4 +128,16 @@ describe("GET /users/me/campaigns", () => {
       es: "es/test2",
     });
   });
+  it("should answer with a single campaign with previews", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    console.log(response.body.results[0]);
+    expect(response.body.results[0]).toHaveProperty("preview_link", {
+      en: "en/test1",
+      it: "it/test1",
+      es: "es/test1",
+    });
+  });
 });
