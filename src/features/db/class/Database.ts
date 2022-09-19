@@ -6,6 +6,8 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     | (Database<T>["fieldItem"] & { isLike?: boolean })
     | (Database<T>["fieldItem"] & { isLike?: boolean })[]
   )[] = [];
+  private orderBy:
+    | { field: Database<T>["fields"][0]; order?: "ASC" | "DESC" }[] = [];
 
   private table: string;
   private primaryKey: keyof T["fields"];
@@ -45,10 +47,12 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
 
   public query({
     where,
+    orderBy,
     limit,
     offset,
   }: {
     where?: Database<T>["where"];
+    orderBy?: Database<T>["orderBy"];
     limit?: number;
     offset?: number;
   }): Promise<T["fields"][]> {
@@ -83,8 +87,10 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     where,
     limit,
     offset,
+    orderBy,
   }: {
     where?: Database<T>["where"];
+    orderBy?: Database<T>["orderBy"];
     limit?: number;
     offset?: number;
   }) {
@@ -93,7 +99,9 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     }
     return `SELECT ${this.fields.join(",")} FROM ${this.table} ${
       where ? this.constructWhereQuery(where) : ""
-    } ${limit ? `LIMIT ${limit}` : ""} ${offset ? `OFFSET ${offset}` : ""}`;
+    } 
+    ${orderBy ? this.constructOrderByQuery(orderBy) : ""}
+    ${limit ? `LIMIT ${limit}` : ""} ${offset ? `OFFSET ${offset}` : ""}`;
   }
 
   private constructUpdateQuery({
@@ -157,6 +165,16 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
         .join(" OR ")})`;
     });
     return `WHERE ${orQueries.join(" AND ")}`;
+  }
+  protected constructOrderByQuery(orderBy?: Database<T>["orderBy"]) {
+    if (typeof orderBy === "undefined") return "";
+    if (Array.isArray(orderBy)) {
+      const toOrderQueries = orderBy.map(
+        (item) =>
+          `${String(Object.values(item)[0])} ${item.order ? item.order : "ASC"}`
+      );
+      return `ORDER BY ${toOrderQueries.join(", ")}`;
+    } else return "";
   }
 }
 
