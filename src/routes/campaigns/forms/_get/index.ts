@@ -9,7 +9,7 @@ export default class RouteItem extends UserRoute<{
   private db: { forms: PreselectionForms };
   private limit: number | undefined;
   private start: number;
-  private searchBy: ("id" | "name" | "campaign_id")[] | undefined;
+  private searchBy: ("name" | "campaign_id")[] | undefined;
   private search: string | undefined;
 
   constructor(config: RouteClassConfiguration) {
@@ -21,8 +21,10 @@ export default class RouteItem extends UserRoute<{
     if (this.start && !this.limit) this.limit = 100;
     this.searchBy = query.searchBy
       ? [...new Set(query.searchBy.split(","))].filter(
-          (value: string): value is "id" | "name" | "campaign_id" => {
-            return ["id", "name", "campaign_id"].includes(value);
+          (value: string): value is "name" | "campaign_id" => {
+            if (this.isSearchByAcceptable(value) === false)
+              throw new Error("Invalid field: " + value);
+            return ["name", "campaign_id"].includes(value);
           }
         )
       : undefined;
@@ -73,24 +75,13 @@ export default class RouteItem extends UserRoute<{
     const search = this.search;
     const orQuery: PreselectionForms["where"][number] = searchFields.map(
       (searchField) => {
-        if (isSearchString(searchField))
-          return { name: "%" + search + "%", isLike: true };
-        if (isSearchNumeric(searchField, search))
-          return { [searchField]: parseInt(search) };
-        throw new Error("Invalid field: " + searchField);
+        return { [searchField]: "%" + search + "%", isLike: true };
       }
     );
 
     return [orQuery];
-
-    function isSearchString(searchField: string) {
-      return ["name"].includes(searchField);
-    }
-
-    function isSearchNumeric(searchField: string, value: string) {
-      return (
-        ["id", "campaign_id"].includes(searchField) && !isNaN(parseInt(value))
-      );
-    }
+  }
+  private isSearchByAcceptable(searchField: string) {
+    return ["name", "campaign_id"].includes(searchField);
   }
 }

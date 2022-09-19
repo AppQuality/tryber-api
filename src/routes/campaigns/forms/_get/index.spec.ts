@@ -153,9 +153,9 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body).toHaveProperty("size", 5);
   });
-  it("should return third form if searchBy=id,name and search=3", async () => {
+  it("should return third form if searchBy=name and search=3", async () => {
     const response = await request(app)
-      .get("/campaigns/forms/?searchBy=id,name&search=3")
+      .get("/campaigns/forms/?searchBy=name&search=3")
       .set(
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
@@ -168,9 +168,9 @@ describe("GET /campaigns/forms ", () => {
     });
   });
 
-  it("should return total if limit=2, searchBy=id,name and search=3", async () => {
+  it("should return total if limit=2, searchBy=name and search=3", async () => {
     const response = await request(app)
-      .get("/campaigns/forms/?searchBy=id,name&search=3&limit=2")
+      .get("/campaigns/forms/?searchBy=name&search=3&limit=2")
       .set(
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
@@ -228,6 +228,30 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body.size).toBe(2);
     expect(response.body.total).toBe(3);
+  });
+  it("should return form3 if searchBy=camapign_id,name and search=name3", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?searchBy=campaign_id,name&search=name3&limit=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body.results[0]).toMatchObject({
+      id: 3,
+      name: "Form Name3 with campaign Id",
+      campaign: 1,
+    });
+  });
+  it("should return error if searchBy invalid field", async () => {
+    const response = await request(app)
+      .get("/campaigns/forms/?searchBy=id&search=name3&limit=2")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.body).toMatchObject({
+      message: "Invalid field: id",
+    });
   });
 });
 
