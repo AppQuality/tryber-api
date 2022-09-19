@@ -89,8 +89,37 @@ describe("GET /users/me/campaigns - manual and/or preview not public - selected 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(Array.isArray(response.body.results)).toBe(true);
-    console.log(response.body);
     expect(response.body.results.length).toBe(3);
+  });
+
+  it("should answer with # as the preview url for each language of the second campaign", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns?filterBy[accepted]=1")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("results");
+    expect(Array.isArray(response.body.results)).toBe(true);
+    expect(response.body.results.length).toBe(3);
+
+    expect(response.body.results[1]).toHaveProperty("preview_link");
+    expect(response.body.results[1].preview_link).toHaveProperty("en", "#");
+    expect(response.body.results[1].preview_link).toHaveProperty("it", "#");
+    expect(response.body.results[1].preview_link).toHaveProperty("es", "#");
+  });
+
+  it("should answer with # as the english preview url of the third campaign", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns?filterBy[accepted]=1")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("results");
+    expect(Array.isArray(response.body.results)).toBe(true);
+    expect(response.body.results.length).toBe(3);
+
+    expect(response.body.results[2]).toHaveProperty("preview_link");
+    expect(response.body.results[2].preview_link).toHaveProperty("en", "#");
+    expect(response.body.results[2].preview_link).not.toHaveProperty("it", "#");
+    expect(response.body.results[2].preview_link).not.toHaveProperty("es", "#");
   });
 });
 
@@ -130,5 +159,20 @@ describe("GET /users/me/campaigns - manual and/or preview not public - not selec
     expect(response.body.results.length).toBe(1);
 
     expect(response.body.results[0]).toHaveProperty("id", 1);
+  });
+
+  it("should answer with # as the manual url for each language", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("results");
+    expect(Array.isArray(response.body.results)).toBe(true);
+    expect(response.body.results.length).toBe(1);
+
+    expect(response.body.results[0]).toHaveProperty("manual_link");
+    expect(response.body.results[0].manual_link).toHaveProperty("en", "#");
+    expect(response.body.results[0].manual_link).toHaveProperty("it", "#");
+    expect(response.body.results[0].manual_link).toHaveProperty("es", "#");
   });
 });
