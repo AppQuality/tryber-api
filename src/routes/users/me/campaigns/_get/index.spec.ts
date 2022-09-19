@@ -16,6 +16,7 @@ describe("GET /users/me/campaigns", () => {
     campaignTypes.insert({
       id: 1,
     });
+
     campaigns.insert({
       id: 1,
       title: "Public campaign",
@@ -58,5 +59,12 @@ describe("GET /users/me/campaigns", () => {
     expect(response.body).toHaveProperty("results");
     expect(Array.isArray(response.body.results)).toBe(true);
     expect(response.body.results.length).toBe(1);
+  });
+  it("should answer with a single campaign with title", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results[0]).toHaveProperty("name", "Public campaign");
   });
 });
