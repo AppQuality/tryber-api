@@ -54,12 +54,14 @@ describe("GET /campaigns/forms ", () => {
     expect(Array.isArray(response.body.results)).toBe(true);
     expect(response.body.results.length).toBe(5);
     expect(response.body.results[0]).toMatchObject({
-      id: 1,
-      name: "Form Name1",
+      id: 5,
+      name: "Form Name5 with campaign Id",
+      campaign: 1,
     });
     expect(response.body.results[1]).toMatchObject({
-      id: 2,
-      name: "Form Name2",
+      id: 4,
+      name: "Form Name4 with campaign Id",
+      campaign: 1,
     });
     expect(response.body.results[2]).toMatchObject({
       id: 3,
@@ -67,14 +69,12 @@ describe("GET /campaigns/forms ", () => {
       campaign: 1,
     });
     expect(response.body.results[3]).toMatchObject({
-      id: 4,
-      name: "Form Name4 with campaign Id",
-      campaign: 1,
+      id: 2,
+      name: "Form Name2",
     });
     expect(response.body.results[4]).toMatchObject({
-      id: 5,
-      name: "Form Name5 with campaign Id",
-      campaign: 1,
+      id: 1,
+      name: "Form Name1",
     });
   });
   it("should return limit if is provided", async () => {
@@ -104,8 +104,9 @@ describe("GET /campaigns/forms ", () => {
       );
     expect(response.body.results.length).toBe(1);
     expect(response.body.results[0]).toMatchObject({
-      id: 1,
-      name: "Form Name1",
+      id: 5,
+      name: "Form Name5 with campaign Id",
+      campaign: 1,
     });
   });
   it("should return the total number of elements if limit is set", async () => {
