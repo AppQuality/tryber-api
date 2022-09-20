@@ -1,10 +1,19 @@
 import * as db from "@src/features/db";
+type Arrayable<T> = { [K in keyof T]: T[K] | T[K][] };
+
+type WhereConditions =
+  | { isLike?: boolean }
+  | { isLower?: boolean }
+  | { isGreaterEqual?: boolean };
 
 class Database<T extends Record<"fields", Record<string, number | string>>> {
   private fieldItem: Partial<T["fields"]> = {};
+  private whereClause:
+    | (Arrayable<Partial<T["fields"]>> & WhereConditions)
+    | undefined;
   private where: (
-    | (Database<T>["fieldItem"] & { isLike?: boolean })
-    | (Database<T>["fieldItem"] & { isLike?: boolean })[]
+    | (Arrayable<Partial<T["fields"]>> & WhereConditions)
+    | (Arrayable<Partial<T["fields"]>> & WhereConditions)[]
   )[] = [];
   private orderBy: {
     field: Extract<keyof T["fields"], string>;
@@ -85,7 +94,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     await db.query(sql);
   }
 
-  private constructSelectQuery({
+  protected constructSelectQuery({
     where,
     limit,
     offset,
@@ -157,17 +166,48 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
       if (!Array.isArray(ors)) throw new Error("Undefined where");
       return `(${ors
         .map((subItem) => {
-          const key = Object.keys(subItem)[0];
-          const value = Object.values(subItem)[0] as string | number;
-          if (subItem.isLike) {
-            return db.format(`${key} LIKE ?`, [value]);
-          }
-          return db.format(`${key} = ?`, [value]);
+          return this.constructSingleWhereClause(subItem);
         })
         .join(" OR ")})`;
     });
     return `WHERE ${orQueries.join(" AND ")}`;
   }
+
+  private constructSingleWhereClause(
+    item: NonNullable<Database<T>["whereClause"]>
+  ) {
+    const key = Object.keys(item)[0];
+    const value = Object.values(item)[0] as
+      | string
+      | number
+      | string[]
+      | number[];
+
+    if (typeof value === "string" || typeof value === "number") {
+      let operation: "LIKE" | "<" | ">=" | "=" = "=";
+      if (item.isLike) {
+        operation = "LIKE";
+      }
+      if (item.isLower) {
+        operation = "<";
+      }
+      if (item.isGreaterEqual) {
+        operation = ">=";
+      }
+
+      if (value === "NOW()") return `${key} ${operation} ${value}`;
+      else return db.format(`${key} ${operation} ?`, [value]);
+    }
+
+    if (Array.isArray(value)) {
+      return db.format(
+        `${key} IN (${Array(value.length).fill("?").join(",")})`,
+        value
+      );
+    }
+    return db.format(`${key} = ?`, [value]);
+  }
+
   protected constructOrderByQuery(orderBy?: Database<T>["orderBy"]) {
     if (typeof orderBy === "undefined") return "";
     return `ORDER BY ${orderBy
