@@ -1,5 +1,6 @@
 import * as db from "@src/features/db";
 import UserRoute from "@src/features/routes/UserRoute";
+import Campaigns from "@src/features/db/class/Campaigns";
 
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 
@@ -7,17 +8,16 @@ import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 
 type TranslatablePage = StoplightComponents["schemas"]["TranslatablePage"];
 
-type Campaign = {
+type CampaignType = {
   id: number;
   title: string;
   page_preview_id: string;
   page_manual_id: string;
-  start_date: Date;
-  end_date: Date;
-  close_date: Date;
+  start_date: string;
+  end_date: string;
+  close_date: string;
   campaign_type?: string;
   campaign_type_id: number;
-  applied: 1 | 0;
 };
 
 class RouteItem extends UserRoute<{
@@ -29,12 +29,16 @@ class RouteItem extends UserRoute<{
     completed?: "0" | "1";
     statusId?: "1" | "2";
   } = {};
-  private orderBy: NonNullable<RouteItem["query"]>["orderBy"] | undefined;
+  private orderBy: "start_date" | "end_date" | "close_date" | undefined;
   private order: NonNullable<RouteItem["query"]>["order"] | undefined;
 
   private start: NonNullable<NonNullable<RouteItem["query"]>["start"]> = 0;
   private limit: NonNullable<NonNullable<RouteItem["query"]>["limit"]> = 10;
   private hasLimit: boolean = false;
+
+  private db: {
+    campaigns: Campaigns;
+  };
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -44,7 +48,7 @@ class RouteItem extends UserRoute<{
       query.orderBy &&
       ["start_date", "end_date", "close_date"].includes(query.orderBy)
     ) {
-      this.orderBy = query.orderBy;
+      this.orderBy = query.orderBy as RouteItem["orderBy"];
     }
     if (query.order && ["ASC", "DESC"].includes(query.order)) {
       this.order = query.order;
@@ -56,6 +60,10 @@ class RouteItem extends UserRoute<{
       this.hasLimit = true;
       this.limit = parseInt(query.limit as unknown as string);
     }
+
+    this.db = {
+      campaigns: new Campaigns(["*"]),
+    };
   }
 
   protected async prepare() {
@@ -86,47 +94,36 @@ class RouteItem extends UserRoute<{
   }
 
   private async getCampaigns() {
-    let results: Campaign[] = await db.query(`
-    SELECT cp.id,
-           cp.title,
-           cp.customer_title,
-           cp.campaign_type_id,
-           cp.campaign_type as bugform,
-           cp.os,
-           cp.start_date,
-           cp.end_date,
-           cp.close_date,
-           cp.pm_id,
-           cp.is_public,
-           cp.page_preview_id,
-           cp.page_manual_id,
-           IF(c.accepted IS NULL, 0, 1) as applied,
-           t.name as campaign_type
-    ${this.getFrom()}
-    GROUP BY (cp.id)
-    ${this.orderBy ? `ORDER BY ${this.orderBy} ${this.order || "DESC"}` : ""}
-    `);
+    const results = await this.db.campaigns.query({
+      where: await this.getWhere(),
+      orderBy: [
+        {
+          field: this.orderBy || "id",
+          order: this.orderBy ? this.order || "DESC" : "ASC",
+        },
+      ],
+    });
     if (!results.length) {
       throw Error("no data found");
     }
 
-    results = await this.enhanceCampaignsWithLinkedPages(results);
-
-    const enhancedCampaigns = (
-      await this.enhanceCampaignsWithLinkedPages(results)
-    ).map((cp) => ({
-      id: cp.id,
-      name: cp.title,
-      dates: {
-        start: cp.start_date.toString(),
-        end: cp.end_date.toString(),
-        close: cp.close_date.toString(),
-      },
-      campaign_type: cp.campaign_type ? cp.campaign_type : cp.campaign_type_id,
-      manual_link: cp.manual_link || {},
-      preview_link: cp.preview_link || {},
-      applied: cp.applied == 1,
-    }));
+    const enhancedCampaigns = (await this.enhanceCampaigns(results)).map(
+      (cp) => ({
+        id: cp.id,
+        name: cp.title,
+        dates: {
+          start: cp.start_date.toString(),
+          end: cp.end_date.toString(),
+          close: cp.close_date.toString(),
+        },
+        campaign_type: cp.campaign_type
+          ? cp.campaign_type
+          : cp.campaign_type_id,
+        manual_link: cp.manual_link,
+        preview_link: cp.preview_link,
+        applied: cp.applied == 1,
+      })
+    );
 
     if (!this.filterByAccepted()) {
       return enhancedCampaigns.filter(
@@ -138,28 +135,94 @@ class RouteItem extends UserRoute<{
     return enhancedCampaigns;
   }
 
-  private async enhanceCampaignsWithLinkedPages(campaigns: Campaign[]): Promise<
-    (Campaign & {
-      preview_link: TranslatablePage;
-      manual_link: TranslatablePage;
-    })[]
-  > {
-    const pageLinks = await this.getLinkedPages(campaigns);
+  private async getWhere() {
+    const where = [];
 
-    return campaigns.map((r) => {
-      return {
-        ...r,
-        preview_link: pageLinks[r.page_preview_id]
-          ? pageLinks[r.page_preview_id]
-          : {},
-        manual_link: pageLinks[r.page_manual_id]
-          ? pageLinks[r.page_manual_id]
-          : {},
-      };
-    });
+    if (!this.filterByAccepted()) {
+      const campaignStatusWhere: { [key: string]: number | number[] }[] = [
+        { is_public: 1 as 1 },
+        { is_public: 2 as 2 },
+      ];
+      const pageAccess = await this.getPageAccess();
+      if (pageAccess.length) {
+        campaignStatusWhere.push({ page_preview_id: pageAccess });
+      }
+      where.push(campaignStatusWhere);
+    }
+
+    if (this.filterByCompleted()) {
+      where.push({ end_date: "NOW()", isLower: true });
+    }
+    if (this.filterByRunning()) {
+      where.push({ end_date: "NOW()", isGreaterEqual: true });
+    }
+
+    if (this.filterByClosed()) {
+      where.push({ status_id: 2 as 2 });
+    }
+    if (this.filterByOpen()) {
+      where.push({ status_id: 1 as 1 });
+    }
+    return where.length ? where : undefined;
   }
 
-  private async getLinkedPages(rows: Campaign[]) {
+  private async enhanceCampaigns(campaigns: CampaignType[]): Promise<
+    (CampaignType & {
+      preview_link: TranslatablePage;
+      manual_link: TranslatablePage;
+      campaign_type?: string;
+      applied?: 0 | 1;
+    })[]
+  > {
+    const applications = await this.getCampaignApplications(campaigns);
+
+    if (this.filterByAccepted()) {
+      campaigns = campaigns.filter((r) => {
+        const application = applications.find((a) => a.campaign_id == r.id);
+        return application ? application.accepted === 1 : false;
+      });
+    } else {
+      campaigns = campaigns.filter((r) => {
+        const application = applications.find((a) => a.campaign_id == r.id);
+        return application ? application.accepted === 0 : true;
+      });
+    }
+
+    const linkedPages = await this.getLinkedPages(campaigns);
+    const types = await this.getListOfCampaignTypes(campaigns);
+
+    let results = campaigns.map((campaign) => {
+      const type = types.find((t) => t.id == campaign.campaign_type_id);
+
+      return {
+        ...campaign,
+        preview_link: linkedPages[campaign.page_preview_id]
+          ? linkedPages[campaign.page_preview_id]
+          : {},
+        manual_link: linkedPages[campaign.page_manual_id]
+          ? linkedPages[campaign.page_manual_id]
+          : {},
+        campaign_type: type ? type.name : undefined,
+        applied: applications.find((a) => a.campaign_id == campaign.id)
+          ? (1 as 1)
+          : (0 as 0),
+      };
+    });
+    return results;
+  }
+
+  private async getListOfCampaignTypes(
+    campaigns: CampaignType[]
+  ): Promise<{ id: number; name: string }[]> {
+    if (!campaigns.length) return [];
+    return await db.query(
+      `SELECT id,name FROM wp_appq_campaign_type WHERE id IN (${campaigns
+        .map((c) => db.format("?", [c.campaign_type_id]))
+        .join(",")})`
+    );
+  }
+
+  private async getLinkedPages(rows: CampaignType[]) {
     const pageIds = rows.reduce(
       (accumulator: string[], r) =>
         [r.page_preview_id, r.page_manual_id].concat(accumulator),
@@ -192,48 +255,24 @@ class RouteItem extends UserRoute<{
     return true;
   }
 
-  private getFrom() {
-    let FROM = `
-    FROM wp_appq_evd_campaign cp
-    LEFT JOIN wp_crowd_appq_has_candidate c 
-      ON (c.campaign_id = cp.id AND c.user_id = ${this.getWordpressId()})
-    JOIN wp_appq_campaign_type t ON (cp.campaign_type_id = t.id) 
-  `;
+  private getCampaignApplications(
+    campaigns: CampaignType[]
+  ): Promise<{ campaign_id: number; accepted: number }[]> {
+    return db.query(
+      `SELECT campaign_id,accepted  
+      FROM wp_crowd_appq_has_candidate 
+      WHERE campaign_id IN (${campaigns
+        .map((c) => db.format("?", [c.id]))
+        .join(",")}) AND user_id = ${this.getWordpressId()}`
+    );
+  }
 
-    if (this.filterByAccepted()) {
-      FROM += `WHERE c.accepted = 1`;
-    } else {
-      FROM += `
-    WHERE ((cp.is_public = 1 OR cp.is_public = 2) OR page_preview_id IN (SELECT view_id
-    FROM wp_appq_lc_access a
-    WHERE a.tester_id = ${this.getTesterId()}))
-    AND (c.accepted != 1 OR c.accepted IS NULL)
-  `;
-    }
-
-    // optionally filtering by completed
-    if (this.filterByCompleted()) {
-      FROM += `
-        AND DATEDIFF(cp.end_date, NOW()) < 0
-      `;
-    }
-    if (this.filterByRunning()) {
-      FROM += `
-        AND DATEDIFF(cp.end_date, NOW()) >= 0
-      `;
-    }
-
-    if (this.filterByClosed()) {
-      FROM += `
-        AND cp.status_id = 2
-      `;
-    }
-    if (this.filterByOpen()) {
-      FROM += `
-        AND cp.status_id = 1
-      `;
-    }
-    return FROM;
+  private async getPageAccess(): Promise<number[]> {
+    return (
+      await db.query(
+        `SELECT view_id FROM wp_appq_lc_access WHERE tester_id = ${this.getTesterId()}`
+      )
+    ).map((row: { view_id: number }) => db.format("?", [row.view_id]));
   }
 
   private filterByAccepted() {
