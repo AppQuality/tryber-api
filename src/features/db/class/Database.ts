@@ -6,8 +6,10 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     | (Database<T>["fieldItem"] & { isLike?: boolean })
     | (Database<T>["fieldItem"] & { isLike?: boolean })[]
   )[] = [];
-  private orderBy:
-    | { field: Database<T>["fields"][0]; order?: "ASC" | "DESC" }[] = [];
+  private orderBy: {
+    field: Extract<keyof T["fields"], string>;
+    order?: "ASC" | "DESC";
+  }[] = [];
 
   private table: string;
   private primaryKey: keyof T["fields"];
@@ -168,13 +170,11 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
   }
   protected constructOrderByQuery(orderBy?: Database<T>["orderBy"]) {
     if (typeof orderBy === "undefined") return "";
-    if (Array.isArray(orderBy)) {
-      const toOrderQueries = orderBy.map(
-        (item) =>
-          `${String(Object.values(item)[0])} ${item.order ? item.order : "ASC"}`
-      );
-      return `ORDER BY ${toOrderQueries.join(", ")}`;
-    } else return "";
+    return `ORDER BY ${orderBy
+      .map((item) => {
+        return `${item.field} ${item.order ? item.order : "ASC"}`;
+      })
+      .join(", ")}`;
   }
 }
 
