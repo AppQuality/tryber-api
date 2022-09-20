@@ -68,6 +68,19 @@ afterAll(() => {
   campaignTypes.clear();
   jest.resetAllMocks();
 });
+describe("GET /users/me/campaigns - order - default ", () => {
+  it("Should return 200 and ordered by id ASC on default", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(4);
+    expect(
+      response.body.results.map((r: { id: number }) => r.id)
+    ).toMatchObject([1, 2, 3, 4]);
+  });
+});
 describe("GET /users/me/campaigns - order - start_date ", () => {
   it("Should return 200 and ordered by start_date DESC on default", async () => {
     const response = await request(app)

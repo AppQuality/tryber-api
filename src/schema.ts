@@ -469,16 +469,11 @@ export interface components {
     };
     CampaignRequired: {
       name: string;
-      internal_id: string;
       dates: {
         start: string;
         end: string;
         close: string;
       };
-      devices: {
-        id: string;
-      }[];
-      projectManager: components["schemas"]["User"];
       campaign_type: components["schemas"]["CampaignType"];
     };
     CampaignType: string | number;
