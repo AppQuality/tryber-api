@@ -557,6 +557,7 @@ export interface components {
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
       question: string;
+      short_name?: string;
     } & (
       | {
           /** @enum {string} */

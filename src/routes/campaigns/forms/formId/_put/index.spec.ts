@@ -15,6 +15,7 @@ const sampleBodyWithFields = {
     {
       id: 1,
       type: "text",
+      short_name: "My short_name question",
       question: "My text question",
     },
     {
@@ -273,6 +274,74 @@ describe("PUT /campaigns/forms/", () => {
         `Bearer tester capability ["manage_preselection_forms"]`
       );
     expect(afterOrderResponse.body.fields).toEqual(newOrderFields);
+  });
+  it("should update short_name of a form fields", async () => {
+    const beforeChangesResponse = await request(app)
+      .get("/campaigns/forms/3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const newFields = beforeChangesResponse.body.fields;
+    const fieldWithNewShortName = {
+      ...newFields[2],
+      short_name: "New short_name",
+    };
+    newFields[2] = fieldWithNewShortName;
+
+    await request(app)
+      .put("/campaigns/forms/3")
+      .send({
+        ...sampleBodyWithFields,
+        fields: newFields,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const afterChangesResponse = await request(app)
+      .get("/campaigns/forms/3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(afterChangesResponse.body.fields).toEqual(newFields);
+    expect(afterChangesResponse.body.fields[2]).toHaveProperty(
+      "short_name",
+      fieldWithNewShortName.short_name
+    );
+  });
+  it("should remove short_name of a form fields", async () => {
+    const beforeChangesResponse = await request(app)
+      .get("/campaigns/forms/3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const newFields = beforeChangesResponse.body.fields;
+    const fieldWithNewShortName = { ...newFields[2], short_name: undefined };
+    newFields[2] = fieldWithNewShortName;
+
+    await request(app)
+      .put("/campaigns/forms/3")
+      .send({
+        ...sampleBodyWithFields,
+        fields: newFields,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const afterChangesResponse = await request(app)
+      .get("/campaigns/forms/3")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(afterChangesResponse.body.fields).toEqual(newFields);
+    expect(afterChangesResponse.body.fields[2]).not.toHaveProperty(
+      "short_name"
+    );
   });
   it("Should allow removing a question", async () => {
     const fieldsBeforeRequest = await PreselectionFormFields.all(undefined, [

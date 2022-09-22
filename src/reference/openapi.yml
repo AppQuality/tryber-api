@@ -5499,6 +5499,8 @@ components:
           properties:
             question:
               type: string
+            short_name:
+              type: string
           required:
             - question
         - oneOf:
