@@ -49,6 +49,32 @@ describe("Database connector class", () => {
     const sql = db.testWhereQuery([{ name: "%test%", isLike: true }]);
     expect(sql).toBe("WHERE (name LIKE '%test%')");
   });
+  it("Should allow creating a where with IN list", () => {
+    const db = new TestableDatabase();
+    expect(db.testWhereQuery([{ id: [1, 2] }])).toBe("WHERE (id IN (1,2))");
+    expect(db.testWhereQuery([{ name: ["test1", "test2"] }])).toBe(
+      "WHERE (name IN ('test1','test2'))"
+    );
+  });
+
+  it("Should allow creating a where with >= ", () => {
+    const db = new TestableDatabase();
+    expect(db.testWhereQuery([{ id: 1, isGreaterEqual: true }])).toBe(
+      "WHERE (id >= 1)"
+    );
+  });
+
+  it("Should allow creating a where with < ", () => {
+    const db = new TestableDatabase();
+    expect(db.testWhereQuery([{ id: 1, isLower: true }])).toBe(
+      "WHERE (id < 1)"
+    );
+  });
+
+  it("Should allow creating a where with NOW() function ", () => {
+    const db = new TestableDatabase();
+    expect(db.testWhereQuery([{ name: "NOW()" }])).toBe("WHERE (name = NOW())");
+  });
   it("Should allow creating a orderBy clause = ASC as default", () => {
     const db = new TestableDatabase();
     const sql = db.testOrderByQuery([{ field: "id" }]);
