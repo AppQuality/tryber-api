@@ -5029,7 +5029,6 @@ paths:
                         value:
                           oneOf:
                             - type: integer
-                              properties: {}
                             - type: object
                               properties:
                                 city:
@@ -5040,7 +5039,6 @@ paths:
                               items:
                                 type: integer
                             - type: string
-                              properties: {}
                         validation:
                           type: object
                           properties:
@@ -5050,30 +5048,39 @@ paths:
                               type: string
                           required:
                             - regex
+                        id:
+                          type: number
+                      required:
+                        - id
               examples:
                 example-1:
                   value:
-                    - question: Come si chiama il tuo cane?
+                    - id: 1
+                      question: Come si chiama il tuo cane?
                       type: text
-                    - question: Il tuo cane si chiama pippo?
+                    - id: 2
+                      question: Il tuo cane si chiama pippo?
                       type: radio
                       options:
                         - Sì
                         - 'No'
-                    - question: Di che razza è il tuo cane?
+                    - id: 3
+                      question: Di che razza è il tuo cane?
                       type: select
                       options:
                         - ALANO TIGRATO
                         - ALASKAN MALAMUTE
                         - ALPENLAENDISCHE DACHSBRACKE
                         - AMSTAFF
-                    - question: Che vaccinazioni ha fatto il tuo cane?
+                    - id: 4
+                      question: Che vaccinazioni ha fatto il tuo cane?
                       type: multiselect
                       options:
                         - Cimurro
                         - Parvovirus
                         - Adenovirus
-                    - question: Con quali banche hai un conto?
+                    - id: 5
+                      question: Con quali banche hai un conto?
                       type: cuf_22
                       options:
                         - 1
@@ -5083,21 +5090,25 @@ paths:
                       value:
                         - 3
                         - 4
-                    - question: Scrivi il tuo username telegram
+                    - id: 6
+                      question: Scrivi il tuo username telegram
                       type: cuf_15
                       value: '@pippo'
                       validation:
                         regex: '^@[a-zA-Z]*$'
                         error: 'Inserire l''utente telegram in questo formato: @pippo'
-                    - question: Con che genere ti identifichi?
+                    - id: 7
+                      question: Con che genere ti identifichi?
                       type: gender
                       value: male
-                    - question: Qual è il tuo numero di telefono
+                    - id: 8
+                      question: Qual è il tuo numero di telefono
                       type: phone_number
                       value: '+33123456789'
                       validation:
                         regex: '^\+?[0-9]{12,14}$'
-                    - question: Dove abiti?
+                    - id: 9
+                      question: Dove abiti?
                       type: address
                       value:
                         city: Pesaro
@@ -5109,6 +5120,102 @@ paths:
       operationId: get-users-me-campaign-campaignId-forms
       security:
         - JWT: []
+    post:
+      summary: ''
+      operationId: post-users-me-campaigns-campaignId-forms
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                form:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: object
+                        properties:
+                          id:
+                            oneOf:
+                              - type: integer
+                              - type: array
+                                items:
+                                  type: integer
+                          serialized:
+                            oneOf:
+                              - type: string
+                              - type: array
+                                items:
+                                  type: string
+                              - type: object
+                                properties:
+                                  city:
+                                    type: string
+                                  country:
+                                    type: string
+                                required:
+                                  - city
+                                  - country
+                      question:
+                        type: number
+                    required:
+                      - value
+                      - question
+                device:
+                  type: integer
+            examples:
+              example-1:
+                value:
+                  form:
+                    - question: 1
+                      value:
+                        serialized: Pippo
+                    - question: 2
+                      value:
+                        serialized: Sì
+                    - question: 3
+                      value:
+                        serialized: ALANO TIGRATO
+                    - question: 4
+                      value:
+                        serialized:
+                          - Cimurro
+                          - Parvovirus
+                    - question: 5
+                      value:
+                        id:
+                          - 1
+                          - 3
+                        serialized:
+                          - Banca 1
+                          - Banca 3
+                    - question: 6
+                      value:
+                        serialized: '@franco'
+                    - question: 7
+                      value:
+                        serialized: female
+                    - question: 8
+                      value:
+                        serialized: '+33233456789'
+                    - question: 9
+                      value:
+                        serialized:
+                          city: Roma
+                          country: Italy
+                  device: 123
+      security:
+        - JWT: []
+      description: ''
 components:
   schemas:
     AdditionalField:
