@@ -5028,10 +5028,7 @@ paths:
                       properties:
                         value:
                           oneOf:
-                            - $ref: '#/components/schemas/Gender'
                             - type: integer
-                              properties: {}
-                            - type: string
                               properties: {}
                             - type: object
                               properties:
@@ -5042,6 +5039,8 @@ paths:
                             - type: array
                               items:
                                 type: integer
+                            - type: string
+                              properties: {}
                         validation:
                           type: object
                           properties:
