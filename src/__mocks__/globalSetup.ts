@@ -17,6 +17,8 @@ import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
 import PreselectionForm from "./mockedDb/preselectionForm";
 import PreselectionFormFields from "./mockedDb/preselectionFormFields";
 import CustomUserFields from "./mockedDb/customUserFields";
+import CampaignType from "./mockedDb/campaignType";
+import PageAccess from "./mockedDb/pageAccess";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
@@ -102,4 +104,6 @@ beforeAll(async () => {
   await PreselectionForm.mock();
   await PreselectionFormFields.mock();
   await CustomUserFields.mock();
+  await CampaignType.mock();
+  await PageAccess.mock();
 });

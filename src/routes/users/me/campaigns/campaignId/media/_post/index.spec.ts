@@ -132,7 +132,6 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     const insertedMedia = await UploadedMedia.all();
     expect(insertedMedia).not.toEqual(undefined);
     expect(insertedMedia[0].url).toEqual(response.body.files[0].path);
-    console.log(insertedMedia[0].creation_date);
     if (insertedMedia[0].creation_date)
       expect(
         insertedMedia[0].creation_date.startsWith(

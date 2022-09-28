@@ -65,10 +65,22 @@ export default async (
       wpDataUpdateData.push(req.body.email);
     }
     if (Object.keys(req.body).includes("name")) {
+      if (nameIsValid(req.body.name) === false) {
+        throw {
+          status_code: 400,
+          message: `Name is not valid`,
+        };
+      }
       profileSets.push("name = ?");
       profileUpdateData.push(escapeCharacters(req.body.name));
     }
     if (Object.keys(req.body).includes("surname")) {
+      if (nameIsValid(req.body.surname) === false) {
+        throw {
+          status_code: 400,
+          message: `Surname is not valid`,
+        };
+      }
       profileSets.push("surname = ?");
       profileUpdateData.push(escapeCharacters(req.body.surname));
     }
@@ -184,5 +196,8 @@ export default async (
       id: parseInt(req.user.ID),
       message: (err as OpenapiError).message,
     };
+  }
+  function nameIsValid(name: string) {
+    return escapeCharacters(name) !== "";
   }
 };

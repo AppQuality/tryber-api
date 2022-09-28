@@ -140,6 +140,30 @@ describe("Route PATCH users-me", () => {
       responseGetBeforePatch.body
     );
   });
+  it("should return an error if send name with just symbols", async () => {
+    const response = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ name: ">.<" });
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      element: "users",
+      id: 1,
+      message: "Name is not valid",
+    });
+  });
+  it("should return an error if send surname with just symbols", async () => {
+    const response = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ surname: ">.<" });
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      element: "users",
+      id: 1,
+      message: "Surname is not valid",
+    });
+  });
 });
 
 describe("Route PATCH users-me accepted fields", () => {
@@ -320,7 +344,7 @@ describe("Route PATCH users-me accepted fields", () => {
       .get(`/users/me?fields=name`)
       .set("Authorization", `Bearer tester`);
     expect(responseGet2.status).toBe(200);
-    expect(responsePatch.body.name).toBe("new-name");
+    expect(responseGet2.body.name).toBe("new-name");
   });
   it("Should return tryber with new SURNAME if send a new SURNAME", async () => {
     const responseGet1 = await request(app)
@@ -334,10 +358,11 @@ describe("Route PATCH users-me accepted fields", () => {
       .send({ surname: "new-surname" });
 
     const responseGet2 = await request(app)
-      .get(`/users/me?fields=name`)
+      .get(`/users/me?fields=surname`)
       .set("Authorization", `Bearer tester`);
+
     expect(responseGet2.status).toBe(200);
-    expect(responsePatch.body.surname).toBe("new-surname");
+    expect(responseGet2.body.surname).toBe("new-surname");
   });
   it("Should return tryber with new BIRTHDATE if send a new BIRTHDATE", async () => {
     const responseGet1 = await request(app)

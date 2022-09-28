@@ -86,6 +86,7 @@ export default class RouteItem extends UserRoute<{
       const item = new FieldCreator({
         formId: formId,
         question: field.question,
+        short_name: field.short_name,
         type: field.type,
         options: field.hasOwnProperty("options") ? field.options : undefined,
         priority: i++,

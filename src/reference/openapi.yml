@@ -5287,9 +5287,6 @@ components:
         name:
           type: string
           minLength: 1
-        internal_id:
-          type: string
-          minLength: 1
         dates:
           type: object
           required:
@@ -5306,27 +5303,11 @@ components:
             close:
               type: string
               minLength: 1
-        devices:
-          type: array
-          uniqueItems: true
-          minItems: 1
-          items:
-            type: object
-            properties:
-              id:
-                type: string
-            required:
-              - id
-        projectManager:
-          $ref: '#/components/schemas/User'
         campaign_type:
           $ref: '#/components/schemas/CampaignType'
       required:
         - name
-        - internal_id
         - dates
-        - devices
-        - projectManager
         - campaign_type
     CampaignType:
       oneOf:
@@ -5498,6 +5479,8 @@ components:
         - type: object
           properties:
             question:
+              type: string
+            short_name:
               type: string
           required:
             - question

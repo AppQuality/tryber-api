@@ -14,6 +14,7 @@ describe("GET /campaigns/forms/{formId}", () => {
       form_id: 1,
       type: "text",
       question: "Text question",
+      short_name: "Text short_name",
       priority: 8,
     });
     PreselectionFormFields.insert({
@@ -153,7 +154,12 @@ describe("GET /campaigns/forms/{formId}", () => {
       { id: 5, type: "gender", question: "Gender question" },
       { id: 6, type: "phone_number", question: "Phone question" },
       { id: 7, type: "address", question: "Address question" },
-      { id: 1, type: "text", question: "Text question" },
+      {
+        id: 1,
+        type: "text",
+        question: "Text question",
+        short_name: "Text short_name",
+      },
     ]);
   });
 

@@ -85,18 +85,20 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getFormFields() {
-    const sql = `SELECT id, type, question, options
+    const sql = `SELECT id, type, question, short_name, options
         FROM wp_appq_campaign_preselection_form_fields
         WHERE form_id = ? ORDER BY priority ASC`;
     const results: {
       id: number;
       type: string;
       question: string;
+      short_name?: string;
       options?: string;
     }[] = await db.query(db.format(sql, [this.getId()]));
     return results.map((item) => {
       return {
         ...item,
+        short_name: item.short_name ? item.short_name : undefined,
         options:
           isFieldTypeWithOptions(item.type) && item.options
             ? parseOptions(item.options)
