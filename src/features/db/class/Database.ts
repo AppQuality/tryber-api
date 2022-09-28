@@ -1,4 +1,5 @@
 import * as db from "@src/features/db";
+import { Data } from "aws-sdk/clients/firehose";
 type Arrayable<T> = { [K in keyof T]: T[K] | T[K][] };
 
 type WhereConditions =
@@ -37,7 +38,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     this.fields = fields ? fields : ["*"];
   }
 
-  public async get(id: number): Promise<T["fields"]> {
+  public async get(id: number) {
     const result = await this.query({
       where: [{ [this.primaryKey]: id }] as Database<T>["where"],
       limit: 1,
@@ -56,7 +57,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     return result.length > 0;
   }
 
-  public query({
+  public async query({
     where,
     orderBy,
     limit,
@@ -66,9 +67,11 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     orderBy?: Database<T>["orderBy"];
     limit?: number;
     offset?: number;
-  }): Promise<T["fields"][]> {
+  }): Promise<ReturnType<this["createObject"]>[]> {
     const sql = this.constructSelectQuery({ where, orderBy, limit, offset });
-    return db.query(sql);
+    return (await db.query(sql)).map((item: T["fields"]) =>
+      this.createObject(item)
+    );
   }
 
   public async update({
@@ -92,6 +95,10 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
   public async delete(where: Database<T>["fieldItem"][]) {
     const sql = this.constructDeleteQuery({ where });
     await db.query(sql);
+  }
+
+  public createObject(item: T["fields"]) {
+    return item;
   }
 
   protected constructSelectQuery({
