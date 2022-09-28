@@ -5102,6 +5102,10 @@ paths:
                       value:
                         city: Pesaro
                         country: Italy
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
       operationId: get-users-me-campaign-campaignId-forms
       security:
         - JWT: []
