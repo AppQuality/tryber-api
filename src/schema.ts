@@ -373,6 +373,15 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/users/me/campaigns/{campaignId}/forms": {
+    get: operations["get-users-me-campaign-campaignId-forms"];
+    post: operations["post-users-me-campaigns-campaignId-forms"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -641,6 +650,11 @@ export interface components {
         version: string;
       };
     };
+    /**
+     * Gender
+     * @enum {string}
+     */
+    Gender: "male" | "female" | "not-specified" | "other";
   };
   responses: {
     /** A user */
@@ -1684,8 +1698,7 @@ export interface operations {
             }[];
             onboarding_completed?: boolean;
             additional?: components["schemas"]["AdditionalField"][];
-            /** @enum {string} */
-            gender?: "male" | "female" | "not-specified" | "other";
+            gender?: components["schemas"]["Gender"];
             /** Format: date */
             birthDate?: string;
             phone?: string;
@@ -2782,6 +2795,70 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-users-me-campaign-campaignId-forms": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": (components["schemas"]["PreselectionFormQuestion"] & {
+            value?:
+              | number
+              | {
+                  city?: string;
+                  country?: string;
+                }
+              | number[]
+              | string;
+            validation?: {
+              regex: string;
+              error?: string;
+            };
+            id: number;
+          })[];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "post-users-me-campaigns-campaignId-forms": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          form?: {
+            value: {
+              id?: number | number[];
+              serialized?:
+                | string
+                | string[]
+                | {
+                    city: string;
+                    country: string;
+                  };
+            };
+            question: number;
+          }[];
+          device?: number;
+        };
+      };
     };
   };
 }
