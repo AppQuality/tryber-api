@@ -2005,12 +2005,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/AdditionalField'
                   gender:
-                    type: string
-                    enum:
-                      - male
-                      - female
-                      - not-specified
-                      - other
+                    $ref: '#/components/schemas/Gender'
                   birthDate:
                     type: string
                     format: date
@@ -5009,6 +5004,108 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
+  '/users/me/campaigns/{campaignId}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the preselection form for your campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/PreselectionFormQuestion'
+                    - type: object
+                      properties:
+                        value:
+                          oneOf:
+                            - $ref: '#/components/schemas/Gender'
+                            - type: integer
+                              properties: {}
+                            - type: string
+                              properties: {}
+                            - type: object
+                              properties:
+                                city:
+                                  type: string
+                                country:
+                                  type: string
+                            - type: array
+                              items:
+                                type: integer
+                        validation:
+                          type: object
+                          properties:
+                            regex:
+                              type: string
+                            error:
+                              type: string
+                          required:
+                            - regex
+              examples:
+                example-1:
+                  value:
+                    - question: Come si chiama il tuo cane?
+                      type: text
+                    - question: Il tuo cane si chiama pippo?
+                      type: radio
+                      options:
+                        - Sì
+                        - 'No'
+                    - question: Di che razza è il tuo cane?
+                      type: select
+                      options:
+                        - ALANO TIGRATO
+                        - ALASKAN MALAMUTE
+                        - ALPENLAENDISCHE DACHSBRACKE
+                        - AMSTAFF
+                    - question: Che vaccinazioni ha fatto il tuo cane?
+                      type: multiselect
+                      options:
+                        - Cimurro
+                        - Parvovirus
+                        - Adenovirus
+                    - question: Con quali banche hai un conto?
+                      type: cuf_22
+                      options:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                      value:
+                        - 3
+                        - 4
+                    - question: Scrivi il tuo username telegram
+                      type: cuf_15
+                      value: '@pippo'
+                      validation:
+                        regex: '^@[a-zA-Z]*$'
+                        error: 'Inserire l''utente telegram in questo formato: @pippo'
+                    - question: Con che genere ti identifichi?
+                      type: gender
+                      value: male
+                    - question: Qual è il tuo numero di telefono
+                      type: phone_number
+                      value: '+33123456789'
+                      validation:
+                        regex: '^\+?[0-9]{12,14}$'
+                    - question: Dove abiti?
+                      type: address
+                      value:
+                        city: Pesaro
+                        country: Italy
+      operationId: get-users-me-campaign-campaignId-forms
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:
@@ -5730,6 +5827,16 @@ components:
         - id
         - device
         - operating_system
+    Gender:
+      type: string
+      title: Gender
+      x-stoplight:
+        id: ongto6juifn3f
+      enum:
+        - male
+        - female
+        - not-specified
+        - other
   securitySchemes:
     JWT:
       type: http
