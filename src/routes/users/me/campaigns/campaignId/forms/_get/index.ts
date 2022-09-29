@@ -4,19 +4,24 @@ import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
 import PreselectionForms from "@src/features/db/class/PreselectionForms";
+import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
+import QuestionFactory from "./QuestionFactory";
 
+type SuccessType =
+  StoplightOperations["get-users-me-campaign-campaignId-forms"]["responses"]["200"]["content"]["application/json"];
 class RouteItem extends UserRoute<{
-  response: StoplightOperations["get-users-me-campaign-campaignId-forms"]["responses"]["200"]["content"]["application/json"];
+  response: SuccessType;
   parameters: StoplightOperations["get-users-me-campaign-campaignId-forms"]["parameters"]["path"];
 }> {
   private campaignId: number;
   private campaign: CampaignObject | false = false;
-  private form: {} | false = false;
+  private form: { id: number } | false = false;
 
   private db: {
     campaigns: Campaigns;
     pageAccess: PageAccess;
     preselectionForms: PreselectionForms;
+    preselectionFormsFields: PreselectionFormFields;
   };
 
   constructor(options: RouteItem["configuration"]) {
@@ -27,6 +32,7 @@ class RouteItem extends UserRoute<{
       campaigns: new Campaigns(),
       pageAccess: new PageAccess(),
       preselectionForms: new PreselectionForms(),
+      preselectionFormsFields: new PreselectionFormFields(),
     };
   }
 
@@ -101,7 +107,25 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
-    this.setSuccess(200, []);
+    const questions = await this.getFormQuestions();
+    this.setSuccess(200, questions);
+  }
+
+  private async getFormQuestions() {
+    const form = await this.getForm();
+    if (!form) return [];
+    const questions = await this.db.preselectionFormsFields.query({
+      where: [{ form_id: form.id }],
+    });
+    let questionItems: SuccessType = [];
+    for (const question of questions) {
+      const questionItem = await QuestionFactory.create(question);
+      if (questionItem) {
+        const questionData = questionItem.getItem();
+        questionItems.push(questionData);
+      }
+    }
+    return questionItems;
   }
 }
 
