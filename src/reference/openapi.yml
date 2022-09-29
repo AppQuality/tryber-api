@@ -2871,13 +2871,14 @@ paths:
       description: ''
       security:
         - JWT: []
-  '/users/me/campaigns/{campaignId}/available_devices':
+  '/users/me/campaigns/{campaign}/available_devices':
     parameters:
-      - schema:
-          type: string
-        name: campaignId
+      - name: campaign
         in: path
         required: true
+        schema:
+          type: string
+        description: A campaign id
     get:
       summary: Get the user devices for a campaign you are selected in
       tags: []
