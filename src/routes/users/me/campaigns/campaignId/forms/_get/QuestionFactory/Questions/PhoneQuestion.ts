@@ -6,12 +6,12 @@ class PhoneQuestion extends Question<{
   constructor(question: typeof PhoneQuestion.constructor.arguments[0]) {
     super(question);
   }
-  getItem(): {
+  async getItem(): Promise<{
     id: number;
     type: string;
     question: string;
     validation?: { regex: string };
-  } {
+  }> {
     return {
       ...this.getDefault(),
       type: this.question.type,

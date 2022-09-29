@@ -15,7 +15,7 @@ class Question<T> {
       question: this.question.question,
     };
   }
-  getItem(): { id: number; type: string; question: string } {
+  async getItem(): Promise<{ id: number; type: string; question: string }> {
     return {
       ...this.getDefault(),
     };

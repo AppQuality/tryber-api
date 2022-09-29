@@ -6,6 +6,7 @@ import preselectionForms from "@src/__mocks__/mockedDb/preselectionForm";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import customUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 
 describe("GET users/me/campaigns/:campaignId/forms", () => {
   beforeAll(async () => {
@@ -49,6 +50,12 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       type: "text",
       options: "^@[a-zA-Z0-9_]$;Invalid telegram username",
     });
+    customUserFieldsData.insert({
+      id: 1,
+      custom_user_field_id: 1,
+      profile_id: 1,
+      value: "@pippo",
+    });
     preselectionFormFields.insert({
       id: 5,
       form_id: 1,
@@ -60,6 +67,12 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       id: 2,
       name: "Children",
       type: "select",
+    });
+    customUserFieldsData.insert({
+      id: 2,
+      custom_user_field_id: 2,
+      profile_id: 1,
+      value: "1",
     });
     customUserFieldsExtras.insert({
       id: 1,
@@ -103,6 +116,19 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       name: "Banca Comerciala Romana",
       custom_user_field_id: 3,
     });
+    customUserFieldsData.insert({
+      id: 4,
+      custom_user_field_id: 3,
+      profile_id: 1,
+      value: "4",
+    });
+    customUserFieldsData.insert({
+      id: 5,
+      custom_user_field_id: 3,
+      profile_id: 1,
+      value: "5",
+    });
+
     preselectionFormFields.insert({
       id: 7,
       form_id: 1,
@@ -121,6 +147,40 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       type: "address",
       question: "What city do you live in?",
     });
+    preselectionFormFields.insert({
+      id: 10,
+      form_id: 1,
+      type: "cuf_4",
+      question: "What is your favorite color?",
+      options: "8,9",
+    });
+    customUserFields.insert({
+      id: 4,
+      name: "Color",
+      type: "select",
+    });
+    customUserFieldsData.insert({
+      id: 3,
+      custom_user_field_id: 4,
+      profile_id: 1,
+      value: "7",
+    });
+    customUserFieldsExtras.insert({
+      id: 7,
+      name: "Blue",
+      custom_user_field_id: 4,
+    });
+    customUserFieldsExtras.insert({
+      id: 8,
+      name: "Red",
+      custom_user_field_id: 4,
+    });
+    customUserFieldsExtras.insert({
+      id: 9,
+      name: "Green",
+      custom_user_field_id: 4,
+    });
+
     campaign.insert({
       id: 2,
       page_preview_id: 1,
@@ -334,6 +394,72 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
           type: "address",
           question: "What city do you live in?",
         },
+      ])
+    );
+  });
+
+  it("Should return 200 with the form fields and a cuf text value if exists", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "cuf_1",
+          value: "@pippo",
+        }),
+      ])
+    );
+  });
+
+  it("Should return 200 with the form fields and a cuf select value if exists", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "cuf_2",
+          value: 1,
+        }),
+      ])
+    );
+  });
+  it("Should return 200 with the form fields and no cuf select value if exists but is not in the available options", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "cuf_4",
+        }),
+      ])
+    );
+    expect(response.body).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "cuf_4",
+          value: expect.anything(),
+        }),
+      ])
+    );
+  });
+
+  it("Should return 200 with the form fields and a cuf multiselect value if exists, limited by available", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "cuf_3",
+          value: [5],
+        }),
       ])
     );
   });

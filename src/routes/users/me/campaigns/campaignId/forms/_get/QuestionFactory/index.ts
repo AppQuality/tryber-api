@@ -1,5 +1,7 @@
 import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import CustomUserFields from "@src/features/db/class/CustomUserFields";
+import CustomUserFields, {
+  CustomUserFieldObject,
+} from "@src/features/db/class/CustomUserFields";
 import CustomUserFieldExtras from "@src/features/db/class/CustomUserFieldExtras";
 import Question from "./Questions";
 import SelectableQuestion from "./Questions/SelectableQuestion";
@@ -12,7 +14,7 @@ type QuestionType = Awaited<
 >[number];
 
 class QuestionFactory {
-  static async create(question: QuestionType) {
+  static async create(question: QuestionType, testerId: number) {
     if (this.isSelectable(question)) {
       return new SelectableQuestion(question);
     } else if (this.isCuf(question)) {
@@ -21,14 +23,23 @@ class QuestionFactory {
       const cufId = parseInt(question.type.replace("cuf_", ""));
       const cuf = await customUserFields.get(cufId);
       if (cuf.type === "text") {
-        return new CufTextQuestion(question, cuf.options);
+        return new CufTextQuestion({
+          question,
+          customUserField: cuf,
+          testerId,
+        });
       } else if (cuf.type === "select" || cuf.type === "multiselect") {
         const customUserFieldExtras = new CustomUserFieldExtras();
         const fieldOptions = await customUserFieldExtras.query({
           where: [{ custom_user_field_id: cufId }],
         });
         if (fieldOptions.length === 0) return false;
-        return new CufSelectQuestion(question, fieldOptions);
+        return new CufSelectQuestion({
+          question,
+          customUserField: cuf,
+          options: fieldOptions,
+          testerId,
+        });
       } else {
         return false;
       }

@@ -119,9 +119,12 @@ class RouteItem extends UserRoute<{
     });
     let questionItems: SuccessType = [];
     for (const question of questions) {
-      const questionItem = await QuestionFactory.create(question);
+      const questionItem = await QuestionFactory.create(
+        question,
+        this.getTesterId()
+      );
       if (questionItem) {
-        const questionData = questionItem.getItem();
+        const questionData = await questionItem.getItem();
         questionItems.push(questionData);
       }
     }
