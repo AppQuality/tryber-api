@@ -19,6 +19,7 @@ import PreselectionFormFields from "./mockedDb/preselectionFormFields";
 import CustomUserFields from "./mockedDb/customUserFields";
 import CampaignType from "./mockedDb/campaignType";
 import PageAccess from "./mockedDb/pageAccess";
+import CustomUserFieldsExtras from "./mockedDb/customUserFieldsExtra";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
@@ -26,7 +27,6 @@ import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as certificationListTable } from "./mockedDb/certificationList";
 import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
-import { table as cufExtraTable } from "./mockedDb/customUserFieldsExtra";
 import deviceOs from "./mockedDb/deviceOs";
 import DevicePlatform from "./mockedDb/devicePlatform";
 import { table as educationListTable } from "./mockedDb/educationList";
@@ -76,7 +76,6 @@ beforeAll(async () => {
   await employmentListTable.create();
   await educationListTable.create();
   await testerLanguageTable.create();
-  await cufExtraTable.create();
   await WpOptions.mock();
   await Severities.mock();
   await BugTypes.mock();
@@ -106,4 +105,5 @@ beforeAll(async () => {
   await CustomUserFields.mock();
   await CampaignType.mock();
   await PageAccess.mock();
+  await CustomUserFieldsExtras.mock();
 });

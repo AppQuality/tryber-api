@@ -4,7 +4,7 @@ import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationListData } from "@src/__mocks__/mockedDb/certificationList";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufDataData } from "@src/__mocks__/mockedDb/customUserFieldsData";
-import { data as cufExtraData } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import CustomUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationListData } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentListData } from "@src/__mocks__/mockedDb/employmentList";
 import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
@@ -279,7 +279,7 @@ describe("Route GET users-me-full-fields", () => {
       await testerLanguageData.drop();
       await CustomUserFields.clear();
       await cufDataData.drop();
-      await cufExtraData.drop();
+      await CustomUserFieldsExtras.clear();
       await WpOptions.clear();
 
       resolve(null);

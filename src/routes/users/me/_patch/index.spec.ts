@@ -6,7 +6,7 @@ import { data as certificationsList } from "@src/__mocks__/mockedDb/certificatio
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
-import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import CustomUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationsList } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentsList } from "@src/__mocks__/mockedDb/employmentList";
 import { data as languagesList } from "@src/__mocks__/mockedDb/languageList";
@@ -65,7 +65,7 @@ describe("Route PATCH users-me", () => {
         name: "Tipologia di spezie preferita",
         type: "select",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         name: "Habanero Scorpion",
       });
       await cufData.insertCufData({
@@ -80,11 +80,11 @@ describe("Route PATCH users-me", () => {
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 2,
         name: "Il cardamomo Siciliano",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 3,
         name: "Treviso, città del Cardamomo",
       });
@@ -119,7 +119,7 @@ describe("Route PATCH users-me", () => {
     await testerLanguages.drop();
     await CustomUserFields.clear();
     await cufData.drop();
-    await cufExtras.drop();
+    await CustomUserFieldExtras.clear();
   });
   it("Should not update user when no parameters were given", async () => {
     const responseGetBeforePatch = await request(app)
@@ -224,7 +224,7 @@ describe("Route PATCH users-me accepted fields", () => {
         name: "Tipologia di spezie preferita",
         type: "select",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         name: "Habanero Scorpion",
       });
       await cufData.insertCufData({
@@ -239,11 +239,11 @@ describe("Route PATCH users-me accepted fields", () => {
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 2,
         name: "Il cardamomo Siciliano",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 3,
         name: "Treviso, città del Cardamomo",
       });
@@ -278,7 +278,7 @@ describe("Route PATCH users-me accepted fields", () => {
     await testerLanguages.drop();
     await CustomUserFields.clear();
     await cufData.drop();
-    await cufExtras.drop();
+    await CustomUserFieldExtras.clear();
   });
   it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)
