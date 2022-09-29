@@ -53,7 +53,9 @@ export default class RouteItem extends UserRoute<{
     const result = await this.db.forms.insert({
       name: body.name,
       author: this.getTesterId(),
-      campaign_id: body.campaign ? body.campaign : undefined,
+      campaign_id: body.campaign
+        ? await this.getValidCampaignId(body.campaign)
+        : undefined,
     });
 
     return await this.getForm(result.insertId);
@@ -77,7 +79,18 @@ export default class RouteItem extends UserRoute<{
     }
     return result;
   }
-
+  private async getValidCampaignId(campaign_id: number): Promise<number> {
+    const formWithCurrentCampaignId = await this.db.forms.query({
+      where: [{ campaign_id: campaign_id }],
+    });
+    if (formWithCurrentCampaignId.length !== 0) {
+      throw {
+        status_code: 406,
+        message: "A form is already assigned to this campaign_id",
+      };
+    }
+    return campaign_id;
+  }
   private async createFields(formId: number) {
     const body = this.getBody();
     const results = [];
