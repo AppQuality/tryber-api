@@ -58,7 +58,7 @@ describe("POST /campaigns/forms/", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    const result = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
+    const result = await PreselectionForm.all(undefined, [{ campaign_id: 1 }]);
     expect(result.length).toBe(1);
     expect(result[0]).toHaveProperty("campaign_id", body.campaign);
     const responseNewFormSameCamapign = await request(app)
