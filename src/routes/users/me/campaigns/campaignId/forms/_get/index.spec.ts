@@ -195,11 +195,11 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 1,
           type: "text",
           question: "What is your dog name?",
-        },
+        }),
       ])
     );
   });
@@ -211,12 +211,12 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 2,
           type: "select",
           question: "What is your dog breed?",
           options: ["Bulldog", "Poodle", "Labrador"],
-        },
+        }),
       ])
     );
   });
@@ -227,12 +227,12 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 3,
           type: "multiselect",
           question: "What vaccines has your dog received?",
           options: ["Rabies", "Parvovirus", "Distemper"],
-        },
+        }),
       ])
     );
   });
@@ -244,7 +244,7 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 4,
           type: "cuf_1",
           question: "What is your telegram username?",
@@ -252,7 +252,7 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
             regex: "^@[a-zA-Z0-9_]$",
             error: "Invalid telegram username",
           },
-        },
+        }),
       ])
     );
   });
@@ -263,12 +263,12 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 5,
           type: "cuf_2",
           question: "How may children do you have?",
           options: [1, 2],
-        },
+        }),
       ])
     );
   });
@@ -279,12 +279,12 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 6,
           type: "cuf_3",
           question: "Select the banks in which you have an account",
           options: [5, 6],
-        },
+        }),
       ])
     );
   });
@@ -296,11 +296,11 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 7,
           type: "gender",
           question: "What gender do you identify with?",
-        },
+        }),
       ])
     );
   });
@@ -311,14 +311,14 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 8,
           type: "phone_number",
           question: "What is your phone number",
           validation: {
             regex: "^\\+?[0-9]{12,14}$",
           },
-        },
+        }),
       ])
     );
   });
