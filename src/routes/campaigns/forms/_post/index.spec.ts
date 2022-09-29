@@ -74,6 +74,11 @@ describe("POST /campaigns/forms/", () => {
     expect(afterNewFormResult.length).toBe(1);
     expect(afterNewFormResult[0]).toHaveProperty("campaign_id", body.campaign);
     expect(responseNewFormSameCamapign.status).toBe(406);
+    expect(responseNewFormSameCamapign.body).toMatchObject({
+      element: "element",
+      id: 1,
+      message: "A form is already assigned to this campaign_id",
+    });
   });
   it("Should create a new form on success and return its id", async () => {
     const response = await request(app)
