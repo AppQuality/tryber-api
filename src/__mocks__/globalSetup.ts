@@ -20,13 +20,13 @@ import CustomUserFields from "./mockedDb/customUserFields";
 import CampaignType from "./mockedDb/campaignType";
 import PageAccess from "./mockedDb/pageAccess";
 import CustomUserFieldsExtras from "./mockedDb/customUserFieldsExtra";
+import CustomUserFieldsData from "./mockedDb/customUserFieldsData";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
 import { table as bugTable } from "./mockedDb/bug";
 import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as certificationListTable } from "./mockedDb/certificationList";
-import { table as cufDataTable } from "./mockedDb/customUserFieldsData";
 import deviceOs from "./mockedDb/deviceOs";
 import DevicePlatform from "./mockedDb/devicePlatform";
 import { table as educationListTable } from "./mockedDb/educationList";
@@ -67,7 +67,6 @@ beforeAll(async () => {
   await wpUsersTable.create();
   await levelTable.create();
   await levelDefTable.create();
-  await cufDataTable.create();
   await TesterDevice.mock();
   await bugTable.create();
   await certificationListTable.create();
@@ -106,4 +105,5 @@ beforeAll(async () => {
   await CampaignType.mock();
   await PageAccess.mock();
   await CustomUserFieldsExtras.mock();
+  await CustomUserFieldsData.mock();
 });

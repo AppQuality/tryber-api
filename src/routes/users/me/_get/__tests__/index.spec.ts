@@ -3,7 +3,7 @@ import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationListData } from "@src/__mocks__/mockedDb/certificationList";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import { data as cufDataData } from "@src/__mocks__/mockedDb/customUserFieldsData";
+import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 import CustomUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationListData } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentListData } from "@src/__mocks__/mockedDb/employmentList";
@@ -278,7 +278,7 @@ describe("Route GET users-me-full-fields", () => {
       await languageListData.drop();
       await testerLanguageData.drop();
       await CustomUserFields.clear();
-      await cufDataData.drop();
+      await CustomUserFieldsData.clear();
       await CustomUserFieldsExtras.clear();
       await WpOptions.clear();
 

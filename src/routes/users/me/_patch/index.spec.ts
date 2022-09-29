@@ -5,7 +5,7 @@ import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
+import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 import CustomUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationsList } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentsList } from "@src/__mocks__/mockedDb/employmentList";
@@ -55,7 +55,8 @@ describe("Route PATCH users-me", () => {
         name: "Username Tetris",
         type: "text",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
+        id: 1,
         value: "CiccioGamer89.",
         candidate: 0,
       });
@@ -68,7 +69,7 @@ describe("Route PATCH users-me", () => {
       await CustomUserFieldExtras.insert({
         name: "Habanero Scorpion",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 2,
         value: "1",
         custom_user_field_id: 2,
@@ -88,13 +89,13 @@ describe("Route PATCH users-me", () => {
         id: 3,
         name: "Treviso, città del Cardamomo",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 3,
         value: "2",
         custom_user_field_id: 3,
         candidate: 0,
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 4,
         value: "3",
         custom_user_field_id: 3,
@@ -118,7 +119,7 @@ describe("Route PATCH users-me", () => {
     await languagesList.drop();
     await testerLanguages.drop();
     await CustomUserFields.clear();
-    await cufData.drop();
+    await CustomUserFieldsData.clear();
     await CustomUserFieldExtras.clear();
   });
   it("Should not update user when no parameters were given", async () => {
@@ -214,7 +215,8 @@ describe("Route PATCH users-me accepted fields", () => {
         name: "Username Tetris",
         type: "text",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
+        id: 1,
         value: "CiccioGamer89.",
         candidate: 0,
       });
@@ -227,7 +229,7 @@ describe("Route PATCH users-me accepted fields", () => {
       await CustomUserFieldExtras.insert({
         name: "Habanero Scorpion",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 2,
         value: "1",
         custom_user_field_id: 2,
@@ -247,13 +249,13 @@ describe("Route PATCH users-me accepted fields", () => {
         id: 3,
         name: "Treviso, città del Cardamomo",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 3,
         value: "2",
         custom_user_field_id: 3,
         candidate: 0,
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 4,
         value: "3",
         custom_user_field_id: 3,
@@ -277,7 +279,7 @@ describe("Route PATCH users-me accepted fields", () => {
     await languagesList.drop();
     await testerLanguages.drop();
     await CustomUserFields.clear();
-    await cufData.drop();
+    await CustomUserFieldsData.clear();
     await CustomUserFieldExtras.clear();
   });
   it("Should return 412 if EMAIL already exists for another user", async () => {
