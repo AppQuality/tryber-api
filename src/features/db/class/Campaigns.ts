@@ -3,7 +3,7 @@ import Database from "./Database";
 type CampaignType = {
   id: number;
   title: string;
-  is_public: 0 | 1 | 2;
+  is_public: 0 | 1 | 2 | 3;
   page_preview_id: string;
   page_manual_id: string;
   status_id: 1 | 2;
@@ -16,7 +16,7 @@ type CampaignType = {
 class CampaignObject {
   id: number;
   title: string;
-  is_public: 0 | 1 | 2;
+  is_public: 0 | 1 | 2 | 3;
   page_preview_id: string;
   page_manual_id: string;
   status_id: 1 | 2;
