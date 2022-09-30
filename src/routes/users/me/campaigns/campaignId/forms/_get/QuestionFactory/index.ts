@@ -8,6 +8,8 @@ import SelectableQuestion from "./Questions/SelectableQuestion";
 import CufTextQuestion from "./Questions/CufTextQuestion";
 import CufSelectQuestion from "./Questions/CufSelectableQuestion";
 import PhoneQuestion from "./Questions/PhoneQuestion";
+import GenderQuestion from "./Questions/GenderQuestion";
+import AddressQuestion from "./Questions/AddressQuestion";
 
 type QuestionType = Awaited<
   ReturnType<PreselectionFormFields["query"]>
@@ -44,7 +46,11 @@ class QuestionFactory {
         return false;
       }
     } else if (this.isPhone(question)) {
-      return new PhoneQuestion(question);
+      return new PhoneQuestion(question, testerId);
+    } else if (this.isGender(question)) {
+      return new GenderQuestion(question, testerId);
+    } else if (this.isAddress(question)) {
+      return new AddressQuestion(question, testerId);
     } else {
       return new Question(question);
     }
@@ -70,6 +76,17 @@ class QuestionFactory {
     type: `phone_number`;
   } {
     return question.type === "phone_number";
+  }
+
+  static isGender(question: QuestionType): question is QuestionType & {
+    type: `gender`;
+  } {
+    return question.type === "gender";
+  }
+  static isAddress(question: QuestionType): question is QuestionType & {
+    type: `address`;
+  } {
+    return question.type === "address";
   }
 }
 

@@ -1,11 +1,11 @@
 import Question from ".";
 import Profile, { ProfileObject } from "@src/features/db/class/Profile";
 
-class PhoneQuestion extends Question<{
-  type: `phone_number`;
+class AddressQuestion extends Question<{
+  type: `address`;
 }> {
   constructor(
-    question: typeof PhoneQuestion.constructor.arguments[0],
+    question: typeof AddressQuestion.constructor.arguments[0],
     private testerId: number
   ) {
     super(question);
@@ -15,7 +15,10 @@ class PhoneQuestion extends Question<{
     type: string;
     question: string;
     validation?: { regex: string };
-    value?: ProfileObject["phone_number"];
+    value?: {
+      country: ProfileObject["country"];
+      city: ProfileObject["city"];
+    };
   }> {
     return {
       ...this.getDefault(),
@@ -23,20 +26,23 @@ class PhoneQuestion extends Question<{
       validation: {
         regex: "^\\+?[0-9]{12,14}$",
       },
-      value: await this.getPhone(),
+      value: await this.getAddress(),
     };
   }
 
-  async getPhone() {
+  async getAddress() {
     const profile = new Profile();
     try {
       const tester = await profile.get(this.testerId);
-      if (tester.phone_number) {
-        return tester.phone_number;
+      if (tester.country) {
+        return {
+          country: tester.country,
+          city: tester.city ? tester.city : undefined,
+        };
       }
     } catch (e) {}
     return undefined;
   }
 }
 
-export default PhoneQuestion;
+export default AddressQuestion;

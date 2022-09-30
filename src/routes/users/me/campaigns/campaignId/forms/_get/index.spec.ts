@@ -7,9 +7,16 @@ import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFiel
 import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import customUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
+import profile from "@src/__mocks__/mockedDb/profile";
 
 describe("GET users/me/campaigns/:campaignId/forms", () => {
   beforeAll(async () => {
+    profile.insert({
+      sex: 1,
+      country: "Italy",
+      city: "Rome",
+      phone_number: "+393331234567",
+    });
     campaign.insert({
       id: 1,
       is_public: 1,
@@ -389,11 +396,11 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
-        {
+        expect.objectContaining({
           id: 9,
           type: "address",
           question: "What city do you live in?",
-        },
+        }),
       ])
     );
   });
@@ -459,6 +466,54 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
         expect.objectContaining({
           type: "cuf_3",
           value: [5],
+        }),
+      ])
+    );
+  });
+
+  it("Should return 200 with the form fields and the gender value if exists", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "gender",
+          value: "male",
+        }),
+      ])
+    );
+  });
+
+  it("Should return 200 with the form fields and the phone number value if exists", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "phone_number",
+          value: "+393331234567",
+        }),
+      ])
+    );
+  });
+
+  it("Should return 200 with the form fields and the phone number value if exists", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "address",
+          value: {
+            city: "Rome",
+            country: "Italy",
+          },
         }),
       ])
     );
