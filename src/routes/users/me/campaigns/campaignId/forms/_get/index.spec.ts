@@ -68,7 +68,7 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       form_id: 1,
       type: "cuf_2",
       question: "How may children do you have?",
-      options: "1,2",
+      options: "[1,2]",
     });
     customUserFields.insert({
       id: 2,
@@ -101,7 +101,7 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       form_id: 1,
       type: "cuf_3",
       question: "Select the banks in which you have an account",
-      options: "5,6",
+      options: "[5,6]",
     });
     customUserFields.insert({
       id: 3,
@@ -159,7 +159,7 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       form_id: 1,
       type: "cuf_4",
       question: "What is your favorite color?",
-      options: "8,9",
+      options: "[8,9]",
     });
     customUserFields.insert({
       id: 4,

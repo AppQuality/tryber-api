@@ -24,9 +24,7 @@ class CufSelectQuestion extends Question<{
     super(question);
     this.customUserField = customUserField;
     this.testerId = testerId;
-    const validOptions = this.question.options
-      .split(",")
-      .map((o) => parseInt(o.trim()));
+    const validOptions = JSON.parse(this.question.options);
 
     this.options = options
       .filter((o) => validOptions.includes(o.id))
