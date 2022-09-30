@@ -248,11 +248,12 @@ export interface paths {
       };
     };
   };
-  "/users/me/campaigns/{campaignId}/available_devices": {
+  "/users/me/campaigns/{campaign}/available_devices": {
     get: operations["get-users-me-campaigns-campaignId-available-devices"];
     parameters: {
       path: {
-        campaignId: string;
+        /** A campaign id */
+        campaign: string;
       };
     };
   };
@@ -2006,7 +2007,8 @@ export interface operations {
   "get-users-me-campaigns-campaignId-available-devices": {
     parameters: {
       path: {
-        campaignId: string;
+        /** A campaign id */
+        campaign: string;
       };
     };
     responses: {
