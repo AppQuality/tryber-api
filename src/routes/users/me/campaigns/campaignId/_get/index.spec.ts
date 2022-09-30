@@ -8,7 +8,7 @@ import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import CustomBugTypes from "@src/__mocks__/mockedDb/customBugTypes";
 import CustomReplicabilities from "@src/__mocks__/mockedDb/customReplicabilities";
 import CustomSeverities from "@src/__mocks__/mockedDb/customSeverities";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import UseCases from "@src/__mocks__/mockedDb/usecases";
 import UseCaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
@@ -17,7 +17,7 @@ import app from "@src/app";
 import request from "supertest";
 
 beforeAll(async () => {
-  await profileData.basicTester();
+  await Profile.insert();
   await wpUserData.basicUser();
   await Candidature.insert({
     campaign_id: 1,
@@ -124,7 +124,7 @@ beforeAll(async () => {
 });
 afterAll(async () => {
   await wpUserData.drop();
-  await profileData.drop();
+  await Profile.clear();
   await WpOptions.clear();
   await Candidature.clear();
   await Severities.clear();

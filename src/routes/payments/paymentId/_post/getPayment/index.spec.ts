@@ -1,6 +1,6 @@
 import sqlite3 from "@src/features/sqlite";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import getPayment from ".";
 
 jest.mock("@src/features/db");
@@ -50,14 +50,14 @@ describe("POST /payments/:paymentId", () => {
       await sqlite3.insert("wp_appq_payment_request", invalidTypePayment);
       await sqlite3.insert("wp_appq_fiscal_profile", fiscalProfile);
 
-      await sqlite3.insert("wp_appq_evd_profile", tester);
+      Profile.insert(tester);
 
       resolve(null);
     });
   });
   afterAll(async () => {
     await paymentRequestData.drop();
-    await profileData.drop();
+    await Profile.clear();
   });
   it('Should throw "No payment found" error on no results', async () => {
     try {

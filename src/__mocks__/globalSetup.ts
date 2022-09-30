@@ -21,6 +21,7 @@ import CampaignType from "./mockedDb/campaignType";
 import PageAccess from "./mockedDb/pageAccess";
 import CustomUserFieldsExtras from "./mockedDb/customUserFieldsExtra";
 import CustomUserFieldsData from "./mockedDb/customUserFieldsData";
+import Profile from "./mockedDb/profile";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
@@ -38,7 +39,6 @@ import { table as levelTable } from "./mockedDb/levels";
 import { table as levelRevTable } from "./mockedDb/levelsRevisions";
 import { table as paymentRequestTable } from "./mockedDb/paymentRequest";
 import { table as popupTable } from "./mockedDb/popups";
-import { table as testerTable } from "./mockedDb/profile";
 import { table as receiptTable } from "./mockedDb/receipt";
 import { table as testerCertificationTable } from "./mockedDb/testerCertification";
 import TesterDevice from "./mockedDb/testerDevice";
@@ -63,7 +63,6 @@ beforeAll(async () => {
   await expTable.create();
   await Campaigns.mock();
   await Candidature.mock();
-  await testerTable.create();
   await wpUsersTable.create();
   await levelTable.create();
   await levelDefTable.create();
@@ -106,4 +105,5 @@ beforeAll(async () => {
   await PageAccess.mock();
   await CustomUserFieldsExtras.mock();
   await CustomUserFieldsData.mock();
+  await Profile.mock();
 });

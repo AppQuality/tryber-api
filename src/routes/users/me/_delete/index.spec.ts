@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as userLevels } from "@src/__mocks__/mockedDb/levels";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
@@ -28,7 +28,7 @@ const tester1 = {
   u2b_login_token: "u2b_token",
   fb_login_token: "fb_token",
   ln_login_token: "ln_token",
-  total_exp_pts: "999",
+  total_exp_pts: 999,
   employment_id: 1,
   education_id: 1,
   state: "NoState",
@@ -38,8 +38,7 @@ const tester1 = {
 describe("Route DELETE users/me", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-      //await profileData.basicTester(tester1);
+      await Profile.insert(tester1);
       await wpUserData.basicUser();
       await userLevels.basicLevel();
       resolve(null);
@@ -49,7 +48,7 @@ describe("Route DELETE users/me", () => {
     return new Promise(async (resolve, reject) => {
       try {
         await wpUserData.drop();
-        await profileData.drop();
+        await Profile.clear();
         await userLevels.drop();
         resolve(null);
       } catch (err) {

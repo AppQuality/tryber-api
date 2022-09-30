@@ -2,7 +2,7 @@ import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import deviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
 
@@ -61,7 +61,7 @@ describe("Route GET users-me-devices", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await TesterDevice.clear();
       await DevicePlatform.clear();
       await deviceOs.clear();
@@ -154,7 +154,7 @@ describe("Route GET users-me-devices when the user hasn't devices", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       resolve(null);
     });
   });
@@ -180,7 +180,7 @@ describe("Route GET users-me-devices when the user devices are all disabled", ()
     await deviceOs.insert(os1);
   });
   afterEach(async () => {
-    await profileData.drop();
+    await Profile.clear();
     await TesterDevice.clear();
     await DevicePlatform.clear();
     await deviceOs.clear();

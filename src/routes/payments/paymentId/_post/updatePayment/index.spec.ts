@@ -1,6 +1,6 @@
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import sqlite3 from "@src/features/sqlite";
 
 import updatePayment from ".";
@@ -58,7 +58,7 @@ describe("updatePayment", () => {
           "wp_appq_payment_request",
           validBankTransferPayment
         );
-        await sqlite3.insert("wp_appq_evd_profile", tester);
+        Profile.insert(tester);
         await Attributions.insert({
           id: 1,
           is_paid: 0,
@@ -80,7 +80,7 @@ describe("updatePayment", () => {
       try {
         await paymentRequestData.drop();
         await Attributions.clear();
-        await profileData.drop();
+        await Profile.clear();
         resolve(null);
       } catch (err) {
         reject(err);

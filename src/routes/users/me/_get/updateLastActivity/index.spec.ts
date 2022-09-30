@@ -1,5 +1,5 @@
 import sqlite3 from "@src/features/sqlite";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import updateLastActivity from ".";
 
 jest.mock("@src/features/db");
@@ -23,7 +23,7 @@ describe("updateLastActivity", () => {
   afterEach(async () => {
     return new Promise(async (resolve, reject) => {
       try {
-        await profileData.drop();
+        await Profile.clear();
         resolve(null);
       } catch (err) {
         reject(err);

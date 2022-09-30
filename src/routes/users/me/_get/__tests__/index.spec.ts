@@ -8,7 +8,7 @@ import CustomUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtr
 import { data as educationListData } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentListData } from "@src/__mocks__/mockedDb/employmentList";
 import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
@@ -171,7 +171,7 @@ describe("Route GET users-me", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await wpUserData.drop();
 
       resolve(null);
@@ -266,7 +266,7 @@ describe("Route GET users-me-full-fields", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await wpUserData.drop();
 
       await bugData.drop();

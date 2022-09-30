@@ -3,7 +3,7 @@ import { data as expData } from "@src/__mocks__/mockedDb/experience";
 import { data as userLevelData } from "@src/__mocks__/mockedDb/levels";
 import { data as levelDefData } from "@src/__mocks__/mockedDb/levelsDefinition";
 import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
 const mockedLevelDefinitions = () => {
@@ -55,9 +55,9 @@ const firstDayOfLastMonth = () => {
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.testerWithBooty();
-      profileData.basicTester({ id: 2 });
-      profileData.basicTester({ id: 3 });
+      Profile.insert({ pending_booty: 100 });
+      Profile.insert({ id: 2 });
+      Profile.insert({ id: 3 });
       mockedLevelDefinitions();
       userLevelData.basicLevel();
       userLevelData.basicLevel({ id: 2, tester_id: 2 });
@@ -77,7 +77,7 @@ describe("Route GET users-me-rank", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       expData.drop();
@@ -142,7 +142,7 @@ describe("Route GET users-me-rank", () => {
 describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.basicTester();
+      Profile.insert();
       mockedLevelDefinitions();
       userLevelData.basicLevel({ level_id: 20 });
       expData.basicExperience({ amount: 20 });
@@ -151,7 +151,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       expData.drop();
@@ -182,7 +182,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
 describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.basicTester();
+      Profile.insert();
       mockedLevelDefinitions();
       userLevelData.basicLevel({ level_id: 30 });
       expData.basicExperience({ amount: 50 });
@@ -191,7 +191,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       expData.drop();
@@ -215,7 +215,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
 describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.basicTester();
+      Profile.insert();
       mockedLevelDefinitions();
       userLevelData.basicLevel({ level_id: 10 });
       expData.basicExperience({ amount: 300 });
@@ -224,7 +224,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       expData.drop();
@@ -258,14 +258,14 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
 describe("Route GET users-me-rank - No level user", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.testerWithBooty();
+      Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       resolve(null);
     });
@@ -281,7 +281,7 @@ describe("Route GET users-me-rank - No level user", () => {
 describe("Route GET users-me-rank - No previous level", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.testerWithBooty();
+      Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
       userLevelData.basicLevel();
       resolve(null);
@@ -289,7 +289,7 @@ describe("Route GET users-me-rank - No previous level", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       resolve(null);
@@ -309,7 +309,7 @@ describe("Route GET users-me-rank - No previous level", () => {
 describe("Route GET users-me-rank - No montly points", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.testerWithBooty();
+      Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
       userLevelData.basicLevel();
       resolve(null);
@@ -317,7 +317,7 @@ describe("Route GET users-me-rank - No montly points", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       resolve(null);
@@ -334,7 +334,7 @@ describe("Route GET users-me-rank - No montly points", () => {
 describe("Route GET users-me-rank - Legendary User", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.testerWithBooty();
+      Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
       userLevelData.basicLevel({ level_id: 100 });
       resolve(null);
@@ -342,7 +342,7 @@ describe("Route GET users-me-rank - Legendary User", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       resolve(null);
@@ -373,7 +373,7 @@ describe("Route GET users-me-rank - Legendary User", () => {
 describe("Route GET users-me-rank - Legendary Prospect User", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.basicTester({
+      Profile.insert({
         total_exp_pts: 9999999,
       });
       mockedLevelDefinitions();
@@ -383,7 +383,7 @@ describe("Route GET users-me-rank - Legendary Prospect User", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       resolve(null);
@@ -407,7 +407,7 @@ describe("Route GET users-me-rank - Legendary Prospect User", () => {
 describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.basicTester({
+      Profile.insert({
         total_exp_pts: 10000,
       });
       mockedLevelDefinitions();
@@ -418,7 +418,7 @@ describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      profileData.drop();
+      Profile.clear();
       levelDefData.drop();
       userLevelData.drop();
       resolve(null);

@@ -3,7 +3,7 @@ import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as fiscalProfileData } from "@src/__mocks__/mockedDb/fiscalProfile";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
@@ -13,7 +13,7 @@ describe("POST /users/me/payments - valid paypal", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await wpUsersData.basicUser();
-      data.tester = await profileData.testerWithBooty({
+      data.tester = await Profile.insert({
         pending_booty: 129.99,
       });
       data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
@@ -48,7 +48,7 @@ describe("POST /users/me/payments - valid paypal", () => {
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await wpUsersData.drop();
-      await profileData.drop();
+      await Profile.clear();
       await fiscalProfileData.drop();
       await WpOptions.clear();
       await paymentRequestData.drop();
@@ -186,7 +186,7 @@ describe("POST /users/me/payments - valid iban", () => {
       wpUsersData.basicUser({
         ID: 1,
       });
-      data.tester = await profileData.testerWithBooty({
+      data.tester = await Profile.insert({
         pending_booty: 129.99,
       });
       data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
@@ -222,7 +222,7 @@ describe("POST /users/me/payments - valid iban", () => {
     return new Promise(async (resolve) => {
       await wpUsersData.drop();
       await Attributions.clear();
-      await profileData.drop();
+      await Profile.clear();
       await fiscalProfileData.drop();
       await WpOptions.clear();
       await paymentRequestData.drop();
@@ -371,7 +371,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
   afterEach(async () => {
     return new Promise(async (resolve) => {
       await Attributions.clear();
-      await profileData.drop();
+      await Profile.clear();
       await fiscalProfileData.drop();
       await paymentRequestData.drop();
       await wpUsersData.drop();
@@ -383,7 +383,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty({
+    data.tester = await Profile.insert({
       pending_booty: 129.99,
     });
     data.tester = {
@@ -422,7 +422,9 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty();
+    data.tester = await Profile.insert({
+      pending_booty: 100,
+    });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
       fiscal_category: 1,
@@ -453,7 +455,9 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty();
+    data.tester = await Profile.insert({
+      pending_booty: 100,
+    });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
       fiscal_category: 4,
@@ -483,7 +487,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty({
+    data.tester = await Profile.insert({
       pending_booty: 129.99,
     });
     data.attribution = await Attributions.insert({
@@ -523,7 +527,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty({
+    data.tester = await Profile.insert({
       pending_booty: 129.99,
     });
     data.tester = {
@@ -560,7 +564,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty({
+    data.tester = await Profile.insert({
       pending_booty: 129.99,
     });
     data.tester = {
@@ -598,7 +602,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty({
+    data.tester = await Profile.insert({
       pending_booty: 129.99,
     });
     data.attribution = await Attributions.insert({
@@ -624,7 +628,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    data.tester = await profileData.testerWithBooty({
+    data.tester = await Profile.insert({
       pending_booty: 129.99,
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
@@ -657,7 +661,7 @@ describe("POST /users/me/payments - stamp required", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await Attributions.clear();
       await fiscalProfileData.drop();
       await WpOptions.clear();
@@ -671,7 +675,7 @@ describe("POST /users/me/payments - stamp required", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    const tester = await profileData.testerWithBooty({
+    const tester = await Profile.insert({
       pending_booty: 61.99,
     });
     await fiscalProfileData.validFiscalProfile({
@@ -702,7 +706,7 @@ describe("POST /users/me/payments - stamp required", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    const tester = await profileData.testerWithBooty({
+    const tester = await Profile.insert({
       pending_booty: 61.95,
     });
     const attribution = await Attributions.insert({
@@ -740,7 +744,7 @@ describe("POST /users/me/payments - invalid data", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await fiscalProfileData.drop();
       await WpOptions.clear();
       await paymentRequestData.drop();
@@ -754,7 +758,7 @@ describe("POST /users/me/payments - invalid data", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    await profileData.testerWithoutBooty();
+    await Profile.insert();
     const response = await request(app)
       .post("/users/me/payments")
       .set("authorization", "Bearer tester")
@@ -771,7 +775,9 @@ describe("POST /users/me/payments - invalid data", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    const tester = await profileData.testerWithBooty();
+    const tester = await Profile.insert({
+      pending_booty: 100,
+    });
     await fiscalProfileData.inactiveFiscalProfile({ tester_id: tester.id });
     const attribution = await Attributions.insert({
       amount: 69.99,
@@ -793,7 +799,9 @@ describe("POST /users/me/payments - invalid data", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    const tester = await profileData.testerWithBooty();
+    const tester = await Profile.insert({
+      pending_booty: 100,
+    });
     await fiscalProfileData.invalidFiscalProfile({ tester_id: tester.id });
     const attribution = await Attributions.insert({
       amount: tester.pending_booty,
@@ -814,7 +822,7 @@ describe("POST /users/me/payments - invalid data", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    const tester = await profileData.testerWithBooty({
+    const tester = await Profile.insert({
       pending_booty: 0.01,
     });
     const attribution = await Attributions.insert({
@@ -838,7 +846,9 @@ describe("POST /users/me/payments - invalid data", () => {
     await wpUsersData.basicUser({
       ID: 1,
     });
-    const tester = await profileData.testerWithBooty();
+    const tester = await Profile.insert({
+      pending_booty: 100,
+    });
     await fiscalProfileData.validFiscalProfile({ tester_id: tester.id });
     await paymentRequestData.processingPaypalPayment({ tester_id: tester.id });
     const attribution = await Attributions.insert({

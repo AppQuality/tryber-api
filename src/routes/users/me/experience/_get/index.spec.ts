@@ -2,7 +2,7 @@ import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as experienceData } from "@src/__mocks__/mockedDb/experience";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
 const tester1 = {
@@ -52,7 +52,7 @@ describe("GET /users/me/experience", () => {
     return new Promise(async (resolve) => {
       await Campaigns.clear();
       await experienceData.drop();
-      await profileData.drop();
+      await Profile.clear();
 
       resolve(null);
     });
@@ -152,7 +152,7 @@ describe("GET /users/me/experience - user without experience points", () => {
     return new Promise(async (resolve) => {
       await Campaigns.clear();
       await experienceData.drop();
-      await profileData.drop();
+      await Profile.clear();
 
       resolve(null);
     });
