@@ -36,14 +36,14 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       form_id: 1,
       type: "select",
       question: "What is your dog breed?",
-      options: "Bulldog, Poodle, Labrador",
+      options: '["Bulldog", "Poodle", "Labrador"]',
     });
     preselectionFormFields.insert({
       id: 3,
       form_id: 1,
       type: "multiselect",
       question: "What vaccines has your dog received?",
-      options: "Rabies, Parvovirus, Distemper",
+      options: '["Rabies", "Parvovirus", "Distemper"]',
     });
     preselectionFormFields.insert({
       id: 4,

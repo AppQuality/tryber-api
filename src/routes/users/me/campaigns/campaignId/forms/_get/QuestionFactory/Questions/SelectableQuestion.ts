@@ -11,7 +11,7 @@ class SelectableQuestion extends Question<{
   }> {
     return {
       ...this.getDefault(),
-      options: this.question.options.split(",").map((o) => o.trim()),
+      options: JSON.parse(this.question.options).map((o: string) => o.trim()),
     };
   }
 }
