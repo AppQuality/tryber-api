@@ -11,6 +11,7 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["put-campaigns-forms-formId"]["parameters"]["path"];
 }> {
   private campaignId: number | undefined;
+  private newCampaignId: number | undefined;
   private db: {
     forms: PreselectionForms;
     campaigns: Campaigns;
@@ -19,11 +20,13 @@ export default class RouteItem extends UserRoute<{
 
   constructor(options: RouteItem["configuration"]) {
     super(options);
+    const body = this.getBody();
     this.db = {
       forms: new PreselectionForms(),
       campaigns: new Campaigns(),
       fields: new PreselectionFormFields(),
     };
+    this.newCampaignId = body.campaign;
   }
 
   protected async init() {
@@ -55,6 +58,15 @@ export default class RouteItem extends UserRoute<{
     if (this.campaignId && !this.hasAccessToCampaign(this.campaignId)) {
       return this.setUnauthorizedError();
     }
+    if (await this.isCampaignIdAlreadyAssigned()) {
+      this.setError(
+        406,
+        new Error(
+          "A form is already assigned to this campaign_id"
+        ) as OpenapiError
+      );
+      return false;
+    }
     return true;
   }
 
@@ -83,12 +95,12 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async editForm() {
-    const { name, campaign } = this.getBody();
+    const { name } = this.getBody();
     await this.db.forms.update({
       data: {
         name,
         author: this.getTesterId(),
-        campaign_id: campaign ? campaign : undefined,
+        campaign_id: this.newCampaignId,
       },
       where: [{ id: this.getId() }],
     });
@@ -127,5 +139,14 @@ export default class RouteItem extends UserRoute<{
           }
         : undefined,
     };
+  }
+
+  private async isCampaignIdAlreadyAssigned(): Promise<boolean> {
+    if (this.newCampaignId === undefined) return false;
+
+    const formWithCurrentCampaignId = await this.db.forms.query({
+      where: [{ campaign_id: this.newCampaignId }],
+    });
+    return formWithCurrentCampaignId.length !== 0;
   }
 }

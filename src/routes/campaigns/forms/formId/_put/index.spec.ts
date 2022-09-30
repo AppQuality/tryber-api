@@ -39,6 +39,7 @@ const sampleBodyWithFields = {
 };
 describe("PUT /campaigns/forms/", () => {
   beforeAll(() => {
+    Campaign.insert({ id: 1 });
     Campaign.insert({ id: 2 });
     Campaign.insert({ id: 3 });
     CustomUserFields.insert({
@@ -394,5 +395,33 @@ describe("PUT /campaigns/forms/", () => {
     const results = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
     expect(results.length).toBe(1);
     expect(results[0].campaign_id).toBe(3);
+  });
+  it("Should return 406 if sending a form associated with a campaign that already has a form", async () => {
+    const body = {
+      ...sampleBody,
+      campaign: 1,
+      name: "New Form with same campaign id",
+    };
+    const result = await PreselectionForm.all(undefined, [{ campaign_id: 1 }]);
+    expect(result.length).toBe(1);
+    expect(result[0]).toHaveProperty("campaign_id", body.campaign);
+    const responseNewFormSameCamapign = await request(app)
+      .put("/campaigns/forms/2")
+      .send(body)
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"] olp {"appq_campaign":[1]}`
+      );
+    const afterNewFormResult = await PreselectionForm.all(undefined, [
+      { campaign_id: 1 },
+    ]);
+    expect(afterNewFormResult.length).toBe(1);
+    expect(afterNewFormResult[0]).toHaveProperty("campaign_id", body.campaign);
+    expect(responseNewFormSameCamapign.status).toBe(406);
+    expect(responseNewFormSameCamapign.body).toMatchObject({
+      element: "element",
+      id: 2,
+      message: "A form is already assigned to this campaign_id",
+    });
   });
 });
