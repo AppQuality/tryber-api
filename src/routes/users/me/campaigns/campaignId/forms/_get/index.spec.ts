@@ -219,6 +219,16 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
       is_public: 1,
     });
   });
+  afterAll(async () => {
+    campaign.clear();
+    pageAccess.clear();
+    preselectionFormFields.clear();
+    preselectionForms.clear();
+    customUserFields.clear();
+    customUserFieldsExtras.clear();
+    customUserFieldsData.clear();
+    profile.clear();
+  });
 
   it("Should return 403 if user is not authenticated", async () => {
     const response = await request(app).get("/users/me/campaigns/1/forms");
@@ -512,6 +522,141 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
           type: "address",
           value: {
             city: "Rome",
+            country: "Italy",
+          },
+        }),
+      ])
+    );
+  });
+});
+
+describe("GET users/me/campaigns/:campaignId/forms - empty profile", () => {
+  beforeEach(async () => {
+    profile.insert({
+      id: 1,
+      city: undefined,
+      country: undefined,
+      sex: undefined,
+    });
+    campaign.insert({
+      id: 1,
+      is_public: 1,
+    });
+    preselectionForms.insert({
+      id: 1,
+      campaign_id: 1,
+    });
+    preselectionFormFields.insert({
+      id: 7,
+      form_id: 1,
+      type: "gender",
+      question: "What gender do you identify with?",
+    });
+    preselectionFormFields.insert({
+      id: 8,
+      form_id: 1,
+      type: "phone_number",
+      question: "What is your phone number",
+    });
+    preselectionFormFields.insert({
+      id: 9,
+      form_id: 1,
+      type: "address",
+      question: "What city do you live in?",
+    });
+  });
+  afterEach(() => {
+    profile.clear();
+    campaign.clear();
+    preselectionForms.clear();
+    preselectionFormFields.clear();
+  });
+
+  it("Should not have a value for gender question", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "gender",
+        }),
+      ])
+    );
+    expect(response.body).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "gender",
+          value: expect.anything(),
+        }),
+      ])
+    );
+  });
+
+  it("Should not have a value for phone question", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "phone_number",
+        }),
+      ])
+    );
+    expect(response.body).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "phone_number",
+          value: expect.anything(),
+        }),
+      ])
+    );
+  });
+
+  it("Should not have a value for address question", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "address",
+        }),
+      ])
+    );
+    expect(response.body).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "address",
+          value: expect.anything(),
+        }),
+      ])
+    );
+  });
+  it("Should return only country as value if no city is available for address question", async () => {
+    profile.clear();
+    profile.insert({
+      id: 1,
+      city: undefined,
+      country: "Italy",
+    });
+    const response = await request(app)
+      .get("/users/me/campaigns/1/forms")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "address",
+          value: {
             country: "Italy",
           },
         }),
