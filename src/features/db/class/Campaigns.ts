@@ -44,6 +44,7 @@ class CampaignObject {
   get isSmallGroup() {
     return this.is_public === 3;
   }
+
   public async testerHasAccess(testerId: number) {
     if (this.isPublic) return true;
     if (this.isSmallGroup) {
@@ -57,6 +58,11 @@ class CampaignObject {
       return previewAccess.length > 0;
     }
     return false;
+  }
+
+  public async isApplicationAvailable() {
+    const today = new Date().toISOString().split("T")[0];
+    return this.start_date >= today;
   }
 }
 
