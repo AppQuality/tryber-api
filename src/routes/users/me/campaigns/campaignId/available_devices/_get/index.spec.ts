@@ -1,5 +1,6 @@
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import PageAccess from "@src/__mocks__/mockedDb/pageAccess";
+import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import app from "@src/app";
 import request from "supertest";
 
@@ -28,22 +29,15 @@ const campaign3 = {
 
 describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await Campaigns.insert(campaign1);
-      await Campaigns.insert(campaign2);
-      await Campaigns.insert(campaign3);
-      await PageAccess.insert({ id: 1, tester_id: 1, view_id: 1 });
-      await PageAccess.insert({ id: 2, tester_id: 1, view_id: 2 });
-
-      resolve(null);
-    });
+    await Campaigns.insert(campaign1);
+    await Campaigns.insert(campaign2);
+    await Campaigns.insert(campaign3);
+    await PageAccess.insert({ id: 1, tester_id: 1, view_id: 1 });
+    await PageAccess.insert({ id: 2, tester_id: 1, view_id: 2 });
   });
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await Campaigns.clear();
-      await PageAccess.clear();
-      resolve(null);
-    });
+    await Campaigns.clear();
+    await PageAccess.clear();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -86,6 +80,35 @@ describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
     expect(response.body).toHaveProperty(
       "message",
       "You cannot access to this campaign"
+    );
+  });
+});
+describe("GET /users/me/campaigns/CP_ID/compatible_devices - user has not compatible devices", () => {
+  beforeEach(async () => {
+    await Campaigns.insert({
+      id: 1,
+      title: "This is the Campaign title",
+      start_date: new Date().toISOString().split("T")[0],
+      page_preview_id: 1,
+      is_public: 1 as 1,
+      os: "1,2",
+    });
+    await PageAccess.insert({ id: 1, tester_id: 1, view_id: 1 });
+    await TesterDevice.insert({ platform_id: 4 });
+  });
+  afterEach(async () => {
+    await Campaigns.clear();
+    await PageAccess.clear();
+  });
+
+  it("Should answer 404 if user has not compatible devices", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1/compatible_devices")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty(
+      "message",
+      "There are no compatible devices"
     );
   });
 });

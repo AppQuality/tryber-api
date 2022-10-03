@@ -1,23 +1,24 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
+import TesterDevices from "@src/features/db/class/TesterDevices";
 
 /** OPENAPI-CLASS: get-users-me-campaigns-campaignId-compatible-devices */
-
-type DeviceType =
-  StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["responses"]["200"]["content"]["application/json"][0];
 
 class RouteItem extends UserRoute<{
   parameters: StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["parameters"]["path"];
   response: StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["responses"]["200"]["content"]["application/json"];
 }> {
   private campaign_id: number;
-  private db: { campaigns: Campaigns; page_access: PageAccess };
+  private db: { campaigns: Campaigns; testerDevices: TesterDevices };
   private campaign: CampaignObject | undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
-    this.db = { campaigns: new Campaigns(), page_access: new PageAccess() };
+    this.db = {
+      campaigns: new Campaigns(),
+      testerDevices: new TesterDevices(),
+    };
     this.campaign_id = parseInt(this.getParameters().campaign);
   }
   protected async filter() {
@@ -63,6 +64,13 @@ class RouteItem extends UserRoute<{
       this.campaign = await this.db.campaigns.get(this.campaign_id);
     }
     return this.campaign;
+  }
+  private async getCompatibleDevices() {
+    const userDevice = await this.db.testerDevices.query({
+      where: [{ id_profile: this.getTesterId() }],
+    });
+
+    return userDevice;
   }
 }
 
