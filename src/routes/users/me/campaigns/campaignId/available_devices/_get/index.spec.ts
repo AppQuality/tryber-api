@@ -1,6 +1,5 @@
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import PageAccess from "@src/__mocks__/mockedDb/pageAccess";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
 import request from "supertest";
 
@@ -30,7 +29,6 @@ const campaign3 = {
 describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.basicTester();
       await Campaigns.insert(campaign1);
       await Campaigns.insert(campaign2);
       await Campaigns.insert(campaign3);
@@ -42,7 +40,6 @@ describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
       await Campaigns.clear();
       await PageAccess.clear();
       resolve(null);
