@@ -27,6 +27,7 @@ class CampaignObject {
   close_date: string;
   campaign_type_id: number;
   os: string;
+
   constructor(item: CampaignType) {
     this.id = item.id;
     this.title = item.title;
