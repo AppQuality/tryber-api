@@ -1,22 +1,53 @@
 import Database from "./Database";
+
+type PreselectionFormFieldsType = {
+  id: number;
+  short_name: string;
+  form_id: number;
+  type:
+    | "text"
+    | "select"
+    | "multiselect"
+    | "radio"
+    | "gender"
+    | "phone_number"
+    | "address"
+    | `cuf_${number}`;
+  options: string;
+  question: string;
+  priority: number;
+};
+
+class PreselectionFormFieldsObject {
+  id: number;
+  short_name: PreselectionFormFieldsType["short_name"];
+  form_id: PreselectionFormFieldsType["form_id"];
+  type: PreselectionFormFieldsType["type"];
+  options: PreselectionFormFieldsType["options"];
+  question: PreselectionFormFieldsType["question"];
+  priority: PreselectionFormFieldsType["priority"];
+
+  constructor(item: PreselectionFormFieldsType) {
+    this.id = item.id;
+    this.short_name = item.short_name;
+    this.form_id = item.form_id;
+    this.type = item.type;
+    this.options = item.options;
+    this.question = item.question;
+    this.priority = item.priority;
+  }
+
+  public getOptions(): string[] | number[] {
+    try {
+      return JSON.parse(this.options);
+    } catch (e) {
+      return [];
+    }
+  }
+}
+
 class Table extends Database<{
-  fields: {
-    id: number;
-    short_name: string;
-    form_id: number;
-    type:
-      | "text"
-      | "select"
-      | "multiselect"
-      | "radio"
-      | "gender"
-      | "phone_number"
-      | "address"
-      | `cuf_${number}`;
-    options: string;
-    question: string;
-    priority: number;
-  };
+  fields: PreselectionFormFieldsType;
 }> {
   constructor(fields?: Table["fields"][number][] | ["*"]) {
     super({
@@ -34,6 +65,12 @@ class Table extends Database<{
             "priority",
           ],
     });
+  }
+
+  public createObject(
+    row: PreselectionFormFieldsType
+  ): PreselectionFormFieldsObject {
+    return new PreselectionFormFieldsObject(row);
   }
 }
 export default Table;

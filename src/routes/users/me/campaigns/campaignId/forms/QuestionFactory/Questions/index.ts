@@ -20,6 +20,14 @@ class Question<T> {
       ...this.getDefault(),
     };
   }
+
+  async isDataInsertable(item: { campaignId: number; data: any }) {
+    return true;
+  }
+
+  async insertData(item: { campaignId: number; data: any }): Promise<void> {
+    return;
+  }
 }
 
 export default Question;

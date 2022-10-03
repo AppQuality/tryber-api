@@ -5,7 +5,7 @@ import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
 import PreselectionForms from "@src/features/db/class/PreselectionForms";
 import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import QuestionFactory from "./QuestionFactory";
+import QuestionFactory from "../QuestionFactory";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaign-campaignId-forms"]["responses"]["200"]["content"]["application/json"];

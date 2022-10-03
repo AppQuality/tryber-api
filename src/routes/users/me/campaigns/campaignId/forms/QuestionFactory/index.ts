@@ -10,6 +10,7 @@ import CufSelectQuestion from "./Questions/CufSelectableQuestion";
 import PhoneQuestion from "./Questions/PhoneQuestion";
 import GenderQuestion from "./Questions/GenderQuestion";
 import AddressQuestion from "./Questions/AddressQuestion";
+import SimpleTextQuestion from "./Questions/SimpleTextQuestion";
 
 type QuestionType = Awaited<
   ReturnType<PreselectionFormFields["query"]>
@@ -51,6 +52,8 @@ class QuestionFactory {
       return new GenderQuestion(question, testerId);
     } else if (this.isAddress(question)) {
       return new AddressQuestion(question, testerId);
+    } else if (this.isSimpleText(question)) {
+      return new SimpleTextQuestion(question, testerId);
     } else {
       return new Question(question);
     }
@@ -87,6 +90,11 @@ class QuestionFactory {
     type: `address`;
   } {
     return question.type === "address";
+  }
+  static isSimpleText(question: QuestionType): question is QuestionType & {
+    type: `text`;
+  } {
+    return question.type === "text";
   }
 }
 

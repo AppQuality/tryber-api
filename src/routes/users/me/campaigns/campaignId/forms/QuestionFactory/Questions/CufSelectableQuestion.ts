@@ -2,6 +2,7 @@ import Question from ".";
 import CustomUserFieldDatas from "@src/features/db/class/CustomUserFieldData";
 import { CustomUserFieldExtrasObject } from "@src/features/db/class/CustomUserFieldExtras";
 import { CustomUserFieldObject } from "@src/features/db/class/CustomUserFields";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 
 class CufSelectQuestion extends Question<{
   type: `cuf_${number}`;
@@ -67,6 +68,32 @@ class CufSelectQuestion extends Question<{
       return cufData;
     }
     return undefined;
+  }
+
+  async isDataInsertable({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: { question: number; value: { id: number; serialized: string } };
+  }): Promise<boolean> {
+    if (this.options.length === 0) return true;
+    return this.options.includes(data.value.id);
+  }
+
+  async insertData({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: { question: number; value: { serialized: string } };
+  }): Promise<void> {
+    const preselectionFormData = new PreselectionFormData();
+    await preselectionFormData.insert({
+      campaign_id: campaignId,
+      field_id: data.question,
+      value: data.value.serialized,
+    });
   }
 }
 

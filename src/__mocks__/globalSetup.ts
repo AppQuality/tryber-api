@@ -22,6 +22,7 @@ import PageAccess from "./mockedDb/pageAccess";
 import CustomUserFieldsExtras from "./mockedDb/customUserFieldsExtra";
 import CustomUserFieldsData from "./mockedDb/customUserFieldsData";
 import Profile from "./mockedDb/profile";
+import PreselectionFormData from "./mockedDb/preselectionFormData";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as levelDefTable } from "@src/__mocks__/mockedDb/levelsDefinition";
@@ -106,4 +107,5 @@ beforeAll(async () => {
   await CustomUserFieldsExtras.mock();
   await CustomUserFieldsData.mock();
   await Profile.mock();
+  await PreselectionFormData.mock();
 });

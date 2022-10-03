@@ -1,6 +1,7 @@
 import { CustomUserFieldObject } from "@src/features/db/class/CustomUserFields";
 import CustomUserFieldData from "@src/features/db/class/CustomUserFieldData";
 import Question from ".";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 
 class CufTextQuestion extends Question<{
   type: `cuf_${number}`;
@@ -35,13 +36,7 @@ class CufTextQuestion extends Question<{
     return {
       ...this.getDefault(),
       type: this.question.type,
-      validation:
-        cufOptions.length > 0
-          ? {
-              regex: cufOptions[0],
-              error: cufOptions.length > 1 ? cufOptions[1] : undefined,
-            }
-          : undefined,
+      validation: this.getCufOptions(),
       value: await this.getValue(),
     };
   }
@@ -56,6 +51,42 @@ class CufTextQuestion extends Question<{
     });
     if (cufDataItem.length === 0) return undefined;
     return cufDataItem[0].value;
+  }
+
+  private getCufOptions() {
+    const result = this.customUserField.options.split(";").map((o) => o.trim());
+    if (result.length === 0) return undefined;
+    return {
+      regex: result[0],
+      error: result.length > 1 ? result[1] : undefined,
+    };
+  }
+
+  async isDataInsertable({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: { question: number; value: { serialized: string } };
+  }): Promise<boolean> {
+    const options = this.getCufOptions();
+    if (!options) return true;
+    return new RegExp(options.regex).test(data.value.serialized);
+  }
+
+  async insertData({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: { question: number; value: { serialized: string } };
+  }): Promise<void> {
+    const preselectionFormData = new PreselectionFormData();
+    await preselectionFormData.insert({
+      campaign_id: campaignId,
+      field_id: data.question,
+      value: data.value.serialized,
+    });
   }
 }
 
