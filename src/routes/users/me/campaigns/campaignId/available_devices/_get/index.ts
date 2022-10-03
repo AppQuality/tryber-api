@@ -53,9 +53,7 @@ class RouteItem extends UserRoute<{
     }
   }
   private async candidatureIsAvailable(): Promise<boolean> {
-    const today = new Date().toISOString().split("T")[0];
-
-    return (await this.getCampaign()).start_date >= today;
+    return (await this.getCampaign()).isApplicationAvailable();
   }
   private async userCanAccessToForm() {
     return (await this.getCampaign()).testerHasAccess(this.getTesterId());
