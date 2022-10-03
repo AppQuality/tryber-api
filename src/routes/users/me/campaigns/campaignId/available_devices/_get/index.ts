@@ -1,7 +1,8 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
-import PageAccess from "@src/features/db/class/PageAccess";
-import TesterDevices from "@src/features/db/class/TesterDevices";
+import TesterDevices, {
+  TesterDeviceObject,
+} from "@src/features/db/class/TesterDevices";
 
 /** OPENAPI-CLASS: get-users-me-campaigns-campaignId-compatible-devices */
 
@@ -12,6 +13,7 @@ class RouteItem extends UserRoute<{
   private campaign_id: number;
   private db: { campaigns: Campaigns; testerDevices: TesterDevices };
   private campaign: CampaignObject | undefined;
+  private devices: TesterDeviceObject[] | undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -32,6 +34,13 @@ class RouteItem extends UserRoute<{
     }
     if ((await this.userCanAccessToForm()) === false) {
       return this.setUnauthorized();
+    }
+    if ((await this.getCompatibleDevices()).length === 0) {
+      this.setError(
+        404,
+        new Error("There are no compatible devices") as OpenapiError
+      );
+      return false;
     }
 
     return true;
@@ -66,11 +75,22 @@ class RouteItem extends UserRoute<{
     return this.campaign;
   }
   private async getCompatibleDevices() {
-    const userDevice = await this.db.testerDevices.query({
-      where: [{ id_profile: this.getTesterId() }],
-    });
+    if (!this.devices) {
+      const where: Parameters<
+        typeof this.db.testerDevices.query
+      >[number]["where"] = [{ id_profile: this.getTesterId() }];
 
-    return userDevice;
+      const campaign = await this.getCampaign();
+      if (campaign.acceptedOs.length > 0) {
+        where.push({
+          platform_id: campaign.acceptedOs,
+        });
+      }
+      this.devices = await this.db.testerDevices.query({
+        where,
+      });
+    }
+    return this.devices;
   }
 }
 

@@ -34,10 +34,12 @@ describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
     await Campaigns.insert(campaign3);
     await PageAccess.insert({ id: 1, tester_id: 1, view_id: 1 });
     await PageAccess.insert({ id: 2, tester_id: 1, view_id: 2 });
+    await TesterDevice.insert({ id_profile: 1, platform_id: 1 });
   });
   afterEach(async () => {
     await Campaigns.clear();
     await PageAccess.clear();
+    await TesterDevice.clear();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -94,11 +96,12 @@ describe("GET /users/me/campaigns/CP_ID/compatible_devices - user has not compat
       os: "1,2",
     });
     await PageAccess.insert({ id: 1, tester_id: 1, view_id: 1 });
-    await TesterDevice.insert({ platform_id: 4 });
+    await TesterDevice.insert({ id_profile: 1, platform_id: 4 });
   });
   afterEach(async () => {
     await Campaigns.clear();
     await PageAccess.clear();
+    await TesterDevice.clear();
   });
 
   it("Should answer 404 if user has not compatible devices", async () => {
