@@ -1,16 +1,15 @@
-import * as db from "@src/features/db";
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
 
-/** OPENAPI-CLASS: get-users-me-campaigns-campaignId-available-devices */
+/** OPENAPI-CLASS: get-users-me-campaigns-campaignId-compatible-devices */
 
 type DeviceType =
-  StoplightOperations["get-users-me-campaigns-campaignId-available-devices"]["responses"]["200"]["content"]["application/json"][0];
+  StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["responses"]["200"]["content"]["application/json"][0];
 
 class RouteItem extends UserRoute<{
-  parameters: StoplightOperations["get-users-me-campaigns-campaignId-available-devices"]["parameters"]["path"];
-  response: StoplightOperations["get-users-me-campaigns-campaignId-available-devices"]["responses"]["200"]["content"]["application/json"];
+  parameters: StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["parameters"]["path"];
+  response: StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["responses"]["200"]["content"]["application/json"];
 }> {
   private campaign_id: number;
   private db: { campaigns: Campaigns; lc_access: PageAccess };
@@ -23,6 +22,11 @@ class RouteItem extends UserRoute<{
     this.campaign_id = parseInt(this.getParameters().campaign);
   }
   protected async filter() {
+    try {
+      await this.getCampaign();
+    } catch {
+      return this.setUnauthorized();
+    }
     if ((await this.candidatureIsAvailable()) === false) {
       return this.setUnauthorized();
     }

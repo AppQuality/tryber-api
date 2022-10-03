@@ -27,7 +27,7 @@ const campaign3 = {
   is_public: 3 as 3,
 };
 
-describe("GET /users/me/campaigns/CP_ID/available_devices", () => {
+describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await profileData.basicTester();
@@ -51,19 +51,19 @@ describe("GET /users/me/campaigns/CP_ID/available_devices", () => {
 
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get(
-      "/users/me/campaigns/1/available_devices"
+      "/users/me/campaigns/1/compatible_devices"
     );
     expect(response.status).toBe(403);
   });
   it("Should answer 200 if logged in tryber", async () => {
     const response = await request(app)
-      .get("/users/me/campaigns/1/available_devices")
+      .get("/users/me/campaigns/1/compatible_devices")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
   });
   it("Should return 403 if candidature is not available (after start_date).", async () => {
     const response = await request(app)
-      .get("/users/me/campaigns/2/available_devices")
+      .get("/users/me/campaigns/2/compatible_devices")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(403);
     expect(response.body).toHaveProperty(
@@ -73,7 +73,17 @@ describe("GET /users/me/campaigns/CP_ID/available_devices", () => {
   });
   it("Should return 403 if User is not in SMALL_GROUP and is not LOGGED_USER", async () => {
     const response = await request(app)
-      .get("/users/me/campaigns/3/available_devices")
+      .get("/users/me/campaigns/3/compatible_devices")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty(
+      "message",
+      "You cannot access to this campaign"
+    );
+  });
+  it("Should return 403 if campaign does not exists", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/69/compatible_devices")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(403);
     expect(response.body).toHaveProperty(
