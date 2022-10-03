@@ -12,6 +12,7 @@ type CampaignType = {
   end_date: string;
   close_date: string;
   campaign_type_id: number;
+  os: string;
 };
 
 class CampaignObject {
@@ -25,6 +26,8 @@ class CampaignObject {
   end_date: string;
   close_date: string;
   campaign_type_id: number;
+  os: string;
+
   constructor(item: CampaignType) {
     this.id = item.id;
     this.title = item.title;
@@ -36,6 +39,7 @@ class CampaignObject {
     this.end_date = item.end_date;
     this.close_date = item.close_date;
     this.campaign_type_id = item.campaign_type_id;
+    this.os = item.os;
   }
 
   get isPublic() {
@@ -43,6 +47,11 @@ class CampaignObject {
   }
   get isSmallGroup() {
     return this.is_public === 3;
+  }
+
+  get acceptedOs() {
+    if (!this.os || this.os === "") return [];
+    return this.os.split(",").map((e) => parseInt(e));
   }
 
   public async testerHasAccess(testerId: number) {
@@ -84,6 +93,7 @@ class Campaigns extends Database<{
             "start_date",
             "end_date",
             "close_date",
+            "os",
           ],
     });
   }
