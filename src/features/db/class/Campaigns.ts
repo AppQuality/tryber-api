@@ -1,4 +1,5 @@
 import Database from "./Database";
+import PageAccess from "./PageAccess";
 
 type CampaignType = {
   id: number;
@@ -39,6 +40,23 @@ class CampaignObject {
 
   get isPublic() {
     return this.is_public === 1;
+  }
+  get isSmallGroup() {
+    return this.is_public === 3;
+  }
+  public async testerHasAccess(testerId: number) {
+    if (this.isPublic) return true;
+    if (this.isSmallGroup) {
+      const pageAccess = new PageAccess();
+      const previewAccess = await pageAccess.query({
+        where: [
+          { tester_id: testerId },
+          { view_id: parseInt(this.page_preview_id) },
+        ],
+      });
+      return previewAccess.length > 0;
+    }
+    return false;
   }
 }
 
