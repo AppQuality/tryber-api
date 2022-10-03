@@ -5,12 +5,12 @@ import { data as bugs } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationsList } from "@src/__mocks__/mockedDb/certificationList";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import { data as cufData } from "@src/__mocks__/mockedDb/customUserFieldsData";
-import { data as cufExtras } from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
+import CustomUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationsList } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentsList } from "@src/__mocks__/mockedDb/employmentList";
 import { data as languagesList } from "@src/__mocks__/mockedDb/languageList";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
@@ -29,7 +29,7 @@ describe("Route PATCH users-me", () => {
       });
       await Attributions.insert();
       await WpOptions.crowdWpOptions();
-      await profileData.basicTester({
+      await Profile.insert({
         booty: 69,
         birth_date: "1996-03-21 00:00:00",
         phone_number: "+39696969696969",
@@ -55,7 +55,8 @@ describe("Route PATCH users-me", () => {
         name: "Username Tetris",
         type: "text",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
+        id: 1,
         value: "CiccioGamer89.",
         candidate: 0,
       });
@@ -65,10 +66,10 @@ describe("Route PATCH users-me", () => {
         name: "Tipologia di spezie preferita",
         type: "select",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         name: "Habanero Scorpion",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 2,
         value: "1",
         custom_user_field_id: 2,
@@ -80,21 +81,21 @@ describe("Route PATCH users-me", () => {
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 2,
         name: "Il cardamomo Siciliano",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 3,
         name: "Treviso, città del Cardamomo",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 3,
         value: "2",
         custom_user_field_id: 3,
         candidate: 0,
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 4,
         value: "3",
         custom_user_field_id: 3,
@@ -108,7 +109,7 @@ describe("Route PATCH users-me", () => {
     await wpUsers.drop();
     await Attributions.clear();
     await WpOptions.clear();
-    await profileData.drop();
+    await Profile.clear();
     await bugs.drop();
     await Candidature.clear();
     await certificationsList.drop();
@@ -118,8 +119,8 @@ describe("Route PATCH users-me", () => {
     await languagesList.drop();
     await testerLanguages.drop();
     await CustomUserFields.clear();
-    await cufData.drop();
-    await cufExtras.drop();
+    await CustomUserFieldsData.clear();
+    await CustomUserFieldExtras.clear();
   });
   it("Should not update user when no parameters were given", async () => {
     const responseGetBeforePatch = await request(app)
@@ -182,7 +183,7 @@ describe("Route PATCH users-me accepted fields", () => {
         user_email: "bob@example.com",
       });
       WpOptions.crowdWpOptions();
-      await profileData.basicTester({
+      await Profile.insert({
         booty: 69,
         birth_date: "1996-03-21 00:00:00",
         phone_number: "+39696969696969",
@@ -214,7 +215,8 @@ describe("Route PATCH users-me accepted fields", () => {
         name: "Username Tetris",
         type: "text",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
+        id: 1,
         value: "CiccioGamer89.",
         candidate: 0,
       });
@@ -224,10 +226,10 @@ describe("Route PATCH users-me accepted fields", () => {
         name: "Tipologia di spezie preferita",
         type: "select",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         name: "Habanero Scorpion",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 2,
         value: "1",
         custom_user_field_id: 2,
@@ -239,21 +241,21 @@ describe("Route PATCH users-me accepted fields", () => {
         name: "Fornitore di cardamomo preferito",
         type: "multiselect",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 2,
         name: "Il cardamomo Siciliano",
       });
-      await cufExtras.insertCufExtras({
+      await CustomUserFieldExtras.insert({
         id: 3,
         name: "Treviso, città del Cardamomo",
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 3,
         value: "2",
         custom_user_field_id: 3,
         candidate: 0,
       });
-      await cufData.insertCufData({
+      await CustomUserFieldsData.insert({
         id: 4,
         value: "3",
         custom_user_field_id: 3,
@@ -267,7 +269,7 @@ describe("Route PATCH users-me accepted fields", () => {
     await wpUsers.drop();
     await Attributions.clear();
     await WpOptions.clear();
-    await profileData.drop();
+    await Profile.clear();
     await bugs.drop();
     await Candidature.clear();
     await certificationsList.drop();
@@ -277,8 +279,8 @@ describe("Route PATCH users-me accepted fields", () => {
     await languagesList.drop();
     await testerLanguages.drop();
     await CustomUserFields.clear();
-    await cufData.drop();
-    await cufExtras.drop();
+    await CustomUserFieldsData.clear();
+    await CustomUserFieldExtras.clear();
   });
   it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)

@@ -143,6 +143,7 @@ export default class RouteItem extends UserRoute<{
 
   private async isCampaignIdAlreadyAssigned(): Promise<boolean> {
     if (this.newCampaignId === undefined) return false;
+    if (this.newCampaignId === this.campaignId) return false;
 
     const formWithCurrentCampaignId = await this.db.forms.query({
       where: [{ campaign_id: this.newCampaignId }],

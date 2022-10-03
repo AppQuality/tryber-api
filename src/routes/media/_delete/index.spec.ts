@@ -1,6 +1,6 @@
 import app from "@src/app";
 import deleteFromS3 from "@src/features/deleteFromS3";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import request from "supertest";
@@ -14,13 +14,13 @@ beforeAll(async () => {
   (deleteFromS3 as jest.Mock).mockImplementation(
     ({ url }: { url: string }): Promise<any> => Promise.resolve(true)
   );
-  await profileData.basicTester();
+  await Profile.insert();
   await wpUserData.basicUser();
 });
 
 afterAll(async () => {
   await wpUserData.drop();
-  await profileData.drop();
+  await Profile.clear();
 });
 describe("Route DELETE /media", () => {
   beforeAll(async () => {});

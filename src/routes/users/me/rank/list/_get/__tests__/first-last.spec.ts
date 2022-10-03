@@ -1,6 +1,6 @@
 import { data as expData } from "@src/__mocks__/mockedDb/experience";
 import { data as levelData } from "@src/__mocks__/mockedDb/levels";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import createTesterData from "./createTesterData";
 import shouldShowFirstNineTesters from "./shouldShowFirstNineTesters";
 
@@ -98,7 +98,7 @@ describe("GET /users/me/rank/list - Is first", () => {
     return null;
   });
   afterAll(async () => {
-    await profileData.drop();
+    await Profile.clear();
     await expData.drop();
     await levelData.drop();
     return null;
@@ -188,7 +188,7 @@ describe("GET /users/me/rank/list - Is second", () => {
   });
   afterAll(async () => {
     await expData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await levelData.drop();
     return null;
   });
@@ -277,7 +277,7 @@ describe("GET /users/me/rank/list - Is third", () => {
   });
   afterAll(async () => {
     await expData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await levelData.drop();
     return null;
   });
@@ -366,7 +366,7 @@ describe("GET /users/me/rank/list - Is fourth", () => {
   });
   afterAll(async () => {
     await expData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await levelData.drop();
     return null;
   });
@@ -454,7 +454,7 @@ describe("GET /users/me/rank/list - Is last", () => {
     return null;
   });
   afterAll(async () => {
-    await profileData.drop();
+    await Profile.clear();
     await expData.drop();
     await levelData.drop();
     return null;
@@ -544,7 +544,7 @@ describe("GET /users/me/rank/list - Is second from last", () => {
   });
   afterAll(async () => {
     await expData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await levelData.drop();
     return null;
   });
@@ -633,7 +633,7 @@ describe("GET /users/me/rank/list - Is third from last", () => {
   });
   afterAll(async () => {
     await expData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await levelData.drop();
     return null;
   });
@@ -722,7 +722,7 @@ describe("GET /users/me/rank/list - Is fourth from last", () => {
   });
   afterAll(async () => {
     await expData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await levelData.drop();
     return null;
   });

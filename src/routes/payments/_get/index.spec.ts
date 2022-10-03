@@ -1,7 +1,7 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 
 const tester1 = {
@@ -96,9 +96,9 @@ const paymentRequestOldUserWithError = {
 describe("Route GET payments", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-      await sqlite3.insert("wp_appq_evd_profile", tester2);
-      await sqlite3.insert("wp_appq_evd_profile", tester3);
+      Profile.insert(tester1);
+      Profile.insert(tester2);
+      Profile.insert(tester3);
 
       await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
       await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
@@ -123,7 +123,7 @@ describe("Route GET payments", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await paymentRequestData.drop();
       resolve(null);
     });
@@ -532,15 +532,15 @@ describe("Route GET payments", () => {
 describe("Route GET payments when no data", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-      await sqlite3.insert("wp_appq_evd_profile", tester2);
+      Profile.insert(tester1);
+      Profile.insert(tester2);
       resolve(null);
     });
   });
 
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       resolve(null);
     });
   });

@@ -1,6 +1,6 @@
 import app from "@src/app";
 import upload from "@src/features/upload";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
@@ -14,7 +14,7 @@ describe("Route POST /media", () => {
       }
     );
     return new Promise(async (resolve) => {
-      await profileData.basicTester();
+      await Profile.insert();
       await wpUserData.basicUser();
       resolve(null);
     });
@@ -23,7 +23,7 @@ describe("Route POST /media", () => {
     return new Promise(async (resolve, reject) => {
       try {
         await wpUserData.drop();
-        await profileData.drop();
+        await Profile.clear();
         resolve(null);
       } catch (err) {
         reject(err);

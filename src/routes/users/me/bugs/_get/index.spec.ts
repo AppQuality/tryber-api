@@ -1,7 +1,7 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as bugStatusData } from "@src/__mocks__/mockedDb/bugStatus";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import Severities from "@src/__mocks__/mockedDb/bugSeverities";
 import app from "@src/app";
 import request from "supertest";
@@ -55,7 +55,7 @@ describe("GET /users/me/bugs", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await Campaigns.clear();
       await Severities.clear();
       await bugData.drop();
