@@ -2871,7 +2871,7 @@ paths:
       description: ''
       security:
         - JWT: []
-  '/users/me/campaigns/{campaign}/available_devices':
+  '/users/me/campaigns/{campaign}/compatible_devices':
     parameters:
       - name: campaign
         in: path
@@ -2898,7 +2898,7 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-campaigns-campaignId-available-devices
+      operationId: get-users-me-campaigns-campaignId-compatible-devices
       description: ''
       security:
         - JWT: []
