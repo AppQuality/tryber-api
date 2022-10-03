@@ -23,6 +23,7 @@ class RouteItem extends UserRoute<{
     };
     this.campaign_id = parseInt(this.getParameters().campaign);
   }
+
   protected async filter() {
     try {
       await this.getCampaign();
@@ -56,29 +57,33 @@ class RouteItem extends UserRoute<{
 
   protected async prepare() {
     try {
-      this.setSuccess(200, []);
+      this.setSuccess(200, await this.getEnhancedDevices());
     } catch (e) {
       if (process.env && process.env.DEBUG) console.log(e);
       this.setError(500, e as OpenapiError);
     }
   }
+
   private async candidatureIsAvailable(): Promise<boolean> {
     return (await this.getCampaign()).isApplicationAvailable();
   }
+
   private async userCanAccessToForm() {
     return (await this.getCampaign()).testerHasAccess(this.getTesterId());
   }
+
   private async getCampaign() {
     if (!this.campaign) {
       this.campaign = await this.db.campaigns.get(this.campaign_id);
     }
     return this.campaign;
   }
+
   private async getCompatibleDevices() {
     if (!this.devices) {
       const where: Parameters<
         typeof this.db.testerDevices.query
-      >[number]["where"] = [{ id_profile: this.getTesterId() }];
+      >[number]["where"] = [{ id_profile: this.getTesterId() }, { enabled: 1 }];
 
       const campaign = await this.getCampaign();
       if (campaign.acceptedOs.length > 0) {
@@ -91,6 +96,15 @@ class RouteItem extends UserRoute<{
       });
     }
     return this.devices;
+  }
+
+  private async getEnhancedDevices() {
+    const devices = await this.getCompatibleDevices();
+    const ehancedDevices = [];
+    for (const device of devices) {
+      ehancedDevices.push(await device.getFull());
+    }
+    return ehancedDevices;
   }
 }
 
