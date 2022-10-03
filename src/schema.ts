@@ -248,8 +248,8 @@ export interface paths {
       };
     };
   };
-  "/users/me/campaigns/{campaign}/available_devices": {
-    get: operations["get-users-me-campaigns-campaignId-available-devices"];
+  "/users/me/campaigns/{campaign}/compatible_devices": {
+    get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
     parameters: {
       path: {
         /** A campaign id */
@@ -2004,7 +2004,7 @@ export interface operations {
       };
     };
   };
-  "get-users-me-campaigns-campaignId-available-devices": {
+  "get-users-me-campaigns-campaignId-compatible-devices": {
     parameters: {
       path: {
         /** A campaign id */
