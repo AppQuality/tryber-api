@@ -71,7 +71,7 @@ class CampaignObject {
 
   public async isApplicationAvailable() {
     const today = new Date().toISOString().split("T")[0];
-    return this.start_date >= today;
+    return new Date(this.start_date) >= new Date(today);
   }
 }
 
