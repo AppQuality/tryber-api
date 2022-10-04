@@ -56,7 +56,7 @@ class CufSelectQuestion extends Question<{
         ],
       })
     )
-      .map((o) => parseInt(o.value))
+      .map((o) => (typeof o.value === "string" ? parseInt(o.value) : o.value))
       .filter((o) => !isNaN(o))
       .filter((o) => this.options.includes(o));
 
@@ -100,15 +100,23 @@ class CufSelectQuestion extends Question<{
     data,
   }: {
     campaignId: number;
-    data: { question: number; value: { serialized: string | string[] } };
+    data: {
+      question: number;
+      value: { id: number | number[]; serialized: string | string[] };
+    };
   }): Promise<void> {
     const preselectionFormData = new PreselectionFormData();
-    if (this.isSingle() && typeof data.value.serialized === "string") {
+    if (
+      this.isSingle() &&
+      typeof data.value.serialized === "string" &&
+      typeof data.value.id === "number"
+    ) {
       await preselectionFormData.insert({
         campaign_id: campaignId,
         field_id: data.question,
         value: data.value.serialized,
       });
+      await this.updateCuf(data.value.id);
     } else if (this.isMulti() && Array.isArray(data.value.serialized)) {
       for (const value of data.value.serialized) {
         await preselectionFormData.insert({
@@ -117,6 +125,26 @@ class CufSelectQuestion extends Question<{
           value,
         });
       }
+    }
+  }
+
+  private async updateCuf(value: number) {
+    const customUserFieldData = new CustomUserFieldDatas();
+    const oldValue = await this.getValue();
+    if (oldValue) {
+      await customUserFieldData.update({
+        where: [
+          { custom_user_field_id: this.customUserField.id },
+          { profile_id: this.testerId },
+        ],
+        data: { value },
+      });
+    } else {
+      await customUserFieldData.insert({
+        custom_user_field_id: this.customUserField.id,
+        profile_id: this.testerId,
+        value,
+      });
     }
   }
 

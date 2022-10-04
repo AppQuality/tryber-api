@@ -52,7 +52,12 @@ class AddressQuestion extends Question<{
     campaignId: number;
     data: {
       question: number;
-      value: { serialized: { city: string; country: string } };
+      value: {
+        serialized: {
+          city: ProfileObject["city"];
+          country: ProfileObject["country"];
+        };
+      };
     };
   }): Promise<void> {
     const preselectionFormData = new PreselectionFormData();

@@ -49,7 +49,8 @@ class CufTextQuestion extends Question<{
         { profile_id: this.testerId },
       ],
     });
-    if (cufDataItem.length === 0) return undefined;
+    if (cufDataItem.length === 0 || typeof cufDataItem[0].value === "number")
+      return undefined;
     return cufDataItem[0].value;
   }
 
@@ -87,6 +88,27 @@ class CufTextQuestion extends Question<{
       field_id: data.question,
       value: data.value.serialized,
     });
+    await this.updateCuf(data.value.serialized);
+  }
+
+  private async updateCuf(value: string) {
+    const customUserFieldData = new CustomUserFieldData();
+    const oldValue = await this.getValue();
+    if (oldValue) {
+      await customUserFieldData.update({
+        where: [
+          { custom_user_field_id: this.customUserField.id },
+          { profile_id: this.testerId },
+        ],
+        data: { value },
+      });
+    } else {
+      await customUserFieldData.insert({
+        custom_user_field_id: this.customUserField.id,
+        profile_id: this.testerId,
+        value,
+      });
+    }
   }
 }
 
