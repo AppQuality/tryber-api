@@ -62,7 +62,10 @@ class CufSelectQuestion extends Question<{
 
     if (cufData.length === 0) return undefined;
 
-    if (this.customUserField.type === "select") {
+    if (
+      this.customUserField.type === "select" ||
+      this.customUserField.type === "radio"
+    ) {
       return cufData[0];
     } else if (this.customUserField.type === "multiselect") {
       return cufData;
@@ -75,10 +78,21 @@ class CufSelectQuestion extends Question<{
     data,
   }: {
     campaignId: number;
-    data: { question: number; value: { id: number; serialized: string } };
+    data: {
+      question: number;
+      value: { id: number | number[]; serialized: string | string[] };
+    };
   }): Promise<boolean> {
     if (this.options.length === 0) return true;
-    return this.options.includes(data.value.id);
+    if (this.isSingle() && typeof data.value.id === "number") {
+      return this.options.includes(data.value.id);
+    } else if (this.isMulti() && Array.isArray(data.value.id)) {
+      for (const id of data.value.id) {
+        if (!this.options.includes(id)) return false;
+      }
+      return true;
+    }
+    throw new Error("Invalid custom user field type");
   }
 
   async insertData({
@@ -86,14 +100,35 @@ class CufSelectQuestion extends Question<{
     data,
   }: {
     campaignId: number;
-    data: { question: number; value: { serialized: string } };
+    data: { question: number; value: { serialized: string | string[] } };
   }): Promise<void> {
     const preselectionFormData = new PreselectionFormData();
-    await preselectionFormData.insert({
-      campaign_id: campaignId,
-      field_id: data.question,
-      value: data.value.serialized,
-    });
+    if (this.isSingle() && typeof data.value.serialized === "string") {
+      await preselectionFormData.insert({
+        campaign_id: campaignId,
+        field_id: data.question,
+        value: data.value.serialized,
+      });
+    } else if (this.isMulti() && Array.isArray(data.value.serialized)) {
+      for (const value of data.value.serialized) {
+        await preselectionFormData.insert({
+          campaign_id: campaignId,
+          field_id: data.question,
+          value,
+        });
+      }
+    }
+  }
+
+  private isSingle() {
+    return (
+      this.customUserField.type === "select" ||
+      this.customUserField.type === "radio"
+    );
+  }
+
+  private isMulti() {
+    return this.customUserField.type === "multiselect";
   }
 }
 

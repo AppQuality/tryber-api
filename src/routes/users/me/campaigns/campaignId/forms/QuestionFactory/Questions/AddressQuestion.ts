@@ -1,5 +1,6 @@
 import Question from ".";
 import Profile, { ProfileObject } from "@src/features/db/class/Profile";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 
 class AddressQuestion extends Question<{
   type: `address`;
@@ -42,6 +43,24 @@ class AddressQuestion extends Question<{
       }
     } catch (e) {}
     return undefined;
+  }
+
+  async insertData({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: {
+      question: number;
+      value: { serialized: { city: string; country: string } };
+    };
+  }): Promise<void> {
+    const preselectionFormData = new PreselectionFormData();
+    await preselectionFormData.insert({
+      campaign_id: campaignId,
+      field_id: data.question,
+      value: data.value.serialized.city + ", " + data.value.serialized.country,
+    });
   }
 }
 

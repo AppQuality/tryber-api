@@ -1,5 +1,6 @@
 import Question from ".";
 import Profile, { ProfileObject } from "@src/features/db/class/Profile";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 
 class GenderQuestion extends Question<{
   type: `gender`;
@@ -33,6 +34,36 @@ class GenderQuestion extends Question<{
       }
     } catch (e) {}
     return undefined;
+  }
+
+  async isDataInsertable({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: {
+      question: number;
+      value: { serialized: string };
+    };
+  }): Promise<boolean> {
+    return Object.values(ProfileObject.availableGenders).includes(
+      data.value.serialized
+    );
+  }
+
+  async insertData({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: { question: number; value: { serialized: string } };
+  }): Promise<void> {
+    const preselectionFormData = new PreselectionFormData();
+    await preselectionFormData.insert({
+      campaign_id: campaignId,
+      field_id: data.question,
+      value: data.value.serialized,
+    });
   }
 }
 
