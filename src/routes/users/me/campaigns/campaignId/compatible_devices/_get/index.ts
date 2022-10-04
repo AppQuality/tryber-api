@@ -28,13 +28,13 @@ class RouteItem extends UserRoute<{
     try {
       await this.getCampaign();
     } catch {
-      return this.setUnauthorized();
+      return this.setUnauthorized("get");
     }
     if ((await this.candidatureIsAvailable()) === false) {
-      return this.setUnauthorized();
+      return this.setUnauthorized("cand");
     }
     if ((await this.userCanAccessToForm()) === false) {
-      return this.setUnauthorized();
+      return this.setUnauthorized("acc");
     }
     if ((await this.getCompatibleDevices()).length === 0) {
       this.setError(
@@ -47,10 +47,10 @@ class RouteItem extends UserRoute<{
     return true;
   }
 
-  private setUnauthorized() {
+  private setUnauthorized(test: string) {
     this.setError(
       403,
-      new Error("You cannot access to this campaign") as OpenapiError
+      new Error("You cannot access to this campaign" + test) as OpenapiError
     );
     return false;
   }
