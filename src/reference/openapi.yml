@@ -5202,7 +5202,9 @@ paths:
                       - value
                       - question
                 device:
-                  type: integer
+                  type: array
+                  items:
+                    type: integer
             examples:
               example-1:
                 value:
