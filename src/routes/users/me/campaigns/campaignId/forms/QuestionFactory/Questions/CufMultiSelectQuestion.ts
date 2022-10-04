@@ -4,7 +4,7 @@ import { CustomUserFieldExtrasObject } from "@src/features/db/class/CustomUserFi
 import { CustomUserFieldObject } from "@src/features/db/class/CustomUserFields";
 import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 
-class CufSelectQuestion extends Question<{
+class CufMultiselectQuestion extends Question<{
   type: `cuf_${number}`;
 }> {
   private customUserField: CustomUserFieldObject;
@@ -17,7 +17,7 @@ class CufSelectQuestion extends Question<{
     options,
     testerId,
   }: {
-    question: typeof CufSelectQuestion.constructor.arguments[0];
+    question: typeof CufMultiselectQuestion.constructor.arguments[0];
     customUserField: CustomUserFieldObject;
     options: CustomUserFieldExtrasObject[];
     testerId: number;
@@ -62,7 +62,7 @@ class CufSelectQuestion extends Question<{
 
     if (cufData.length === 0) return undefined;
 
-    return cufData[0];
+    return cufData;
   }
 
   async isDataInsertable({
@@ -72,11 +72,15 @@ class CufSelectQuestion extends Question<{
     campaignId: number;
     data: {
       question: number;
-      value: { id: number; serialized: string | string[] };
+      value: { id: number[]; serialized: string | string[] };
     };
   }): Promise<boolean> {
     if (this.options.length === 0) return true;
-    return this.options.includes(data.value.id);
+
+    for (const id of data.value.id) {
+      if (!this.options.includes(id)) return false;
+    }
+    return true;
   }
 
   async insertData({
@@ -86,38 +90,57 @@ class CufSelectQuestion extends Question<{
     campaignId: number;
     data: {
       question: number;
-      value: { id: number; serialized: string };
+      value: { id: number[]; serialized: string | string[] };
     };
   }): Promise<void> {
     const preselectionFormData = new PreselectionFormData();
 
-    await preselectionFormData.insert({
-      campaign_id: campaignId,
-      field_id: data.question,
-      value: data.value.serialized,
-    });
-    await this.updateCuf(data.value.id);
-  }
-
-  private async updateCuf(value: number) {
-    const customUserFieldData = new CustomUserFieldDatas();
-    const oldValue = await this.getValue();
-    if (oldValue) {
-      await customUserFieldData.update({
-        where: [
-          { custom_user_field_id: this.customUserField.id },
-          { profile_id: this.testerId },
-        ],
-        data: { value },
-      });
-    } else {
-      await customUserFieldData.insert({
-        custom_user_field_id: this.customUserField.id,
-        profile_id: this.testerId,
+    for (const value of data.value.serialized) {
+      await preselectionFormData.insert({
+        campaign_id: campaignId,
+        field_id: data.question,
         value,
       });
+      await this.updateCuf(data.value.id);
+    }
+  }
+
+  private async updateCuf(value: number[]) {
+    const customUserFieldData = new CustomUserFieldDatas();
+    const oldValue = await this.getValue();
+
+    if (oldValue) {
+      for (const validOption of this.options) {
+        await customUserFieldData.delete([
+          { custom_user_field_id: this.customUserField.id },
+          { profile_id: this.testerId },
+          { value: validOption },
+        ]);
+      }
+      for (const v of value) {
+        await customUserFieldData.insert({
+          custom_user_field_id: this.customUserField.id,
+          profile_id: this.testerId,
+          value: v,
+        });
+      }
+    } else {
+      for (const validOption of this.options) {
+        await customUserFieldData.delete([
+          { custom_user_field_id: this.customUserField.id },
+          { profile_id: this.testerId },
+          { value: validOption },
+        ]);
+      }
+      for (const v of value) {
+        await customUserFieldData.insert({
+          custom_user_field_id: this.customUserField.id,
+          profile_id: this.testerId,
+          value: v,
+        });
+      }
     }
   }
 }
 
-export default CufSelectQuestion;
+export default CufMultiselectQuestion;

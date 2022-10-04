@@ -243,4 +243,84 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
+
+  it("Should save in form data table a cuf multiselect field", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: 1,
+        form: [
+          {
+            question: 6,
+            value: { id: [4, 5], serialized: ["Banca 2", "Banca 3"] },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await preselectionFormData.all(undefined, [
+      { campaign_id: 1 },
+    ]);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          campaign_id: 1,
+          field_id: 6,
+          value: "Banca 2",
+        }),
+        expect.objectContaining({
+          campaign_id: 1,
+          field_id: 6,
+          value: "Banca 3",
+        }),
+      ])
+    );
+  });
+
+  it("Should save in cuf table a cuf multiselect field", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: 1,
+        form: [
+          {
+            question: 6,
+            value: { id: [4, 5], serialized: ["Banca 2", "Banca 3"] },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await customUserFieldsData.all();
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          custom_user_field_id: 3,
+          profile_id: 1,
+          value: "4",
+        }),
+        expect.objectContaining({
+          custom_user_field_id: 3,
+          profile_id: 1,
+          value: "5",
+        }),
+      ])
+    );
+  });
+
+  it("Should return 403 if value of a multiselect cuf is not one of the available fields", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: 1,
+        form: [
+          {
+            question: 6,
+            value: { id: 3, serialized: "Banca 1" },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
 });
