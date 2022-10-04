@@ -77,21 +77,25 @@ class RouteItem extends UserRoute<{
   private async getCampaign() {
     if (!this.campaign) {
       try {
-        const campaigns = await this.db.campaigns.query({
-          where: [
-            { id: this.campaignId },
-            { start_date: new Date().toISOString(), isLower: true },
-          ],
-        });
-        if (campaigns.length === 0) {
-          this.campaign = false;
-        }
-        this.campaign = campaigns[0];
+        this.campaign = await this.retrieveCampaign();
       } catch (e) {
         this.campaign = false;
       }
     }
     return this.campaign;
+  }
+
+  private async retrieveCampaign() {
+    const results = await this.db.campaigns.query({
+      where: [
+        { id: this.campaignId },
+        { start_date: new Date().toISOString(), isLower: true },
+      ],
+    });
+    if (results.length === 0) {
+      throw new Error("Campaign not found");
+    }
+    return results[0];
   }
 
   private async getForm() {
