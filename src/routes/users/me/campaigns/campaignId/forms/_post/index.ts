@@ -8,6 +8,7 @@ import PreseselectionFormFields from "@src/features/db/class/PreselectionFormFie
 import PreseselectionFormData from "@src/features/db/class/PreselectionFormData";
 import QuestionFactory from "../QuestionFactory";
 import Question from "../QuestionFactory/Questions";
+import CampaignApplications from "@src/features/db/class/CampaignApplications";
 
 /** OPENAPI-CLASS: post-users-me-campaigns-campaignId-forms */
 
@@ -18,8 +19,8 @@ class RouteItem extends UserRoute<{
 }> {
   private campaignId: number;
   private campaign: CampaignObject | false = false;
-  private deviceId: number;
-  private device: TesterDeviceObject | false = false;
+  private deviceId: number[] | false;
+  private device: TesterDeviceObject[] | false = false;
   private form: NonNullable<
     StoplightOperations["post-users-me-campaigns-campaignId-forms"]["requestBody"]["content"]["application/json"]["form"]
   >;
@@ -29,6 +30,7 @@ class RouteItem extends UserRoute<{
     devices: TesterDevices;
     fields: PreseselectionFormFields;
     data: PreseselectionFormData;
+    applications: CampaignApplications;
   };
 
   constructor(options: RouteItem["configuration"]) {
@@ -41,8 +43,9 @@ class RouteItem extends UserRoute<{
       devices: new TesterDevices(),
       fields: new PreseselectionFormFields(),
       data: new PreseselectionFormData(),
+      applications: new CampaignApplications(),
     };
-    this.deviceId = body.device || -1;
+    this.deviceId = body.device || false;
     this.form = body.form || [];
   }
 
@@ -59,7 +62,7 @@ class RouteItem extends UserRoute<{
       this.setError(403, new Error("Campaign not found") as OpenapiError);
       return false;
     }
-    if (this.deviceId <= 0) {
+    if (this.deviceId === false) {
       this.setError(406, new Error("Campaign not found") as OpenapiError);
       return false;
     }
@@ -104,12 +107,17 @@ class RouteItem extends UserRoute<{
 
   private async getDeviceForApplication() {
     if (this.device === false) {
-      const device = await this.db.devices.get(this.deviceId);
+      if (this.deviceId === false) throw new Error("Device not accepted");
+      const devices = await this.db.devices.query({
+        where: [{ id: this.deviceId }],
+      });
       const campaign = await this.getCampaign();
-      if (!campaign.isOsAccepted(device.platform_id)) {
-        throw new Error("Device not accepted");
+      for (const device of devices) {
+        if (!campaign.isOsAccepted(device.platform_id)) {
+          throw new Error("Device not accepted");
+        }
       }
-      this.device = device;
+      this.device = devices;
     }
     return this.device;
   }
@@ -117,11 +125,20 @@ class RouteItem extends UserRoute<{
   protected async prepare(): Promise<void> {
     try {
       await this.handleForm();
+      await this.applyToCampaign();
     } catch (e) {
       this.setError(403, e as OpenapiError);
       return;
     }
     this.setSuccess(200, {});
+  }
+
+  private async applyToCampaign() {
+    await this.db.applications.insert({
+      campaign_id: this.campaignId,
+      user_id: this.getWordpressId(),
+      devices: this.deviceId.toString(),
+    });
   }
 
   private async handleForm() {

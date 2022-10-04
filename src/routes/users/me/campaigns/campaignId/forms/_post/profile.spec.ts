@@ -55,7 +55,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/forms")
       .send({
-        device: 1,
+        device: [1],
         form: [
           {
             question: 7,
@@ -83,7 +83,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/forms")
       .send({
-        device: 1,
+        device: [1],
         form: [
           {
             question: 7,
@@ -99,7 +99,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/forms")
       .send({
-        device: 1,
+        device: [1],
         form: [
           {
             question: 8,
@@ -127,7 +127,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/forms")
       .send({
-        device: 1,
+        device: [1],
         form: [
           {
             question: 7,
@@ -143,7 +143,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/forms")
       .send({
-        device: 1,
+        device: [1],
         form: [
           {
             question: 9,
