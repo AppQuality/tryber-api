@@ -2871,6 +2871,37 @@ paths:
       description: ''
       security:
         - JWT: []
+  '/users/me/campaigns/{campaign}/compatible_devices':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get the user devices for a campaign you are selected in
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDevice'
+              examples:
+                example-1:
+                  value: []
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaigns-campaignId-compatible-devices
+      description: ''
+      security:
+        - JWT: []
   '/users/me/campaigns/{campaignId}/bugs':
     post:
       summary: POST a user bug on a specific campaign

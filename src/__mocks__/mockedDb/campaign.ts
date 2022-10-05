@@ -14,7 +14,7 @@ type CampaignParams = {
   close_date?: string;
   os?: string;
   pm_id?: number;
-  is_public?: 0 | 1;
+  is_public?: 0 | 1 | 3;
   page_preview_id?: number;
   page_manual_id?: number;
   status_id?: 1 | 2;

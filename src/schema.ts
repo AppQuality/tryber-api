@@ -248,6 +248,15 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaign}/compatible_devices": {
+    get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaignId}/bugs": {
     /** Send a user bug on a specific campaign */
     post: operations["post-users-me-campaigns-campaign-bugs"];
@@ -1993,6 +2002,24 @@ export interface operations {
           };
         };
       };
+    };
+  };
+  "get-users-me-campaigns-campaignId-compatible-devices": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserDevice"][];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** Send a user bug on a specific campaign */
