@@ -5245,7 +5245,8 @@ paths:
                         serialized:
                           city: Roma
                           country: Italy
-                  device: 123
+                  device:
+                    - 123
       security:
         - JWT: []
       description: ''
