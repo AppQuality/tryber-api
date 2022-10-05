@@ -20,6 +20,9 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     campaign.insert({
       id: 1,
       is_public: 1,
+      start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
     });
     preselectionForms.insert({
       id: 1,
@@ -191,6 +194,10 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     campaign.insert({
       id: 2,
       page_preview_id: 1,
+      is_public: 3,
+      start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
     });
     preselectionForms.insert({
       id: 2,
@@ -205,7 +212,7 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     campaign.insert({
       id: 3,
       page_preview_id: 1,
-      start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+      start_date: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split("T")[0],
     });
@@ -541,6 +548,9 @@ describe("GET users/me/campaigns/:campaignId/forms - empty profile", () => {
     campaign.insert({
       id: 1,
       is_public: 1,
+      start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
     });
     preselectionForms.insert({
       id: 1,

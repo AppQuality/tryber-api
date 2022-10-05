@@ -58,26 +58,17 @@ class RouteItem extends UserRoute<{
   private async hasAccess() {
     const campaign = await this.getCampaign();
     if (!campaign) return false;
-    if (!campaign.isPublic) {
-      const pageAccess = await this.db.pageAccess.query({
-        where: [
-          {
-            view_id: parseInt(campaign.page_preview_id),
-            tester_id: this.getTesterId(),
-          },
-        ],
-      });
-      if (pageAccess.length === 0) {
-        return false;
-      }
-    }
-    return true;
+    return await campaign.testerHasAccess(this.getTesterId());
   }
 
   private async getCampaign() {
     if (!this.campaign) {
       try {
-        this.campaign = await this.retrieveCampaign();
+        const campaign = await this.db.campaigns.get(this.campaignId);
+        if ((await campaign.isApplicationAvailable()) === false) {
+          throw new Error("Campaign not available");
+        }
+        this.campaign = campaign;
       } catch (e) {
         this.campaign = false;
       }
@@ -89,7 +80,7 @@ class RouteItem extends UserRoute<{
     const results = await this.db.campaigns.query({
       where: [
         { id: this.campaignId },
-        { start_date: new Date().toISOString(), isLower: true },
+        { start_date: new Date().toISOString(), isGreaterEqual: true },
       ],
     });
     if (results.length === 0) {
