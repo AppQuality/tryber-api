@@ -169,7 +169,10 @@ class RouteItem extends UserRoute<{
         ) {
           throw {
             status_code: 403,
-            message: "Data not insertable",
+            message:
+              "Data for question id:" +
+              (await question.getItem()).id +
+              " is not insertable",
           } as OpenapiError;
         }
       }
