@@ -67,6 +67,14 @@ class PhoneQuestion extends Question<{
       field_id: data.question,
       value: data.value.serialized,
     });
+    await this.updatePhone(data.value.serialized);
+  }
+  async updatePhone(value: string) {
+    const profile = new Profile();
+    profile.update({
+      data: { phone_number: value },
+      where: [{ id: this.testerId }],
+    });
   }
 }
 
