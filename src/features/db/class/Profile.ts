@@ -45,6 +45,16 @@ class ProfileObject implements ProfileType {
   static get availableGenders() {
     return this.genders;
   }
+
+  static getGenderNumericValue(
+    value: string
+  ): NonNullable<ProfileObject["sex"]> {
+    const genderItem = Object.entries(this.genders).find(
+      (item) => item[1] === value
+    );
+    if (!genderItem) throw new Error("Gender not found: " + value);
+    return parseInt(genderItem[0]) as NonNullable<ProfileObject["sex"]>;
+  }
 }
 
 class Profile extends Database<{
