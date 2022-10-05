@@ -5,9 +5,11 @@ import testerDevice from "@src/__mocks__/mockedDb/testerDevice";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
+import profile from "@src/__mocks__/mockedDb/profile";
 
 describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
   beforeEach(() => {
+    profile.insert({ id: 1, sex: 1 });
     campaign.insert({
       id: 1,
       start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -49,6 +51,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     preselectionFormData.clear();
     preselectionFormFields.clear();
     preselectionForm.clear();
+    profile.clear();
   });
 
   it("Should save in form data table a gender field", async () => {
@@ -74,6 +77,30 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
           campaign_id: 1,
           field_id: 7,
           value: "female",
+        }),
+      ])
+    );
+  });
+  it("Should save gender in profile table", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        form: [
+          {
+            question: 7,
+            value: { serialized: "female" },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await profile.all(undefined, [{ id: 1 }]);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          sex: 0,
         }),
       ])
     );

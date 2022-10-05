@@ -64,6 +64,14 @@ class GenderQuestion extends Question<{
       field_id: data.question,
       value: data.value.serialized,
     });
+    await this.updateGender(data.value.serialized);
+  }
+  async updateGender(value: string) {
+    const profile = new Profile();
+    profile.update({
+      data: { sex: ProfileObject.getGenderNumericValue(value) },
+      where: [{ id: this.testerId }],
+    });
   }
 }
 
