@@ -66,6 +66,17 @@ class AddressQuestion extends Question<{
       field_id: data.question,
       value: data.value.serialized.city + ", " + data.value.serialized.country,
     });
+    await this.updateAddress(data.value.serialized);
+  }
+  async updateAddress(address: {
+    city: ProfileObject["city"];
+    country: ProfileObject["country"];
+  }) {
+    const profile = new Profile();
+    profile.update({
+      data: { city: address.city, country: address.country },
+      where: [{ id: this.testerId }],
+    });
   }
 }
 

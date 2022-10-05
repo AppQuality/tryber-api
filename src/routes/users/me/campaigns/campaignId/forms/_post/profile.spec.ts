@@ -9,7 +9,13 @@ import profile from "@src/__mocks__/mockedDb/profile";
 
 describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
   beforeEach(() => {
-    profile.insert({ id: 1, sex: 1, phone_number: "0000 000000" });
+    profile.insert({
+      id: 1,
+      sex: 1,
+      phone_number: "0000 000000",
+      country: "India",
+      city: "New Delhi",
+    });
     campaign.insert({
       id: 1,
       start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
@@ -125,6 +131,36 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
         expect.objectContaining({
           id: 1,
           phone_number: "+393333333333",
+        }),
+      ])
+    );
+  });
+  it("Should save city and address in profile table if send address", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        form: [
+          {
+            question: 9,
+            value: {
+              serialized: {
+                country: "Italy",
+                city: "Pesaro",
+              },
+            },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await profile.all(undefined, [{ id: 1 }]);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          city: "Pesaro",
+          country: "Italy",
         }),
       ])
     );
