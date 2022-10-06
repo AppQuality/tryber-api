@@ -367,4 +367,28 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
     ]);
     expect(userCufData).toEqual([]);
   });
+  it("Should add only # on preselection form data table if is sent -1 as a multiselect option", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        form: [
+          {
+            question: 6,
+            value: { id: [-1], serialized: ["#"] },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await preselectionFormData.all(undefined, [{ field_id: 6 }]);
+    expect(data).toEqual([
+      {
+        id: 1,
+        campaign_id: 1,
+        field_id: 6,
+        value: "#",
+      },
+    ]);
+  });
 });
