@@ -323,4 +323,30 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
+
+  it("Should save # in form data table if -1 is sent as id in a cuf select field", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        form: [
+          {
+            question: 5,
+            value: { id: -1, serialized: "#" },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    console.log(response.body);
+    expect(response.status).toBe(200);
+    const data = await preselectionFormData.all(undefined, [{ field_id: 5 }]);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field_id: 5,
+          value: "#",
+        }),
+      ])
+    );
+  });
 });

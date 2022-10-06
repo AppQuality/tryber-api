@@ -75,8 +75,13 @@ class CufSelectQuestion extends Question<{
       value: { id: number; serialized: string | string[] };
     };
   }): Promise<boolean> {
-    if (this.options.length === 0) return true;
+    if (this.options.length === 0 || this.isNoneOfTheAbove(data.value.id))
+      return true;
     return this.options.includes(data.value.id);
+  }
+
+  isNoneOfTheAbove(id: number) {
+    return id === -1;
   }
 
   async insertData({
