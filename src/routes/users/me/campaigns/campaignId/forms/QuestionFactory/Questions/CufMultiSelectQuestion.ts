@@ -75,12 +75,17 @@ class CufMultiselectQuestion extends Question<{
       value: { id: number[]; serialized: string | string[] };
     };
   }): Promise<boolean> {
-    if (this.options.length === 0) return true;
+    if (this.options.length === 0 || this.isNoneOfTheAbove(data.value.id))
+      return true;
 
     for (const id of data.value.id) {
       if (!this.options.includes(id)) return false;
     }
     return true;
+  }
+
+  isNoneOfTheAbove(ids: number[]) {
+    return ids.includes(-1);
   }
 
   async insertData({
@@ -94,51 +99,50 @@ class CufMultiselectQuestion extends Question<{
     };
   }): Promise<void> {
     const preselectionFormData = new PreselectionFormData();
-
-    for (const value of data.value.serialized) {
+    if (this.isNoneOfTheAbove(data.value.id)) {
       await preselectionFormData.insert({
         campaign_id: campaignId,
         field_id: data.question,
-        value,
+        value: "#",
       });
-      await this.updateCuf(data.value.id);
+    } else {
+      for (const value of data.value.serialized) {
+        await preselectionFormData.insert({
+          campaign_id: campaignId,
+          field_id: data.question,
+          value,
+        });
+      }
     }
+    await this.updateCuf(data.value.id);
   }
 
   private async updateCuf(value: number[]) {
-    const customUserFieldData = new CustomUserFieldDatas();
-    const oldValue = await this.getValue();
+    await this.removeAllValidOptions();
+    if (this.isNoneOfTheAbove(value) === false) {
+      await this.insertValues(value);
+    }
+  }
 
-    if (oldValue) {
-      for (const validOption of this.options) {
-        await customUserFieldData.delete([
-          { custom_user_field_id: this.customUserField.id },
-          { profile_id: this.testerId },
-          { value: validOption },
-        ]);
-      }
-      for (const v of value) {
-        await customUserFieldData.insert({
-          custom_user_field_id: this.customUserField.id,
-          profile_id: this.testerId,
-          value: v,
-        });
-      }
-    } else {
-      for (const validOption of this.options) {
-        await customUserFieldData.delete([
-          { custom_user_field_id: this.customUserField.id },
-          { profile_id: this.testerId },
-          { value: validOption },
-        ]);
-      }
-      for (const v of value) {
-        await customUserFieldData.insert({
-          custom_user_field_id: this.customUserField.id,
-          profile_id: this.testerId,
-          value: v,
-        });
-      }
+  private async insertValues(value: number[]) {
+    const customUserFieldData = new CustomUserFieldDatas();
+    for (const v of value) {
+      await customUserFieldData.insert({
+        custom_user_field_id: this.customUserField.id,
+        profile_id: this.testerId,
+        value: v,
+      });
+    }
+  }
+
+  private async removeAllValidOptions() {
+    const customUserFieldData = new CustomUserFieldDatas();
+    for (const validOption of this.options) {
+      await customUserFieldData.delete([
+        { custom_user_field_id: this.customUserField.id },
+        { profile_id: this.testerId },
+        { value: validOption },
+      ]);
     }
   }
 }

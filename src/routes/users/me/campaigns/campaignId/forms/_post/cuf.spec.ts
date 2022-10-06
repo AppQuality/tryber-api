@@ -349,4 +349,22 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
       ])
     );
   });
+  it("Should remove available options for a multiselect if present on this profile if -1 is sent", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        form: [
+          {
+            question: 6,
+            value: { id: [-1], serialized: ["#"] },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    const userCufData = await customUserFieldsData.all(undefined, [
+      { custom_user_field_id: 3 },
+    ]);
+    expect(userCufData).toEqual([]);
+  });
 });
