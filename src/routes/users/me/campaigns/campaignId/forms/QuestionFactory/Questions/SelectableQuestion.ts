@@ -44,7 +44,7 @@ class SelectableQuestion extends Question<{
     return this.getOptions().includes(value);
   }
   private isMultipleDataInsertable(value: string) {
-    for (const v of SelectableQuestion.unserialize(value)) {
+    for (const v of value) {
       if (!this.getOptions().includes(v)) {
         return false;
       }
@@ -69,9 +69,7 @@ class SelectableQuestion extends Question<{
       return;
     }
     if (this.isMultiple()) {
-      for (const value of SelectableQuestion.unserialize(
-        data.value.serialized
-      )) {
+      for (const value of data.value.serialized) {
         await preselectionFormData.insert({
           campaign_id: campaignId,
           field_id: data.question,

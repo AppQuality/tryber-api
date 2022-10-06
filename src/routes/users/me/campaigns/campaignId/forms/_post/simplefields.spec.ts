@@ -129,7 +129,7 @@ describe("POST users/me/campaigns/:campaignId/forms - simple fields", () => {
         form: [
           {
             question: 3,
-            value: { serialized: '["option1","option2"]' },
+            value: { serialized: ["option1", "option2"] },
           },
         ],
       })
