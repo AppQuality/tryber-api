@@ -6137,6 +6137,8 @@ components:
                 type: integer
               message:
                 type: string
+              code:
+                type: string
             required:
               - element
               - id
@@ -6170,6 +6172,8 @@ components:
             type: object
             properties:
               message:
+                type: string
+              code:
                 type: string
           examples:
             example:
