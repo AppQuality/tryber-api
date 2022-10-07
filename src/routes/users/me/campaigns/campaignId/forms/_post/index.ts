@@ -138,6 +138,7 @@ class RouteItem extends UserRoute<{
       campaign_id: this.campaignId,
       user_id: this.getWordpressId(),
       devices: this.deviceId.toString(),
+      accepted: 0,
     });
   }
 

@@ -149,5 +149,6 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
     expect(applications[0].campaign_id).toBe(1);
     expect(applications[0].user_id).toBe(1);
     expect(applications[0].devices).toBe("1,3");
+    expect(applications[0].accepted).toBe(0);
   });
 });
