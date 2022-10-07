@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS: put-campaigns-forms-formId */
 import UserRoute from "@src/features/routes/UserRoute";
+import OpenapiError from "@src/features/OpenapiError";
 import FieldCreator from "../../FieldCreator";
 import Campaigns from "@src/features/db/class/Campaigns";
 import PreselectionForms from "@src/features/db/class/PreselectionForms";
@@ -36,7 +37,7 @@ export default class RouteItem extends UserRoute<{
     if ((await this.formExists()) === false) {
       this.setError(
         404,
-        new Error(`Form ${this.getId()} doesn't exist`) as OpenapiError
+        new OpenapiError(`Form ${this.getId()} doesn't exist`)
       );
       throw new Error("Form doesn't exist");
     }
@@ -53,27 +54,27 @@ export default class RouteItem extends UserRoute<{
     if ((await super.filter()) === false) return false;
 
     if (this.hasCapability("manage_preselection_forms") === false) {
-      return this.setUnauthorizedError();
+      return this.setUnauthorizedError("NO_CAPABILITY");
     }
     if (this.campaignId && !this.hasAccessToCampaign(this.campaignId)) {
-      return this.setUnauthorizedError();
+      return this.setUnauthorizedError("NO_ACCESS_TO_CAMPAIGN");
     }
     if (await this.isCampaignIdAlreadyAssigned()) {
       this.setError(
         406,
-        new Error(
-          "A form is already assigned to this campaign_id"
-        ) as OpenapiError
+        new OpenapiError("A form is already assigned to this campaign_id"),
+        "CAMPAIGN_ID_ALREADY_ASSIGNED"
       );
       return false;
     }
     return true;
   }
 
-  private setUnauthorizedError() {
+  private setUnauthorizedError(code?: string) {
     this.setError(
       403,
-      new Error(`You are not authorized to do this`) as OpenapiError
+      new OpenapiError(`You are not authorized to do this`),
+      code
     );
     return false;
   }

@@ -703,6 +703,7 @@ export interface components {
           element: string;
           id: number;
           message: string;
+          code?: string;
         };
       };
     };
@@ -719,6 +720,7 @@ export interface components {
       content: {
         "application/json": {
           message?: string;
+          code?: string;
         };
       };
     };
