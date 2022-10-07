@@ -98,6 +98,7 @@ class CufSelectQuestion extends Question<{
 
     await preselectionFormData.insert({
       campaign_id: campaignId,
+      tester_id: this.testerId,
       field_id: data.question,
       value: data.value.serialized,
     });

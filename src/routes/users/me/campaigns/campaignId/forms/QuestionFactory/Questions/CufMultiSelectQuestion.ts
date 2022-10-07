@@ -103,6 +103,7 @@ class CufMultiselectQuestion extends Question<{
       await preselectionFormData.insert({
         campaign_id: campaignId,
         field_id: data.question,
+        tester_id: this.testerId,
         value: "#",
       });
     } else {
@@ -110,6 +111,7 @@ class CufMultiselectQuestion extends Question<{
         await preselectionFormData.insert({
           campaign_id: campaignId,
           field_id: data.question,
+          tester_id: this.testerId,
           value,
         });
       }

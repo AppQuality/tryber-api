@@ -18,7 +18,7 @@ type QuestionType = Awaited<
 class QuestionFactory {
   static async create(question: QuestionType, testerId: number) {
     if (this.isSelectable(question)) {
-      return new SelectableQuestion(question);
+      return new SelectableQuestion(question, testerId);
     } else if (this.isCuf(question)) {
       const customUserFields = new CustomUserFields();
 

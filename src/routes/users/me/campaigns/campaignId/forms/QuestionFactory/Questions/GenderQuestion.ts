@@ -62,6 +62,7 @@ class GenderQuestion extends Question<{
     await preselectionFormData.insert({
       campaign_id: campaignId,
       field_id: data.question,
+      tester_id: this.testerId,
       value: data.value.serialized,
     });
     await this.updateGender(data.value.serialized);

@@ -2,6 +2,7 @@ import Table from "./table";
 
 type PreselectionFormDataParams = {
   id?: number;
+  tester_id?: number;
   campaign_id?: number;
   field_id?: number;
   value?: string;
@@ -16,6 +17,7 @@ class PreselectionFormData extends Table<PreselectionFormDataParams> {
   protected columns = [
     "id INTEGER PRIMARY KEY",
     "campaign_id INTEGER",
+    "tester_id INTEGER",
     "field_id INTEGER",
     "value TEXT",
   ];

@@ -120,6 +120,7 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 4,
+          tester_id: 1,
           value: "@pippo",
         }),
       ])
@@ -193,6 +194,7 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 5,
+          tester_id: 1,
           value: "Banca 1",
         }),
       ])
@@ -266,11 +268,13 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 6,
+          tester_id: 1,
           value: "Banca 2",
         }),
         expect.objectContaining({
           campaign_id: 1,
           field_id: 6,
+          tester_id: 1,
           value: "Banca 3",
         }),
       ])
@@ -344,6 +348,7 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
       expect.arrayContaining([
         expect.objectContaining({
           field_id: 5,
+          tester_id: 1,
           value: "#",
         }),
       ])
@@ -386,6 +391,7 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
       {
         id: 1,
         campaign_id: 1,
+        tester_id: 1,
         field_id: 6,
         value: "#",
       },

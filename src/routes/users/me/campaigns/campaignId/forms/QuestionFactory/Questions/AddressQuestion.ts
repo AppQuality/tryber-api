@@ -64,6 +64,7 @@ class AddressQuestion extends Question<{
     await preselectionFormData.insert({
       campaign_id: campaignId,
       field_id: data.question,
+      tester_id: this.testerId,
       value: data.value.serialized.city + ", " + data.value.serialized.country,
     });
     await this.updateAddress(data.value.serialized);

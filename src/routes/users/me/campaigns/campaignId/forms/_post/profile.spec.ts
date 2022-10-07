@@ -82,6 +82,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 7,
+          tester_id: 1,
           value: "female",
         }),
       ])
@@ -204,6 +205,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 8,
+          tester_id: 1,
           value: "+393333333333",
         }),
       ])
@@ -253,6 +255,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 9,
+          tester_id: 1,
           value: "Rome, Italy",
         }),
       ])

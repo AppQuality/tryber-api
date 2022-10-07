@@ -4,6 +4,13 @@ import Question from ".";
 class SelectableQuestion extends Question<{
   type: "select" | "multiselect" | "radio";
 }> {
+  constructor(
+    question: typeof SelectableQuestion.constructor.arguments[0],
+    private testerId: number
+  ) {
+    super(question);
+  }
+
   async getItem(): Promise<{
     id: number;
     type: string;
@@ -64,6 +71,7 @@ class SelectableQuestion extends Question<{
       await preselectionFormData.insert({
         campaign_id: campaignId,
         field_id: data.question,
+        tester_id: this.testerId,
         value: data.value.serialized,
       });
       return;
@@ -73,6 +81,7 @@ class SelectableQuestion extends Question<{
         await preselectionFormData.insert({
           campaign_id: campaignId,
           field_id: data.question,
+          tester_id: this.testerId,
           value,
         });
       }

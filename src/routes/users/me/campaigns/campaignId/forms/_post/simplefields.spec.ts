@@ -72,7 +72,12 @@ describe("POST users/me/campaigns/:campaignId/forms - simple fields", () => {
     ]);
     expect(data).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ campaign_id: 1, field_id: 1, value: "test" }),
+        expect.objectContaining({
+          campaign_id: 1,
+          field_id: 1,
+          tester_id: 1,
+          value: "test",
+        }),
       ])
     );
   });
@@ -99,6 +104,7 @@ describe("POST users/me/campaigns/:campaignId/forms - simple fields", () => {
         expect.objectContaining({
           campaign_id: 1,
           field_id: 2,
+          tester_id: 1,
           value: "option1",
         }),
       ])
