@@ -3,7 +3,7 @@ import UserRoute from "@src/features/routes/UserRoute";
 import FieldCreator from "../FieldCreator";
 import PreselectionForms from "@src/features/db/class/PreselectionForms";
 import Campaigns from "@src/features/db/class/Campaigns";
-import { IoTThingsGraph } from "aws-sdk";
+import OpenapiError from "@src/features/OpenapiError";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-campaigns-forms"]["responses"]["201"]["content"]["application/json"];
@@ -30,18 +30,14 @@ export default class RouteItem extends UserRoute<{
     if ((await super.filter()) === false) return false;
 
     if (this.hasCapability("manage_preselection_forms") === false) {
-      this.setError(
-        403,
-        new Error(`You are not authorized to do this`) as OpenapiError
-      );
+      this.setError(403, new OpenapiError(`You are not authorized to do this`));
       return false;
     }
     if (await this.isCampaignIdAlreadyAssigned()) {
       this.setError(
         406,
-        new Error(
-          "A form is already assigned to this campaign_id"
-        ) as OpenapiError
+        new OpenapiError("A form is already assigned to this campaign_id"),
+        "CAMPAIGN_ID_ALREADY_ASSIGNED"
       );
       return false;
     }

@@ -17,6 +17,13 @@ class ProfileObject implements ProfileType {
   country?: string;
   city?: string;
 
+  static genders: { [key: string]: string } = {
+    "-1": "not-specified",
+    "0": "female",
+    "1": "male",
+    "2": "other",
+  };
+
   constructor(item: ProfileType) {
     this.id = item.id;
     this.name = item.name;
@@ -28,10 +35,25 @@ class ProfileObject implements ProfileType {
 
   get gender() {
     if (typeof this.sex === "undefined") return false;
-    if (this.sex === -1) return "not-specified";
-    if (this.sex === 0) return "female";
-    if (this.sex === 1) return "male";
-    if (this.sex === 2) return "other";
+    const sexIndex = this.sex.toString();
+    if (sexIndex in ProfileObject.availableGenders) {
+      return ProfileObject.availableGenders[sexIndex];
+    }
+    throw new Error("Invalid gender");
+  }
+
+  static get availableGenders() {
+    return this.genders;
+  }
+
+  static getGenderNumericValue(
+    value: string
+  ): NonNullable<ProfileObject["sex"]> {
+    const genderItem = Object.entries(this.genders).find(
+      (item) => item[1] === value
+    );
+    if (!genderItem) throw new Error("Gender not found: " + value);
+    return parseInt(genderItem[0]) as NonNullable<ProfileObject["sex"]>;
   }
 }
 

@@ -22,7 +22,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
   }[] = [];
 
   private table: string;
-  private primaryKey: keyof T["fields"];
+  private primaryKey: keyof T["fields"] | null;
   private fields: (keyof T["fields"])[];
   constructor({
     table,
@@ -30,7 +30,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     fields,
   }: {
     table: string;
-    primaryKey: keyof T["fields"];
+    primaryKey: keyof T["fields"] | null;
     fields?: (keyof T["fields"])[] | ["*"];
   }) {
     this.table = table;
@@ -39,6 +39,9 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
   }
 
   public async get(id: number) {
+    if (!this.primaryKey) {
+      throw new Error("No primary key defined");
+    }
     const result = await this.query({
       where: [{ [this.primaryKey]: id }] as Database<T>["where"],
       limit: 1,
@@ -50,6 +53,9 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
   }
 
   public async exists(id: number): Promise<boolean> {
+    if (!this.primaryKey) {
+      throw new Error("No primary key defined");
+    }
     const result = await this.query({
       where: [{ [this.primaryKey]: id }] as Database<T>["where"],
       limit: 1,

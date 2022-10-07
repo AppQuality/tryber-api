@@ -1,5 +1,6 @@
 import Question from ".";
 import Profile, { ProfileObject } from "@src/features/db/class/Profile";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 
 class AddressQuestion extends Question<{
   type: `address`;
@@ -42,6 +43,41 @@ class AddressQuestion extends Question<{
       }
     } catch (e) {}
     return undefined;
+  }
+
+  async insertData({
+    campaignId,
+    data,
+  }: {
+    campaignId: number;
+    data: {
+      question: number;
+      value: {
+        serialized: {
+          city: ProfileObject["city"];
+          country: ProfileObject["country"];
+        };
+      };
+    };
+  }): Promise<void> {
+    const preselectionFormData = new PreselectionFormData();
+    await preselectionFormData.insert({
+      campaign_id: campaignId,
+      field_id: data.question,
+      tester_id: this.testerId,
+      value: data.value.serialized.city + ", " + data.value.serialized.country,
+    });
+    await this.updateAddress(data.value.serialized);
+  }
+  async updateAddress(address: {
+    city: ProfileObject["city"];
+    country: ProfileObject["country"];
+  }) {
+    const profile = new Profile();
+    profile.update({
+      data: { city: address.city, country: address.country },
+      where: [{ id: this.testerId }],
+    });
   }
 }
 

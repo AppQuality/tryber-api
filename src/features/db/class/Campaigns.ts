@@ -73,6 +73,11 @@ class CampaignObject {
     const today = new Date().toISOString().split("T")[0];
     return new Date(this.start_date) >= new Date(today);
   }
+
+  public isOsAccepted(os: number) {
+    if (this.acceptedOs.length === 0) return true;
+    return this.acceptedOs.includes(os);
+  }
 }
 
 class Campaigns extends Database<{

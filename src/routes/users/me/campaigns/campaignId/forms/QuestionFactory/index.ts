@@ -1,15 +1,15 @@
 import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import CustomUserFields, {
-  CustomUserFieldObject,
-} from "@src/features/db/class/CustomUserFields";
+import CustomUserFields from "@src/features/db/class/CustomUserFields";
 import CustomUserFieldExtras from "@src/features/db/class/CustomUserFieldExtras";
 import Question from "./Questions";
 import SelectableQuestion from "./Questions/SelectableQuestion";
 import CufTextQuestion from "./Questions/CufTextQuestion";
 import CufSelectQuestion from "./Questions/CufSelectableQuestion";
+import CufMultiSelectQuestion from "./Questions/CufMultiSelectQuestion";
 import PhoneQuestion from "./Questions/PhoneQuestion";
 import GenderQuestion from "./Questions/GenderQuestion";
 import AddressQuestion from "./Questions/AddressQuestion";
+import SimpleTextQuestion from "./Questions/SimpleTextQuestion";
 
 type QuestionType = Awaited<
   ReturnType<PreselectionFormFields["query"]>
@@ -18,7 +18,7 @@ type QuestionType = Awaited<
 class QuestionFactory {
   static async create(question: QuestionType, testerId: number) {
     if (this.isSelectable(question)) {
-      return new SelectableQuestion(question);
+      return new SelectableQuestion(question, testerId);
     } else if (this.isCuf(question)) {
       const customUserFields = new CustomUserFields();
 
@@ -36,12 +36,22 @@ class QuestionFactory {
           where: [{ custom_user_field_id: cufId }],
         });
         if (fieldOptions.length === 0) return false;
-        return new CufSelectQuestion({
-          question,
-          customUserField: cuf,
-          options: fieldOptions,
-          testerId,
-        });
+        if (cuf.type === "select") {
+          return new CufSelectQuestion({
+            question,
+            customUserField: cuf,
+            options: fieldOptions,
+            testerId,
+          });
+        }
+        if (cuf.type === "multiselect") {
+          return new CufMultiSelectQuestion({
+            question,
+            customUserField: cuf,
+            options: fieldOptions,
+            testerId,
+          });
+        }
       } else {
         return false;
       }
@@ -51,6 +61,8 @@ class QuestionFactory {
       return new GenderQuestion(question, testerId);
     } else if (this.isAddress(question)) {
       return new AddressQuestion(question, testerId);
+    } else if (this.isSimpleText(question)) {
+      return new SimpleTextQuestion(question, testerId);
     } else {
       return new Question(question);
     }
@@ -87,6 +99,11 @@ class QuestionFactory {
     type: `address`;
   } {
     return question.type === "address";
+  }
+  static isSimpleText(question: QuestionType): question is QuestionType & {
+    type: `text`;
+  } {
+    return question.type === "text";
   }
 }
 

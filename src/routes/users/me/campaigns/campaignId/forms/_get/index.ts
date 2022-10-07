@@ -5,7 +5,7 @@ import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
 import PreselectionForms from "@src/features/db/class/PreselectionForms";
 import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import QuestionFactory from "./QuestionFactory";
+import QuestionFactory from "../QuestionFactory";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaign-campaignId-forms"]["responses"]["200"]["content"]["application/json"];
@@ -58,40 +58,35 @@ class RouteItem extends UserRoute<{
   private async hasAccess() {
     const campaign = await this.getCampaign();
     if (!campaign) return false;
-    if (!campaign.isPublic) {
-      const pageAccess = await this.db.pageAccess.query({
-        where: [
-          {
-            view_id: parseInt(campaign.page_preview_id),
-            tester_id: this.getTesterId(),
-          },
-        ],
-      });
-      if (pageAccess.length === 0) {
-        return false;
-      }
-    }
-    return true;
+    return await campaign.testerHasAccess(this.getTesterId());
   }
 
   private async getCampaign() {
     if (!this.campaign) {
       try {
-        const campaigns = await this.db.campaigns.query({
-          where: [
-            { id: this.campaignId },
-            { start_date: new Date().toISOString(), isLower: true },
-          ],
-        });
-        if (campaigns.length === 0) {
-          this.campaign = false;
+        const campaign = await this.db.campaigns.get(this.campaignId);
+        if ((await campaign.isApplicationAvailable()) === false) {
+          throw new Error("Campaign not available");
         }
-        this.campaign = campaigns[0];
+        this.campaign = campaign;
       } catch (e) {
         this.campaign = false;
       }
     }
     return this.campaign;
+  }
+
+  private async retrieveCampaign() {
+    const results = await this.db.campaigns.query({
+      where: [
+        { id: this.campaignId },
+        { start_date: new Date().toISOString(), isGreaterEqual: true },
+      ],
+    });
+    if (results.length === 0) {
+      throw new Error("Campaign not found");
+    }
+    return results[0];
   }
 
   private async getForm() {

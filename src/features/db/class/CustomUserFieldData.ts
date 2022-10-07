@@ -4,14 +4,14 @@ type CustomUserFieldDataType = {
   id: number;
   custom_user_field_id: number;
   profile_id: number;
-  value: string;
+  value: string | number;
 };
 
 class CustomUserFieldDataObject {
   id: number;
   custom_user_field_id: number;
   profile_id: number;
-  value: string;
+  value: string | number;
 
   constructor(item: CustomUserFieldDataType) {
     this.id = item.id;
