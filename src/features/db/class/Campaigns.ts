@@ -70,7 +70,7 @@ class CampaignObject {
   }
 
   public async isApplicationAvailable() {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split(".")[0].replace("T", " ");
     return new Date(this.start_date) >= new Date(today);
   }
 
