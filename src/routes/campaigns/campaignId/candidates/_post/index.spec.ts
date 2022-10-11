@@ -2,7 +2,7 @@ import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import { data as testerData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
@@ -12,7 +12,9 @@ import request from "supertest";
 describe("POST /campaigns/{campaignId}/candidates", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.testerWithBooty();
+      await Profile.insert({
+        pending_booty: 100,
+      });
       await wpUsersData.basicUser();
       await Campaigns.insert();
       resolve(null);
@@ -20,7 +22,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.drop();
+      await Profile.clear();
       await wpUsersData.drop();
       await Campaigns.clear();
       await Candidature.clear();
@@ -101,7 +103,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
 describe("POST /campaigns/{campaignId}/candidates?device=random when user has not devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.testerWithBooty();
+      await Profile.insert({ pending_booty: 100 });
       await wpUsersData.basicUser();
       await Campaigns.insert();
       resolve(null);
@@ -109,7 +111,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.drop();
+      await Profile.clear();
       await wpUsersData.drop();
       await Campaigns.clear();
       await Candidature.clear();
@@ -161,7 +163,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
 describe("POST /campaigns/{campaignId}/candidates?device=random when user has two devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.testerWithBooty();
+      await Profile.insert({ pending_booty: 100 });
       await wpUsersData.basicUser();
       await Campaigns.insert();
       await DeviceOs.insert({ id: 1, display_name: "Linux" });
@@ -189,7 +191,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.drop();
+      await Profile.clear();
       await wpUsersData.drop();
       await Campaigns.clear();
       await Candidature.clear();
@@ -266,7 +268,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
 describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.testerWithBooty();
+      await Profile.insert({ pending_booty: 100 });
       await wpUsersData.basicUser();
       await Campaigns.insert();
       await DeviceOs.insert({ id: 1, display_name: "Linux" });
@@ -294,7 +296,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await testerData.drop();
+      await Profile.clear();
       await wpUsersData.drop();
       await Campaigns.clear();
       await Candidature.clear();

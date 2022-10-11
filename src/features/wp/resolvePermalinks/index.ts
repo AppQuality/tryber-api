@@ -7,7 +7,7 @@ export default async (
 ): Promise<{ [key: string]: { [key: string]: string } }> => {
   const permalink_structure = "/%postname%/";
   const idList = ids.map((id) => parseInt(id)).join(",");
-  if (idList.length == 0) Promise.resolve([]);
+  if (idList.length == 0) return {};
 
   const query = `
   SELECT object_id,description

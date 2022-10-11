@@ -44,11 +44,11 @@ export default class Route<T extends RouteClassTypes> {
     this.responseData = data;
   }
 
-  protected setError(statusCode: number, error: OpenapiError) {
+  protected setError(statusCode: number, error: OpenapiError, code?: string) {
     this.configuration.response.status_code = statusCode;
     debugMessage(error);
 
-    this.responseData = { ...this.errorMessage, message: error.message };
+    this.responseData = { ...this.errorMessage, message: error.message, code };
   }
 
   protected getBody() {

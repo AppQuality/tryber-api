@@ -1,6 +1,6 @@
 import app from "@src/app";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
@@ -8,7 +8,9 @@ import request from "supertest";
 describe("GET /users/me - booty data", () => {
   const data: any = {};
   beforeEach(async () => {
-    data.tester = await profileData.testerWithoutBooty();
+    data.tester = await Profile.insert({
+      pending_booty: 0,
+    });
     await wpUsersData.basicUser({
       ID: data.tester.wp_user_id,
     });
@@ -50,7 +52,7 @@ describe("GET /users/me - booty data", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await Attributions.clear();
       await wpUsersData.drop();
       resolve(null);
@@ -72,14 +74,14 @@ describe("GET /users/me - booty data", () => {
 describe("GET /users/me - pending_booty threshold", () => {
   const data: any = {};
   beforeEach(async () => {
-    data.tester = await profileData.testerWithoutBooty();
+    data.tester = await Profile.insert();
     await wpUsersData.basicUser({
       ID: data.tester.wp_user_id,
     });
     await WpOptions.crowdWpOptions();
   });
   afterEach(async () => {
-    await profileData.drop();
+    await Profile.clear();
     await wpUsersData.drop();
     await WpOptions.clear();
     await Attributions.clear();

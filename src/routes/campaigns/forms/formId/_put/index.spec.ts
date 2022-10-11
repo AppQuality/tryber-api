@@ -39,6 +39,7 @@ const sampleBodyWithFields = {
 };
 describe("PUT /campaigns/forms/", () => {
   beforeAll(() => {
+    Campaign.insert({ id: 1 });
     Campaign.insert({ id: 2 });
     Campaign.insert({ id: 3 });
     CustomUserFields.insert({
@@ -394,5 +395,39 @@ describe("PUT /campaigns/forms/", () => {
     const results = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
     expect(results.length).toBe(1);
     expect(results[0].campaign_id).toBe(3);
+  });
+  it("Should return 406 if sending a form associated with a campaign that already has a form", async () => {
+    const response = await request(app)
+      .put("/campaigns/forms/2")
+      .send({
+        name: "New Form with same campaign id",
+        fields: [],
+        campaign: 2,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"] olp {"appq_campaign":[1,2]}`
+      );
+    expect(response.status).toBe(406);
+
+    expect(
+      (await PreselectionForm.all(["campaign_id"], [{ id: 1 }])).length
+    ).toBe(1);
+    expect(
+      (await PreselectionForm.all(["campaign_id"], [{ id: 2 }])).length
+    ).toBe(1);
+  });
+  it("Should allow saving the form with same campaign id as before", async () => {
+    const response = await request(app)
+      .put("/campaigns/forms/2")
+      .send({
+        ...sampleBody,
+        campaign: 1,
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"] olp {"appq_campaign":true}`
+      );
+    expect(response.status).toBe(200);
   });
 });

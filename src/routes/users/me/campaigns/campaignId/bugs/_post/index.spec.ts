@@ -11,7 +11,7 @@ import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import Usecases from "@src/__mocks__/mockedDb/usecases";
 import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
@@ -56,7 +56,7 @@ const bugNotSpecificUsecase = {
 
 beforeAll(async () => {
   await wpUserData.basicUser();
-  await profileData.basicTester();
+  await Profile.insert();
 
   await Campaign.insert({
     id: 1,
@@ -107,7 +107,7 @@ afterAll(async () => {
   await Candidature.clear();
   await Campaign.clear();
   await wpUserData.drop();
-  await profileData.drop();
+  await Profile.clear();
 
   await Usecases.clear();
   await UsecaseGroups.clear();

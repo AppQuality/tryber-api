@@ -1,11 +1,17 @@
-const verify = (token: string, secret: string): any => {
-  const tokenItems = token.split(" ");
-  const role = tokenItems[0];
-  if (token === "tester") {
+class MockedVerifier {
+  private token: string;
+  private role: string;
+  private roleToken: { [key: string]: any };
+  constructor(token: string) {
+    this.token = token;
+    this.role = token.split(" ")[0];
+    this.roleToken = this.getBasicToken(this.role);
+  }
+
+  get basicToken() {
     return {
       ID: 1,
       testerId: 1,
-      role: "tester",
       permission: { admin: {} },
       capabilities: [],
       iat: new Date().getTime() + 24 * 60 * 60,
@@ -13,10 +19,16 @@ const verify = (token: string, secret: string): any => {
     };
   }
 
-  if (token === "admin") {
+  get testerToken() {
     return {
-      ID: 1,
-      testerId: 1,
+      ...this.basicToken,
+      role: "tester",
+    };
+  }
+
+  get adminToken() {
+    return {
+      ...this.basicToken,
       role: "administrator",
       capabilities: [],
       permission: {
@@ -44,29 +56,79 @@ const verify = (token: string, secret: string): any => {
           appq_token_handling: true,
         },
       },
-      iat: new Date().getTime() + 24 * 60 * 60,
-      exp: new Date().getTime() + 24 * 60 * 60,
     };
   }
 
-  const result = verify(role, "");
-  if (result) {
-    if (token.includes("capability ")) {
+  private getBasicToken(role: string) {
+    if (role === "tester") {
+      return this.testerToken;
+    }
+
+    if (role === "admin") {
+      return this.adminToken;
+    }
+    throw new Error(`Invalid role ${role}`);
+  }
+
+  public verify() {
+    if (this.token === this.role) {
+      return this.roleToken;
+    }
+
+    return {
+      ...this.roleToken,
+      ...this.capabilities,
+      ...this.olps,
+    };
+  }
+
+  get olps() {
+    const olps = this.decodeOlps();
+    if (!olps) return {};
+    return {
+      permission: {
+        admin: {
+          ...this.roleToken.permission.admin,
+          ...olps,
+        },
+      },
+    };
+  }
+
+  private decodeOlps() {
+    const tokenItems = this.token.split(" ");
+    if (tokenItems.includes("olp")) {
+      const capabilityIndex = tokenItems.indexOf("olp") + 1;
+      if (capabilityIndex < tokenItems.length) {
+        return JSON.parse(tokenItems[capabilityIndex].trim());
+      }
+    }
+    return false;
+  }
+
+  get capabilities() {
+    const capabilities = this.decodeCapabilities();
+    if (!capabilities) return {};
+    return {
+      capabilities: [...this.roleToken.capabilities, ...capabilities],
+    };
+  }
+
+  private decodeCapabilities() {
+    const tokenItems = this.token.split(" ");
+    if (tokenItems.includes("capability")) {
       const capabilityIndex = tokenItems.indexOf("capability") + 1;
       if (capabilityIndex < tokenItems.length) {
-        const capabilities = JSON.parse(tokenItems[capabilityIndex].trim());
-        result.capabilities = [...result.capabilities, ...capabilities];
+        return JSON.parse(tokenItems[capabilityIndex].trim());
       }
     }
-    if (token.includes("olp ")) {
-      const olpIndex = tokenItems.indexOf("olp") + 1;
-      if (olpIndex < tokenItems.length) {
-        const olp = JSON.parse(tokenItems[olpIndex].trim());
-        result.permission.admin = { ...result.permission.admin, ...olp };
-      }
-    }
+    return false;
   }
-  return result;
+}
+
+const verify = (token: string, secret: string): any => {
+  const verifier = new MockedVerifier(token);
+  return verifier.verify();
 };
 
 export default {

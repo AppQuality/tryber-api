@@ -3,7 +3,7 @@ import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
 import request from "supertest";
 
@@ -33,11 +33,13 @@ describe("GET /users/me/payments/{payment}", () => {
       await sqlite3.insert("wp_appq_payment_work_types", work_type1);
       await sqlite3.insert("wp_appq_payment_work_types", work_type2);
 
-      await profileData.testerWithBooty({
+      await Profile.insert({
         id: 1,
+        pending_booty: 100,
       });
-      await profileData.testerWithBooty({
+      await Profile.insert({
         id: 2,
+        pending_booty: 100,
       });
       requestData.processingPaypalPayment({
         id: 1,
@@ -86,7 +88,7 @@ describe("GET /users/me/payments/{payment}", () => {
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
-      await profileData.drop();
+      await Profile.clear();
       await Attributions.clear();
       await requestData.drop();
       await Campaigns.clear();

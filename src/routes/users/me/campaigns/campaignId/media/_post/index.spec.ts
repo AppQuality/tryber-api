@@ -1,7 +1,7 @@
 import app from "@src/app";
 import upload from "@src/features/upload";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
@@ -22,14 +22,14 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       }
     );
     (crypt as jest.Mock).mockImplementation((string: string) => `crypted`);
-    await profileData.basicTester();
+    await Profile.insert();
     await wpUserData.basicUser();
     await WpOptions.validUploadExtensions(["jpg", "mov", "png"]);
     await Candidature.insert({ campaign_id: 1, user_id: 1 });
   });
   afterAll(async () => {
     await wpUserData.drop();
-    await profileData.drop();
+    await Profile.clear();
     await WpOptions.clear();
     await Candidature.clear();
     await UploadedMedia.clear();

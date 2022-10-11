@@ -45,7 +45,41 @@ describe("POST /campaigns/forms/", () => {
       );
     expect(response.status).toBe(201);
   });
-
+  it("Should return 406 if sending a form associated with a campaign that already has a form", async () => {
+    const body = {
+      ...sampleBody,
+      fields: [],
+      campaign: 1,
+    };
+    await request(app)
+      .post("/campaigns/forms/")
+      .send(body)
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const result = await PreselectionForm.all(undefined, [{ campaign_id: 1 }]);
+    expect(result.length).toBe(1);
+    expect(result[0]).toHaveProperty("campaign_id", body.campaign);
+    const responseNewFormSameCamapign = await request(app)
+      .post("/campaigns/forms/")
+      .send({ ...body, name: "New Form withsame campaign id" })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const afterNewFormResult = await PreselectionForm.all(undefined, [
+      { campaign_id: 1 },
+    ]);
+    expect(afterNewFormResult.length).toBe(1);
+    expect(afterNewFormResult[0]).toHaveProperty("campaign_id", body.campaign);
+    expect(responseNewFormSameCamapign.status).toBe(406);
+    expect(responseNewFormSameCamapign.body).toMatchObject({
+      element: "element",
+      id: 1,
+      message: "A form is already assigned to this campaign_id",
+    });
+  });
   it("Should create a new form on success and return its id", async () => {
     const response = await request(app)
       .post("/campaigns/forms/")

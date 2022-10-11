@@ -2005,12 +2005,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/AdditionalField'
                   gender:
-                    type: string
-                    enum:
-                      - male
-                      - female
-                      - not-specified
-                      - other
+                    $ref: '#/components/schemas/Gender'
                   birthDate:
                     type: string
                     format: date
@@ -2873,6 +2868,37 @@ paths:
                       - mov
                       - mp4
       operationId: get-users-me-campaigns-campaignId
+      description: ''
+      security:
+        - JWT: []
+  '/users/me/campaigns/{campaign}/compatible_devices':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get the user devices for a campaign you are selected in
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDevice'
+              examples:
+                example-1:
+                  value: []
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaigns-campaignId-compatible-devices
       description: ''
       security:
         - JWT: []
@@ -5009,6 +5035,221 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
+  '/users/me/campaigns/{campaignId}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the preselection form for your campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/PreselectionFormQuestion'
+                    - type: object
+                      properties:
+                        value:
+                          oneOf:
+                            - type: integer
+                            - type: object
+                              properties:
+                                city:
+                                  type: string
+                                country:
+                                  type: string
+                            - type: array
+                              items:
+                                type: integer
+                            - type: string
+                        validation:
+                          type: object
+                          properties:
+                            regex:
+                              type: string
+                            error:
+                              type: string
+                          required:
+                            - regex
+                        id:
+                          type: number
+                      required:
+                        - id
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: Come si chiama il tuo cane?
+                      type: text
+                    - id: 2
+                      question: Il tuo cane si chiama pippo?
+                      type: radio
+                      options:
+                        - Sì
+                        - 'No'
+                    - id: 3
+                      question: Di che razza è il tuo cane?
+                      type: select
+                      options:
+                        - ALANO TIGRATO
+                        - ALASKAN MALAMUTE
+                        - ALPENLAENDISCHE DACHSBRACKE
+                        - AMSTAFF
+                    - id: 4
+                      question: Che vaccinazioni ha fatto il tuo cane?
+                      type: multiselect
+                      options:
+                        - Cimurro
+                        - Parvovirus
+                        - Adenovirus
+                    - id: 5
+                      question: Con quali banche hai un conto?
+                      type: cuf_22
+                      options:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                      value:
+                        - 3
+                        - 4
+                    - id: 6
+                      question: Scrivi il tuo username telegram
+                      type: cuf_15
+                      value: '@pippo'
+                      validation:
+                        regex: '^@[a-zA-Z]*$'
+                        error: 'Inserire l''utente telegram in questo formato: @pippo'
+                    - id: 7
+                      question: Con che genere ti identifichi?
+                      type: gender
+                      value: male
+                    - id: 8
+                      question: Qual è il tuo numero di telefono
+                      type: phone_number
+                      value: '+33123456789'
+                      validation:
+                        regex: '^\+?[0-9]{12,14}$'
+                    - id: 9
+                      question: Dove abiti?
+                      type: address
+                      value:
+                        city: Pesaro
+                        country: Italy
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaign-campaignId-forms
+      security:
+        - JWT: []
+    post:
+      summary: ''
+      operationId: post-users-me-campaigns-campaignId-forms
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                form:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: object
+                        properties:
+                          id:
+                            oneOf:
+                              - type: integer
+                              - type: array
+                                items:
+                                  type: integer
+                          serialized:
+                            oneOf:
+                              - type: string
+                              - type: array
+                                items:
+                                  type: string
+                              - type: object
+                                properties:
+                                  city:
+                                    type: string
+                                  country:
+                                    type: string
+                                required:
+                                  - city
+                                  - country
+                      question:
+                        type: number
+                    required:
+                      - value
+                      - question
+                device:
+                  type: array
+                  items:
+                    type: integer
+            examples:
+              example-1:
+                value:
+                  form:
+                    - question: 1
+                      value:
+                        serialized: Pippo
+                    - question: 2
+                      value:
+                        serialized: Sì
+                    - question: 3
+                      value:
+                        serialized: ALANO TIGRATO
+                    - question: 4
+                      value:
+                        serialized:
+                          - Cimurro
+                          - Parvovirus
+                    - question: 5
+                      value:
+                        id:
+                          - 1
+                          - 3
+                        serialized:
+                          - Banca 1
+                          - Banca 3
+                    - question: 6
+                      value:
+                        serialized: '@franco'
+                    - question: 7
+                      value:
+                        serialized: female
+                    - question: 8
+                      value:
+                        serialized: '+33233456789'
+                    - question: 9
+                      value:
+                        serialized:
+                          city: Roma
+                          country: Italy
+                  device:
+                    - 123
+      security:
+        - JWT: []
+      description: ''
 components:
   schemas:
     AdditionalField:
@@ -5730,6 +5971,16 @@ components:
         - id
         - device
         - operating_system
+    Gender:
+      type: string
+      title: Gender
+      x-stoplight:
+        id: ongto6juifn3f
+      enum:
+        - male
+        - female
+        - not-specified
+        - other
   securitySchemes:
     JWT:
       type: http
@@ -5886,6 +6137,8 @@ components:
                 type: integer
               message:
                 type: string
+              code:
+                type: string
             required:
               - element
               - id
@@ -5919,6 +6172,8 @@ components:
             type: object
             properties:
               message:
+                type: string
+              code:
                 type: string
           examples:
             example:

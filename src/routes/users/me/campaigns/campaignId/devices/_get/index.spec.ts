@@ -1,7 +1,7 @@
 import app from "@src/app";
 import request from "supertest";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import { data as profileData } from "@src/__mocks__/mockedDb/profile";
+import Profile from "@src/__mocks__/mockedDb/profile";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
@@ -9,7 +9,7 @@ import DeviceOS from "@src/__mocks__/mockedDb/deviceOs";
 import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
 
 beforeAll(async () => {
-  await profileData.basicTester();
+  await Profile.insert();
   await wpUserData.basicUser();
   await Campaigns.insert({
     id: 1,
@@ -45,7 +45,7 @@ beforeAll(async () => {
 });
 afterAll(async () => {
   await wpUserData.drop();
-  await profileData.drop();
+  await Profile.clear();
   await TesterDevice.clear();
   await DeviceOS.clear();
 });
