@@ -4,7 +4,7 @@ import createCandidature from "./createCandidature";
 import testerShouldNotBeCandidate from "./testerShouldNotBeCandidate";
 import AdminRoute from "@src/features/routes/AdminRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
-import Profile from "@src/features/db/class/Profile";
+import Profile, { ProfileObject } from "@src/features/db/class/Profile";
 import TesterDevices from "@src/features/db/class/TesterDevices";
 
 /** OPENAPI-CLASS: post-campaigns-campaign-candidates */
@@ -95,18 +95,42 @@ export default class RouteItem extends AdminRoute<{
     return 0;
   }
 
+  private async candidateTester({
+    tester,
+    device,
+  }: {
+    tester: ProfileObject;
+    device: number;
+  }) {
+    const candidature = await createCandidature(
+      tester.wp_user_id,
+      this.campaign,
+      device
+    );
+    let deviceItem;
+    if (candidature.device > 0) {
+      deviceItem = await new Devices().getOne(candidature.device);
+      if (!deviceItem) throw new Error("Device does not exist");
+    } else {
+      deviceItem = "any" as const;
+    }
+    return {
+      tester_id: candidature.tester_id,
+      accepted: candidature.accepted == 1,
+      campaignId: candidature.campaign_id,
+      status: this.getCandidatureStatus(candidature.status),
+      device: deviceItem,
+    };
+  }
+
   protected async prepare(): Promise<void> {
-    const tester = await this.getTester();
-    let candidature;
     try {
-      candidature = await createCandidature(
-        tester.wp_user_id,
-        this.campaign,
-        await this.getDeviceIdToSelect()
-      );
-      if (candidature.device > 0) {
-        candidature.device = await new Devices().getOne(candidature.device);
-      }
+      const candidature = await this.candidateTester({
+        tester: await this.getTester(),
+        device: await this.getDeviceIdToSelect(),
+      });
+
+      this.setSuccess(200, candidature);
     } catch (err) {
       debugMessage(err);
       this.setError(
@@ -115,30 +139,14 @@ export default class RouteItem extends AdminRoute<{
       );
       return;
     }
+  }
 
-    if (![-1, 0, 1, 2, 3].includes(candidature.status)) {
-      this.setError(
-        500,
-        new Error("Unknown candidature status") as OpenapiError
-      );
-      return;
-    }
-
-    this.setSuccess(200, {
-      tester_id: candidature.tester_id,
-      accepted: candidature.accepted == 1,
-      campaignId: candidature.campaign_id,
-      status:
-        candidature.status === 0
-          ? "ready"
-          : candidature.status === -1
-          ? "removed"
-          : candidature.status === 1
-          ? "excluded"
-          : candidature.status === 2
-          ? "in-progress"
-          : "completed",
-      device: candidature.device == 0 ? "any" : candidature.device,
-    });
+  private getCandidatureStatus(status: number) {
+    if (status === 0) return "ready" as const;
+    if (status === -1) return "removed" as const;
+    if (status === 1) return "excluded" as const;
+    if (status === 2) return "in-progress" as const;
+    if (status === 3) return "completed" as const;
+    throw new Error("Invalid status");
   }
 }

@@ -15,7 +15,7 @@ export default async (
       [wpId, campaignId, selectedDevice]
     )
   );
-  let candidature = await db.query(
+  let candidature = (await db.query(
     db.format(
       `
         SELECT t.id as tester_id, 
@@ -25,7 +25,13 @@ export default async (
         WHERE cand.user_id = ? AND campaign_id = ?`,
       [wpId, campaignId]
     )
-  );
+  )) as {
+    tester_id: number;
+    campaign_id: number;
+    status: number;
+    device: number;
+    accepted: number;
+  }[];
   if (!candidature.length) {
     throw new Error("Error adding candidature");
   }
