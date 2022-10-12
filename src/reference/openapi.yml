@@ -290,6 +290,40 @@ paths:
             type: string
           in: query
           name: device
+    get:
+      summary: Get all candidates for a campaign
+      operationId: get-campaigns-campaign-candidates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            '':
+                              type: string
+                  - $ref: '#/components/schemas/PaginationData'
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: string
+                  '':
+                    type: string
+      description: ''
+      security:
+        - JWT: []
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -3378,6 +3412,7 @@ paths:
                         id:
                           type: number
                     - $ref: '#/components/schemas/UserDevice'
+                    - type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -5981,6 +6016,23 @@ components:
         - female
         - not-specified
         - other
+    PaginationData:
+      title: PaginationData
+      x-stoplight:
+        id: qih6s4lp0zdtj
+      type: object
+      properties:
+        start:
+          type: integer
+        limit:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - start
+        - size
   securitySchemes:
     JWT:
       type: http
