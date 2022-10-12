@@ -263,6 +263,8 @@ paths:
                         enum:
                           - any
                       - $ref: '#/components/schemas/UserDevice'
+                  campaignId:
+                    type: number
                 required:
                   - tester_id
                   - accepted
@@ -283,13 +285,17 @@ paths:
               properties:
                 tester_id:
                   type: number
+                device:
+                  oneOf:
+                    - type: integer
+                      properties: {}
+                    - type: string
+                      properties: {}
+                      enum:
+                        - random
               required:
                 - tester_id
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: device
+      parameters: []
     get:
       summary: Get all candidates for a campaign
       operationId: get-campaigns-campaign-candidates

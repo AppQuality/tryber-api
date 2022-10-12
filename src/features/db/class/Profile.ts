@@ -2,6 +2,7 @@ import Database from "./Database";
 
 type ProfileType = {
   id?: number;
+  wp_user_id?: number;
   name?: string;
   sex?: -1 | 0 | 1 | 2;
   phone_number?: string;
@@ -12,6 +13,7 @@ type ProfileType = {
 class ProfileObject implements ProfileType {
   id?: number;
   name?: string;
+  wp_user_id: number;
   sex?: -1 | 0 | 1 | 2;
   phone_number?: string;
   country?: string;
@@ -31,6 +33,7 @@ class ProfileObject implements ProfileType {
     this.phone_number = item.phone_number;
     this.country = item.country;
     this.city = item.city;
+    this.wp_user_id = item.wp_user_id || 0;
   }
 
   get gender() {
@@ -66,7 +69,15 @@ class Profile extends Database<{
       primaryKey: "id",
       fields: fields
         ? fields
-        : ["id", "name", "sex", "phone_number", "country", "city"],
+        : [
+            "id",
+            "name",
+            "sex",
+            "phone_number",
+            "country",
+            "city",
+            "wp_user_id",
+          ],
     });
   }
 

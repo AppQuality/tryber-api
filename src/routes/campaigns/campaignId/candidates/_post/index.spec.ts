@@ -92,7 +92,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       tester_id: 1,
-      campaign_id: 1,
+      campaignId: 1,
       accepted: true,
       status: "ready",
       device: "any",
@@ -128,8 +128,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
     expect(beforeCandidature).toBe(undefined);
 
     await request(app)
-      .post("/campaigns/1/candidates?device=random")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: "random" })
       .set("authorization", "Bearer admin");
 
     const afterCandidature = await sqlite3.get(`
@@ -146,13 +146,13 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
   });
   it("Should return the candidature on success with device=any", async () => {
     const response = await request(app)
-      .post("/campaigns/1/candidates?device=random")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: "random" })
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       tester_id: 1,
-      campaign_id: 1,
+      campaignId: 1,
       accepted: true,
       status: "ready",
       device: "any",
@@ -211,8 +211,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
     expect(beforeCandidature).toBe(undefined);
 
     await request(app)
-      .post("/campaigns/1/candidates?device=random")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: "random" })
       .set("authorization", "Bearer admin");
 
     const afterCandidature = await sqlite3.get(`
@@ -236,8 +236,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
   });
   it("Should return the candidature with random device from user device", async () => {
     const response = await request(app)
-      .post("/campaigns/1/candidates?device=random")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: "random" })
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect([
@@ -316,8 +316,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
     expect(beforeCandidature).toBe(undefined);
 
     await request(app)
-      .post("/campaigns/1/candidates?device=2")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: 2 })
       .set("authorization", "Bearer admin");
 
     const afterCandidature = await sqlite3.get(`
@@ -334,8 +334,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
   });
   it("Should return the candidature with device as choosen in query param", async () => {
     const response = await request(app)
-      .post("/campaigns/1/candidates?device=2")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: 2 })
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.device).toEqual({
@@ -351,14 +351,9 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
   });
   it("Should return 404 with error if try to candidate with an nonexistent device", async () => {
     const response = await request(app)
-      .post("/campaigns/1/candidates?device=6969696")
-      .send({ tester_id: 1 })
+      .post("/campaigns/1/candidates")
+      .send({ tester_id: 1, device: 6969696 })
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({
-      id: 1,
-      element: "candidate",
-      message: "Device does not exist for this Tester",
-    });
   });
 });

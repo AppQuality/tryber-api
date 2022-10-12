@@ -908,9 +908,6 @@ export interface operations {
         /** A campaign id */
         campaign: string;
       };
-      query: {
-        device?: string;
-      };
     };
     responses: {
       /** OK */
@@ -927,6 +924,7 @@ export interface operations {
               | "excluded"
               | "removed";
             device: "any" | components["schemas"]["UserDevice"];
+            campaignId?: number;
           };
         };
       };
@@ -937,6 +935,7 @@ export interface operations {
       content: {
         "application/json": {
           tester_id: number;
+          device?: number | "random";
         };
       };
     };
