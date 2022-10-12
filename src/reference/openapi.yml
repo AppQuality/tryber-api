@@ -307,20 +307,62 @@ paths:
                         items:
                           type: object
                           properties:
-                            '':
+                            id:
+                              type: integer
+                            name:
                               type: string
+                            surname:
+                              type: string
+                            experience:
+                              type: integer
+                            level:
+                              type: string
+                            devices:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  manufacturer:
+                                    type: string
+                                  model:
+                                    type: string
+                                  os:
+                                    type: string
+                                  osVersion:
+                                    type: string
+                                required:
+                                  - os
+                                  - osVersion
+                          required:
+                            - id
+                            - name
+                            - surname
+                            - experience
+                            - level
+                            - devices
                   - $ref: '#/components/schemas/PaginationData'
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: string
-                  '':
-                    type: string
+              examples:
+                example-1:
+                  value:
+                    results:
+                      - id: 123
+                        name: Pippo
+                        surname: Franco
+                        experience: 200
+                        level: Bronze
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone
+                            os: iOS
+                            osVersion: '9'
+                          - os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                    start: 0
+                    size: 1
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
       description: ''
       security:
         - JWT: []
@@ -958,6 +1000,51 @@ paths:
                     - question: 'What''s your [profile question]?'
                       type: gender
       description: ''
+  '/campaigns/{campaign}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a preselection form by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    question:
+                      type: string
+                    shortName:
+                      type: string
+                  required:
+                    - id
+                    - question
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: My question 1
+                      shortName: Q1
+                    - id: 2
+                      question: My question 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-forms
+      description: ''
+      security:
+        - JWT: []
   /certifications:
     get:
       summary: Retrive and filter all certifications

@@ -32,6 +32,7 @@ export interface paths {
     };
   };
   "/campaigns/{campaign}/candidates": {
+    get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
     post: operations["post-campaigns-campaign-candidates"];
     parameters: {
@@ -78,6 +79,14 @@ export interface paths {
     parameters: {
       path: {
         formId: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/forms": {
+    get: operations["get-campaigns-campaign-forms"];
+    parameters: {
+      path: {
+        campaign: string;
       };
     };
   };
@@ -664,6 +673,13 @@ export interface components {
      * @enum {string}
      */
     Gender: "male" | "female" | "not-specified" | "other";
+    /** PaginationData */
+    PaginationData: {
+      start: number;
+      limit?: number;
+      size: number;
+      total?: number;
+    };
   };
   responses: {
     /** A user */
@@ -851,6 +867,38 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["CampaignOptional"];
       };
+    };
+  };
+  "get-campaigns-campaign-candidates": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results?: {
+              id: number;
+              name: string;
+              surname: string;
+              experience: number;
+              level: string;
+              devices: {
+                manufacturer?: string;
+                model?: string;
+                os: string;
+                osVersion: string;
+              }[];
+            }[];
+          } & components["schemas"]["PaginationData"];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -1113,6 +1161,27 @@ export interface operations {
           } & components["schemas"]["PreselectionFormQuestion"])[];
         };
       };
+    };
+  };
+  "get-campaigns-campaign-forms": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            question: string;
+            shortName?: string;
+          }[];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** Get all certificatio */
@@ -2218,7 +2287,9 @@ export interface operations {
         content: {
           "application/json": ({
             id?: number;
-          } & components["schemas"]["UserDevice"])[];
+          } & components["schemas"]["UserDevice"] & {
+              [key: string]: unknown;
+            })[];
         };
       };
       403: components["responses"]["NotAuthorized"];
