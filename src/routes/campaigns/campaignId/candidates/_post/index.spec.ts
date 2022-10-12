@@ -48,7 +48,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       .post("/campaigns/1/candidates")
       .send({ tester_id: 69 })
       .set("authorization", "Bearer admin");
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(403);
   });
 
   it("Should return 403 if tester is already candidate on campaign", async () => {
@@ -354,6 +354,6 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
       .post("/campaigns/1/candidates")
       .send({ tester_id: 1, device: 6969696 })
       .set("authorization", "Bearer admin");
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(403);
   });
 });

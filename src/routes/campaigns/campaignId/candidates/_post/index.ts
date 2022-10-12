@@ -21,6 +21,7 @@ export default class RouteItem extends AdminRoute<{
   private campaign: number;
   private testerToSelect: number;
   private deviceToSelect: number | "random";
+  private invalidTesters: number[] = [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -29,11 +30,17 @@ export default class RouteItem extends AdminRoute<{
     const body = this.getBody();
     this.testerToSelect = body.tester_id;
     this.deviceToSelect = body.device || 0;
+    this.invalidTesters = [];
     this.db = {
       campaigns: new Campaigns(),
       profile: new Profile(),
       testerDevices: new TesterDevices(),
     };
+  }
+
+  get validApplications() {
+    if (this.invalidTesters.length) return [];
+    return [{ tester: this.testerToSelect, device: this.deviceToSelect }];
   }
 
   protected async filter(): Promise<boolean> {
@@ -42,13 +49,15 @@ export default class RouteItem extends AdminRoute<{
       return false;
     }
     if ((await this.testerExists()) === false) {
-      this.setError(404, new Error("Tester does not exist") as OpenapiError);
-      return false;
+      this.invalidTesters.push(this.testerToSelect);
     }
     if (await this.testerIsAlreadyCandidate()) {
-      this.setError(403, new Error("Tester does not exist") as OpenapiError);
-      return false;
+      this.invalidTesters.push(this.testerToSelect);
     }
+    if (!(await this.testerHasDevice())) {
+      this.invalidTesters.push(this.testerToSelect);
+    }
+
     return super.filter();
   }
 
@@ -68,31 +77,40 @@ export default class RouteItem extends AdminRoute<{
     }
   }
 
-  private async getTester() {
-    return this.db.profile.get(this.testerToSelect);
-  }
-
-  private async getDeviceIdToSelect(): Promise<number> {
+  private async testerHasDevice() {
+    if (this.deviceToSelect === "random" || this.deviceToSelect === 0)
+      return true;
     const userDevices = (
       await this.db.testerDevices.query({
         where: [{ id_profile: this.testerToSelect }],
       })
     ).map((device) => device.id);
+
+    return userDevices.includes(this.deviceToSelect);
+  }
+
+  private async getDeviceIdToSelect(
+    tester: number,
+    device: number | "random"
+  ): Promise<number> {
+    const userDevices = await this.getAllTesterDevice(tester);
     if (!userDevices.length) return 0;
 
-    if (this.deviceToSelect === "random") {
+    if (device === "random") {
       return userDevices[Math.floor(Math.random() * userDevices.length)];
     }
-    if (this.deviceToSelect > 0) {
-      if (userDevices.includes(this.deviceToSelect)) {
-        return this.deviceToSelect;
-      }
-      throw {
-        status_code: 404,
-        message: "Device does not exist for this Tester",
-      };
+    if (device > 0) {
+      return device;
     }
     return 0;
+  }
+
+  private async getAllTesterDevice(tester: number) {
+    return (
+      await this.db.testerDevices.query({
+        where: [{ id_profile: tester }],
+      })
+    ).map((device) => device.id);
   }
 
   private async candidateTester({
@@ -107,29 +125,38 @@ export default class RouteItem extends AdminRoute<{
       this.campaign,
       device
     );
-    let deviceItem;
-    if (candidature.device > 0) {
-      deviceItem = await new Devices().getOne(candidature.device);
-      if (!deviceItem) throw new Error("Device does not exist");
-    } else {
-      deviceItem = "any" as const;
-    }
     return {
       tester_id: candidature.tester_id,
       accepted: candidature.accepted == 1,
       campaignId: candidature.campaign_id,
       status: this.getCandidatureStatus(candidature.status),
-      device: deviceItem,
+      device: await this.getDeviceItem(candidature.device),
     };
   }
 
-  protected async prepare(): Promise<void> {
-    try {
-      const candidature = await this.candidateTester({
-        tester: await this.getTester(),
-        device: await this.getDeviceIdToSelect(),
-      });
+  private async getDeviceItem(device: number) {
+    if (device === 0) return "any" as const;
+    const deviceItem = await new Devices().getOne(device);
+    if (!deviceItem) throw new Error("Device does not exist");
+    return deviceItem;
+  }
 
+  protected async prepare(): Promise<void> {
+    if (this.validApplications.length === 0) {
+      this.setError(403, new Error("Invalid testers") as OpenapiError);
+      return;
+    }
+    try {
+      let candidature;
+      for (const application of this.validApplications) {
+        candidature = await this.candidateTester({
+          tester: await this.db.profile.get(application.tester),
+          device: await this.getDeviceIdToSelect(
+            application.tester,
+            application.device
+          ),
+        });
+      }
       this.setSuccess(200, candidature);
     } catch (err) {
       debugMessage(err);
