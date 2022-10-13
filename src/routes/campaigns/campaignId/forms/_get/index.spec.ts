@@ -4,17 +4,34 @@ import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 describe("GET /campaigns/:campaignId/forms", () => {
   beforeAll(async () => {
-    await preselectionForm.insert({ id: 1, name: "Form Name1" });
-    await preselectionFormFields.insert({ id: 1, question: "Question Name1" });
+    await preselectionForm.insert({
+      id: 1,
+      name: "Form Name1",
+      campaign_id: 1,
+    });
+    await preselectionFormFields.insert({
+      id: 1,
+      form_id: 1,
+      question: "Question Name1",
+    });
     await preselectionFormFields.insert({
       id: 2,
+      form_id: 1,
       question: "Question Name2",
       short_name: "question_short_2",
       priority: 2,
     });
     await preselectionFormFields.insert({
       id: 3,
+      form_id: 1,
       question: "Question Name3",
+      short_name: "question_short_3",
+      priority: 1,
+    });
+    await preselectionFormFields.insert({
+      id: 4,
+      form_id: 2,
+      question: "Question Name from form2",
       short_name: "question_short_3",
       priority: 1,
     });
