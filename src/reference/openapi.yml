@@ -281,20 +281,37 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tester_id:
-                  type: number
-                device:
-                  oneOf:
-                    - type: integer
-                      properties: {}
-                    - type: string
-                      properties: {}
-                      enum:
-                        - random
-              required:
-                - tester_id
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      tester_id:
+                        type: number
+                      device:
+                        oneOf:
+                          - type: number
+                            properties: {}
+                          - type: string
+                            properties: {}
+                            enum:
+                              - random
+                    required:
+                      - tester_id
+                - type: object
+                  properties:
+                    tester_id:
+                      type: number
+                    device:
+                      oneOf:
+                        - type: number
+                          properties: {}
+                        - type: string
+                          properties: {}
+                          enum:
+                            - random
+                  required:
+                    - tester_id
       parameters: []
     get:
       summary: Get all candidates for a campaign

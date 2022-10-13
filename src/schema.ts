@@ -933,10 +933,15 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": {
-          tester_id: number;
-          device?: number | "random";
-        };
+        "application/json":
+          | {
+              tester_id: number;
+              device?: number | "random";
+            }[]
+          | {
+              tester_id: number;
+              device?: number | "random";
+            };
       };
     };
   };

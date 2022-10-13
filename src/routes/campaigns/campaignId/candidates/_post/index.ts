@@ -19,17 +19,22 @@ export default class RouteItem extends AdminRoute<{
     testerDevices: TesterDevices;
   };
   private campaign: number;
-  private testerToSelect: number;
-  private deviceToSelect: number | "random";
   private invalidTesters: number[] = [];
+  private selection: { device: number | "random"; tester: number }[] = [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const parameters = this.getParameters();
     this.campaign = parseInt(parameters.campaign);
     const body = this.getBody();
-    this.testerToSelect = body.tester_id;
-    this.deviceToSelect = body.device || 0;
+    if (Array.isArray(body)) {
+      this.selection = body.map((item) => ({
+        tester: item.tester_id,
+        device: item.device || 0,
+      }));
+    } else {
+      this.selection = [{ tester: body.tester_id, device: body.device || 0 }];
+    }
     this.invalidTesters = [];
     this.db = {
       campaigns: new Campaigns(),
@@ -39,54 +44,62 @@ export default class RouteItem extends AdminRoute<{
   }
 
   get validApplications() {
-    if (this.invalidTesters.length) return [];
-    return [{ tester: this.testerToSelect, device: this.deviceToSelect }];
+    return this.selection.filter(
+      (application) => !this.invalidTesters.includes(application.tester)
+    );
   }
 
   protected async filter(): Promise<boolean> {
+    if ((await super.filter()) === false) return false;
     if ((await this.campaignExists()) === false) {
       this.setError(404, new Error("Campaign does not exist") as OpenapiError);
       return false;
     }
-    if ((await this.testerExists()) === false) {
-      this.invalidTesters.push(this.testerToSelect);
+    for (const application of this.selection) {
+      if ((await this.testerExists(application.tester)) === false) {
+        this.invalidTesters.push(application.tester);
+      }
     }
-    if (await this.testerIsAlreadyCandidate()) {
-      this.invalidTesters.push(this.testerToSelect);
+    for (const application of this.selection) {
+      if (await this.testerIsAlreadyCandidate(application.tester)) {
+        this.invalidTesters.push(application.tester);
+      }
     }
-    if (!(await this.testerHasDevice())) {
-      this.invalidTesters.push(this.testerToSelect);
+    for (const application of this.selection) {
+      if (!(await this.testerHasDevice(application))) {
+        this.invalidTesters.push(application.tester);
+      }
     }
 
-    return super.filter();
+    return true;
   }
 
   private async campaignExists() {
     return this.db.campaigns.exists(this.campaign);
   }
-  private async testerExists() {
-    return this.db.profile.exists(this.testerToSelect);
+  private async testerExists(tester: number) {
+    return this.db.profile.exists(tester);
   }
 
-  private async testerIsAlreadyCandidate() {
+  private async testerIsAlreadyCandidate(tester: number) {
     try {
-      await testerShouldNotBeCandidate(this.testerToSelect, this.campaign);
+      await testerShouldNotBeCandidate(tester, this.campaign);
       return false;
     } catch {
       return true;
     }
   }
 
-  private async testerHasDevice() {
-    if (this.deviceToSelect === "random" || this.deviceToSelect === 0)
+  private async testerHasDevice(application: typeof this.selection[number]) {
+    if (application.device === 0 || application.device === "random")
       return true;
     const userDevices = (
       await this.db.testerDevices.query({
-        where: [{ id_profile: this.testerToSelect }],
+        where: [{ id_profile: application.tester }],
       })
     ).map((device) => device.id);
 
-    return userDevices.includes(this.deviceToSelect);
+    return userDevices.includes(application.device);
   }
 
   private async getDeviceIdToSelect(
@@ -148,7 +161,7 @@ export default class RouteItem extends AdminRoute<{
     }
     try {
       let candidature;
-      for (const application of this.validApplications) {
+      for (const application of this.selection) {
         candidature = await this.candidateTester({
           tester: await this.db.profile.get(application.tester),
           device: await this.getDeviceIdToSelect(
