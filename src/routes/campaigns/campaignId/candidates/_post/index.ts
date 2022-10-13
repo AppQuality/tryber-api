@@ -9,7 +9,10 @@ import TesterDevices from "@src/features/db/class/TesterDevices";
 
 /** OPENAPI-CLASS: post-campaigns-campaign-candidates */
 export default class RouteItem extends AdminRoute<{
-  response: StoplightOperations["post-campaigns-campaign-candidates"]["responses"]["200"]["content"]["application/json"];
+  response:
+    | StoplightOperations["post-campaigns-campaign-candidates"]["responses"]["200"]["content"]["application/json"]
+    | StoplightOperations["post-campaigns-campaign-candidates"]["responses"]["207"]["content"]["application/json"];
+
   body: StoplightOperations["post-campaigns-campaign-candidates"]["requestBody"]["content"]["application/json"];
   parameters: StoplightOperations["post-campaigns-campaign-candidates"]["parameters"]["path"];
 }> {
@@ -160,15 +163,24 @@ export default class RouteItem extends AdminRoute<{
       return;
     }
     try {
-      let candidature;
-      for (const application of this.selection) {
-        candidature = await this.candidateTester({
-          tester: await this.db.profile.get(application.tester),
-          device: await this.getDeviceIdToSelect(
-            application.tester,
-            application.device
-          ),
+      let candidature: Awaited<ReturnType<typeof this.candidateTester>>[] = [];
+      for (const application of this.validApplications) {
+        candidature.push(
+          await this.candidateTester({
+            tester: await this.db.profile.get(application.tester),
+            device: await this.getDeviceIdToSelect(
+              application.tester,
+              application.device
+            ),
+          })
+        );
+      }
+      if (this.invalidTesters.length) {
+        this.setSuccess(207, {
+          results: candidature,
+          invalidTesters: this.invalidTesters,
         });
+        return;
       }
       this.setSuccess(200, candidature);
     } catch (err) {

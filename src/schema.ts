@@ -914,17 +914,38 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            tester_id: number;
-            accepted: boolean;
+            tester_id?: number;
+            accepted?: boolean;
             /** @enum {string} */
-            status:
+            status?:
               | "ready"
-              | "in-progress"
-              | "completed"
+              | "removed"
               | "excluded"
-              | "removed";
-            device: "any" | components["schemas"]["UserDevice"];
+              | "in-progress"
+              | "completed";
+            device?: "any" | components["schemas"]["UserDevice"];
             campaignId?: number;
+          }[];
+        };
+      };
+      /** Multi-Status (WebDAV) */
+      207: {
+        content: {
+          "application/json": {
+            results?: {
+              tester_id?: number;
+              accepted?: boolean;
+              /** @enum {string} */
+              status?:
+                | "ready"
+                | "removed"
+                | "excluded"
+                | "in-progress"
+                | "completed";
+              device?: "any" | components["schemas"]["UserDevice"];
+              campaignId?: number;
+            }[];
+            invalidTesters?: number[];
           };
         };
       };

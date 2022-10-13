@@ -243,33 +243,67 @@ paths:
           content:
             application/json:
               schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    tester_id:
+                      type: number
+                    accepted:
+                      type: boolean
+                    status:
+                      type: string
+                      enum:
+                        - ready
+                        - removed
+                        - excluded
+                        - in-progress
+                        - completed
+                    device:
+                      oneOf:
+                        - type: string
+                          enum:
+                            - any
+                        - $ref: '#/components/schemas/UserDevice'
+                    campaignId:
+                      type: number
+        '207':
+          description: Multi-Status (WebDAV)
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  tester_id:
-                    type: number
-                  accepted:
-                    type: boolean
-                  status:
-                    type: string
-                    enum:
-                      - ready
-                      - in-progress
-                      - completed
-                      - excluded
-                      - removed
-                  device:
-                    oneOf:
-                      - type: string
-                        enum:
-                          - any
-                      - $ref: '#/components/schemas/UserDevice'
-                  campaignId:
-                    type: number
-                required:
-                  - tester_id
-                  - accepted
-                  - status
-                  - device
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester_id:
+                          type: number
+                        accepted:
+                          type: boolean
+                        status:
+                          type: string
+                          enum:
+                            - ready
+                            - removed
+                            - excluded
+                            - in-progress
+                            - completed
+                        device:
+                          oneOf:
+                            - type: string
+                              properties: {}
+                              enum:
+                                - any
+                            - $ref: '#/components/schemas/UserDevice'
+                        campaignId:
+                          type: number
+                  invalidTesters:
+                    type: array
+                    items:
+                      type: number
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
