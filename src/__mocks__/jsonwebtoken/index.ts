@@ -96,7 +96,7 @@ class MockedVerifier {
   }
 
   private decodeOlps() {
-    const tokenItems = this.token.split(" ");
+    const tokenItems = this.token.replace(/ +/g, " ").split(" ");
     if (tokenItems.includes("olp")) {
       const capabilityIndex = tokenItems.indexOf("olp") + 1;
       if (capabilityIndex < tokenItems.length) {
@@ -115,7 +115,7 @@ class MockedVerifier {
   }
 
   private decodeCapabilities() {
-    const tokenItems = this.token.split(" ");
+    const tokenItems = this.token.replace(/ +/g, " ").split(" ");
     if (tokenItems.includes("capability")) {
       const capabilityIndex = tokenItems.indexOf("capability") + 1;
       if (capabilityIndex < tokenItems.length) {
