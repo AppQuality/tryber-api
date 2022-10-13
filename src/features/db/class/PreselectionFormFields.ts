@@ -74,3 +74,4 @@ class Table extends Database<{
   }
 }
 export default Table;
+export { PreselectionFormFieldsObject };
