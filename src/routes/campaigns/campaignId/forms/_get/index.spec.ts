@@ -67,8 +67,10 @@ describe("GET /campaigns/forms ", () => {
   it("should return questions ordered by priority", async () => {
     const response = await request(app)
       .get("/campaigns/1/forms/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    console.log(response.body);
+      .set(
+        "authorization",
+        `Bearer tester olp    {"appq_tester_selection":true}`
+      );
     expect(response.body.length).toBe(3);
     expect(response.body[0]).toHaveProperty("id", 1);
     expect(response.body[1]).toHaveProperty("id", 3);
