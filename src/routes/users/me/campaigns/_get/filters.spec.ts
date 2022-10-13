@@ -5,7 +5,7 @@ import candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import campaignTypes from "@src/__mocks__/mockedDb/campaignType";
 import pageAccess from "@src/__mocks__/mockedDb/pageAccess";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 
 jest.mock("@src/features/wp/resolvePermalinks");
@@ -14,7 +14,7 @@ beforeAll(() => {
   Profile.insert({
     id: 1,
   });
-  wpUserData.basicUser();
+  WpUsers.insert();
   (resolvePermalinks as jest.Mock).mockImplementation(() => {
     return {
       1: { en: "en/test1", it: "it/test1", es: "es/test1" },
@@ -132,7 +132,7 @@ afterAll(() => {
   campaigns.clear();
   campaignTypes.clear();
   candidature.clear();
-  wpUserData.drop();
+  WpUsers.clear();
   Profile.clear();
   jest.resetAllMocks();
 });

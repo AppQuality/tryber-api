@@ -15,7 +15,7 @@ import Profile from "@src/__mocks__/mockedDb/profile";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import Usecases from "@src/__mocks__/mockedDb/usecases";
 import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import sqlite3 from "@src/features/sqlite";
@@ -55,7 +55,7 @@ const bugNotSpecificUsecase = {
 };
 
 beforeAll(async () => {
-  await wpUserData.basicUser();
+  await WpUsers.insert();
   await Profile.insert();
 
   await Campaign.insert({
@@ -106,7 +106,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await Candidature.clear();
   await Campaign.clear();
-  await wpUserData.drop();
+  await WpUsers.clear();
   await Profile.clear();
 
   await Usecases.clear();

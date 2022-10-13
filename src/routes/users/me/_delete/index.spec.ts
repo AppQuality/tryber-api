@@ -2,7 +2,7 @@ import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import { data as userLevels } from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 const user = {
@@ -39,7 +39,7 @@ describe("Route DELETE users/me", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await Profile.insert(tester1);
-      await wpUserData.basicUser();
+      await WpUsers.insert();
       await userLevels.basicLevel();
       resolve(null);
     });
@@ -47,7 +47,7 @@ describe("Route DELETE users/me", () => {
   afterEach(async () => {
     return new Promise(async (resolve, reject) => {
       try {
-        await wpUserData.drop();
+        await WpUsers.clear();
         await Profile.clear();
         await userLevels.drop();
         resolve(null);

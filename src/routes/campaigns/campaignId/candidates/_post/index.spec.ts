@@ -2,7 +2,7 @@ import app from "@src/app";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";

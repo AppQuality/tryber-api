@@ -5,14 +5,14 @@ import { data as fiscalProfileData } from "@src/__mocks__/mockedDb/fiscalProfile
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 describe("POST /users/me/payments - valid paypal", () => {
   const data: any = {};
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await wpUsersData.basicUser();
+      await WpUsers.insert();
       data.tester = await Profile.insert({
         pending_booty: 129.99,
       });
@@ -47,7 +47,7 @@ describe("POST /users/me/payments - valid paypal", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await wpUsersData.drop();
+      await WpUsers.clear();
       await Profile.clear();
       await fiscalProfileData.drop();
       await WpOptions.clear();
@@ -183,7 +183,7 @@ describe("POST /users/me/payments - valid iban", () => {
   const data: any = {};
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      wpUsersData.basicUser({
+      WpUsers.insert({
         ID: 1,
       });
       data.tester = await Profile.insert({
@@ -220,7 +220,7 @@ describe("POST /users/me/payments - valid iban", () => {
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await wpUsersData.drop();
+      await WpUsers.clear();
       await Attributions.clear();
       await Profile.clear();
       await fiscalProfileData.drop();
@@ -374,13 +374,13 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       await Profile.clear();
       await fiscalProfileData.drop();
       await paymentRequestData.drop();
-      await wpUsersData.drop();
+      await WpUsers.clear();
       resolve(null);
     });
   });
 
   it("Should create a row in the requests with amount_gross = 125% of the amount if fiscal category is 1", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -419,7 +419,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
   });
 
   it("Should create a row in the requests withholding_tax_percentage = 20  if fiscal category is 1", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -452,7 +452,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
   });
 
   it("Should create a row in the requests withholding_tax_percentage = 0  if fiscal category is 4", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -484,7 +484,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     expect(requestData.withholding_tax_percentage).toBe(0);
   });
   it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 1", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -524,7 +524,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
   });
 
   it("Should create a row in the requests with amount_gross = 100% of the amount if fiscal category is 4", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -561,7 +561,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
   });
 
   it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 4", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -599,7 +599,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     );
   });
   it("Should answer 403 if fiscal category is 2", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -625,7 +625,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     expect(response.status).toBe(403);
   });
   it("Should answer 403 if fiscal category is 3", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     data.tester = await Profile.insert({
@@ -666,13 +666,13 @@ describe("POST /users/me/payments - stamp required", () => {
       await fiscalProfileData.drop();
       await WpOptions.clear();
       await paymentRequestData.drop();
-      await wpUsersData.drop();
+      await WpUsers.clear();
       resolve(null);
     });
   });
 
   it("Should create a row with stamp_required = true if the amount gross is over 77,47", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     const tester = await Profile.insert({
@@ -703,7 +703,7 @@ describe("POST /users/me/payments - stamp required", () => {
     expect(requestData.stamp_required).toBe(1);
   });
   it("Should create a row with stamp_required = false if the amount gross is under 77,47", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     const tester = await Profile.insert({
@@ -749,13 +749,13 @@ describe("POST /users/me/payments - invalid data", () => {
       await WpOptions.clear();
       await paymentRequestData.drop();
       await Attributions.clear();
-      await wpUsersData.drop();
+      await WpUsers.clear();
       resolve(null);
     });
   });
 
   it("Should answer 403 if logged in but with empty booty", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     await Profile.insert();
@@ -772,7 +772,7 @@ describe("POST /users/me/payments - invalid data", () => {
   });
 
   it("Should answer 403 if logged with a booty but without fiscal profile", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     const tester = await Profile.insert({
@@ -796,7 +796,7 @@ describe("POST /users/me/payments - invalid data", () => {
   });
 
   it("Should answer 403 if logged with a booty but with an invalid fiscal profile", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     const tester = await Profile.insert({
@@ -819,7 +819,7 @@ describe("POST /users/me/payments - invalid data", () => {
     expect(response.status).toBe(403);
   });
   it("Should answer 403 if logged with a valid fiscal profile but the booty under threshold", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     const tester = await Profile.insert({
@@ -843,7 +843,7 @@ describe("POST /users/me/payments - invalid data", () => {
     expect(response.status).toBe(403);
   });
   it("Should answer 403 if logged with a valid fiscal, a booty over threshold but with a payment already processing", async () => {
-    await wpUsersData.basicUser({
+    await WpUsers.insert({
       ID: 1,
     });
     const tester = await Profile.insert({

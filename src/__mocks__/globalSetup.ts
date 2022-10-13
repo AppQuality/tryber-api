@@ -47,7 +47,7 @@ import { table as testerLanguageTable } from "./mockedDb/testerLanguage";
 import { table as deletionReasonTable } from "./mockedDb/userDeletionReason";
 import { table as workTypeTable } from "./mockedDb/workType";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
-import { table as wpUsersTable } from "./mockedDb/wp_users";
+import WpUsers from "./mockedDb/wp_users";
 import sqlite3 from "@src/features/sqlite";
 
 export {};
@@ -64,7 +64,6 @@ beforeAll(async () => {
   await expTable.create();
   await Campaigns.mock();
   await Candidature.mock();
-  await wpUsersTable.create();
   await levelTable.create();
   await levelDefTable.create();
   await TesterDevice.mock();
@@ -108,4 +107,5 @@ beforeAll(async () => {
   await CustomUserFieldsData.mock();
   await Profile.mock();
   await PreselectionFormData.mock();
+  await WpUsers.mock();
 });

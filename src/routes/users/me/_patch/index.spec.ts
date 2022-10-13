@@ -14,7 +14,7 @@ import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import { data as wpUsers } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
@@ -23,7 +23,7 @@ jest.mock("@src/routes/users/me/_get/getRankData");
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await wpUsers.basicUser({
+      await WpUsers.insert({
         user_login: "bob_alice",
         user_email: "bob.alice@example.com",
       });
@@ -106,7 +106,7 @@ describe("Route PATCH users-me", () => {
     });
   });
   afterAll(async () => {
-    await wpUsers.drop();
+    await WpUsers.clear();
     await Attributions.clear();
     await WpOptions.clear();
     await Profile.clear();
@@ -172,12 +172,12 @@ describe("Route PATCH users-me accepted fields", () => {
     return new Promise(async (resolve) => {
       await Attributions.insert();
 
-      await wpUsers.basicUser({
+      await WpUsers.insert({
         user_login: "bob_alice",
         user_email: "bob.alice@example.com",
         user_pass: HashPassword("password"),
       });
-      await wpUsers.basicUser({
+      await WpUsers.insert({
         ID: 2,
         user_login: "bob",
         user_email: "bob@example.com",
@@ -266,7 +266,7 @@ describe("Route PATCH users-me accepted fields", () => {
     });
   });
   afterEach(async () => {
-    await wpUsers.drop();
+    await WpUsers.clear();
     await Attributions.clear();
     await WpOptions.clear();
     await Profile.clear();

@@ -1,7 +1,7 @@
 import app from "@src/app";
 import upload from "@src/features/upload";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 jest.mock("@src/features/upload");
@@ -15,14 +15,14 @@ describe("Route POST /media", () => {
     );
     return new Promise(async (resolve) => {
       await Profile.insert();
-      await wpUserData.basicUser();
+      await WpUsers.insert();
       resolve(null);
     });
   });
   afterAll(async () => {
     return new Promise(async (resolve, reject) => {
       try {
-        await wpUserData.drop();
+        await WpUsers.clear();
         await Profile.clear();
         resolve(null);
       } catch (err) {
