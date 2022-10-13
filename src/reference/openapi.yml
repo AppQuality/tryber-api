@@ -330,9 +330,12 @@ paths:
                                     type: string
                                   osVersion:
                                     type: string
+                                  id:
+                                    type: number
                                 required:
                                   - os
                                   - osVersion
+                                  - id
                           required:
                             - id
                             - name
