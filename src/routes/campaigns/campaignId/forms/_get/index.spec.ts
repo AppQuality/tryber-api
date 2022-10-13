@@ -2,7 +2,7 @@ import request from "supertest";
 import app from "@src/app";
 import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-describe("GET /campaigns/forms ", () => {
+describe("GET /campaigns/:campaignId/forms", () => {
   beforeAll(async () => {
     await preselectionForm.insert({ id: 1, name: "Form Name1" });
     await preselectionFormFields.insert({ id: 1, question: "Question Name1" });
@@ -77,7 +77,7 @@ describe("GET /campaigns/forms ", () => {
     expect(response.body[2]).toHaveProperty("id", 2);
   });
 });
-describe("GET /campaigns/forms when no data", () => {
+describe("GET /campaigns/:campaignId/forms when no data", () => {
   it("should answer 403 if there are no data", async () => {
     const response = await request(app)
       .get("/campaigns/1/forms/")
