@@ -93,6 +93,15 @@ describe("GET /campaigns/:campaignId/forms", () => {
     expect(response.body[1]).toHaveProperty("id", 3);
     expect(response.body[2]).toHaveProperty("id", 2);
   });
+  it("should return 404 if campaign has no form", async () => {
+    const response = await request(app)
+      .get("/campaigns/2/forms/")
+      .set(
+        "authorization",
+        `Bearer tester olp    {"appq_tester_selection":true}`
+      );
+    expect(response.status).toBe(404);
+  });
 });
 describe("GET /campaigns/:campaignId/forms when no data", () => {
   it("should answer 403 if there are no data", async () => {
