@@ -12,8 +12,8 @@ type ProfileType = {
 
 class ProfileObject implements ProfileType {
   id?: number;
+  wp_user_id?: number;
   name?: string;
-  wp_user_id: number;
   sex?: -1 | 0 | 1 | 2;
   phone_number?: string;
   country?: string;
