@@ -7,4 +7,4 @@ if [[ ! -z $1 ]]; then
 	FILTERS='| startswith("'"$1"'")'
 fi
 
-npm run -s test:ls $PARAMS | jq '.testResults[] | .assertionResults[] | select(.ancestorTitles[0] '"$FILTERS"' ) | .fullName'
+npm run -s test:ls  | jq '.testResults[] | .assertionResults[] | select(.ancestorTitles[0] '"$FILTERS"' ) | .fullName'
