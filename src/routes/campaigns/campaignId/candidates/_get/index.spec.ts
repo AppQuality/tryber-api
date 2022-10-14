@@ -40,19 +40,35 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       surname: "Pinkman",
       total_exp_pts: 2,
     });
+    await WpUsers.insert({ ID: 9 });
+    await Profile.insert({
+      id: 10,
+      wp_user_id: 9,
+      name: "Jesse",
+      surname: "Pinkman",
+      total_exp_pts: 2,
+    });
     await UserLevels.insert({ id: 3, tester_id: 3, level_id: 30 });
     await WpUsers.insert({ ID: 7 });
     await Candidate.insert({
       user_id: 5,
       campaign_id: 1,
+      accepted: 0,
     });
     await Candidate.insert({
       user_id: 6,
       campaign_id: 1,
+      accepted: 0,
     });
     await Candidate.insert({
       user_id: 7,
       campaign_id: 1,
+      accepted: 0,
+    });
+    await Candidate.insert({
+      user_id: 9,
+      campaign_id: 1,
+      accepted: 1,
     });
   });
   afterAll(async () => {

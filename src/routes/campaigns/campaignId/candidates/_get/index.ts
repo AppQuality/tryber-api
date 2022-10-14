@@ -23,7 +23,6 @@ export default class RouteItem extends UserRoute<{
   };
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private applications: CampaignApplicationObject[] | false = false;
-  private levels: { [key: number]: string } = {};
   private userLevels: { [key: number]: string } = {};
 
   constructor(config: RouteClassConfiguration) {
@@ -172,7 +171,7 @@ export default class RouteItem extends UserRoute<{
   private async getApplications() {
     if (!this.applications) {
       this.applications = await this.db.applications.query({
-        where: [{ campaign_id: this.campaign_id }],
+        where: [{ campaign_id: this.campaign_id }, { accepted: 0 }],
       });
     }
     return this.applications;
