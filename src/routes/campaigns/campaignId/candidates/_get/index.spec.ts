@@ -64,14 +64,14 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     expect(response.body.results).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          tester_id: 4,
+          id: 4,
         }),
         expect.objectContaining({
-          tester_id: 2,
+          id: 2,
         }),
 
         expect.objectContaining({
-          tester_id: 3,
+          id: 3,
         }),
       ])
     );
