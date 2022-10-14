@@ -4,17 +4,43 @@ import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidate from "@src/__mocks__/mockedDb/cpHasCandidates";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
 
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
     await Campaigns.insert({ id: 1 });
+    await Levels.insert({ id: 10, name: "Bronze" });
+    await Levels.insert({ id: 20, name: "Silver" });
+    await Levels.insert({ id: 30, name: "Gold" });
     await Profile.insert({ id: 1 });
     await WpUsers.insert({ ID: 1 });
-    await Profile.insert({ id: 4, wp_user_id: 5 });
+    await Profile.insert({
+      id: 4,
+      wp_user_id: 5,
+      name: "John",
+      surname: "Doe",
+      total_exp_pts: 100,
+    });
+    await UserLevels.insert({ id: 1, tester_id: 4, level_id: 10 });
     await WpUsers.insert({ ID: 5 });
-    await Profile.insert({ id: 2, wp_user_id: 6 });
+    await Profile.insert({
+      id: 2,
+      wp_user_id: 6,
+      name: "Walter",
+      surname: "White",
+      total_exp_pts: 1000,
+    });
+    await UserLevels.insert({ id: 2, tester_id: 2, level_id: 20 });
     await WpUsers.insert({ ID: 6 });
-    await Profile.insert({ id: 3, wp_user_id: 7 });
+    await Profile.insert({
+      id: 3,
+      wp_user_id: 7,
+      name: "Jesse",
+      surname: "Pinkman",
+      total_exp_pts: 2,
+    });
+    await UserLevels.insert({ id: 3, tester_id: 3, level_id: 30 });
     await WpUsers.insert({ ID: 7 });
     await Candidate.insert({
       user_id: 5,
@@ -72,6 +98,70 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
 
         expect.objectContaining({
           id: 3,
+        }),
+      ])
+    );
+  });
+  it("should answer a list of tester name and surnames ", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(3);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "John",
+          surname: "Doe",
+        }),
+        expect.objectContaining({
+          name: "Walter",
+          surname: "White",
+        }),
+        expect.objectContaining({
+          name: "Jesse",
+          surname: "Pinkman",
+        }),
+      ])
+    );
+  });
+  it("should answer a list of experience points ", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(3);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          experience: 100,
+        }),
+        expect.objectContaining({
+          experience: 1000,
+        }),
+        expect.objectContaining({
+          experience: 2,
+        }),
+      ])
+    );
+  });
+
+  it("should answer a list of levels ", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(3);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          level: "Bronze",
+        }),
+        expect.objectContaining({
+          level: "Silver",
+        }),
+        expect.objectContaining({
+          level: "Gold",
         }),
       ])
     );

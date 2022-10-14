@@ -6,6 +6,8 @@ import Profile, { ProfileObject } from "@src/features/db/class/Profile";
 import CampaignApplications, {
   CampaignApplicationObject,
 } from "@src/features/db/class/CampaignApplications";
+import Level from "@src/features/db/class/Level";
+import UserLevel from "@src/features/db/class/UserLevel";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -16,6 +18,8 @@ export default class RouteItem extends UserRoute<{
     campaigns: Campaigns;
     applications: CampaignApplications;
     profile: Profile;
+    userLevel: UserLevel;
+    level: Level;
   };
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private applications: CampaignApplicationObject[] | false = false;
@@ -31,7 +35,15 @@ export default class RouteItem extends UserRoute<{
         "selected_device",
         "devices",
       ]),
-      profile: new Profile(["id", "name", "wp_user_id"]),
+      profile: new Profile([
+        "id",
+        "name",
+        "surname",
+        "wp_user_id",
+        "total_exp_pts",
+      ]),
+      userLevel: new UserLevel(),
+      level: new Level(),
     };
   }
 
@@ -85,14 +97,27 @@ export default class RouteItem extends UserRoute<{
   private async enhanceApplications(applications: CampaignApplicationObject[]) {
     let results = [];
     for (const application of applications) {
-      const profileId = this.getProfileId(application.user_id);
-      if (profileId) {
+      const profile = this.getProfile(application.user_id);
+      if (profile) {
+        let level = "No Level";
+        const userLevel = await this.db.userLevel.query({
+          where: [{ tester_id: profile.id }],
+        });
+        if (userLevel.length > 0) {
+          const levelData = await this.db.level.query({
+            where: [{ id: userLevel[0].level_id }],
+          });
+          if (levelData.length && levelData[0].name) {
+            level = levelData[0].name;
+          }
+        }
+
         results.push({
-          id: profileId,
-          name: "Pippo",
-          surname: "Franco",
-          experience: 200,
-          level: "Bronze",
+          id: profile.id,
+          name: profile.name,
+          surname: profile.surname,
+          experience: profile.experience,
+          level: level,
           devices: [],
         });
       }
@@ -100,12 +125,23 @@ export default class RouteItem extends UserRoute<{
     return results;
   }
 
-  private getProfileId(wp_user_id: number) {
+  private getProfile(wp_user_id: number) {
     const profile = this.applicationUsers[wp_user_id];
-    if (!profile || !profile.id) {
+    if (
+      !profile ||
+      !profile.id ||
+      !profile.name ||
+      !profile.surname ||
+      typeof profile.total_exp_pts === "undefined"
+    ) {
       return false;
     }
-    return profile.id;
+    return {
+      id: profile.id,
+      name: profile.name,
+      surname: profile.surname,
+      experience: profile.total_exp_pts,
+    };
   }
 
   private async getApplications() {
