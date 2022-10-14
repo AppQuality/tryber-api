@@ -6,73 +6,182 @@ import Profile from "@src/__mocks__/mockedDb/profile";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
+import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
+import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
+import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
 
+const users = {
+  1: { testerId: 1, wpUserId: 1 },
+  2: { testerId: 4, wpUserId: 5 },
+  3: { testerId: 2, wpUserId: 6 },
+  4: { testerId: 3, wpUserId: 7 },
+  5: { testerId: 10, wpUserId: 9 },
+};
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
     await Campaigns.insert({ id: 1 });
     await Levels.insert({ id: 10, name: "Bronze" });
     await Levels.insert({ id: 20, name: "Silver" });
     await Levels.insert({ id: 30, name: "Gold" });
-    await Profile.insert({ id: 1 });
-    await WpUsers.insert({ ID: 1 });
+
+    await Profile.insert({ id: users[1].testerId });
+    await WpUsers.insert({ ID: users[1].wpUserId });
+
     await Profile.insert({
-      id: 4,
-      wp_user_id: 5,
+      id: users[2].testerId,
+      wp_user_id: users[2].wpUserId,
       name: "John",
       surname: "Doe",
       total_exp_pts: 100,
     });
-    await UserLevels.insert({ id: 1, tester_id: 4, level_id: 10 });
-    await WpUsers.insert({ ID: 5 });
+    await UserLevels.insert({
+      id: 1,
+      tester_id: users[2].testerId,
+      level_id: 10,
+    });
+    await WpUsers.insert({ ID: users[2].wpUserId });
+    await Candidate.insert({
+      user_id: users[2].wpUserId,
+      campaign_id: 1,
+      accepted: 0,
+      devices: "1",
+    });
+    await TesterDevices.insert({
+      id: 1,
+      id_profile: users[2].testerId,
+      form_factor: "Smartphone",
+      manufacturer: "Apple",
+      model: "iPhone 11",
+      platform_id: 1,
+      os_version_id: 1,
+    });
+    await DeviceOs.insert({
+      id: 1,
+      name: "iOS",
+    });
+    await DeviceOsVersion.insert({
+      id: 1,
+      display_name: "13.3.1",
+    });
+
+    await TesterDevices.insert({
+      id: 10,
+      id_profile: users[2].testerId,
+      form_factor: "Smartphone",
+      manufacturer: "Apple",
+      model: "iPhone 9",
+      platform_id: 1,
+      os_version_id: 1,
+    });
+
     await Profile.insert({
-      id: 2,
-      wp_user_id: 6,
+      id: users[3].testerId,
+      wp_user_id: users[3].wpUserId,
       name: "Walter",
       surname: "White",
       total_exp_pts: 1000,
     });
-    await UserLevels.insert({ id: 2, tester_id: 2, level_id: 20 });
-    await WpUsers.insert({ ID: 6 });
-    await Profile.insert({
+    await UserLevels.insert({
+      id: 2,
+      tester_id: users[3].testerId,
+      level_id: 20,
+    });
+    await WpUsers.insert({ ID: users[3].wpUserId });
+    await Candidate.insert({
+      user_id: users[3].wpUserId,
+      campaign_id: 1,
+      accepted: 0,
+      devices: "2,3",
+    });
+
+    await TesterDevices.insert({
+      id: 2,
+      id_profile: users[3].testerId,
+      form_factor: "PC",
+      manufacturer: "-",
+      model: "-",
+      platform_id: 2,
+      os_version_id: 2,
+    });
+    await DeviceOs.insert({
+      id: 2,
+      name: "Windows",
+    });
+    await DeviceOsVersion.insert({
+      id: 2,
+      display_name: "XP",
+    });
+
+    await TesterDevices.insert({
       id: 3,
-      wp_user_id: 7,
-      name: "Jesse",
-      surname: "Pinkman",
-      total_exp_pts: 2,
+      id_profile: users[3].testerId,
+      manufacturer: "Apple",
+      model: "iPhone 11",
+      platform_id: 1,
+      os_version_id: 1,
     });
-    await WpUsers.insert({ ID: 9 });
+
     await Profile.insert({
-      id: 10,
-      wp_user_id: 9,
+      id: users[4].testerId,
+      wp_user_id: users[4].wpUserId,
       name: "Jesse",
       surname: "Pinkman",
       total_exp_pts: 2,
     });
-    await UserLevels.insert({ id: 3, tester_id: 3, level_id: 30 });
-    await WpUsers.insert({ ID: 7 });
+    await UserLevels.insert({
+      id: 3,
+      tester_id: users[4].testerId,
+      level_id: 30,
+    });
+    await WpUsers.insert({ ID: users[4].wpUserId });
     await Candidate.insert({
-      user_id: 5,
+      user_id: users[4].wpUserId,
       campaign_id: 1,
       accepted: 0,
+      devices: "0",
+    });
+
+    await TesterDevices.insert({
+      id: 4,
+      id_profile: users[4].testerId,
+      form_factor: "PC",
+      manufacturer: "-",
+      model: "-",
+      platform_id: 2,
+      os_version_id: 2,
+    });
+    await TesterDevices.insert({
+      id: 5,
+      id_profile: users[4].testerId,
+      manufacturer: "Apple",
+      model: "iPhone 11",
+      platform_id: 1,
+      os_version_id: 1,
+    });
+
+    await WpUsers.insert({ ID: users[5].wpUserId });
+    await Profile.insert({
+      id: users[5].testerId,
+      wp_user_id: users[5].wpUserId,
+      name: "Jesse",
+      surname: "Pinkman",
+      total_exp_pts: 2,
     });
     await Candidate.insert({
-      user_id: 6,
-      campaign_id: 1,
-      accepted: 0,
-    });
-    await Candidate.insert({
-      user_id: 7,
-      campaign_id: 1,
-      accepted: 0,
-    });
-    await Candidate.insert({
-      user_id: 9,
+      user_id: users[5].wpUserId,
       campaign_id: 1,
       accepted: 1,
     });
   });
   afterAll(async () => {
     await Campaigns.clear();
+    await DeviceOs.clear();
+    await DeviceOsVersion.clear();
+    await Candidate.clear();
+    await WpUsers.clear();
+    await Profile.clear();
+    await UserLevels.clear();
+    await Levels.clear();
   });
   it("should answer 403 if user is not logged in ", async () => {
     const response = await request(app).get("/campaigns/1/candidates");
@@ -95,6 +204,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     const response = await request(app)
       .get("/campaigns/100/candidates/")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    console.log(response.body);
     expect(response.status).toBe(404);
   });
   it("should answer a list of tester ids ", async () => {
@@ -177,6 +287,61 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         }),
         expect.objectContaining({
           level: "Gold",
+        }),
+      ])
+    );
+  });
+
+  it("should answer a list of devices ", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(3);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          devices: [
+            {
+              id: 1,
+              manufacturer: "Apple",
+              model: "iPhone 11",
+              os: "iOS",
+              osVersion: "13.3.1",
+            },
+          ],
+        }),
+        expect.objectContaining({
+          devices: [
+            {
+              id: 2,
+              os: "Windows",
+              osVersion: "XP",
+            },
+            {
+              id: 3,
+              manufacturer: "Apple",
+              model: "iPhone 11",
+              os: "iOS",
+              osVersion: "13.3.1",
+            },
+          ],
+        }),
+        expect.objectContaining({
+          devices: [
+            {
+              id: 4,
+              os: "Windows",
+              osVersion: "XP",
+            },
+            {
+              id: 5,
+              manufacturer: "Apple",
+              model: "iPhone 11",
+              os: "iOS",
+              osVersion: "13.3.1",
+            },
+          ],
         }),
       ])
     );

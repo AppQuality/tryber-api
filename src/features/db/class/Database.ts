@@ -80,6 +80,28 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     );
   }
 
+  public async queryWithCustomWhere({
+    where,
+    orderBy,
+    limit,
+    offset,
+  }: {
+    where: string;
+    orderBy?: Database<T>["orderBy"];
+    limit?: number;
+    offset?: number;
+  }): Promise<ReturnType<this["createObject"]>[]> {
+    const sql = this.constructSelectQuery({
+      where: { customWhere: where },
+      orderBy,
+      limit,
+      offset,
+    });
+    return (await db.query(sql)).map((item: T["fields"]) =>
+      this.createObject(item)
+    );
+  }
+
   public async update({
     data,
     where,
@@ -113,7 +135,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     offset,
     orderBy,
   }: {
-    where?: Database<T>["where"];
+    where?: Database<T>["where"] | { customWhere: string };
     orderBy?: Database<T>["orderBy"];
     limit?: number;
     offset?: number;
@@ -121,9 +143,17 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     if (offset && !limit) {
       throw new Error("Offset without limit");
     }
-    return `SELECT ${this.fields.join(",")} FROM ${this.table} ${
-      where ? this.constructWhereQuery(where) : ""
-    } 
+    let whereSql = "";
+    if (where) {
+      if ("customWhere" in where) {
+        whereSql = where.customWhere;
+      } else {
+        whereSql = this.constructWhereQuery(where);
+      }
+      where;
+    }
+
+    return `SELECT ${this.fields.join(",")} FROM ${this.table} ${whereSql} 
     ${orderBy ? this.constructOrderByQuery(orderBy) : ""}
     ${limit ? `LIMIT ${limit}` : ""} ${offset ? `OFFSET ${offset}` : ""}`;
   }

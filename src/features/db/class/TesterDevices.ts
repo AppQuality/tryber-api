@@ -94,6 +94,12 @@ class TesterDevices extends Database<{
   public createObject(row: TesterDeviceType): TesterDeviceObject {
     return new TesterDeviceObject(row);
   }
+
+  protected constructSelectQuery(params: any) {
+    const a = super.constructSelectQuery(params);
+    console.log(a);
+    return a;
+  }
 }
 export default TesterDevices;
 export { TesterDeviceObject };

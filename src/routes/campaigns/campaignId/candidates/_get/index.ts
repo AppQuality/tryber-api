@@ -7,7 +7,12 @@ import CampaignApplications, {
   CampaignApplicationObject,
 } from "@src/features/db/class/CampaignApplications";
 import Level from "@src/features/db/class/Level";
-import UserLevel, { UserLevelObject } from "@src/features/db/class/UserLevel";
+import UserLevel from "@src/features/db/class/UserLevel";
+import TesterDevices, {
+  TesterDeviceObject,
+} from "@src/features/db/class/TesterDevices";
+import Os from "@src/features/db/class/Os";
+import OsVersion from "@src/features/db/class/OsVersion";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -20,10 +25,14 @@ export default class RouteItem extends UserRoute<{
     profile: Profile;
     userLevel: UserLevel;
     level: Level;
+    devices: TesterDevices;
+    os: Os;
+    osVersion: OsVersion;
   };
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private applications: CampaignApplicationObject[] | false = false;
   private userLevels: { [key: number]: string } = {};
+  private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -31,11 +40,7 @@ export default class RouteItem extends UserRoute<{
     this.campaign_id = parseInt(parameters.campaign);
     this.db = {
       campaigns: new Campaigns(),
-      applications: new CampaignApplications([
-        "user_id",
-        "selected_device",
-        "devices",
-      ]),
+      applications: new CampaignApplications(["user_id", "devices"]),
       profile: new Profile([
         "id",
         "name",
@@ -45,6 +50,9 @@ export default class RouteItem extends UserRoute<{
       ]),
       userLevel: new UserLevel(),
       level: new Level(),
+      devices: new TesterDevices(),
+      os: new Os(),
+      osVersion: new OsVersion(),
     };
   }
 
@@ -52,6 +60,42 @@ export default class RouteItem extends UserRoute<{
     const applications = await this.getApplications();
     const profiles = await this.initApplicationUsers(applications);
     await this.initUserLevels(profiles);
+    await this.initUserDevices(applications, profiles);
+  }
+
+  private async initUserDevices(
+    applications: CampaignApplicationObject[],
+    profiles: { [key: number]: ProfileObject }
+  ) {
+    const where = [];
+    for (const application of applications) {
+      if (application.devices) {
+        if (application.devices === "0") {
+          where.push(`(id_profile = ${profiles[application.user_id].id})`);
+        } else {
+          where.push(
+            `(id_profile = ${
+              profiles[application.user_id].id
+            } AND id IN (${application.devices
+              .split(",")
+              .map((d) => parseInt(d))}))`
+          );
+        }
+      }
+    }
+    if (where.length > 0) {
+      const devices = await this.db.devices.queryWithCustomWhere({
+        where: "WHERE " + where.join(" OR "),
+      });
+      for (const device of devices) {
+        if (device.id_profile) {
+          if (this.testerDevices[device.id_profile] === undefined) {
+            this.testerDevices[device.id_profile] = [];
+          }
+          this.testerDevices[device.id_profile].push(device);
+        }
+      }
+    }
   }
 
   private async initUserLevels(profiles: { [key: number]: ProfileObject }) {
@@ -128,17 +172,52 @@ export default class RouteItem extends UserRoute<{
     for (const application of applications) {
       const profile = this.getProfile(application.user_id);
       if (profile) {
+        let devices = await this.getTesterDevices(profile);
+
         results.push({
           id: profile.id,
           name: profile.name,
           surname: profile.surname,
           experience: profile.experience,
           level: this.getLevel(profile.id),
-          devices: [],
+          devices: devices,
         });
       }
     }
     return results;
+  }
+
+  private async getTesterDevices(profile: {
+    id: number;
+    name: string;
+    surname: string;
+    experience: number;
+  }) {
+    const testerDevices = this.testerDevices[profile.id];
+
+    let devices: NonNullable<
+      StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"]["results"]
+    >[number]["devices"] = [];
+    for (const testerDevice of testerDevices) {
+      if (testerDevice.id) {
+        const os = await this.db.os.get(testerDevice.platform_id);
+        const osVersion = await this.db.osVersion.get(
+          testerDevice.os_version_id
+        );
+        devices.push({
+          ...(testerDevice.form_factor === "PC"
+            ? {}
+            : {
+                manufacturer: testerDevice.manufacturer,
+                model: testerDevice.model,
+              }),
+          id: testerDevice.id,
+          os: os.name,
+          osVersion: osVersion.display_name,
+        });
+      }
+    }
+    return devices;
   }
 
   private getLevel(testerId: number) {
