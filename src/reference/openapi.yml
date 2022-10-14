@@ -355,31 +355,31 @@ paths:
                         level: Diamond
                         devices:
                           - id: 0
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Samsung
                             model: Galaxy M31
                             id: 1
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Apple
                             model: iPad
                             id: 2
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                           - manufacturer: Apple
                             model: iPhone SE (2020)
                             id: 3
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                           - id: 4
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                           - manufacturer: Google
                             model: Pixel 6
                             id: 5
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 13(beta) (13(beta))
                       - id: 57742
                         name: Alessandra
                         surname: Casole
@@ -387,13 +387,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 6
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Xiaomi
                             model: Redmi 8
                             id: 7
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 25325
                         name: Paolo
                         surname: Cattelan
@@ -403,8 +403,8 @@ paths:
                           - manufacturer: Huawei
                             model: Mate 20 Pro
                             id: 8
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                       - id: 6631
                         name: Margherita
                         surname: Colamartino
@@ -412,13 +412,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 9
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
                           - manufacturer: Xiaomi
                             model: Mi 11 Lite
                             id: 10
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 58300
                         name: Chiara
                         surname: Risaliti
@@ -426,13 +426,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 11
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Samsung
                             model: Galaxy S20 FE
                             id: 12
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 8972
                         name: Giuseppe
                         surname: Brandonisio
@@ -442,13 +442,13 @@ paths:
                           - manufacturer: Apple
                             model: iPad Pro 12.9
                             id: 13
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.7 (15.7)
                           - manufacturer: Samsung
                             model: Galaxy A20e
                             id: 14
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 51930
                         name: Laura
                         surname: Manca
@@ -456,13 +456,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 15
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Asus
                             model: ZenFone 5 (ZE620KL)
                             id: 16
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Pie (9.0)
                       - id: 58342
                         name: Marco
                         surname: Trevisani
@@ -472,8 +472,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 14 Pro Max
                             id: 17
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
                       - id: 50359
                         name: Pietro
                         surname: Petrone
@@ -483,16 +483,16 @@ paths:
                           - manufacturer: Xiaomi
                             model: Mi 10T
                             id: 18
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - id: 19
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
                           - manufacturer: Apple
                             model: iPad
                             id: 20
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 12.4.9 (12.4.9)
                       - id: 29987
                         name: Dario
                         surname: Bonfanti
@@ -500,18 +500,18 @@ paths:
                         level: Diamond
                         devices:
                           - id: 21
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Honor
                             model: 20 Lite
                             id: 22
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Huawei
                             model: P smart S
                             id: 23
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                       - id: 48050
                         name: giovanni
                         surname: velo
@@ -521,8 +521,8 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy A52s
                             id: 24
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 51822
                         name: Carolina
                         surname: Signorelli
@@ -530,13 +530,13 @@ paths:
                         level: Diamond
                         devices:
                           - id: 25
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.0)
                           - manufacturer: Apple
                             model: iPad 6 (2018)
                             id: 26
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.7 (15.7)
                       - id: 31668
                         name: Valentina
                         surname: Catania
@@ -546,11 +546,11 @@ paths:
                           - manufacturer: Huawei
                             model: P30 Lite
                             id: 27
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - id: 28
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 8.1 (8.1)
                       - id: 48780
                         name: Filippo
                         surname: Fiori
@@ -558,8 +558,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 29
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 28029
                         name: Vincenzo
                         surname: Anginoni
@@ -569,11 +569,11 @@ paths:
                           - manufacturer: OPPO
                             model: Reno4 Pro
                             id: 30
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - id: 31
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                       - id: 24494
                         name: Fabrizio
                         surname: Familiari
@@ -583,21 +583,21 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy S8
                             id: 32
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Pie (9.0)
                           - manufacturer: Samsung
                             model: Galaxy Tab S6
                             id: 33
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - id: 34
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 November 2019 Update (18363.778)
                           - manufacturer: Samsung
                             model: Galaxy S20 FE
                             id: 35
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 18179
                         name: Stefano
                         surname: Lombardo
@@ -607,8 +607,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone X
                             id: 36
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.0.2 (15.0.2)
                       - id: 25155
                         name: Maurizio
                         surname: Tortora
@@ -618,8 +618,8 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy A52s
                             id: 37
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 12563
                         name: Andrea
                         surname: Zanin
@@ -627,11 +627,11 @@ paths:
                         level: Diamond
                         devices:
                           - id: 38
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - id: 39
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 55996
                         name: Massimiliano
                         surname: Maraglino
@@ -641,13 +641,13 @@ paths:
                           - manufacturer: Xiaomi
                             model: Mi 9T
                             id: 40
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Xiaomi
                             model: Mi 9T
                             id: 41
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                       - id: 32691
                         name: Luigi William
                         surname: Mercuri
@@ -655,8 +655,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 42
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                       - id: 15458
                         name: Daniela
                         surname: Ciccone
@@ -664,13 +664,13 @@ paths:
                         level: Diamond
                         devices:
                           - id: 43
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Google
                             model: Pixel 6
                             id: 44
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 53536
                         name: Daniele
                         surname: Settembre
@@ -678,8 +678,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 45
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 15201
                         name: Sara
                         surname: Schiavone
@@ -689,11 +689,11 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 11
                             id: 46
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 14.3 (14.3)
                           - id: 47
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 November 2019 Update (18363.778)
                       - id: 50280
                         name: Giovanni
                         surname: Silvestri
@@ -701,16 +701,16 @@ paths:
                         level: Platinum
                         devices:
                           - id: 48
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Samsung
                             model: Galaxy A70
                             id: 49
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - id: 50
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 47426
                         name: Nicola
                         surname: Caragiulo
@@ -720,8 +720,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 12 Pro Max
                             id: 51
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.0.2 (15.0.2)
                       - id: 40658
                         name: Mattia
                         surname: Vigna
@@ -731,16 +731,16 @@ paths:
                           - manufacturer: Xiaomi
                             model: Redmi Note 7
                             id: 52
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - id: 53
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                           - manufacturer: realme
                             model: GT 5G
                             id: 54
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 43331
                         name: Luca
                         surname: Barban
@@ -750,8 +750,8 @@ paths:
                           - manufacturer: LG
                             model: G8 ThinQ
                             id: 55
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 15682
                         name: Danilo
                         surname: Minello
@@ -759,13 +759,13 @@ paths:
                         level: Diamond
                         devices:
                           - id: 56
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: realme
                             model: 7 Pro
                             id: 57
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 27907
                         name: Diego
                         surname: Braconi
@@ -773,16 +773,16 @@ paths:
                         level: Platinum
                         devices:
                           - id: 58
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.9 (Mavericks) (10.9)
                           - manufacturer: Xiaomi
                             model: Redmi Note 8T
                             id: 59
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - id: 60
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 October 2020 Update (19042)
                       - id: 48530
                         name: Martina
                         surname: Mastromarino
@@ -792,11 +792,11 @@ paths:
                           - manufacturer: OPPO
                             model: Find X3 Lite
                             id: 61
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - id: 62
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 16439
                         name: Gian Guido
                         surname: Ferrozzi
@@ -804,8 +804,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 63
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
                       - id: 13098
                         name: Miriam Giusy
                         surname: Petrovik
@@ -815,8 +815,8 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy Tab S6
                             id: 64
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 51127
                         name: Giovanni
                         surname: Romeo
@@ -824,13 +824,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 65
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Huawei
                             model: P20 Lite
                             id: 66
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 16190
                         name: Carmen
                         surname: Piedimonte
@@ -840,29 +840,29 @@ paths:
                           - manufacturer: OnePlus
                             model: 6T
                             id: 67
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - manufacturer: Apple
                             model: iPhone 11 Pro Max
                             id: 68
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
                           - id: 69
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
                           - id: 70
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11 (22471)
                           - manufacturer: Google
                             model: Pixel 4a 5G
                             id: 71
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 13(beta) (13(beta))
                           - manufacturer: Samsung
                             model: Galaxy A52s
                             id: 72
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 12321
                         name: Antonio
                         surname: Maione
@@ -870,18 +870,18 @@ paths:
                         level: Diamond
                         devices:
                           - id: 73
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Xiaomi
                             model: Redmi Note 8 Pro
                             id: 74
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - manufacturer: Lenovo
                             model: Miix 10
                             id: 75
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                       - id: 9959
                         name: Nicolas
                         surname: Garlatti
@@ -891,16 +891,16 @@ paths:
                           - manufacturer: Xiaomi
                             model: Pocophone F1
                             id: 76
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - id: 77
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Samsung
                             model: Galaxy A52s
                             id: 78
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 22021
                         name: Francesco Pio
                         surname: Magrì
@@ -908,16 +908,16 @@ paths:
                         level: Silver
                         devices:
                           - id: 79
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                           - id: 80
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                           - manufacturer: Xiaomi
                             model: Redmi Note 10 Pro
                             id: 81
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 16790
                         name: Laura
                         surname: Tenan
@@ -925,18 +925,18 @@ paths:
                         level: Platinum
                         devices:
                           - id: 82
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Samsung
                             model: Galaxy S6
                             id: 83
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Nougat (7.0)
                           - manufacturer: Apple
                             model: iPad
                             id: 84
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6.1 (15.6.1)
                       - id: 17968
                         name: Vittorio
                         surname: Amitrano
@@ -944,16 +944,16 @@ paths:
                         level: Diamond
                         devices:
                           - id: 85
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Samsung
                             model: Galaxy A52s
                             id: 86
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - id: 87
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                       - id: 56673
                         name: Valentina
                         surname: Mirabelli
@@ -961,8 +961,8 @@ paths:
                         level: Diamond
                         devices:
                           - id: 88
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                       - id: 49120
                         name: Víctor
                         surname: Vera
@@ -972,8 +972,8 @@ paths:
                           - manufacturer: OnePlus
                             model: Nord
                             id: 89
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 8299
                         name: Antonino Germano
                         surname: DAgostino
@@ -981,35 +981,35 @@ paths:
                         level: Diamond
                         devices:
                           - id: 90
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - id: 91
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows XP (5.1)
                           - id: 92
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 8.1 (8.1)
                           - manufacturer: Honor
                             model: View 10
                             id: 93
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - id: 94
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 11 (Big Sur) (11.0.1)
                           - id: 95
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 7
                           - manufacturer: Lenovo
                             model: Tab10 TB-X103F
                             id: 96
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Apple
                             model: iPhone 8
                             id: 97
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                       - id: 13525
                         name: Mariangela
                         surname: Iorgi
@@ -1017,13 +1017,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 98
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Samsung
                             model: Galaxy S20
                             id: 99
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 10729
                         name: Teresa Maria Barbara
                         surname: Carboni
@@ -1031,18 +1031,18 @@ paths:
                         level: Gold
                         devices:
                           - id: 100
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 November 2019 Update (18363.778)
                           - manufacturer: Samsung
                             model: Galaxy J7 (2017)
                             id: 101
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Pie (9.0)
                           - manufacturer: Samsung
                             model: Galaxy A32
                             id: 102
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 48134
                         name: Emanuel
                         surname: Roma
@@ -1052,8 +1052,8 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy A52
                             id: 103
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 57948
                         name: Roberto
                         surname: Vergnani
@@ -1061,8 +1061,8 @@ paths:
                         level: Gold
                         devices:
                           - id: 104
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 47681
                         name: Angelo
                         surname: Conte
@@ -1072,8 +1072,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 11 Pro
                             id: 105
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                       - id: 25042
                         name: Marco
                         surname: Argenti
@@ -1081,13 +1081,13 @@ paths:
                         level: Diamond
                         devices:
                           - id: 106
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.11 (El Capitan) (10.11)
                           - manufacturer: Xiaomi
                             model: Redmi Note 7
                             id: 107
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Pie (9.0)
                       - id: 11628
                         name: Sara
                         surname: Moscariello
@@ -1095,13 +1095,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 108
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11 (22471)
                           - manufacturer: Apple
                             model: iPhone 13
                             id: 109
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16 (16)
                       - id: 16562
                         name: Anna
                         surname: De Angelis
@@ -1109,8 +1109,8 @@ paths:
                         level: Silver
                         devices:
                           - id: 110
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
                       - id: 51742
                         name: Emanuele
                         surname: Mignano
@@ -1118,18 +1118,18 @@ paths:
                         level: Platinum
                         devices:
                           - id: 111
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Apple
                             model: iPhone 12
                             id: 112
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16 (16)
                           - manufacturer: Apple
                             model: iPad Air 2
                             id: 113
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
                       - id: 25731
                         name: Gaetano
                         surname: Cascino
@@ -1139,11 +1139,11 @@ paths:
                           - manufacturer: Huawei
                             model: Mate 20 lite
                             id: 114
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - id: 115
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                       - id: 6261
                         name: Gioia
                         surname: Zagagnoli
@@ -1153,8 +1153,8 @@ paths:
                           - manufacturer: realme
                             model: 7 Pro
                             id: 116
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 58545
                         name: Stefania
                         surname: Pisano
@@ -1162,13 +1162,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 117
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Samsung
                             model: Galaxy A70
                             id: 118
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 52648
                         name: Simone
                         surname: Da Prada
@@ -1176,13 +1176,13 @@ paths:
                         level: Diamond
                         devices:
                           - id: 119
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11 (22471)
                           - manufacturer: Xiaomi
                             model: 11T Pro
                             id: 120
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12beta (12beta)
                       - id: 2773
                         name: Francesco
                         surname: Natali
@@ -1190,18 +1190,18 @@ paths:
                         level: Diamond
                         devices:
                           - id: 121
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.0)
                           - manufacturer: Huawei
                             model: Mate 20 Pro
                             id: 122
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Apple
                             model: iPhone 13 Pro Max
                             id: 123
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
                       - id: 25108
                         name: Lucia
                         surname: Ricchitelli
@@ -1211,8 +1211,8 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy A20e
                             id: 124
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 50861
                         name: Andrea
                         surname: Recce
@@ -1222,8 +1222,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone XS
                             id: 125
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16 (16)
                       - id: 58201
                         name: Diego
                         surname: Robresco
@@ -1231,11 +1231,11 @@ paths:
                         level: Platinum
                         devices:
                           - id: 126
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - id: 127
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 10678
                         name: Serena
                         surname: Migliaccio
@@ -1243,13 +1243,13 @@ paths:
                         level: Bronze
                         devices:
                           - id: 128
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 (10240.16405)
                           - manufacturer: Apple
                             model: iPhone 13
                             id: 129
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
                       - id: 19040
                         name: Alberto
                         surname: Greco
@@ -1257,21 +1257,21 @@ paths:
                         level: Diamond
                         devices:
                           - id: 130
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                           - id: 131
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey)
                           - manufacturer: Samsung
                             model: Galaxy S9+
                             id: 132
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Apple
                             model: iPhone 13
                             id: 133
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                       - id: 19705
                         name: Angelo Agostino Maria
                         surname: Cangemi
@@ -1279,8 +1279,8 @@ paths:
                         level: Diamond
                         devices:
                           - id: 134
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 8 (8.0)
                       - id: 56997
                         name: Luca
                         surname: Sgobio
@@ -1288,86 +1288,86 @@ paths:
                         level: Platinum
                         devices:
                           - id: 135
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - id: 136
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                           - id: 137
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 8.1
                           - id: 138
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 8
                           - id: 139
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 7
                           - id: 140
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows Vista
                           - id: 141
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows Vista
                           - id: 142
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows XP
                           - id: 143
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
                           - id: 144
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.14 (Mojave)
                           - id: 145
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.13 (High Sierra)
                           - id: 146
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.12 (Sierra)
                           - id: 147
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.11 (El Capitan)
                           - id: 148
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.10 (Yosemite)
                           - id: 149
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.8 (Mountain Lion)
                           - id: 150
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 11 (Big Sur)
                           - id: 151
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey)
                           - manufacturer: Samsung
                             model: Galaxy A32
                             id: 152
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Samsung
                             model: Galaxy J6
                             id: 153
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Apple
                             model: iPhone 11
                             id: 154
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
                           - manufacturer: Apple
                             model: iPhone 7 Plus
                             id: 155
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
                           - manufacturer: Chuwi
                             model: Hi10
                             id: 156
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: Oreo (8.1)
                           - manufacturer: Apple
                             model: iPad Pro 9.7
                             id: 157
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
                       - id: 25012
                         name: Angelo
                         surname: Costa
@@ -1375,23 +1375,23 @@ paths:
                         level: Platinum
                         devices:
                           - id: 158
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                           - manufacturer: Apple
                             model: iPad 6 (2018)
                             id: 159
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.3 (15.3)
                           - manufacturer: Samsung
                             model: Galaxy Tab A 10.1 LTE (2019)
                             id: 160
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Apple
                             model: iPhone 12
                             id: 161
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
                       - id: 27273
                         name: Anna Laura
                         surname: Colia
@@ -1399,28 +1399,28 @@ paths:
                         level: Gold
                         devices:
                           - id: 162
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                           - manufacturer: Apple
                             model: iPhone 8
                             id: 163
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
                           - manufacturer: Apple
                             model: iPad (2017)
                             id: 164
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 14.4.2 (14.4.2)
                           - manufacturer: Samsung
                             model: Galaxy Tab A 10.1 LTE (2019)
                             id: 165
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - manufacturer: Apple
                             model: iPhone 12
                             id: 166
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
                       - id: 49917
                         name: Santo
                         surname: Paviglianiti
@@ -1428,46 +1428,46 @@ paths:
                         level: Platinum
                         devices:
                           - id: 167
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - id: 168
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update
                           - manufacturer: Xiaomi
                             model: Redmi Note 8T
                             id: 169
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - manufacturer: Xiaomi
                             model: Redmi 9
                             id: 170
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Wiko
                             model: Y60 (Wiko)
                             id: 171
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - manufacturer: Samsung
                             model: Galaxy J3 (2016)
                             id: 172
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Oreo (8.0)
                           - manufacturer: Xiaomi
                             model: Redmi Note 10 Pro
                             id: 173
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Mediacom
                             model: SmartPad 9.7 Mobile
                             id: 174
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: Pie (9.0)
                           - manufacturer: Samsung
                             model: Galaxy A32
                             id: 175
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 29132
                         name: Nicolò
                         surname: Romagnosi
@@ -1475,8 +1475,8 @@ paths:
                         level: Gold
                         devices:
                           - id: 176
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                       - id: 11098
                         name: Giovanni
                         surname: Seraghiti
@@ -1484,8 +1484,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 177
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                       - id: 56707
                         name: Mirco
                         surname: Tucci
@@ -1493,8 +1493,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 178
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 5248
                         name: Roberto
                         surname: Santamaro
@@ -1504,44 +1504,44 @@ paths:
                           - manufacturer: Lg
                             model: G5
                             id: 179
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Oreo (8.0)
                           - id: 180
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - id: 181
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Samsung
                             model: Galaxy J3 (2016)
                             id: 182
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Lollipop (5.1.1)
                           - manufacturer: Samsung
                             model: Galaxy S5
                             id: 183
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Lollipop (5.0)
                           - manufacturer: Wiko
                             model: Jimmy
                             id: 184
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Jelly Bean (4.2.2)
                           - manufacturer: Samsung
                             model: Galaxy A40
                             id: 185
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Samsung
                             model: Galaxy S20 5G
                             id: 186
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Samsung
                             model: Galaxy Tab 7.0 wifi
                             id: 187
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 2048
                         name: Giuseppe
                         surname: Santamaro
@@ -1551,39 +1551,39 @@ paths:
                           - manufacturer: Lg
                             model: G5
                             id: 188
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Oreo (8.0)
                           - manufacturer: Samsung
                             model: Galaxy S5
                             id: 189
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Marshmallow (6.0.1)
                           - id: 190
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - id: 191
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
                           - manufacturer: Lenovo
                             model: Yoga Tab 3 10.0
                             id: 192
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: Nougat (7.1.1)
                           - manufacturer: Samsung
                             model: Galaxy A52s
                             id: 193
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: Samsung
                             model: Galaxy S20 FE
                             id: 194
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - manufacturer: HTC
                             model: Desire S
                             id: 195
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: KitKat (4.4.1)
                       - id: 48053
                         name: patrizia
                         surname: assumma
@@ -1591,8 +1591,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 196
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 28135
                         name: Dario
                         surname: Losacco
@@ -1600,13 +1600,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 197
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: realme
                             model: GT 5G
                             id: 198
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 25082
                         name: Iole
                         surname: Branca
@@ -1614,18 +1614,18 @@ paths:
                         level: Diamond
                         devices:
                           - id: 199
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
                           - manufacturer: Apple
                             model: iPhone 11
                             id: 200
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                           - manufacturer: Apple
                             model: iPad Air 2
                             id: 201
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 14.4 (14.4)
                       - id: 31558
                         name: Nicole
                         surname: Meazza
@@ -1635,16 +1635,16 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy M21
                             id: 202
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                           - id: 203
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina) (10.15.7)
                           - manufacturer: Apple
                             model: iPhone SE (2020)
                             id: 204
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6.1 (15.6.1)
                       - id: 55033
                         name: Laura
                         surname: Pes
@@ -1652,21 +1652,21 @@ paths:
                         level: Gold
                         devices:
                           - id: 205
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - id: 206
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Xiaomi
                             model: Poco M3
                             id: 207
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                           - manufacturer: Apple
                             model: iPad
                             id: 208
-                            os: Tablet
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                       - id: 53001
                         name: Silvia
                         surname: Buzzotta
@@ -1676,16 +1676,16 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy Tab A 10.1 (2019)
                             id: 209
-                            os: Tablet
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - id: 210
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: Samsung
                             model: Galaxy A52
                             id: 211
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12beta (12beta)
                       - id: 52319
                         name: Alessandro
                         surname: Milano
@@ -1693,8 +1693,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 212
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11 (22471)
                       - id: 57352
                         name: Paolo Maria
                         surname: Trabattoni
@@ -1702,13 +1702,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 213
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
                           - manufacturer: Xiaomi
                             model: Poco X3 Pro
                             id: 214
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 57938
                         name: Matteo
                         surname: Pivari
@@ -1716,13 +1716,13 @@ paths:
                         level: Platinum
                         devices:
                           - id: 215
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                           - manufacturer: OnePlus
                             model: '8'
                             id: 216
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 12 (12)
                       - id: 46015
                         name: Ilaria
                         surname: Croce Tornieri
@@ -1732,8 +1732,8 @@ paths:
                           - manufacturer: LG
                             model: G7 ThinQ
                             id: 217
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 10 (10.0)
                       - id: 51135
                         name: Alessandra
                         surname: Segreto
@@ -1741,18 +1741,18 @@ paths:
                         level: Platinum
                         devices:
                           - id: 218
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11 (22471)
                           - manufacturer: Samsung
                             model: Galaxy S6
                             id: 219
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: Nougat (7.0)
                           - manufacturer: OnePlus
                             model: 6T
                             id: 220
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 54599
                         name: ANDREA
                         surname: APOLLONI
@@ -1760,21 +1760,21 @@ paths:
                         level: Platinum
                         devices:
                           - id: 221
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                           - manufacturer: Xiaomi
                             model: Redmi Note 8 Pro
                             id: 222
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                           - id: 223
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
                           - manufacturer: Microsoft
                             model: Surface Pro 4
                             id: 224
-                            os: Tablet
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11 (22471)
                       - id: 7951
                         name: Lorenzo
                         surname: Silvestri
@@ -1784,8 +1784,8 @@ paths:
                           - manufacturer: Samsung
                             model: Galaxy A22 5G
                             id: 225
-                            os: Smartphone
-                            osVersion: Android
+                            os: Android
+                            osVersion: 11 (11)
                       - id: 58189
                         name: Andrea
                         surname: Donadello
@@ -1793,8 +1793,8 @@ paths:
                         level: Gold
                         devices:
                           - id: 226
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 11
                       - id: 23796
                         name: Ferdinando
                         surname: Scavo
@@ -1804,11 +1804,11 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 12 mini
                             id: 227
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
                           - id: 228
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 11 (Big Sur)
                       - id: 54259
                         name: Michele
                         surname: Palese
@@ -1816,8 +1816,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 229
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 22275
                         name: Eliana
                         surname: Alfano
@@ -1825,8 +1825,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 230
-                            os: PC
-                            osVersion: Windows
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
                       - id: 31454
                         name: Romina
                         surname: Castellini
@@ -1836,8 +1836,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 12
                             id: 231
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 16 (16)
                       - id: 48229
                         name: Alexandro
                         surname: Sollai
@@ -1847,8 +1847,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone 13 Pro Max
                             id: 232
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.3 (15.3)
                       - id: 57647
                         name: Francesco
                         surname: Campus
@@ -1856,8 +1856,8 @@ paths:
                         level: Platinum
                         devices:
                           - id: 233
-                            os: PC
-                            osVersion: MacOS
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
                       - id: 52064
                         name: Mara
                         surname: Arra
@@ -1867,8 +1867,8 @@ paths:
                           - manufacturer: Apple
                             model: iPhone XR
                             id: 234
-                            os: Smartphone
-                            osVersion: iOS
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
                     start: 0
                     limit: 0
                     size: 0
