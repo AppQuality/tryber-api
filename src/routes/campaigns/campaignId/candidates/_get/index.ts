@@ -2,8 +2,10 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 import Campaigns from "@src/features/db/class/Campaigns";
-import Profile from "@src/features/db/class/Profile";
-import CampaignApplications from "@src/features/db/class/CampaignApplications";
+import Profile, { ProfileObject } from "@src/features/db/class/Profile";
+import CampaignApplications, {
+  CampaignApplicationObject,
+} from "@src/features/db/class/CampaignApplications";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -15,6 +17,8 @@ export default class RouteItem extends UserRoute<{
     applications: CampaignApplications;
     profile: Profile;
   };
+  private applicationUsers: { [key: number]: ProfileObject } = {};
+  private applications: CampaignApplicationObject[] | false = false;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -27,8 +31,29 @@ export default class RouteItem extends UserRoute<{
         "selected_device",
         "devices",
       ]),
-      profile: new Profile(["id", "name"]),
+      profile: new Profile(["id", "name", "wp_user_id"]),
     };
+  }
+
+  protected async init(): Promise<void> {
+    const applications = await this.getApplications();
+    this.initApplicationUsers(applications);
+  }
+
+  private async initApplicationUsers(
+    applications: CampaignApplicationObject[]
+  ) {
+    const applicationWpUserIds = applications.map(
+      (application) => application.user_id
+    );
+    const profiles = await this.db.profile.query({
+      where: [{ wp_user_id: applicationWpUserIds }],
+    });
+    for (const profile of profiles) {
+      if (profile.wp_user_id && profile.id) {
+        this.applicationUsers[profile.wp_user_id] = profile;
+      }
+    }
   }
 
   protected async filter() {
@@ -48,41 +73,47 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
-    let applications = await this.db.applications.query({
-      where: [{ campaign_id: this.campaign_id }],
+    const applications = await this.getApplications();
+
+    this.setSuccess(200, {
+      results: await this.enhanceApplications(applications),
+      size: 0,
+      start: 0,
     });
-    applications.map(async (application) => {
-      const current = await this.db.profile.query({
-        where: [{ wp_user_id: application.user_id }],
-      });
-      return {
-        id: current[0].id,
-        name: "Pippo",
-        surname: "Franco",
-        experience: 200,
-        level: "Bronze",
-        devices: [],
-      };
-    });
-    let results: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"]["results"] =
-      [];
+  }
+
+  private async enhanceApplications(applications: CampaignApplicationObject[]) {
+    let results = [];
     for (const application of applications) {
-      const current = await this.db.profile.query({
-        where: [{ wp_user_id: application.user_id }],
-      });
-      if (current.length) {
-        if (current[0].id) {
-          results.push({
-            id: current[0].id,
-            name: "Pippo",
-            surname: "Franco",
-            experience: 200,
-            level: "Bronze",
-            devices: [],
-          });
-        }
+      const profileId = this.getProfileId(application.user_id);
+      if (profileId) {
+        results.push({
+          id: profileId,
+          name: "Pippo",
+          surname: "Franco",
+          experience: 200,
+          level: "Bronze",
+          devices: [],
+        });
       }
     }
-    this.setSuccess(200, { results, size: 0, start: 0 });
+    return results;
+  }
+
+  private getProfileId(wp_user_id: number) {
+    const profile = this.applicationUsers[wp_user_id];
+    if (!profile || !profile.id) {
+      return false;
+    }
+    return profile.id;
+  }
+
+  private async getApplications() {
+    if (!this.applications) {
+      this.applications = await this.db.applications.query({
+        where: [{ campaign_id: this.campaign_id }],
+      });
+    }
+    return this.applications;
   }
 }
