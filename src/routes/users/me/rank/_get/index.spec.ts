@@ -1,6 +1,6 @@
 import app from "@src/app";
 import { data as expData } from "@src/__mocks__/mockedDb/experience";
-import { data as userLevelData } from "@src/__mocks__/mockedDb/levels";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
 import Profile from "@src/__mocks__/mockedDb/profile";
@@ -64,9 +64,9 @@ describe("Route GET users-me-rank", () => {
       Profile.insert({ id: 2 });
       Profile.insert({ id: 3 });
       mockedLevelDefinitions();
-      userLevelData.basicLevel();
-      userLevelData.basicLevel({ id: 2, tester_id: 2 });
-      userLevelData.basicLevel({ id: 3, tester_id: 3 });
+      UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
+      UserLevels.insert({ id: 2, tester_id: 2 });
+      UserLevels.insert({ id: 3, tester_id: 3 });
       expData.basicExperience({ amount: 99 });
       expData.basicExperience({ id: 2, tester_id: 2, amount: 69 });
       expData.basicExperience({ id: 3, tester_id: 3, amount: 169 });
@@ -84,7 +84,7 @@ describe("Route GET users-me-rank", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       expData.drop();
       levelRevData.drop();
       resolve(null);
@@ -149,7 +149,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
     return new Promise(async (resolve) => {
       Profile.insert();
       mockedLevelDefinitions();
-      userLevelData.basicLevel({ level_id: 20 });
+      UserLevels.insert({ level_id: 20 });
       expData.basicExperience({ amount: 20 });
       resolve(null);
     });
@@ -158,7 +158,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       expData.drop();
       levelRevData.drop();
       resolve(null);
@@ -189,7 +189,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
     return new Promise(async (resolve) => {
       Profile.insert();
       mockedLevelDefinitions();
-      userLevelData.basicLevel({ level_id: 30 });
+      UserLevels.insert({ level_id: 30 });
       expData.basicExperience({ amount: 50 });
       resolve(null);
     });
@@ -198,7 +198,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       expData.drop();
       levelRevData.drop();
       resolve(null);
@@ -222,7 +222,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
     return new Promise(async (resolve) => {
       Profile.insert();
       mockedLevelDefinitions();
-      userLevelData.basicLevel({ level_id: 10 });
+      UserLevels.insert({ level_id: 10 });
       expData.basicExperience({ amount: 300 });
       resolve(null);
     });
@@ -231,7 +231,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       expData.drop();
       levelRevData.drop();
       resolve(null);
@@ -288,7 +288,7 @@ describe("Route GET users-me-rank - No previous level", () => {
     return new Promise(async (resolve) => {
       Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
-      userLevelData.basicLevel();
+      UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
       resolve(null);
     });
   });
@@ -296,7 +296,7 @@ describe("Route GET users-me-rank - No previous level", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       resolve(null);
     });
   });
@@ -316,7 +316,7 @@ describe("Route GET users-me-rank - No montly points", () => {
     return new Promise(async (resolve) => {
       Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
-      userLevelData.basicLevel();
+      UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
       resolve(null);
     });
   });
@@ -324,7 +324,7 @@ describe("Route GET users-me-rank - No montly points", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       resolve(null);
     });
   });
@@ -341,7 +341,7 @@ describe("Route GET users-me-rank - Legendary User", () => {
     return new Promise(async (resolve) => {
       Profile.insert({ pending_booty: 100 });
       mockedLevelDefinitions();
-      userLevelData.basicLevel({ level_id: 100 });
+      UserLevels.insert({ level_id: 100 });
       resolve(null);
     });
   });
@@ -349,7 +349,7 @@ describe("Route GET users-me-rank - Legendary User", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       resolve(null);
     });
   });
@@ -382,7 +382,7 @@ describe("Route GET users-me-rank - Legendary Prospect User", () => {
         total_exp_pts: 9999999,
       });
       mockedLevelDefinitions();
-      userLevelData.basicLevel({ level_id: 30 });
+      UserLevels.insert({ level_id: 30 });
       resolve(null);
     });
   });
@@ -390,7 +390,7 @@ describe("Route GET users-me-rank - Legendary Prospect User", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       resolve(null);
     });
   });
@@ -416,7 +416,7 @@ describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
         total_exp_pts: 10000,
       });
       mockedLevelDefinitions();
-      userLevelData.basicLevel({ level_id: 60 });
+      UserLevels.insert({ level_id: 60 });
       expData.basicExperience({ amount: 2500 });
       resolve(null);
     });
@@ -425,7 +425,7 @@ describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
     return new Promise(async (resolve) => {
       Profile.clear();
       Levels.clear();
-      userLevelData.drop();
+      UserLevels.clear();
       resolve(null);
     });
   });

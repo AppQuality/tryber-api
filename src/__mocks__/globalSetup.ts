@@ -28,6 +28,7 @@ import deviceOs from "./mockedDb/deviceOs";
 import DevicePlatform from "./mockedDb/devicePlatform";
 import TesterDevice from "./mockedDb/testerDevice";
 import WpUsers from "./mockedDb/wp_users";
+import UserLevel from "./mockedDb/levels";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as bugTable } from "./mockedDb/bug";
@@ -38,7 +39,6 @@ import { table as employmentListTable } from "./mockedDb/employmentList";
 import { table as expTable } from "./mockedDb/experience";
 import { table as fiscalProfileTable } from "./mockedDb/fiscalProfile";
 import { table as languageListTable } from "./mockedDb/languageList";
-import { table as levelTable } from "./mockedDb/levels";
 import { table as levelRevTable } from "./mockedDb/levelsRevisions";
 import { table as paymentRequestTable } from "./mockedDb/paymentRequest";
 import { table as popupTable } from "./mockedDb/popups";
@@ -64,7 +64,6 @@ beforeAll(async () => {
   await expTable.create();
   await Campaigns.mock();
   await Candidature.mock();
-  await levelTable.create();
   await Levels.mock();
   await TesterDevice.mock();
   await bugTable.create();
@@ -108,4 +107,5 @@ beforeAll(async () => {
   await Profile.mock();
   await PreselectionFormData.mock();
   await WpUsers.mock();
+  await UserLevel.mock();
 });

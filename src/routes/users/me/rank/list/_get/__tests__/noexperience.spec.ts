@@ -1,6 +1,5 @@
 import app from "@src/app";
 import { data as expData } from "@src/__mocks__/mockedDb/experience";
-import { data as levelData } from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 import createTesterBasicData from "./createTesterData";
@@ -64,7 +63,6 @@ describe("GET /users/me/rank/list - No exp", () => {
   afterAll(async () => {
     await expData.drop();
     await Profile.clear();
-    await levelData.drop();
     return null;
   });
   it("Should return last positions as peers", async () => {

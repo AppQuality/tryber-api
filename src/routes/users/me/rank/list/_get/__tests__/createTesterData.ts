@@ -1,5 +1,5 @@
 import { data as expData } from "@src/__mocks__/mockedDb/experience";
-import { data as levelData } from "@src/__mocks__/mockedDb/levels";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
 
 export default async (params: {
@@ -31,7 +31,7 @@ export default async (params: {
         : { amount: 0 },
     level:
       params.level !== false
-        ? await levelData.basicLevel({
+        ? await UserLevels.insert({
             id: params.testerId + 1000,
             tester_id: tester.id,
             level_id: params.level || 10,
