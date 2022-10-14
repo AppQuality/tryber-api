@@ -1,55 +1,54 @@
 import app from "@src/app";
-import { data as levelDefData } from "@src/__mocks__/mockedDb/levelsDefinition";
+import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import request from "supertest";
 
 describe("GET /levels", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await levelDefData.basicLevel();
-      await levelDefData.basicLevel({
-        id: 20,
-        name: "Bronze",
-        reach_exp_pts: 100,
-        hold_exp_pts: 50,
-      });
-      await levelDefData.basicLevel({
-        id: 30,
-        name: "Silver",
-        reach_exp_pts: 250,
-        hold_exp_pts: 150,
-      });
-      await levelDefData.basicLevel({
-        id: 40,
-        name: "Gold",
-        reach_exp_pts: 500,
-        hold_exp_pts: 300,
-      });
-      await levelDefData.basicLevel({
-        id: 50,
-        name: "Platinum",
-        reach_exp_pts: 1000,
-        hold_exp_pts: 600,
-      });
-      await levelDefData.basicLevel({
-        id: 60,
-        name: "Diamond",
-        reach_exp_pts: 3000,
-        hold_exp_pts: 2000,
-      });
-      await levelDefData.basicLevel({
-        id: 100,
-        name: "Legendary",
-        reach_exp_pts: undefined,
-        hold_exp_pts: undefined,
-      });
-      resolve(null);
+    await Levels.insert({
+      id: 10,
+      name: "Basic",
+      reach_exp_pts: 0,
+      hold_exp_pts: 0,
+    });
+    await Levels.insert({
+      id: 20,
+      name: "Bronze",
+      reach_exp_pts: 100,
+      hold_exp_pts: 50,
+    });
+    await Levels.insert({
+      id: 30,
+      name: "Silver",
+      reach_exp_pts: 250,
+      hold_exp_pts: 150,
+    });
+    await Levels.insert({
+      id: 40,
+      name: "Gold",
+      reach_exp_pts: 500,
+      hold_exp_pts: 300,
+    });
+    await Levels.insert({
+      id: 50,
+      name: "Platinum",
+      reach_exp_pts: 1000,
+      hold_exp_pts: 600,
+    });
+    await Levels.insert({
+      id: 60,
+      name: "Diamond",
+      reach_exp_pts: 3000,
+      hold_exp_pts: 2000,
+    });
+    await Levels.insert({
+      id: 100,
+      name: "Legendary",
+      reach_exp_pts: undefined,
+      hold_exp_pts: undefined,
     });
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await levelDefData.drop();
-      resolve(null);
-    });
+    await Levels.clear();
   });
   it("Should return 403 if logged out", async () => {
     const response = await request(app).get("/levels");
