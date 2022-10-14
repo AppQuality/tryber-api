@@ -1880,6 +1880,9 @@ paths:
       description: ''
       security:
         - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
