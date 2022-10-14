@@ -95,7 +95,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         expect.objectContaining({
           id: 2,
         }),
-
         expect.objectContaining({
           id: 3,
         }),

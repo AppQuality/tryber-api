@@ -7,7 +7,7 @@ import CampaignApplications, {
   CampaignApplicationObject,
 } from "@src/features/db/class/CampaignApplications";
 import Level from "@src/features/db/class/Level";
-import UserLevel from "@src/features/db/class/UserLevel";
+import UserLevel, { UserLevelObject } from "@src/features/db/class/UserLevel";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -23,6 +23,8 @@ export default class RouteItem extends UserRoute<{
   };
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private applications: CampaignApplicationObject[] | false = false;
+  private levels: { [key: number]: string } = {};
+  private userLevels: { [key: number]: string } = {};
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -49,7 +51,34 @@ export default class RouteItem extends UserRoute<{
 
   protected async init(): Promise<void> {
     const applications = await this.getApplications();
-    this.initApplicationUsers(applications);
+    const profiles = await this.initApplicationUsers(applications);
+    await this.initUserLevels(profiles);
+  }
+
+  private async initUserLevels(profiles: { [key: number]: ProfileObject }) {
+    const levels = await this.getLevelDefinitions();
+    const userLevels = await this.db.userLevel.query({
+      where: [{ tester_id: Object.values(profiles).map((p) => p.id) }],
+    });
+
+    for (const userLevel of userLevels) {
+      if (userLevel.tester_id && userLevel.level_id) {
+        if (levels[userLevel.level_id]) {
+          this.userLevels[userLevel.tester_id] = levels[userLevel.level_id];
+        }
+      }
+    }
+  }
+
+  private async getLevelDefinitions() {
+    const levels: { [key: number]: string } = {};
+    const levelData = await this.db.level.query({});
+    for (const level of levelData) {
+      if (level.id && level.name) {
+        levels[level.id] = level.name;
+      }
+    }
+    return levels;
   }
 
   private async initApplicationUsers(
@@ -66,6 +95,7 @@ export default class RouteItem extends UserRoute<{
         this.applicationUsers[profile.wp_user_id] = profile;
       }
     }
+    return this.applicationUsers;
   }
 
   protected async filter() {
@@ -99,30 +129,25 @@ export default class RouteItem extends UserRoute<{
     for (const application of applications) {
       const profile = this.getProfile(application.user_id);
       if (profile) {
-        let level = "No Level";
-        const userLevel = await this.db.userLevel.query({
-          where: [{ tester_id: profile.id }],
-        });
-        if (userLevel.length > 0) {
-          const levelData = await this.db.level.query({
-            where: [{ id: userLevel[0].level_id }],
-          });
-          if (levelData.length && levelData[0].name) {
-            level = levelData[0].name;
-          }
-        }
-
         results.push({
           id: profile.id,
           name: profile.name,
           surname: profile.surname,
           experience: profile.experience,
-          level: level,
+          level: this.getLevel(profile.id),
           devices: [],
         });
       }
     }
     return results;
+  }
+
+  private getLevel(testerId: number) {
+    const userLevel = this.userLevels[testerId];
+    if (userLevel) {
+      return userLevel;
+    }
+    return "No Level";
   }
 
   private getProfile(wp_user_id: number) {
