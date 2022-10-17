@@ -1,7 +1,7 @@
 import Devices from "@src/features/class/Devices";
 import debugMessage from "@src/features/debugMessage";
 import createCandidature from "./createCandidature";
-import testerShouldNotBeCandidate from "./testerShouldNotBeCandidate";
+import testerShouldNotBeSelected from "./testerShouldNotBeSelected";
 import AdminRoute from "@src/features/routes/AdminRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
 import Profile, { ProfileObject } from "@src/features/db/class/Profile";
@@ -86,7 +86,7 @@ export default class RouteItem extends AdminRoute<{
 
   private async testerIsAlreadyCandidate(tester: number) {
     try {
-      await testerShouldNotBeCandidate(tester, this.campaign);
+      await testerShouldNotBeSelected(tester, this.campaign);
       return false;
     } catch {
       return true;

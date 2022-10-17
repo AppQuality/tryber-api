@@ -8,7 +8,7 @@ export default async (testerId: number, campaignId: number) => {
       FROM wp_crowd_appq_has_candidate cand
          JOIN wp_appq_evd_profile profile ON cand.user_id = profile.wp_user_id
       WHERE profile.id = ?
-      AND cand.campaign_id = ?;
+      AND cand.campaign_id = ? AND accepted = 1
       `,
       [testerId, campaignId]
     )

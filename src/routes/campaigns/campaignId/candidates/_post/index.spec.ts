@@ -12,6 +12,7 @@ beforeEach(async () => {
   await Campaigns.insert();
   await Profile.insert();
   await Profile.insert({ id: 2, wp_user_id: 2 });
+  await Candidature.insert({ user_id: 2, campaign_id: 1, accepted: 0 });
   await wpUsersData.basicUser();
   await wpUsersData.basicUser({ ID: 2 });
 });
@@ -55,6 +56,7 @@ const getCandidature = async ({
 }) => {
   let where: Parameters<typeof Candidature.all>[1] = [
     { campaign_id: campaign },
+    { accepted: 1 },
   ];
   if (tester) {
     const profiles = await Profile.all(["wp_user_id"], [{ id: tester }]);
@@ -84,7 +86,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   });
 
   it("Should return 403 if tester is already candidate on campaign", async () => {
-    await Candidature.insert({ user_id: 1, campaign_id: 1 });
+    await Candidature.insert({ user_id: 1, campaign_id: 1, accepted: 1 });
     const response = await adminPostCandidate({ tester: 1 });
     expect(response.status).toBe(403);
   });
