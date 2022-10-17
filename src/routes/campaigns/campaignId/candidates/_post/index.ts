@@ -1,10 +1,13 @@
 import debugMessage from "@src/features/debugMessage";
 import createCandidature from "./createCandidature";
-import testerShouldNotBeSelected from "./testerShouldNotBeSelected";
 import AdminRoute from "@src/features/routes/AdminRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
 import Profile, { ProfileObject } from "@src/features/db/class/Profile";
+import CampaignApplication, {
+  CampaignApplicationObject,
+} from "@src/features/db/class/CampaignApplications";
 import TesterDevices from "@src/features/db/class/TesterDevices";
+import { application } from "express";
 
 /** OPENAPI-CLASS: post-campaigns-campaign-candidates */
 export default class RouteItem extends AdminRoute<{
@@ -19,10 +22,13 @@ export default class RouteItem extends AdminRoute<{
     campaigns: Campaigns;
     profile: Profile;
     testerDevices: TesterDevices;
+    applications: CampaignApplication;
   };
   private campaign: number;
   private invalidTesters: number[] = [];
   private selection: { device: number | "random"; tester: number }[] = [];
+  private testers: ProfileObject[] = [];
+  private currentCandidates: CampaignApplicationObject[] = [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -42,7 +48,19 @@ export default class RouteItem extends AdminRoute<{
       campaigns: new Campaigns(),
       profile: new Profile(),
       testerDevices: new TesterDevices(),
+      applications: new CampaignApplication(),
     };
+  }
+
+  protected async init() {
+    const testerIds = this.selection.map((item) => item.tester);
+    this.testers = await this.db.profile.query({
+      where: [{ id: testerIds }],
+    });
+
+    this.currentCandidates = await this.db.applications.query({
+      where: [{ campaign_id: this.campaign }, { accepted: 1 }],
+    });
   }
 
   get validApplications() {
@@ -80,16 +98,14 @@ export default class RouteItem extends AdminRoute<{
     return this.db.campaigns.exists(this.campaign);
   }
   private async testerExists(tester: number) {
-    return this.db.profile.exists(tester);
+    return this.testers.some((testerObject) => testerObject.id === tester);
   }
 
   private async testerIsAlreadyCandidate(tester: number) {
-    try {
-      await testerShouldNotBeSelected(tester, this.campaign);
-      return false;
-    } catch {
-      return true;
-    }
+    const testerObject = this.testers.find((t) => t.id === tester);
+    return this.currentCandidates.some(
+      (application) => application.user_id === testerObject?.wp_user_id
+    );
   }
 
   private async testerHasDevice(application: typeof this.selection[number]) {
