@@ -6,8 +6,9 @@ import Profile, { ProfileObject } from "@src/features/db/class/Profile";
 import CampaignApplication, {
   CampaignApplicationObject,
 } from "@src/features/db/class/CampaignApplications";
-import TesterDevices from "@src/features/db/class/TesterDevices";
-import { application } from "express";
+import TesterDevices, {
+  TesterDeviceObject,
+} from "@src/features/db/class/TesterDevices";
 
 /** OPENAPI-CLASS: post-campaigns-campaign-candidates */
 export default class RouteItem extends AdminRoute<{
@@ -29,6 +30,7 @@ export default class RouteItem extends AdminRoute<{
   private selection: { device: number | "random"; tester: number }[] = [];
   private testers: ProfileObject[] = [];
   private currentCandidates: CampaignApplicationObject[] = [];
+  private devices: { [key: number]: TesterDeviceObject[] } = {};
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -57,7 +59,15 @@ export default class RouteItem extends AdminRoute<{
     this.testers = await this.db.profile.query({
       where: [{ id: testerIds }],
     });
-
+    const devices = await this.db.testerDevices.query({
+      where: [{ id_profile: testerIds }],
+    });
+    for (const device of devices) {
+      if (!this.devices[device.id_profile]) {
+        this.devices[device.id_profile] = [];
+      }
+      this.devices[device.id_profile].push(device);
+    }
     this.currentCandidates = await this.db.applications.query({
       where: [{ campaign_id: this.campaign }, { accepted: 1 }],
     });
@@ -86,7 +96,7 @@ export default class RouteItem extends AdminRoute<{
       }
     }
     for (const application of this.selection) {
-      if (!(await this.testerHasDevice(application))) {
+      if (!this.testerHasDevice(application)) {
         this.invalidTesters.push(application.tester);
       }
     }
@@ -108,14 +118,12 @@ export default class RouteItem extends AdminRoute<{
     );
   }
 
-  private async testerHasDevice(application: typeof this.selection[number]) {
+  private testerHasDevice(application: typeof this.selection[number]) {
     if (application.device === 0 || application.device === "random")
       return true;
-    const userDevices = (
-      await this.db.testerDevices.query({
-        where: [{ id_profile: application.tester }],
-      })
-    ).map((device) => device.id);
+    const userDevices = (this.devices[application.tester] || []).map(
+      (device) => device.id
+    );
 
     return userDevices.includes(application.device);
   }
@@ -124,7 +132,7 @@ export default class RouteItem extends AdminRoute<{
     tester: number,
     device: number | "random"
   ): Promise<number> {
-    const userDevices = await this.getAllTesterDevice(tester);
+    const userDevices = this.getAllTesterDevice(tester);
     if (!userDevices.length) return 0;
 
     if (device === "random") {
@@ -136,12 +144,8 @@ export default class RouteItem extends AdminRoute<{
     return 0;
   }
 
-  private async getAllTesterDevice(tester: number) {
-    return (
-      await this.db.testerDevices.query({
-        where: [{ id_profile: tester }],
-      })
-    ).map((device) => device.id);
+  private getAllTesterDevice(tester: number) {
+    return (this.devices[tester] || []).map((device) => device.id);
   }
 
   private async candidateTester({
@@ -175,7 +179,7 @@ export default class RouteItem extends AdminRoute<{
       for (const application of this.validApplications) {
         candidature.push(
           await this.candidateTester({
-            tester: await this.db.profile.get(application.tester),
+            tester: this.testers.find((t) => t.id === application.tester)!,
             device: await this.getDeviceIdToSelect(
               application.tester,
               application.device
