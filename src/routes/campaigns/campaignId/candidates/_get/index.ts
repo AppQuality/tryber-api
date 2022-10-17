@@ -173,12 +173,16 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async enhanceApplications(applications: CampaignApplicationObject[]) {
-    let results = [];
     const applicationsWithProfile =
       this.enhanceApplicationsWithProfile(applications);
     const sortedApplicationsWithProfile = this.sortApplications(
       applicationsWithProfile
     );
+
+    const paginatedApplications = this.paginateApplications(
+      sortedApplicationsWithProfile
+    );
+    let results = [];
     for (const application of sortedApplicationsWithProfile) {
       let devices = await this.getTesterDevices(application.id);
 
@@ -191,7 +195,12 @@ export default class RouteItem extends UserRoute<{
         devices: devices,
       });
     }
+
     return results;
+  }
+
+  private paginateApplications(applications: CampaignApplicationObject[]) {
+    return applications;
   }
 
   private enhanceApplicationsWithProfile(
