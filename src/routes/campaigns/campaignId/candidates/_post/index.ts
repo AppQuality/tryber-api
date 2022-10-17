@@ -1,4 +1,3 @@
-import Devices from "@src/features/class/Devices";
 import debugMessage from "@src/features/debugMessage";
 import createCandidature from "./createCandidature";
 import testerShouldNotBeSelected from "./testerShouldNotBeSelected";
@@ -146,15 +145,8 @@ export default class RouteItem extends AdminRoute<{
       accepted: candidature.accepted == 1,
       campaignId: candidature.campaign_id,
       status: this.getCandidatureStatus(candidature.status),
-      device: await this.getDeviceItem(candidature.device),
+      device: candidature.device === 0 ? ("any" as const) : candidature.device,
     };
-  }
-
-  private async getDeviceItem(device: number) {
-    if (device === 0) return "any" as const;
-    const deviceItem = await new Devices().getOne(device);
-    if (!deviceItem) throw new Error("Device does not exist");
-    return deviceItem;
   }
 
   protected async prepare(): Promise<void> {

@@ -875,6 +875,12 @@ export interface operations {
         /** A campaign id */
         campaign: string;
       };
+      query: {
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+      };
     };
     responses: {
       /** OK */
@@ -892,6 +898,7 @@ export interface operations {
                 model?: string;
                 os: string;
                 osVersion: string;
+                id: number;
               }[];
             }[];
           } & components["schemas"]["PaginationData"];
@@ -923,7 +930,7 @@ export interface operations {
               | "excluded"
               | "in-progress"
               | "completed";
-            device?: "any" | components["schemas"]["UserDevice"];
+            device?: "any" | number;
             campaignId?: number;
           }[];
         };
@@ -942,7 +949,7 @@ export interface operations {
                 | "excluded"
                 | "in-progress"
                 | "completed";
-              device?: "any" | components["schemas"]["UserDevice"];
+              device?: "any" | number;
               campaignId?: number;
             }[];
             invalidTesters?: number[];

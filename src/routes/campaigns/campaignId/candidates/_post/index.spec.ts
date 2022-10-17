@@ -241,28 +241,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
     const response = await adminPostCandidate({ tester: 1, device: "random" });
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(1);
-    expect([
-      {
-        id: 1,
-        type: "PC",
-        device: { pc_type: "Laptop" },
-        operating_system: {
-          id: 1,
-          platform: "Platform 1",
-          version: "Linux (1.0)",
-        },
-      },
-      {
-        id: 2,
-        type: "PC",
-        device: { pc_type: "Server" },
-        operating_system: {
-          id: 1,
-          platform: "Platform 1",
-          version: "Linux (1.0)",
-        },
-      },
-    ]).toContainEqual(response.body[0].device);
+    expect([1, 2]).toContainEqual(response.body[0].device);
   });
 });
 
@@ -324,16 +303,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
     const response = await adminPostCandidate({ tester: 1, device: 2 });
     expect(response.status).toBe(200);
     expect(response.body.length).toEqual(1);
-    expect(response.body[0].device).toEqual({
-      id: 2,
-      type: "PC",
-      device: { pc_type: "Server" },
-      operating_system: {
-        id: 1,
-        platform: "Platform 1",
-        version: "Linux (1.0)",
-      },
-    });
+    expect(response.body[0].device).toEqual(2);
   });
   it("Should return 403 with error if try to candidate with an nonexistent device", async () => {
     const response = await adminPostCandidate({ tester: 1, device: 1000 });
