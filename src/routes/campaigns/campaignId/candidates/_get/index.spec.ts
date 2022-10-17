@@ -11,11 +11,11 @@ import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
 
 const users = {
-  1: { testerId: 1, wpUserId: 1 },
-  2: { testerId: 4, wpUserId: 5 },
-  3: { testerId: 2, wpUserId: 6 },
-  4: { testerId: 3, wpUserId: 7 },
-  5: { testerId: 10, wpUserId: 9 },
+  1: { testerId: 1, wpUserId: 1, levelId: 10 },
+  2: { testerId: 4, wpUserId: 5, levelId: 30 },
+  3: { testerId: 2, wpUserId: 6, levelId: 10 },
+  4: { testerId: 3, wpUserId: 7, levelId: 20 },
+  5: { testerId: 10, wpUserId: 9, levelId: 10 },
 };
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
@@ -37,7 +37,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await UserLevels.insert({
       id: 1,
       tester_id: users[2].testerId,
-      level_id: 10,
+      level_id: users[2].levelId,
     });
     await WpUsers.insert({ ID: users[2].wpUserId });
     await Candidate.insert({
@@ -84,7 +84,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await UserLevels.insert({
       id: 2,
       tester_id: users[3].testerId,
-      level_id: 20,
+      level_id: users[3].levelId,
     });
     await WpUsers.insert({ ID: users[3].wpUserId });
     await Candidate.insert({
@@ -131,7 +131,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await UserLevels.insert({
       id: 3,
       tester_id: users[4].testerId,
-      level_id: 30,
+      level_id: users[4].levelId,
     });
     await WpUsers.insert({ ID: users[4].wpUserId });
     await Candidate.insert({
@@ -344,5 +344,18 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         }),
       ])
     );
+  });
+
+  it("should order by level id", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(3);
+    expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
+      users[2].testerId,
+      users[4].testerId,
+      users[3].testerId,
+    ]);
   });
 });

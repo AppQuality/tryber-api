@@ -31,7 +31,7 @@ export default class RouteItem extends UserRoute<{
   };
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private applications: CampaignApplicationObject[] | false = false;
-  private userLevels: { [key: number]: string } = {};
+  private userLevels: { [key: number]: { id: number; name: string } } = {};
   private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
 
   constructor(config: RouteClassConfiguration) {
@@ -107,7 +107,10 @@ export default class RouteItem extends UserRoute<{
     for (const userLevel of userLevels) {
       if (userLevel.tester_id && userLevel.level_id) {
         if (levels[userLevel.level_id]) {
-          this.userLevels[userLevel.tester_id] = levels[userLevel.level_id];
+          this.userLevels[userLevel.tester_id] = {
+            id: userLevel.level_id,
+            name: levels[userLevel.level_id],
+          };
         }
       }
     }
@@ -158,10 +161,12 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
-    const applications = await this.getApplications();
+    let applications = await this.enhanceApplications(
+      await this.getApplications()
+    );
 
     this.setSuccess(200, {
-      results: await this.enhanceApplications(applications),
+      results: applications,
       size: 0,
       start: 0,
     });
@@ -169,31 +174,58 @@ export default class RouteItem extends UserRoute<{
 
   private async enhanceApplications(applications: CampaignApplicationObject[]) {
     let results = [];
-    for (const application of applications) {
-      const profile = this.getProfile(application.user_id);
-      if (profile) {
-        let devices = await this.getTesterDevices(profile);
+    const applicationsWithProfile =
+      this.enhanceApplicationsWithProfile(applications);
+    const sortedApplicationsWithProfile = this.sortApplications(
+      applicationsWithProfile
+    );
+    for (const application of sortedApplicationsWithProfile) {
+      let devices = await this.getTesterDevices(application.id);
 
-        results.push({
-          id: profile.id,
-          name: profile.name,
-          surname: profile.surname,
-          experience: profile.experience,
-          level: this.getLevel(profile.id),
-          devices: devices,
-        });
-      }
+      results.push({
+        id: application.id,
+        name: application.name,
+        surname: application.surname,
+        experience: application.experience,
+        level: this.getLevel(application.id),
+        devices: devices,
+      });
     }
     return results;
   }
 
-  private async getTesterDevices(profile: {
-    id: number;
-    name: string;
-    surname: string;
-    experience: number;
-  }) {
-    const testerDevices = this.testerDevices[profile.id];
+  private enhanceApplicationsWithProfile(
+    applications: CampaignApplicationObject[]
+  ) {
+    return applications.map((a) => {
+      const profile = this.getProfile(a.user_id);
+      if (!profile) {
+        throw new Error("Profile not found");
+      }
+      return {
+        ...a,
+        id: profile.id,
+        name: profile.name,
+        surname: profile.surname,
+        experience: profile.experience,
+      };
+    });
+  }
+
+  private sortApplications(
+    applications: ReturnType<typeof this.enhanceApplicationsWithProfile>
+  ) {
+    return applications.sort((a, b) => {
+      const aId = a.id;
+      const bId = b.id;
+      const aLevelId = this.userLevels[aId] ? this.userLevels[aId].id : 0;
+      const bLevelId = this.userLevels[bId] ? this.userLevels[bId].id : 0;
+      return bLevelId - aLevelId;
+    });
+  }
+
+  private async getTesterDevices(profileId: number) {
+    const testerDevices = this.testerDevices[profileId];
 
     let devices: NonNullable<
       StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"]["results"]
@@ -223,7 +255,7 @@ export default class RouteItem extends UserRoute<{
   private getLevel(testerId: number) {
     const userLevel = this.userLevels[testerId];
     if (userLevel) {
-      return userLevel;
+      return userLevel.name;
     }
     return "No Level";
   }
