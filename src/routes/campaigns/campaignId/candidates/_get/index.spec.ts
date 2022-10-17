@@ -204,7 +204,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     const response = await request(app)
       .get("/campaigns/100/candidates/")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    console.log(response.body);
     expect(response.status).toBe(404);
   });
   it("should answer a list of tester ids ", async () => {
