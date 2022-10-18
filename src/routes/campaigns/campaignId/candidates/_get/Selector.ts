@@ -42,6 +42,7 @@ class Selector {
     const applicationWpUserIds = applications.map(
       (application) => application.user_id
     );
+    if (applicationWpUserIds.length === 0) return {};
     const profiles = await profile.query({
       where: [{ wp_user_id: applicationWpUserIds }],
     });
@@ -58,6 +59,7 @@ class Selector {
     const userLevel = new UserLevel();
     const profiles = this.getApplicationsProfiles();
     const levels = await this.getLevelDefinitions();
+    if (Object.keys(profiles).length === 0) return {};
     const userLevels = await userLevel.query({
       where: [{ tester_id: Object.values(profiles).map((p) => p.id) }],
     });
