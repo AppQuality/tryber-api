@@ -13,6 +13,7 @@ import TesterDevices, {
 } from "@src/features/db/class/TesterDevices";
 import Os from "@src/features/db/class/Os";
 import OsVersion from "@src/features/db/class/OsVersion";
+import { application } from "express";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -71,8 +72,22 @@ export default class RouteItem extends UserRoute<{
   protected async init(): Promise<void> {
     const applications = await this.getApplications();
     const profiles = await this.initApplicationUsers(applications);
+    this.filterInvalidUsersFromApplications(profiles);
     await this.initUserLevels(profiles);
     await this.initUserDevices(applications, profiles);
+  }
+
+  private filterInvalidUsersFromApplications(profiles: {
+    [key: number]: ProfileObject;
+  }) {
+    if (!this.applications) throw new Error("Applications not initialized");
+    this.applications = this.applications.filter((application) => {
+      if (!profiles[application.user_id]) return false;
+      const profile = profiles[application.user_id];
+      if (profile.wp_user_id === null) return false;
+      if (profile.isDeletedUser()) return false;
+      return true;
+    });
   }
 
   private async initUserDevices(

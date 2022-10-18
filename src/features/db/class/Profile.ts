@@ -64,6 +64,10 @@ class ProfileObject implements ProfileType {
     if (!genderItem) throw new Error("Gender not found: " + value);
     return parseInt(genderItem[0]) as NonNullable<ProfileObject["sex"]>;
   }
+
+  isDeletedUser() {
+    return this.name === "Deleted User";
+  }
 }
 
 class Profile extends Database<{

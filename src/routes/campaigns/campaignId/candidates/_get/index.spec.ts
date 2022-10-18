@@ -16,6 +16,7 @@ const users = {
   3: { testerId: 2, wpUserId: 6, levelId: 10 },
   4: { testerId: 3, wpUserId: 7, levelId: 20 },
   5: { testerId: 10, wpUserId: 9, levelId: 10 },
+  6: { testerId: 5, wpUserId: 4, levelId: 10 },
 };
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
@@ -171,6 +172,14 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       user_id: users[5].wpUserId,
       campaign_id: 1,
       accepted: 1,
+    });
+
+    await Profile.insert({ id: users[6].testerId, name: "Deleted User" });
+    await WpUsers.insert({ ID: users[6].wpUserId });
+    await Candidate.insert({
+      user_id: users[6].wpUserId,
+      campaign_id: 1,
+      accepted: 0,
     });
   });
   afterAll(async () => {
