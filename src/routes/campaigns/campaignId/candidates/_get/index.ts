@@ -13,7 +13,6 @@ import TesterDevices, {
 } from "@src/features/db/class/TesterDevices";
 import Os from "@src/features/db/class/Os";
 import OsVersion from "@src/features/db/class/OsVersion";
-import { application } from "express";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -85,7 +84,9 @@ export default class RouteItem extends UserRoute<{
       if (!profiles[application.user_id]) return false;
       const profile = profiles[application.user_id];
       if (profile.wp_user_id === null) return false;
+      if (!profile.id) return false;
       if (profile.isDeletedUser()) return false;
+      if (!this.testerDevices[profile.id]) return false;
       return true;
     });
   }
@@ -103,12 +104,12 @@ export default class RouteItem extends UserRoute<{
           );
         } else {
           where.push(
-            `(id_profile = ${
+            `(enabled = 1 AND id_profile = ${
               profiles[application.user_id].id
             } AND id IN (${application.devices
               .split(",")
               .map((d) => parseInt(d))}))
-            AND enabled = 1`
+           `
           );
         }
       }
@@ -264,6 +265,7 @@ export default class RouteItem extends UserRoute<{
 
   private async getTesterDevices(profileId: number) {
     const testerDevices = this.testerDevices[profileId];
+    console.log(testerDevices ? "" : profileId);
 
     let devices: NonNullable<
       StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"]["results"]
@@ -318,7 +320,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getApplications() {
-    if (!this.applications) {
+    if (this.applications === false) {
       this.applications = await this.db.applications.query({
         where: [{ campaign_id: this.campaign_id }, { accepted: 0 }],
       });
