@@ -72,9 +72,9 @@ export default class RouteItem extends UserRoute<{
   protected async init(): Promise<void> {
     const applications = await this.getApplications();
     const profiles = await this.initApplicationUsers(applications);
-    this.filterInvalidUsersFromApplications(profiles);
     await this.initUserLevels(profiles);
     await this.initUserDevices(applications, profiles);
+    this.filterInvalidUsersFromApplications(profiles);
   }
 
   private filterInvalidUsersFromApplications(profiles: {
@@ -96,7 +96,7 @@ export default class RouteItem extends UserRoute<{
   ) {
     const where = [];
     for (const application of applications) {
-      if (application.devices) {
+      if (application.devices && profiles[application.user_id]) {
         if (application.devices === "0") {
           where.push(
             `(id_profile = ${profiles[application.user_id].id}) AND enabled = 1`
@@ -114,7 +114,6 @@ export default class RouteItem extends UserRoute<{
       }
     }
     if (where.length > 0) {
-      console.log(where);
       const devices = await this.db.devices.queryWithCustomWhere({
         where: "WHERE " + where.join(" OR "),
       });
@@ -136,13 +135,15 @@ export default class RouteItem extends UserRoute<{
     });
 
     for (const userLevel of userLevels) {
-      if (userLevel.tester_id && userLevel.level_id) {
-        if (levels[userLevel.level_id]) {
-          this.userLevels[userLevel.tester_id] = {
-            id: userLevel.level_id,
-            name: levels[userLevel.level_id],
-          };
-        }
+      if (
+        userLevel.tester_id &&
+        userLevel.level_id &&
+        levels[userLevel.level_id]
+      ) {
+        this.userLevels[userLevel.tester_id] = {
+          id: userLevel.level_id,
+          name: levels[userLevel.level_id],
+        };
       }
     }
   }

@@ -17,6 +17,7 @@ const users = {
   4: { testerId: 3, wpUserId: 7, levelId: 20 },
   5: { testerId: 10, wpUserId: 9, levelId: 10 },
   6: { testerId: 5, wpUserId: 4, levelId: 10 },
+  7: { testerId: 8, wpUserId: 8, levelId: 10 },
 };
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
@@ -194,6 +195,25 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       user_id: users[6].wpUserId,
       campaign_id: 1,
       accepted: 0,
+    });
+
+    await Profile.insert({ id: users[7].testerId });
+    await WpUsers.insert({ ID: users[7].wpUserId });
+    await Candidate.insert({
+      user_id: users[7].wpUserId,
+      campaign_id: 1,
+      accepted: 0,
+      devices: "0",
+    });
+
+    await TesterDevices.insert({
+      id: 7,
+      id_profile: users[7].testerId,
+      manufacturer: "Apple",
+      model: "iPhone 11",
+      platform_id: 1,
+      os_version_id: 1,
+      enabled: 0,
     });
   });
   afterAll(async () => {
