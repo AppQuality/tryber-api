@@ -139,15 +139,11 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       {
         tester_id: 1,
         campaignId: 1,
-        accepted: true,
-        status: "ready",
         device: "any",
       },
       {
         tester_id: 2,
         campaignId: 1,
-        accepted: true,
-        status: "ready",
         device: "any",
       },
     ]);
@@ -176,8 +172,6 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
       {
         tester_id: 1,
         campaignId: 1,
-        accepted: true,
-        status: "ready",
         device: "any",
       },
     ]);
@@ -190,8 +184,6 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
       {
         tester_id: 1,
         campaignId: 1,
-        accepted: true,
-        status: "ready",
         device: "any",
       },
     ]);

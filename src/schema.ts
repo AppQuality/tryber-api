@@ -922,14 +922,6 @@ export interface operations {
         content: {
           "application/json": {
             tester_id?: number;
-            accepted?: boolean;
-            /** @enum {string} */
-            status?:
-              | "ready"
-              | "removed"
-              | "excluded"
-              | "in-progress"
-              | "completed";
             device?: "any" | number;
             campaignId?: number;
           }[];

@@ -36,10 +36,8 @@ export default async (
     );
   }
   return {
-    tester_id: 1,
+    wordpress_id: wpId,
     campaign_id: campaignId,
-    status: 0,
-    device: 0,
-    accepted: 1,
+    device: selectedDevice,
   };
 };

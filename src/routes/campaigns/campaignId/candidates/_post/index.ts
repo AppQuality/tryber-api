@@ -161,10 +161,8 @@ export default class RouteItem extends AdminRoute<{
       device
     );
     return {
-      tester_id: candidature.tester_id,
-      accepted: candidature.accepted == 1,
+      tester_id: tester.id,
       campaignId: candidature.campaign_id,
-      status: this.getCandidatureStatus(candidature.status),
       device: candidature.device === 0 ? ("any" as const) : candidature.device,
     };
   }
