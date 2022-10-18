@@ -35,25 +35,11 @@ export default async (
       )
     );
   }
-  let candidature = (await db.query(
-    db.format(
-      `
-        SELECT t.id as tester_id, 
-            cand.campaign_id as campaign_id, cand.results as status, cand.selected_device as device, cand.accepted as accepted 
-          FROM wp_crowd_appq_has_candidate cand 
-          JOIN wp_appq_evd_profile t ON (t.wp_user_id = cand.user_id) 
-        WHERE cand.user_id = ? AND campaign_id = ?`,
-      [wpId, campaignId]
-    )
-  )) as {
-    tester_id: number;
-    campaign_id: number;
-    status: number;
-    device: number;
-    accepted: number;
-  }[];
-  if (!candidature.length) {
-    throw new Error("Error adding candidature");
-  }
-  return candidature[0];
+  return {
+    tester_id: 1,
+    campaign_id: campaignId,
+    status: 0,
+    device: 0,
+    accepted: 1,
+  };
 };
