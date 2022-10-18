@@ -13,13 +13,13 @@ beforeEach(async () => {
   await Profile.insert();
   await Profile.insert({ id: 2, wp_user_id: 2 });
   await Candidature.insert({ user_id: 2, campaign_id: 1, accepted: 0 });
-  await wpUsersData.basicUser();
-  await wpUsersData.basicUser({ ID: 2 });
+  await WpUsers.insert();
+  await WpUsers.insert({ ID: 2 });
 });
 afterEach(async () => {
   await Campaigns.clear();
   await Profile.clear();
-  await wpUsersData.drop();
+  await WpUsers.clear();
   await Candidature.clear();
 });
 
