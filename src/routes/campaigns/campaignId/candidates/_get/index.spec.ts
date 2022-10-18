@@ -359,7 +359,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     ]);
   });
 
-  it("should allow pagination", async () => {
+  it("should allow pagination of one element", async () => {
     const response = await request(app)
       .get("/campaigns/1/candidates/?start=1&limit=1")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
@@ -367,6 +367,17 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     expect(response.body.results.length).toBe(1);
     expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
       users[4].testerId,
+    ]);
+  });
+  it("should allow pagination of two elements", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?start=1&limit=2")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
+      users[4].testerId,
+      users[3].testerId,
     ]);
   });
 });

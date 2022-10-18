@@ -16,6 +16,7 @@ import OsVersion from "@src/features/db/class/OsVersion";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
+  query: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["query"];
   parameters: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["path"];
 }> {
   private campaign_id: number;
@@ -33,6 +34,8 @@ export default class RouteItem extends UserRoute<{
   private applications: CampaignApplicationObject[] | false = false;
   private userLevels: { [key: number]: { id: number; name: string } } = {};
   private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
+  private start: number;
+  private limit: number;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -54,6 +57,10 @@ export default class RouteItem extends UserRoute<{
       os: new Os(),
       osVersion: new OsVersion(),
     };
+
+    const query = this.getQuery();
+    this.start = parseInt(query.start as unknown as string) || 0;
+    this.limit = parseInt(query.limit as unknown as string) || 10;
   }
 
   protected async init(): Promise<void> {
@@ -183,7 +190,7 @@ export default class RouteItem extends UserRoute<{
       sortedApplicationsWithProfile
     );
     let results = [];
-    for (const application of sortedApplicationsWithProfile) {
+    for (const application of paginatedApplications) {
       let devices = await this.getTesterDevices(application.id);
 
       results.push({
@@ -199,8 +206,10 @@ export default class RouteItem extends UserRoute<{
     return results;
   }
 
-  private paginateApplications(applications: CampaignApplicationObject[]) {
-    return applications;
+  private paginateApplications(
+    applications: ReturnType<typeof this.enhanceApplicationsWithProfile>
+  ) {
+    return applications.slice(this.start, this.start + this.limit);
   }
 
   private enhanceApplicationsWithProfile(
