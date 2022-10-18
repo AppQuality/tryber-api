@@ -875,6 +875,12 @@ export interface operations {
         /** A campaign id */
         campaign: string;
       };
+      query: {
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+      };
     };
     responses: {
       /** OK */
@@ -892,6 +898,7 @@ export interface operations {
                 model?: string;
                 os: string;
                 osVersion: string;
+                id: number;
               }[];
             }[];
           } & components["schemas"]["PaginationData"];
@@ -908,25 +915,36 @@ export interface operations {
         /** A campaign id */
         campaign: string;
       };
-      query: {
-        device?: string;
-      };
     };
     responses: {
       /** OK */
       200: {
         content: {
           "application/json": {
-            tester_id: number;
-            accepted: boolean;
-            /** @enum {string} */
-            status:
-              | "ready"
-              | "in-progress"
-              | "completed"
-              | "excluded"
-              | "removed";
-            device: "any" | components["schemas"]["UserDevice"];
+            tester_id?: number;
+            device?: "any" | number;
+            campaignId?: number;
+          }[];
+        };
+      };
+      /** Multi-Status (WebDAV) */
+      207: {
+        content: {
+          "application/json": {
+            results?: {
+              tester_id?: number;
+              accepted?: boolean;
+              /** @enum {string} */
+              status?:
+                | "ready"
+                | "removed"
+                | "excluded"
+                | "in-progress"
+                | "completed";
+              device?: "any" | number;
+              campaignId?: number;
+            }[];
+            invalidTesters?: number[];
           };
         };
       };
@@ -935,9 +953,15 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": {
-          tester_id: number;
-        };
+        "application/json":
+          | {
+              tester_id: number;
+              device?: number | "random";
+            }[]
+          | {
+              tester_id: number;
+              device?: number | "random";
+            };
       };
     };
   };

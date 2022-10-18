@@ -243,31 +243,57 @@ paths:
           content:
             application/json:
               schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    tester_id:
+                      type: number
+                    device:
+                      oneOf:
+                        - type: string
+                          enum:
+                            - any
+                        - type: number
+                    campaignId:
+                      type: number
+        '207':
+          description: Multi-Status (WebDAV)
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  tester_id:
-                    type: number
-                  accepted:
-                    type: boolean
-                  status:
-                    type: string
-                    enum:
-                      - ready
-                      - in-progress
-                      - completed
-                      - excluded
-                      - removed
-                  device:
-                    oneOf:
-                      - type: string
-                        enum:
-                          - any
-                      - $ref: '#/components/schemas/UserDevice'
-                required:
-                  - tester_id
-                  - accepted
-                  - status
-                  - device
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester_id:
+                          type: number
+                        accepted:
+                          type: boolean
+                        status:
+                          type: string
+                          enum:
+                            - ready
+                            - removed
+                            - excluded
+                            - in-progress
+                            - completed
+                        device:
+                          oneOf:
+                            - type: string
+                              properties: {}
+                              enum:
+                                - any
+                            - type: number
+                        campaignId:
+                          type: number
+                  invalidTesters:
+                    type: array
+                    items:
+                      type: number
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -279,17 +305,38 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tester_id:
-                  type: number
-              required:
-                - tester_id
-      parameters:
-        - schema:
-            type: string
-          in: query
-          name: device
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      tester_id:
+                        type: number
+                      device:
+                        oneOf:
+                          - type: number
+                            properties: {}
+                          - type: string
+                            properties: {}
+                            enum:
+                              - random
+                    required:
+                      - tester_id
+                - type: object
+                  properties:
+                    tester_id:
+                      type: number
+                    device:
+                      oneOf:
+                        - type: number
+                          properties: {}
+                        - type: string
+                          properties: {}
+                          enum:
+                            - random
+                  required:
+                    - tester_id
+      parameters: []
     get:
       summary: Get all candidates for a campaign
       operationId: get-campaigns-campaign-candidates
