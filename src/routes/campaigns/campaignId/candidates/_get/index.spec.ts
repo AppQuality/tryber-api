@@ -380,4 +380,28 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       users[3].testerId,
     ]);
   });
+  it("should return the start value", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?start=2&limit=1")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("start", 2);
+  });
+  it("should return the limit value", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?start=2&limit=1")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("limit", 1);
+  });
+  it("should return the size", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?start=1&limit=1")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("size", 1);
+  });
+  it("should return the total", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?start=1&limit=1")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("total", 3);
+  });
 });

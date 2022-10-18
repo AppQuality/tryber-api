@@ -36,6 +36,7 @@ export default class RouteItem extends UserRoute<{
   private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
   private start: number;
   private limit: number;
+  private hasLimit: boolean = false;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -60,7 +61,11 @@ export default class RouteItem extends UserRoute<{
 
     const query = this.getQuery();
     this.start = parseInt(query.start as unknown as string) || 0;
-    this.limit = parseInt(query.limit as unknown as string) || 10;
+    this.limit = 10;
+    if (query.limit) {
+      this.limit = parseInt(query.limit as unknown as string);
+      this.hasLimit = true;
+    }
   }
 
   protected async init(): Promise<void> {
@@ -168,29 +173,28 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
-    let applications = await this.enhanceApplications(
-      await this.getApplications()
+    const applications = await this.getApplications();
+    const applicationsWithProfile = this.addProfileTo(applications);
+    const sortedApplications = this.sortApplications(applicationsWithProfile);
+    const paginatedApplications = this.paginateApplications(sortedApplications);
+    const formattedApplications = await this.formatApplications(
+      paginatedApplications
     );
 
     this.setSuccess(200, {
-      results: applications,
-      size: 0,
-      start: 0,
+      results: formattedApplications,
+      size: paginatedApplications.length,
+      start: this.start,
+      limit: this.hasLimit ? this.limit : undefined,
+      total: this.hasLimit ? applications.length : undefined,
     });
   }
 
-  private async enhanceApplications(applications: CampaignApplicationObject[]) {
-    const applicationsWithProfile =
-      this.enhanceApplicationsWithProfile(applications);
-    const sortedApplicationsWithProfile = this.sortApplications(
-      applicationsWithProfile
-    );
-
-    const paginatedApplications = this.paginateApplications(
-      sortedApplicationsWithProfile
-    );
+  private async formatApplications(
+    applications: ReturnType<typeof this.addProfileTo>
+  ) {
     let results = [];
-    for (const application of paginatedApplications) {
+    for (const application of applications) {
       let devices = await this.getTesterDevices(application.id);
 
       results.push({
@@ -207,14 +211,12 @@ export default class RouteItem extends UserRoute<{
   }
 
   private paginateApplications(
-    applications: ReturnType<typeof this.enhanceApplicationsWithProfile>
+    applications: ReturnType<typeof this.addProfileTo>
   ) {
     return applications.slice(this.start, this.start + this.limit);
   }
 
-  private enhanceApplicationsWithProfile(
-    applications: CampaignApplicationObject[]
-  ) {
+  private addProfileTo(applications: CampaignApplicationObject[]) {
     return applications.map((a) => {
       const profile = this.getProfile(a.user_id);
       if (!profile) {
@@ -230,9 +232,7 @@ export default class RouteItem extends UserRoute<{
     });
   }
 
-  private sortApplications(
-    applications: ReturnType<typeof this.enhanceApplicationsWithProfile>
-  ) {
+  private sortApplications(applications: ReturnType<typeof this.addProfileTo>) {
     return applications.sort((a, b) => {
       const aId = a.id;
       const bId = b.id;
