@@ -81,6 +81,13 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
     expect(response.status).toBe(200);
   });
   it("Should return 403 if tester_id does not exist", async () => {
+    const response = await request(app)
+      .post("/campaigns/1000/candidates")
+      .send({ tester_id: 1 })
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
+  it("Should return 403 if campaing does not exist", async () => {
     const response = await adminPostCandidate({ tester: 69 });
     expect(response.status).toBe(403);
   });

@@ -202,13 +202,4 @@ export default class RouteItem extends AdminRoute<{
       return;
     }
   }
-
-  private getCandidatureStatus(status: number) {
-    if (status === 0) return "ready" as const;
-    if (status === -1) return "removed" as const;
-    if (status === 1) return "excluded" as const;
-    if (status === 2) return "in-progress" as const;
-    if (status === 3) return "completed" as const;
-    throw new Error("Invalid status");
-  }
 }
