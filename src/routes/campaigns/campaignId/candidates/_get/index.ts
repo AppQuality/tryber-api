@@ -98,19 +98,23 @@ export default class RouteItem extends UserRoute<{
     for (const application of applications) {
       if (application.devices) {
         if (application.devices === "0") {
-          where.push(`(id_profile = ${profiles[application.user_id].id})`);
+          where.push(
+            `(id_profile = ${profiles[application.user_id].id}) AND enabled = 1`
+          );
         } else {
           where.push(
             `(id_profile = ${
               profiles[application.user_id].id
             } AND id IN (${application.devices
               .split(",")
-              .map((d) => parseInt(d))}))`
+              .map((d) => parseInt(d))}))
+            AND enabled = 1`
           );
         }
       }
     }
     if (where.length > 0) {
+      console.log(where);
       const devices = await this.db.devices.queryWithCustomWhere({
         where: "WHERE " + where.join(" OR "),
       });

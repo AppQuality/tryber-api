@@ -55,6 +55,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       model: "iPhone 11",
       platform_id: 1,
       os_version_id: 1,
+      enabled: 1,
     });
     await DeviceOs.insert({
       id: 1,
@@ -73,6 +74,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       model: "iPhone 9",
       platform_id: 1,
       os_version_id: 1,
+      enabled: 1,
     });
 
     await Profile.insert({
@@ -103,6 +105,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       model: "-",
       platform_id: 2,
       os_version_id: 2,
+      enabled: 1,
     });
     await DeviceOs.insert({
       id: 2,
@@ -120,6 +123,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       model: "iPhone 11",
       platform_id: 1,
       os_version_id: 1,
+      enabled: 1,
     });
 
     await Profile.insert({
@@ -150,9 +154,19 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       model: "-",
       platform_id: 2,
       os_version_id: 2,
+      enabled: 1,
     });
     await TesterDevices.insert({
       id: 5,
+      id_profile: users[4].testerId,
+      manufacturer: "Apple",
+      model: "iPhone 11",
+      platform_id: 1,
+      os_version_id: 1,
+      enabled: 1,
+    });
+    await TesterDevices.insert({
+      id: 6,
       id_profile: users[4].testerId,
       manufacturer: "Apple",
       model: "iPhone 11",
