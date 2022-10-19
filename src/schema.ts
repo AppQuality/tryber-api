@@ -880,6 +880,8 @@ export interface operations {
         limit?: components["parameters"]["limit"];
         /** Items to skip for pagination */
         start?: components["parameters"]["start"];
+        /** The fields to add to the results */
+        fields?: string;
       };
     };
     responses: {
@@ -899,6 +901,11 @@ export interface operations {
                 os: string;
                 osVersion: string;
                 id: number;
+              }[];
+              questions?: {
+                id?: string;
+                title?: string;
+                value?: string;
               }[];
             }[];
           } & components["schemas"]["PaginationData"];
