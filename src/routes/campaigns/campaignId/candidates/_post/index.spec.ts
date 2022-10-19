@@ -2,7 +2,7 @@ import app from "@src/app";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUsersData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
@@ -13,13 +13,13 @@ beforeEach(async () => {
   await Profile.insert();
   await Profile.insert({ id: 2, wp_user_id: 2 });
   await Candidature.insert({ user_id: 2, campaign_id: 1, accepted: 0 });
-  await wpUsersData.basicUser();
-  await wpUsersData.basicUser({ ID: 2 });
+  await WpUsers.insert();
+  await WpUsers.insert({ ID: 2 });
 });
 afterEach(async () => {
   await Campaigns.clear();
   await Profile.clear();
-  await wpUsersData.drop();
+  await WpUsers.clear();
   await Candidature.clear();
 });
 

@@ -6,11 +6,11 @@ import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOS from "@src/__mocks__/mockedDb/deviceOs";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 
 beforeAll(async () => {
   await Profile.insert();
-  await wpUserData.basicUser();
+  await WpUsers.insert();
   await Campaigns.insert({
     id: 1,
     title: "My campaign",
@@ -44,7 +44,7 @@ beforeAll(async () => {
   });
 });
 afterAll(async () => {
-  await wpUserData.drop();
+  await WpUsers.clear();
   await Profile.clear();
   await TesterDevice.clear();
   await DeviceOS.clear();

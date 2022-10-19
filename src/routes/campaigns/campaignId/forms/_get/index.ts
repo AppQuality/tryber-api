@@ -69,7 +69,7 @@ export default class RouteItem extends UserRoute<{
     return this.questions.map((question) => {
       return {
         id: question.id,
-        short_name:
+        shortName:
           question.short_name !== null ? question.short_name : undefined,
         question: question.question,
       };

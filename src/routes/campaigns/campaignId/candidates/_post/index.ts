@@ -155,6 +155,7 @@ export default class RouteItem extends AdminRoute<{
     tester: ProfileObject;
     device: number;
   }) {
+    if (!tester.wp_user_id) throw new Error("Tester has no wp_user_id");
     const candidature = await createCandidature(
       tester.wp_user_id,
       this.campaign,

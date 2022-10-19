@@ -76,8 +76,8 @@ describe("GET /campaigns/:campaignId/forms", () => {
     expect(response.body).toEqual(
       expect.arrayContaining([
         { id: 1, question: "Question Name1" },
-        { id: 2, question: "Question Name2", short_name: "question_short_2" },
-        { id: 3, question: "Question Name3", short_name: "question_short_3" },
+        { id: 2, question: "Question Name2", shortName: "question_short_2" },
+        { id: 3, question: "Question Name3", shortName: "question_short_3" },
       ])
     );
   });

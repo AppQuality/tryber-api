@@ -1,7 +1,7 @@
 import app from "@src/app";
 import deleteFromS3 from "@src/features/deleteFromS3";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
 import request from "supertest";
 
@@ -15,11 +15,11 @@ beforeAll(async () => {
     ({ url }: { url: string }): Promise<any> => Promise.resolve(true)
   );
   await Profile.insert();
-  await wpUserData.basicUser();
+  await WpUsers.insert();
 });
 
 afterAll(async () => {
-  await wpUserData.drop();
+  await WpUsers.clear();
   await Profile.clear();
 });
 describe("Route DELETE /media", () => {

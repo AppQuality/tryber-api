@@ -1,19 +1,4 @@
-import sqlite3 from "@src/features/sqlite";
-
-const tableName = "wp_appq_activity_level_definition";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "id INTEGER PRIMARY KEY",
-      "name VARCHAR(64)",
-      "reach_exp_pts INTEGER",
-      "hold_exp_pts INTEGER",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
-};
+import Table from "./table";
 
 type LevelParams = {
   id?: number;
@@ -21,24 +6,25 @@ type LevelParams = {
   reach_exp_pts?: number;
   hold_exp_pts?: number;
 };
-const data: {
-  [key: string]: (params?: LevelParams) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
-};
 
-data.basicLevel = async (params) => {
-  const item = {
-    id: 10,
-    name: "Basic",
-    reach_exp_pts: 0,
-    hold_exp_pts: 0,
-    ...params,
-  };
-  await sqlite3.insert("wp_appq_activity_level_definition", item);
-  return item;
-};
+class Levels extends Table<LevelParams> {
+  protected name = "wp_appq_activity_level_definition";
+  protected columns = [
+    "id INTEGER PRIMARY KEY",
+    "name VARCHAR(64)",
+    "reach_exp_pts INTEGER",
+    "hold_exp_pts INTEGER",
+  ];
 
-export { data };
+  constructor() {
+    super({
+      id: 1,
+      name: "Level",
+      reach_exp_pts: 1000,
+      hold_exp_pts: 2000,
+    });
+  }
+}
+
+const theTable = new Levels();
+export default theTable;
