@@ -903,7 +903,7 @@ export interface operations {
                 id: number;
               }[];
               questions?: {
-                id?: string;
+                id?: number;
                 title?: string;
                 value?: string;
               }[];

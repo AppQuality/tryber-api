@@ -9,6 +9,9 @@ import UserLevels from "@src/__mocks__/mockedDb/levels";
 import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
 import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
+import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
+import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
 
 const users = {
   1: { testerId: 1, wpUserId: 1, levelId: 10 },
@@ -234,6 +237,67 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       os_version_id: 1,
       enabled: 0,
     });
+
+    await PreselectionForm.insert({ id: 1, campaign_id: 1, name: "Form 1" });
+    await PreselectionFormFields.insert({
+      id: 1,
+      form_id: 1,
+      question: "Field 1",
+    });
+    await PreselectionFormFields.insert({
+      id: 2,
+      form_id: 1,
+      question: "Field 2",
+    });
+    await PreselectionForm.insert({ id: 2, campaign_id: 5, name: "Form 2" });
+    await PreselectionFormFields.insert({
+      id: 3,
+      form_id: 2,
+      question: "Field 3",
+    });
+
+    await preselectionFormData.insert({
+      id: 1,
+      tester_id: users[2].testerId,
+      field_id: 1,
+      value: "Value 1",
+    });
+    await preselectionFormData.insert({
+      id: 2,
+      tester_id: users[3].testerId,
+      field_id: 1,
+      value: "Value 2",
+    });
+    await preselectionFormData.insert({
+      id: 3,
+      tester_id: users[4].testerId,
+      field_id: 1,
+      value: "Value 3",
+    });
+    await preselectionFormData.insert({
+      id: 4,
+      tester_id: users[2].testerId,
+      field_id: 2,
+      value: "Value 4",
+    });
+    await preselectionFormData.insert({
+      id: 5,
+      tester_id: users[3].testerId,
+      field_id: 2,
+      value: "Value 5",
+    });
+    await preselectionFormData.insert({
+      id: 6,
+      tester_id: users[4].testerId,
+      field_id: 2,
+      value: "Value 6",
+    });
+    await preselectionFormData.insert({
+      id: 7,
+      tester_id: users[4].testerId,
+      field_id: 3,
+      value: "Value Invalid",
+    });
   });
   afterAll(async () => {
     await Campaigns.clear();
@@ -244,6 +308,8 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await Profile.clear();
     await UserLevels.clear();
     await Levels.clear();
+    await PreselectionForm.clear();
+    await PreselectionFormFields.clear();
   });
   it("should answer 403 if user is not logged in ", async () => {
     const response = await request(app).get("/campaigns/1/candidates");
@@ -465,5 +531,49 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       .get("/campaigns/1/candidates/?start=1&limit=1")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
     expect(response.body).toHaveProperty("total", 3);
+  });
+
+  it("should allow passing a list of questions", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?fields=question_1,question_2")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.status).toBe(200);
+  });
+  it("should return 403 if the questions do not belong to a form linked with the campaign", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?fields=question_3")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.status).toBe(403);
+  });
+  it("should allow passing append the questions to the results if they are queried", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?fields=question_1,question_2")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: users[2].testerId,
+          questions: [
+            { id: 1, title: "Field 1", value: "Value 1" },
+            { id: 2, title: "Field 2", value: "Value 4" },
+          ],
+        }),
+        expect.objectContaining({
+          id: users[3].testerId,
+          questions: [
+            { id: 1, title: "Field 1", value: "Value 2" },
+            { id: 2, title: "Field 2", value: "Value 5" },
+          ],
+        }),
+        expect.objectContaining({
+          id: users[4].testerId,
+          questions: [
+            { id: 1, title: "Field 1", value: "Value 3" },
+            { id: 2, title: "Field 2", value: "Value 6" },
+          ],
+        }),
+      ])
+    );
   });
 });
