@@ -243,20 +243,29 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    tester_id:
-                      type: number
-                    device:
-                      oneOf:
-                        - type: string
-                          enum:
-                            - any
-                        - type: number
-                    campaignId:
-                      type: number
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester_id:
+                          type: number
+                        device:
+                          oneOf:
+                            - type: string
+                              properties: {}
+                              enum:
+                                - any
+                            - type: number
+                              properties: {}
+                        campaignId:
+                          type: number
+                      required:
+                        - tester_id
+                required:
+                  - results
         '207':
           description: Multi-Status (WebDAV)
           content:
@@ -271,29 +280,22 @@ paths:
                       properties:
                         tester_id:
                           type: number
-                        accepted:
-                          type: boolean
-                        status:
-                          type: string
-                          enum:
-                            - ready
-                            - removed
-                            - excluded
-                            - in-progress
-                            - completed
                         device:
                           oneOf:
                             - type: string
-                              properties: {}
                               enum:
                                 - any
                             - type: number
                         campaignId:
                           type: number
+                      required:
+                        - tester_id
                   invalidTesters:
                     type: array
                     items:
                       type: number
+                required:
+                  - results
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

@@ -162,8 +162,8 @@ export default class RouteItem extends AdminRoute<{
       device
     );
     return {
-      tester_id: tester.id,
-      campaignId: candidature.campaign_id,
+      tester_id: tester.id || 0,
+      campaignId: candidature.campaign_id || 0,
       device: candidature.device === 0 ? ("any" as const) : candidature.device,
     };
   }
@@ -193,7 +193,7 @@ export default class RouteItem extends AdminRoute<{
         });
         return;
       }
-      this.setSuccess(200, candidature);
+      this.setSuccess(200, { results: candidature });
     } catch (err) {
       debugMessage(err);
       this.setError(

@@ -142,7 +142,8 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       { tester: 2 },
     ]);
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toEqual([
       {
         tester_id: 1,
         campaignId: 1,
@@ -175,7 +176,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
   it("Should return the candidature on success with device=any", async () => {
     const response = await adminPostCandidate({ tester: 1, device: "random" });
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toEqual([
       {
         tester_id: 1,
         campaignId: 1,
@@ -187,7 +189,8 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
   it("Should return the multi candidature on success with device=any", async () => {
     const response = await adminPostCandidate({ tester: 1, device: "random" });
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toEqual([
       {
         tester_id: 1,
         campaignId: 1,
@@ -239,8 +242,9 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
   it("Should return the candidature with random device from user device", async () => {
     const response = await adminPostCandidate({ tester: 1, device: "random" });
     expect(response.status).toBe(200);
-    expect(response.body.length).toBe(1);
-    expect([1, 2]).toContainEqual(response.body[0].device);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(1);
+    expect([1, 2]).toContainEqual(response.body.results[0].device);
   });
 });
 
@@ -301,8 +305,9 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
   it("Should return the candidature with device set in query param", async () => {
     const response = await adminPostCandidate({ tester: 1, device: 2 });
     expect(response.status).toBe(200);
-    expect(response.body.length).toEqual(1);
-    expect(response.body[0].device).toEqual(2);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toEqual(1);
+    expect(response.body.results[0].device).toEqual(2);
   });
   it("Should return 403 with error if try to candidate with an nonexistent device", async () => {
     const response = await adminPostCandidate({ tester: 1, device: 1000 });
