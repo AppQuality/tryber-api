@@ -9,15 +9,28 @@ import Devices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
 import UserLevel from "@src/features/db/class/UserLevel";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
+import PreselectionForm from "@src/features/db/class/PreselectionForms";
+import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
+import { application } from "express";
 
+class InvalidQuestionError extends Error {}
+
+type Field = { type: "question"; id: number };
 class Selector {
   private applications: CampaignApplicationObject[] | false = false;
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
   private userLevels: { [key: number]: { id: number; name: string } } = {};
+  private userQuestions: {
+    [key: number]: { id: number; title: string; value: string }[];
+  } = {};
   private initialized: boolean = false;
+  private readonly fields: Field[];
 
-  constructor(private readonly campaign: number) {}
+  constructor(private readonly campaign: number, fields?: Field[]) {
+    this.fields = fields || [];
+  }
 
   public async init() {
     if (this.initialized) return;
@@ -31,8 +44,70 @@ class Selector {
     await this.initUserDevices();
     this.applications = this.filterInvalidDevices(this.applications);
     await this.initUserLevels();
+
+    await this.initUserQuestions();
+
     this.initialized = true;
     return this.applications;
+  }
+
+  private async initUserQuestions() {
+    const questionFields = this.fields.filter(
+      (field) => field.type === "question"
+    );
+    if (questionFields.length === 0) return;
+
+    const formFieldsItems = await this.getPreselectionFormFields(
+      questionFields
+    );
+    const formData = new PreselectionFormData();
+    const formDataItems = await formData.query({
+      where: [
+        {
+          field_id: questionFields.map((f) => f.id),
+          tester_id: this.getSelectedTesterIds(),
+        },
+      ],
+    });
+    for (const item of formDataItems) {
+      if (!this.userQuestions[item.tester_id]) {
+        this.userQuestions[item.tester_id] = [];
+      }
+      const formField = formFieldsItems.find((f) => f.id === item.field_id);
+      if (formField) {
+        this.userQuestions[item.tester_id].push({
+          id: item.field_id,
+          title: formField.question,
+          value: item.value,
+        });
+      }
+    }
+  }
+
+  private getSelectedTesterIds() {
+    return Object.values(this.applicationUsers).map((p) => p.id);
+  }
+
+  private async getPreselectionFormFields(questionFields: Field[]) {
+    const formId = await this.getPreselectionFormId();
+    const formFields = new PreselectionFormFields();
+    const formFieldsItems = await formFields.query({
+      where: [{ id: questionFields.map((f) => f.id) }],
+    });
+    if (formFieldsItems.some((f) => f.form_id !== formId)) {
+      throw new InvalidQuestionError();
+    }
+    return formFieldsItems;
+  }
+
+  private async getPreselectionFormId() {
+    const form = new PreselectionForm();
+    const formItems = await form.query({
+      where: [{ campaign_id: this.campaign }],
+      limit: 1,
+    });
+    if (!formItems.length) throw new InvalidQuestionError();
+    return formItems[0].id;
   }
 
   private async initApplicationUsers(
@@ -164,7 +239,12 @@ class Selector {
     const applicationWithDevices = await this.addTesterDeviceTo(
       applicationWithProfiles
     );
-    return applicationWithDevices;
+
+    const applicationWithQuestions = this.addQuestionsTo(
+      applicationWithDevices
+    );
+
+    return applicationWithQuestions;
   }
 
   private addProfileTo(applications: CampaignApplicationObject[]) {
@@ -198,6 +278,20 @@ class Selector {
       });
     }
     return results;
+  }
+
+  private addQuestionsTo(
+    applications: Awaited<ReturnType<typeof this.addTesterDeviceTo>>
+  ) {
+    return applications.map((application) => {
+      if (this.userQuestions.hasOwnProperty(application.id)) {
+        return {
+          ...application,
+          questions: this.userQuestions[application.id],
+        };
+      }
+      return application;
+    });
   }
 
   private async getTesterDevices(application: CampaignApplicationObject) {
@@ -265,3 +359,5 @@ class Selector {
 }
 
 export default Selector;
+export type { Field };
+export { InvalidQuestionError };

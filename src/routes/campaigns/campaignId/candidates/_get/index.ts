@@ -2,7 +2,7 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 import Campaigns from "@src/features/db/class/Campaigns";
-import Selector from "./Selector";
+import Selector, { Field, InvalidQuestionError } from "./Selector";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -17,6 +17,7 @@ export default class RouteItem extends UserRoute<{
   private limit: number;
   private hasLimit: boolean = false;
   private selector: Selector;
+  private fields: Field[] = [];
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -25,7 +26,6 @@ export default class RouteItem extends UserRoute<{
     this.db = {
       campaigns: new Campaigns(),
     };
-    this.selector = new Selector(this.campaign_id);
     const query = this.getQuery();
     this.start = parseInt(query.start as unknown as string) || 0;
     this.limit = 10;
@@ -33,10 +33,33 @@ export default class RouteItem extends UserRoute<{
       this.limit = parseInt(query.limit as unknown as string);
       this.hasLimit = true;
     }
+
+    if (query.fields) {
+      query.fields.split(",").map((field) => {
+        const match = field.match(/^question_(\d+)$/);
+        if (match) {
+          this.fields.push({ type: "question", id: parseInt(match[1]) });
+        }
+      });
+    }
+
+    this.selector = new Selector(
+      this.campaign_id,
+      this.fields.length ? this.fields : undefined
+    );
   }
 
   protected async init(): Promise<void> {
-    await this.selector.init();
+    try {
+      await this.selector.init();
+    } catch (e) {
+      if (e instanceof InvalidQuestionError) {
+        const error = new OpenapiError("Invalid question");
+        this.setError(403, error);
+        throw error;
+      }
+      throw e;
+    }
   }
 
   protected async filter() {
@@ -84,6 +107,8 @@ export default class RouteItem extends UserRoute<{
         experience: application.experience,
         level: this.getLevel(application.id),
         devices: application.devices,
+        questions:
+          "questions" in application ? application.questions : undefined,
       });
     }
 
