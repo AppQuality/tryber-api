@@ -248,6 +248,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       id: 2,
       form_id: 1,
       question: "Field 2",
+      short_name: "ShortField 2",
     });
     await PreselectionForm.insert({ id: 2, campaign_id: 5, name: "Form 2" });
     await PreselectionFormFields.insert({
@@ -556,22 +557,57 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
           id: users[2].testerId,
           questions: [
             { id: 1, title: "Field 1", value: "Value 1" },
-            { id: 2, title: "Field 2", value: "Value 4" },
+            { id: 2, title: "ShortField 2", value: "Value 4" },
           ],
         }),
         expect.objectContaining({
           id: users[3].testerId,
           questions: [
             { id: 1, title: "Field 1", value: "Value 2" },
-            { id: 2, title: "Field 2", value: "Value 5" },
+            { id: 2, title: "ShortField 2", value: "Value 5" },
           ],
         }),
         expect.objectContaining({
           id: users[4].testerId,
           questions: [
             { id: 1, title: "Field 1", value: "Value 3" },
-            { id: 2, title: "Field 2", value: "Value 6" },
+            { id: 2, title: "ShortField 2", value: "Value 6" },
           ],
+        }),
+      ])
+    );
+  });
+  it("should return short_name of questions to the results if questions are queried and is set shortName", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?fields=question_1,question_2")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body.results[0]).toHaveProperty("questions");
+    expect(response.body.results[0].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 2,
+          title: "ShortField 2",
+          value: "Value 4",
+        }),
+      ])
+    );
+    expect(response.body.results[1]).toHaveProperty("questions");
+    expect(response.body.results[1].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 2,
+          title: "ShortField 2",
+          value: "Value 6",
+        }),
+      ])
+    );
+    expect(response.body.results[2]).toHaveProperty("questions");
+    expect(response.body.results[2].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 2,
+          title: "ShortField 2",
+          value: "Value 5",
         }),
       ])
     );
