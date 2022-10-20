@@ -250,6 +250,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       question: "Field 2",
       short_name: "ShortField 2",
     });
+    await PreselectionFormFields.insert({
+      id: 4,
+      form_id: 1,
+      question: "Field 4",
+    });
     await PreselectionForm.insert({ id: 2, campaign_id: 5, name: "Form 2" });
     await PreselectionFormFields.insert({
       id: 3,
@@ -608,6 +613,32 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
           id: 2,
           title: "ShortField 2",
           value: "Value 5",
+        }),
+      ])
+    );
+  });
+
+  it("should answer with a dash if the user is without data for a question", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?fields=question_4")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body.results[0]).toHaveProperty("questions");
+    expect(response.body.results[0].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 4,
+          title: "Field 4",
+          value: "-",
+        }),
+      ])
+    );
+    expect(response.body.results[1]).toHaveProperty("questions");
+    expect(response.body.results[1].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 4,
+          title: "Field 4",
+          value: "-",
         }),
       ])
     );

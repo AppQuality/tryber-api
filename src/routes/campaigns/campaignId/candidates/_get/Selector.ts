@@ -9,10 +9,13 @@ import Devices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
 import UserLevel from "@src/features/db/class/UserLevel";
-import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
+import PreselectionFormData, {
+  PreselectionFormDataObject,
+} from "@src/features/db/class/PreselectionFormData";
 import PreselectionForm from "@src/features/db/class/PreselectionForms";
-import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import { application } from "express";
+import PreselectionFormFields, {
+  PreselectionFormFieldsObject,
+} from "@src/features/db/class/PreselectionFormFields";
 
 class InvalidQuestionError extends Error {}
 
@@ -21,6 +24,7 @@ class Selector {
   private applications: CampaignApplicationObject[] | false = false;
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
+  private formFields: { [key: number]: PreselectionFormFieldsObject } = {};
   private userLevels: { [key: number]: { id: number; name: string } } = {};
   private userQuestions: {
     [key: number]: { id: number; title: string; value: string }[];
@@ -60,6 +64,11 @@ class Selector {
     const formFieldsItems = await this.getPreselectionFormFields(
       questionFields
     );
+    for (const item of formFieldsItems) {
+      if (item.id) {
+        this.formFields[item.id] = item;
+      }
+    }
     const formData = new PreselectionFormData();
     const formDataItems = await formData.query({
       where: [
@@ -69,6 +78,7 @@ class Selector {
         },
       ],
     });
+
     for (const item of formDataItems) {
       if (!this.userQuestions[item.tester_id]) {
         this.userQuestions[item.tester_id] = [];
@@ -284,8 +294,10 @@ class Selector {
 
   private addQuestionsTo(
     applications: Awaited<ReturnType<typeof this.addTesterDeviceTo>>
-  ) {
-    return applications.map((application) => {
+  ): (Awaited<ReturnType<typeof this.addTesterDeviceTo>>[number] & {
+    questions?: { id: number; title: string; value: string }[];
+  })[] {
+    const results = applications.map((application) => {
       if (this.userQuestions.hasOwnProperty(application.id)) {
         return {
           ...application,
@@ -293,6 +305,32 @@ class Selector {
         };
       }
       return application;
+    });
+    return results.map((r) => {
+      if (Object.keys(this.formFields).length) {
+        let questions: typeof this.userQuestions[number] = [];
+        if (r.hasOwnProperty("questions")) {
+          questions = r.questions;
+        }
+
+        for (const field of Object.values(this.formFields)) {
+          const doesFieldAlreadyExist = questions.some(
+            (q) => q.id === field.id
+          );
+          if (!doesFieldAlreadyExist) {
+            questions.push({
+              id: field.id,
+              title: field.short_name ? field.short_name : field.question,
+              value: "-",
+            });
+          }
+        }
+        return {
+          ...r,
+          questions,
+        };
+      }
+      return r;
     });
   }
 
