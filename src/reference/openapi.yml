@@ -1993,14 +1993,14 @@ paths:
           in: query
           name: fields
           description: The fields to add to the results
-        - schema:
-            type: array
+        - schema: {}
           in: query
           name: filterByInclude
-        - schema:
-            type: array
+          description: Key-value Array for item filtering
+        - schema: {}
           in: query
           name: filterByExclude
+          description: Key-value Array for item filtering
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
