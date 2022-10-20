@@ -11,8 +11,9 @@ import Devices, {
 import UserLevel from "@src/features/db/class/UserLevel";
 import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 import PreselectionForm from "@src/features/db/class/PreselectionForms";
-import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import { application } from "express";
+import PreselectionFormFields, {
+  PreselectionFormFieldsObject,
+} from "@src/features/db/class/PreselectionFormFields";
 
 class InvalidQuestionError extends Error {}
 
@@ -21,6 +22,7 @@ class Selector {
   private applications: CampaignApplicationObject[] | false = false;
   private applicationUsers: { [key: number]: ProfileObject } = {};
   private testerDevices: { [key: number]: TesterDeviceObject[] } = {};
+  private formFields: { [key: number]: PreselectionFormFieldsObject } = {};
   private userLevels: { [key: number]: { id: number; name: string } } = {};
   private userQuestions: {
     [key: number]: { id: number; title: string; value: string }[];
@@ -60,6 +62,11 @@ class Selector {
     const formFieldsItems = await this.getPreselectionFormFields(
       questionFields
     );
+    for (const item of formFieldsItems) {
+      if (item.id) {
+        this.formFields[item.id] = item;
+      }
+    }
     const formData = new PreselectionFormData();
     const formDataItems = await formData.query({
       where: [
@@ -69,6 +76,7 @@ class Selector {
         },
       ],
     });
+
     for (const item of formDataItems) {
       if (!this.userQuestions[item.tester_id]) {
         this.userQuestions[item.tester_id] = [];
@@ -82,6 +90,26 @@ class Selector {
             : formField.question,
           value: item.value,
         });
+      }
+    }
+
+    for (const testerId of this.getSelectedTesterIds()) {
+      if (testerId) {
+        if (!this.userQuestions[testerId]) {
+          this.userQuestions[testerId] = [];
+        }
+        const missingData = Object.values(this.formFields).filter(
+          (f) =>
+            this.userQuestions[testerId].find((q) => q.id === f.id) ===
+            undefined
+        );
+        for (const missing of missingData) {
+          this.userQuestions[testerId].push({
+            id: missing.id,
+            title: missing.short_name ? missing.short_name : missing.question,
+            value: "-",
+          });
+        }
       }
     }
   }
@@ -284,8 +312,10 @@ class Selector {
 
   private addQuestionsTo(
     applications: Awaited<ReturnType<typeof this.addTesterDeviceTo>>
-  ) {
-    return applications.map((application) => {
+  ): (Awaited<ReturnType<typeof this.addTesterDeviceTo>>[number] & {
+    questions?: { id: number; title: string; value: string }[];
+  })[] {
+    const results = applications.map((application) => {
       if (this.userQuestions.hasOwnProperty(application.id)) {
         return {
           ...application,
@@ -293,6 +323,27 @@ class Selector {
         };
       }
       return application;
+    });
+    return results.map((r) => {
+      let questions: typeof this.userQuestions[number] = [];
+      if (r.hasOwnProperty("questions")) {
+        questions = r.questions;
+      }
+      let questionById: { id: number; title: string; value: string }[] = [];
+      for (const field of Object.values(this.formFields)) {
+        const questionsForId = questions.filter((q) => q.id === field.id);
+        if (questionsForId.length) {
+          questionById.push({
+            id: questionsForId[0].id,
+            title: questionsForId[0].title,
+            value: questionsForId.map((q) => q.value).join(", "),
+          });
+        }
+      }
+      return {
+        ...r,
+        questions: questionById,
+      };
     });
   }
 

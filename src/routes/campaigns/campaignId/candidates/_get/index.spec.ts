@@ -250,6 +250,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       question: "Field 2",
       short_name: "ShortField 2",
     });
+    await PreselectionFormFields.insert({
+      id: 4,
+      form_id: 1,
+      question: "Field 4",
+    });
     await PreselectionForm.insert({ id: 2, campaign_id: 5, name: "Form 2" });
     await PreselectionFormFields.insert({
       id: 3,
@@ -298,6 +303,13 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       tester_id: users[4].testerId,
       field_id: 3,
       value: "Value Invalid",
+    });
+
+    await preselectionFormData.insert({
+      id: 8,
+      tester_id: users[2].testerId,
+      field_id: 1,
+      value: "Value 8",
     });
   });
   afterAll(async () => {
@@ -556,7 +568,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         expect.objectContaining({
           id: users[2].testerId,
           questions: [
-            { id: 1, title: "Field 1", value: "Value 1" },
+            { id: 1, title: "Field 1", value: "Value 1, Value 8" },
             { id: 2, title: "ShortField 2", value: "Value 4" },
           ],
         }),
@@ -608,6 +620,32 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
           id: 2,
           title: "ShortField 2",
           value: "Value 5",
+        }),
+      ])
+    );
+  });
+
+  it("should answer with a dash if the user is without data for a question", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?fields=question_4")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body.results[0]).toHaveProperty("questions");
+    expect(response.body.results[0].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 4,
+          title: "Field 4",
+          value: "-",
+        }),
+      ])
+    );
+    expect(response.body.results[1]).toHaveProperty("questions");
+    expect(response.body.results[1].questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 4,
+          title: "Field 4",
+          value: "-",
         }),
       ])
     );
