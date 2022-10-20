@@ -92,6 +92,26 @@ class Selector {
         });
       }
     }
+
+    for (const testerId of this.getSelectedTesterIds()) {
+      if (testerId) {
+        if (!this.userQuestions[testerId]) {
+          this.userQuestions[testerId] = [];
+        }
+        const missingData = Object.values(this.formFields).filter(
+          (f) =>
+            this.userQuestions[testerId].find((q) => q.id === f.id) ===
+            undefined
+        );
+        for (const missing of missingData) {
+          this.userQuestions[testerId].push({
+            id: missing.id,
+            title: missing.short_name ? missing.short_name : missing.question,
+            value: "-",
+          });
+        }
+      }
+    }
   }
 
   private getSelectedTesterIds() {
@@ -305,41 +325,25 @@ class Selector {
       return application;
     });
     return results.map((r) => {
-      if (Object.keys(this.formFields).length) {
-        let questions: typeof this.userQuestions[number] = [];
-        if (r.hasOwnProperty("questions")) {
-          questions = r.questions;
-        }
-
-        for (const field of Object.values(this.formFields)) {
-          const doesFieldAlreadyExist = questions.some(
-            (q) => q.id === field.id
-          );
-          if (!doesFieldAlreadyExist) {
-            questions.push({
-              id: field.id,
-              title: field.short_name ? field.short_name : field.question,
-              value: "-",
-            });
-          }
-        }
-        let questionById: { id: number; title: string; value: string }[] = [];
-        for (const field of Object.values(this.formFields)) {
-          const questionsForId = questions.filter((q) => q.id === field.id);
-          if (questionsForId.length) {
-            questionById.push({
-              id: questionsForId[0].id,
-              title: questionsForId[0].title,
-              value: questionsForId.map((q) => q.value).join(", "),
-            });
-          }
-        }
-        return {
-          ...r,
-          questions: questionById,
-        };
+      let questions: typeof this.userQuestions[number] = [];
+      if (r.hasOwnProperty("questions")) {
+        questions = r.questions;
       }
-      return r;
+      let questionById: { id: number; title: string; value: string }[] = [];
+      for (const field of Object.values(this.formFields)) {
+        const questionsForId = questions.filter((q) => q.id === field.id);
+        if (questionsForId.length) {
+          questionById.push({
+            id: questionsForId[0].id,
+            title: questionsForId[0].title,
+            value: questionsForId.map((q) => q.value).join(", "),
+          });
+        }
+      }
+      return {
+        ...r,
+        questions: questionById,
+      };
     });
   }
 
