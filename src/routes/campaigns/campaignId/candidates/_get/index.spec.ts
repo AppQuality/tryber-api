@@ -304,6 +304,13 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       field_id: 3,
       value: "Value Invalid",
     });
+
+    await preselectionFormData.insert({
+      id: 8,
+      tester_id: users[2].testerId,
+      field_id: 1,
+      value: "Value 8",
+    });
   });
   afterAll(async () => {
     await Campaigns.clear();
@@ -561,7 +568,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         expect.objectContaining({
           id: users[2].testerId,
           questions: [
-            { id: 1, title: "Field 1", value: "Value 1" },
+            { id: 1, title: "Field 1", value: "Value 1, Value 8" },
             { id: 2, title: "ShortField 2", value: "Value 4" },
           ],
         }),

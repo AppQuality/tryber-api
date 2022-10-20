@@ -9,9 +9,7 @@ import Devices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
 import UserLevel from "@src/features/db/class/UserLevel";
-import PreselectionFormData, {
-  PreselectionFormDataObject,
-} from "@src/features/db/class/PreselectionFormData";
+import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
 import PreselectionForm from "@src/features/db/class/PreselectionForms";
 import PreselectionFormFields, {
   PreselectionFormFieldsObject,
@@ -325,9 +323,20 @@ class Selector {
             });
           }
         }
+        let questionById: { id: number; title: string; value: string }[] = [];
+        for (const field of Object.values(this.formFields)) {
+          const questionsForId = questions.filter((q) => q.id === field.id);
+          if (questionsForId.length) {
+            questionById.push({
+              id: questionsForId[0].id,
+              title: questionsForId[0].title,
+              value: questionsForId.map((q) => q.value).join(", "),
+            });
+          }
+        }
         return {
           ...r,
-          questions,
+          questions: questionById,
         };
       }
       return r;
