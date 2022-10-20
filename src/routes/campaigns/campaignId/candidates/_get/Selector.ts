@@ -77,7 +77,9 @@ class Selector {
       if (formField) {
         this.userQuestions[item.tester_id].push({
           id: item.field_id,
-          title: formField.question,
+          title: formField.short_name
+            ? formField.short_name
+            : formField.question,
           value: item.value,
         });
       }
