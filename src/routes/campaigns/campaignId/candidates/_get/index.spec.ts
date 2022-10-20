@@ -650,4 +650,22 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       ])
     );
   });
+
+  it("Should filter by os excluding values", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?filterByExclude[os]=os")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[4].testerId,
+        devices: [{ id: 4, os: "Windows", osVersion: "XP" }],
+      }),
+      expect.objectContaining({
+        id: users[3].testerId,
+        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
+      }),
+    ]);
+  });
 });
