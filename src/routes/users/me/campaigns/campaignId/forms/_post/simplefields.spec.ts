@@ -5,6 +5,7 @@ import testerDevice from "@src/__mocks__/mockedDb/testerDevice";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
+import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
 
 describe("POST users/me/campaigns/:campaignId/forms - simple fields", () => {
   beforeEach(() => {
@@ -51,6 +52,7 @@ describe("POST users/me/campaigns/:campaignId/forms - simple fields", () => {
     preselectionFormData.clear();
     preselectionFormFields.clear();
     preselectionForm.clear();
+    campaignApplications.clear();
   });
 
   it("Should save in form data table a simple text field", async () => {
