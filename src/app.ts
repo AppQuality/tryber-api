@@ -1,13 +1,13 @@
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
-import upload from "express-fileupload";
 import OpenAPIBackend, { Options, Request } from "openapi-backend";
 import config from "./config";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
 import routes from "./routes";
 import busboy from "connect-busboy";
+import morgan from "morgan";
 
 const opts: Options = {
   definition: __dirname + "/reference/openapi.yml",
@@ -53,6 +53,22 @@ app.use(
 app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
 });
+
+app.use(
+  morgan(function (tokens, req, res) {
+    const request = req as Request & { user?: { testerId: number } };
+    return [
+      request.user ? `T${request.user.testerId}` : "anonymous",
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, "content-length"),
+      "-",
+      tokens["response-time"](req, res),
+      "ms",
+    ].join(" ");
+  })
+);
 
 app.use((req, res) => {
   if (req.rawHeaders.includes("x-tryber-mock-example")) {
