@@ -62,6 +62,10 @@ class RouteItem extends UserRoute<{
       this.setError(403, new Error("Campaign not found") as OpenapiError);
       return false;
     }
+    if ((await this.testerAlreadyApplied()) === true) {
+      this.setError(403, new Error("Tester already applied") as OpenapiError);
+      return false;
+    }
     if (this.deviceId === false) {
       this.setError(406, new Error("Campaign not found") as OpenapiError);
       return false;
@@ -88,6 +92,16 @@ class RouteItem extends UserRoute<{
 
   private async testerCanApply() {
     return (await this.getCampaign()).testerHasAccess(this.getTesterId());
+  }
+
+  private async testerAlreadyApplied() {
+    const testerApplicationsCurrentCampaign = await this.db.applications.query({
+      where: [
+        { campaign_id: this.campaignId },
+        { user_id: this.getWordpressId() },
+      ],
+    });
+    return testerApplicationsCurrentCampaign.length === 1;
   }
 
   private async isDeviceAcceptable() {

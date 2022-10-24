@@ -110,6 +110,17 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
+  it("Should return 403 if tester already applied", async () => {
+    await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({ device: [1] })
+      .set("Authorization", "Bearer tester");
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({ device: [1] })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
   it("Should return 200 if campaign is public", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/forms")
