@@ -1,5 +1,5 @@
 import app from "@src/app";
-import { data as expData } from "@src/__mocks__/mockedDb/experience";
+import Experience from "@src/__mocks__/mockedDb/experience";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
@@ -67,9 +67,9 @@ describe("Route GET users-me-rank", () => {
       UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
       UserLevels.insert({ id: 2, tester_id: 2 });
       UserLevels.insert({ id: 3, tester_id: 3 });
-      expData.basicExperience({ amount: 99 });
-      expData.basicExperience({ id: 2, tester_id: 2, amount: 69 });
-      expData.basicExperience({ id: 3, tester_id: 3, amount: 169 });
+      Experience.insert({ amount: 99 });
+      Experience.insert({ id: 2, tester_id: 2, amount: 69 });
+      Experience.insert({ id: 3, tester_id: 3, amount: 169 });
       levelRevData.basicLevelRev({
         level_id: 20,
         start_date: firstDayOfLastMonth()
@@ -85,7 +85,7 @@ describe("Route GET users-me-rank", () => {
       Profile.clear();
       Levels.clear();
       UserLevels.clear();
-      expData.drop();
+      Experience.clear();
       levelRevData.drop();
       resolve(null);
     });
@@ -150,7 +150,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
       Profile.insert();
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 20 });
-      expData.basicExperience({ amount: 20 });
+      Experience.insert({ amount: 20 });
       resolve(null);
     });
   });
@@ -159,7 +159,7 @@ describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
       Profile.clear();
       Levels.clear();
       UserLevels.clear();
-      expData.drop();
+      Experience.clear();
       levelRevData.drop();
       resolve(null);
     });
@@ -190,7 +190,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       Profile.insert();
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 30 });
-      expData.basicExperience({ amount: 50 });
+      Experience.insert({ amount: 50 });
       resolve(null);
     });
   });
@@ -199,7 +199,7 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       Profile.clear();
       Levels.clear();
       UserLevels.clear();
-      expData.drop();
+      Experience.clear();
       levelRevData.drop();
       resolve(null);
     });
@@ -223,7 +223,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
       Profile.insert();
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 10 });
-      expData.basicExperience({ amount: 300 });
+      Experience.insert({ amount: 300 });
       resolve(null);
     });
   });
@@ -232,7 +232,7 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
       Profile.clear();
       Levels.clear();
       UserLevels.clear();
-      expData.drop();
+      Experience.clear();
       levelRevData.drop();
       resolve(null);
     });
@@ -417,7 +417,7 @@ describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
       });
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 60 });
-      expData.basicExperience({ amount: 2500 });
+      Experience.insert({ amount: 2500 });
       resolve(null);
     });
   });

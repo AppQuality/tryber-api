@@ -29,6 +29,7 @@ import DevicePlatform from "./mockedDb/devicePlatform";
 import TesterDevice from "./mockedDb/testerDevice";
 import WpUsers from "./mockedDb/wp_users";
 import UserLevel from "./mockedDb/levels";
+import Experience from "./mockedDb/experience";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as bugTable } from "./mockedDb/bug";
@@ -36,7 +37,6 @@ import { table as bugStatus } from "./mockedDb/bugStatus";
 import { table as certificationListTable } from "./mockedDb/certificationList";
 import { table as educationListTable } from "./mockedDb/educationList";
 import { table as employmentListTable } from "./mockedDb/employmentList";
-import { table as expTable } from "./mockedDb/experience";
 import { table as fiscalProfileTable } from "./mockedDb/fiscalProfile";
 import { table as languageListTable } from "./mockedDb/languageList";
 import { table as levelRevTable } from "./mockedDb/levelsRevisions";
@@ -61,7 +61,7 @@ beforeAll(async () => {
   await wpUserMetaTable.create();
   await deletionReasonTable.create();
   await fiscalProfileTable.create();
-  await expTable.create();
+  await Experience.mock();
   await Campaigns.mock();
   await Candidature.mock();
   await Levels.mock();
