@@ -175,16 +175,17 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
       { campaign_id: 1 },
     ]);
     expect(expAttribution.length).toBe(1);
-    expect(expAttribution[0]).toHaveProperty("amount", 5);
-    console.log(expAttribution[0]);
-    expect(expAttribution[0]).toMatchObject({
-      id: 1,
-      tester_id: 1,
-      campaign_id: 1,
-      amount: 5,
-      activity_id: 4,
-      reason: "Subscription to Test Campaign",
-      version_id: -1, //WP compatibility fix
-    });
+    expect(expAttribution).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          tester_id: 1,
+          campaign_id: 1,
+          amount: 5,
+          activity_id: 4,
+          reason: "Subscription to Test Campaign",
+        }),
+      ])
+    );
   });
 });
