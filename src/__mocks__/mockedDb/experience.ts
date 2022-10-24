@@ -9,6 +9,7 @@ type ExperienceParams = {
   activity_id?: number;
   reason?: string;
   campaign_id?: number;
+  version_id?: number;
 };
 const defaultItem: ExperienceParams = {
   id: 1,
@@ -18,6 +19,7 @@ const defaultItem: ExperienceParams = {
   activity_id: 0,
   reason: "Experience attribution Reason",
   campaign_id: 1,
+  version_id: -1,
 };
 
 class Experience extends Table<ExperienceParams> {
@@ -30,6 +32,7 @@ class Experience extends Table<ExperienceParams> {
     "activity_id INTEGER",
     "reason VARCHAR(255)",
     "campaign_id INTEGER",
+    "version_id INTEGER", //WP compatibility fix
   ];
   constructor() {
     super(defaultItem);
