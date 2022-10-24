@@ -3,6 +3,7 @@ import CustomUserFieldDatas from "@src/features/db/class/CustomUserFieldData";
 import { CustomUserFieldExtrasObject } from "@src/features/db/class/CustomUserFieldExtras";
 import { CustomUserFieldObject } from "@src/features/db/class/CustomUserFields";
 import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
+import * as db from "@src/features/db";
 
 class CufMultiselectQuestion extends Question<{
   type: `cuf_${number}`;
@@ -138,14 +139,17 @@ class CufMultiselectQuestion extends Question<{
   }
 
   private async removeAllValidOptions() {
-    const customUserFieldData = new CustomUserFieldDatas();
-    for (const validOption of this.options) {
-      await customUserFieldData.delete([
-        { custom_user_field_id: this.customUserField.id },
-        { profile_id: this.testerId },
-        { value: validOption },
-      ]);
-    }
+    const options = this.options.filter((o) => o > 0);
+    await db.query(
+      db.format(
+        `DELETE FROM wp_appq_custom_user_field_data 
+    WHERE 
+      custom_user_field_id = ? 
+      AND profile_id = ?
+      AND value IN (${options.join(",")})`,
+        [this.customUserField.id, this.testerId]
+      )
+    );
   }
 }
 
