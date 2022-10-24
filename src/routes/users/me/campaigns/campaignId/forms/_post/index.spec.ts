@@ -10,6 +10,7 @@ import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import customUserFieldsExtra from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
 import profile from "@src/__mocks__/mockedDb/profile";
+import Experience from "@src/__mocks__/mockedDb/experience";
 
 describe("POST users/me/campaigns/:campaignId/forms", () => {
   beforeEach(() => {
@@ -82,6 +83,7 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
     customUserFields.clear();
     customUserFieldsExtra.clear();
     campaignApplications.clear();
+    Experience.clear();
   });
   it("Should return 403 if user is not authenticated", async () => {
     const response = await request(app)
@@ -106,6 +108,17 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
   it("Should return 403 if tester cannot apply", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/3/forms")
+      .send({ device: [1] })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
+  it("Should return 403 if tester already applied", async () => {
+    await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({ device: [1] })
+      .set("Authorization", "Bearer tester");
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
       .send({ device: [1] })
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
@@ -150,5 +163,29 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
     expect(applications[0].user_id).toBe(1);
     expect(applications[0].devices).toBe("1,3");
     expect(applications[0].accepted).toBe(0);
+  });
+  it("Should add 5 exp points to user on candidature", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({ device: [1, 3] })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const expAttribution = await Experience.all(undefined, [
+      { tester_id: 1 },
+      { campaign_id: 1 },
+    ]);
+    expect(expAttribution.length).toBe(1);
+    expect(expAttribution).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          tester_id: 1,
+          campaign_id: 1,
+          amount: 5,
+          activity_id: 4,
+          reason: "Subscription to Test Campaign",
+        }),
+      ])
+    );
   });
 });

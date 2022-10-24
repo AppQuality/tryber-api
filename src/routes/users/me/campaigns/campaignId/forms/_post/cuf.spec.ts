@@ -8,6 +8,7 @@ import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import customUserFieldsExtra from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
+import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
 
 describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
   beforeEach(() => {
@@ -96,6 +97,7 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
     preselectionForm.clear();
     customUserFields.clear();
     customUserFieldsExtra.clear();
+    campaignApplications.clear();
   });
 
   it("Should save in form data table a cuf text field", async () => {

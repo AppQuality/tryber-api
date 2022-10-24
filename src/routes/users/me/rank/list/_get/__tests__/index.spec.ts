@@ -1,5 +1,5 @@
 import app from "@src/app";
-import { data as expData } from "@src/__mocks__/mockedDb/experience";
+import Experience from "@src/__mocks__/mockedDb/experience";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
@@ -70,7 +70,7 @@ describe("GET /users/me/rank/list", () => {
     return null;
   });
   afterAll(async () => {
-    await expData.drop();
+    await Experience.clear();
     await Profile.clear();
     await UserLevels.clear();
     return null;

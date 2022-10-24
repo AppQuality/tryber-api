@@ -6,6 +6,7 @@ import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import profile from "@src/__mocks__/mockedDb/profile";
+import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
 
 describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
   beforeEach(() => {
@@ -58,6 +59,7 @@ describe("POST users/me/campaigns/:campaignId/forms - profile fields", () => {
     preselectionFormFields.clear();
     preselectionForm.clear();
     profile.clear();
+    campaignApplications.clear();
   });
 
   it("Should save in form data table a gender field", async () => {

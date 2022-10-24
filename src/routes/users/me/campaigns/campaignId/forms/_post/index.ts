@@ -1,6 +1,7 @@
 import { CampaignObject } from "@src/features/db/class/Campaigns";
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
+import Experience from "@src/features/db/class/Experience";
 import TesterDevices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
@@ -31,6 +32,7 @@ class RouteItem extends UserRoute<{
     fields: PreseselectionFormFields;
     data: PreseselectionFormData;
     applications: CampaignApplications;
+    experience: Experience;
   };
 
   constructor(options: RouteItem["configuration"]) {
@@ -44,6 +46,7 @@ class RouteItem extends UserRoute<{
       fields: new PreseselectionFormFields(),
       data: new PreseselectionFormData(),
       applications: new CampaignApplications(),
+      experience: new Experience(),
     };
     this.deviceId = body.device || false;
     this.form = body.form || [];
@@ -60,6 +63,10 @@ class RouteItem extends UserRoute<{
     }
     if ((await this.testerCanApply()) === false) {
       this.setError(403, new Error("Campaign not found") as OpenapiError);
+      return false;
+    }
+    if ((await this.testerAlreadyApplied()) === true) {
+      this.setError(403, new Error("Tester already applied") as OpenapiError);
       return false;
     }
     if (this.deviceId === false) {
@@ -88,6 +95,16 @@ class RouteItem extends UserRoute<{
 
   private async testerCanApply() {
     return (await this.getCampaign()).testerHasAccess(this.getTesterId());
+  }
+
+  private async testerAlreadyApplied() {
+    const testerApplicationsCurrentCampaign = await this.db.applications.query({
+      where: [
+        { campaign_id: this.campaignId },
+        { user_id: this.getWordpressId() },
+      ],
+    });
+    return testerApplicationsCurrentCampaign.length === 1;
   }
 
   private async isDeviceAcceptable() {
@@ -126,6 +143,7 @@ class RouteItem extends UserRoute<{
     try {
       await this.handleForm();
       await this.applyToCampaign();
+      await this.addExperiencePoints();
     } catch (e) {
       this.setError(403, e as OpenapiError);
       return;
@@ -139,6 +157,18 @@ class RouteItem extends UserRoute<{
       user_id: this.getWordpressId(),
       devices: this.deviceId.toString(),
       accepted: 0,
+    });
+  }
+
+  private async addExperiencePoints() {
+    await this.db.experience.insert({
+      tester_id: this.getTesterId(),
+      campaign_id: this.campaignId,
+      amount: 5,
+      reason: "Subscription to " + (await this.getCampaign()).title,
+      creation_date: new Date().toISOString().split(".")[0].replace("T", " "),
+      activity_id: 4,
+      version_id: -1, //WP compatibility fix
     });
   }
 
