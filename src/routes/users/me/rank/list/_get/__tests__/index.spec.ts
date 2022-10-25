@@ -1,6 +1,6 @@
 import app from "@src/app";
-import { data as expData } from "@src/__mocks__/mockedDb/experience";
-import { data as levelData } from "@src/__mocks__/mockedDb/levels";
+import Experience from "@src/__mocks__/mockedDb/experience";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
 import createTesterBasicData from "./createTesterData";
@@ -70,9 +70,9 @@ describe("GET /users/me/rank/list", () => {
     return null;
   });
   afterAll(async () => {
-    await expData.drop();
+    await Experience.clear();
     await Profile.clear();
-    await levelData.drop();
+    await UserLevels.clear();
     return null;
   });
   it("Should answer 403 if not logged in", async () => {

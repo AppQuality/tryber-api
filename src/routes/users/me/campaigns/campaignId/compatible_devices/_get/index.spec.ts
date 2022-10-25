@@ -7,6 +7,7 @@ import app from "@src/app";
 import request from "supertest";
 
 const yesterday = new Date().setDate(new Date().getDate() - 1);
+const tenMinuteFromNow = new Date(new Date().getTime() + 10 * 60000);
 const campaign2 = {
   id: 2,
   title: "Campaign with the unavailable candidature",
@@ -17,7 +18,10 @@ const campaign2 = {
 const campaign3 = {
   id: 3,
   title: "This is the Campaign title",
-  start_date: new Date().toISOString().split(".")[0].replace("T", " "),
+  start_date: new Date(tenMinuteFromNow)
+    .toISOString()
+    .split(".")[0]
+    .replace("T", " "),
   page_preview_id: 3,
   is_public: 3 as 3,
 };
@@ -27,7 +31,10 @@ describe("GET /users/me/campaigns/CP_ID/compatible_devices", () => {
     await Campaigns.insert({
       id: 1,
       title: "This is the Campaign title",
-      start_date: new Date().toISOString().split(".")[0].replace("T", " "),
+      start_date: new Date(tenMinuteFromNow)
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " "),
       page_preview_id: 1,
       is_public: 1 as 1,
       os: "1,2",
@@ -174,7 +181,10 @@ describe("GET /users/me/campaigns/CP_ID/compatible_devices - user has not compat
     await Campaigns.insert({
       id: 1,
       title: "This is the Campaign title",
-      start_date: new Date().toISOString().split(".")[0].replace("T", " "),
+      start_date: new Date(tenMinuteFromNow)
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " "),
       page_preview_id: 1,
       is_public: 1 as 1,
       os: "1,2",

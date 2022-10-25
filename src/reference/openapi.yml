@@ -245,29 +245,57 @@ paths:
               schema:
                 type: object
                 properties:
-                  tester_id:
-                    type: number
-                  accepted:
-                    type: boolean
-                  status:
-                    type: string
-                    enum:
-                      - ready
-                      - in-progress
-                      - completed
-                      - excluded
-                      - removed
-                  device:
-                    oneOf:
-                      - type: string
-                        enum:
-                          - any
-                      - $ref: '#/components/schemas/UserDevice'
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester_id:
+                          type: number
+                        device:
+                          oneOf:
+                            - type: string
+                              properties: {}
+                              enum:
+                                - any
+                            - type: number
+                              properties: {}
+                        campaignId:
+                          type: number
+                      required:
+                        - tester_id
                 required:
-                  - tester_id
-                  - accepted
-                  - status
-                  - device
+                  - results
+        '207':
+          description: Multi-Status (WebDAV)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester_id:
+                          type: number
+                        device:
+                          oneOf:
+                            - type: string
+                              enum:
+                                - any
+                            - type: number
+                        campaignId:
+                          type: number
+                      required:
+                        - tester_id
+                  invalidTesters:
+                    type: array
+                    items:
+                      type: number
+                required:
+                  - results
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -279,17 +307,1692 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tester_id:
-                  type: number
-              required:
-                - tester_id
+              oneOf:
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      tester_id:
+                        type: number
+                      device:
+                        oneOf:
+                          - type: number
+                            properties: {}
+                          - type: string
+                            properties: {}
+                            enum:
+                              - random
+                    required:
+                      - tester_id
+                - type: object
+                  properties:
+                    tester_id:
+                      type: number
+                    device:
+                      oneOf:
+                        - type: number
+                          properties: {}
+                        - type: string
+                          properties: {}
+                          enum:
+                            - random
+                  required:
+                    - tester_id
+      parameters: []
+    get:
+      summary: Get all candidates for a campaign
+      operationId: get-campaigns-campaign-candidates
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                            experience:
+                              type: integer
+                            level:
+                              type: string
+                            devices:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  manufacturer:
+                                    type: string
+                                  model:
+                                    type: string
+                                  os:
+                                    type: string
+                                  osVersion:
+                                    type: string
+                                  id:
+                                    type: number
+                                required:
+                                  - os
+                                  - osVersion
+                                  - id
+                            questions:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  title:
+                                    type: string
+                                  value:
+                                    type: string
+                          required:
+                            - id
+                            - name
+                            - surname
+                            - experience
+                            - level
+                            - devices
+                  - $ref: '#/components/schemas/PaginationData'
+              examples:
+                example-2:
+                  value:
+                    results:
+                      - id: 34463
+                        name: Sara
+                        surname: Galasso
+                        experience: 21541
+                        level: Diamond
+                        devices:
+                          - id: 0
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Samsung
+                            model: Galaxy M31
+                            id: 1
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Apple
+                            model: iPad
+                            id: 2
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                          - manufacturer: Apple
+                            model: iPhone SE (2020)
+                            id: 3
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                          - id: 4
+                            os: Windows
+                            osVersion: Windows 11
+                          - manufacturer: Google
+                            model: Pixel 6
+                            id: 5
+                            os: Android
+                            osVersion: 13(beta) (13(beta))
+                      - id: 57742
+                        name: Alessandra
+                        surname: Casole
+                        experience: 4390
+                        level: Platinum
+                        devices:
+                          - id: 6
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Xiaomi
+                            model: Redmi 8
+                            id: 7
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 25325
+                        name: Paolo
+                        surname: Cattelan
+                        experience: 33745
+                        level: Diamond
+                        devices:
+                          - manufacturer: Huawei
+                            model: Mate 20 Pro
+                            id: 8
+                            os: Android
+                            osVersion: 10 (10.0)
+                      - id: 6631
+                        name: Margherita
+                        surname: Colamartino
+                        experience: 28310
+                        level: Platinum
+                        devices:
+                          - id: 9
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
+                          - manufacturer: Xiaomi
+                            model: Mi 11 Lite
+                            id: 10
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 58300
+                        name: Chiara
+                        surname: Risaliti
+                        experience: 3035
+                        level: Platinum
+                        devices:
+                          - id: 11
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy S20 FE
+                            id: 12
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 8972
+                        name: Giuseppe
+                        surname: Brandonisio
+                        experience: 38619
+                        level: Diamond
+                        devices:
+                          - manufacturer: Apple
+                            model: iPad Pro 12.9
+                            id: 13
+                            os: iOS
+                            osVersion: iOS 15.7 (15.7)
+                          - manufacturer: Samsung
+                            model: Galaxy A20e
+                            id: 14
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 51930
+                        name: Laura
+                        surname: Manca
+                        experience: 7672
+                        level: Platinum
+                        devices:
+                          - id: 15
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Asus
+                            model: ZenFone 5 (ZE620KL)
+                            id: 16
+                            os: Android
+                            osVersion: Pie (9.0)
+                      - id: 58342
+                        name: Marco
+                        surname: Trevisani
+                        experience: 2081
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 14 Pro Max
+                            id: 17
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
+                      - id: 50359
+                        name: Pietro
+                        surname: Petrone
+                        experience: 8577
+                        level: Platinum
+                        devices:
+                          - manufacturer: Xiaomi
+                            model: Mi 10T
+                            id: 18
+                            os: Android
+                            osVersion: 11 (11)
+                          - id: 19
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
+                          - manufacturer: Apple
+                            model: iPad
+                            id: 20
+                            os: iOS
+                            osVersion: iOS 12.4.9 (12.4.9)
+                      - id: 29987
+                        name: Dario
+                        surname: Bonfanti
+                        experience: 16471
+                        level: Diamond
+                        devices:
+                          - id: 21
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Honor
+                            model: 20 Lite
+                            id: 22
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Huawei
+                            model: P smart S
+                            id: 23
+                            os: Android
+                            osVersion: 10 (10.0)
+                      - id: 48050
+                        name: giovanni
+                        surname: velo
+                        experience: 7703
+                        level: Platinum
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy A52s
+                            id: 24
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 51822
+                        name: Carolina
+                        surname: Signorelli
+                        experience: 14671
+                        level: Diamond
+                        devices:
+                          - id: 25
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.0)
+                          - manufacturer: Apple
+                            model: iPad 6 (2018)
+                            id: 26
+                            os: iOS
+                            osVersion: iOS 15.7 (15.7)
+                      - id: 31668
+                        name: Valentina
+                        surname: Catania
+                        experience: 6927
+                        level: Platinum
+                        devices:
+                          - manufacturer: Huawei
+                            model: P30 Lite
+                            id: 27
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - id: 28
+                            os: Windows
+                            osVersion: Windows 8.1 (8.1)
+                      - id: 48780
+                        name: Filippo
+                        surname: Fiori
+                        experience: 6240
+                        level: Platinum
+                        devices:
+                          - id: 29
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 28029
+                        name: Vincenzo
+                        surname: Anginoni
+                        experience: 9551
+                        level: Platinum
+                        devices:
+                          - manufacturer: OPPO
+                            model: Reno4 Pro
+                            id: 30
+                            os: Android
+                            osVersion: 11 (11)
+                          - id: 31
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                      - id: 24494
+                        name: Fabrizio
+                        surname: Familiari
+                        experience: 6900
+                        level: Platinum
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy S8
+                            id: 32
+                            os: Android
+                            osVersion: Pie (9.0)
+                          - manufacturer: Samsung
+                            model: Galaxy Tab S6
+                            id: 33
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - id: 34
+                            os: Windows
+                            osVersion: Windows 10 November 2019 Update (18363.778)
+                          - manufacturer: Samsung
+                            model: Galaxy S20 FE
+                            id: 35
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 18179
+                        name: Stefano
+                        surname: Lombardo
+                        experience: 4657
+                        level: Gold
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone X
+                            id: 36
+                            os: iOS
+                            osVersion: iOS 15.0.2 (15.0.2)
+                      - id: 25155
+                        name: Maurizio
+                        surname: Tortora
+                        experience: 24180
+                        level: Diamond
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy A52s
+                            id: 37
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 12563
+                        name: Andrea
+                        surname: Zanin
+                        experience: 32403
+                        level: Diamond
+                        devices:
+                          - id: 38
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - id: 39
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 55996
+                        name: Massimiliano
+                        surname: Maraglino
+                        experience: 7715
+                        level: Platinum
+                        devices:
+                          - manufacturer: Xiaomi
+                            model: Mi 9T
+                            id: 40
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Xiaomi
+                            model: Mi 9T
+                            id: 41
+                            os: Android
+                            osVersion: 10 (10.0)
+                      - id: 32691
+                        name: Luigi William
+                        surname: Mercuri
+                        experience: 3083
+                        level: Platinum
+                        devices:
+                          - id: 42
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                      - id: 15458
+                        name: Daniela
+                        surname: Ciccone
+                        experience: 20757
+                        level: Diamond
+                        devices:
+                          - id: 43
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Google
+                            model: Pixel 6
+                            id: 44
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 53536
+                        name: Daniele
+                        surname: Settembre
+                        experience: 5994
+                        level: Platinum
+                        devices:
+                          - id: 45
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 15201
+                        name: Sara
+                        surname: Schiavone
+                        experience: 4033
+                        level: Silver
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 11
+                            id: 46
+                            os: iOS
+                            osVersion: iOS 14.3 (14.3)
+                          - id: 47
+                            os: Windows
+                            osVersion: Windows 10 November 2019 Update (18363.778)
+                      - id: 50280
+                        name: Giovanni
+                        surname: Silvestri
+                        experience: 5794
+                        level: Platinum
+                        devices:
+                          - id: 48
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy A70
+                            id: 49
+                            os: Android
+                            osVersion: 11 (11)
+                          - id: 50
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 47426
+                        name: Nicola
+                        surname: Caragiulo
+                        experience: 6215
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 12 Pro Max
+                            id: 51
+                            os: iOS
+                            osVersion: iOS 15.0.2 (15.0.2)
+                      - id: 40658
+                        name: Mattia
+                        surname: Vigna
+                        experience: 19669
+                        level: Diamond
+                        devices:
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 7
+                            id: 52
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - id: 53
+                            os: Windows
+                            osVersion: Windows 11
+                          - manufacturer: realme
+                            model: GT 5G
+                            id: 54
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 43331
+                        name: Luca
+                        surname: Barban
+                        experience: 14727
+                        level: Diamond
+                        devices:
+                          - manufacturer: LG
+                            model: G8 ThinQ
+                            id: 55
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 15682
+                        name: Danilo
+                        surname: Minello
+                        experience: 21490
+                        level: Diamond
+                        devices:
+                          - id: 56
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: realme
+                            model: 7 Pro
+                            id: 57
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 27907
+                        name: Diego
+                        surname: Braconi
+                        experience: 7654
+                        level: Platinum
+                        devices:
+                          - id: 58
+                            os: MacOS
+                            osVersion: Mac OS X 10.9 (Mavericks) (10.9)
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 8T
+                            id: 59
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - id: 60
+                            os: Windows
+                            osVersion: Windows 10 October 2020 Update (19042)
+                      - id: 48530
+                        name: Martina
+                        surname: Mastromarino
+                        experience: 6457
+                        level: Platinum
+                        devices:
+                          - manufacturer: OPPO
+                            model: Find X3 Lite
+                            id: 61
+                            os: Android
+                            osVersion: 12 (12)
+                          - id: 62
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 16439
+                        name: Gian Guido
+                        surname: Ferrozzi
+                        experience: 11688
+                        level: Platinum
+                        devices:
+                          - id: 63
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
+                      - id: 13098
+                        name: Miriam Giusy
+                        surname: Petrovik
+                        experience: 29336
+                        level: Gold
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy Tab S6
+                            id: 64
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 51127
+                        name: Giovanni
+                        surname: Romeo
+                        experience: 9291
+                        level: Platinum
+                        devices:
+                          - id: 65
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Huawei
+                            model: P20 Lite
+                            id: 66
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 16190
+                        name: Carmen
+                        surname: Piedimonte
+                        experience: 31122
+                        level: Platinum
+                        devices:
+                          - manufacturer: OnePlus
+                            model: 6T
+                            id: 67
+                            os: Android
+                            osVersion: 11 (11)
+                          - manufacturer: Apple
+                            model: iPhone 11 Pro Max
+                            id: 68
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
+                          - id: 69
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
+                          - id: 70
+                            os: Windows
+                            osVersion: Windows 11 (22471)
+                          - manufacturer: Google
+                            model: Pixel 4a 5G
+                            id: 71
+                            os: Android
+                            osVersion: 13(beta) (13(beta))
+                          - manufacturer: Samsung
+                            model: Galaxy A52s
+                            id: 72
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 12321
+                        name: Antonio
+                        surname: Maione
+                        experience: 18209
+                        level: Diamond
+                        devices:
+                          - id: 73
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 8 Pro
+                            id: 74
+                            os: Android
+                            osVersion: 11 (11)
+                          - manufacturer: Lenovo
+                            model: Miix 10
+                            id: 75
+                            os: Android
+                            osVersion: 10 (10.0)
+                      - id: 9959
+                        name: Nicolas
+                        surname: Garlatti
+                        experience: 9360
+                        level: Platinum
+                        devices:
+                          - manufacturer: Xiaomi
+                            model: Pocophone F1
+                            id: 76
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - id: 77
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy A52s
+                            id: 78
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 22021
+                        name: Francesco Pio
+                        surname: Magrì
+                        experience: 1253
+                        level: Silver
+                        devices:
+                          - id: 79
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                          - id: 80
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 10 Pro
+                            id: 81
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 16790
+                        name: Laura
+                        surname: Tenan
+                        experience: 15164
+                        level: Platinum
+                        devices:
+                          - id: 82
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Samsung
+                            model: Galaxy S6
+                            id: 83
+                            os: Android
+                            osVersion: Nougat (7.0)
+                          - manufacturer: Apple
+                            model: iPad
+                            id: 84
+                            os: iOS
+                            osVersion: iOS 15.6.1 (15.6.1)
+                      - id: 17968
+                        name: Vittorio
+                        surname: Amitrano
+                        experience: 17744
+                        level: Diamond
+                        devices:
+                          - id: 85
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy A52s
+                            id: 86
+                            os: Android
+                            osVersion: 12 (12)
+                          - id: 87
+                            os: Windows
+                            osVersion: Windows 11
+                      - id: 56673
+                        name: Valentina
+                        surname: Mirabelli
+                        experience: 12162
+                        level: Diamond
+                        devices:
+                          - id: 88
+                            os: Windows
+                            osVersion: Windows 11
+                      - id: 49120
+                        name: Víctor
+                        surname: Vera
+                        experience: 8428
+                        level: Platinum
+                        devices:
+                          - manufacturer: OnePlus
+                            model: Nord
+                            id: 89
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 8299
+                        name: Antonino Germano
+                        surname: DAgostino
+                        experience: 54373
+                        level: Diamond
+                        devices:
+                          - id: 90
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - id: 91
+                            os: Windows
+                            osVersion: Windows XP (5.1)
+                          - id: 92
+                            os: Windows
+                            osVersion: Windows 8.1 (8.1)
+                          - manufacturer: Honor
+                            model: View 10
+                            id: 93
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - id: 94
+                            os: MacOS
+                            osVersion: Mac OS X 11 (Big Sur) (11.0.1)
+                          - id: 95
+                            os: Windows
+                            osVersion: Windows 7
+                          - manufacturer: Lenovo
+                            model: Tab10 TB-X103F
+                            id: 96
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Apple
+                            model: iPhone 8
+                            id: 97
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                      - id: 13525
+                        name: Mariangela
+                        surname: Iorgi
+                        experience: 38073
+                        level: Platinum
+                        devices:
+                          - id: 98
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Samsung
+                            model: Galaxy S20
+                            id: 99
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 10729
+                        name: Teresa Maria Barbara
+                        surname: Carboni
+                        experience: 9264
+                        level: Gold
+                        devices:
+                          - id: 100
+                            os: Windows
+                            osVersion: Windows 10 November 2019 Update (18363.778)
+                          - manufacturer: Samsung
+                            model: Galaxy J7 (2017)
+                            id: 101
+                            os: Android
+                            osVersion: Pie (9.0)
+                          - manufacturer: Samsung
+                            model: Galaxy A32
+                            id: 102
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 48134
+                        name: Emanuel
+                        surname: Roma
+                        experience: 16756
+                        level: Diamond
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy A52
+                            id: 103
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 57948
+                        name: Roberto
+                        surname: Vergnani
+                        experience: 1466
+                        level: Gold
+                        devices:
+                          - id: 104
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 47681
+                        name: Angelo
+                        surname: Conte
+                        experience: 10800
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 11 Pro
+                            id: 105
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                      - id: 25042
+                        name: Marco
+                        surname: Argenti
+                        experience: 12481
+                        level: Diamond
+                        devices:
+                          - id: 106
+                            os: MacOS
+                            osVersion: Mac OS X 10.11 (El Capitan) (10.11)
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 7
+                            id: 107
+                            os: Android
+                            osVersion: Pie (9.0)
+                      - id: 11628
+                        name: Sara
+                        surname: Moscariello
+                        experience: 5309
+                        level: Platinum
+                        devices:
+                          - id: 108
+                            os: Windows
+                            osVersion: Windows 11 (22471)
+                          - manufacturer: Apple
+                            model: iPhone 13
+                            id: 109
+                            os: iOS
+                            osVersion: iOS 16 (16)
+                      - id: 16562
+                        name: Anna
+                        surname: De Angelis
+                        experience: 4357
+                        level: Silver
+                        devices:
+                          - id: 110
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
+                      - id: 51742
+                        name: Emanuele
+                        surname: Mignano
+                        experience: 4846
+                        level: Platinum
+                        devices:
+                          - id: 111
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Apple
+                            model: iPhone 12
+                            id: 112
+                            os: iOS
+                            osVersion: iOS 16 (16)
+                          - manufacturer: Apple
+                            model: iPad Air 2
+                            id: 113
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
+                      - id: 25731
+                        name: Gaetano
+                        surname: Cascino
+                        experience: 18249
+                        level: Diamond
+                        devices:
+                          - manufacturer: Huawei
+                            model: Mate 20 lite
+                            id: 114
+                            os: Android
+                            osVersion: 12 (12)
+                          - id: 115
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                      - id: 6261
+                        name: Gioia
+                        surname: Zagagnoli
+                        experience: 7117
+                        level: Platinum
+                        devices:
+                          - manufacturer: realme
+                            model: 7 Pro
+                            id: 116
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 58545
+                        name: Stefania
+                        surname: Pisano
+                        experience: 3538
+                        level: Platinum
+                        devices:
+                          - id: 117
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy A70
+                            id: 118
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 52648
+                        name: Simone
+                        surname: Da Prada
+                        experience: 11088
+                        level: Diamond
+                        devices:
+                          - id: 119
+                            os: Windows
+                            osVersion: Windows 11 (22471)
+                          - manufacturer: Xiaomi
+                            model: 11T Pro
+                            id: 120
+                            os: Android
+                            osVersion: 12beta (12beta)
+                      - id: 2773
+                        name: Francesco
+                        surname: Natali
+                        experience: 48175
+                        level: Diamond
+                        devices:
+                          - id: 121
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.0)
+                          - manufacturer: Huawei
+                            model: Mate 20 Pro
+                            id: 122
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Apple
+                            model: iPhone 13 Pro Max
+                            id: 123
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
+                      - id: 25108
+                        name: Lucia
+                        surname: Ricchitelli
+                        experience: 13689
+                        level: Diamond
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy A20e
+                            id: 124
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 50861
+                        name: Andrea
+                        surname: Recce
+                        experience: 6648
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone XS
+                            id: 125
+                            os: iOS
+                            osVersion: iOS 16 (16)
+                      - id: 58201
+                        name: Diego
+                        surname: Robresco
+                        experience: 4190
+                        level: Platinum
+                        devices:
+                          - id: 126
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - id: 127
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 10678
+                        name: Serena
+                        surname: Migliaccio
+                        experience: 4213
+                        level: Bronze
+                        devices:
+                          - id: 128
+                            os: Windows
+                            osVersion: Windows 10 (10240.16405)
+                          - manufacturer: Apple
+                            model: iPhone 13
+                            id: 129
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
+                      - id: 19040
+                        name: Alberto
+                        surname: Greco
+                        experience: 10181
+                        level: Diamond
+                        devices:
+                          - id: 130
+                            os: Windows
+                            osVersion: Windows 11
+                          - id: 131
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey)
+                          - manufacturer: Samsung
+                            model: Galaxy S9+
+                            id: 132
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Apple
+                            model: iPhone 13
+                            id: 133
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                      - id: 19705
+                        name: Angelo Agostino Maria
+                        surname: Cangemi
+                        experience: 16753
+                        level: Diamond
+                        devices:
+                          - id: 134
+                            os: Windows
+                            osVersion: Windows 8 (8.0)
+                      - id: 56997
+                        name: Luca
+                        surname: Sgobio
+                        experience: 4481
+                        level: Platinum
+                        devices:
+                          - id: 135
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - id: 136
+                            os: Windows
+                            osVersion: Windows 11
+                          - id: 137
+                            os: Windows
+                            osVersion: Windows 8.1
+                          - id: 138
+                            os: Windows
+                            osVersion: Windows 8
+                          - id: 139
+                            os: Windows
+                            osVersion: Windows 7
+                          - id: 140
+                            os: Windows
+                            osVersion: Windows Vista
+                          - id: 141
+                            os: Windows
+                            osVersion: Windows Vista
+                          - id: 142
+                            os: Windows
+                            osVersion: Windows XP
+                          - id: 143
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
+                          - id: 144
+                            os: MacOS
+                            osVersion: Mac OS X 10.14 (Mojave)
+                          - id: 145
+                            os: MacOS
+                            osVersion: Mac OS X 10.13 (High Sierra)
+                          - id: 146
+                            os: MacOS
+                            osVersion: Mac OS X 10.12 (Sierra)
+                          - id: 147
+                            os: MacOS
+                            osVersion: Mac OS X 10.11 (El Capitan)
+                          - id: 148
+                            os: MacOS
+                            osVersion: Mac OS X 10.10 (Yosemite)
+                          - id: 149
+                            os: MacOS
+                            osVersion: Mac OS X 10.8 (Mountain Lion)
+                          - id: 150
+                            os: MacOS
+                            osVersion: Mac OS X 11 (Big Sur)
+                          - id: 151
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey)
+                          - manufacturer: Samsung
+                            model: Galaxy A32
+                            id: 152
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Samsung
+                            model: Galaxy J6
+                            id: 153
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Apple
+                            model: iPhone 11
+                            id: 154
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
+                          - manufacturer: Apple
+                            model: iPhone 7 Plus
+                            id: 155
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
+                          - manufacturer: Chuwi
+                            model: Hi10
+                            id: 156
+                            os: Android
+                            osVersion: Oreo (8.1)
+                          - manufacturer: Apple
+                            model: iPad Pro 9.7
+                            id: 157
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
+                      - id: 25012
+                        name: Angelo
+                        surname: Costa
+                        experience: 31814
+                        level: Platinum
+                        devices:
+                          - id: 158
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                          - manufacturer: Apple
+                            model: iPad 6 (2018)
+                            id: 159
+                            os: iOS
+                            osVersion: iOS 15.3 (15.3)
+                          - manufacturer: Samsung
+                            model: Galaxy Tab A 10.1 LTE (2019)
+                            id: 160
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Apple
+                            model: iPhone 12
+                            id: 161
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
+                      - id: 27273
+                        name: Anna Laura
+                        surname: Colia
+                        experience: 10774
+                        level: Gold
+                        devices:
+                          - id: 162
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                          - manufacturer: Apple
+                            model: iPhone 8
+                            id: 163
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
+                          - manufacturer: Apple
+                            model: iPad (2017)
+                            id: 164
+                            os: iOS
+                            osVersion: iOS 14.4.2 (14.4.2)
+                          - manufacturer: Samsung
+                            model: Galaxy Tab A 10.1 LTE (2019)
+                            id: 165
+                            os: Android
+                            osVersion: 11 (11)
+                          - manufacturer: Apple
+                            model: iPhone 12
+                            id: 166
+                            os: iOS
+                            osVersion: iOS 15.4 (15.4)
+                      - id: 49917
+                        name: Santo
+                        surname: Paviglianiti
+                        experience: 5880
+                        level: Platinum
+                        devices:
+                          - id: 167
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - id: 168
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 8T
+                            id: 169
+                            os: Android
+                            osVersion: 11 (11)
+                          - manufacturer: Xiaomi
+                            model: Redmi 9
+                            id: 170
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Wiko
+                            model: Y60 (Wiko)
+                            id: 171
+                            os: Android
+                            osVersion: 11 (11)
+                          - manufacturer: Samsung
+                            model: Galaxy J3 (2016)
+                            id: 172
+                            os: Android
+                            osVersion: Oreo (8.0)
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 10 Pro
+                            id: 173
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Mediacom
+                            model: SmartPad 9.7 Mobile
+                            id: 174
+                            os: Android
+                            osVersion: Pie (9.0)
+                          - manufacturer: Samsung
+                            model: Galaxy A32
+                            id: 175
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 29132
+                        name: Nicolò
+                        surname: Romagnosi
+                        experience: 5491
+                        level: Gold
+                        devices:
+                          - id: 176
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                      - id: 11098
+                        name: Giovanni
+                        surname: Seraghiti
+                        experience: 14834
+                        level: Platinum
+                        devices:
+                          - id: 177
+                            os: Windows
+                            osVersion: Windows 11
+                      - id: 56707
+                        name: Mirco
+                        surname: Tucci
+                        experience: 3661
+                        level: Platinum
+                        devices:
+                          - id: 178
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 5248
+                        name: Roberto
+                        surname: Santamaro
+                        experience: 59051
+                        level: Diamond
+                        devices:
+                          - manufacturer: Lg
+                            model: G5
+                            id: 179
+                            os: Android
+                            osVersion: Oreo (8.0)
+                          - id: 180
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - id: 181
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Samsung
+                            model: Galaxy J3 (2016)
+                            id: 182
+                            os: Android
+                            osVersion: Lollipop (5.1.1)
+                          - manufacturer: Samsung
+                            model: Galaxy S5
+                            id: 183
+                            os: Android
+                            osVersion: Lollipop (5.0)
+                          - manufacturer: Wiko
+                            model: Jimmy
+                            id: 184
+                            os: Android
+                            osVersion: Jelly Bean (4.2.2)
+                          - manufacturer: Samsung
+                            model: Galaxy A40
+                            id: 185
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Samsung
+                            model: Galaxy S20 5G
+                            id: 186
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Samsung
+                            model: Galaxy Tab 7.0 wifi
+                            id: 187
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 2048
+                        name: Giuseppe
+                        surname: Santamaro
+                        experience: 81698
+                        level: Diamond
+                        devices:
+                          - manufacturer: Lg
+                            model: G5
+                            id: 188
+                            os: Android
+                            osVersion: Oreo (8.0)
+                          - manufacturer: Samsung
+                            model: Galaxy S5
+                            id: 189
+                            os: Android
+                            osVersion: Marshmallow (6.0.1)
+                          - id: 190
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - id: 191
+                            os: Windows
+                            osVersion: Windows 10 May 2020 Update (19041)
+                          - manufacturer: Lenovo
+                            model: Yoga Tab 3 10.0
+                            id: 192
+                            os: Android
+                            osVersion: Nougat (7.1.1)
+                          - manufacturer: Samsung
+                            model: Galaxy A52s
+                            id: 193
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Samsung
+                            model: Galaxy S20 FE
+                            id: 194
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: HTC
+                            model: Desire S
+                            id: 195
+                            os: Android
+                            osVersion: KitKat (4.4.1)
+                      - id: 48053
+                        name: patrizia
+                        surname: assumma
+                        experience: 5496
+                        level: Platinum
+                        devices:
+                          - id: 196
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 28135
+                        name: Dario
+                        surname: Losacco
+                        experience: 11215
+                        level: Platinum
+                        devices:
+                          - id: 197
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: realme
+                            model: GT 5G
+                            id: 198
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 25082
+                        name: Iole
+                        surname: Branca
+                        experience: 37039
+                        level: Diamond
+                        devices:
+                          - id: 199
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Apple
+                            model: iPhone 11
+                            id: 200
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                          - manufacturer: Apple
+                            model: iPad Air 2
+                            id: 201
+                            os: iOS
+                            osVersion: iOS 14.4 (14.4)
+                      - id: 31558
+                        name: Nicole
+                        surname: Meazza
+                        experience: 22816
+                        level: Platinum
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy M21
+                            id: 202
+                            os: Android
+                            osVersion: 12 (12)
+                          - id: 203
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina) (10.15.7)
+                          - manufacturer: Apple
+                            model: iPhone SE (2020)
+                            id: 204
+                            os: iOS
+                            osVersion: iOS 15.6.1 (15.6.1)
+                      - id: 55033
+                        name: Laura
+                        surname: Pes
+                        experience: 1295
+                        level: Gold
+                        devices:
+                          - id: 205
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - id: 206
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Xiaomi
+                            model: Poco M3
+                            id: 207
+                            os: Android
+                            osVersion: 10 (10.0)
+                          - manufacturer: Apple
+                            model: iPad
+                            id: 208
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                      - id: 53001
+                        name: Silvia
+                        surname: Buzzotta
+                        experience: 13924
+                        level: Diamond
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy Tab A 10.1 (2019)
+                            id: 209
+                            os: Android
+                            osVersion: 11 (11)
+                          - id: 210
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy A52
+                            id: 211
+                            os: Android
+                            osVersion: 12beta (12beta)
+                      - id: 52319
+                        name: Alessandro
+                        surname: Milano
+                        experience: 5106
+                        level: Platinum
+                        devices:
+                          - id: 212
+                            os: Windows
+                            osVersion: Windows 11 (22471)
+                      - id: 57352
+                        name: Paolo Maria
+                        surname: Trabattoni
+                        experience: 4413
+                        level: Platinum
+                        devices:
+                          - id: 213
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
+                          - manufacturer: Xiaomi
+                            model: Poco X3 Pro
+                            id: 214
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 57938
+                        name: Matteo
+                        surname: Pivari
+                        experience: 3249
+                        level: Platinum
+                        devices:
+                          - id: 215
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: OnePlus
+                            model: '8'
+                            id: 216
+                            os: Android
+                            osVersion: 12 (12)
+                      - id: 46015
+                        name: Ilaria
+                        surname: Croce Tornieri
+                        experience: 13496
+                        level: Diamond
+                        devices:
+                          - manufacturer: LG
+                            model: G7 ThinQ
+                            id: 217
+                            os: Android
+                            osVersion: 10 (10.0)
+                      - id: 51135
+                        name: Alessandra
+                        surname: Segreto
+                        experience: 7550
+                        level: Platinum
+                        devices:
+                          - id: 218
+                            os: Windows
+                            osVersion: Windows 11 (22471)
+                          - manufacturer: Samsung
+                            model: Galaxy S6
+                            id: 219
+                            os: Android
+                            osVersion: Nougat (7.0)
+                          - manufacturer: OnePlus
+                            model: 6T
+                            id: 220
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 54599
+                        name: ANDREA
+                        surname: APOLLONI
+                        experience: 4436
+                        level: Platinum
+                        devices:
+                          - id: 221
+                            os: Windows
+                            osVersion: Windows 11
+                          - manufacturer: Xiaomi
+                            model: Redmi Note 8 Pro
+                            id: 222
+                            os: Android
+                            osVersion: 11 (11)
+                          - id: 223
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
+                          - manufacturer: Microsoft
+                            model: Surface Pro 4
+                            id: 224
+                            os: Windows
+                            osVersion: Windows 11 (22471)
+                      - id: 7951
+                        name: Lorenzo
+                        surname: Silvestri
+                        experience: 3045
+                        level: Bronze
+                        devices:
+                          - manufacturer: Samsung
+                            model: Galaxy A22 5G
+                            id: 225
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 58189
+                        name: Andrea
+                        surname: Donadello
+                        experience: 2157
+                        level: Gold
+                        devices:
+                          - id: 226
+                            os: Windows
+                            osVersion: Windows 11
+                      - id: 23796
+                        name: Ferdinando
+                        surname: Scavo
+                        experience: 4972
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 12 mini
+                            id: 227
+                            os: iOS
+                            osVersion: iOS 15.5 (15.5)
+                          - id: 228
+                            os: MacOS
+                            osVersion: Mac OS X 11 (Big Sur)
+                      - id: 54259
+                        name: Michele
+                        surname: Palese
+                        experience: 4116
+                        level: Platinum
+                        devices:
+                          - id: 229
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 22275
+                        name: Eliana
+                        surname: Alfano
+                        experience: 7846
+                        level: Platinum
+                        devices:
+                          - id: 230
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                      - id: 31454
+                        name: Romina
+                        surname: Castellini
+                        experience: 7855
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 12
+                            id: 231
+                            os: iOS
+                            osVersion: iOS 16 (16)
+                      - id: 48229
+                        name: Alexandro
+                        surname: Sollai
+                        experience: 1055
+                        level: Bronze
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 13 Pro Max
+                            id: 232
+                            os: iOS
+                            osVersion: iOS 15.3 (15.3)
+                      - id: 57647
+                        name: Francesco
+                        surname: Campus
+                        experience: 3407
+                        level: Platinum
+                        devices:
+                          - id: 233
+                            os: MacOS
+                            osVersion: Mac OS X 10.15 (Catalina)
+                      - id: 52064
+                        name: Mara
+                        surname: Arra
+                        experience: 6669
+                        level: Platinum
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone XR
+                            id: 234
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 93
+                example-with-questions:
+                  value:
+                    results:
+                      - id: 34463
+                        name: Sara
+                        surname: Galasso
+                        experience: 21541
+                        level: Diamond
+                        devices:
+                          - id: 0
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update (19043)
+                          - manufacturer: Samsung
+                            model: Galaxy M31
+                            id: 1
+                            os: Android
+                            osVersion: 12 (12)
+                          - manufacturer: Apple
+                            model: iPad
+                            id: 2
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                          - manufacturer: Apple
+                            model: iPhone SE (2020)
+                            id: 3
+                            os: iOS
+                            osVersion: iOS 15.6 (15.6)
+                          - id: 4
+                            os: Windows
+                            osVersion: Windows 11
+                          - manufacturer: Google
+                            model: Pixel 6
+                            id: 5
+                            os: Android
+                            osVersion: 13(beta) (13(beta))
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: Sì
+                          - id: 2
+                            title: Pagamento
+                            value: 'No'
+                    start: 0
+                    size: 1
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: ''
+      security:
+        - JWT: []
       parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
         - schema:
             type: string
+            example: 'question_1,question_2'
           in: query
-          name: device
+          name: fields
+          description: The fields to add to the results
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -924,6 +2627,51 @@ paths:
                     - question: 'What''s your [profile question]?'
                       type: gender
       description: ''
+  '/campaigns/{campaign}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a preselection form by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    question:
+                      type: string
+                    shortName:
+                      type: string
+                  required:
+                    - id
+                    - question
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: My question 1
+                      shortName: Q1
+                    - id: 2
+                      question: My question 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-forms
+      description: ''
+      security:
+        - JWT: []
   /certifications:
     get:
       summary: Retrive and filter all certifications
@@ -3378,6 +5126,7 @@ paths:
                         id:
                           type: number
                     - $ref: '#/components/schemas/UserDevice'
+                    - type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -5981,6 +7730,23 @@ components:
         - female
         - not-specified
         - other
+    PaginationData:
+      title: PaginationData
+      x-stoplight:
+        id: qih6s4lp0zdtj
+      type: object
+      properties:
+        start:
+          type: integer
+        limit:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - start
+        - size
   securitySchemes:
     JWT:
       type: http

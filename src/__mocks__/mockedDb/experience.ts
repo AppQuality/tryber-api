@@ -1,47 +1,45 @@
-import sqlite3 from "@src/features/sqlite";
+// import sqlite3 from "@src/features/sqlite";
+import Table from "./table";
 
-const tableName = "wp_appq_exp_points";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "id INTEGER PRIMARY KEY",
-      "tester_id INTEGER",
-      "amount DECIMAL(11,0)",
-      "creation_date TIMESTAMP",
-      "activity_id INTEGER",
-      "reason VARCHAR(255)",
-      "campaign_id INTEGER",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
-};
-
-type ExpParams = {
+type ExperienceParams = {
   id?: number;
   tester_id?: number;
   amount?: number;
   creation_date?: string;
+  activity_id?: number;
+  reason?: string;
+  campaign_id?: number;
+  version_id?: number;
 };
-const data: {
-  [key: string]: (params?: ExpParams) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
-};
-
-data.basicExperience = async (params) => {
-  const item = {
-    id: 1,
-    tester_id: 1,
-    amount: 100,
-    creation_date: new Date().toISOString().split(".")[0].replace("T", " "),
-    ...params,
-  };
-  await sqlite3.insert("wp_appq_exp_points", item);
-  return item;
+const defaultItem: ExperienceParams = {
+  id: 1,
+  tester_id: 1,
+  amount: 1,
+  creation_date: new Date().toISOString().split(".")[0].replace("T", " "),
+  activity_id: 0,
+  reason: "Experience attribution Reason",
+  campaign_id: 1,
+  version_id: -1,
 };
 
-export { data };
+class Experience extends Table<ExperienceParams> {
+  protected name = "wp_appq_exp_points";
+  protected columns = [
+    "id INTEGER PRIMARY KEY",
+    "tester_id INTEGER",
+    "amount DECIMAL(11,0)",
+    "creation_date TIMESTAMP",
+    "activity_id INTEGER",
+    "reason VARCHAR(255)",
+    "campaign_id INTEGER",
+    "version_id INTEGER", //WP compatibility fix
+  ];
+  constructor() {
+    super(defaultItem);
+  }
+}
+
+const theTable = new Experience();
+
+export default theTable;
+export type { ExperienceParams };

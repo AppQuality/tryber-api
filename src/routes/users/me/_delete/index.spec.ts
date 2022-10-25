@@ -1,8 +1,8 @@
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
-import { data as userLevels } from "@src/__mocks__/mockedDb/levels";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 const user = {
@@ -37,24 +37,18 @@ const tester1 = {
 
 describe("Route DELETE users/me", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.insert(tester1);
-      await wpUserData.basicUser();
-      await userLevels.basicLevel();
-      resolve(null);
+    await Profile.insert(tester1);
+    await WpUsers.insert();
+    await UserLevels.insert({
+      id: 1,
+      tester_id: 1,
+      level_id: 10,
     });
   });
   afterEach(async () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await wpUserData.drop();
-        await Profile.clear();
-        await userLevels.drop();
-        resolve(null);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    await WpUsers.clear();
+    await Profile.clear();
+    await UserLevels.clear();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).delete("/users/me");

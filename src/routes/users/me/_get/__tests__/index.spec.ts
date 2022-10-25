@@ -12,7 +12,7 @@ import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
 import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 
 const tester1 = {
@@ -172,7 +172,7 @@ describe("Route GET users-me", () => {
   afterAll(async () => {
     return new Promise(async (resolve) => {
       await Profile.clear();
-      await wpUserData.drop();
+      await WpUsers.clear();
 
       resolve(null);
     });
@@ -267,7 +267,7 @@ describe("Route GET users-me-full-fields", () => {
   afterAll(async () => {
     return new Promise(async (resolve) => {
       await Profile.clear();
-      await wpUserData.drop();
+      await WpUsers.clear();
 
       await bugData.drop();
       await certificationListData.drop();

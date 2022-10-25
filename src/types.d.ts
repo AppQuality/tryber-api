@@ -37,6 +37,7 @@ declare global {
         appq_prospect?: Olp;
         appq_message_center?: Olp;
         appq_campaign?: Olp;
+        appq_tester_selection?: Olp;
       };
     };
   };

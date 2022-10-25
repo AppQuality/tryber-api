@@ -1,5 +1,5 @@
-import { data as expData } from "@src/__mocks__/mockedDb/experience";
-import { data as levelData } from "@src/__mocks__/mockedDb/levels";
+import Experience from "@src/__mocks__/mockedDb/experience";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
 
 export default async (params: {
@@ -23,7 +23,7 @@ export default async (params: {
     image: `https://eu.ui-avatars.com/api/${params.image_name}/132---${tester.email}---132`,
     exp:
       params.exp > 0
-        ? await expData.basicExperience({
+        ? await Experience.insert({
             id: params.testerId + 100,
             tester_id: tester.id,
             amount: params.exp,
@@ -31,7 +31,7 @@ export default async (params: {
         : { amount: 0 },
     level:
       params.level !== false
-        ? await levelData.basicLevel({
+        ? await UserLevels.insert({
             id: params.testerId + 1000,
             tester_id: tester.id,
             level_id: params.level || 10,

@@ -12,13 +12,13 @@ import Profile from "@src/__mocks__/mockedDb/profile";
 import UseCases from "@src/__mocks__/mockedDb/usecases";
 import UseCaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import { data as wpUserData } from "@src/__mocks__/mockedDb/wp_users";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import request from "supertest";
 
 beforeAll(async () => {
   await Profile.insert();
-  await wpUserData.basicUser();
+  await WpUsers.insert();
   await Candidature.insert({
     campaign_id: 1,
     user_id: 1,
@@ -123,7 +123,7 @@ beforeAll(async () => {
   });
 });
 afterAll(async () => {
-  await wpUserData.drop();
+  await WpUsers.clear();
   await Profile.clear();
   await WpOptions.clear();
   await Candidature.clear();

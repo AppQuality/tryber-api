@@ -1,19 +1,4 @@
-import sqlite3 from "@src/features/sqlite";
-
-const tableName = "wp_users";
-export const table = {
-  create: async () => {
-    await sqlite3.createTable(tableName, [
-      "ID INTEGER PRIMARY KEY",
-      "user_login VARCHAR(255)",
-      "user_email VARCHAR(100)",
-      "user_pass VARCHAR(255)",
-    ]);
-  },
-  drop: async () => {
-    await sqlite3.dropTable(tableName);
-  },
-};
+import Table from "./table";
 
 type WpUsersParams = {
   ID?: number;
@@ -21,21 +6,25 @@ type WpUsersParams = {
   user_email?: string;
   user_pass?: string;
 };
-const data: {
-  [key: string]: (params?: WpUsersParams) => Promise<{ [key: string]: any }>;
-} = {
-  drop: async () => {
-    return await sqlite3.run(`DELETE FROM ${tableName}`);
-  },
-};
 
-data.basicUser = async (params?: WpUsersParams) => {
-  const item = {
-    ID: 1,
-    ...params,
-  };
-  await sqlite3.insert(tableName, item);
-  return item;
-};
+class WpUsers extends Table<WpUsersParams> {
+  protected name = "wp_users";
+  protected columns = [
+    "ID INTEGER PRIMARY KEY",
+    "user_login VARCHAR(255)",
+    "user_email VARCHAR(100)",
+    "user_pass VARCHAR(255)",
+  ];
+  constructor() {
+    super({
+      ID: 1,
+      user_login: "tester",
+      user_email: "tester@example.com",
+      user_pass: "pass",
+    });
+  }
+}
 
-export { data };
+const theTable = new WpUsers();
+
+export default theTable;
