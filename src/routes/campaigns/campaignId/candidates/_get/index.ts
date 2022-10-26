@@ -3,7 +3,7 @@ import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 import Campaigns from "@src/features/db/class/Campaigns";
 import Selector, { Field, InvalidQuestionError } from "./Selector";
-
+type filterBy = { os?: string[] | string } | undefined;
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
   query: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["query"];
@@ -19,6 +19,7 @@ export default class RouteItem extends UserRoute<{
   private selector: Selector;
   private fields: Field[] = [];
   private osToExclude: string[] | undefined;
+  private osToInclude: string[] | undefined;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -44,15 +45,21 @@ export default class RouteItem extends UserRoute<{
       });
     }
 
-    const filterByExclude = query.filterByExclude as
-      | { os?: string[] | string }
-      | undefined;
-
+    const filterByExclude = query.filterByExclude as filterBy;
     if (filterByExclude && "os" in filterByExclude && filterByExclude.os) {
       if (!Array.isArray(filterByExclude.os)) {
         this.osToExclude = [filterByExclude.os];
       } else {
         this.osToExclude = filterByExclude.os;
+      }
+    }
+
+    const filterByInclude = query.filterByInclude as filterBy;
+    if (filterByInclude && "os" in filterByInclude && filterByInclude.os) {
+      if (!Array.isArray(filterByInclude.os)) {
+        this.osToInclude = [filterByInclude.os];
+      } else {
+        this.osToInclude = filterByInclude.os;
       }
     }
     this.selector = new Selector(
@@ -111,6 +118,25 @@ export default class RouteItem extends UserRoute<{
   private filterItems(
     applications: Awaited<ReturnType<typeof this.selector.getApplications>>
   ) {
+    let filteredDevices = applications;
+    filteredDevices = this.filterByExcludeOs(filteredDevices);
+    console.log(
+      filteredDevices.map(
+        (user, i) => "User" + i + " devices: " + user.devices.length
+      )
+    );
+    filteredDevices = this.filterByIncludeOs(filteredDevices);
+    console.log(
+      filteredDevices.map(
+        (user, i) => "User" + i + " devices: " + user.devices.length
+      )
+    );
+    return filteredDevices;
+  }
+
+  private filterByExcludeOs(
+    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
+  ) {
     if (!this.osToExclude) {
       return applications;
     }
@@ -143,6 +169,46 @@ export default class RouteItem extends UserRoute<{
           }
         }
         return true;
+      });
+    }
+  }
+  private filterByIncludeOs(
+    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
+  ) {
+    if (!this.osToInclude) {
+      return applications;
+    }
+    const osListToInclude = this.osToInclude;
+    const leaveDevicesToInclude = applications.map((a) => {
+      return {
+        ...a,
+        devices: filterDevicesToInclude(a.devices),
+      };
+    });
+
+    return leaveDevicesToInclude.filter((a) => {
+      return a.devices.length > 0;
+    });
+
+    function filterDevicesToInclude(
+      devices: {
+        manufacturer?: string | undefined;
+        model?: string | undefined;
+        os: string;
+        osVersion: string;
+        id: number;
+      }[]
+    ) {
+      return devices.filter((d) => {
+        const osString = d.os.toLowerCase() + " " + d.osVersion.toLowerCase();
+        for (const os of osListToInclude) {
+          console.log(osString);
+          console.log(osString.includes(os.toLowerCase()));
+          if (osString.includes(os.toLowerCase())) {
+            return true;
+          }
+        }
+        return false;
       });
     }
   }
