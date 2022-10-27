@@ -120,6 +120,10 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       id: 2,
       display_name: "XP",
     });
+    await DeviceOsVersion.insert({
+      id: 3,
+      display_name: "Vista",
+    });
 
     await TesterDevices.insert({
       id: 3,
@@ -158,7 +162,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       manufacturer: "-",
       model: "-",
       platform_id: 2,
-      os_version_id: 2,
+      os_version_id: 3,
       enabled: 1,
     });
     await TesterDevices.insert({
@@ -472,7 +476,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
             {
               id: 4,
               os: "Windows",
-              osVersion: "XP",
+              osVersion: "Vista",
             },
             {
               id: 5,
@@ -660,7 +664,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     expect(response.body.results).toEqual([
       expect.objectContaining({
         id: users[4].testerId,
-        devices: [{ id: 4, os: "Windows", osVersion: "XP" }],
+        devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
       }),
       expect.objectContaining({
         id: users[3].testerId,
@@ -678,8 +682,23 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     expect(response.body.results).toEqual([
       expect.objectContaining({
         id: users[4].testerId,
-        devices: [{ id: 4, os: "Windows", osVersion: "XP" }],
+        devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
       }),
+      expect.objectContaining({
+        id: users[3].testerId,
+        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
+      }),
+    ]);
+  });
+  it("Should filter by os including and excluding values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByInclude[os]=dow&&filterByExclude[os]=vista"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(1);
+    expect(response.body.results).toEqual([
       expect.objectContaining({
         id: users[3].testerId,
         devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
