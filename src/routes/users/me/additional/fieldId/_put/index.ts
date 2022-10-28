@@ -61,9 +61,8 @@ export default async (
       throw e;
     }
     try {
-      const result = await getAdditionalData(req.user.ID, field[0].id);
       res.status_code = 200;
-      return result.additional;
+      return [];
     } catch (e) {
       if ((e as OpenapiError).status_code === 404) {
         res.status_code = 200;
@@ -159,7 +158,7 @@ const deleteCustomUserField = async (
     return Promise.resolve(true);
   } catch (e) {
     if ((e as MySqlError).code === "ER_LOCK_DEADLOCK" && retries < 20) {
-      await setTimeout(() => {}, 200);
+      await new Promise((r) => setTimeout(r, 200));
       return deleteCustomUserField(field, testerId, retries + 1);
     }
     if (process.env && process.env.DEBUG) console.log(e);
