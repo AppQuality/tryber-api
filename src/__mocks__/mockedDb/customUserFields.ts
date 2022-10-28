@@ -6,6 +6,7 @@ type CUFParams = {
   type?: string;
   enabled?: number;
   options?: string;
+  allow_other?: 1 | 0;
 };
 
 class CustomUserFields extends Table<CUFParams> {
@@ -15,6 +16,7 @@ class CustomUserFields extends Table<CUFParams> {
     "name VARCHAR(128)",
     "type VARCHAR(11)",
     "enabled INTEGER",
+    "allow_other INTEGER",
     "options TEXT",
   ];
   constructor() {
@@ -23,6 +25,7 @@ class CustomUserFields extends Table<CUFParams> {
       name: "CUF name",
       enabled: 1,
       type: "text",
+      allow_other: 0,
     });
   }
 }
