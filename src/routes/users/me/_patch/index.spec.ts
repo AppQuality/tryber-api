@@ -18,8 +18,6 @@ import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
-jest.mock("@src/routes/users/me/_get/getRankData");
-
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {

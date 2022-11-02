@@ -9,7 +9,6 @@ import getLanguagesData from "./getLanguagesData";
 import getPendingBootyData from "./getPendingBootyData";
 import getProfessionData from "./getProfessionData";
 import getProfileData from "./getProfileData";
-import getRankData from "./getRankData";
 
 const basicFields = [
   "name",
@@ -76,7 +75,7 @@ export default async (
 
     if (validFields.includes("rank")) {
       try {
-        data = { ...data, ...(await getRankData(id)) };
+        data = { ...data, rank: "0" };
       } catch (e) {}
     }
 
