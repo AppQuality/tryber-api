@@ -80,7 +80,10 @@ export default class RouteItem extends AdminRoute<{
   }
 
   protected async filter(): Promise<boolean> {
-    if ((await super.filter()) === false) return false;
+    if (this.hasAccessTesterSelection(this.campaign) === false) {
+      this.setError(403, new Error("You are not authorized.") as OpenapiError);
+      return false;
+    }
     if ((await this.campaignExists()) === false) {
       this.setError(404, new Error("Campaign does not exist") as OpenapiError);
       return false;
