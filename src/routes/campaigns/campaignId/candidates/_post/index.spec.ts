@@ -23,7 +23,7 @@ afterEach(async () => {
   await Candidature.clear();
 });
 
-const adminPostCandidate = async ({
+const authorizedPostCandidate = async ({
   tester,
   device,
 }: {
@@ -33,9 +33,9 @@ const adminPostCandidate = async ({
   return await request(app)
     .post("/campaigns/1/candidates")
     .send({ tester_id: tester, device })
-    .set("authorization", "Bearer admin");
+    .set("authorization", `Bearer tester olp {"appq_tester_selection":[1]}`);
 };
-const adminPostMultiCandidate = async (
+const authorizedPostMultiCandidate = async (
   list: {
     tester: number;
     device?: number | "random";
@@ -44,7 +44,7 @@ const adminPostMultiCandidate = async (
   return await request(app)
     .post("/campaigns/1/candidates")
     .send(list.map((item) => ({ tester_id: item.tester, device: item.device })))
-    .set("authorization", "Bearer admin");
+    .set("authorization", `Bearer tester olp {"appq_tester_selection":[1]}`);
 };
 
 const getCandidature = async ({
@@ -69,39 +69,39 @@ const getCandidature = async ({
   );
 };
 describe("POST /campaigns/{campaignId}/candidates", () => {
-  it("Should return 403 if user is not admin", async () => {
+  it("Should return 403 if user has not olp appq_tester_selection on a specific campaign", async () => {
     const response = await request(app)
       .post("/campaigns/1/candidates")
       .send({ tester_id: 1 })
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
-  it("Should return 200 if user is admin and campaignId exist", async () => {
-    const response = await adminPostCandidate({ tester: 1 });
+  it("Should return 200 if user is authorized and campaignId exist", async () => {
+    const response = await authorizedPostCandidate({ tester: 1 });
     expect(response.status).toBe(200);
   });
   it("Should return 403 if tester_id does not exist", async () => {
     const response = await request(app)
       .post("/campaigns/1000/candidates")
       .send({ tester_id: 1 })
-      .set("authorization", "Bearer tester");
+      .set("authorization", `Bearer tester`);
     expect(response.status).toBe(403);
   });
   it("Should return 403 if campaing does not exist", async () => {
-    const response = await adminPostCandidate({ tester: 69 });
+    const response = await authorizedPostCandidate({ tester: 69 });
     expect(response.status).toBe(403);
   });
 
   it("Should return 403 if tester is already candidate on campaign", async () => {
     await Candidature.insert({ user_id: 1, campaign_id: 1, accepted: 1 });
-    const response = await adminPostCandidate({ tester: 1 });
+    const response = await authorizedPostCandidate({ tester: 1 });
     expect(response.status).toBe(403);
   });
 
   it("Should candidate the user on success", async () => {
     const beforeCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(beforeCandidature.length).toBe(0);
-    await adminPostCandidate({ tester: 1 });
+    await authorizedPostCandidate({ tester: 1 });
     const afterCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(afterCandidature).toEqual([
       {
@@ -116,7 +116,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   it("Should candidate all the users on success", async () => {
     const beforeCandidature = await getCandidature({ campaign: 1 });
     expect(beforeCandidature.length).toBe(0);
-    await adminPostMultiCandidate([{ tester: 1 }, { tester: 2 }]);
+    await authorizedPostMultiCandidate([{ tester: 1 }, { tester: 2 }]);
     const afterCandidature = await getCandidature({ campaign: 1 });
     expect(afterCandidature.length).toBe(2);
     expect(afterCandidature).toEqual(
@@ -137,7 +137,7 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
     );
   });
   it("Should return the candidature on success", async () => {
-    const response = await adminPostMultiCandidate([
+    const response = await authorizedPostMultiCandidate([
       { tester: 1 },
       { tester: 2 },
     ]);
@@ -162,7 +162,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
   it("Should candidate the user on success with selected_device=0", async () => {
     const beforeCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(beforeCandidature.length).toBe(0);
-    await adminPostCandidate({ tester: 1, device: "random" });
+    await authorizedPostCandidate({ tester: 1, device: "random" });
     const afterCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(afterCandidature).toEqual([
       {
@@ -174,7 +174,10 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
     ]);
   });
   it("Should return the candidature on success with device=any", async () => {
-    const response = await adminPostCandidate({ tester: 1, device: "random" });
+    const response = await authorizedPostCandidate({
+      tester: 1,
+      device: "random",
+    });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toEqual([
@@ -187,7 +190,10 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
   });
 
   it("Should return the multi candidature on success with device=any", async () => {
-    const response = await adminPostCandidate({ tester: 1, device: "random" });
+    const response = await authorizedPostCandidate({
+      tester: 1,
+      device: "random",
+    });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toEqual([
@@ -231,7 +237,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
   it("Should candidate the user on success with selected_device one of user devices", async () => {
     const beforeCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(beforeCandidature.length).toBe(0);
-    await adminPostCandidate({ tester: 1, device: "random" });
+    await authorizedPostCandidate({ tester: 1, device: "random" });
     const afterCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(afterCandidature).toEqual([
       expect.objectContaining({ accepted: 1, results: 0 }),
@@ -240,7 +246,10 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
     expect([1, 2]).toContainEqual(afterCandidature[0].selected_device);
   });
   it("Should return the candidature with random device from user device", async () => {
-    const response = await adminPostCandidate({ tester: 1, device: "random" });
+    const response = await authorizedPostCandidate({
+      tester: 1,
+      device: "random",
+    });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results.length).toBe(1);
@@ -290,7 +299,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
     const beforeCandidature = await getCandidature({ tester: 1, campaign: 1 });
     expect(beforeCandidature.length).toBe(0);
 
-    await adminPostCandidate({ tester: 1, device: 2 });
+    await authorizedPostCandidate({ tester: 1, device: 2 });
     const afterCandidature = await getCandidature({ tester: 1, campaign: 1 });
 
     expect(afterCandidature).toEqual([
@@ -303,19 +312,19 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
     ]);
   });
   it("Should return the candidature with device set in query param", async () => {
-    const response = await adminPostCandidate({ tester: 1, device: 2 });
+    const response = await authorizedPostCandidate({ tester: 1, device: 2 });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results.length).toEqual(1);
     expect(response.body.results[0].device).toEqual(2);
   });
   it("Should return 403 with error if try to candidate with an nonexistent device", async () => {
-    const response = await adminPostCandidate({ tester: 1, device: 1000 });
+    const response = await authorizedPostCandidate({ tester: 1, device: 1000 });
     expect(response.status).toBe(403);
   });
 
   it("Should return 207 with list of invalid testers if there's a partial success for non existing tester", async () => {
-    const response = await adminPostMultiCandidate([
+    const response = await authorizedPostMultiCandidate([
       { tester: 1 },
       { tester: 1000 },
     ]);
@@ -334,7 +343,7 @@ describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device"
   });
 
   it("Should return 207 with list of invalid testers if there's a partial success for non existing device", async () => {
-    const response = await adminPostMultiCandidate([
+    const response = await authorizedPostMultiCandidate([
       { tester: 1, device: 1 },
       { tester: 2, device: 1000 },
     ]);
