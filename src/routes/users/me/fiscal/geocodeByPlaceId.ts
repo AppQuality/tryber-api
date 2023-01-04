@@ -1,4 +1,5 @@
 import { AddressType, Client } from "@googlemaps/google-maps-services-js";
+import config from "@src/config";
 import axios from "axios";
 
 export default async function geocodePlaceId(placeId: string) {
@@ -14,7 +15,7 @@ export default async function geocodePlaceId(placeId: string) {
   try {
     const results = await client.geocode({
       params: {
-        key: process.env.GOOGLE_API_KEY || "",
+        key: config.GOOGLE_API_KEY,
         place_id: placeId,
       },
     });
@@ -42,6 +43,7 @@ export default async function geocodePlaceId(placeId: string) {
     }
     return { city, province };
   } catch (e) {
+    console.error("GeocodeByPlaceId Error", e);
     return false;
   }
 }
