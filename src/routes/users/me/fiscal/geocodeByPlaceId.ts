@@ -1,13 +1,10 @@
 import { AddressType, Client } from "@googlemaps/google-maps-services-js";
 import config from "@src/config";
 import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export default async function geocodePlaceId(placeId: string) {
   console.info("geocodePlaceId", placeId);
-  console.info("env", process.env.GOOGLE_API_KEY);
+  console.info("env", config.GOOGLE_API_KEY);
   const axiosInstance = axios.create({
     headers: {
       locale: "it",
