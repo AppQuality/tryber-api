@@ -3,8 +3,6 @@ import config from "@src/config";
 import axios from "axios";
 
 export default async function geocodePlaceId(placeId: string) {
-  console.info("geocodePlaceId", placeId);
-  console.info("env", config.GOOGLE_API_KEY);
   const axiosInstance = axios.create({
     headers: {
       locale: "it",
@@ -21,9 +19,6 @@ export default async function geocodePlaceId(placeId: string) {
         place_id: placeId,
       },
     });
-    console.log("results clientGeocode", results);
-    console.log("results clientGeocode data", results.data);
-    console.log("results clientGeocode data.results", results.data.results);
     const addressComponents = results.data.results[0].address_components;
 
     const cityData = addressComponents.find((c) =>
@@ -46,10 +41,9 @@ export default async function geocodePlaceId(placeId: string) {
         province = provinceData.short_name;
       }
     }
-    console.info("geocoding", { city, province });
     return { city, province };
   } catch (e) {
-    console.error("GeocodeByPlaceId", e);
+    console.error("GeocodeByPlaceId Error", e);
     return false;
   }
 }
