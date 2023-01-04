@@ -40,8 +40,10 @@ export default async function geocodePlaceId(placeId: string) {
         province = provinceData.short_name;
       }
     }
+    console.log("geocoding", { city, province });
     return { city, province };
   } catch (e) {
+    console.log("GeocodeByPlaceId", e);
     return false;
   }
 }
