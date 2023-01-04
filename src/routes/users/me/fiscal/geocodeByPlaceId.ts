@@ -14,7 +14,7 @@ export default async function geocodePlaceId(placeId: string) {
   try {
     const results = await client.geocode({
       params: {
-        key: "AIzaSyDJqenKVp22KCz9StLq31acTkWq-7eDD_w",
+        key: process.env.GOOGLE_API_KEY || "",
         place_id: placeId,
       },
     });
