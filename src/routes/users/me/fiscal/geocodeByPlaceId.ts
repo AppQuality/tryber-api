@@ -2,6 +2,7 @@ import { AddressType, Client } from "@googlemaps/google-maps-services-js";
 import axios from "axios";
 
 export default async function geocodePlaceId(placeId: string) {
+  console.info("geocodePlaceId", placeId);
   const axiosInstance = axios.create({
     headers: {
       locale: "it",
@@ -40,10 +41,10 @@ export default async function geocodePlaceId(placeId: string) {
         province = provinceData.short_name;
       }
     }
-    console.log("geocoding", { city, province });
+    console.info("geocoding", { city, province });
     return { city, province };
   } catch (e) {
-    console.log("GeocodeByPlaceId", e);
+    console.error("GeocodeByPlaceId", e);
     return false;
   }
 }
