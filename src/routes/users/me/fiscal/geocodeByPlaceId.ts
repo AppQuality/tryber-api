@@ -19,6 +19,9 @@ export default async function geocodePlaceId(placeId: string) {
         place_id: placeId,
       },
     });
+    console.log("results clientGeocode", results);
+    console.log("results clientGeocode data", results.data);
+    console.log("results clientGeocode data.results", results.data.results);
     const addressComponents = results.data.results[0].address_components;
 
     const cityData = addressComponents.find((c) =>

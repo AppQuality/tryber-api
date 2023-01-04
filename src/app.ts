@@ -54,21 +54,21 @@ app.get(referencePath, function (req, res) {
   res.sendFile(__dirname + "/reference/openapi.yml");
 });
 
-// app.use(
-//   morgan(function (tokens, req, res) {
-//     const request = req as Request & { user?: { testerId: number } };
-//     return [
-//       request.user ? `T${request.user.testerId}` : "anonymous",
-//       tokens.method(req, res),
-//       tokens.url(req, res),
-//       tokens.status(req, res),
-//       tokens.res(req, res, "content-length"),
-//       "-",
-//       tokens["response-time"](req, res),
-//       "ms",
-//     ].join(" ");
-//   })
-// );
+app.use(
+  morgan(function (tokens, req, res) {
+    const request = req as Request & { user?: { testerId: number } };
+    return [
+      request.user ? `T${request.user.testerId}` : "anonymous",
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, "content-length"),
+      "-",
+      tokens["response-time"](req, res),
+      "ms",
+    ].join(" ");
+  })
+);
 
 app.use((req, res) => {
   if (req.rawHeaders.includes("x-tryber-mock-example")) {
