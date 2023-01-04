@@ -31,6 +31,7 @@ const config: {
     chain: string;
     private: string;
   };
+  GOOGLE_API_KEY: string;
 } = {
   port: process.env.PORT || "3000",
   apiRoot: false,
@@ -57,6 +58,7 @@ const config: {
     database: process.env.DB_NAME || "tryber",
   },
   CROWD_URL: process.env.CROWD_URL || "https://tryber.me/",
+  GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || "",
 };
 
 if (process.env.SSL_CHAIN && process.env.SSL_PRIVATE) {
