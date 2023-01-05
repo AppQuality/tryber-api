@@ -72,6 +72,7 @@ services:
       MEDIA_FOLDER: 'media'
       MAX_FILE_SIZE: ${MAX_FILE_SIZE}
       CONNECTION_COUNT: ${CONNECTION_COUNT}
+      GOOGLE_API_KEY: '${GOOGLE_API_KEY}'
     volumes:
       - /var/docker/keys:/app/keys
     logging:
