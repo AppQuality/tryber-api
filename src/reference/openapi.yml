@@ -3398,7 +3398,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -3415,17 +3414,19 @@ paths:
                   id:
                     type: number
                   message:
-                    type: object
-                    required:
-                      - code
-                      - data
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - GENERIC_ERROR
-                      data:
-                        type: string
+                    anyOf:
+                      - type: object
+                        properties:
+                          code:
+                            type: string
+                            enum:
+                              - GENERIC_ERROR
+                          data:
+                            type: string
+                        required:
+                          - code
+                          - data
+                      - type: string
                 required:
                   - element
                   - id

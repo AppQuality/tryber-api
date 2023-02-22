@@ -1600,11 +1600,12 @@ export interface operations {
             /** @enum {string} */
             element: "payments";
             id: number;
-            message: {
+            message: Partial<{
               /** @enum {string} */
               code: "GENERIC_ERROR";
               data: string;
-            };
+            }> &
+              Partial<string>;
           };
         };
       };
