@@ -29,7 +29,6 @@ export const table = {
       "model VARCHAR(65)",
       "os VARCHAR(45)",
       "os_version VARCHAR(45)",
-      "version_id INTEGER",
       "is_perfect INTEGER DEFAULT 1",
     ]);
   },
@@ -64,7 +63,6 @@ type BugParams = {
   model?: string;
   os?: string;
   os_version?: string;
-  version_id?: number;
   is_perfect?: number;
 };
 const data: {
