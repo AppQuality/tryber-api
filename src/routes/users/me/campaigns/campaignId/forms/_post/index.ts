@@ -168,7 +168,6 @@ class RouteItem extends UserRoute<{
       reason: "Subscription to " + (await this.getCampaign()).title,
       creation_date: new Date().toISOString().split(".")[0].replace("T", " "),
       activity_id: 4,
-      version_id: -1, //WP compatibility fix
     });
   }
 
