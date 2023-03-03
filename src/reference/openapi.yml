@@ -349,6 +349,32 @@ paths:
                   - $ref: '#/components/schemas/PaginationData'
                     x-stoplight:
                       id: 5yjmbrz45vvne
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 1
+                        title: This is a Bug
+                        internalId: ID123
+                        status:
+                          id: 1
+                          name: refused
+                        type:
+                          id: 1
+                          name: crash
+                        severity:
+                          id: 1
+                          name: low
+                        tester:
+                          id: 1
+                          name: John
+                          surname: Doe
+                    start: 0
+                    size: 1
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
       parameters:
         - $ref: '#/components/parameters/limit'
         - $ref: '#/components/parameters/start'
@@ -362,6 +388,7 @@ paths:
               - status
           in: query
           name: orderBy
+          description: 'Order values by STATUS, TESTERID, SEVERITY'
         - $ref: '#/components/parameters/filterBy'
   '/campaigns/{campaign}/candidates':
     parameters:
