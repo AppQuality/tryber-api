@@ -226,6 +226,143 @@ paths:
         description: The Campaign data to edit
       security:
         - JWT: []
+  '/campaigns/{campaign}/bugs':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    get:
+      summary: Get all Campaign Bugs
+      tags:
+        - Campaign
+      operationId: get-campaigns-cid-bugs
+      description: 'Get all bugs of a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        x-stoplight:
+                          id: 6b7ujcqh1hpxr
+                        items:
+                          x-stoplight:
+                            id: 6h50gfscslf3x
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              x-stoplight:
+                                id: bxlejv1any0ir
+                            title:
+                              type: string
+                              x-stoplight:
+                                id: 58mzaszyp877p
+                            internalId:
+                              type: string
+                              x-stoplight:
+                                id: upswpbg11x56r
+                            status:
+                              type: object
+                              x-stoplight:
+                                id: fp81sdj02fxsm
+                              required:
+                                - id
+                                - name
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: rc26tbt3knrbd
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: sqi3ram9e14ue
+                            type:
+                              type: object
+                              x-stoplight:
+                                id: gsx8qijyngz9s
+                              required:
+                                - id
+                                - name
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: 3iztjazvy3cjd
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: 9rez8hq53upb6
+                            severity:
+                              type: object
+                              x-stoplight:
+                                id: 5v3ptlhxf3l79
+                              required:
+                                - id
+                                - name
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: 0zoz6ifn5b0e6
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: dx5bikw2nozir
+                            tester:
+                              type: object
+                              x-stoplight:
+                                id: k88rjmg4sluip
+                              required:
+                                - id
+                                - name
+                                - surname
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: kl66csndmtimn
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: lp2t1wmopde0a
+                                surname:
+                                  type: string
+                                  x-stoplight:
+                                    id: i6ggmlh3xxx0t
+                          required:
+                            - id
+                            - title
+                            - internalId
+                            - status
+                            - type
+                            - severity
+                            - tester
+                    required:
+                      - items
+                  - $ref: '#/components/schemas/PaginationData'
+                    x-stoplight:
+                      id: 5yjmbrz45vvne
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - severity
+              - testerId
+              - status
+          in: query
+          name: orderBy
+        - $ref: '#/components/parameters/filterBy'
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
