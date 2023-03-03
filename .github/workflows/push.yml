@@ -35,3 +35,4 @@ jobs:
           region: eu-west-1
           repo: appquality-api-express
           tags: ${{ steps.extract_branch.outputs.tag }}
+          extra_build_args: --build-arg NPM_TOKEN=${{ secrets.NPM_TOKEN }}

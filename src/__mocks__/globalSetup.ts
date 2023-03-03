@@ -50,8 +50,12 @@ import { table as workTypeTable } from "./mockedDb/workType";
 import { table as wpUserMetaTable } from "./mockedDb/wp_usermeta";
 import sqlite3 from "@src/features/sqlite";
 
+import { tryber } from "@src/features/database";
+
 export {};
 beforeAll(async () => {
+  await tryber.create();
+
   await levelRevTable.create();
   await receiptTable.create();
   await workTypeTable.create();
@@ -108,4 +112,8 @@ beforeAll(async () => {
   await PreselectionFormData.mock();
   await WpUsers.mock();
   await UserLevel.mock();
+});
+
+afterAll(async () => {
+  await tryber.destroy();
 });
