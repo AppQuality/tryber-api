@@ -23,7 +23,8 @@ export const table = {
       "application_section_id INTEGER",
       "note VARCHAR(3000)",
       "last_seen VARCHAR(30)",
-
+      "is_duplicated INTEGER(1) DEFAULT 0",
+      "duplicated_of_id INTEGER",
       "dev_id INTEGER",
       "manufacturer VARCHAR(65)",
       "model VARCHAR(65)",
