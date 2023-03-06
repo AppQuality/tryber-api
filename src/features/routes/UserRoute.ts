@@ -39,6 +39,13 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
     if (!olp) return false;
     return olp === true || olp?.includes(campaignId);
   }
+
+  protected hasAccessToBugs(campaignId: number) {
+    const olp = this.configuration.request.user.permission.admin?.appq_bug;
+    if (!olp) return false;
+    return olp === true || olp?.includes(campaignId);
+  }
+
   protected hasAccessTesterSelection(campaignId: number) {
     const olp =
       this.configuration.request.user.permission.admin?.appq_tester_selection;
