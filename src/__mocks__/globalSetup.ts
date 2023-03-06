@@ -30,7 +30,6 @@ import TesterDevice from "./mockedDb/testerDevice";
 import WpUsers from "./mockedDb/wp_users";
 import UserLevel from "./mockedDb/levels";
 import Experience from "./mockedDb/experience";
-import Taxonomy from "./mockedDb/bugTaxonomy";
 
 import { table as bugAdditionalFields } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
 import { table as bugTable } from "./mockedDb/bug";
@@ -113,9 +112,9 @@ beforeAll(async () => {
   await PreselectionFormData.mock();
   await WpUsers.mock();
   await UserLevel.mock();
-  await Taxonomy.mock();
 });
 
 afterAll(async () => {
+  await tryber.drop();
   await tryber.destroy();
 });

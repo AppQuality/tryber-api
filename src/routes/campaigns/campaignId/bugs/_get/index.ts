@@ -1,7 +1,6 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
-
-import * as db from "@src/features/db";
 import AdminCampaignRoute from "@src/features/routes/AdminCampaignRoute";
+import { tryber } from "@src/features/database";
 
 interface Tag {
   tag_id: number;
@@ -94,7 +93,6 @@ export default class BugsRoute extends AdminCampaignRoute<{
     const paginated = this.paginateBugs(filtered);
     const formatted = this.formatBugs(paginated);
 
-    console.log("formatted", formatted);
     return this.setSuccess(200, {
       items: formatted,
       start: this.start,
@@ -105,70 +103,49 @@ export default class BugsRoute extends AdminCampaignRoute<{
   }
 
   private async getBugs() {
-    const bugs: {
-      id: number;
-      internal_id: string;
-      campaign_id: number;
-      profile_id: number;
-      title: string;
-      status_id: number;
-      status_name: string;
-      severity: string;
-      type: string;
-      replicability: string;
-      note: string;
-      form_factor: string;
-      pc_type: string;
-      manufacturer: string;
-      model: string;
-      os: string;
-      os_version: string;
-      application_section: string;
-      application_section_id: number;
-      uc_title: string;
-      uc_simple_title: string;
-      uc_prefix: string;
-      is_duplicated: 0 | 1;
-      duplicated_of_id: number;
-      bug_replicability_id: number;
-      bug_type_id: number;
-      severity_id: number;
-      tags?: Tag[];
-    }[] = await db.query(
-      `SELECT 
-        b.id,
-        b.internal_id,
-        b.campaign_id,
-        b.message     AS title,
-        b.status_id,
-        status.name   AS status_name,
-        s.name        AS severity,
-        t.name        AS type,
-        b.application_section,
-        b.application_section_id,
-        uc.title as uc_title,
-        uc.simple_title as uc_simple_title,
-        uc.prefix as uc_prefix,
-        b.is_duplicated,
-        b.duplicated_of_id,
-        b.bug_replicability_id,
-        b.bug_type_id,
-        b.severity_id,
-        p.id         AS profile_id
-      FROM wp_appq_evd_bug b
-      JOIN wp_appq_evd_severity s ON (b.severity_id = s.id)
-      JOIN wp_appq_evd_bug_type t ON (b.bug_type_id = t.id)
-      JOIN wp_appq_evd_bug_replicability r ON (b.bug_replicability_id = r.id)
-      JOIN wp_appq_evd_bug_status status ON (b.status_id = status.id)
-      JOIN wp_appq_evd_profile p ON (b.wp_user_id = p.wp_user_id)
-      LEFT JOIN wp_crowd_appq_device device ON (b.dev_id = device.id)
-      LEFT JOIN wp_appq_campaign_task uc ON (uc.id = b.application_section_id)
-      WHERE b.campaign_id = ${this.cp_id}
-      AND b.publish = 1
-      GROUP BY b.id 
-      ORDER BY b.${this.orderBy} ${this.order}`
-    );
-    console.log("bugs", bugs);
+    const bugs = await tryber.tables.WpAppqEvdBug.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_evd_bug").as("id"),
+        "status_id",
+        "severity_id",
+        "bug_type_id",
+        "is_duplicated",
+        "duplicated_of_id",
+        tryber.ref("message").as("title"),
+        "bug_replicability_id",
+        "internal_id",
+        tryber
+          .ref("name")
+          .withSchema("wp_appq_evd_bug_status")
+          .as("status_name"),
+        tryber.ref("name").withSchema("wp_appq_evd_bug_type").as("type"),
+        tryber.ref("name").withSchema("wp_appq_evd_severity").as("severity"),
+        tryber.ref("id").withSchema("wp_appq_evd_profile").as("profile_id")
+      )
+      .join(
+        "wp_appq_evd_severity",
+        "wp_appq_evd_severity.id",
+        "wp_appq_evd_bug.severity_id"
+      )
+      .join(
+        "wp_appq_evd_bug_type",
+        "wp_appq_evd_bug_type.id",
+        "wp_appq_evd_bug.bug_type_id"
+      )
+      .join(
+        "wp_appq_evd_bug_status",
+        "wp_appq_evd_bug_status.id",
+        "wp_appq_evd_bug.status_id"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_appq_evd_bug.wp_user_id"
+      )
+      .where({
+        campaign_id: this.cp_id,
+      })
+      .orderBy(this.orderBy, this.order);
     if (!bugs) return false as const;
     return bugs;
   }
@@ -201,16 +178,6 @@ export default class BugsRoute extends AdminCampaignRoute<{
           id: bug.bug_type_id,
           name: bug.type,
         },
-        replicability: {
-          id: bug.bug_replicability_id,
-          name: bug.replicability,
-        },
-        application_section: {
-          id: bug.application_section_id,
-          title: bug.uc_title ?? bug.application_section,
-          ...(bug.uc_simple_title && { simple_title: bug.uc_simple_title }),
-          ...(bug.uc_prefix && { prefix: bug.uc_prefix }),
-        },
 
         siblings: this.getSiblingsOfBug(bug, bugs),
         ...(tags && { tags }),
@@ -219,8 +186,8 @@ export default class BugsRoute extends AdminCampaignRoute<{
   }
 
   private getSiblingsOfBug(
-    bug: { is_duplicated: 0 | 1; id: number; duplicated_of_id: number },
-    bugs: { is_duplicated: 0 | 1; id: number; duplicated_of_id: number }[]
+    bug: { is_duplicated: number; id: number; duplicated_of_id: number },
+    bugs: { is_duplicated: number; id: number; duplicated_of_id: number }[]
   ) {
     if (!bugs || !bugs.length) return 0;
 
@@ -267,39 +234,10 @@ export default class BugsRoute extends AdminCampaignRoute<{
       if (this.filterBugsByDuplicateStatus(bug) === false) return false;
       if (this.filterBugsByTags(bug) === false) return false;
       if (this.filterBugsBySeverity(bug) === false) return false;
-      if (this.filterBugsByReplicability(bug) === false) return false;
       if (this.filterBugsByType(bug) === false) return false;
-      if (this.filterBugsByUsecase(bug) === false) return false;
-      if (this.filterBugsByOs(bug) === false) return false;
       if (this.filterBugsBySearch(bug) === false) return false;
 
       return true;
-    });
-  }
-
-  private filterBugsByUsecase(
-    bug: Parameters<typeof this.filterBugs>[0][number]
-  ) {
-    if (!this.filterBy) return true;
-    if (!this.filterBy["usecases"]) return true;
-    if (typeof this.filterBy["usecases"] !== "string") return true;
-
-    const usecasesIds = this.filterBy["usecases"]
-      .split(",")
-      .filter((id) => !Number.isNaN(Number(id)))
-      .map((id) => Number(id));
-    return usecasesIds.includes(bug.application_section.id);
-  }
-
-  private filterBugsByOs(bug: Parameters<typeof this.filterBugs>[0][number]) {
-    if (!this.filterBy) return true;
-    if (!this.filterBy["os"]) return true;
-    if (typeof this.filterBy["os"] !== "string") return true;
-
-    const operatingSystems = this.filterBy["os"].split(",");
-
-    return operatingSystems.some((os) => {
-      return os.localeCompare(`${bug.os} ${bug.os_version}`) === 0;
     });
   }
 
@@ -350,21 +288,6 @@ export default class BugsRoute extends AdminCampaignRoute<{
       .filter((id) => id > 0);
 
     return typesToFilter.includes(bug.type.id);
-  }
-
-  private filterBugsByReplicability(
-    bug: Parameters<typeof this.filterBugs>[0][number]
-  ) {
-    if (!this.filterBy) return true;
-    if (!this.filterBy["replicabilities"]) return true;
-    if (typeof this.filterBy["replicabilities"] !== "string") return true;
-
-    const replicabilitiesToFilter = this.filterBy["replicabilities"]
-      .split(",")
-      .map((repId) => (parseInt(repId) > 0 ? parseInt(repId) : 0))
-      .filter((repId) => repId > 0);
-
-    return replicabilitiesToFilter.includes(bug.replicability.id);
   }
 
   private filterBugsBySearch(

@@ -1,5 +1,6 @@
 import UserRoute from "./UserRoute";
 import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 import OpenapiError from "../OpenapiError";
 
 type CampaignRouteParameters = { campaign: string };
@@ -47,14 +48,11 @@ export default class AdminCampaignRoute<
   }
 
   private async initCampaign() {
-    const campaigns: {
-      base_bug_internal_id: string;
-    }[] = await db.query(`
-      SELECT base_bug_internal_id
-      FROM wp_appq_evd_campaign 
-      WHERE id = ${this.cp_id}`);
-    if (!campaigns.length) return false;
-    return campaigns[0];
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(["base_bug_internal_id"])
+      .where({ id: this.cp_id })
+      .first();
+    return campaign;
   }
 
   protected async filter(): Promise<boolean> {
@@ -76,14 +74,10 @@ export default class AdminCampaignRoute<
       bug_id: number;
     }>
   > {
-    return await db.query(`
-      SELECT
-        tag_id,
-        display_name as tag_name,
-        bug_id
-      FROM wp_appq_bug_taxonomy
-      WHERE campaign_id = ${this.cp_id} and is_public=1
-    `);
+    return await tryber.tables.WpAppqBugTaxonomy.do()
+      .select(["tag_id", tryber.ref("display_name").as("tag_name"), "bug_id"])
+      .where({ id: this.cp_id })
+      .where({ is_public: 1 });
   }
 
   protected shouldShowNeedReview(): boolean {
