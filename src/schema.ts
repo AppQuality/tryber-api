@@ -31,6 +31,16 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/bugs": {
+    /** Get all bugs of a Campaign if you have access to it */
+    get: operations["get-campaigns-cid-bugs"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
   "/campaigns/{campaign}/candidates": {
     get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -867,6 +877,62 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["CampaignOptional"];
       };
+    };
+  };
+  /** Get all bugs of a Campaign if you have access to it */
+  "get-campaigns-cid-bugs": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+      query: {
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** The value to search for */
+        search?: components["parameters"]["search"];
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+        /** Order values by STATUS, TESTERID, SEVERITY */
+        orderBy?: "severity" | "testerId" | "status";
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              title: string;
+              internalId: string;
+              status: {
+                id: number;
+                name: string;
+              };
+              type: {
+                id: number;
+                name: string;
+              };
+              severity: {
+                id: number;
+                name: string;
+              };
+              tester: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+            }[];
+          } & components["schemas"]["PaginationData"];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-campaigns-campaign-candidates": {
