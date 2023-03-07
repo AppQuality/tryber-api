@@ -232,6 +232,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
 
     return bugs.filter((bug) => {
       if (this.filterBugsByDuplicateStatus(bug) === false) return false;
+      if (this.filterBugsByStatus(bug) === false) return false;
       if (this.filterBugsByTags(bug) === false) return false;
       if (this.filterBugsBySeverity(bug) === false) return false;
       if (this.filterBugsByType(bug) === false) return false;
@@ -275,6 +276,21 @@ export default class BugsRoute extends AdminCampaignRoute<{
       .filter((sevId) => sevId > 0);
 
     return severitiesToFilter.includes(bug.severity.id);
+  }
+
+  private filterBugsByStatus(
+    bug: Parameters<typeof this.filterBugs>[0][number]
+  ) {
+    if (!this.filterBy) return true;
+    if (!this.filterBy["status"]) return true;
+    if (typeof this.filterBy["status"] !== "string") return true;
+
+    const statusToFilter = this.filterBy["status"]
+      .split(",")
+      .map((statusId) => (parseInt(statusId) > 0 ? parseInt(statusId) : 0))
+      .filter((statusId) => statusId > 0);
+
+    return statusToFilter.includes(bug.status.id);
   }
 
   private filterBugsByType(bug: Parameters<typeof this.filterBugs>[0][number]) {
