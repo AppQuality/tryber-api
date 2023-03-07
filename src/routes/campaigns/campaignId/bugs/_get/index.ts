@@ -248,7 +248,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
     if (!this.filterBy && !this.search) return bugs;
 
     return bugs.filter((bug) => {
-      if (this.filterBugsByDuplicateStatus(bug) === false) return false;
+      if (this.filterBugsByDuplication(bug) === false) return false;
       if (this.filterBugsByStatus(bug) === false) return false;
       if (this.filterBugsByTags(bug) === false) return false;
       if (this.filterBugsBySeverity(bug) === false) return false;
@@ -259,13 +259,25 @@ export default class BugsRoute extends AdminCampaignRoute<{
     });
   }
 
-  private filterBugsByDuplicateStatus(
+  private filterBugsByDuplication(
     bug: Parameters<typeof this.filterBugs>[0][number]
   ) {
     if (!this.filterBy) return true;
-    if (!this.filterBy["is_duplicated"]) return true;
-
-    return bug.is_duplicated.toString() === this.filterBy["is_duplicated"];
+    if (!this.filterBy["duplication"]) return true;
+    if (typeof this.filterBy["duplication"] !== "string") return true;
+    if (this.filterBy["duplication"].includes(",")) {
+      return this.filterBy["duplication"].split(",").includes(bug.duplication);
+    }
+    switch (this.filterBy["duplication"]) {
+      case "duplicated":
+        return bug.duplication === "duplicated";
+      case "father":
+        return bug.duplication === "father";
+      case "unique":
+        return bug.duplication === "unique";
+      default:
+        return true;
+    }
   }
 
   private filterBugsByTags(bug: Parameters<typeof this.filterBugs>[0][number]) {
