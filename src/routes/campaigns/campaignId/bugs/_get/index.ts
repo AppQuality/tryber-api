@@ -314,9 +314,28 @@ export default class BugsRoute extends AdminCampaignRoute<{
 
     if (this.filterBugsBySearchById(bug) === true) return true;
 
-    return bug.title
-      .toLocaleLowerCase()
-      .includes(this.search.toLocaleLowerCase());
+    return (
+      this.isSearchInBugTitle(bug.title) ||
+      (bug.tags && this.isSearchInBugTags(bug.tags))
+    );
+  }
+
+  private isSearchInBugTitle(bugTitle: string) {
+    return (
+      this.search &&
+      bugTitle.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
+    );
+  }
+
+  private isSearchInBugTags(bugTags: { tag_name: string }[]) {
+    return bugTags.some((tag) => {
+      return (
+        this.search &&
+        tag.tag_name
+          .toLocaleLowerCase()
+          .includes(this.search.toLocaleLowerCase())
+      );
+    });
   }
 
   private filterBugsBySearchById(

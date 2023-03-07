@@ -291,9 +291,18 @@ describe("GET /campaigns/campaignId/bugs", () => {
         severity: { id: 1, name: "This is the Severity name 1" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
+      {
+        id: 3,
+        title: "this is title Bug 3",
+        internalId: "internal_id_1",
+        status: { id: 3, name: "This is the Status name 3" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 3, name: "This is the Severity name 3" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
     ]);
   });
-  it("Should return a bug list filtered by search keyword in title", async () => {
+  it("Should return a bug list filtered by search keyword in bug title", async () => {
     const response = await request(app)
       .get("/campaigns/1/bugs?search=keyword")
       .set("Authorization", "Bearer admin");
@@ -302,6 +311,25 @@ describe("GET /campaigns/campaignId/bugs", () => {
       {
         id: 4,
         title: "this is title Bug_4 keyword",
+        internalId: "internal_id_1",
+        status: { id: 2, name: "This is the Status name 2" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 2, name: "This is the Severity name 2" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+    ]);
+  });
+
+  it("Should return a bug list filtered by search keyword in tag title", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs?search=Tag_name_2")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    console.log(response.body.items);
+    expect(response.body.items).toEqual([
+      {
+        id: 2,
+        title: "this is title Bug 2",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
