@@ -67,17 +67,10 @@ export default class AdminCampaignRoute<
     return true;
   }
 
-  protected async getTags(): Promise<
-    Array<{
-      tag_id: number;
-      tag_name: string;
-      bug_id: number;
-    }>
-  > {
+  protected async getTags() {
     return await tryber.tables.WpAppqBugTaxonomy.do()
       .select(["tag_id", tryber.ref("display_name").as("tag_name"), "bug_id"])
-      .where({ id: this.cp_id })
-      .where({ is_public: 1 });
+      .where({ campaign_id: this.cp_id });
   }
 
   protected shouldShowNeedReview(): boolean {
