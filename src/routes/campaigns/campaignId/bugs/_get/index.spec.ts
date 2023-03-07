@@ -28,6 +28,7 @@ beforeAll(async () => {
   });
 
   await tryber.tables.WpAppqEvdBug.do().insert({
+    // Bug 1
     campaign_id: 1,
     status_id: 1,
     wp_user_id: 1,
@@ -37,7 +38,34 @@ beforeAll(async () => {
     bug_replicability_id: 1,
     bug_type_id: 1,
     internal_id: "internal_id_1",
-    message: "this is title Bug",
+    message: "this is title Bug 1",
+  });
+
+  await tryber.tables.WpAppqEvdBug.do().insert({
+    // Bug 2
+    campaign_id: 1,
+    status_id: 2,
+    wp_user_id: 1,
+    reviewer: 1,
+    last_editor_id: 1,
+    severity_id: 1,
+    bug_replicability_id: 1,
+    bug_type_id: 1,
+    internal_id: "internal_id_1",
+    message: "this is title Bug 2",
+  });
+  await tryber.tables.WpAppqEvdBug.do().insert({
+    // Bug 3
+    campaign_id: 1,
+    status_id: 3,
+    wp_user_id: 1,
+    reviewer: 1,
+    last_editor_id: 1,
+    severity_id: 1,
+    bug_replicability_id: 1,
+    bug_type_id: 1,
+    internal_id: "internal_id_1",
+    message: "this is title Bug 3",
   });
 
   await tryber.tables.WpAppqEvdSeverity.do().insert({
@@ -47,7 +75,15 @@ beforeAll(async () => {
 
   await tryber.tables.WpAppqEvdBugStatus.do().insert({
     id: 1,
-    name: "This is the Status name",
+    name: "This is the Status name 1",
+  });
+  await tryber.tables.WpAppqEvdBugStatus.do().insert({
+    id: 2,
+    name: "This is the Status name 2",
+  });
+  await tryber.tables.WpAppqEvdBugStatus.do().insert({
+    id: 3,
+    name: "This is the Status name 3",
   });
   await tryber.tables.WpAppqEvdBugType.do().insert({
     id: 1,
@@ -92,13 +128,57 @@ describe("GET /campaigns/campaignId/bugs", () => {
       .get("/campaigns/1/bugs")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("items");
-    console.log(response.body);
     expect(response.body.items).toEqual([
       {
         id: 1,
-        title: "this is title Bug",
+        title: "this is title Bug 1",
         internalId: "internal_id_1",
-        status: { id: 1, name: "This is the Status name" },
+        status: { id: 1, name: "This is the Status name 1" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 1, name: "This is the Severity name" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+      {
+        id: 2,
+        title: "this is title Bug 2",
+        internalId: "internal_id_1",
+        status: { id: 2, name: "This is the Status name 2" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 1, name: "This is the Severity name" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+      {
+        id: 3,
+        title: "this is title Bug 3",
+        internalId: "internal_id_1",
+        status: { id: 3, name: "This is the Status name 3" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 1, name: "This is the Severity name" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+    ]);
+  });
+
+  it("Should return a bug list filtered by status 1 and 3", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs?filterBy[status]=1,3")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual([
+      {
+        id: 1,
+        title: "this is title Bug 1",
+        internalId: "internal_id_1",
+        status: { id: 1, name: "This is the Status name 1" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 1, name: "This is the Severity name" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+      {
+        id: 3,
+        title: "this is title Bug 3",
+        internalId: "internal_id_1",
+        status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 1, name: "This is the Severity name" },
         tester: { id: 1, name: "John", surname: "Doe" },
