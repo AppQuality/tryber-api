@@ -449,6 +449,7 @@ export interface components {
     /** BugType */
     BugType: {
       id?: number;
+      name?: string;
     };
     Campaign: components["schemas"]["CampaignOptional"] &
       components["schemas"]["CampaignRequired"];
@@ -915,18 +916,9 @@ export interface operations {
               id: number;
               title: string;
               internalId: string;
-              status: {
-                id: number;
-                name: string;
-              };
-              type: {
-                id: number;
-                name: string;
-              };
-              severity: {
-                id: number;
-                name: string;
-              };
+              status: components["schemas"]["BugStatus"];
+              type: components["schemas"]["BugType"];
+              severity: components["schemas"]["BugSeverity"];
               tester: {
                 id: number;
               };
