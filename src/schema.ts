@@ -441,6 +441,11 @@ export interface components {
       name?: string;
       description?: string;
     };
+    /** BugTag */
+    BugTag: {
+      id: number;
+      name: string;
+    };
     /** BugType */
     BugType: {
       id?: number;
@@ -924,9 +929,8 @@ export interface operations {
               };
               tester: {
                 id: number;
-                name: string;
-                surname: string;
               };
+              tags?: components["schemas"]["BugTag"][];
             }[];
           } & components["schemas"]["PaginationData"];
         };
