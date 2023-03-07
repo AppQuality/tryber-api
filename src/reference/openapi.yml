@@ -296,8 +296,16 @@ paths:
                                   type: integer
                             tags:
                               type: array
+                              x-stoplight:
+                                id: df9srb1myz2fz
                               items:
                                 $ref: '#/components/schemas/BugTag'
+                            duplication:
+                              type: string
+                              enum:
+                                - father
+                                - unique
+                                - duplicated
                           required:
                             - id
                             - title
@@ -306,6 +314,7 @@ paths:
                             - type
                             - severity
                             - tester
+                            - duplication
                     required:
                       - items
                   - $ref: '#/components/schemas/PaginationData'
@@ -7197,6 +7206,8 @@ components:
             id: cfqmlim771epe
     BugTag:
       title: BugTag
+      x-stoplight:
+        id: jvlhg08q1soru
       type: object
       properties:
         id:

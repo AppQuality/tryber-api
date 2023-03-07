@@ -17,7 +17,6 @@ export default class BugsRoute extends AdminCampaignRoute<{
   private order: string = "ASC";
   private orderBy: string = "id";
 
-  private tags: (Tag & { bug_id: number })[] = [];
   private filterBy: { [key: string]: string | string[] } | undefined;
   private filterByTags: number[] | undefined;
   private filterByNoTags: boolean = false;
@@ -53,13 +52,11 @@ export default class BugsRoute extends AdminCampaignRoute<{
 
   protected async init(): Promise<void> {
     await super.init();
-    this.tags = await this.getTags();
-
-    this.initFilterByTags();
+    await this.initFilterByTags();
   }
 
-  private initFilterByTags() {
-    const tags = this.tags;
+  private async initFilterByTags() {
+    const tags = await this.getTags();
     if (
       this.filterBy &&
       this.filterBy["tags"] &&
@@ -88,7 +85,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
 
     if (!bugs || !bugs.length) return this.emptyResponse();
 
-    const enhancedBugs = this.enhanceBugs(bugs);
+    const enhancedBugs = await this.enhanceBugs(bugs);
     const filtered = this.filterBugs(enhancedBugs);
     const paginated = this.paginateBugs(filtered);
     const formatted = this.formatBugs(paginated);
@@ -150,63 +147,77 @@ export default class BugsRoute extends AdminCampaignRoute<{
     return bugs;
   }
 
-  private enhanceBugs(bugs: Awaited<ReturnType<typeof this.getBugs>>) {
+  private async enhanceBugs(bugs: Awaited<ReturnType<typeof this.getBugs>>) {
     if (!bugs || !bugs.length) return [];
 
-    return bugs.map((bug) => {
-      let tags;
-      if (this.tags.length) {
-        tags = this.tags
-          .filter((tag) => tag.bug_id === bug.id)
-          .map((tag) => ({
-            id: tag.id,
-            name: tag.name,
-          }));
-        if (!tags.length) tags = undefined;
-      }
-      return {
-        ...bug,
-        status: {
-          id: bug.status_id,
-          name: bug.status_name,
-        },
-        severity: {
-          id: bug.severity_id,
-          name: bug.severity,
-        },
-        type: {
-          id: bug.bug_type_id,
-          name: bug.type,
-        },
-
-        siblings: this.getSiblingsOfBug(bug, bugs),
-        ...(tags && { tags }),
-      };
-    });
+    const bugsWithDuplication = await this.enhanceBugsWithDuplication<
+      typeof bugs[number]
+    >(bugs);
+    const bugWithTags = await this.enhanceBugsWithTags<
+      typeof bugsWithDuplication[number]
+    >(bugsWithDuplication);
+    return bugWithTags.map((bug) => ({
+      ...bug,
+      status: {
+        id: bug.status_id,
+        name: bug.status_name,
+      },
+      severity: {
+        id: bug.severity_id,
+        name: bug.severity,
+      },
+      type: {
+        id: bug.bug_type_id,
+        name: bug.type,
+      },
+    }));
   }
 
-  private getSiblingsOfBug(
-    bug: { is_duplicated: number; id: number; duplicated_of_id: number },
-    bugs: { is_duplicated: number; id: number; duplicated_of_id: number }[]
+  private async enhanceBugsWithDuplication<
+    T extends { is_duplicated: number; id: number }
+  >(bugs: T[]) {
+    const result = [];
+    for (const bug of bugs) {
+      result.push({
+        ...bug,
+        duplication: await this.getDuplicationStatus<T>(bug),
+      });
+    }
+    return result;
+  }
+
+  private async getDuplicationStatus<T>(
+    bug: T & { is_duplicated: number; id: number }
   ) {
-    if (!bugs || !bugs.length) return 0;
+    if (bug.is_duplicated) return "duplicated" as const;
 
-    const otherBugs = bugs.filter((search) => search.id !== bug.id);
+    const data = await tryber.tables.WpAppqEvdBug.do()
+      .count("id", { as: "count" })
+      .where({
+        duplicated_of_id: bug.id,
+      });
+    const children = data[0]?.count || 0;
 
-    return bug.is_duplicated === 0 ? getChildren() : getSiblingsAndFather();
+    return children > 0 ? ("father" as const) : ("unique" as const);
+  }
 
-    function getChildren() {
-      return otherBugs.filter((search) => search.duplicated_of_id === bug.id)
-        .length;
+  private async enhanceBugsWithTags<T extends { id: number }>(bugs: T[]) {
+    const result = [];
+    for (const bug of bugs) {
+      const bugTags = await tryber.tables.WpAppqBugTaxonomy.do()
+        .select([
+          tryber.ref("tag_id").as("id"),
+          tryber.ref("display_name").as("name"),
+        ])
+        .where({ campaign_id: this.cp_id })
+        .where({ bug_id: bug.id });
+
+      result.push({
+        ...bug,
+        tags: bugTags.length ? bugTags : undefined,
+      });
     }
-
-    function getSiblingsAndFather() {
-      return otherBugs.filter((search) => {
-        if (search.duplicated_of_id === bug.duplicated_of_id) return true;
-        if (search.id === bug.duplicated_of_id) return true;
-        return false;
-      }).length;
-    }
+    return result;
   }
 
   private formatBugs(bugs: ReturnType<typeof this.paginateBugs>) {
@@ -221,12 +232,13 @@ export default class BugsRoute extends AdminCampaignRoute<{
         tester: {
           id: bug.profile_id,
         },
+        duplication: bug.duplication,
         tags: bug.tags,
       };
     });
   }
 
-  private filterBugs(bugs: ReturnType<typeof this.enhanceBugs>) {
+  private filterBugs(bugs: Awaited<ReturnType<typeof this.enhanceBugs>>) {
     if (!this.filterBy && !this.search) return bugs;
 
     return bugs.filter((bug) => {

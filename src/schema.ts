@@ -931,6 +931,8 @@ export interface operations {
                 id: number;
               };
               tags?: components["schemas"]["BugTag"][];
+              /** @enum {string} */
+              duplication: "father" | "unique" | "duplicated";
             }[];
           } & components["schemas"]["PaginationData"];
         };

@@ -189,6 +189,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 1,
+        duplication: "unique",
         title: "this is title Bug 1",
         internalId: "internal_id_1",
         status: { id: 1, name: "This is the Status name 1" },
@@ -199,6 +200,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 2,
+        duplication: "unique",
         title: "this is title Bug 2",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -209,6 +211,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 3,
+        duplication: "unique",
         title: "this is title Bug 3",
         internalId: "internal_id_1",
         status: { id: 3, name: "This is the Status name 3" },
@@ -219,6 +222,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 4,
+        duplication: "unique",
         title: "this is title Bug_4 keyword",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -228,6 +232,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 5,
+        duplication: "unique",
         title: "this is title Bug five",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -246,6 +251,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 1,
+        duplication: "unique",
         title: "this is title Bug 1",
         internalId: "internal_id_1",
         status: { id: 1, name: "This is the Status name 1" },
@@ -256,6 +262,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 3,
+        duplication: "unique",
         title: "this is title Bug 3",
         internalId: "internal_id_1",
         status: { id: 3, name: "This is the Status name 3" },
@@ -275,6 +282,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 2,
+        duplication: "unique",
         title: "this is title Bug 2",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -285,6 +293,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 3,
+        duplication: "unique",
         title: "this is title Bug 3",
         internalId: "internal_id_1",
         status: { id: 3, name: "This is the Status name 3" },
@@ -295,6 +304,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 4,
+        duplication: "unique",
         title: "this is title Bug_4 keyword",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -304,6 +314,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 5,
+        duplication: "unique",
         title: "this is title Bug five",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -322,6 +333,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 1,
+        duplication: "unique",
         title: "this is title Bug 1",
         internalId: "internal_id_1",
         status: { id: 1, name: "This is the Status name 1" },
@@ -332,6 +344,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
       },
       {
         id: 3,
+        duplication: "unique",
         title: "this is title Bug 3",
         internalId: "internal_id_1",
         status: { id: 3, name: "This is the Status name 3" },
@@ -350,6 +363,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 4,
+        duplication: "unique",
         title: "this is title Bug_4 keyword",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -368,6 +382,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 2,
+        duplication: "unique",
         title: "this is title Bug 2",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
@@ -387,6 +402,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
     expect(response.body.items).toEqual([
       {
         id: 5,
+        duplication: "unique",
         title: "this is title Bug five",
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
