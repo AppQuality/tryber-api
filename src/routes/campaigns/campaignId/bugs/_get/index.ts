@@ -312,23 +312,23 @@ export default class BugsRoute extends AdminCampaignRoute<{
     if (!this.search) return true;
     if (this.search.length <= 0) return true;
 
-    if (this.filterBugsBySearchById(bug) === true) return true;
+    if (this.searchInId(bug) === true) return true;
+    if (this.searchInTitle(bug) === true) return true;
+    if (this.searchInTags(bug) === true) return true;
 
-    return (
-      this.isSearchInBugTitle(bug.title) ||
-      (bug.tags && this.isSearchInBugTags(bug.tags))
-    );
+    return false;
   }
 
-  private isSearchInBugTitle(bugTitle: string) {
+  private searchInTitle(bug: Parameters<typeof this.filterBugs>[0][number]) {
     return (
       this.search &&
-      bugTitle.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
+      bug.title.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
     );
   }
 
-  private isSearchInBugTags(bugTags: { tag_name: string }[]) {
-    return bugTags.some((tag) => {
+  private searchInTags(bug: Parameters<typeof this.filterBugs>[0][number]) {
+    if (!bug.tags) return false;
+    return bug.tags.some((tag) => {
       return (
         this.search &&
         tag.tag_name
@@ -338,9 +338,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
     });
   }
 
-  private filterBugsBySearchById(
-    bug: Parameters<typeof this.filterBugs>[0][number]
-  ) {
+  private searchInId(bug: Parameters<typeof this.filterBugs>[0][number]) {
     if (!this.search) return true;
 
     const textToSearch = this.search.replace(this.baseBugInternalId, "");
