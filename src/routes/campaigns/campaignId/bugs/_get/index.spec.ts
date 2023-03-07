@@ -48,7 +48,7 @@ beforeAll(async () => {
     wp_user_id: 1,
     reviewer: 1,
     last_editor_id: 1,
-    severity_id: 1,
+    severity_id: 2,
     bug_replicability_id: 1,
     bug_type_id: 1,
     internal_id: "internal_id_1",
@@ -61,7 +61,7 @@ beforeAll(async () => {
     wp_user_id: 1,
     reviewer: 1,
     last_editor_id: 1,
-    severity_id: 1,
+    severity_id: 3,
     bug_replicability_id: 1,
     bug_type_id: 1,
     internal_id: "internal_id_1",
@@ -70,7 +70,15 @@ beforeAll(async () => {
 
   await tryber.tables.WpAppqEvdSeverity.do().insert({
     id: 1,
-    name: "This is the Severity name",
+    name: "This is the Severity name 1",
+  });
+  await tryber.tables.WpAppqEvdSeverity.do().insert({
+    id: 2,
+    name: "This is the Severity name 2",
+  });
+  await tryber.tables.WpAppqEvdSeverity.do().insert({
+    id: 3,
+    name: "This is the Severity name 3",
   });
 
   await tryber.tables.WpAppqEvdBugStatus.do().insert({
@@ -105,7 +113,6 @@ describe("GET /campaigns/campaignId/bugs", () => {
     const response = await request(app)
       .get("/campaigns/1/bugs")
       .set("Authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(403);
   });
 
@@ -135,7 +142,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         internalId: "internal_id_1",
         status: { id: 1, name: "This is the Status name 1" },
         type: { id: 1, name: "This is the Type name" },
-        severity: { id: 1, name: "This is the Severity name" },
+        severity: { id: 1, name: "This is the Severity name 1" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
       {
@@ -144,7 +151,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         internalId: "internal_id_1",
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
-        severity: { id: 1, name: "This is the Severity name" },
+        severity: { id: 2, name: "This is the Severity name 2" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
       {
@@ -153,7 +160,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         internalId: "internal_id_1",
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
-        severity: { id: 1, name: "This is the Severity name" },
+        severity: { id: 3, name: "This is the Severity name 3" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
     ]);
@@ -171,7 +178,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         internalId: "internal_id_1",
         status: { id: 1, name: "This is the Status name 1" },
         type: { id: 1, name: "This is the Type name" },
-        severity: { id: 1, name: "This is the Severity name" },
+        severity: { id: 1, name: "This is the Severity name 1" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
       {
@@ -180,7 +187,34 @@ describe("GET /campaigns/campaignId/bugs", () => {
         internalId: "internal_id_1",
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
-        severity: { id: 1, name: "This is the Severity name" },
+        severity: { id: 3, name: "This is the Severity name 3" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+    ]);
+  });
+
+  it("Should return a bug list filtered by severities 2 and 3", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs?filterBy[severities]=2,3")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual([
+      {
+        id: 2,
+        title: "this is title Bug 2",
+        internalId: "internal_id_1",
+        status: { id: 2, name: "This is the Status name 2" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 2, name: "This is the Severity name 2" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+      {
+        id: 3,
+        title: "this is title Bug 3",
+        internalId: "internal_id_1",
+        status: { id: 3, name: "This is the Status name 3" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 3, name: "This is the Severity name 3" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
     ]);
