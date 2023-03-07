@@ -296,12 +296,8 @@ paths:
                                   type: integer
                             tags:
                               type: array
-                              x-stoplight:
-                                id: df9srb1myz2fz
                               items:
                                 $ref: '#/components/schemas/BugTag'
-                                x-stoplight:
-                                  id: rhd4hvq0kawzb
                           required:
                             - id
                             - title
@@ -7201,8 +7197,6 @@ components:
             id: cfqmlim771epe
     BugTag:
       title: BugTag
-      x-stoplight:
-        id: jvlhg08q1soru
       type: object
       properties:
         id:
