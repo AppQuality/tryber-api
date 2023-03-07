@@ -194,7 +194,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 1, name: "This is the Status name 1" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 1, name: "This is the Severity name 1" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 1, name: "This is the Tag name 1" }],
       },
       {
         id: 2,
@@ -203,7 +204,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 2, name: "This is the Tag_name_2" }],
       },
       {
         id: 3,
@@ -212,7 +214,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 3, name: "This is the Severity name 3" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 3, name: "This is the Tag name 3" }],
       },
       {
         id: 4,
@@ -221,7 +224,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
       },
       {
         id: 5,
@@ -230,7 +233,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
       },
     ]);
   });
@@ -248,7 +251,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 1, name: "This is the Status name 1" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 1, name: "This is the Severity name 1" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 1, name: "This is the Tag name 1" }],
       },
       {
         id: 3,
@@ -257,7 +261,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 3, name: "This is the Severity name 3" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 3, name: "This is the Tag name 3" }],
       },
     ]);
   });
@@ -275,7 +280,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 2, name: "This is the Tag_name_2" }],
       },
       {
         id: 3,
@@ -284,7 +290,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 3, name: "This is the Severity name 3" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 3, name: "This is the Tag name 3" }],
       },
       {
         id: 4,
@@ -293,7 +300,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
       },
       {
         id: 5,
@@ -302,7 +309,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
       },
     ]);
   });
@@ -320,7 +327,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 1, name: "This is the Status name 1" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 1, name: "This is the Severity name 1" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 1, name: "This is the Tag name 1" }],
       },
       {
         id: 3,
@@ -329,7 +337,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 3, name: "This is the Severity name 3" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 3, name: "This is the Tag name 3" }],
       },
     ]);
   });
@@ -346,7 +355,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
       },
     ]);
   });
@@ -364,7 +373,8 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
+        tags: [{ id: 2, name: "This is the Tag_name_2" }],
       },
     ]);
   });
@@ -382,7 +392,7 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 2, name: "This is the Status name 2" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 2, name: "This is the Severity name 2" },
-        tester: { id: 1, name: "John", surname: "Doe" },
+        tester: { id: 1 },
       },
     ]);
   });

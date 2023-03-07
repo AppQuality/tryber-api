@@ -3,8 +3,8 @@ import AdminCampaignRoute from "@src/features/routes/AdminCampaignRoute";
 import { tryber } from "@src/features/database";
 
 interface Tag {
-  tag_id: number;
-  tag_name: string;
+  id: number;
+  name: string;
 }
 
 export default class BugsRoute extends AdminCampaignRoute<{
@@ -71,7 +71,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
       this.filterByTags = this.filterBy["tags"]
         .split(",")
         .map((tagId) => (parseInt(tagId) > 0 ? parseInt(tagId) : 0))
-        .filter((tagId) => tags.map((t) => t.tag_id).includes(tagId));
+        .filter((tagId) => tags.map((tag) => tag.id).includes(tagId));
     }
   }
 
@@ -159,8 +159,8 @@ export default class BugsRoute extends AdminCampaignRoute<{
         tags = this.tags
           .filter((tag) => tag.bug_id === bug.id)
           .map((tag) => ({
-            tag_id: tag.tag_id,
-            tag_name: tag.tag_name,
+            id: tag.id,
+            name: tag.name,
           }));
         if (!tags.length) tags = undefined;
       }
@@ -220,9 +220,8 @@ export default class BugsRoute extends AdminCampaignRoute<{
         severity: bug.severity,
         tester: {
           id: bug.profile_id,
-          name: "John",
-          surname: "Doe",
         },
+        tags: bug.tags,
       };
     });
   }
@@ -259,7 +258,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
 
     if (!bug.tags?.length) return false;
 
-    const bugTagsIds = bug.tags.map((tag) => tag.tag_id);
+    const bugTagsIds = bug.tags.map((tag) => tag.id);
     return this.filterByTags.some((tag) => bugTagsIds.includes(tag));
   }
 
@@ -331,9 +330,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
     return bug.tags.some((tag) => {
       return (
         this.search &&
-        tag.tag_name
-          .toLocaleLowerCase()
-          .includes(this.search.toLocaleLowerCase())
+        tag.name.toLocaleLowerCase().includes(this.search.toLocaleLowerCase())
       );
     });
   }

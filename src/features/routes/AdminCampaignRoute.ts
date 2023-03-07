@@ -69,7 +69,11 @@ export default class AdminCampaignRoute<
 
   protected async getTags() {
     return await tryber.tables.WpAppqBugTaxonomy.do()
-      .select(["tag_id", tryber.ref("display_name").as("tag_name"), "bug_id"])
+      .select([
+        tryber.ref("tag_id").as("id"),
+        tryber.ref("display_name").as("name"),
+        "bug_id",
+      ])
       .where({ campaign_id: this.cp_id });
   }
 
