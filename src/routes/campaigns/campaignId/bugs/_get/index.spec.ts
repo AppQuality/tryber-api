@@ -325,7 +325,6 @@ describe("GET /campaigns/campaignId/bugs", () => {
       .get("/campaigns/1/bugs?search=Tag_name_2")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("items");
-    console.log(response.body.items);
     expect(response.body.items).toEqual([
       {
         id: 2,
