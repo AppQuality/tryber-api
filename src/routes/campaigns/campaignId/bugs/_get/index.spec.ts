@@ -68,6 +68,20 @@ beforeAll(async () => {
     message: "this is title Bug 3",
   });
 
+  await tryber.tables.WpAppqEvdBug.do().insert({
+    // Bug 4
+    campaign_id: 1,
+    status_id: 2,
+    wp_user_id: 1,
+    reviewer: 1,
+    last_editor_id: 1,
+    severity_id: 2,
+    bug_replicability_id: 1,
+    bug_type_id: 1,
+    internal_id: "internal_id_1",
+    message: "this is title Bug_4 keyword",
+  });
+
   await tryber.tables.WpAppqEvdSeverity.do().insert({
     id: 1,
     name: "This is the Severity name 1",
@@ -109,7 +123,7 @@ beforeAll(async () => {
     tag_id: 2,
     bug_id: 2,
     campaign_id: 1,
-    display_name: "This is the Tag name 2",
+    display_name: "This is the Tag_name_2",
     is_public: 1,
     description: "This is the Tag description 2",
   });
@@ -187,6 +201,15 @@ describe("GET /campaigns/campaignId/bugs", () => {
         severity: { id: 3, name: "This is the Severity name 3" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
+      {
+        id: 4,
+        title: "this is title Bug_4 keyword",
+        internalId: "internal_id_1",
+        status: { id: 2, name: "This is the Status name 2" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 2, name: "This is the Severity name 2" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
     ]);
   });
 
@@ -241,6 +264,15 @@ describe("GET /campaigns/campaignId/bugs", () => {
         severity: { id: 3, name: "This is the Severity name 3" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
+      {
+        id: 4,
+        title: "this is title Bug_4 keyword",
+        internalId: "internal_id_1",
+        status: { id: 2, name: "This is the Status name 2" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 2, name: "This is the Severity name 2" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
     ]);
   });
 
@@ -257,6 +289,23 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 1, name: "This is the Status name 1" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 1, name: "This is the Severity name 1" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+    ]);
+  });
+  it("Should return a bug list filtered by search keyword in title", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs?search=keyword")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual([
+      {
+        id: 4,
+        title: "this is title Bug_4 keyword",
+        internalId: "internal_id_1",
+        status: { id: 2, name: "This is the Status name 2" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 2, name: "This is the Severity name 2" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
     ]);
