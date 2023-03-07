@@ -291,15 +291,17 @@ paths:
                               type: object
                               required:
                                 - id
-                                - name
-                                - surname
                               properties:
                                 id:
                                   type: integer
-                                name:
-                                  type: string
-                                surname:
-                                  type: string
+                            tags:
+                              type: array
+                              x-stoplight:
+                                id: df9srb1myz2fz
+                              items:
+                                $ref: '#/components/schemas/BugTag'
+                                x-stoplight:
+                                  id: rhd4hvq0kawzb
                           required:
                             - id
                             - title
@@ -2320,32 +2322,32 @@ paths:
                     name: My form
                     fields:
                       - id: 3
-                        question: "What's your [custom question]?"
+                        question: 'What''s your [custom question]?'
                         type: text
                       - id: 12
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 9
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 24
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_1
                       - id: 29
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_12
                         options:
                           - 1
                           - 5
                           - 14
                       - id: 89
-                        question: "What's your [profile question]?"
+                        question: 'What''s your [profile question]?'
                         type: gender
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -2362,27 +2364,27 @@ paths:
                 example-1:
                   name: My form
                   fields:
-                    - question: "What's your [custom question]?"
+                    - question: 'What''s your [custom question]?'
                       type: text
-                    - question: "What's your [custom selectable question]?"
+                    - question: 'What''s your [custom selectable question]?'
                       type: select
                       options:
                         - Option1
                         - Option2
-                    - question: "What's your [custom selectable question]?"
+                    - question: 'What''s your [custom selectable question]?'
                       type: select
                       options:
                         - Option1
                         - Option2
-                    - question: "What's your [cuf text question]?"
+                    - question: 'What''s your [cuf text question]?'
                       type: cuf_1
-                    - question: "What's your [cuf text question]?"
+                    - question: 'What''s your [cuf text question]?'
                       type: cuf_12
                       options:
                         - 1
                         - 5
                         - 14
-                    - question: "What's your [profile question]?"
+                    - question: 'What''s your [profile question]?'
                       type: gender
               properties:
                 name:
@@ -2521,32 +2523,32 @@ paths:
                     name: My form
                     fields:
                       - id: 3
-                        question: "What's your [custom question]?"
+                        question: 'What''s your [custom question]?'
                         type: text
                       - id: 12
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 9
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 24
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_1
                       - id: 29
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_12
                         options:
                           - 1
                           - 5
                           - 14
                       - id: 89
-                        question: "What's your [profile question]?"
+                        question: 'What''s your [profile question]?'
                         type: gender
                 Basic Example with linked Campaign:
                   value:
@@ -2557,32 +2559,32 @@ paths:
                       name: My campaign
                     fields:
                       - id: 3
-                        question: "What's your [custom question]?"
+                        question: 'What''s your [custom question]?'
                         type: text
                       - id: 12
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 9
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 24
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_1
                       - id: 29
-                        question: "What's your [cuf select question]?"
+                        question: 'What''s your [cuf select question]?'
                         type: cuf_12
                         options:
                           - 1
                           - 5
                           - 14
                       - id: 89
-                        question: "What's your [profile question]?"
+                        question: 'What''s your [profile question]?'
                         type: gender
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -2608,32 +2610,32 @@ paths:
                     name: My form
                     fields:
                       - id: 3
-                        question: "What's your [custom question]?"
+                        question: 'What''s your [custom question]?'
                         type: text
                       - id: 12
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 9
-                        question: "What's your [custom selectable question]?"
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                         options:
                           - Option1
                           - Option2
                       - id: 24
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_1
                       - id: 29
-                        question: "What's your [cuf text question]?"
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_12
                         options:
                           - 1
                           - 5
                           - 14
                       - id: 89
-                        question: "What's your [profile question]?"
+                        question: 'What''s your [profile question]?'
                         type: gender
                 properties:
                   id:
@@ -2682,32 +2684,32 @@ paths:
                   campaign: 1
                   fields:
                     - id: 3
-                      question: "What's your [custom question]?"
+                      question: 'What''s your [custom question]?'
                       type: text
                     - id: 12
-                      question: "What's your [custom selectable question]?"
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                       options:
                         - Option1
                         - Option2
                     - id: 9
-                      question: "What's your [custom selectable question]?"
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                       options:
                         - Option1
                         - Option2
                     - id: 24
-                      question: "What's your [cuf text question]?"
+                      question: 'What''s your [cuf text question]?'
                       type: cuf_1
                     - id: 29
-                      question: "What's your [cuf select question]?"
+                      question: 'What''s your [cuf select question]?'
                       type: cuf_12
                       options:
                         - 1
                         - 5
                         - 7
                         - 14
-                    - question: "What's your [profile question]?"
+                    - question: 'What''s your [profile question]?'
                       type: gender
               properties:
                 name:
@@ -2733,32 +2735,32 @@ paths:
                   campaign: 2
                   fields:
                     - id: 3
-                      question: "What's your [custom question]?"
+                      question: 'What''s your [custom question]?'
                       type: text
                     - id: 12
-                      question: "What's your [custom selectable question]?"
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                       options:
                         - Option1
                         - Option2
                     - id: 9
-                      question: "What's your [custom selectable question]?"
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                       options:
                         - Option1
                         - Option2
                     - id: 24
-                      question: "What's your [cuf text question]?"
+                      question: 'What''s your [cuf text question]?'
                       type: cuf_1
                     - id: 29
-                      question: "What's your [cuf select question]?"
+                      question: 'What''s your [cuf select question]?'
                       type: cuf_12
                       options:
                         - 1
                         - 5
                         - 9
                         - 14
-                    - question: "What's your [profile question]?"
+                    - question: 'What''s your [profile question]?'
                       type: gender
       description: ''
   '/campaigns/{campaign}/forms':
@@ -7010,7 +7012,7 @@ paths:
                       value: '@pippo'
                       validation:
                         regex: '^@[a-zA-Z]*$'
-                        error: "Inserire l'utente telegram in questo formato: @pippo"
+                        error: 'Inserire l''utente telegram in questo formato: @pippo'
                     - id: 7
                       question: Con che genere ti identifichi?
                       type: gender
@@ -7195,6 +7197,21 @@ components:
           type: string
         description:
           type: string
+          x-stoplight:
+            id: cfqmlim771epe
+    BugTag:
+      title: BugTag
+      x-stoplight:
+        id: jvlhg08q1soru
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
     BugType:
       title: BugType
       type: object
