@@ -258,11 +258,47 @@ paths:
                             internalId:
                               type: string
                             status:
-                              $ref: '#/components/schemas/BugStatus'
+                              required:
+                                - id
+                                - name
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: n73x1n0nnxkxf
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: dacx901e7g9zy
                             type:
-                              $ref: '#/components/schemas/BugType'
+                              required:
+                                - id
+                                - name
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: d18tiayyeme3m
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: xsj7bkactyw0w
                             severity:
-                              $ref: '#/components/schemas/BugSeverity'
+                              required:
+                                - id
+                                - name
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: 317godru5vhl1
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: 4n6voo8tbnh5i
                             tester:
                               type: object
                               required:
@@ -7199,10 +7235,6 @@ components:
       properties:
         id:
           type: integer
-        name:
-          type: string
-          x-stoplight:
-            id: k160a95evmrvu
     Campaign:
       description: ''
       x-examples: {}
