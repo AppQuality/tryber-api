@@ -97,6 +97,30 @@ beforeAll(async () => {
     id: 1,
     name: "This is the Type name",
   });
+  await tryber.tables.WpAppqBugTaxonomy.do().insert({
+    tag_id: 1,
+    bug_id: 1,
+    campaign_id: 1,
+    display_name: "This is the Tag name 1",
+    is_public: 1,
+    description: "This is the Tag description 1",
+  });
+  await tryber.tables.WpAppqBugTaxonomy.do().insert({
+    tag_id: 2,
+    bug_id: 2,
+    campaign_id: 1,
+    display_name: "This is the Tag name 2",
+    is_public: 1,
+    description: "This is the Tag description 2",
+  });
+  await tryber.tables.WpAppqBugTaxonomy.do().insert({
+    tag_id: 3,
+    bug_id: 3,
+    campaign_id: 1,
+    display_name: "This is the Tag name 3",
+    is_public: 0,
+    description: "This is the Tag description 3",
+  });
 });
 
 describe("GET /campaigns/campaignId/bugs", () => {
@@ -215,6 +239,24 @@ describe("GET /campaigns/campaignId/bugs", () => {
         status: { id: 3, name: "This is the Status name 3" },
         type: { id: 1, name: "This is the Type name" },
         severity: { id: 3, name: "This is the Severity name 3" },
+        tester: { id: 1, name: "John", surname: "Doe" },
+      },
+    ]);
+  });
+
+  it("Should return a bug list filtered by tags 1 and 3", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs?filterBy[tags]=1,3")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual([
+      {
+        id: 1,
+        title: "this is title Bug 1",
+        internalId: "internal_id_1",
+        status: { id: 1, name: "This is the Status name 1" },
+        type: { id: 1, name: "This is the Type name" },
+        severity: { id: 1, name: "This is the Severity name 1" },
         tester: { id: 1, name: "John", surname: "Doe" },
       },
     ]);
