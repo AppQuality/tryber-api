@@ -258,35 +258,11 @@ paths:
                             internalId:
                               type: string
                             status:
-                              type: object
-                              required:
-                                - id
-                                - name
-                              properties:
-                                id:
-                                  type: integer
-                                name:
-                                  type: string
+                              $ref: '#/components/schemas/BugStatus'
                             type:
-                              type: object
-                              required:
-                                - id
-                                - name
-                              properties:
-                                id:
-                                  type: integer
-                                name:
-                                  type: string
+                              $ref: '#/components/schemas/BugType'
                             severity:
-                              type: object
-                              required:
-                                - id
-                                - name
-                              properties:
-                                id:
-                                  type: integer
-                                name:
-                                  type: string
+                              $ref: '#/components/schemas/BugSeverity'
                             tester:
                               type: object
                               required:
@@ -7223,6 +7199,10 @@ components:
       properties:
         id:
           type: integer
+        name:
+          type: string
+          x-stoplight:
+            id: k160a95evmrvu
     Campaign:
       description: ''
       x-examples: {}
