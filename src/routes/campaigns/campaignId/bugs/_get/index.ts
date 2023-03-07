@@ -153,9 +153,11 @@ export default class BugsRoute extends AdminCampaignRoute<{
     const bugsWithDuplication = await this.enhanceBugsWithDuplication<
       typeof bugs[number]
     >(bugs);
+
     const bugWithTags = await this.enhanceBugsWithTags<
       typeof bugsWithDuplication[number]
     >(bugsWithDuplication);
+
     return bugWithTags.map((bug) => ({
       ...bug,
       status: {
@@ -202,22 +204,26 @@ export default class BugsRoute extends AdminCampaignRoute<{
   }
 
   private async enhanceBugsWithTags<T extends { id: number }>(bugs: T[]) {
-    const result = [];
-    for (const bug of bugs) {
-      const bugTags = await tryber.tables.WpAppqBugTaxonomy.do()
-        .select([
-          tryber.ref("tag_id").as("id"),
-          tryber.ref("display_name").as("name"),
-        ])
-        .where({ campaign_id: this.cp_id })
-        .where({ bug_id: bug.id });
+    const campaignTags = await tryber.tables.WpAppqBugTaxonomy.do()
+      .select([
+        tryber.ref("tag_id").as("id"),
+        tryber.ref("display_name").as("name"),
+        "bug_id",
+      ])
+      .where({ campaign_id: this.cp_id });
+    return bugs.map((bug) => {
+      const bugTags = campaignTags
+        .filter((tag) => tag.bug_id === bug.id)
+        .map((tag) => ({
+          id: tag.id,
+          name: tag.name,
+        }));
 
-      result.push({
+      return {
         ...bug,
         tags: bugTags.length ? bugTags : undefined,
-      });
-    }
-    return result;
+      };
+    });
   }
 
   private formatBugs(bugs: ReturnType<typeof this.paginateBugs>) {
