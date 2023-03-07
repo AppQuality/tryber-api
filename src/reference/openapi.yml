@@ -265,12 +265,8 @@ paths:
                               properties:
                                 id:
                                   type: integer
-                                  x-stoplight:
-                                    id: n73x1n0nnxkxf
                                 name:
                                   type: string
-                                  x-stoplight:
-                                    id: dacx901e7g9zy
                             type:
                               required:
                                 - id
@@ -279,12 +275,8 @@ paths:
                               properties:
                                 id:
                                   type: integer
-                                  x-stoplight:
-                                    id: d18tiayyeme3m
                                 name:
                                   type: string
-                                  x-stoplight:
-                                    id: xsj7bkactyw0w
                             severity:
                               required:
                                 - id
@@ -293,12 +285,8 @@ paths:
                               properties:
                                 id:
                                   type: integer
-                                  x-stoplight:
-                                    id: 317godru5vhl1
                                 name:
                                   type: string
-                                  x-stoplight:
-                                    id: 4n6voo8tbnh5i
                             tester:
                               type: object
                               required:
@@ -308,8 +296,6 @@ paths:
                                   type: integer
                             tags:
                               type: array
-                              x-stoplight:
-                                id: df9srb1myz2fz
                               items:
                                 $ref: '#/components/schemas/BugTag'
                             duplication:
@@ -7214,12 +7200,8 @@ components:
           type: string
         description:
           type: string
-          x-stoplight:
-            id: cfqmlim771epe
     BugTag:
       title: BugTag
-      x-stoplight:
-        id: jvlhg08q1soru
       type: object
       properties:
         id:
