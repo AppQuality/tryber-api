@@ -27,49 +27,50 @@ beforeAll(async () => {
     customer_title: "",
   });
 
-  await tryber.tables.WpAppqEvdBug.do().insert({
-    // Bug 1
-    campaign_id: 1,
-    status_id: 1,
-    wp_user_id: 1,
-    reviewer: 1,
-    last_editor_id: 1,
-    severity_id: 1,
-    bug_replicability_id: 1,
-    bug_type_id: 1,
-    internal_id: "internal_id_1",
-    message: "this is title Bug 1",
-    is_favorite: 0,
-  });
-
-  await tryber.tables.WpAppqEvdBug.do().insert({
-    // Bug 2
-    campaign_id: 1,
-    status_id: 1,
-    wp_user_id: 1,
-    reviewer: 1,
-    last_editor_id: 1,
-    severity_id: 1,
-    bug_replicability_id: 1,
-    bug_type_id: 1,
-    internal_id: "internal_id_1",
-    message: "this is title Bug 2",
-    is_favorite: 1,
-  });
-  await tryber.tables.WpAppqEvdBug.do().insert({
-    // Bug 3
-    campaign_id: 1,
-    status_id: 1,
-    wp_user_id: 1,
-    reviewer: 1,
-    last_editor_id: 1,
-    severity_id: 1,
-    bug_replicability_id: 1,
-    bug_type_id: 1,
-    internal_id: "internal_id_1",
-    message: "this is title Bug 3",
-    is_favorite: 0,
-  });
+  await tryber.tables.WpAppqEvdBug.do().insert([
+    {
+      id: 1,
+      campaign_id: 1,
+      status_id: 1,
+      wp_user_id: 1,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 1,
+      bug_replicability_id: 1,
+      bug_type_id: 1,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 1",
+      is_favorite: 0,
+    },
+    {
+      id: 2,
+      campaign_id: 1,
+      status_id: 1,
+      wp_user_id: 1,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 1,
+      bug_replicability_id: 1,
+      bug_type_id: 1,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 2",
+      is_favorite: 1,
+    },
+    {
+      id: 3,
+      campaign_id: 1,
+      status_id: 1,
+      wp_user_id: 1,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 1,
+      bug_replicability_id: 1,
+      bug_type_id: 1,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 3",
+      is_favorite: 0,
+    },
+  ]);
 
   await tryber.tables.WpAppqEvdSeverity.do().insert({
     id: 1,

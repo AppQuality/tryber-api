@@ -3,36 +3,36 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 
 beforeAll(async () => {
-  await tryber.tables.WpAppqEvdProfile.do().insert({
-    id: 1,
-    name: "John",
-    surname: "Doe",
-    wp_user_id: 1,
-    email: "",
-    employment_id: 1,
-    education_id: 1,
-  });
-  await tryber.tables.WpAppqEvdProfile.do().insert({
-    id: 2,
-    name: "John",
-    surname: "Doe",
-    wp_user_id: 2,
-    email: "",
-    employment_id: 1,
-    education_id: 1,
-  });
-  await tryber.tables.WpAppqEvdProfile.do().insert({
-    id: 3,
-    name: "John",
-    surname: "Doe",
-    wp_user_id: 3,
-    email: "",
-    employment_id: 1,
-    education_id: 1,
-  });
-  await tryber.tables.WpUsers.do().insert({ ID: 1 });
-  await tryber.tables.WpUsers.do().insert({ ID: 2 });
-  await tryber.tables.WpUsers.do().insert({ ID: 3 });
+  await tryber.tables.WpAppqEvdProfile.do().insert([
+    {
+      id: 1,
+      name: "John",
+      surname: "Doe",
+      wp_user_id: 1,
+      email: "",
+      employment_id: 1,
+      education_id: 1,
+    },
+    {
+      id: 2,
+      name: "Johny",
+      surname: "Dolly",
+      wp_user_id: 2,
+      email: "",
+      employment_id: 1,
+      education_id: 1,
+    },
+    {
+      id: 3,
+      name: "Johns",
+      surname: "Snows",
+      wp_user_id: 3,
+      email: "",
+      employment_id: 1,
+      education_id: 1,
+    },
+  ]);
+  await tryber.tables.WpUsers.do().insert([{ ID: 1 }, { ID: 2 }, { ID: 3 }]);
   await tryber.tables.WpAppqEvdCampaign.do().insert({
     id: 1,
     platform_id: 1,
@@ -47,83 +47,90 @@ beforeAll(async () => {
     customer_title: "",
   });
 
-  await tryber.tables.WpAppqEvdBug.do().insert({
-    // Bug 1
-    campaign_id: 1,
-    status_id: 3,
-    wp_user_id: 3,
-    reviewer: 1,
-    last_editor_id: 1,
-    severity_id: 1,
-    bug_replicability_id: 1,
-    bug_type_id: 1,
-    internal_id: "internal_id_1",
-    message: "this is title Bug 1",
-  });
+  await tryber.tables.WpAppqEvdBug.do().insert([
+    {
+      id: 1,
+      campaign_id: 1,
+      status_id: 3,
+      wp_user_id: 3,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 1,
+      bug_replicability_id: 1,
+      bug_type_id: 1,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 1",
+    },
+    {
+      id: 2,
+      campaign_id: 1,
+      status_id: 2,
+      wp_user_id: 1,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 3,
+      bug_replicability_id: 1,
+      bug_type_id: 2,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 2",
+    },
+    {
+      id: 3,
+      campaign_id: 1,
+      status_id: 1,
+      wp_user_id: 2,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 2,
+      bug_replicability_id: 1,
+      bug_type_id: 3,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 3",
+    },
+  ]);
 
-  await tryber.tables.WpAppqEvdBug.do().insert({
-    // Bug 2
-    campaign_id: 1,
-    status_id: 2,
-    wp_user_id: 1,
-    reviewer: 1,
-    last_editor_id: 1,
-    severity_id: 3,
-    bug_replicability_id: 1,
-    bug_type_id: 2,
-    internal_id: "internal_id_1",
-    message: "this is title Bug 2",
-  });
-  await tryber.tables.WpAppqEvdBug.do().insert({
-    // Bug 3
-    campaign_id: 1,
-    status_id: 1,
-    wp_user_id: 2,
-    reviewer: 1,
-    last_editor_id: 1,
-    severity_id: 2,
-    bug_replicability_id: 1,
-    bug_type_id: 3,
-    internal_id: "internal_id_1",
-    message: "this is title Bug 3",
-  });
-
-  await tryber.tables.WpAppqEvdSeverity.do().insert({
-    id: 1,
-    name: "This is the Severity name 1",
-  });
-  await tryber.tables.WpAppqEvdSeverity.do().insert({
-    id: 2,
-    name: "This is the Severity name 2",
-  });
-  await tryber.tables.WpAppqEvdSeverity.do().insert({
-    id: 3,
-    name: "This is the Severity name 3",
-  });
-  await tryber.tables.WpAppqEvdBugStatus.do().insert({
-    id: 1,
-    name: "This is the Status name 1",
-  });
-  await tryber.tables.WpAppqEvdBugStatus.do().insert({
-    id: 2,
-    name: "This is the Status name 2",
-  });
-  await tryber.tables.WpAppqEvdBugStatus.do().insert({
-    id: 3,
-    name: "This is the Status name 3",
-  });
-  await tryber.tables.WpAppqEvdBugType.do().insert({
-    id: 1,
-    name: "This is the Type name 1",
-  });
-  await tryber.tables.WpAppqEvdBugType.do().insert({
-    id: 2,
-    name: "This is the Type name 2",
-  });
-  await tryber.tables.WpAppqEvdBugType.do().insert({
-    id: 3,
-    name: "This is the Type name 3",
-  });
+  await tryber.tables.WpAppqEvdSeverity.do().insert([
+    {
+      id: 1,
+      name: "This is the Severity name 1",
+    },
+    {
+      id: 2,
+      name: "This is the Severity name 2",
+    },
+    {
+      id: 3,
+      name: "This is the Severity name 3",
+    },
+  ]);
+  await tryber.tables.WpAppqEvdBugStatus.do().insert([
+    {
+      id: 1,
+      name: "This is the Status name 1",
+    },
+    {
+      id: 2,
+      name: "This is the Status name 2",
+    },
+    {
+      id: 3,
+      name: "This is the Status name 3",
+    },
+  ]);
+  await tryber.tables.WpAppqEvdBugType.do().insert([
+    {
+      id: 1,
+      name: "This is the Type name 1",
+    },
+    {
+      id: 2,
+      name: "This is the Type name 2",
+    },
+    {
+      id: 3,
+      name: "This is the Type name 3",
+    },
+  ]);
 });
 
 describe("GET /campaigns/campaignId/bugs - orderBy", () => {
