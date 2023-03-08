@@ -265,19 +265,8 @@ export default class BugsRoute extends AdminCampaignRoute<{
     if (!this.filterBy) return true;
     if (!this.filterBy["duplication"]) return true;
     if (typeof this.filterBy["duplication"] !== "string") return true;
-    if (this.filterBy["duplication"].includes(",")) {
-      return this.filterBy["duplication"].split(",").includes(bug.duplication);
-    }
-    switch (this.filterBy["duplication"]) {
-      case "duplicated":
-        return bug.duplication === "duplicated";
-      case "father":
-        return bug.duplication === "father";
-      case "unique":
-        return bug.duplication === "unique";
-      default:
-        return true;
-    }
+
+    return this.filterBy["duplication"].split(",").includes(bug.duplication);
   }
 
   private filterBugsByTags(bug: Parameters<typeof this.filterBugs>[0][number]) {
