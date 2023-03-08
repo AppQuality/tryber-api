@@ -14,8 +14,8 @@ export default class BugsRoute extends AdminCampaignRoute<{
 }> {
   private limit: number | false = false;
   private start: number = 0;
-  private order: string = "ASC";
-  private orderBy: string = "id";
+  private order: "ASC" | "DESC" = "ASC";
+  private orderBy: "severity" | "testerId" | "status" | "type" | "id" = "id";
 
   private filterBy: { [key: string]: string | string[] } | undefined;
   private filterByTags: number[] | undefined;
@@ -40,12 +40,16 @@ export default class BugsRoute extends AdminCampaignRoute<{
 
   private setOrderBy() {
     const query = this.getQuery();
-    if (query.orderBy && ["severity_id"].includes(query.orderBy))
+    if (
+      query.orderBy &&
+      ["severity", "testerId", "status", "type", "id"].includes(query.orderBy)
+    )
       this.orderBy = query.orderBy;
   }
 
   private setOrder() {
     const query = this.getQuery();
+    if (!query.order && query.orderBy === undefined) this.order = "DESC"; // default order id ID DESC
     if (query.order && ["ASC", "DESC"].includes(query.order))
       this.order = query.order;
   }
@@ -100,6 +104,13 @@ export default class BugsRoute extends AdminCampaignRoute<{
   }
 
   private async getBugs() {
+    const columnMapping = {
+      severity: "severity_id",
+      testerId: "profile_id",
+      status: "status_id",
+      type: "bug_type_id",
+      id: "id",
+    };
     const bugs = await tryber.tables.WpAppqEvdBug.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_bug").as("id"),
@@ -142,7 +153,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
       .where({
         campaign_id: this.cp_id,
       })
-      .orderBy(this.orderBy, this.order);
+      .orderBy(columnMapping[this.orderBy], this.order);
     if (!bugs) return false as const;
     return bugs;
   }
