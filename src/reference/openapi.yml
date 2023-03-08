@@ -353,9 +353,10 @@ paths:
               - severity
               - testerId
               - status
+              - type
           in: query
           name: orderBy
-          description: 'Order values by STATUS, TESTERID, SEVERITY'
+          description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE'
         - $ref: '#/components/parameters/filterBy'
   '/campaigns/{campaign}/candidates':
     parameters:
