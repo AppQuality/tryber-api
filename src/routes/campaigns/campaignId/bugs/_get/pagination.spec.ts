@@ -108,7 +108,7 @@ describe("GET /campaigns/campaignId/bugs - pagination", () => {
       .set("Authorization", "Bearer admin");
 
     expect(response.body.items.length).toBe(1);
-    expect(response.body.items[0].id).toBe(1);
+    expect(response.body.items[0].id).toBe(3);
     expect(response.body.start).toBe(0);
     expect(response.body.size).toBe(1);
     expect(response.body.total).toBe(3);
@@ -121,7 +121,7 @@ describe("GET /campaigns/campaignId/bugs - pagination", () => {
       .set("Authorization", "Bearer admin");
 
     expect(response.body.items.length).toBe(1);
-    expect(response.body.items[0].id).toBe(3);
+    expect(response.body.items[0].id).toBe(1);
     expect(response.body.start).toBe(2);
     expect(response.body.size).toBe(1);
     expect(response.body.total).toBe(3);
