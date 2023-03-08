@@ -12,7 +12,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
   parameters: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["path"];
   query: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["query"];
 }> {
-  private limit: number = 100;
+  private limit: number | false = false;
   private start: number = 0;
   private order: string = "ASC";
   private orderBy: string = "id";
@@ -93,7 +93,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
     return this.setSuccess(200, {
       items: formatted,
       start: this.start,
-      limit: this.limit,
+      limit: this.limit ? this.limit : undefined,
       size: formatted.length,
       total: filtered.length,
     });
@@ -372,7 +372,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
     return this.setSuccess(200, {
       items: [],
       start: this.start,
-      limit: this.limit,
+      limit: 0,
       size: 0,
       total: 0,
     });
