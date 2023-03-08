@@ -933,6 +933,7 @@ export interface operations {
               tags?: components["schemas"]["BugTag"][];
               /** @enum {string} */
               duplication: "father" | "unique" | "duplicated";
+              isFavourite: boolean;
             }[];
           } & components["schemas"]["PaginationData"];
         };

@@ -119,6 +119,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
         "bug_type_id",
         "is_duplicated",
         "duplicated_of_id",
+        "is_favorite",
         tryber.ref("message").as("title"),
         "bug_replicability_id",
         "internal_id",
@@ -251,6 +252,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
         },
         duplication: bug.duplication,
         tags: bug.tags,
+        isFavourite: !!bug.is_favorite,
       };
     });
   }

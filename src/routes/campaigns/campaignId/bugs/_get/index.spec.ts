@@ -39,6 +39,7 @@ beforeAll(async () => {
     bug_type_id: 1,
     internal_id: "internal_id_1",
     message: "this is title Bug 1",
+    is_favorite: 0,
   });
 
   await tryber.tables.WpAppqEvdBug.do().insert({
@@ -53,6 +54,7 @@ beforeAll(async () => {
     bug_type_id: 1,
     internal_id: "internal_id_1",
     message: "this is title Bug 2",
+    is_favorite: 1,
   });
   await tryber.tables.WpAppqEvdBug.do().insert({
     // Bug 3
@@ -66,6 +68,7 @@ beforeAll(async () => {
     bug_type_id: 1,
     internal_id: "internal_id_1",
     message: "this is title Bug 3",
+    is_favorite: 0,
   });
 
   await tryber.tables.WpAppqEvdSeverity.do().insert({
@@ -125,6 +128,30 @@ describe("GET /campaigns/campaignId/bugs", () => {
         }),
         expect.objectContaining({
           id: 3,
+        }),
+      ])
+    );
+    expect(response.body.items.length).toBe(3);
+  });
+
+  it("Should return a bug list with is_favourite foreach bug", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          isFavourite: false,
+        }),
+        expect.objectContaining({
+          id: 2,
+          isFavourite: true,
+        }),
+        expect.objectContaining({
+          id: 3,
+          isFavourite: false,
         }),
       ])
     );
