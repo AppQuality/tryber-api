@@ -68,6 +68,7 @@ beforeAll(async () => {
     bug_type_id: 1,
     internal_id: "internal_id_1",
     message: "this is title Bug five",
+    is_favorite: 1,
   });
 
   await tryber.tables.WpAppqEvdSeverity.do().insert({
@@ -140,6 +141,19 @@ describe("GET /campaigns/campaignId/bugs", () => {
   it("Should return a bug list filtered by search keyword in bugId", async () => {
     const response = await request(app)
       .get("/campaigns/1/bugs?search=5")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 5,
+        }),
+      ])
+    );
+  });
+  it("Should search favorite bugs with *", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs?search=*")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("items");
     expect(response.body.items).toEqual(

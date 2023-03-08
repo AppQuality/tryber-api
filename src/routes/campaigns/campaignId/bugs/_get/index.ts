@@ -343,11 +343,17 @@ export default class BugsRoute extends AdminCampaignRoute<{
     if (!this.search) return true;
     if (this.search.length <= 0) return true;
 
+    if (this.searchFavorites(bug) === true) return true;
     if (this.searchInId(bug) === true) return true;
     if (this.searchInTitle(bug) === true) return true;
     if (this.searchInTags(bug) === true) return true;
 
     return false;
+  }
+
+  private searchFavorites(bug: Parameters<typeof this.filterBugs>[0][number]) {
+    if (!this.search || this.search.trim() !== "*") return false;
+    return bug.is_favorite != 0;
   }
 
   private searchInTitle(bug: Parameters<typeof this.filterBugs>[0][number]) {
