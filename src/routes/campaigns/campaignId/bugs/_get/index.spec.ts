@@ -88,10 +88,6 @@ describe("GET /campaigns/campaignId/bugs", () => {
     const response = await request(app).get("/campaigns/1/bugs");
     expect(response.status).toBe(403);
   });
-  it("Should return 403 if logged in", async () => {
-    const response = await request(app).get("/campaigns/1/bugs");
-    expect(response.status).toBe(403);
-  });
 
   it("Should return 403 if logged in as not admin user", async () => {
     const response = await request(app)
