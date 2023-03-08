@@ -347,6 +347,7 @@ export default class BugsRoute extends AdminCampaignRoute<{
     if (this.searchInId(bug) === true) return true;
     if (this.searchInTitle(bug) === true) return true;
     if (this.searchInTags(bug) === true) return true;
+    if (this.searchInProfileId(bug) === true) return true;
 
     return false;
   }
@@ -354,6 +355,14 @@ export default class BugsRoute extends AdminCampaignRoute<{
   private searchFavorites(bug: Parameters<typeof this.filterBugs>[0][number]) {
     if (!this.search || this.search.trim() !== "*") return false;
     return bug.is_favorite != 0;
+  }
+  private searchInProfileId(
+    bug: Parameters<typeof this.filterBugs>[0][number]
+  ) {
+    return (
+      this.search &&
+      this.search.toLocaleLowerCase().includes(bug.profile_id.toString())
+    );
   }
 
   private searchInTitle(bug: Parameters<typeof this.filterBugs>[0][number]) {
