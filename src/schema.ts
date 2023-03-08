@@ -900,8 +900,8 @@ export interface operations {
         search?: components["parameters"]["search"];
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
-        /** Order values by STATUS, TESTERID, SEVERITY */
-        orderBy?: "severity" | "testerId" | "status";
+        /** Order values by STATUS, TESTERID, SEVERITY, TYPE, ID */
+        orderBy?: "severity" | "testerId" | "status" | "type" | "id";
         /** Key-value Array for item filtering */
         filterBy?: components["parameters"]["filterBy"];
       };
