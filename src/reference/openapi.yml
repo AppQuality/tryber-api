@@ -306,8 +306,6 @@ paths:
                                 - duplicated
                             isFavourite:
                               type: boolean
-                              x-stoplight:
-                                id: 19awuj6q7yssg
                           required:
                             - id
                             - title
