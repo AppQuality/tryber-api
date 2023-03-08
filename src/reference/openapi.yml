@@ -258,30 +258,30 @@ paths:
                             internalId:
                               type: string
                             status:
+                              type: object
                               required:
                                 - id
                                 - name
-                              type: object
                               properties:
                                 id:
                                   type: integer
                                 name:
                                   type: string
                             type:
+                              type: object
                               required:
                                 - id
                                 - name
-                              type: object
                               properties:
                                 id:
                                   type: integer
                                 name:
                                   type: string
                             severity:
+                              type: object
                               required:
                                 - id
                                 - name
-                              type: object
                               properties:
                                 id:
                                   type: integer
@@ -304,6 +304,10 @@ paths:
                                 - father
                                 - unique
                                 - duplicated
+                            is_favourite:
+                              type: boolean
+                              x-stoplight:
+                                id: 19awuj6q7yssg
                           required:
                             - id
                             - title
@@ -313,6 +317,7 @@ paths:
                             - severity
                             - tester
                             - duplication
+                            - is_favourite
                     required:
                       - items
                   - $ref: '#/components/schemas/PaginationData'
