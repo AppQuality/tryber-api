@@ -337,8 +337,8 @@ paths:
                           name: low
                         tester:
                           id: 1
-                          name: John
-                          surname: Doe
+                        duplication: unique
+                        isFavourite: true
                     start: 0
                     size: 1
         '403':
