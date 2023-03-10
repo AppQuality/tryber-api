@@ -1,41 +1,33 @@
-/** OPENAPI-ROUTE: get-levels */
-import * as db from "@src/features/db";
-import debugMessage from "@src/features/debugMessage";
-import { Context } from "openapi-backend";
+/** OPENAPI-CLASS: get-levels */
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+import OpenapiError from "@src/features/OpenapiError";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    let levels: StoplightOperations["get-levels"]["responses"]["200"]["content"]["application/json"] =
-      [];
-    levels = await db.query(`
-    SELECT id, name, reach_exp_pts AS reach, hold_exp_pts AS hold
-    FROM wp_appq_activity_level_definition
-    `);
-    if (!levels.length) {
-      throw Error("No levels");
+export default class Route extends UserRoute<{
+  response: StoplightOperations["get-levels"]["responses"]["200"]["content"]["application/json"];
+}> {
+  protected async prepare(): Promise<void> {
+    const rows = await tryber.tables.WpAppqActivityLevelDefinition.do().select([
+      "id",
+      "name",
+      tryber.ref("reach_exp_pts").as("reach"),
+      tryber.ref("hold_exp_pts").as("hold"),
+    ]);
+
+    if (!rows.length) {
+      return this.setError(404, new OpenapiError("No levels found"));
     }
 
-    res.status_code = 200;
-    levels = levels.map((level) => {
-      return {
-        id: level.id,
-        name: level.name,
-        reach: level.reach ?? undefined,
-        hold: level.hold ?? undefined,
-      };
-    });
-    return levels;
-  } catch (err) {
-    debugMessage(err);
+    this.setSuccess(
+      200,
+      rows.map((level) => {
+        return {
+          id: level.id,
+          name: level.name,
+          reach: level.reach ?? undefined,
+          hold: level.hold ?? undefined,
+        };
+      })
+    );
   }
-  res.status_code = 404;
-  return {
-    element: "levels",
-    id: 0,
-    message: "No levels found",
-  };
-};
+}
