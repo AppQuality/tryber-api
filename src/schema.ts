@@ -31,6 +31,16 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/bugs": {
+    /** Get all bugs of a Campaign if you have access to it */
+    get: operations["get-campaigns-cid-bugs"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
   "/campaigns/{campaign}/candidates": {
     get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -84,6 +94,14 @@ export interface paths {
   };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/stats": {
+    get: operations["get-campaigns-campaign-stats"];
     parameters: {
       path: {
         campaign: string;
@@ -430,6 +448,11 @@ export interface components {
       id?: number;
       name?: string;
       description?: string;
+    };
+    /** BugTag */
+    BugTag: {
+      id: number;
+      name: string;
     };
     /** BugType */
     BugType: {
@@ -869,6 +892,64 @@ export interface operations {
       };
     };
   };
+  /** Get all bugs of a Campaign if you have access to it */
+  "get-campaigns-cid-bugs": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+      query: {
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** The value to search for */
+        search?: components["parameters"]["search"];
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+        /** Order values by STATUS, TESTERID, SEVERITY, TYPE, ID */
+        orderBy?: "severity" | "testerId" | "status" | "type" | "id";
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              title: string;
+              internalId: string;
+              status: {
+                id: number;
+                name: string;
+              };
+              type: {
+                id: number;
+                name: string;
+              };
+              severity: {
+                id: number;
+                name: string;
+              };
+              tester: {
+                id: number;
+              };
+              tags?: components["schemas"]["BugTag"][];
+              /** @enum {string} */
+              duplication: "father" | "unique" | "duplicated";
+              isFavourite: boolean;
+            }[];
+          } & components["schemas"]["PaginationData"];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
   "get-campaigns-campaign-candidates": {
     parameters: {
       path: {
@@ -1211,6 +1292,23 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-campaigns-campaign-stats": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            selected: number;
+          };
+        };
+      };
     };
   };
   /** Get all certificatio */

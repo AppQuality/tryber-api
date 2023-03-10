@@ -226,6 +226,142 @@ paths:
         description: The Campaign data to edit
       security:
         - JWT: []
+  '/campaigns/{campaign}/bugs':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    get:
+      summary: Get all Campaign Bugs
+      tags:
+        - Campaign
+      operationId: get-campaigns-cid-bugs
+      description: 'Get all bugs of a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            title:
+                              type: string
+                            internalId:
+                              type: string
+                            status:
+                              type: object
+                              required:
+                                - id
+                                - name
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                            type:
+                              type: object
+                              required:
+                                - id
+                                - name
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                            severity:
+                              type: object
+                              required:
+                                - id
+                                - name
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                            tester:
+                              type: object
+                              required:
+                                - id
+                              properties:
+                                id:
+                                  type: integer
+                            tags:
+                              type: array
+                              items:
+                                $ref: '#/components/schemas/BugTag'
+                            duplication:
+                              type: string
+                              enum:
+                                - father
+                                - unique
+                                - duplicated
+                            isFavourite:
+                              type: boolean
+                          required:
+                            - id
+                            - title
+                            - internalId
+                            - status
+                            - type
+                            - severity
+                            - tester
+                            - duplication
+                            - isFavourite
+                    required:
+                      - items
+                  - $ref: '#/components/schemas/PaginationData'
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 1
+                        title: This is a Bug
+                        internalId: ID123
+                        status:
+                          id: 1
+                          name: refused
+                        type:
+                          id: 1
+                          name: crash
+                        severity:
+                          id: 1
+                          name: low
+                        tester:
+                          id: 1
+                        duplication: unique
+                        isFavourite: true
+                    start: 0
+                    size: 1
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/search'
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - severity
+              - testerId
+              - status
+              - type
+              - id
+          in: query
+          name: orderBy
+          description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
+        - $ref: '#/components/parameters/filterBy'
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
@@ -2677,6 +2813,33 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       operationId: get-campaigns-campaign-forms
+      description: ''
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/stats':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get stats for a specific campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  selected:
+                    type: integer
+                required:
+                  - selected
+              examples: {}
+      operationId: get-campaigns-campaign-stats
       description: ''
       security:
         - JWT: []
@@ -7069,6 +7232,17 @@ components:
           type: string
         description:
           type: string
+    BugTag:
+      title: BugTag
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+        - id
+        - name
     BugType:
       title: BugType
       type: object
@@ -7384,8 +7558,6 @@ components:
     CustomUserFieldsType:
       type: string
       title: CustomUserFieldsType
-      x-stoplight:
-        id: owpjzbp3zweqe
       enum:
         - text
         - select
@@ -7731,8 +7903,6 @@ components:
     Gender:
       type: string
       title: Gender
-      x-stoplight:
-        id: ongto6juifn3f
       enum:
         - male
         - female
@@ -7740,8 +7910,6 @@ components:
         - other
     PaginationData:
       title: PaginationData
-      x-stoplight:
-        id: qih6s4lp0zdtj
       type: object
       properties:
         start:

@@ -10,5 +10,5 @@ export const tryber = tryberDb({
     password: config.db.password,
     database: config.db.database,
   },
-  pool: { min: 0, max: 7 },
+  pool: { min: 1, max: 7 },
 });

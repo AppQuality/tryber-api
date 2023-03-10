@@ -115,5 +115,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await tryber.drop();
   await tryber.destroy();
 });
