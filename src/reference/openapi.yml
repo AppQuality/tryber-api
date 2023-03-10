@@ -2836,8 +2836,6 @@ paths:
                 properties:
                   selected:
                     type: integer
-                    x-stoplight:
-                      id: zgxi35zoxertd
                 required:
                   - selected
               examples: {}
