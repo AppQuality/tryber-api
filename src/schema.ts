@@ -100,6 +100,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/stats": {
+    get: operations["get-campaigns-campaign-stats"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/certifications": {
     /** Get all certificatio */
     get: operations["get-certifications"];
@@ -1284,6 +1292,23 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-campaigns-campaign-stats": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            selected: number;
+          };
+        };
+      };
     };
   };
   /** Get all certificatio */
