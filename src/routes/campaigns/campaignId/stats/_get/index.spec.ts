@@ -3,6 +3,27 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 
 beforeAll(async () => {
+  await tryber.tables.WpAppqEvdProfile.do().insert([
+    {
+      id: 1,
+      name: "John",
+      surname: "Doe",
+      wp_user_id: 1,
+      email: "",
+      employment_id: 1,
+      education_id: 1,
+    },
+    {
+      id: 2,
+      name: "John",
+      surname: "Doe",
+      wp_user_id: 2,
+      email: "",
+      employment_id: 1,
+      education_id: 1,
+    },
+  ]);
+  await tryber.tables.WpUsers.do().insert([{ ID: 1 }, { ID: 2 }]);
   await tryber.tables.WpAppqEvdCampaign.do().insert({
     id: 1,
     platform_id: 1,
@@ -16,6 +37,18 @@ beforeAll(async () => {
     project_id: 1,
     customer_title: "",
   });
+  await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
+    {
+      user_id: 1,
+      campaign_id: 1,
+      accepted: 1,
+    },
+    {
+      user_id: 2,
+      campaign_id: 1,
+      accepted: 1,
+    },
+  ]);
 });
 
 describe("GET /campaigns/campaignId/stats", () => {
@@ -38,13 +71,13 @@ describe("GET /campaigns/campaignId/stats", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should return selected", async () => {
+  it("Should return selected testers for a campaign", async () => {
     const response = await request(app)
       .get("/campaigns/1/stats")
       .set("Authorization", "Bearer admin");
     expect(response.body).toEqual(
       expect.objectContaining({
-        selected: 10,
+        selected: 2,
       })
     );
   });
