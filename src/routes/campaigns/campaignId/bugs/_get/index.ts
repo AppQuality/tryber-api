@@ -2,6 +2,69 @@
 import AdminCampaignRoute from "@src/features/routes/AdminCampaignRoute";
 import { tryber } from "@src/features/database";
 
+class BugTable {
+  public getBugsByCampaignId(campaignId: number) {
+    return tryber.tables.WpAppqEvdBug.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_evd_bug").as("id"),
+        "status_id",
+        "severity_id",
+        "bug_type_id",
+        "is_duplicated",
+        "duplicated_of_id",
+        "is_favorite",
+        tryber.ref("message").as("title"),
+        "bug_replicability_id",
+        "internal_id",
+        tryber
+          .ref("name")
+          .withSchema("wp_appq_evd_bug_status")
+          .as("status_name"),
+        tryber.ref("name").withSchema("wp_appq_evd_bug_type").as("type")
+      )
+      .join(
+        "wp_appq_evd_bug_type",
+        "wp_appq_evd_bug_type.id",
+        "wp_appq_evd_bug.bug_type_id"
+      )
+      .join(
+        "wp_appq_evd_bug_status",
+        "wp_appq_evd_bug_status.id",
+        "wp_appq_evd_bug.status_id"
+      )
+      .where({
+        campaign_id: campaignId,
+      });
+  }
+
+  public addSeverityData(query: ReturnType<BugTable["getBugsByCampaignId"]>) {
+    return query
+      .select(
+        tryber
+          .ref("name")
+          .withSchema("wp_appq_evd_severity")
+          .as("severity_name")
+      )
+      .join(
+        "wp_appq_evd_severity",
+        "wp_appq_evd_severity.id",
+        "wp_appq_evd_bug.severity_id"
+      );
+  }
+
+  public addTesterData(query: ReturnType<BugTable["getBugsByCampaignId"]>) {
+    return query
+      .select(
+        tryber.ref("id").withSchema("wp_appq_evd_profile").as("profile_id")
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_appq_evd_bug.wp_user_id"
+      );
+  }
+}
+
 interface Tag {
   id: number;
   name: string;
