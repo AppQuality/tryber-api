@@ -2840,14 +2840,7 @@ paths:
                       id: zgxi35zoxertd
                 required:
                   - selected
-              examples:
-                example-1:
-                  value:
-                    - id: 1
-                      question: My question 1
-                      shortName: Q1
-                    - id: 2
-                      question: My question 2
+              examples: {}
       operationId: get-campaigns-campaign-stats
       description: ''
       security:
