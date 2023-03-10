@@ -1,37 +1,27 @@
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+/** OPENAPI-CLASS: get-education */
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+import OpenapiError from "@src/features/OpenapiError";
 
-/** OPENAPI-ROUTE: get-education */
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    const SELECT = `SELECT *`;
-    const FROM = ` FROM wp_appq_education`;
-    const rows = await db.query(`
-        ${SELECT}
-        ${FROM}
-    `);
-    if (!rows.length) throw Error("No education levels");
+export default class Route extends UserRoute<{
+  response: StoplightOperations["get-education"]["responses"]["200"]["content"]["application/json"];
+}> {
+  constructor(configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "education" });
+    this.setId(0);
+  }
 
-    res.status_code = 200;
+  protected async prepare(): Promise<void> {
+    let query = tryber.tables.WpAppqEducation.do().select([
+      tryber.ref("display_name").as("name"),
+      "id",
+    ]);
 
-    return rows.map((row: { id: string; display_name: string }) => ({
-      id: row.id,
-      name: row.display_name,
-    }));
-  } catch (error) {
-    if (process.env && process.env.DEBUG) {
-      console.error(error);
+    const rows = await query;
+    if (!rows.length) {
+      return this.setError(404, new OpenapiError("No education found"));
     }
 
-    res.status_code = 404;
-    return {
-      element: "education",
-      id: 0,
-      message: (error as OpenapiError).message,
-    };
+    this.setSuccess(200, await query);
   }
-};
+}
