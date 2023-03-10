@@ -1,37 +1,28 @@
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+/** OPENAPI-CLASS: get-languages */
 
-/** OPENAPI-ROUTE: get-languages */
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    const SELECT = `SELECT id,display_name`;
-    const FROM = ` FROM wp_appq_lang`;
-    const rows = await db.query(`
-        ${SELECT}
-        ${FROM}
-    `);
-    if (!rows.length) throw Error("No languages found");
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+import OpenapiError from "@src/features/OpenapiError";
 
-    res.status_code = 200;
+export default class Route extends UserRoute<{
+  response: StoplightOperations["get-languages"]["responses"]["200"]["content"]["application/json"];
+}> {
+  constructor(configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "languagues" });
+    this.setId(0);
+  }
 
-    return rows.map((row: { id: string; display_name: string }) => ({
-      id: row.id,
-      name: row.display_name,
-    }));
-  } catch (error) {
-    if (process.env && process.env.DEBUG) {
-      console.error(error);
+  protected async prepare(): Promise<void> {
+    let query = tryber.tables.WpAppqLang.do().select([
+      tryber.ref("display_name").as("name"),
+      "id",
+    ]);
+
+    const rows = await query;
+    if (!rows.length) {
+      return this.setError(404, new OpenapiError("No  languages found"));
     }
 
-    res.status_code = 404;
-    return {
-      element: "languages",
-      id: 0,
-      message: (error as OpenapiError).message,
-    };
+    this.setSuccess(200, await query);
   }
-};
+}
