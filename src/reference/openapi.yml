@@ -2816,6 +2816,42 @@ paths:
       description: ''
       security:
         - JWT: []
+  '/campaigns/{campaign}/stats':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get stats for a specific campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  selected:
+                    type: integer
+                    x-stoplight:
+                      id: zgxi35zoxertd
+                required:
+                  - selected
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: My question 1
+                      shortName: Q1
+                    - id: 2
+                      question: My question 2
+      operationId: get-campaigns-campaign-stats
+      description: ''
+      security:
+        - JWT: []
   /certifications:
     get:
       summary: Retrive and filter all certifications
