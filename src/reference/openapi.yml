@@ -2850,6 +2850,53 @@ paths:
       description: ''
       security:
         - JWT: []
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a prospect by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProspectItem'
+                      x-stoplight:
+                        id: 2x075kh9o6rmz
+                  status:
+                    type: string
+                    x-stoplight:
+                      id: 9bnrx12kvek1w
+                    enum:
+                      - draft
+                      - publish
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: My question 1
+                      shortName: Q1
+                    - id: 2
+                      question: My question 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-prospect
+      description: ''
+      security:
+        - JWT: []
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:
@@ -7773,6 +7820,133 @@ components:
       properties:
         name:
           type: string
+    ProspectItem:
+      title: Project
+      x-stoplight:
+        id: qhonmg4zsg968
+      type: object
+      x-examples:
+        example-1:
+          name: string
+          campaigns:
+            - name: string
+              customer_title: string
+              internal_id: string
+              dates:
+                start: string
+                end: string
+                close: string
+              status: true
+              language: string
+              public: true
+              hasBugParade: true
+              devices:
+                - id: string
+              minNumberOfMedia: 0
+              titleRule: true
+              allowed:
+                severities:
+                  - id: string
+                bug_types:
+                  - id: string
+                replicabilities:
+                  - id: string
+              projectManager:
+                id: 0
+                name: string
+              customerCanViewReviewing: true
+              additionalFields:
+                - id: string
+              id: 0
+      properties:
+        tester:
+          type: object
+          x-stoplight:
+            id: k2ypjk8xx263h
+          properties:
+            id:
+              type: number
+              x-stoplight:
+                id: thbg261xsmx31
+            name:
+              type: string
+              x-stoplight:
+                id: 7b3gkxd0arca0
+            surname:
+              type: string
+              x-stoplight:
+                id: dqmel0xi96ra4
+        bugs:
+          type: object
+          x-stoplight:
+            id: tw7d8t22r3ima
+          properties:
+            total:
+              type: number
+              x-stoplight:
+                id: ra99wq7ev9tuh
+            critical:
+              type: number
+              x-stoplight:
+                id: r8i4wot9zw62o
+            high:
+              type: number
+              x-stoplight:
+                id: 11w9m4nje63sf
+            medium:
+              type: number
+              x-stoplight:
+                id: d4mutho8fcd88
+            low:
+              type: number
+              x-stoplight:
+                id: xv3bjrpllulry
+        payout:
+          type: object
+          x-stoplight:
+            id: effibzaudssie
+          properties:
+            total:
+              type: number
+              x-stoplight:
+                id: a5tfln8nt79qg
+            completion:
+              type: number
+              x-stoplight:
+                id: 19bz24822f999
+            bug:
+              type: number
+              x-stoplight:
+                id: zl8khn9h75bwp
+            refund:
+              type: number
+              x-stoplight:
+                id: lrngbjv3zhjyh
+            extra:
+              type: number
+              x-stoplight:
+                id: okdzhw7atale1
+        experience:
+          type: object
+          x-stoplight:
+            id: kpbu2bvosfa8z
+          properties:
+            total:
+              type: number
+              x-stoplight:
+                id: pbg3mn2jlhju8
+            completion:
+              type: number
+              x-stoplight:
+                id: zigprqyq20t1a
+            extra:
+              type: number
+              x-stoplight:
+                id: brihvbbt723pn
+        note:
+          type: string
+          x-stoplight:
+            id: 043texm346etf
     RankingItem:
       type: object
       properties:
