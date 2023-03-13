@@ -1,5 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
-import AdminCampaignRoute from "@src/features/routes/CampaignRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
@@ -8,7 +8,7 @@ interface Tag {
   name: string;
 }
 
-export default class BugsRoute extends AdminCampaignRoute<{
+export default class BugsRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-cid-bugs"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["path"];
   query: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["query"];
@@ -37,6 +37,17 @@ export default class BugsRoute extends AdminCampaignRoute<{
       this.filterBy = query.filterBy as { [key: string]: string | string[] };
 
     if (query.search) this.search = query.search as string;
+  }
+
+  protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
+
+    if (!(await this.hasAccessToBugs(this.cp_id))) {
+      this.setError(403, new OpenapiError("Access denied"));
+
+      return false;
+    }
+    return true;
   }
 
   private setOrderBy() {
