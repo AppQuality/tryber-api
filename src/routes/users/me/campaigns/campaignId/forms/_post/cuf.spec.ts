@@ -87,6 +87,13 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
       enabled: 1,
       platform_id: 1,
     });
+
+    customUserFieldsData.insert({
+      id: 1,
+      profile_id: 1,
+      custom_user_field_id: 1,
+      value: "",
+    });
   });
 
   afterEach(() => {
@@ -98,6 +105,7 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
     customUserFields.clear();
     customUserFieldsExtra.clear();
     campaignApplications.clear();
+    customUserFieldsData.clear();
   });
 
   it("Should save in form data table a cuf text field", async () => {
@@ -145,6 +153,104 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
     expect(response.status).toBe(200);
     const data = await customUserFieldsData.all(undefined, [
       { value: "@pippo", custom_user_field_id: 1, profile_id: 1 },
+    ]);
+    expect(data.length).toBe(1);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          custom_user_field_id: 1,
+          profile_id: 1,
+          value: "@pippo",
+        }),
+      ])
+    );
+  });
+
+  it("Should replace the old cuf if already exists", async () => {
+    await customUserFieldsData.clear();
+    await customUserFieldsData.insert({
+      id: 1,
+      profile_id: 1,
+      custom_user_field_id: 1,
+      value: "@oldvalue",
+    });
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        value: "@pippo",
+        form: [
+          {
+            question: 4,
+            value: { serialized: "@pippo" },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await customUserFieldsData.all(undefined, [
+      { custom_user_field_id: 1, profile_id: 1 },
+    ]);
+    expect(data.length).toBe(1);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          custom_user_field_id: 1,
+          profile_id: 1,
+          value: "@pippo",
+        }),
+      ])
+    );
+  });
+
+  it("Should replace the old cuf if already exists and it's empty", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        value: "@pippo",
+        form: [
+          {
+            question: 4,
+            value: { serialized: "@pippo" },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await customUserFieldsData.all(undefined, [
+      { custom_user_field_id: 1, profile_id: 1 },
+    ]);
+    expect(data.length).toBe(1);
+    expect(data).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          custom_user_field_id: 1,
+          profile_id: 1,
+          value: "@pippo",
+        }),
+      ])
+    );
+  });
+
+  it("Should insert a cuf if does not exists", async () => {
+    await customUserFieldsData.clear();
+    const response = await request(app)
+      .post("/users/me/campaigns/1/forms")
+      .send({
+        device: [1],
+        value: "@pippo",
+        form: [
+          {
+            question: 4,
+            value: { serialized: "@pippo" },
+          },
+        ],
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const data = await customUserFieldsData.all(undefined, [
+      { custom_user_field_id: 1, profile_id: 1 },
     ]);
     expect(data.length).toBe(1);
     expect(data).toEqual(
