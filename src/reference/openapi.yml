@@ -2872,12 +2872,8 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ProspectItem'
-                      x-stoplight:
-                        id: 2x075kh9o6rmz
                   status:
                     type: string
-                    x-stoplight:
-                      id: 9bnrx12kvek1w
                     enum:
                       - draft
                       - publish
@@ -7822,8 +7818,6 @@ components:
           type: string
     ProspectItem:
       title: Project
-      x-stoplight:
-        id: qhonmg4zsg968
       type: object
       x-examples:
         example-1:
@@ -7861,92 +7855,50 @@ components:
       properties:
         tester:
           type: object
-          x-stoplight:
-            id: k2ypjk8xx263h
           properties:
             id:
               type: number
-              x-stoplight:
-                id: thbg261xsmx31
             name:
               type: string
-              x-stoplight:
-                id: 7b3gkxd0arca0
             surname:
               type: string
-              x-stoplight:
-                id: dqmel0xi96ra4
         bugs:
           type: object
-          x-stoplight:
-            id: tw7d8t22r3ima
           properties:
             total:
               type: number
-              x-stoplight:
-                id: ra99wq7ev9tuh
             critical:
               type: number
-              x-stoplight:
-                id: r8i4wot9zw62o
             high:
               type: number
-              x-stoplight:
-                id: 11w9m4nje63sf
             medium:
               type: number
-              x-stoplight:
-                id: d4mutho8fcd88
             low:
               type: number
-              x-stoplight:
-                id: xv3bjrpllulry
         payout:
           type: object
-          x-stoplight:
-            id: effibzaudssie
           properties:
             total:
               type: number
-              x-stoplight:
-                id: a5tfln8nt79qg
             completion:
               type: number
-              x-stoplight:
-                id: 19bz24822f999
             bug:
               type: number
-              x-stoplight:
-                id: zl8khn9h75bwp
             refund:
               type: number
-              x-stoplight:
-                id: lrngbjv3zhjyh
             extra:
               type: number
-              x-stoplight:
-                id: okdzhw7atale1
         experience:
           type: object
-          x-stoplight:
-            id: kpbu2bvosfa8z
           properties:
             total:
               type: number
-              x-stoplight:
-                id: pbg3mn2jlhju8
             completion:
               type: number
-              x-stoplight:
-                id: zigprqyq20t1a
             extra:
               type: number
-              x-stoplight:
-                id: brihvbbt723pn
         note:
           type: string
-          x-stoplight:
-            id: 043texm346etf
     RankingItem:
       type: object
       properties:
