@@ -109,6 +109,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/prospect": {
+    get: operations["get-campaigns-campaign-prospect"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/stats": {
     get: operations["get-campaigns-campaign-stats"];
     parameters: {
@@ -634,6 +642,34 @@ export interface components {
     /** Project */
     Project: {
       name?: string;
+    };
+    /** Project */
+    ProspectItem: {
+      tester?: {
+        id?: number;
+        name?: string;
+        surname?: string;
+      };
+      bugs?: {
+        total?: number;
+        critical?: number;
+        high?: number;
+        medium?: number;
+        low?: number;
+      };
+      payout?: {
+        total?: number;
+        completion?: number;
+        bug?: number;
+        refund?: number;
+        extra?: number;
+      };
+      experience?: {
+        total?: number;
+        completion?: number;
+        extra?: number;
+      };
+      note?: string;
     };
     RankingItem: {
       position: number;
@@ -1317,6 +1353,27 @@ export interface operations {
             question: string;
             shortName?: string;
           }[];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "get-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items?: components["schemas"]["ProspectItem"][];
+            /** @enum {string} */
+            status?: "draft" | "publish";
+          };
         };
       };
       403: components["responses"]["NotAuthorized"];
