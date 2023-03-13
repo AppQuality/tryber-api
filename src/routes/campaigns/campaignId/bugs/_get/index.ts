@@ -190,29 +190,32 @@ export default class BugsRoute extends AdminCampaignRoute<{
   private async enhanceBugsWithDuplication<
     T extends { is_duplicated: number; id: number }
   >(bugs: T[]) {
-    const result = [];
-    for (const bug of bugs) {
-      result.push({
+    const childrens = await this.getBugChildrens<T>(bugs);
+    return bugs.map((bug) => {
+      const hasChildren =
+        childrens.filter((c) => c.duplicated_of_id === bug.id).length > 0;
+      return {
         ...bug,
-        duplication: await this.getDuplicationStatus<T>(bug),
-      });
-    }
-    return result;
+        duplication: bug.is_duplicated
+          ? ("duplicated" as const)
+          : hasChildren
+          ? ("father" as const)
+          : ("unique" as const),
+      };
+    });
   }
 
-  private async getDuplicationStatus<T>(
-    bug: T & { is_duplicated: number; id: number }
-  ) {
-    if (bug.is_duplicated) return "duplicated" as const;
-
-    const data = await tryber.tables.WpAppqEvdBug.do()
-      .count("id", { as: "count" })
-      .where({
-        duplicated_of_id: bug.id,
-      });
-    const children = data[0]?.count || 0;
-
-    return children > 0 ? ("father" as const) : ("unique" as const);
+  private async getBugChildrens<
+    T extends { is_duplicated: number; id: number }
+  >(bugs: T[]) {
+    return await tryber.tables.WpAppqEvdBug.do()
+      .select(["duplicated_of_id", "id"])
+      .where(
+        "duplicated_of_id",
+        "in",
+        bugs.map((b) => b.id)
+      )
+      .where({ campaign_id: this.cp_id });
   }
 
   private async enhanceBugsWithTags<T extends { id: number }>(bugs: T[]) {
