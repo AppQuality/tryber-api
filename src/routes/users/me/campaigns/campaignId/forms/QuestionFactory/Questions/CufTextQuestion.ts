@@ -30,9 +30,6 @@ class CufTextQuestion extends Question<{
     validation?: { regex: string; error?: string };
     value?: string;
   }> {
-    const cufOptions = this.customUserField.options
-      .split(";")
-      .map((o) => o.trim());
     return {
       ...this.getDefault(),
       type: this.question.type,
@@ -95,7 +92,7 @@ class CufTextQuestion extends Question<{
   private async updateCuf(value: string) {
     const customUserFieldData = new CustomUserFieldData();
     const oldValue = await this.getValue();
-    if (oldValue) {
+    if (typeof oldValue !== "undefined") {
       await customUserFieldData.update({
         where: [
           { custom_user_field_id: this.customUserField.id },
