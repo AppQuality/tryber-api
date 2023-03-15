@@ -2889,6 +2889,8 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '412':
+          description: Precondition Failed
       operationId: get-campaigns-campaign-prospect
       description: ''
       security:
