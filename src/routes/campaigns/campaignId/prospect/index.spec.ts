@@ -48,6 +48,19 @@ beforeAll(async () => {
     id: 1,
     name: "This is the Severity name 1",
   });
+  await tryber.tables.WpAppqProspectPayout.do().insert({
+    id: 1,
+    campaign_id: 1,
+    tester_id: 1,
+    complete_pts: 1,
+    extra_pts: 1,
+    complete_eur: 1,
+    bonus_bug_eur: 1,
+    extra_eur: 1,
+    refund: 1,
+    notes: "This is the notes",
+    is_edit: 0,
+  });
 });
 
 describe("GET /campaigns/campaignId/prospect", () => {
@@ -78,5 +91,20 @@ describe("GET /campaigns/campaignId/prospect", () => {
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
       );
     expect(response.status).toBe(200);
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpAppqProspectPayout.do().update({ is_edit: 1 });
+  });
+  it("Should return 412 if some tester payout was edit", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(412);
   });
 });

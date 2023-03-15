@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-prospect */
 import CampaignRoute from "@src/features/routes/CampaignRoute";
+import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
 export default class ProspectRoute extends CampaignRoute<{
@@ -16,22 +17,37 @@ export default class ProspectRoute extends CampaignRoute<{
 
       return false;
     }
+    if (await this.testerPayoutsWereEdit()) {
+      this.setError(412, new OpenapiError("Precondition failed"));
+
+      return false;
+    }
     return true;
   }
 
   protected async prepare(): Promise<void> {
-    let prospectRows;
+    let prospect;
     try {
-      prospectRows = [{}];
+      prospect = { items: [] };
     } catch (e: any) {
       return this.setError(500, {
-        message: e.message || "There was an error while fetching bugs",
+        message: e.message || "There was an error while fetching prospect",
         status_code: 500,
       } as OpenapiError);
     }
 
-    if (!prospectRows || !prospectRows.length) return this.setSuccess(200, {});
+    if (!prospect || !prospect.items.length)
+      return this.setSuccess(200, { items: [], status: "draft" });
 
     return this.setSuccess(200, {});
+  }
+
+  private async testerPayoutsWereEdit() {
+    const bugs = await tryber.tables.WpAppqProspectPayout.do()
+      .select("id")
+      .where({ campaign_id: this.cp_id })
+      .where("is_edit", ">", 0);
+    console.log(bugs);
+    return bugs.length > 0;
   }
 }
