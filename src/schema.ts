@@ -1378,6 +1378,8 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+      /** Precondition Failed */
+      412: unknown;
     };
   };
   "get-campaigns-campaign-stats": {
