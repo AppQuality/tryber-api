@@ -645,31 +645,34 @@ export interface components {
     };
     /** Project */
     ProspectItem: {
+      usecases?: {
+        completed?: number;
+        required?: number;
+      };
       tester?: {
         id?: number;
         name?: string;
         surname?: string;
       };
       bugs?: {
-        total?: number;
         critical?: number;
         high?: number;
         medium?: number;
         low?: number;
       };
       payout?: {
-        total?: number;
         completion?: number;
         bug?: number;
         refund?: number;
         extra?: number;
       };
       experience?: {
-        total?: number;
         completion?: number;
         extra?: number;
       };
       note?: string;
+      /** @enum {string} */
+      status?: "pending" | "done";
     };
     RankingItem: {
       position: number;
