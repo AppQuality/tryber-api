@@ -35,7 +35,7 @@ beforeAll(async () => {
       wp_user_id: 1,
       reviewer: 1,
       last_editor_id: 1,
-      severity_id: 1,
+      severity_id: 4,
       bug_replicability_id: 1,
       bug_type_id: 1,
       internal_id: "internal_id_1",
@@ -223,7 +223,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
   //   expect(response.body).toHaveProperty("items");
 
   // });
-  it("Should return prospect for each tester with tester data", async () => {
+  it("Should return prospect with property items", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
       .set(
@@ -232,6 +232,15 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
       );
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("items");
+  });
+  it("Should return prospect for each tester with tester data", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -239,5 +248,24 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
         }),
       ])
     );
+    expect(response.body.items.length).toEqual(1);
+  });
+  it("Should return prospect for each tester with uploaded bugs counters", async () => {
+    //we expect that uploaded bugs have just status 2 = approved
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          bugs: { critical: 1, high: 0, medium: 0, low: 0 },
+        }),
+      ])
+    );
+    expect(response.body.items[0].bugs).toEqual(1);
   });
 });

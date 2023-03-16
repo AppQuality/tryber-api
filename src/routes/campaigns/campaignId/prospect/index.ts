@@ -2,7 +2,6 @@
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-prospect"]["parameters"]["path"];
@@ -52,13 +51,23 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private async getProspectItems() {
     const testers = await this.getTesterInCampaign();
+    const bugCounters = await this.getBugCounters(testers.map((t) => t.id));
     return testers.map(
       (tester: { id: number; name: string; surname: string }) => {
+        const currentBugCounters = bugCounters.filter(
+          (t) => t.testerId === tester.id
+        )[0];
         return {
           tester: {
             id: tester.id,
             name: tester.name,
             surname: tester.surname,
+          },
+          bugs: {
+            clitical: currentBugCounters.critical,
+            high: currentBugCounters.high,
+            medium: currentBugCounters.medium,
+            low: currentBugCounters.low,
           },
         };
       }
@@ -80,5 +89,70 @@ export default class ProspectRoute extends CampaignRoute<{
       .where({ campaign_id: this.cp_id })
       .where("accepted", "=", 1);
     return acceptedTesters;
+  }
+
+  private async getBugCounters(testerIds: number[]) {
+    const bugCountersAndTesterId: {
+      testerId: number;
+      critical: number;
+      high: number;
+      medium: number;
+      low: number;
+    }[] = [];
+    for (const testerId of testerIds) {
+      const approvedBugs = await tryber.tables.WpAppqEvdBug.do()
+        //.count("wp_appq_evd_bug.id"),
+        .select("count(wp_appq_evd_bug.id)", "wp_appq_evd_bug.severity_id")
+        .join(
+          "wp_appq_evd_profile",
+          "wp_appq_evd_profile.wp_user_id",
+          "wp_appq_evd_bug.wp_user_id"
+        )
+        .where({ campaign_id: this.cp_id })
+        .where("wp_appq_evd_profile.id", "=", testerId)
+        //we expect that uploaded bugs have just status 2 = approved
+        .where("wp_appq_evd_bug.status_id", "=", 2)
+        .groupBy("wp_appq_evd_bug.severity_id");
+      console.log(approvedBugs);
+      if (approvedBugs.length === 0) {
+        bugCountersAndTesterId.push({
+          testerId: testerId,
+          critical: 0,
+          high: 0,
+          medium: 0,
+          low: 0,
+        });
+      } else {
+        const hasCritical = approvedBugs.filter((b) => b.severity_id === 4)
+          .length
+          ? true
+          : false;
+        const hasHigh = approvedBugs.filter((b) => b.severity_id === 3).length
+          ? true
+          : false;
+        const hasmedium = approvedBugs.filter((b) => b.severity_id === 2).length
+          ? true
+          : false;
+        const hasLow = approvedBugs.filter((b) => b.severity_id === 1).length
+          ? true
+          : false;
+        bugCountersAndTesterId.push({
+          testerId: testerId,
+          critical: hasCritical
+            ? approvedBugs.filter((b) => b.severity_id === 4)[0].count
+            : 0,
+          high: hasHigh
+            ? approvedBugs.filter((b) => b.severity_id === 3)[0].count
+            : 0,
+          medium: hasmedium
+            ? approvedBugs.filter((b) => b.severity_id === 2)[0].count
+            : 0,
+          low: hasLow
+            ? approvedBugs.filter((b) => b.severity_id === 1)[0].count
+            : 0,
+        });
+      }
+    }
+    return bugCountersAndTesterId;
   }
 }
