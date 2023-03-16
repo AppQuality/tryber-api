@@ -54,6 +54,7 @@ export default class ProspectRoute extends CampaignRoute<{
   private async getProspectItems() {
     const testers = await this.getTesterInCampaign();
     const bugCounters = await this.getBugCounters(testers.map((t) => t.id));
+
     return testers.map((tester) => {
       const currentBugCounters = bugCounters.filter(
         (t) => t.testerId === tester.id
@@ -65,7 +66,7 @@ export default class ProspectRoute extends CampaignRoute<{
           surname: tester.surname,
         },
         bugs: {
-          clitical: currentBugCounters.critical,
+          critical: currentBugCounters.critical,
           high: currentBugCounters.high,
           medium: currentBugCounters.medium,
           low: currentBugCounters.low,
@@ -87,7 +88,7 @@ export default class ProspectRoute extends CampaignRoute<{
         "wp_crowd_appq_has_candidate.user_id"
       )
       .where({ campaign_id: this.cp_id })
-      .where("accepted", "=", 1);
+      .where("accepted", 1);
     return acceptedTesters;
   }
 
@@ -109,11 +110,10 @@ export default class ProspectRoute extends CampaignRoute<{
           "wp_appq_evd_bug.wp_user_id"
         )
         .where({ campaign_id: this.cp_id })
-        .where("wp_appq_evd_profile.id", "=", testerId)
+        .where("wp_appq_evd_profile.id", testerId)
         //we expect that uploaded bugs have just status 2 = approved
-        .where("wp_appq_evd_bug.status_id", "=", 2)
+        .where("wp_appq_evd_bug.status_id", 2)
         .groupBy("wp_appq_evd_bug.severity_id");
-      console.log(approvedBugs);
       if (approvedBugs.length === 0) {
         bugCountersAndTesterId.push({
           testerId: testerId,
@@ -123,33 +123,48 @@ export default class ProspectRoute extends CampaignRoute<{
           low: 0,
         });
       } else {
-        const hasCritical = approvedBugs.filter((b) => b.severity_id === 4)
-          .length
-          ? true
-          : false;
-        const hasHigh = approvedBugs.filter((b) => b.severity_id === 3).length
-          ? true
-          : false;
-        const hasmedium = approvedBugs.filter((b) => b.severity_id === 2).length
-          ? true
-          : false;
-        const hasLow = approvedBugs.filter((b) => b.severity_id === 1).length
-          ? true
-          : false;
+        let critical = 0;
+        if (
+          approvedBugs.filter((b) => b.severity_id === 4).length &&
+          typeof approvedBugs.filter((b) => b.severity_id === 4)[0].count !==
+            "undefined"
+        )
+          critical = Number(
+            approvedBugs.filter((b) => b.severity_id === 4)[0].count
+          );
+        let high = 0;
+        if (
+          approvedBugs.filter((b) => b.severity_id === 3).length &&
+          typeof approvedBugs.filter((b) => b.severity_id === 3)[0].count !==
+            "undefined"
+        )
+          high = Number(
+            approvedBugs.filter((b) => b.severity_id === 3)[0].count
+          );
+        let medium = 0;
+        if (
+          approvedBugs.filter((b) => b.severity_id === 2).length &&
+          typeof approvedBugs.filter((b) => b.severity_id === 2)[0].count !==
+            "undefined"
+        )
+          medium = Number(
+            approvedBugs.filter((b) => b.severity_id === 2)[0].count
+          );
+        let low = 0;
+        if (
+          approvedBugs.filter((b) => b.severity_id === 1).length &&
+          typeof approvedBugs.filter((b) => b.severity_id === 1)[0].count !==
+            "undefined"
+        )
+          low = Number(
+            approvedBugs.filter((b) => b.severity_id === 1)[0].count
+          );
         bugCountersAndTesterId.push({
           testerId: testerId,
-          critical: hasCritical
-            ? approvedBugs.filter((b) => b.severity_id === 4)[0].count
-            : 0,
-          high: hasHigh
-            ? approvedBugs.filter((b) => b.severity_id === 3)[0].count
-            : 0,
-          medium: hasmedium
-            ? approvedBugs.filter((b) => b.severity_id === 2)[0].count
-            : 0,
-          low: hasLow
-            ? approvedBugs.filter((b) => b.severity_id === 1)[0].count
-            : 0,
+          critical: critical,
+          high: high,
+          medium: medium,
+          low: low,
         });
       }
     }
