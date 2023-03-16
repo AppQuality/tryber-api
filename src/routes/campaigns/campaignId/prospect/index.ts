@@ -101,8 +101,8 @@ export default class ProspectRoute extends CampaignRoute<{
     }[] = [];
     for (const testerId of testerIds) {
       const approvedBugs = await tryber.tables.WpAppqEvdBug.do()
-        //.count("wp_appq_evd_bug.id"),
-        .select("count(wp_appq_evd_bug.id)", "wp_appq_evd_bug.severity_id")
+        .count({ count: "wp_appq_evd_profile.id" })
+        .select("severity_id")
         .join(
           "wp_appq_evd_profile",
           "wp_appq_evd_profile.wp_user_id",
