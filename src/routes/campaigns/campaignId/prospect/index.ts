@@ -29,10 +29,12 @@ export default class ProspectRoute extends CampaignRoute<{
     try {
       prospect = { items: await this.getProspectItems() };
     } catch (e: any) {
-      return this.setError(500, {
-        message: e.message || "There was an error while fetching prospect",
-        status_code: 500,
-      } as OpenapiError);
+      return this.setError(
+        500,
+        new OpenapiError(
+          e.message || "There was an error while fetching prospect"
+        )
+      );
     }
 
     if (!prospect || !prospect.items.length)
@@ -52,34 +54,32 @@ export default class ProspectRoute extends CampaignRoute<{
   private async getProspectItems() {
     const testers = await this.getTesterInCampaign();
     const bugCounters = await this.getBugCounters(testers.map((t) => t.id));
-    return testers.map(
-      (tester: { id: number; name: string; surname: string }) => {
-        const currentBugCounters = bugCounters.filter(
-          (t) => t.testerId === tester.id
-        )[0];
-        return {
-          tester: {
-            id: tester.id,
-            name: tester.name,
-            surname: tester.surname,
-          },
-          bugs: {
-            clitical: currentBugCounters.critical,
-            high: currentBugCounters.high,
-            medium: currentBugCounters.medium,
-            low: currentBugCounters.low,
-          },
-        };
-      }
-    );
+    return testers.map((tester) => {
+      const currentBugCounters = bugCounters.filter(
+        (t) => t.testerId === tester.id
+      )[0];
+      return {
+        tester: {
+          id: tester.id,
+          name: tester.name,
+          surname: tester.surname,
+        },
+        bugs: {
+          clitical: currentBugCounters.critical,
+          high: currentBugCounters.high,
+          medium: currentBugCounters.medium,
+          low: currentBugCounters.low,
+        },
+      };
+    });
   }
 
   private async getTesterInCampaign() {
     const acceptedTesters = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select(
-        "wp_appq_evd_profile.id",
-        "wp_appq_evd_profile.name",
-        "wp_appq_evd_profile.surname"
+        tryber.ref("id").withSchema("wp_appq_evd_profile"),
+        tryber.ref("name").withSchema("wp_appq_evd_profile"),
+        tryber.ref("surname").withSchema("wp_appq_evd_profile")
       )
       .join(
         "wp_appq_evd_profile",
@@ -102,7 +102,7 @@ export default class ProspectRoute extends CampaignRoute<{
     for (const testerId of testerIds) {
       const approvedBugs = await tryber.tables.WpAppqEvdBug.do()
         .count({ count: "wp_appq_evd_profile.id" })
-        .select("severity_id")
+        .select(tryber.ref("severity_id").withSchema("wp_appq_evd_bug"))
         .join(
           "wp_appq_evd_profile",
           "wp_appq_evd_profile.wp_user_id",
