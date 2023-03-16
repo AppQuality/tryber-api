@@ -31,7 +31,7 @@ beforeAll(async () => {
     {
       id: 1,
       campaign_id: 1,
-      status_id: 1,
+      status_id: 2,
       wp_user_id: 1,
       reviewer: 1,
       last_editor_id: 1,
@@ -41,6 +41,34 @@ beforeAll(async () => {
       internal_id: "internal_id_1",
       message: "this is title Bug 1",
       is_favorite: 0,
+    },
+    {
+      id: 2,
+      campaign_id: 1,
+      status_id: 3,
+      wp_user_id: 1,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 1,
+      bug_replicability_id: 1,
+      bug_type_id: 1,
+      internal_id: "internal_id_1",
+      message: "this is title Bug 1",
+      is_favorite: 0,
+    },
+  ]);
+
+  await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
+    {
+      campaign_id: 1,
+      user_id: 1,
+      //subscription_date: string;
+      accepted: 1,
+      devices: "0",
+      selected_device: 1,
+      results: 0,
+      //modified: string,
+      group_id: 1,
     },
   ]);
 
@@ -72,6 +100,9 @@ beforeAll(async () => {
       87184,5453,low_bug_payout,0.5
       87183,5453,payout_limit,30
       87182,5453,campaign_complete_bonus_eur,15
+
+      minimum_bugs
+      percent_usecases
 
       wp_campaign
       id, campaign_pts
@@ -181,7 +212,18 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
   beforeEach(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
-  it("Should return prospect for each tester with default payout data", async () => {
+  // it("Should return prospect for each tester with default payout data", async () => {
+  //   const response = await request(app)
+  //     .get("/campaigns/1/prospect")
+  //     .set(
+  //       "Authorization",
+  //       'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+  //     );
+  //   expect(response.status).toBe(200);
+  //   expect(response.body).toHaveProperty("items");
+
+  // });
+  it("Should return prospect for each tester with tester data", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
       .set(
@@ -189,5 +231,13 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
       );
     expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: { id: 1, name: "John", surname: "Doe" },
+        }),
+      ])
+    );
   });
 });

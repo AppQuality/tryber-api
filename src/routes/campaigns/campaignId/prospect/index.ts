@@ -28,7 +28,7 @@ export default class ProspectRoute extends CampaignRoute<{
   protected async prepare(): Promise<void> {
     let prospect;
     try {
-      prospect = { items: [] };
+      prospect = { items: await this.getProspectItems() };
     } catch (e: any) {
       return this.setError(500, {
         message: e.message || "There was an error while fetching prospect",
@@ -39,15 +39,46 @@ export default class ProspectRoute extends CampaignRoute<{
     if (!prospect || !prospect.items.length)
       return this.setSuccess(200, { items: [] });
 
-    return this.setSuccess(200, {});
+    return this.setSuccess(200, prospect);
   }
 
   private async testerPayoutsWereEdit() {
-    const bugs = await tryber.tables.WpAppqProspectPayout.do()
+    const payoutsModified = await tryber.tables.WpAppqProspectPayout.do()
       .select("id")
       .where({ campaign_id: this.cp_id })
       .where("is_edit", ">", 0);
-    console.log(bugs);
-    return bugs.length > 0;
+    return payoutsModified.length > 0;
+  }
+
+  private async getProspectItems() {
+    const testers = await this.getTesterInCampaign();
+    return testers.map(
+      (tester: { id: number; name: string; surname: string }) => {
+        return {
+          tester: {
+            id: tester.id,
+            name: tester.name,
+            surname: tester.surname,
+          },
+        };
+      }
+    );
+  }
+
+  private async getTesterInCampaign() {
+    const acceptedTesters = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select(
+        "wp_appq_evd_profile.id",
+        "wp_appq_evd_profile.name",
+        "wp_appq_evd_profile.surname"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_crowd_appq_has_candidate.user_id"
+      )
+      .where({ campaign_id: this.cp_id })
+      .where("accepted", "=", 1);
+    return acceptedTesters;
   }
 }
