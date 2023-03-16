@@ -2877,14 +2877,7 @@ paths:
                     enum:
                       - draft
                       - publish
-              examples:
-                example-1:
-                  value:
-                    - id: 1
-                      question: My question 1
-                      shortName: Q1
-                    - id: 2
-                      question: My question 2
+              examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -7855,6 +7848,19 @@ components:
                 - id: string
               id: 0
       properties:
+        usecases:
+          type: object
+          x-stoplight:
+            id: ugnmygsmqkfs2
+          properties:
+            completed:
+              type: number
+              x-stoplight:
+                id: 5nr564cq7mos4
+            required:
+              type: number
+              x-stoplight:
+                id: qx27m597qvk80
         tester:
           type: object
           properties:
@@ -7867,8 +7873,6 @@ components:
         bugs:
           type: object
           properties:
-            total:
-              type: number
             critical:
               type: number
             high:
@@ -7880,8 +7884,6 @@ components:
         payout:
           type: object
           properties:
-            total:
-              type: number
             completion:
               type: number
             bug:
@@ -7893,14 +7895,19 @@ components:
         experience:
           type: object
           properties:
-            total:
-              type: number
             completion:
               type: number
             extra:
               type: number
         note:
           type: string
+        status:
+          type: string
+          x-stoplight:
+            id: mmko99ck6hjs3
+          enum:
+            - pending
+            - done
     RankingItem:
       type: object
       properties:
