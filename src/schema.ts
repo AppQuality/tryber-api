@@ -1374,8 +1374,6 @@ export interface operations {
         content: {
           "application/json": {
             items?: components["schemas"]["ProspectItem"][];
-            /** @enum {string} */
-            status?: "draft" | "publish";
           };
         };
       };
