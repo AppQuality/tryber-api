@@ -2872,11 +2872,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/ProspectItem'
-                  status:
-                    type: string
-                    enum:
-                      - draft
-                      - publish
               examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
