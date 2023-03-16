@@ -7850,17 +7850,11 @@ components:
       properties:
         usecases:
           type: object
-          x-stoplight:
-            id: ugnmygsmqkfs2
           properties:
             completed:
               type: number
-              x-stoplight:
-                id: 5nr564cq7mos4
             required:
               type: number
-              x-stoplight:
-                id: qx27m597qvk80
         tester:
           type: object
           properties:
@@ -7903,8 +7897,6 @@ components:
           type: string
         status:
           type: string
-          x-stoplight:
-            id: mmko99ck6hjs3
           enum:
             - pending
             - done
