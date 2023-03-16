@@ -48,19 +48,21 @@ beforeAll(async () => {
     id: 1,
     name: "This is the Severity name 1",
   });
-  await tryber.tables.WpAppqProspectPayout.do().insert({
+  await tryber.tables.WpAppqEvdBugStatus.do().insert([
+    {
+      id: 2,
+      name: "Approved",
+    },
+    {
+      id: 3,
+      name: "Pending",
+    },
+  ]);
+  await tryber.tables.WpAppqEvdBugType.do().insert({
     id: 1,
-    campaign_id: 1,
-    tester_id: 1,
-    complete_pts: 1,
-    extra_pts: 1,
-    complete_eur: 1,
-    bonus_bug_eur: 1,
-    extra_eur: 1,
-    refund: 1,
-    notes: "This is the notes",
-    is_edit: 0,
+    name: "Crash",
   });
+  await tryber.tables.WpAppqCpMeta.do().insert({});
 });
 
 describe("GET /campaigns/campaignId/prospect", () => {
@@ -95,6 +97,26 @@ describe("GET /campaigns/campaignId/prospect", () => {
 });
 
 describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqProspectPayout.do().insert({
+      id: 1,
+      campaign_id: 1,
+      tester_id: 1,
+      complete_pts: 1,
+      extra_pts: 1,
+      complete_eur: 1,
+      bonus_bug_eur: 1,
+      extra_eur: 1,
+      refund: 1,
+      notes: "This is the notes",
+      is_edit: 0,
+    });
+  });
+
+  afterAll(async () => {
+    await tryber.tables.WpAppqProspectPayout.do().delete();
+  });
+
   beforeEach(async () => {
     await tryber.tables.WpAppqProspectPayout.do().update({ is_edit: 1 });
   });
@@ -106,5 +128,20 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
       );
     expect(response.status).toBe(412);
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect - there are no record", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpAppqProspectPayout.do().delete();
+  });
+  it("Should return prospect for each tester with default payout data", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
   });
 });

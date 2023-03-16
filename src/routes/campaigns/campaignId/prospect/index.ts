@@ -37,7 +37,7 @@ export default class ProspectRoute extends CampaignRoute<{
     }
 
     if (!prospect || !prospect.items.length)
-      return this.setSuccess(200, { items: [], status: "draft" });
+      return this.setSuccess(200, { items: [] });
 
     return this.setSuccess(200, {});
   }
