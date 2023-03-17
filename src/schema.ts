@@ -643,37 +643,6 @@ export interface components {
     Project: {
       name?: string;
     };
-    /** Project */
-    ProspectItem: {
-      usecases?: {
-        completed?: number;
-        required?: number;
-      };
-      tester?: {
-        id?: number;
-        name?: string;
-        surname?: string;
-      };
-      bugs?: {
-        critical?: number;
-        high?: number;
-        medium?: number;
-        low?: number;
-      };
-      payout?: {
-        completion?: number;
-        bug?: number;
-        refund?: number;
-        extra?: number;
-      };
-      experience?: {
-        completion?: number;
-        extra?: number;
-      };
-      note?: string;
-      /** @enum {string} */
-      status?: "pending" | "done";
-    };
     RankingItem: {
       position: number;
       image: string;
@@ -1373,7 +1342,36 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            items?: components["schemas"]["ProspectItem"][];
+            items: {
+              tester: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+              usecases: {
+                completed: number;
+                required: number;
+              };
+              bugs: {
+                critical: number;
+                high: number;
+                medium?: number;
+                low?: number;
+              };
+              payout: {
+                completion: number;
+                bug: number;
+                refund: number;
+                extra: number;
+              };
+              experience: {
+                completion: number;
+                extra: number;
+              };
+              note: string;
+              /** @enum {string} */
+              status: "pending" | "done";
+            }[];
           };
         };
       };
