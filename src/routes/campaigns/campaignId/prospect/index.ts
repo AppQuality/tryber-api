@@ -54,9 +54,15 @@ export default class ProspectRoute extends CampaignRoute<{
   private async getProspectItems() {
     const testers = await this.getTesterInCampaign();
     const bugCounters = await this.getBugCounters(testers.map((t) => t.id));
+    const usecasesCounters = await this.getUsecasesCounters(
+      testers.map((t) => t.id)
+    );
 
     return testers.map((tester) => {
       const currentBugCounters = bugCounters.filter(
+        (t) => t.testerId === tester.id
+      )[0];
+      const currentUsecasesCounters = usecasesCounters.filter(
         (t) => t.testerId === tester.id
       )[0];
       return {
@@ -71,6 +77,22 @@ export default class ProspectRoute extends CampaignRoute<{
           medium: currentBugCounters.medium,
           low: currentBugCounters.low,
         },
+        usecases: {
+          completed: currentUsecasesCounters.completed,
+          required: currentUsecasesCounters.required,
+        },
+        payout: {
+          completion: 1, // se non ho righe nel prospect calcolo da cpmeta se la regola passa altrimeni è 0
+          bug: 1, // se non ho riga nel prospect calcolo da cpmeta
+          refund: 1, // se non ho riga nel prospect è 0
+          extra: 1, // se non ho riga nel prospect è 0
+        },
+        experience: {
+          completion: 1, // se non ho righe nel prospect calcolo da complete_pts se la regola passa altrimeni è -2 * complete_pts
+          extra: 1,
+        },
+        note: "",
+        status: "pending" as const,
       };
     });
   }
@@ -169,5 +191,58 @@ export default class ProspectRoute extends CampaignRoute<{
       }
     }
     return bugCountersAndTesterId;
+  }
+
+  private async getUsecasesCounters(testerIds: number[]) {
+    const usecasesCountersAndTesterId: {
+      testerId: number;
+      completed: number;
+      required: number;
+    }[] = [];
+    const campaignUsecases = await tryber.tables.WpAppqCampaignTask.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_campaign_task"),
+        tryber.ref("is_required").withSchema("wp_appq_campaign_task")
+      )
+      .where({ campaign_id: this.cp_id });
+    const required = campaignUsecases.filter((u) => u.is_required === 1).length;
+
+    for (const testerId of testerIds) {
+      const completed = await tryber.tables.WpAppqUserTask.do()
+        .count({ count: "wp_appq_user_task.id" })
+        .join(
+          "wp_appq_campaign_task",
+          "wp_appq_campaign_task.id",
+          "wp_appq_user_task.task_id"
+        )
+        .where({ campaign_id: this.cp_id })
+        .where({ tester_id: testerId })
+        .where({ is_completed: 1 });
+      usecasesCountersAndTesterId.push({
+        testerId: testerId,
+        completed:
+          typeof completed[0].count === "number" ? completed[0].count : 0,
+        required: required,
+      });
+    }
+    return usecasesCountersAndTesterId;
+  }
+  private async getActualProspect(testerId: number) {
+    return await tryber.tables.WpAppqProspectPayout.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_prospect_payout"),
+        "is_completed",
+        "complete_pts",
+        "extra_pts",
+        "complete_eur",
+        "bonus_bug_eur",
+        "extra_eur",
+        "refund",
+        "notes",
+        "is_edit",
+        "is_completed"
+      )
+      .where({ campaign_id: this.cp_id })
+      .where({ tester_id: testerId });
   }
 }
