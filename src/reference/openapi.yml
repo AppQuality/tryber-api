@@ -2926,6 +2926,8 @@ paths:
                           required:
                             - critical
                             - high
+                            - medium
+                            - low
                           properties:
                             critical:
                               type: integer
@@ -2944,13 +2946,13 @@ paths:
                             - extra
                           properties:
                             completion:
-                              type: integer
+                              type: number
                             bug:
-                              type: integer
+                              type: number
                             refund:
-                              type: integer
+                              type: number
                             extra:
-                              type: integer
+                              type: number
                         experience:
                           type: object
                           required:
