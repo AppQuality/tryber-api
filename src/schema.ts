@@ -1355,8 +1355,8 @@ export interface operations {
               bugs: {
                 critical: number;
                 high: number;
-                medium?: number;
-                low?: number;
+                medium: number;
+                low: number;
               };
               payout: {
                 completion: number;
