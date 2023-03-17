@@ -23,6 +23,9 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   protected getTesterId() {
     return this.testerId;
   }
+  protected getUserRole() {
+    return this.configuration.request.user.role;
+  }
   protected getWordpressId() {
     return this.wordpressId;
   }
@@ -54,6 +57,11 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   protected hasAccessTesterSelection(campaignId: number) {
     const olp =
       this.configuration.request.user.permission.admin?.appq_tester_selection;
+    if (!olp) return false;
+    return olp === true || olp?.includes(campaignId);
+  }
+  protected hasAccessToProspect(campaignId: number) {
+    const olp = this.configuration.request.user.permission.admin?.appq_prospect;
     if (!olp) return false;
     return olp === true || olp?.includes(campaignId);
   }
