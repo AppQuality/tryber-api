@@ -2298,6 +2298,8 @@ paths:
                     id: 91fdwknaklej3
                   enum:
                     - done
+              required:
+                - status
             examples:
               Example 1:
                 value:
