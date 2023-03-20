@@ -52,6 +52,15 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/payouts": {
+    get: operations["get-campaigns-campaign-payouts"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
   "/campaigns/{campaign}/tasks": {
     /** Get all UseCases linked to a Campaign */
     get: operations["get-campaigns-campaign-tasks"];
@@ -1049,6 +1058,26 @@ export interface operations {
               device?: number | "random";
             };
       };
+    };
+  };
+  "get-campaigns-campaign-payouts": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            maxBonusBug: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** Get all UseCases linked to a Campaign */
