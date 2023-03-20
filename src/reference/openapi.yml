@@ -2273,12 +2273,7 @@ paths:
         - JWT: []
   '/campaigns/{campaign}/prospect':
     parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
+      - $ref: '#/components/parameters/campaign'
     patch:
       summary: Patch the status for a campaign prospect
       operationId: patch-campaigns-campaign-prospect
