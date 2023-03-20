@@ -2294,8 +2294,6 @@ paths:
               properties:
                 status:
                   type: string
-                  x-stoplight:
-                    id: 91fdwknaklej3
                   enum:
                     - done
               required:
