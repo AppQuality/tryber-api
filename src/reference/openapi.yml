@@ -2298,6 +2298,10 @@ paths:
                     id: 91fdwknaklej3
                   enum:
                     - done
+            examples:
+              Example 1:
+                value:
+                  status: done
   '/campaigns/{campaign}/tasks/{task}':
     parameters:
       - $ref: '#/components/parameters/campaign'
