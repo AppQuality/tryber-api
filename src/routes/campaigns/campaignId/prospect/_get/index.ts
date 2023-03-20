@@ -6,23 +6,21 @@ export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-prospect"]["parameters"]["path"];
 }> {
-  private selectedTesters: {
+  private testers: {
     id: number;
     name: string;
     surname: string;
     group: number;
-  }[] = [];
-  private testerBugCounters: {
-    testerId: number;
-    critical: number;
-    high: number;
-    medium: number;
-    low: number;
-  }[] = [];
-  private testerUsecaseCounters: {
-    testerId: number;
-    completed: number;
-    required: number;
+    bugs: {
+      critical: number;
+      high: number;
+      medium: number;
+      low: number;
+    };
+    usecases: {
+      completed: number;
+      required: number;
+    };
   }[] = [];
   private currentProspect: {
     id: number;
@@ -60,15 +58,36 @@ export default class ProspectRoute extends CampaignRoute<{
 
   protected async init(): Promise<void> {
     await super.init();
-    this.selectedTesters = await this.getSelectedTesters();
-    this.testerBugCounters = await this.getBugCounters();
-    this.testerUsecaseCounters = await this.getUsecasesCounters();
+    this.testers = await this.getTestersData();
     this.currentProspect = await this.getActualProspectData();
     this.payoutConfig = await this.getPayoutConfig();
   }
 
+  private async getTestersData() {
+    const testers = await this.getSelectedTesters();
+    const bugsByTesters = await this.getBugsByTesters(testers);
+    const usecasesByTesters = await this.getUsecasesByTesters(testers);
+    return testers.map((t) => {
+      const bugs = bugsByTesters.find((b) => b.testerId === t.id);
+      const usecases = usecasesByTesters.find((b) => b.testerId === t.id);
+      return {
+        ...t,
+        bugs: {
+          critical: bugs ? bugs.critical : 0,
+          high: bugs ? bugs.high : 0,
+          medium: bugs ? bugs.medium : 0,
+          low: bugs ? bugs.low : 0,
+        },
+        usecases: {
+          required: usecases ? usecases.required : 0,
+          completed: usecases ? usecases.completed : 0,
+        },
+      };
+    });
+  }
+
   private async getSelectedTesters() {
-    const acceptedTesters = await tryber.tables.WpCrowdAppqHasCandidate.do()
+    return await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         tryber.ref("name").withSchema("wp_appq_evd_profile"),
@@ -85,10 +104,10 @@ export default class ProspectRoute extends CampaignRoute<{
       )
       .where({ campaign_id: this.cp_id })
       .where("accepted", 1);
-    return acceptedTesters;
   }
 
-  private async getBugCounters() {
+  private async getBugsByTesters(testers: { id: number }[]) {
+    const testerIds = testers.map((t) => t.id);
     const approvedBugList = await tryber.tables.WpAppqEvdBug.do()
       .count({ count: "wp_appq_evd_profile.id" })
       .select(tryber.ref("severity_id").withSchema("wp_appq_evd_bug"))
@@ -99,16 +118,12 @@ export default class ProspectRoute extends CampaignRoute<{
         "wp_appq_evd_bug.wp_user_id"
       )
       .where({ campaign_id: this.cp_id })
-      .where(
-        "wp_appq_evd_profile.id",
-        "IN",
-        this.selectedTesters.map((t) => t.id)
-      )
+      .where("wp_appq_evd_profile.id", "IN", testerIds)
       .where("wp_appq_evd_bug.status_id", 2)
       .groupBy("wp_appq_evd_bug.severity_id", "wp_appq_evd_profile.id");
 
-    const result = this.selectedTesters.map((t) => ({
-      testerId: t.id,
+    const result = testerIds.map((tid) => ({
+      testerId: tid,
       critical: 0,
       high: 0,
       medium: 0,
@@ -137,7 +152,7 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private async getActualProspectData() {
-    const testerids = this.selectedTesters.map((t) => t.id);
+    const testerids = this.testers.map((t) => t.id);
     return await tryber.tables.WpAppqProspectPayout.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_prospect_payout"),
@@ -155,7 +170,7 @@ export default class ProspectRoute extends CampaignRoute<{
       .whereIn("tester_id", testerids);
   }
 
-  private async getUsecasesCounters() {
+  private async getUsecasesByTesters(testers: { id: number; group: number }[]) {
     const requiredCampaignUsecases = await tryber.tables.WpAppqCampaignTask.do()
       .count({ count: "wp_appq_campaign_task.id" })
       .select(tryber.ref("group_id").withSchema("wp_appq_campaign_task_group"))
@@ -180,13 +195,13 @@ export default class ProspectRoute extends CampaignRoute<{
       .where(
         "tester_id",
         "IN",
-        this.selectedTesters.map((t) => t.id)
+        testers.map((t) => t.id)
       )
       .where("is_completed", 1)
       .where("is_required", 1)
       .groupBy("tester_id");
 
-    return this.selectedTesters.map((t) => {
+    return testers.map((t) => {
       const completed = completedRequiredUsecases.find(
         (uc) => uc.tester_id === t.id
       );
@@ -279,7 +294,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
   protected async prepare(): Promise<void> {
     return this.setSuccess(200, {
-      items: this.selectedTesters.map((tester) => {
+      items: this.testers.map((tester) => {
         return {
           tester: {
             id: tester.id,
@@ -298,22 +313,22 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private getTesterBugs(tid: number) {
-    const result = this.testerBugCounters.find((t) => t.testerId === tid);
+    const result = this.testers.find((t) => t.id === tid);
     if (!result) return { critical: 0, high: 0, medium: 0, low: 0 };
     return {
-      critical: result.critical,
-      high: result.high,
-      medium: result.medium,
-      low: result.low,
+      critical: result.bugs.critical,
+      high: result.bugs.high,
+      medium: result.bugs.medium,
+      low: result.bugs.low,
     };
   }
 
   private getTesterUsecases(tid: number) {
-    const result = this.testerUsecaseCounters.find((t) => t.testerId === tid);
+    const result = this.testers.find((t) => t.id === tid);
     if (!result) return { completed: 0, required: 0 };
     return {
-      completed: result.completed,
-      required: result.required,
+      completed: result.usecases.completed,
+      required: result.usecases.required,
     };
   }
 
