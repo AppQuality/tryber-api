@@ -83,6 +83,15 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/prospect": {
+    patch: operations["patch-campaigns-campaign-prospect"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/tasks/{task}": {
     /** Get the data of a UseCase in a Campaign */
     get: operations["get-campaigns-campaign-tasks-task"];
@@ -1178,6 +1187,28 @@ export interface operations {
         "application/json": {
           /** @enum {string} */
           status: "done";
+        };
+      };
+    };
+  };
+  "patch-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Not Modified */
+      304: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          status?: "done";
         };
       };
     };
