@@ -74,11 +74,12 @@ export interface paths {
     };
   };
   "/campaigns/{campaign}/prospect": {
+    /** Make campaign perspective status done, and change exp points and tester payouts. */
     patch: operations["patch-campaigns-campaign-prospect"];
     parameters: {
       path: {
         /** A campaign id */
-        campaign: string;
+        campaign: components["parameters"]["campaign"];
       };
     };
   };
@@ -1158,11 +1159,12 @@ export interface operations {
       };
     };
   };
+  /** Make campaign perspective status done, and change exp points and tester payouts. */
   "patch-campaigns-campaign-prospect": {
     parameters: {
       path: {
         /** A campaign id */
-        campaign: string;
+        campaign: components["parameters"]["campaign"];
       };
     };
     responses: {
