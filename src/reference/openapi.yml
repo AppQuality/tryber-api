@@ -2280,11 +2280,7 @@ paths:
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties: {}
+          content: {}
         '304':
           description: Not Modified
       security:
