@@ -248,13 +248,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private getTesterPayout(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result)
-      return {
-        completion: 0,
-        bug: 0,
-        refund: 0,
-        extra: 0,
-      };
+    if (!result) return this.defaultTesterPayout();
     return {
       completion: result.complete_eur,
       bug: result.bonus_bug_eur,
@@ -263,19 +257,36 @@ export default class ProspectRoute extends CampaignRoute<{
     };
   }
 
+  private defaultTesterPayout() {
+    return {
+      completion: 0,
+      bug: 0,
+      refund: 0,
+      extra: 0,
+    };
+  }
+
   private getTesterExperience(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result) return { completion: 0, extra: 0 };
+    if (!result) return this.defaultTesterExperience();
     return {
       completion: result.complete_pts,
       extra: result.extra_pts,
     };
   }
 
+  private defaultTesterExperience() {
+    return { completion: 0, extra: 0 };
+  }
+
   private getTesterNotes(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result) return "";
+    if (!result) return this.defaultTesterNote();
     return result.notes;
+  }
+
+  private defaultTesterNote() {
+    return "";
   }
 
   private getTesterStatus(tid: number) {
