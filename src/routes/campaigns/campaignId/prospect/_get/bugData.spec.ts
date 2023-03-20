@@ -34,46 +34,36 @@ beforeAll(async () => {
 
   await tryber.tables.WpAppqEvdBug.do().insert([
     {
-      id: 1,
       campaign_id: 1,
       status_id: 2,
       wp_user_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       severity_id: 4,
-      bug_replicability_id: 1,
-      bug_type_id: 1,
-      internal_id: "internal_id_1",
-      message: "this is title Bug 1",
-      is_favorite: 0,
     },
     {
-      id: 2,
       campaign_id: 1,
       status_id: 2,
       wp_user_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       severity_id: 1,
-      bug_replicability_id: 1,
-      bug_type_id: 1,
-      internal_id: "internal_id_1",
-      message: "this is title Bug 1",
-      is_favorite: 0,
     },
     {
-      id: 3, // This is a pending bug
+      campaign_id: 1,
+      status_id: 2,
+      wp_user_id: 1,
+      reviewer: 1,
+      last_editor_id: 1,
+      severity_id: 3,
+    },
+    {
       campaign_id: 1,
       status_id: 3,
       wp_user_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       severity_id: 1,
-      bug_replicability_id: 1,
-      bug_type_id: 1,
-      internal_id: "internal_id_1",
-      message: "this is title Bug 1",
-      is_favorite: 0,
     },
   ]);
 });
@@ -91,7 +81,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          bugs: { critical: 1, high: 0, medium: 0, low: 1 },
+          bugs: { critical: 1, high: 1, medium: 0, low: 1 },
         }),
         expect.objectContaining({
           bugs: { critical: 0, high: 0, medium: 0, low: 0 },
@@ -131,7 +121,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          bugs: { critical: 1, high: 0, medium: 0, low: 1 },
+          bugs: { critical: 1, high: 1, medium: 0, low: 1 },
         }),
         expect.objectContaining({
           bugs: { critical: 0, high: 0, medium: 0, low: 0 },

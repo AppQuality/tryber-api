@@ -97,16 +97,16 @@ export default class ProspectRoute extends CampaignRoute<{
       if (tester) {
         switch (item.severity_id) {
           case 1:
-            tester.critical = item.count as number;
+            tester.low = item.count as number;
             break;
           case 2:
-            tester.high = item.count as number;
-            break;
-          case 3:
             tester.medium = item.count as number;
             break;
+          case 3:
+            tester.high = item.count as number;
+            break;
           case 4:
-            tester.low = item.count as number;
+            tester.critical = item.count as number;
             break;
         }
       }
