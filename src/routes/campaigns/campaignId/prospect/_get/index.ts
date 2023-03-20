@@ -2,163 +2,59 @@
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import { bool } from "aws-sdk/clients/signer";
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-prospect"]["parameters"]["path"];
 }> {
-  protected async filter(): Promise<boolean> {
-    if (!(await super.filter())) return false;
-    if (
-      !(await this.hasAccessTesterSelection(this.cp_id)) ||
-      !(await this.hasAccessToProspect(this.cp_id))
-    ) {
-      this.setError(403, new OpenapiError("Access denied"));
+  private selectedTesters: {
+    id: number;
+    name: string;
+    surname: string;
+    group: number;
+  }[] = [];
+  private testerBugCounters: {
+    testerId: number;
+    critical: number;
+    high: number;
+    medium: number;
+    low: number;
+  }[] = [];
+  private testerUsecaseCounters: {
+    testerId: number;
+    completed: number;
+    required: number;
+  }[] = [];
+  private currentProspect: {
+    id: number;
+    tester_id: number;
+    is_completed: number;
+    complete_pts: number;
+    extra_pts: number;
+    complete_eur: number;
+    bonus_bug_eur: number;
+    extra_eur: number;
+    refund: number;
+    notes: string;
+  }[] = [];
 
-      return false;
-    }
-    if (await this.testerPayoutsWereEdit()) {
-      this.setError(412, new OpenapiError("Precondition failed"));
-
-      return false;
-    }
-    return true;
+  protected async init(): Promise<void> {
+    await super.init();
+    this.selectedTesters = await this.getSelectedTesters();
+    this.testerBugCounters = await this.getBugCounters();
+    this.testerUsecaseCounters = await this.getUsecasesCounters();
+    this.currentProspect = await this.getActualProspectData();
   }
 
-  protected async prepare(): Promise<void> {
-    let prospect;
-    try {
-      prospect = { items: await this.getProspectItems() };
-    } catch (e: any) {
-      return this.setError(
-        500,
-        new OpenapiError(
-          e.message || "There was an error while fetching prospect"
-        )
-      );
-    }
-
-    if (!prospect || !prospect.items.length)
-      return this.setSuccess(200, { items: [] });
-
-    return this.setSuccess(200, prospect);
-  }
-
-  private async testerPayoutsWereEdit() {
-    const payoutsModified = await tryber.tables.WpAppqProspectPayout.do()
-      .select("id")
-      .where({ campaign_id: this.cp_id })
-      .where("is_edit", ">", 0);
-    return payoutsModified.length > 0;
-  }
-
-  private async getProspectItems() {
-    const testers = await this.getTesterInCampaign();
-    const testersbugsCounters = await this.getBugCounters(
-      testers.map((t) => t.id)
-    );
-    const testersTasksCounters = await this.getUsecasesCounters(
-      testers.map((t) => t.id)
-    );
-    const testersExistingData = await this.getActualProspectData(
-      testers.map((t) => t.id)
-    );
-
-    return testers.map((tester) => {
-      const currentTesterBugs = testersbugsCounters.filter(
-        (t) => t.testerId === tester.id
-      )[0];
-      const currentTesterTasks = testersTasksCounters.filter(
-        (t) => t.testerId === tester.id
-      )[0];
-      const testerExistingData = testersExistingData.filter(
-        (t) => t.tester_id === tester.id
-      )[0];
-
-      return {
-        tester: {
-          id: tester.id,
-          name: tester.name,
-          surname: tester.surname,
-        },
-        bugs: {
-          critical: currentTesterBugs.critical,
-          high: currentTesterBugs.high,
-          medium: currentTesterBugs.medium,
-          low: currentTesterBugs.low,
-        },
-        usecases: {
-          completed: currentTesterTasks.completed,
-          required: currentTesterTasks.required,
-        },
-        payout: {
-          // se non ho righe nel prospect calcolo da cpmeta se la regola passa altrimeni è 0
-          completion:
-            testerExistingData && testerExistingData.complete_eur
-              ? testerExistingData.complete_eur
-              : 0,
-          // se non ho riga nel prospect calcolo da cpmeta
-          bug:
-            testerExistingData && testerExistingData.bonus_bug_eur
-              ? testerExistingData.bonus_bug_eur
-              : 0,
-          // se non ho riga nel prospect è 0
-          refund:
-            testerExistingData && testerExistingData.refund
-              ? testerExistingData.refund
-              : 0,
-          // se non ho riga nel prospect è 0
-          extra:
-            testerExistingData && testerExistingData.extra_eur
-              ? testerExistingData.extra_eur
-              : 0,
-        },
-        experience: {
-          // se non ho righe nel prospect calcolo da complete_pts se la regola passa altrimeni è -2 * complete_pts
-          completion:
-            testerExistingData && testerExistingData.complete_pts
-              ? testerExistingData.complete_pts
-              : 0,
-          extra:
-            testerExistingData && testerExistingData.extra_pts
-              ? testerExistingData.extra_pts
-              : 0,
-        },
-        note:
-          testerExistingData && testerExistingData.notes
-            ? testerExistingData.notes
-            : "",
-        status: "pending" as const,
-      };
-    });
-  }
-
-  private async getActualProspectData(testerids: number[]) {
-    return await tryber.tables.WpAppqProspectPayout.do()
-      .select(
-        tryber.ref("id").withSchema("wp_appq_prospect_payout"),
-        "tester_id",
-        "is_completed",
-        "complete_pts",
-        "extra_pts",
-        "complete_eur",
-        "bonus_bug_eur",
-        "extra_eur",
-        "refund",
-        "notes",
-        "is_edit",
-        "is_completed"
-      )
-      .where({ campaign_id: this.cp_id })
-      .whereIn("tester_id", testerids);
-  }
-
-  private async getTesterInCampaign() {
+  private async getSelectedTesters() {
     const acceptedTesters = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         tryber.ref("name").withSchema("wp_appq_evd_profile"),
-        tryber.ref("surname").withSchema("wp_appq_evd_profile")
+        tryber.ref("surname").withSchema("wp_appq_evd_profile"),
+        tryber
+          .ref("group_id")
+          .as("group")
+          .withSchema("wp_crowd_appq_has_candidate")
       )
       .join(
         "wp_appq_evd_profile",
@@ -170,145 +66,221 @@ export default class ProspectRoute extends CampaignRoute<{
     return acceptedTesters;
   }
 
-  private async getBugCounters(testerIds: number[]) {
-    const bugCountersAndTesterId: {
-      testerId: number;
-      critical: number;
-      high: number;
-      medium: number;
-      low: number;
-    }[] = [];
-    for (const testerId of testerIds) {
-      const approvedBugs = await tryber.tables.WpAppqEvdBug.do()
-        .count({ count: "wp_appq_evd_profile.id" })
-        .select(tryber.ref("severity_id").withSchema("wp_appq_evd_bug"))
-        .join(
-          "wp_appq_evd_profile",
-          "wp_appq_evd_profile.wp_user_id",
-          "wp_appq_evd_bug.wp_user_id"
-        )
-        .where({ campaign_id: this.cp_id })
-        .where("wp_appq_evd_profile.id", testerId)
-        //we expect that uploaded bugs have just status 2 = approved
-        .where("wp_appq_evd_bug.status_id", 2)
-        .groupBy("wp_appq_evd_bug.severity_id");
-      if (approvedBugs.length === 0) {
-        bugCountersAndTesterId.push({
-          testerId: testerId,
-          critical: 0,
-          high: 0,
-          medium: 0,
-          low: 0,
-        });
-      } else {
-        let critical = 0;
-        if (
-          approvedBugs.filter((b) => b.severity_id === 4).length &&
-          typeof approvedBugs.filter((b) => b.severity_id === 4)[0].count !==
-            "undefined"
-        )
-          critical = Number(
-            approvedBugs.filter((b) => b.severity_id === 4)[0].count
-          );
-        let high = 0;
-        if (
-          approvedBugs.filter((b) => b.severity_id === 3).length &&
-          typeof approvedBugs.filter((b) => b.severity_id === 3)[0].count !==
-            "undefined"
-        )
-          high = Number(
-            approvedBugs.filter((b) => b.severity_id === 3)[0].count
-          );
-        let medium = 0;
-        if (
-          approvedBugs.filter((b) => b.severity_id === 2).length &&
-          typeof approvedBugs.filter((b) => b.severity_id === 2)[0].count !==
-            "undefined"
-        )
-          medium = Number(
-            approvedBugs.filter((b) => b.severity_id === 2)[0].count
-          );
-        let low = 0;
-        if (
-          approvedBugs.filter((b) => b.severity_id === 1).length &&
-          typeof approvedBugs.filter((b) => b.severity_id === 1)[0].count !==
-            "undefined"
-        )
-          low = Number(
-            approvedBugs.filter((b) => b.severity_id === 1)[0].count
-          );
-        bugCountersAndTesterId.push({
-          testerId: testerId,
-          critical: critical,
-          high: high,
-          medium: medium,
-          low: low,
-        });
+  private async getBugCounters() {
+    const approvedBugList = await tryber.tables.WpAppqEvdBug.do()
+      .count({ count: "wp_appq_evd_profile.id" })
+      .select(tryber.ref("severity_id").withSchema("wp_appq_evd_bug"))
+      .select(tryber.ref("id").as("testerId").withSchema("wp_appq_evd_profile"))
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_appq_evd_bug.wp_user_id"
+      )
+      .where({ campaign_id: this.cp_id })
+      .where(
+        "wp_appq_evd_profile.id",
+        "IN",
+        this.selectedTesters.map((t) => t.id)
+      )
+      .where("wp_appq_evd_bug.status_id", 2)
+      .groupBy("wp_appq_evd_bug.severity_id", "wp_appq_evd_profile.id");
+
+    const result = this.selectedTesters.map((t) => ({
+      testerId: t.id,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    }));
+    for (const item of approvedBugList) {
+      const tester = result.find((t) => t.testerId === item.testerId);
+      if (tester) {
+        switch (item.severity_id) {
+          case 1:
+            tester.critical = item.count as number;
+            break;
+          case 2:
+            tester.high = item.count as number;
+            break;
+          case 3:
+            tester.medium = item.count as number;
+            break;
+          case 4:
+            tester.low = item.count as number;
+            break;
+        }
       }
     }
-    return bugCountersAndTesterId;
+    return result;
   }
 
-  private async getUsecasesCounters(testerIds: number[]) {
-    const usecasesCountersAndTesterId: {
-      testerId: number;
-      completed: number;
-      required: number;
-    }[] = [];
-    const campaignUsecases = await tryber.tables.WpAppqCampaignTask.do()
+  private async getActualProspectData() {
+    const testerids = this.selectedTesters.map((t) => t.id);
+    return await tryber.tables.WpAppqProspectPayout.do()
       .select(
-        tryber.ref("id").withSchema("wp_appq_campaign_task"),
-        tryber.ref("is_required").withSchema("wp_appq_campaign_task")
+        tryber.ref("id").withSchema("wp_appq_prospect_payout"),
+        "tester_id",
+        "is_completed",
+        "complete_pts",
+        "extra_pts",
+        "complete_eur",
+        "bonus_bug_eur",
+        "extra_eur",
+        "refund",
+        "notes"
       )
-      .where({ campaign_id: this.cp_id });
-    const required = campaignUsecases.filter((u) => u.is_required === 1).length;
-
-    for (const testerId of testerIds) {
-      const completed = await tryber.tables.WpAppqUserTask.do()
-        .count({ count: "wp_appq_user_task.id" })
-        .join(
-          "wp_appq_campaign_task",
-          "wp_appq_campaign_task.id",
-          "wp_appq_user_task.task_id"
-        )
-        .where({ campaign_id: this.cp_id })
-        .where({ tester_id: testerId })
-        .where({ is_completed: 1 });
-      usecasesCountersAndTesterId.push({
-        testerId: testerId,
-        completed:
-          typeof completed[0].count === "number" ? completed[0].count : 0,
-        required: required,
-      });
-    }
-    return usecasesCountersAndTesterId;
+      .where({ campaign_id: this.cp_id })
+      .whereIn("tester_id", testerids);
   }
 
-  private async isCompletionRulePassed(testerId: number): Promise<boolean> {
-    let is_completed = (
-      await tryber.tables.WpAppqProspectPayout.do()
-        .select("is_completed")
-        .where({ campaign_id: this.cp_id })
-        .where({ tester_id: testerId })
-    )[0].is_completed;
-    /* default completion rule: se non ci sono righe nel prospect
-      - % usecase completati è > di % usecases (meta) e
-      - ci sono bug approvati >= minum bug 
+  private async getUsecasesCounters() {
+    const requiredCampaignUsecases = await tryber.tables.WpAppqCampaignTask.do()
+      .count({ count: "wp_appq_campaign_task.id" })
+      .select(tryber.ref("group_id").withSchema("wp_appq_campaign_task_group"))
+      .join(
+        "wp_appq_campaign_task_group",
+        "wp_appq_campaign_task_group.task_id",
+        "wp_appq_campaign_task.id"
+      )
+      .where({ campaign_id: this.cp_id })
+      .where({ is_required: 1 })
+      .groupBy("wp_appq_campaign_task_group.group_id");
 
-      altrimenti è il valore di is_completed del prospect
-      */
-    const usecases = await tryber.tables.WpAppqUserTask.do()
-      .select(tryber.ref("id").withSchema("wp_appq_user_task"), "is_completed")
+    const completedRequiredUsecases = await tryber.tables.WpAppqUserTask.do()
+      .count({ count: "wp_appq_user_task.id" })
+      .select(tryber.ref("tester_id").withSchema("wp_appq_user_task"))
       .join(
         "wp_appq_campaign_task",
         "wp_appq_campaign_task.id",
         "wp_appq_user_task.task_id"
       )
-      .where({ campaign_id: this.cp_id })
-      .where({ tester_id: testerId });
-    const percentCompletedUsecases =
-      usecases.filter((u) => u.is_completed === 1).length / usecases.length;
+      .where("campaign_id", this.cp_id)
+      .where(
+        "tester_id",
+        "IN",
+        this.selectedTesters.map((t) => t.id)
+      )
+      .where("is_completed", 1)
+      .where("is_required", 1)
+      .groupBy("tester_id");
 
-    return !!is_completed;
+    return this.selectedTesters.map((t) => {
+      const completed = completedRequiredUsecases.find(
+        (uc) => uc.tester_id === t.id
+      );
+      const usecasesGroupAll =
+        requiredCampaignUsecases.filter((uc) => uc.group_id === 0).length || 0;
+      const usecasesGroupTester =
+        requiredCampaignUsecases.filter((uc) => uc.group_id === t.group)
+          .length || 0;
+      return {
+        testerId: t.id,
+        completed: completed ? (completed.count as number) : 0,
+        required: usecasesGroupAll + usecasesGroupTester,
+      };
+    });
+  }
+
+  protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
+    if (
+      !this.hasAccessTesterSelection(this.cp_id) ||
+      !this.hasAccessToProspect(this.cp_id)
+    ) {
+      this.setError(403, new OpenapiError("Access denied"));
+
+      return false;
+    }
+    if (await this.thereIsAnEditOnOldProspect()) {
+      this.setError(412, new OpenapiError("You can't edit an old prospect"));
+      return false;
+    }
+    return true;
+  }
+
+  private async thereIsAnEditOnOldProspect() {
+    const payoutsModified = await tryber.tables.WpAppqProspectPayout.do()
+      .select("id")
+      .where({ campaign_id: this.cp_id })
+      .where("is_edit", ">", 0);
+    return payoutsModified.length > 0;
+  }
+
+  protected async prepare(): Promise<void> {
+    return this.setSuccess(200, {
+      items: this.selectedTesters.map((tester) => {
+        return {
+          tester: {
+            id: tester.id,
+            name: tester.name,
+            surname: tester.surname,
+          },
+          bugs: this.getTesterBugs(tester.id),
+          usecases: this.getTesterUsecases(tester.id),
+          payout: this.getTesterPayout(tester.id),
+          experience: this.getTesterExperience(tester.id),
+          note: this.getTesterNotes(tester.id),
+          status: this.getTesterStatus(tester.id),
+        };
+      }),
+    });
+  }
+
+  private getTesterBugs(tid: number) {
+    const result = this.testerBugCounters.find((t) => t.testerId === tid);
+    if (!result) return { critical: 0, high: 0, medium: 0, low: 0 };
+    return {
+      critical: result.critical,
+      high: result.high,
+      medium: result.medium,
+      low: result.low,
+    };
+  }
+
+  private getTesterUsecases(tid: number) {
+    const result = this.testerUsecaseCounters.find((t) => t.testerId === tid);
+    if (!result) return { completed: 0, required: 0 };
+    return {
+      completed: result.completed,
+      required: result.required,
+    };
+  }
+
+  private getTesterPayout(tid: number) {
+    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    if (!result)
+      return {
+        completion: 0,
+        bug: 0,
+        refund: 0,
+        extra: 0,
+      };
+    return {
+      completion: result.complete_eur,
+      bug: result.bonus_bug_eur,
+      refund: result.refund,
+      extra: result.extra_eur,
+    };
+  }
+
+  private getTesterExperience(tid: number) {
+    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    if (!result) return { completion: 0, extra: 0 };
+    return {
+      completion: result.complete_pts,
+      extra: result.extra_pts,
+    };
+  }
+
+  private getTesterNotes(tid: number) {
+    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    if (!result) return "";
+    return result.notes;
+  }
+
+  private getTesterStatus(tid: number) {
+    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    if (!result) return "pending" as const;
+    return "pending" as const;
   }
 }

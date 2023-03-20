@@ -374,7 +374,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
         expect.objectContaining({
           tester: { id: 1, name: "John", surname: "Doe" },
           bugs: { critical: 1, high: 0, low: 1, medium: 0 },
-          usecases: { completed: 3, required: 3 },
+          usecases: { completed: 2, required: 2 },
           note: "This is the notes",
           experience: { completion: 100, extra: 69 },
           payout: { bug: 5, completion: 25, extra: 9, refund: 1 },
@@ -383,7 +383,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
         expect.objectContaining({
           tester: { id: 2, name: "John", surname: "Doe" },
           bugs: { critical: 0, high: 0, low: 0, medium: 0 },
-          usecases: { completed: 0, required: 3 },
+          usecases: { completed: 0, required: 2 },
           note: "",
           experience: { completion: 0, extra: 0 },
           payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
@@ -493,10 +493,10 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          usecases: { completed: 3, required: 3 },
+          usecases: { completed: 2, required: 2 },
         }),
         expect.objectContaining({
-          usecases: { completed: 0, required: 3 },
+          usecases: { completed: 0, required: 2 },
         }),
       ])
     );
