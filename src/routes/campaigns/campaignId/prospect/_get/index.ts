@@ -393,12 +393,12 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private getTesterNotes(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result) return this.defaultTesterNote();
+    if (!result) return this.defaultTesterNote(tid);
     return result.notes;
   }
 
-  private defaultTesterNote() {
-    return "";
+  private defaultTesterNote(tid: number) {
+    return this.defaultTesterCompletion(tid) ? "Good job!" : "Bad job!";
   }
 
   private getTesterStatus(tid: number) {

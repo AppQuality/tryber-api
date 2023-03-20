@@ -137,7 +137,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
           payout: { bug: 5, completion: 25, extra: 9, refund: 1 },
         }),
         expect.objectContaining({
-          note: "",
+          note: "Bad job!",
           experience: { completion: -400, extra: 0 },
           payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
         }),
@@ -179,19 +179,19 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
           tester: expect.objectContaining({ id: 1 }),
           payout: expect.objectContaining({ completion: 25 }),
           experience: expect.objectContaining({ completion: 200 }),
-          // notes: "Good job!",
+          note: "Good job!",
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 2 }),
           payout: expect.objectContaining({ completion: 0 }),
           experience: expect.objectContaining({ completion: -400 }),
-          // notes: "Bad job!",
+          note: "Bad job!",
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 3 }),
           payout: expect.objectContaining({ completion: 0 }),
           experience: expect.objectContaining({ completion: -400 }),
-          // notes: "Bad job!",
+          note: "Bad job!",
         }),
       ])
     );
