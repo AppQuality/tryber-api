@@ -2,6 +2,7 @@
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
+import { bool } from "aws-sdk/clients/signer";
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-prospect"]["parameters"]["path"];
@@ -53,18 +54,27 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private async getProspectItems() {
     const testers = await this.getTesterInCampaign();
-    const bugCounters = await this.getBugCounters(testers.map((t) => t.id));
-    const usecasesCounters = await this.getUsecasesCounters(
+    const testersbugsCounters = await this.getBugCounters(
+      testers.map((t) => t.id)
+    );
+    const testersTasksCounters = await this.getUsecasesCounters(
+      testers.map((t) => t.id)
+    );
+    const testersExistingData = await this.getActualProspectData(
       testers.map((t) => t.id)
     );
 
     return testers.map((tester) => {
-      const currentBugCounters = bugCounters.filter(
+      const currentTesterBugs = testersbugsCounters.filter(
         (t) => t.testerId === tester.id
       )[0];
-      const currentUsecasesCounters = usecasesCounters.filter(
+      const currentTesterTasks = testersTasksCounters.filter(
         (t) => t.testerId === tester.id
       )[0];
+      const testerExistingData = testersExistingData.filter(
+        (t) => t.tester_id === tester.id
+      )[0];
+
       return {
         tester: {
           id: tester.id,
@@ -72,29 +82,75 @@ export default class ProspectRoute extends CampaignRoute<{
           surname: tester.surname,
         },
         bugs: {
-          critical: currentBugCounters.critical,
-          high: currentBugCounters.high,
-          medium: currentBugCounters.medium,
-          low: currentBugCounters.low,
+          critical: currentTesterBugs.critical,
+          high: currentTesterBugs.high,
+          medium: currentTesterBugs.medium,
+          low: currentTesterBugs.low,
         },
         usecases: {
-          completed: currentUsecasesCounters.completed,
-          required: currentUsecasesCounters.required,
+          completed: currentTesterTasks.completed,
+          required: currentTesterTasks.required,
         },
         payout: {
-          completion: 1, // se non ho righe nel prospect calcolo da cpmeta se la regola passa altrimeni è 0
-          bug: 1, // se non ho riga nel prospect calcolo da cpmeta
-          refund: 1, // se non ho riga nel prospect è 0
-          extra: 1, // se non ho riga nel prospect è 0
+          // se non ho righe nel prospect calcolo da cpmeta se la regola passa altrimeni è 0
+          completion:
+            testerExistingData && testerExistingData.complete_eur
+              ? testerExistingData.complete_eur
+              : 0,
+          // se non ho riga nel prospect calcolo da cpmeta
+          bug:
+            testerExistingData && testerExistingData.bonus_bug_eur
+              ? testerExistingData.bonus_bug_eur
+              : 0,
+          // se non ho riga nel prospect è 0
+          refund:
+            testerExistingData && testerExistingData.refund
+              ? testerExistingData.refund
+              : 0,
+          // se non ho riga nel prospect è 0
+          extra:
+            testerExistingData && testerExistingData.extra_eur
+              ? testerExistingData.extra_eur
+              : 0,
         },
         experience: {
-          completion: 1, // se non ho righe nel prospect calcolo da complete_pts se la regola passa altrimeni è -2 * complete_pts
-          extra: 1,
+          // se non ho righe nel prospect calcolo da complete_pts se la regola passa altrimeni è -2 * complete_pts
+          completion:
+            testerExistingData && testerExistingData.complete_pts
+              ? testerExistingData.complete_pts
+              : 0,
+          extra:
+            testerExistingData && testerExistingData.extra_pts
+              ? testerExistingData.extra_pts
+              : 0,
         },
-        note: "",
+        note:
+          testerExistingData && testerExistingData.notes
+            ? testerExistingData.notes
+            : "",
         status: "pending" as const,
       };
     });
+  }
+
+  private async getActualProspectData(testerids: number[]) {
+    return await tryber.tables.WpAppqProspectPayout.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_prospect_payout"),
+        "tester_id",
+        "is_completed",
+        "complete_pts",
+        "extra_pts",
+        "complete_eur",
+        "bonus_bug_eur",
+        "extra_eur",
+        "refund",
+        "notes",
+        "is_edit",
+        "is_completed"
+      )
+      .where({ campaign_id: this.cp_id })
+      .whereIn("tester_id", testerids);
   }
 
   private async getTesterInCampaign() {
@@ -227,22 +283,32 @@ export default class ProspectRoute extends CampaignRoute<{
     }
     return usecasesCountersAndTesterId;
   }
-  private async getActualProspect(testerId: number) {
-    return await tryber.tables.WpAppqProspectPayout.do()
-      .select(
-        tryber.ref("id").withSchema("wp_appq_prospect_payout"),
-        "is_completed",
-        "complete_pts",
-        "extra_pts",
-        "complete_eur",
-        "bonus_bug_eur",
-        "extra_eur",
-        "refund",
-        "notes",
-        "is_edit",
-        "is_completed"
+
+  private async isCompletionRulePassed(testerId: number): Promise<boolean> {
+    let is_completed = (
+      await tryber.tables.WpAppqProspectPayout.do()
+        .select("is_completed")
+        .where({ campaign_id: this.cp_id })
+        .where({ tester_id: testerId })
+    )[0].is_completed;
+    /* default completion rule: se non ci sono righe nel prospect
+      - % usecase completati è > di % usecases (meta) e
+      - ci sono bug approvati >= minum bug 
+
+      altrimenti è il valore di is_completed del prospect
+      */
+    const usecases = await tryber.tables.WpAppqUserTask.do()
+      .select(tryber.ref("id").withSchema("wp_appq_user_task"), "is_completed")
+      .join(
+        "wp_appq_campaign_task",
+        "wp_appq_campaign_task.id",
+        "wp_appq_user_task.task_id"
       )
       .where({ campaign_id: this.cp_id })
       .where({ tester_id: testerId });
+    const percentCompletedUsecases =
+      usecases.filter((u) => u.is_completed === 1).length / usecases.length;
+
+    return !!is_completed;
   }
 }

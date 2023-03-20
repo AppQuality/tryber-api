@@ -337,11 +337,11 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
       id: 1,
       campaign_id: 1,
       tester_id: 1,
-      complete_pts: 1,
-      extra_pts: 1,
-      complete_eur: 1,
-      bonus_bug_eur: 1,
-      extra_eur: 1,
+      complete_pts: 100,
+      extra_pts: 69,
+      complete_eur: 25,
+      bonus_bug_eur: 5,
+      extra_eur: 9,
       refund: 1,
       notes: "This is the notes",
       is_edit: 0,
@@ -360,6 +360,38 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
       );
     expect(response.status).toBe(200);
+  });
+
+  it("Should return prospect if already exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: { id: 1, name: "John", surname: "Doe" },
+          bugs: { critical: 1, high: 0, low: 1, medium: 0 },
+          usecases: { completed: 3, required: 3 },
+          note: "This is the notes",
+          experience: { completion: 100, extra: 69 },
+          payout: { bug: 5, completion: 25, extra: 9, refund: 1 },
+          // status: "pending",
+        }),
+        expect.objectContaining({
+          tester: { id: 2, name: "John", surname: "Doe" },
+          bugs: { critical: 0, high: 0, low: 0, medium: 0 },
+          usecases: { completed: 0, required: 3 },
+          note: "",
+          experience: { completion: 0, extra: 0 },
+          payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
+          // status: "pending",
+        }),
+      ])
+    );
+    expect(response.body.items.length).toEqual(2);
   });
 });
 
@@ -399,17 +431,6 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
   beforeEach(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
-  // it("Should return prospect for each tester with default payout data", async () => {
-  //   const response = await request(app)
-  //     .get("/campaigns/1/prospect")
-  //     .set(
-  //       "Authorization",
-  //       'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-  //     );
-  //   expect(response.status).toBe(200);
-  //   expect(response.body).toHaveProperty("items");
-
-  // });
   it("Should return prospect with property items", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
