@@ -36,6 +36,21 @@ export default class ProspectRoute extends CampaignRoute<{
     refund: number;
     notes: string;
   }[] = [];
+  private payoutConfig: {
+    bugs: {
+      critical: number;
+      high: number;
+      medium: number;
+      low: number;
+    };
+  } = {
+    bugs: {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    },
+  };
 
   protected async init(): Promise<void> {
     await super.init();
@@ -43,6 +58,7 @@ export default class ProspectRoute extends CampaignRoute<{
     this.testerBugCounters = await this.getBugCounters();
     this.testerUsecaseCounters = await this.getUsecasesCounters();
     this.currentProspect = await this.getActualProspectData();
+    this.payoutConfig = await this.getPayoutConfig();
   }
 
   private async getSelectedTesters() {
@@ -181,6 +197,41 @@ export default class ProspectRoute extends CampaignRoute<{
     });
   }
 
+  private async getPayoutConfig() {
+    const meta = await tryber.tables.WpAppqCpMeta.do()
+      .select("meta_key", "meta_value")
+      .where({ campaign_id: this.cp_id })
+      .where("meta_key", "IN", [
+        "critical_bug_payout",
+        "high_bug_payout",
+        "medium_bug_payout",
+        "low_bug_payout",
+      ]);
+    const critical_bug_payout = meta.find(
+      (m) => m.meta_key === "critical_bug_payout"
+    );
+    if (critical_bug_payout) {
+      this.payoutConfig.bugs.critical = parseFloat(
+        critical_bug_payout.meta_value
+      );
+    }
+    const high_bug_payout = meta.find((m) => m.meta_key === "high_bug_payout");
+    if (high_bug_payout) {
+      this.payoutConfig.bugs.high = parseFloat(high_bug_payout.meta_value);
+    }
+    const medium_bug_payout = meta.find(
+      (m) => m.meta_key === "medium_bug_payout"
+    );
+    if (medium_bug_payout) {
+      this.payoutConfig.bugs.medium = parseFloat(medium_bug_payout.meta_value);
+    }
+    const low_bug_payout = meta.find((m) => m.meta_key === "low_bug_payout");
+    if (low_bug_payout) {
+      this.payoutConfig.bugs.low = parseFloat(low_bug_payout.meta_value);
+    }
+    return this.payoutConfig;
+  }
+
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
     if (
@@ -248,7 +299,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private getTesterPayout(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result) return this.defaultTesterPayout();
+    if (!result) return this.defaultTesterPayout(tid);
     return {
       completion: result.complete_eur,
       bug: result.bonus_bug_eur,
@@ -257,13 +308,32 @@ export default class ProspectRoute extends CampaignRoute<{
     };
   }
 
-  private defaultTesterPayout() {
+  private defaultTesterPayout(tid: number) {
     return {
       completion: 0,
-      bug: 0,
+      bug: this.defaultBugPayout(tid),
       refund: 0,
       extra: 0,
     };
+  }
+
+  private defaultBugPayout(tid: number) {
+    const bugs = this.getTesterBugs(tid);
+    return Object.keys(bugs).reduce((acc, key) => {
+      const value = bugs[key as keyof typeof bugs];
+      switch (key) {
+        case "critical":
+          return acc + value * this.payoutConfig.bugs.critical;
+        case "high":
+          return acc + value * this.payoutConfig.bugs.high;
+        case "medium":
+          return acc + value * this.payoutConfig.bugs.medium;
+        case "low":
+          return acc + value * this.payoutConfig.bugs.low;
+        default:
+          return acc;
+      }
+    }, 0);
   }
 
   private getTesterExperience(tid: number) {

@@ -6,6 +6,15 @@ import { tryber } from "@src/features/database";
  * 1 tester
  * 1 campaign
  * 1 candidature for the tester in the campaign
+ * payout configuration for the campaign
+ *  - bug values
+ *    - critical: 6
+ *    - high: 2.5
+ *    - medium: 1
+ *    - low: 0.5
+ *  - payout limit: 30
+ *  - campaign complete bonus: 25
+ *  - campaign complete pts: 200
  *
  */
 
@@ -36,6 +45,7 @@ const useCampaign = () => {
       pm_id: 1,
       project_id: 1,
       customer_title: "",
+      campaign_pts: 200,
     });
 
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
@@ -47,6 +57,39 @@ const useCampaign = () => {
         selected_device: 1,
         results: 0,
         group_id: 1,
+      },
+    ]);
+
+    await tryber.tables.WpAppqCpMeta.do().insert([
+      {
+        campaign_id: 1,
+        meta_key: "critical_bug_payout",
+        meta_value: "6",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "high_bug_payout",
+        meta_value: "2.5",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "medium_bug_payout",
+        meta_value: "1",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "low_bug_payout",
+        meta_value: "0.5",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "payout_limit",
+        meta_value: "30",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "campaign_complete_bonus_eur",
+        meta_value: "25",
       },
     ]);
   });

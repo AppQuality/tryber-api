@@ -30,6 +30,25 @@ beforeAll(async () => {
       group_id: 2,
     },
   ]);
+
+  await tryber.tables.WpAppqEvdBug.do().insert([
+    {
+      status_id: 2,
+      campaign_id: 1,
+      wp_user_id: 1,
+      severity_id: 4,
+      reviewer: 0,
+      last_editor_id: 0,
+    },
+    {
+      status_id: 2,
+      campaign_id: 1,
+      wp_user_id: 1,
+      severity_id: 2,
+      reviewer: 0,
+      last_editor_id: 0,
+    },
+  ]);
 });
 
 describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => {
@@ -71,6 +90,28 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
           note: "",
           experience: { completion: 0, extra: 0 },
           payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
+        }),
+      ])
+    );
+    expect(response.body.items.length).toEqual(2);
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect - there are no record", () => {
+  it("Should return basic data for bugs payout", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          payout: expect.objectContaining({ bug: 7 }),
+        }),
+        expect.objectContaining({
+          payout: expect.objectContaining({ bug: 0 }),
         }),
       ])
     );
