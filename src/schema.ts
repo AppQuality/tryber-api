@@ -1177,7 +1177,7 @@ export interface operations {
       content: {
         "application/json": {
           /** @enum {string} */
-          status?: "done";
+          status: "done";
         };
       };
     };
