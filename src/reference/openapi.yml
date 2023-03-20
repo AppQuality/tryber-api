@@ -2271,6 +2271,38 @@ paths:
         - Task
       security:
         - JWT: []
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    patch:
+      summary: ''
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+      security:
+        - JWT: []
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  x-stoplight:
+                    id: 91fdwknaklej3
+                  enum:
+                    - done
   '/campaigns/{campaign}/tasks/{task}':
     parameters:
       - $ref: '#/components/parameters/campaign'
