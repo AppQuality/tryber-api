@@ -329,12 +329,10 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private defaultTesterPayout(tid: number) {
-    let completion = 0;
-    if (this.defaultTesterCompletion(tid)) {
-      completion = this.payoutConfig.completion.payout;
-    }
     return {
-      completion: completion,
+      completion: this.defaultTesterCompletion(tid)
+        ? this.payoutConfig.completion.payout
+        : 0,
       bug: this.defaultBugPayout(tid),
       refund: 0,
       extra: 0,
