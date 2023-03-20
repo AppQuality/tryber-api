@@ -2280,7 +2280,7 @@ paths:
           type: string
         description: A campaign id
     patch:
-      summary: ''
+      summary: Patch the status for a campaign prospect
       operationId: patch-campaigns-campaign-prospect
       responses:
         '200':
@@ -2290,7 +2290,7 @@ paths:
           description: Not Modified
       security:
         - JWT: []
-      description: ''
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
       requestBody:
         content:
           application/json:
