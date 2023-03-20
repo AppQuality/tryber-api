@@ -216,46 +216,30 @@ export default class ProspectRoute extends CampaignRoute<{
         "minimum_bugs",
         "percent_usecases",
       ]);
-    const critical_bug_payout = meta.find(
-      (m) => m.meta_key === "critical_bug_payout"
-    );
-    if (critical_bug_payout) {
-      this.payoutConfig.bugs.critical = parseFloat(
-        critical_bug_payout.meta_value
-      );
-    }
-    const high_bug_payout = meta.find((m) => m.meta_key === "high_bug_payout");
-    if (high_bug_payout) {
-      this.payoutConfig.bugs.high = parseFloat(high_bug_payout.meta_value);
-    }
-    const medium_bug_payout = meta.find(
-      (m) => m.meta_key === "medium_bug_payout"
-    );
-    if (medium_bug_payout) {
-      this.payoutConfig.bugs.medium = parseFloat(medium_bug_payout.meta_value);
-    }
-    const low_bug_payout = meta.find((m) => m.meta_key === "low_bug_payout");
-    if (low_bug_payout) {
-      this.payoutConfig.bugs.low = parseFloat(low_bug_payout.meta_value);
-    }
-    const completionPay = meta.find(
-      (m) => m.meta_key === "campaign_complete_bonus_eur"
-    );
-    if (completionPay) {
-      this.payoutConfig.completion.payout = parseFloat(
-        completionPay.meta_value
-      );
-    }
-    const minimumBugs = meta.find((m) => m.meta_key === "minimum_bugs");
-    if (minimumBugs) {
-      this.payoutConfig.minimumBugs = parseFloat(minimumBugs.meta_value);
-    }
-    const percentUsecases = meta.find((m) => m.meta_key === "percent_usecases");
-    if (percentUsecases) {
-      this.payoutConfig.percentUsecases =
-        parseFloat(percentUsecases.meta_value) / 100;
-    }
 
+    this.payoutConfig.bugs.critical = parseFloat(
+      meta.find((m) => m.meta_key === "critical_bug_payout")?.meta_value || "0"
+    );
+    this.payoutConfig.bugs.high = parseFloat(
+      meta.find((m) => m.meta_key === "high_bug_payout")?.meta_value || "0"
+    );
+    this.payoutConfig.bugs.medium = parseFloat(
+      meta.find((m) => m.meta_key === "medium_bug_payout")?.meta_value || "0"
+    );
+    this.payoutConfig.bugs.low = parseFloat(
+      meta.find((m) => m.meta_key === "low_bug_payout")?.meta_value || "0"
+    );
+    this.payoutConfig.completion.payout = parseFloat(
+      meta.find((m) => m.meta_key === "campaign_complete_bonus_eur")
+        ?.meta_value || "0"
+    );
+    this.payoutConfig.minimumBugs = parseFloat(
+      meta.find((m) => m.meta_key === "minimum_bugs")?.meta_value || "0"
+    );
+    this.payoutConfig.percentUsecases =
+      parseFloat(
+        meta.find((m) => m.meta_key === "percent_usecases")?.meta_value || "0"
+      ) / 100;
     return this.payoutConfig;
   }
 
