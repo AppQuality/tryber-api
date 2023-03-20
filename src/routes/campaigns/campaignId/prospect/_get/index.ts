@@ -45,6 +45,7 @@ export default class ProspectRoute extends CampaignRoute<{
     };
     completion: { payout: number; experience: number };
     minimumBugs: number;
+    percentUsecases: number;
   } = {
     bugs: {
       critical: 0,
@@ -54,6 +55,7 @@ export default class ProspectRoute extends CampaignRoute<{
     },
     completion: { payout: 0, experience: 0 },
     minimumBugs: 0,
+    percentUsecases: 0,
   };
 
   protected async init(): Promise<void> {
@@ -212,6 +214,7 @@ export default class ProspectRoute extends CampaignRoute<{
         "low_bug_payout",
         "campaign_complete_bonus_eur",
         "minimum_bugs",
+        "percent_usecases",
       ]);
     const critical_bug_payout = meta.find(
       (m) => m.meta_key === "critical_bug_payout"
@@ -246,6 +249,11 @@ export default class ProspectRoute extends CampaignRoute<{
     const minimumBugs = meta.find((m) => m.meta_key === "minimum_bugs");
     if (minimumBugs) {
       this.payoutConfig.minimumBugs = parseFloat(minimumBugs.meta_value);
+    }
+    const percentUsecases = meta.find((m) => m.meta_key === "percent_usecases");
+    if (percentUsecases) {
+      this.payoutConfig.percentUsecases =
+        parseFloat(percentUsecases.meta_value) / 100;
     }
 
     return this.payoutConfig;
@@ -349,7 +357,8 @@ export default class ProspectRoute extends CampaignRoute<{
     );
     return (
       (usecases.required === 0 ||
-        usecases.completed / usecases.required > 0.75) &&
+        usecases.completed / usecases.required >
+          this.payoutConfig.percentUsecases) &&
       totalBugs >= this.payoutConfig.minimumBugs
     );
   }
