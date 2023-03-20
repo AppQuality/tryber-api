@@ -1169,11 +1169,7 @@ export interface operations {
     };
     responses: {
       /** OK */
-      200: {
-        content: {
-          "application/json": { [key: string]: unknown };
-        };
-      };
+      200: unknown;
       /** Not Modified */
       304: never;
     };
