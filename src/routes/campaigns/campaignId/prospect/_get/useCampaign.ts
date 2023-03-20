@@ -91,6 +91,16 @@ const useCampaign = () => {
         meta_key: "campaign_complete_bonus_eur",
         meta_value: "25",
       },
+      {
+        campaign_id: 1,
+        meta_key: "minimum_bugs",
+        meta_value: "1",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "percent_usecases",
+        meta_value: "75",
+      },
     ]);
   });
 };

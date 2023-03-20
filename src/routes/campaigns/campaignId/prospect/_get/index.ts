@@ -43,6 +43,8 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: number;
       low: number;
     };
+    completion: { payout: number; experience: number };
+    minimumBugs: number;
   } = {
     bugs: {
       critical: 0,
@@ -50,6 +52,8 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: 0,
       low: 0,
     },
+    completion: { payout: 0, experience: 0 },
+    minimumBugs: 0,
   };
 
   protected async init(): Promise<void> {
@@ -206,6 +210,8 @@ export default class ProspectRoute extends CampaignRoute<{
         "high_bug_payout",
         "medium_bug_payout",
         "low_bug_payout",
+        "campaign_complete_bonus_eur",
+        "minimum_bugs",
       ]);
     const critical_bug_payout = meta.find(
       (m) => m.meta_key === "critical_bug_payout"
@@ -229,6 +235,19 @@ export default class ProspectRoute extends CampaignRoute<{
     if (low_bug_payout) {
       this.payoutConfig.bugs.low = parseFloat(low_bug_payout.meta_value);
     }
+    const completionPay = meta.find(
+      (m) => m.meta_key === "campaign_complete_bonus_eur"
+    );
+    if (completionPay) {
+      this.payoutConfig.completion.payout = parseFloat(
+        completionPay.meta_value
+      );
+    }
+    const minimumBugs = meta.find((m) => m.meta_key === "minimum_bugs");
+    if (minimumBugs) {
+      this.payoutConfig.minimumBugs = parseFloat(minimumBugs.meta_value);
+    }
+
     return this.payoutConfig;
   }
 
@@ -309,12 +328,30 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private defaultTesterPayout(tid: number) {
+    let completion = 0;
+    if (this.defaultTesterCompletion(tid)) {
+      completion = this.payoutConfig.completion.payout;
+    }
     return {
-      completion: 0,
+      completion: completion,
       bug: this.defaultBugPayout(tid),
       refund: 0,
       extra: 0,
     };
+  }
+
+  private defaultTesterCompletion(tid: number) {
+    const usecases = this.getTesterUsecases(tid);
+    const bugs = this.getTesterBugs(tid);
+    const totalBugs = Object.keys(bugs).reduce(
+      (acc, key) => acc + bugs[key as keyof typeof bugs],
+      0
+    );
+    return (
+      (usecases.required === 0 ||
+        usecases.completed / usecases.required > 0.75) &&
+      totalBugs >= this.payoutConfig.minimumBugs
+    );
   }
 
   private defaultBugPayout(tid: number) {
