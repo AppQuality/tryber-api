@@ -240,6 +240,15 @@ export default class ProspectRoute extends CampaignRoute<{
       parseFloat(
         meta.find((m) => m.meta_key === "percent_usecases")?.meta_value || "0"
       ) / 100;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("campaign_pts")
+      .where("id", this.cp_id)
+      .first();
+    if (campaign) {
+      this.payoutConfig.completion.experience = campaign.campaign_pts;
+    }
+
     return this.payoutConfig;
   }
 
@@ -368,15 +377,20 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private getTesterExperience(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result) return this.defaultTesterExperience();
+    if (!result) return this.defaultTesterExperience(tid);
     return {
       completion: result.complete_pts,
       extra: result.extra_pts,
     };
   }
 
-  private defaultTesterExperience() {
-    return { completion: 0, extra: 0 };
+  private defaultTesterExperience(tid: number) {
+    return {
+      completion: this.defaultTesterCompletion(tid)
+        ? this.payoutConfig.completion.experience
+        : -2 * this.payoutConfig.completion.experience,
+      extra: 0,
+    };
   }
 
   private getTesterNotes(tid: number) {
