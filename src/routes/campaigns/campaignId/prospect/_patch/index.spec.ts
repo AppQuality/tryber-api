@@ -38,6 +38,8 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
       .patch("/campaigns/100/prospect")
       .send({ status: "done" })
       .set("Authorization", "Bearer tester");
+
+    console.log(response.body);
     expect(response.status).toBe(400);
   });
 
