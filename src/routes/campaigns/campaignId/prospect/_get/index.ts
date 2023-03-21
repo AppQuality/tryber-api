@@ -41,11 +41,23 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: number;
       low: number;
     };
+    bugsExperience: {
+      critical: number;
+      high: number;
+      medium: number;
+      low: number;
+    };
     completion: { payout: number; experience: number };
     minimumBugs: number;
     percentUsecases: number;
   } = {
     bugs: {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    },
+    bugsExperience: {
       critical: 0,
       high: 0,
       medium: 0,
@@ -240,6 +252,10 @@ export default class ProspectRoute extends CampaignRoute<{
         "campaign_complete_bonus_eur",
         "minimum_bugs",
         "percent_usecases",
+        "point_multiplier_critical",
+        "point_multiplier_high",
+        "point_multiplier_medium",
+        "point_multiplier_low",
       ]);
 
     this.payoutConfig.bugs.critical = parseFloat(
@@ -265,6 +281,22 @@ export default class ProspectRoute extends CampaignRoute<{
       parseFloat(
         meta.find((m) => m.meta_key === "percent_usecases")?.meta_value || "0"
       ) / 100;
+
+    this.payoutConfig.bugsExperience.low = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_low")?.meta_value || "0"
+    );
+    this.payoutConfig.bugsExperience.medium = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_medium")?.meta_value ||
+        "0"
+    );
+    this.payoutConfig.bugsExperience.high = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_high")?.meta_value ||
+        "0"
+    );
+    this.payoutConfig.bugsExperience.critical = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_critical")
+        ?.meta_value || "0"
+    );
 
     const campaign = await tryber.tables.WpAppqEvdCampaign.do()
       .select("campaign_pts")
@@ -317,6 +349,7 @@ export default class ProspectRoute extends CampaignRoute<{
           experience: this.getTesterExperience(tester.id),
           note: this.getTesterNotes(tester.id),
           status: this.getTesterStatus(tester.id),
+          weightedBugs: this.getWeightedBugs(tester.id),
         };
       }),
     });
@@ -331,6 +364,16 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: result.bugs.medium,
       low: result.bugs.low,
     };
+  }
+
+  private getWeightedBugs(tid: number) {
+    const bugs = this.getTesterBugs(tid);
+    return (
+      bugs.critical * this.payoutConfig.bugsExperience.critical +
+      bugs.high * this.payoutConfig.bugsExperience.high +
+      bugs.medium * this.payoutConfig.bugsExperience.medium +
+      bugs.low * this.payoutConfig.bugsExperience.low
+    );
   }
 
   private getTesterUsecases(tid: number) {

@@ -2970,6 +2970,8 @@ paths:
                           enum:
                             - pending
                             - done
+                        weightedBugs:
+                          type: number
                       required:
                         - tester
                         - usecases
@@ -2978,6 +2980,7 @@ paths:
                         - experience
                         - note
                         - status
+                        - weightedBugs
                 required:
                   - items
               examples:

@@ -90,6 +90,29 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     );
     expect(response.body.items.length).toEqual(2);
   });
+  it("Should return prospect with weighted bugs", async () => {
+    //we expect that uploaded bugs have just status 2 = approved
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 1 }),
+          weightedBugs: 0.9,
+        }),
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 2 }),
+          weightedBugs: 0,
+        }),
+      ])
+    );
+    expect(response.body.items.length).toEqual(2);
+  });
 });
 
 describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => {
@@ -125,6 +148,30 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
         }),
         expect.objectContaining({
           bugs: { critical: 0, high: 0, medium: 0, low: 0 },
+        }),
+      ])
+    );
+    expect(response.body.items.length).toEqual(2);
+  });
+
+  it("Should return prospect with weighted bugs", async () => {
+    //we expect that uploaded bugs have just status 2 = approved
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 1 }),
+          weightedBugs: 0.9,
+        }),
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 2 }),
+          weightedBugs: 0,
         }),
       ])
     );

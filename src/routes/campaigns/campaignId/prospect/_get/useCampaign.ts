@@ -15,6 +15,11 @@ import { tryber } from "@src/features/database";
  *  - payout limit: 30
  *  - campaign complete bonus: 25
  *  - campaign complete pts: 200
+ *  - point_multipliers:
+ *    - critical: 0.6
+ *    - high: 0.25
+ *    - medium: 0.1
+ *    - low: 0.05
  *
  */
 
@@ -100,6 +105,26 @@ const useCampaign = () => {
         campaign_id: 1,
         meta_key: "percent_usecases",
         meta_value: "75",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "point_multiplier_critical",
+        meta_value: "0.6",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "point_multiplier_high",
+        meta_value: "0.25",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "point_multiplier_medium",
+        meta_value: "0.1",
+      },
+      {
+        campaign_id: 1,
+        meta_key: "point_multiplier_low",
+        meta_value: "0.05",
       },
     ]);
   });
