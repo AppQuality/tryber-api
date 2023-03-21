@@ -206,10 +206,11 @@ export default class ProspectRoute extends CampaignRoute<{
         (uc) => uc.tester_id === t.id
       );
       const usecasesGroupAll =
-        requiredCampaignUsecases.filter((uc) => uc.group_id === 0).length || 0;
+        (requiredCampaignUsecases.find((uc) => uc.group_id === 0)
+          ?.count as number) || 0;
       const usecasesGroupTester =
-        requiredCampaignUsecases.filter((uc) => uc.group_id === t.group)
-          .length || 0;
+        (requiredCampaignUsecases.find((uc) => uc.group_id === t.group)
+          ?.count as number) || 0;
       return {
         testerId: t.id,
         completed: completed ? (completed.count as number) : 0,
