@@ -25,86 +25,77 @@ beforeAll(async () => {
       campaign_id: 1,
       user_id: 2,
       accepted: 1,
-      devices: "0",
-      selected_device: 1,
-      results: 0,
       group_id: 1,
     },
   ]);
 
   await tryber.tables.WpAppqCampaignTaskGroup.do().insert([
     {
-      //gruppo 1 tester 1
       task_id: 1,
-      group_id: 0, // all
+      group_id: 0,
     },
     {
-      //gruppo 2 non tester 2
       task_id: 2,
-      group_id: 0, // all
+      group_id: 0,
     },
     {
       task_id: 3,
-      group_id: 1, // Group 1
+      group_id: 1,
     },
     {
       task_id: 4,
-      group_id: 2, // Group 2
+      group_id: 2,
     },
     {
-      task_id: 5, // Group 1 and 2
-      group_id: 1, // Group 1
+      task_id: 5,
+      group_id: 1,
     },
     {
-      task_id: 5, // Group 1 and 2
-      group_id: 2, // Group 2
+      task_id: 5,
+      group_id: 2,
+    },
+    {
+      task_id: 6,
+      group_id: 2,
     },
   ]);
   await tryber.tables.WpAppqUserTask.do().insert([
     {
-      // tester 1 caso duso 1 (gruppo all - group_id: 0)
       tester_id: 1,
       task_id: 1,
       is_completed: 1,
     },
     {
-      // tester 1 caso duso 2
       tester_id: 1,
       task_id: 2,
       is_completed: 1,
     },
     {
-      // tester 1 caso duso 3
       tester_id: 1,
       task_id: 3,
       is_completed: 1,
     },
     {
-      // tester 2 caso duso 3 così ne ha fatto uno
       tester_id: 1,
       task_id: 5,
       is_completed: 0,
     },
     {
-      // tester 2 caso duso 2 così ne ha fatto uno
       tester_id: 2,
       task_id: 1,
       is_completed: 0,
     },
     {
-      // tester 2 caso duso 2 così ne ha fatto uno
       tester_id: 2,
       task_id: 2,
       is_completed: 0,
     },
     {
-      // tester 2 caso duso 2 così ne ha fatto uno
       tester_id: 2,
       task_id: 4,
       is_completed: 0,
     },
     {
-      // tester 2 caso duso 2 così ne ha fatto uno
       tester_id: 2,
       task_id: 5,
       is_completed: 0,
@@ -181,6 +172,19 @@ beforeAll(async () => {
       info: "info",
       prefix: "prefix",
     },
+    {
+      id: 6,
+      title: "UC",
+      campaign_id: 1,
+      is_required: 1,
+      group_id: 2, // Group 2
+      content: "content",
+      jf_code: "",
+      jf_text: "",
+      simple_title: "UC",
+      info: "info",
+      prefix: "prefix",
+    },
   ]);
 });
 
@@ -221,6 +225,38 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
       notes: "This is the notes",
       is_edit: 0,
     });
+  });
+
+  it("Should return prospect for each tester with usecases data", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          usecases: { completed: 2, required: 2 },
+        }),
+        expect.objectContaining({
+          usecases: { completed: 0, required: 2 },
+        }),
+      ])
+    );
+    expect(response.body.items.length).toEqual(2);
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect - a tester or usecase switched group after completion", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqUserTask.do().insert([
+      {
+        tester_id: 1,
+        task_id: 6,
+        is_completed: 1,
+      },
+    ]);
   });
 
   it("Should return prospect for each tester with usecases data", async () => {

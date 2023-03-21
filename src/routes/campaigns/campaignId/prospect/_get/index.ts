@@ -172,48 +172,58 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private async getUsecasesByTesters(testers: { id: number; group: number }[]) {
     const requiredCampaignUsecases = await tryber.tables.WpAppqCampaignTask.do()
-      .count({ count: "wp_appq_campaign_task.id" })
-      .select(tryber.ref("group_id").withSchema("wp_appq_campaign_task_group"))
-      .join(
-        "wp_appq_campaign_task_group",
-        "wp_appq_campaign_task_group.task_id",
-        "wp_appq_campaign_task.id"
-      )
+      .select("id")
       .where({ campaign_id: this.cp_id })
-      .where({ is_required: 1 })
-      .groupBy("wp_appq_campaign_task_group.group_id");
+      .where({ is_required: 1 });
+
+    const groupCounts = await tryber.tables.WpAppqCampaignTaskGroup.do()
+      .count({ count: "task_id" })
+      .select("group_id")
+      .where(
+        "task_id",
+        "IN",
+        requiredCampaignUsecases.map((u) => u.id)
+      )
+      .groupBy("group_id");
 
     const completedRequiredUsecases = await tryber.tables.WpAppqUserTask.do()
       .count({ count: "wp_appq_user_task.id" })
-      .select(tryber.ref("tester_id").withSchema("wp_appq_user_task"))
+      .select("tester_id")
+      .select("group_id")
       .join(
-        "wp_appq_campaign_task",
-        "wp_appq_campaign_task.id",
+        "wp_appq_campaign_task_group",
+        "wp_appq_campaign_task_group.task_id",
         "wp_appq_user_task.task_id"
       )
-      .where("campaign_id", this.cp_id)
       .where(
         "tester_id",
         "IN",
         testers.map((t) => t.id)
       )
       .where("is_completed", 1)
-      .where("is_required", 1)
-      .groupBy("tester_id");
-
+      .where(
+        "wp_appq_user_task.task_id",
+        "IN",
+        requiredCampaignUsecases.map((u) => u.id)
+      )
+      .groupBy("tester_id", "group_id");
+    console.log(completedRequiredUsecases);
     return testers.map((t) => {
-      const completed = completedRequiredUsecases.find(
+      const completed = completedRequiredUsecases.filter(
         (uc) => uc.tester_id === t.id
       );
+      const completedUsecaseGroupAll =
+        completed.find((uc) => uc.group_id === 0)?.count || 0;
+      const completedUsecaseGroupTester =
+        completed.find((uc) => uc.group_id === t.group)?.count || 0;
       const usecasesGroupAll =
-        (requiredCampaignUsecases.find((uc) => uc.group_id === 0)
-          ?.count as number) || 0;
+        (groupCounts.find((uc) => uc.group_id === 0)?.count as number) || 0;
       const usecasesGroupTester =
-        (requiredCampaignUsecases.find((uc) => uc.group_id === t.group)
-          ?.count as number) || 0;
+        (groupCounts.find((uc) => uc.group_id === t.group)?.count as number) ||
+        0;
       return {
         testerId: t.id,
-        completed: completed ? (completed.count as number) : 0,
+        completed: completedUsecaseGroupAll + completedUsecaseGroupTester,
         required: usecasesGroupAll + usecasesGroupTester,
       };
     });
