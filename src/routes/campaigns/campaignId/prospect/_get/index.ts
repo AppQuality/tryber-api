@@ -207,7 +207,6 @@ export default class ProspectRoute extends CampaignRoute<{
         requiredCampaignUsecases.map((u) => u.id)
       )
       .groupBy("tester_id", "group_id");
-    console.log(completedRequiredUsecases);
     return testers.map((t) => {
       const completed = completedRequiredUsecases.filter(
         (uc) => uc.tester_id === t.id
