@@ -1,22 +1,10 @@
 import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import useCampaign from "../_get/useCampaign";
 
-beforeAll(async () => {
-  await tryber.tables.WpAppqEvdCampaign.do().insert({
-    id: 1,
-    platform_id: 1,
-    start_date: "2020-01-01",
-    end_date: "2020-01-01",
-    title: "This is the title",
-    page_preview_id: 1,
-    page_manual_id: 1,
-    customer_id: 1,
-    pm_id: 1,
-    project_id: 1,
-    customer_title: "",
-  });
-});
+useCampaign();
+
 describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => {
   it("Should return 403 if logged out", async () => {
     const response = await request(app)
