@@ -2,7 +2,8 @@
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-export default class PauoutRoute extends CampaignRoute<{
+
+export default class PayoutRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-payouts"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-payouts"]["parameters"]["path"];
 }> {
@@ -20,34 +21,18 @@ export default class PauoutRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    let payouts;
-    try {
-      payouts = { maxBonusBug: await this.getMaxBonusBug() };
-    } catch (e: any) {
-      return this.setError(
-        500,
-        new OpenapiError(
-          e.message || "There was an error while fetching payouts"
-        )
-      );
-    }
-
-    if (!payouts || !payouts.maxBonusBug)
-      return this.setError(
-        500,
-        new OpenapiError("There was an error while fetching payouts")
-      );
-
-    return this.setSuccess(200, payouts);
+    return this.setSuccess(200, { maxBonusBug: await this.getMaxBonusBug() });
   }
 
   private async getMaxBonusBug() {
-    const limitPayout = await tryber.tables.WpAppqCpMeta.do()
+    const result = await tryber.tables.WpAppqCpMeta.do()
       .select(tryber.ref("meta_value").as("maxBonusBug"))
       .where({ campaign_id: this.cp_id })
-      .where("meta_key", "payout_limit");
-    if (!limitPayout || !limitPayout[0] || !limitPayout[0].maxBonusBug)
-      return 0 as const;
-    return Number(limitPayout[0].maxBonusBug);
+      .where("meta_key", "payout_limit")
+      .first();
+
+    if (!result) return 0;
+
+    return Number(result.maxBonusBug);
   }
 }
