@@ -2271,37 +2271,6 @@ paths:
         - Task
       security:
         - JWT: []
-  '/campaigns/{campaign}/prospect':
-    parameters:
-      - $ref: '#/components/parameters/campaign'
-    patch:
-      summary: Patch the status for a campaign prospect
-      operationId: patch-campaigns-campaign-prospect
-      responses:
-        '200':
-          description: OK
-          content: {}
-        '304':
-          description: Not Modified
-      security:
-        - JWT: []
-      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - done
-              required:
-                - status
-            examples:
-              Example 1:
-                value:
-                  status: done
   '/campaigns/{campaign}/tasks/{task}':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -3214,6 +3183,34 @@ paths:
       description: ''
       security:
         - JWT: []
+    patch:
+      summary: Patch the status for a campaign prospect
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+      security:
+        - JWT: []
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - done
+              required:
+                - status
+            examples:
+              Example 1:
+                value:
+                  status: done
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:

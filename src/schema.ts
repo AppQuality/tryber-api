@@ -73,26 +73,6 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/prospect": {
-    /** Make campaign perspective status done, and change exp points and tester payouts. */
-    patch: operations["patch-campaigns-campaign-prospect"];
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: components["parameters"]["campaign"];
-      };
-    };
-  };
-  "/campaigns/{campaign}/prospect": {
-    /** Make campaign perspective status done, and change exp points and tester payouts. */
-    patch: operations["patch-campaigns-campaign-prospect"];
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: components["parameters"]["campaign"];
-      };
-    };
-  };
   "/campaigns/{campaign}/tasks/{task}": {
     /** Get the data of a UseCase in a Campaign */
     get: operations["get-campaigns-campaign-tasks-task"];
@@ -141,6 +121,8 @@ export interface paths {
   };
   "/campaigns/{campaign}/prospect": {
     get: operations["get-campaigns-campaign-prospect"];
+    /** Make campaign perspective status done, and change exp points and tester payouts. */
+    patch: operations["patch-campaigns-campaign-prospect"];
     parameters: {
       path: {
         campaign: string;
@@ -1169,52 +1151,6 @@ export interface operations {
       };
     };
   };
-  /** Make campaign perspective status done, and change exp points and tester payouts. */
-  "patch-campaigns-campaign-prospect": {
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: components["parameters"]["campaign"];
-      };
-    };
-    responses: {
-      /** OK */
-      200: unknown;
-      /** Not Modified */
-      304: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": {
-          /** @enum {string} */
-          status: "done";
-        };
-      };
-    };
-  };
-  /** Make campaign perspective status done, and change exp points and tester payouts. */
-  "patch-campaigns-campaign-prospect": {
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: components["parameters"]["campaign"];
-      };
-    };
-    responses: {
-      /** OK */
-      200: unknown;
-      /** Not Modified */
-      304: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": {
-          /** @enum {string} */
-          status: "done";
-        };
-      };
-    };
-  };
   /** Get the data of a UseCase in a Campaign */
   "get-campaigns-campaign-tasks-task": {
     parameters: {
@@ -1515,6 +1451,28 @@ export interface operations {
       404: components["responses"]["NotFound"];
       /** Precondition Failed */
       412: unknown;
+    };
+  };
+  /** Make campaign perspective status done, and change exp points and tester payouts. */
+  "patch-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Not Modified */
+      304: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          status: "done";
+        };
+      };
     };
   };
   "get-campaigns-campaign-stats": {
