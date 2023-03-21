@@ -39,17 +39,6 @@ export default class BugsRoute extends CampaignRoute<{
     if (query.search) this.search = query.search as string;
   }
 
-  protected async filter(): Promise<boolean> {
-    if (!(await super.filter())) return false;
-
-    if (!this.hasAccessToBugs(this.cp_id)) {
-      this.setError(403, new OpenapiError("Access denied"));
-
-      return false;
-    }
-    return true;
-  }
-
   private setOrderBy() {
     const query = this.getQuery();
     if (
