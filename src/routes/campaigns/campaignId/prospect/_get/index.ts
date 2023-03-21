@@ -67,12 +67,14 @@ export default class ProspectRoute extends CampaignRoute<{
     minimumBugs: 0,
     percentUsecases: 0,
   };
+  private paidTesters: number[] = [];
 
   protected async init(): Promise<void> {
     await super.init();
     this.testers = await this.getTestersData();
     this.currentProspect = await this.getActualProspectData();
     this.payoutConfig = await this.getPayoutConfig();
+    this.paidTesters = await this.getPaidTesters();
   }
 
   private async getTestersData() {
@@ -309,6 +311,14 @@ export default class ProspectRoute extends CampaignRoute<{
     return this.payoutConfig;
   }
 
+  private async getPaidTesters() {
+    const testers = await tryber.tables.WpAppqExpPoints.do()
+      .select("tester_id")
+      .where("campaign_id", this.cp_id)
+      .where("activity_id", 1);
+    return testers.map((t) => t.tester_id);
+  }
+
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
     if (
@@ -471,8 +481,8 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private getTesterStatus(tid: number) {
-    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    const result = this.paidTesters.find((t) => t === tid);
     if (!result) return "pending" as const;
-    return "pending" as const;
+    return "done" as const;
   }
 }
