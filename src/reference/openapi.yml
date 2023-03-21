@@ -2850,6 +2850,172 @@ paths:
       description: ''
       security:
         - JWT: []
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a prospect by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - usecases:
+                          completed: 0
+                          required: 0
+                        tester:
+                          id: 0
+                          name: string
+                          surname: string
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                        usecases:
+                          type: object
+                          required:
+                            - completed
+                            - required
+                          properties:
+                            completed:
+                              type: integer
+                            required:
+                              type: integer
+                        bugs:
+                          type: object
+                          required:
+                            - critical
+                            - high
+                            - medium
+                            - low
+                          properties:
+                            critical:
+                              type: integer
+                            high:
+                              type: integer
+                            medium:
+                              type: integer
+                            low:
+                              type: integer
+                        payout:
+                          type: object
+                          required:
+                            - completion
+                            - bug
+                            - refund
+                            - extra
+                          properties:
+                            completion:
+                              type: number
+                            bug:
+                              type: number
+                            refund:
+                              type: number
+                            extra:
+                              type: number
+                        experience:
+                          type: object
+                          required:
+                            - completion
+                            - extra
+                          properties:
+                            completion:
+                              type: integer
+                            extra:
+                              type: integer
+                        note:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - pending
+                            - done
+                      required:
+                        - tester
+                        - usecases
+                        - bugs
+                        - payout
+                        - experience
+                        - note
+                        - status
+                required:
+                  - items
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - usecases:
+                          completed: 1
+                          required: 1
+                        tester:
+                          id: 1
+                          name: Jhon
+                          surname: Doe
+                        bugs:
+                          critical: 1
+                          high: 2
+                          medium: 0
+                          low: 3
+                        payout:
+                          completion: 100
+                          bug: 10
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 10
+                          extra: 0
+                        note: no extra
+                        status: pending
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          description: Precondition Failed
+      operationId: get-campaigns-campaign-prospect
+      description: ''
+      security:
+        - JWT: []
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:

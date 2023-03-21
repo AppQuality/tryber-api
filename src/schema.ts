@@ -109,6 +109,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/prospect": {
+    get: operations["get-campaigns-campaign-prospect"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/stats": {
     get: operations["get-campaigns-campaign-stats"];
     parameters: {
@@ -1321,6 +1329,56 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              tester: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+              usecases: {
+                completed: number;
+                required: number;
+              };
+              bugs: {
+                critical: number;
+                high: number;
+                medium: number;
+                low: number;
+              };
+              payout: {
+                completion: number;
+                bug: number;
+                refund: number;
+                extra: number;
+              };
+              experience: {
+                completion: number;
+                extra: number;
+              };
+              note: string;
+              /** @enum {string} */
+              status: "pending" | "done";
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Precondition Failed */
+      412: unknown;
     };
   };
   "get-campaigns-campaign-stats": {

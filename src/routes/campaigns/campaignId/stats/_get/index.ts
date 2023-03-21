@@ -1,9 +1,9 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-stats */
-import AdminCampaignRoute from "@src/features/routes/CampaignRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
-export default class StatsRoute extends AdminCampaignRoute<{
+export default class StatsRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-stats"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-stats"]["parameters"]["path"];
 }> {

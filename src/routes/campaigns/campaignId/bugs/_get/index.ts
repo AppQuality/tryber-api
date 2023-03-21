@@ -1,5 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
-import AdminCampaignRoute from "@src/features/routes/CampaignRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
@@ -8,7 +8,7 @@ interface Tag {
   name: string;
 }
 
-export default class BugsRoute extends AdminCampaignRoute<{
+export default class BugsRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-cid-bugs"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["path"];
   query: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["query"];
