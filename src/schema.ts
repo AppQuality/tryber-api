@@ -1372,6 +1372,7 @@ export interface operations {
               /** @enum {string} */
               status: "pending" | "done";
               weightedBugs: number;
+              isCompleted: boolean;
             }[];
           };
         };

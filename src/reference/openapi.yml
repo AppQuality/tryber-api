@@ -2972,6 +2972,8 @@ paths:
                             - done
                         weightedBugs:
                           type: number
+                        isCompleted:
+                          type: boolean
                       required:
                         - tester
                         - usecases
@@ -2981,6 +2983,7 @@ paths:
                         - note
                         - status
                         - weightedBugs
+                        - isCompleted
                 required:
                   - items
               examples:

@@ -360,6 +360,7 @@ export default class ProspectRoute extends CampaignRoute<{
           note: this.getTesterNotes(tester.id),
           status: this.getTesterStatus(tester.id),
           weightedBugs: this.getWeightedBugs(tester.id),
+          isCompleted: this.getCompletion(tester.id),
         };
       }),
     });
@@ -384,6 +385,12 @@ export default class ProspectRoute extends CampaignRoute<{
       bugs.medium * this.payoutConfig.bugsExperience.medium +
       bugs.low * this.payoutConfig.bugsExperience.low
     );
+  }
+
+  private getCompletion(tid: number) {
+    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    if (!result) return this.defaultTesterCompletion(tid);
+    return result.is_completed === 1;
   }
 
   private getTesterUsecases(tid: number) {
