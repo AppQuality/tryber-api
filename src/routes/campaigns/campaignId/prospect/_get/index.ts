@@ -345,24 +345,48 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const items = this.testers.map((tester) => ({
+      tester: {
+        id: tester.id,
+        name: tester.name,
+        surname: tester.surname,
+      },
+      bugs: this.getTesterBugs(tester.id),
+      usecases: this.getTesterUsecases(tester.id),
+      payout: this.getTesterPayout(tester.id),
+      experience: this.getTesterExperience(tester.id),
+      note: this.getTesterNotes(tester.id),
+      status: this.getTesterStatus(tester.id),
+      weightedBugs: this.getWeightedBugs(tester.id),
+      isCompleted: this.getCompletion(tester.id),
+      isTopTester: false,
+    }));
+    const topTester = this.getTopTester(items);
+    topTester.isTopTester = true;
+
     return this.setSuccess(200, {
-      items: this.testers.map((tester) => {
-        return {
-          tester: {
-            id: tester.id,
-            name: tester.name,
-            surname: tester.surname,
-          },
-          bugs: this.getTesterBugs(tester.id),
-          usecases: this.getTesterUsecases(tester.id),
-          payout: this.getTesterPayout(tester.id),
-          experience: this.getTesterExperience(tester.id),
-          note: this.getTesterNotes(tester.id),
-          status: this.getTesterStatus(tester.id),
-          weightedBugs: this.getWeightedBugs(tester.id),
-          isCompleted: this.getCompletion(tester.id),
-        };
-      }),
+      items,
+    });
+  }
+
+  private getTopTester(
+    items: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"]["items"]
+  ) {
+    return items.reduce((prev, current) => {
+      if (prev.weightedBugs < current.weightedBugs) return current;
+      if (prev.weightedBugs === current.weightedBugs) {
+        if (prev.bugs.critical < current.bugs.critical) return current;
+        if (prev.bugs.critical === current.bugs.critical) {
+          if (prev.bugs.high < current.bugs.high) return current;
+          if (prev.bugs.high === current.bugs.high) {
+            if (prev.bugs.medium < current.bugs.medium) return current;
+            if (prev.bugs.medium === current.bugs.medium) {
+              if (prev.bugs.low < current.bugs.low) return current;
+            }
+          }
+        }
+      }
+      return prev;
     });
   }
 

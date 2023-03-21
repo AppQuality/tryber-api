@@ -2974,6 +2974,8 @@ paths:
                           type: number
                         isCompleted:
                           type: boolean
+                        isTopTester:
+                          type: boolean
                       required:
                         - tester
                         - usecases
@@ -2984,6 +2986,7 @@ paths:
                         - status
                         - weightedBugs
                         - isCompleted
+                        - isTopTester
                 required:
                   - items
               examples:

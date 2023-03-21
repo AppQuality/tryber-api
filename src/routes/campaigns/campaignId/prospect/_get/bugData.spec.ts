@@ -104,10 +104,12 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
         expect.objectContaining({
           tester: expect.objectContaining({ id: 1 }),
           weightedBugs: 0.9,
+          isTopTester: true,
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 2 }),
           weightedBugs: 0,
+          isTopTester: false,
         }),
       ])
     );

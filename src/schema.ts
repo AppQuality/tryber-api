@@ -1373,6 +1373,7 @@ export interface operations {
               status: "pending" | "done";
               weightedBugs: number;
               isCompleted: boolean;
+              isTopTester: boolean;
             }[];
           };
         };
