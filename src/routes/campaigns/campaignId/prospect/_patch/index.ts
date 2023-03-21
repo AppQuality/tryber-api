@@ -55,7 +55,43 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    console.log(this.prospect);
+    await this.assignExpAttributions();
     return this.setSuccess(200, {});
+  }
+
+  protected async assignExpAttributions() {
+    const prospect_data = this.prospect;
+    const exp_data = [];
+    const cp_title = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("title")
+      .where({ id: this.cp_id })
+      .first();
+
+    const creation_date = new Date()
+      .toISOString()
+      .slice(0, 16) ///19 ??? seconds??? the test is failing
+      .replace("T", " ");
+
+    for (const prospect of prospect_data.items) {
+      const {
+        tester: { id: tester_id },
+        experience: { completion: amount },
+      } = prospect;
+      const status =
+        prospect.experience.completion > 0 ? "successfully" : "unsuccessfully";
+      exp_data.push({
+        tester_id,
+        campaign_id: this.cp_id,
+        activity_id: 1, //TODO: get activity id from campaign ??????
+        reason: `[CP${this.cp_id}] ${
+          cp_title && cp_title.title ? cp_title.title : ""
+        } - Campaign ${status} completed`,
+        creation_date,
+        pm_id: this.getTesterId(),
+        amount, // ??????
+        bug_id: -1, // ????????????
+      });
+    }
+    await tryber.tables.WpAppqExpPoints.do().insert(exp_data);
   }
 }
