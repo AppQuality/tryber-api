@@ -361,9 +361,10 @@ export default class ProspectRoute extends CampaignRoute<{
       (acc, key) => acc + bugs[key as keyof typeof bugs],
       0
     );
+
     return (
       (usecases.required === 0 ||
-        usecases.completed / usecases.required >
+        usecases.completed / usecases.required >=
           this.payoutConfig.percentUsecases) &&
       totalBugs >= this.payoutConfig.minimumBugs
     );
