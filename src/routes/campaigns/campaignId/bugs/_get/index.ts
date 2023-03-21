@@ -1,6 +1,7 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
-import AdminCampaignRoute from "@src/features/routes/AdminCampaignRoute";
+import AdminCampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 
 interface Tag {
   id: number;
@@ -74,6 +75,17 @@ export default class BugsRoute extends AdminCampaignRoute<{
         .map((tagId) => (parseInt(tagId) > 0 ? parseInt(tagId) : 0))
         .filter((tagId) => tags.map((tag) => tag.id).includes(tagId));
     }
+  }
+
+  protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
+
+    if (!this.hasAccessToBugs(this.cp_id)) {
+      this.setError(403, new OpenapiError("Access denied"));
+
+      return false;
+    }
+    return true;
   }
 
   protected async prepare(): Promise<void> {

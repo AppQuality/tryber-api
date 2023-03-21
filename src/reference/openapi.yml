@@ -2137,6 +2137,40 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
+  '/campaigns/{campaign}/payouts':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    get:
+      summary: Get payout data for a specific campaign
+      operationId: get-campaigns-campaign-payouts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    maxBonusBug: 4.99
+                properties:
+                  maxBonusBug:
+                    type: number
+                required:
+                  - maxBonusBug
+              examples:
+                '': {}
+                Example 1:
+                  value:
+                    maxBonusBug: 5.99
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: ''
+      security:
+        - JWT: []
+      parameters: []
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
