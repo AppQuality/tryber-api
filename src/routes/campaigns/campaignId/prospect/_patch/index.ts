@@ -175,6 +175,7 @@ export default class ProspectRoute extends CampaignRoute<{
         });
       }
     }
-    await tryber.tables.WpAppqPayment.do().insert(booty_data);
+    if (booty_data.length)
+      await tryber.tables.WpAppqPayment.do().insert(booty_data);
   }
 }
