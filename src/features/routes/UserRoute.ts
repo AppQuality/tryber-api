@@ -23,9 +23,6 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
   protected getTesterId() {
     return this.testerId;
   }
-  protected getUserRole() {
-    return this.configuration.request.user.role;
-  }
   protected getWordpressId() {
     return this.wordpressId;
   }
