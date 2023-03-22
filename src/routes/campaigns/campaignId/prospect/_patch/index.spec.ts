@@ -6,6 +6,10 @@ import { useCampaign } from "./dataset";
 useCampaign();
 
 describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => {
+  afterEach(async () => {
+    await tryber.tables.WpAppqExpPoints.do().delete();
+    await tryber.tables.WpAppqPayment.do().delete();
+  });
   it("Should return 403 if logged out", async () => {
     const response = await request(app)
       .patch("/campaigns/1/prospect")
@@ -27,7 +31,6 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
       .send({ status: "done" })
       .set("Authorization", "Bearer tester");
 
-    console.log(response.body);
     expect(response.status).toBe(400);
   });
 
@@ -36,7 +39,6 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
       .patch("/campaigns/1/prospect")
       .send({ status: "done" })
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 
