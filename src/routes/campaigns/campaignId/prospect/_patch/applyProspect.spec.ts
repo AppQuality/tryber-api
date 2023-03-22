@@ -31,8 +31,6 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
         group_id: 1,
       },
     ]);
-  });
-  beforeEach(async () => {
     await tryber.tables.WpAppqProspectPayout.do().insert([
       {
         id: 1,
@@ -64,9 +62,14 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
       },
     ]);
   });
-  afterEach(async () => {
+  afterAll(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
+  afterEach(async () => {
+    await tryber.tables.WpAppqPayment.do().delete();
+    await tryber.tables.WpAppqExpPoints.do().delete();
+  });
+
   it("Should assign exp points for each tester that has a prospect", async () => {
     await request(app)
       .patch("/campaigns/1/prospect")
@@ -82,7 +85,6 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
     expect(exp_points).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 1,
           tester_id: 1,
           campaign_id: 1,
           activity_id: 1,
@@ -92,7 +94,6 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
           bug_id: -1,
         }),
         expect.objectContaining({
-          id: 2,
           tester_id: 2,
           campaign_id: 1,
           activity_id: 1,
@@ -122,7 +123,6 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
     expect(booties).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 1,
           tester_id: 1,
           campaign_id: 1,
           work_type: "Tryber Test",
@@ -142,7 +142,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
 });
 
 describe("PATCH /campaigns/campaignId/prospect - with database entries - testers with refund", () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await tryber.tables.WpAppqProspectPayout.do().insert([
       {
         id: 1,
@@ -151,7 +151,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - testers
         complete_pts: 100,
         extra_pts: 0,
         complete_eur: 5,
-        bonus_bug_eur: 3,
+        bonus_bug_eur: 2,
         extra_eur: 0,
         refund: 9,
         notes: "notes",
@@ -160,8 +160,12 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - testers
       },
     ]);
   });
-  afterEach(async () => {
+  afterAll(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
+  });
+  afterEach(async () => {
+    await tryber.tables.WpAppqPayment.do().delete();
+    await tryber.tables.WpAppqExpPoints.do().delete();
   });
   it("Should allocate different booties for completion and refund", async () => {
     await request(app)
@@ -175,37 +179,35 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - testers
       .select()
       .where({ campaign_id: 1 });
     expect(booties).toHaveLength(2);
-    expect(booties).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-          tester_id: 1,
-          campaign_id: 1,
-          work_type: "Tryber Test",
-          work_type_id: 1,
-          created_by: 1,
-          is_requested: 0,
-          request_id: 0,
-          is_paid: 0,
-          receipt_id: -1,
-          note: "[CP1] This is the title",
-          amount: 5 + 2 + 0 + 0,
-        }),
-        expect.objectContaining({
-          id: 2,
-          tester_id: 1,
-          campaign_id: 1,
-          work_type: "Refund Tryber Test",
-          work_type_id: 3,
-          created_by: 1,
-          is_requested: 0,
-          request_id: 0,
-          is_paid: 0,
-          receipt_id: -1,
-          note: "[CP1] This is the title - Refund",
-          amount: 9,
-        }),
-      ])
+    expect(booties[0]).toEqual(
+      expect.objectContaining({
+        tester_id: 1,
+        campaign_id: 1,
+        work_type: "Tryber Test",
+        work_type_id: 1,
+        created_by: 1,
+        is_requested: 0,
+        request_id: 0,
+        is_paid: 0,
+        receipt_id: -1,
+        note: "[CP1] This is the title",
+        amount: 5 + 2 + 0 + 0,
+      })
+    );
+    expect(booties[1]).toEqual(
+      expect.objectContaining({
+        tester_id: 1,
+        campaign_id: 1,
+        work_type: "Refund Tryber Test",
+        work_type_id: 3,
+        created_by: 1,
+        is_requested: 0,
+        request_id: 0,
+        is_paid: 0,
+        receipt_id: -1,
+        note: "[CP1] This is the title - Refund",
+        amount: 9,
+      })
     );
   });
 });

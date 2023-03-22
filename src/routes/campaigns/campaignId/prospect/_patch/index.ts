@@ -156,7 +156,6 @@ export default class ProspectRoute extends CampaignRoute<{
           request_id: 0,
         });
       }
-      console.log(prospect);
       if (refund > 0) {
         const work_type = this.worktypes[this.REFUND_WORKTYPE];
         const note = `[CP${this.cp_id}] ${this.campaignTitle} - Refund`;
