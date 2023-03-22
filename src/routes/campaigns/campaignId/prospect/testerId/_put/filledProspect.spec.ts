@@ -2,7 +2,7 @@ import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 
-describe("PUT /campaigns/:campaignId/prospects/:testerId - with old prospect filled", () => {
+describe("PUT /campaigns/:campaignId/prospects/:testerId - with a propect database item", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert({
       id: 1,
