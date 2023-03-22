@@ -15,7 +15,16 @@ export default class ProspectRoute extends CampaignRoute<{
   private campaignTitle: string = "";
 
   private prospectData:
-    | StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"]
+    | {
+        tester: { id: number };
+        experience: { completion: number; extra: number };
+        payout: {
+          completion: number;
+          bug: number;
+          extra: number;
+          refund: number;
+        };
+      }[]
     | undefined;
 
   protected async init(): Promise<void> {
@@ -24,7 +33,7 @@ export default class ProspectRoute extends CampaignRoute<{
     try {
       const prospectData = await getProspectRoute.getResolvedData();
       if (prospectData && "items" in prospectData) {
-        this.prospectData = prospectData;
+        this.prospectData = prospectData.items;
       }
     } catch {}
     this.worktypes = await this.getWorktypes();
@@ -62,7 +71,7 @@ export default class ProspectRoute extends CampaignRoute<{
       )
       .where({ id: this.cp_id })
       .first();
-    return cp_title?.title || "";
+    return cp_title?.title || this.campaignTitle;
   }
 
   protected async filter(): Promise<boolean> {
@@ -86,7 +95,7 @@ export default class ProspectRoute extends CampaignRoute<{
     const payoutsModified = await tryber.tables.WpAppqExpPoints.do()
       .select("id")
       .where({ campaign_id: this.cp_id })
-      .whereLike("reason", "%Campaign successfully completed%");
+      .where("activity_id", 1);
     return payoutsModified.length > 0;
   }
 
@@ -104,78 +113,89 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async assignExpAttributions() {
-    const prospect_data = this.prospect;
-    const exp_data = [];
-
-    for (const prospect of prospect_data.items) {
-      const {
-        tester: { id: tester_id },
-        experience: { completion: amount },
-      } = prospect;
-      const status =
-        prospect.experience.completion > 0 ? "successfully" : "unsuccessfully"; //isComplete
-      exp_data.push({
-        tester_id,
-        campaign_id: this.cp_id,
-        activity_id: this.COMPLETION_ACTIVITY_ID,
-        reason: `[CP${this.cp_id}] ${this.campaignTitle} - Campaign ${status} completed`,
-        creation_date: this.assignmentDate,
-        pm_id: this.getTesterId(),
-        amount: prospect.experience.completion + prospect.experience.extra,
-        bug_id: -1,
-      });
-    }
-    await tryber.tables.WpAppqExpPoints.do().insert(exp_data);
+    await tryber.tables.WpAppqExpPoints.do().insert(
+      this.prospect.map((prospect) => {
+        const {
+          tester: { id: tester_id },
+          experience: { completion: completion, extra: extra },
+        } = prospect;
+        const status = completion > 0 ? "successfully" : "unsuccessfully"; //isComplete
+        return {
+          tester_id,
+          campaign_id: this.cp_id,
+          activity_id: this.COMPLETION_ACTIVITY_ID,
+          reason: `[CP${this.cp_id}] ${this.campaignTitle} - Campaign ${status} completed`,
+          creation_date: this.assignmentDate,
+          pm_id: this.getTesterId(),
+          amount: completion + extra,
+          bug_id: -1,
+        };
+      })
+    );
   }
 
   protected async assignBooties() {
-    const prospect_data = this.prospect;
-    const booty_data = [];
+    const booty_data = [
+      ...this.getBootiesForCompletion(),
+      ...this.getBootiesForRefund(),
+    ];
+    if (booty_data.length)
+      await tryber.tables.WpAppqPayment.do().insert(booty_data);
+  }
 
-    for (const prospect of prospect_data.items) {
-      const {
-        tester: { id: tester_id },
-        payout: { completion, bug, refund, extra },
-      } = prospect;
-      const amount = completion + bug + extra;
-      if (amount > 0) {
-        const work_type = this.worktypes[this.COMPLETION_WORKTYPE];
-        const note = `[CP${this.cp_id}] ${this.campaignTitle}`;
-        booty_data.push({
+  private getBootiesForCompletion() {
+    return this.prospect
+      .filter(
+        (prospect) =>
+          prospect.payout.completion +
+            prospect.payout.bug +
+            prospect.payout.extra >
+          0
+      )
+      .map((prospect) => {
+        const {
+          tester: { id: tester_id },
+          payout: { completion, bug, extra },
+        } = prospect;
+        return {
           tester_id,
           campaign_id: this.cp_id,
-          amount,
-          note,
+          amount: completion + bug + extra,
+          note: `[CP${this.cp_id}] ${this.campaignTitle}`,
           created_by: this.getTesterId(),
-          work_type,
+          work_type: this.worktypes[this.COMPLETION_WORKTYPE],
           work_type_id: this.COMPLETION_WORKTYPE,
           creation_date: this.assignmentDate,
           is_paid: 0,
           receipt_id: -1,
           is_requested: 0,
           request_id: 0,
-        });
-      }
-      if (refund > 0) {
-        const work_type = this.worktypes[this.REFUND_WORKTYPE];
-        const note = `[CP${this.cp_id}] ${this.campaignTitle} - Refund`;
-        booty_data.push({
+        };
+      });
+  }
+
+  private getBootiesForRefund() {
+    return this.prospect
+      .filter((prospect) => prospect.payout.refund > 0)
+      .map((prospect) => {
+        const {
+          tester: { id: tester_id },
+          payout: { refund },
+        } = prospect;
+        return {
           tester_id,
           campaign_id: this.cp_id,
           amount: refund,
-          note,
+          note: `[CP${this.cp_id}] ${this.campaignTitle} - Refund`,
           created_by: this.getTesterId(),
           work_type_id: this.REFUND_WORKTYPE,
-          work_type,
+          work_type: this.worktypes[this.REFUND_WORKTYPE],
           creation_date: this.assignmentDate,
           is_paid: 0,
           receipt_id: -1,
           is_requested: 0,
           request_id: 0,
-        });
-      }
-    }
-    if (booty_data.length)
-      await tryber.tables.WpAppqPayment.do().insert(booty_data);
+        };
+      });
   }
 }
