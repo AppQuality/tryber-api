@@ -83,36 +83,4 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
       );
     expect(response.status).toBe(200);
   });
-
-  // it("Should return prospect if already exist", async () => {
-  //   const response = await request(app)
-  //     .get("/campaigns/1/prospect")
-  //     .set(
-  //       "Authorization",
-  //       'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-  //     );
-  //   expect(response.body.items).toEqual(
-  //     expect.arrayContaining([
-  //       expect.objectContaining({
-  //         tester: { id: 1, name: "John", surname: "Doe" },
-  //         bugs: { critical: 1, high: 0, low: 1, medium: 0 },
-  //         usecases: { completed: 2, required: 2 },
-  //         note: "This is the notes",
-  //         experience: { completion: 100, extra: 69 },
-  //         payout: { bug: 5, completion: 25, extra: 9, refund: 1 },
-  //         // status: "pending",
-  //       }),
-  //       expect.objectContaining({
-  //         tester: { id: 2, name: "John", surname: "Doe" },
-  //         bugs: { critical: 0, high: 0, low: 0, medium: 0 },
-  //         usecases: { completed: 0, required: 2 },
-  //         note: "",
-  //         experience: { completion: 0, extra: 0 },
-  //         payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
-  //         // status: "pending",
-  //       }),
-  //     ])
-  //   );
-  //   expect(response.body.items.length).toEqual(2);
-  // });
 });

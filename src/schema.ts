@@ -1371,6 +1371,9 @@ export interface operations {
               note: string;
               /** @enum {string} */
               status: "pending" | "done";
+              weightedBugs: number;
+              isCompleted: boolean;
+              isTopTester: boolean;
             }[];
           };
         };

@@ -41,6 +41,12 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: number;
       low: number;
     };
+    bugsExperience: {
+      critical: number;
+      high: number;
+      medium: number;
+      low: number;
+    };
     completion: { payout: number; experience: number };
     minimumBugs: number;
     percentUsecases: number;
@@ -51,16 +57,24 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: 0,
       low: 0,
     },
+    bugsExperience: {
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    },
     completion: { payout: 0, experience: 0 },
     minimumBugs: 0,
     percentUsecases: 0,
   };
+  private paidTesters: number[] = [];
 
   protected async init(): Promise<void> {
     await super.init();
     this.testers = await this.getTestersData();
     this.currentProspect = await this.getActualProspectData();
     this.payoutConfig = await this.getPayoutConfig();
+    this.paidTesters = await this.getPaidTesters();
   }
 
   private async getTestersData() {
@@ -240,6 +254,10 @@ export default class ProspectRoute extends CampaignRoute<{
         "campaign_complete_bonus_eur",
         "minimum_bugs",
         "percent_usecases",
+        "point_multiplier_critical",
+        "point_multiplier_high",
+        "point_multiplier_medium",
+        "point_multiplier_low",
       ]);
 
     this.payoutConfig.bugs.critical = parseFloat(
@@ -266,6 +284,22 @@ export default class ProspectRoute extends CampaignRoute<{
         meta.find((m) => m.meta_key === "percent_usecases")?.meta_value || "0"
       ) / 100;
 
+    this.payoutConfig.bugsExperience.low = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_low")?.meta_value || "0"
+    );
+    this.payoutConfig.bugsExperience.medium = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_medium")?.meta_value ||
+        "0"
+    );
+    this.payoutConfig.bugsExperience.high = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_high")?.meta_value ||
+        "0"
+    );
+    this.payoutConfig.bugsExperience.critical = parseFloat(
+      meta.find((m) => m.meta_key === "point_multiplier_critical")
+        ?.meta_value || "0"
+    );
+
     const campaign = await tryber.tables.WpAppqEvdCampaign.do()
       .select("campaign_pts")
       .where("id", this.cp_id)
@@ -275,6 +309,14 @@ export default class ProspectRoute extends CampaignRoute<{
     }
 
     return this.payoutConfig;
+  }
+
+  private async getPaidTesters() {
+    const testers = await tryber.tables.WpAppqExpPoints.do()
+      .select("tester_id")
+      .where("campaign_id", this.cp_id)
+      .where("activity_id", 1);
+    return testers.map((t) => t.tester_id);
   }
 
   protected async filter(): Promise<boolean> {
@@ -303,22 +345,48 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const items = this.testers.map((tester) => ({
+      tester: {
+        id: tester.id,
+        name: tester.name,
+        surname: tester.surname,
+      },
+      bugs: this.getTesterBugs(tester.id),
+      usecases: this.getTesterUsecases(tester.id),
+      payout: this.getTesterPayout(tester.id),
+      experience: this.getTesterExperience(tester.id),
+      note: this.getTesterNotes(tester.id),
+      status: this.getTesterStatus(tester.id),
+      weightedBugs: this.getWeightedBugs(tester.id),
+      isCompleted: this.getCompletion(tester.id),
+      isTopTester: false,
+    }));
+    const topTester = this.getTopTester(items);
+    topTester.isTopTester = true;
+
     return this.setSuccess(200, {
-      items: this.testers.map((tester) => {
-        return {
-          tester: {
-            id: tester.id,
-            name: tester.name,
-            surname: tester.surname,
-          },
-          bugs: this.getTesterBugs(tester.id),
-          usecases: this.getTesterUsecases(tester.id),
-          payout: this.getTesterPayout(tester.id),
-          experience: this.getTesterExperience(tester.id),
-          note: this.getTesterNotes(tester.id),
-          status: this.getTesterStatus(tester.id),
-        };
-      }),
+      items,
+    });
+  }
+
+  private getTopTester(
+    items: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"]["items"]
+  ) {
+    return items.reduce((prev, current) => {
+      if (prev.weightedBugs < current.weightedBugs) return current;
+      if (prev.weightedBugs === current.weightedBugs) {
+        if (prev.bugs.critical < current.bugs.critical) return current;
+        if (prev.bugs.critical === current.bugs.critical) {
+          if (prev.bugs.high < current.bugs.high) return current;
+          if (prev.bugs.high === current.bugs.high) {
+            if (prev.bugs.medium < current.bugs.medium) return current;
+            if (prev.bugs.medium === current.bugs.medium) {
+              if (prev.bugs.low < current.bugs.low) return current;
+            }
+          }
+        }
+      }
+      return prev;
     });
   }
 
@@ -331,6 +399,22 @@ export default class ProspectRoute extends CampaignRoute<{
       medium: result.bugs.medium,
       low: result.bugs.low,
     };
+  }
+
+  private getWeightedBugs(tid: number) {
+    const bugs = this.getTesterBugs(tid);
+    return (
+      bugs.critical * this.payoutConfig.bugsExperience.critical +
+      bugs.high * this.payoutConfig.bugsExperience.high +
+      bugs.medium * this.payoutConfig.bugsExperience.medium +
+      bugs.low * this.payoutConfig.bugsExperience.low
+    );
+  }
+
+  private getCompletion(tid: number) {
+    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    if (!result) return this.defaultTesterCompletion(tid);
+    return result.is_completed === 1;
   }
 
   private getTesterUsecases(tid: number) {
@@ -428,8 +512,8 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private getTesterStatus(tid: number) {
-    const result = this.currentProspect.find((t) => t.tester_id === tid);
+    const result = this.paidTesters.find((t) => t === tid);
     if (!result) return "pending" as const;
-    return "pending" as const;
+    return "done" as const;
   }
 }
