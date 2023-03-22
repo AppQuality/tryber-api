@@ -93,6 +93,10 @@ export default class ProspectRoute extends CampaignRoute<{
   protected async prepare(): Promise<void> {
     // await this.checkPerfect(); // se tutti i bug del t sono approvati mette il bonus perfect
     //take all bugs at least one bugs approved and no one bug refused or need review and set the bonus perfect exp from cpmeta
+
+    //2testers, 1 bug, 1 approved, - 1 bug 1 refused e 1 approved
+    //terzo tester 1 bug approved e 1 need review
+
     await this.assignExpAttributions();
     await this.assignBooties();
     // this.sendMail(); // to advise the tester that recived booties
@@ -152,9 +156,10 @@ export default class ProspectRoute extends CampaignRoute<{
           request_id: 0,
         });
       }
+      console.log(prospect);
       if (refund > 0) {
         const work_type = this.worktypes[this.REFUND_WORKTYPE];
-        const note = `[CP${this.cp_id}] ${this.campaignTitle} - refund`;
+        const note = `[CP${this.cp_id}] ${this.campaignTitle} - Refund`;
         booty_data.push({
           tester_id,
           campaign_id: this.cp_id,
