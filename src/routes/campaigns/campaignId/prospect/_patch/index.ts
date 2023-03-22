@@ -8,6 +8,12 @@ export default class ProspectRoute extends CampaignRoute<{
   parameters: StoplightOperations["patch-campaigns-campaign-prospect"]["parameters"]["path"];
   body: StoplightOperations["patch-campaigns-campaign-prospect"]["requestBody"]["content"]["application/json"];
 }> {
+  private COMPLETION_WORKTYPE = 1;
+  private REFUND_WORKTYPE = 3;
+  private worktypes: Record<number, string> = {};
+  private COMPLETION_ACTIVITY_ID = 1;
+  private campaignTitle: string = "";
+
   private prospectData:
     | StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"]
     | undefined;
@@ -21,12 +27,42 @@ export default class ProspectRoute extends CampaignRoute<{
         this.prospectData = prospectData;
       }
     } catch {}
+    this.worktypes = await this.getWorktypes();
+    this.campaignTitle = await this.getCampaignTitle();
   }
 
   get prospect() {
     if (typeof this.prospectData === "undefined")
       throw new Error("Invalid prospect data");
     return this.prospectData;
+  }
+
+  get assignmentDate() {
+    return new Date().toISOString().slice(0, 19).replace("T", " ");
+  }
+
+  private async getWorktypes() {
+    const worktypes = await tryber.tables.WpAppqPaymentWorkTypes.do().select();
+    if (!worktypes.length) {
+      return {
+        1: "Tryber Test",
+        3: "Refund Tryber Test",
+      };
+    }
+    return worktypes.reduce(
+      (obj, item) => ({ ...obj, [item.id]: item.work_type }),
+      {}
+    );
+  }
+
+  private async getCampaignTitle() {
+    const cp_title = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        tryber.ref("title").withSchema("wp_appq_evd_campaign").as("title")
+      )
+      .where({ id: this.cp_id })
+      .first();
+    return cp_title?.title || "";
   }
 
   protected async filter(): Promise<boolean> {
@@ -55,22 +91,17 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    // await this.checkPerfect(); // se tutti i bug del t sono approvati mette il bonus perfect
+    //take all bugs at least one bugs approved and no one bug refused or need review and set the bonus perfect exp from cpmeta
     await this.assignExpAttributions();
+    await this.assignBooties();
+    // this.sendMail(); // to advise the tester that recived booties
     return this.setSuccess(200, {});
   }
 
   protected async assignExpAttributions() {
     const prospect_data = this.prospect;
     const exp_data = [];
-    const cp_title = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("title")
-      .where({ id: this.cp_id })
-      .first();
-
-    const creation_date = new Date()
-      .toISOString()
-      .slice(0, 16) ///19 ??? seconds??? the test is failing
-      .replace("T", " ");
 
     for (const prospect of prospect_data.items) {
       const {
@@ -78,20 +109,68 @@ export default class ProspectRoute extends CampaignRoute<{
         experience: { completion: amount },
       } = prospect;
       const status =
-        prospect.experience.completion > 0 ? "successfully" : "unsuccessfully";
+        prospect.experience.completion > 0 ? "successfully" : "unsuccessfully"; //isComplete
       exp_data.push({
         tester_id,
         campaign_id: this.cp_id,
-        activity_id: 1, //TODO: get activity id from campaign ??????
-        reason: `[CP${this.cp_id}] ${
-          cp_title && cp_title.title ? cp_title.title : ""
-        } - Campaign ${status} completed`,
-        creation_date,
+        activity_id: this.COMPLETION_ACTIVITY_ID,
+        reason: `[CP${this.cp_id}] ${this.campaignTitle} - Campaign ${status} completed`,
+        creation_date: this.assignmentDate,
         pm_id: this.getTesterId(),
-        amount, // ??????
-        bug_id: -1, // ????????????
+        amount: prospect.experience.completion + prospect.experience.extra,
+        bug_id: -1,
       });
     }
     await tryber.tables.WpAppqExpPoints.do().insert(exp_data);
+  }
+
+  protected async assignBooties() {
+    const prospect_data = this.prospect;
+    const booty_data = [];
+
+    for (const prospect of prospect_data.items) {
+      const {
+        tester: { id: tester_id },
+        payout: { completion, bug, refund, extra },
+      } = prospect;
+      const amount = completion + bug + extra;
+      if (amount > 0) {
+        const work_type = this.worktypes[this.COMPLETION_WORKTYPE];
+        const note = `[CP${this.cp_id}] ${this.campaignTitle}`;
+        booty_data.push({
+          tester_id,
+          campaign_id: this.cp_id,
+          amount,
+          note,
+          created_by: this.getTesterId(),
+          work_type,
+          work_type_id: this.COMPLETION_WORKTYPE,
+          creation_date: this.assignmentDate,
+          is_paid: 0,
+          receipt_id: -1,
+          is_requested: 0,
+          request_id: 0,
+        });
+      }
+      if (refund > 0) {
+        const work_type = this.worktypes[this.REFUND_WORKTYPE];
+        const note = `[CP${this.cp_id}] ${this.campaignTitle} - refund`;
+        booty_data.push({
+          tester_id,
+          campaign_id: this.cp_id,
+          amount: refund,
+          note,
+          created_by: this.getTesterId(),
+          work_type_id: this.REFUND_WORKTYPE,
+          work_type,
+          creation_date: this.assignmentDate,
+          is_paid: 0,
+          receipt_id: -1,
+          is_requested: 0,
+          request_id: 0,
+        });
+      }
+    }
+    await tryber.tables.WpAppqPayment.do().insert(booty_data);
   }
 }

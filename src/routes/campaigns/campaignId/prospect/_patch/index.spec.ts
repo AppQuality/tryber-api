@@ -1,7 +1,7 @@
 import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
-import useCampaign from "../_get/useCampaign";
+import { useCampaign } from "./dataset";
 
 useCampaign();
 
