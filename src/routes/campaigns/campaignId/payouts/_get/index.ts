@@ -7,9 +7,6 @@ export default class PayoutRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-payouts"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-payouts"]["parameters"]["path"];
 }> {
-  private testPointsSuccess: number = 0;
-  private testPointsFailure: number = 0;
-
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
     if (
@@ -24,17 +21,16 @@ export default class PayoutRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    await this.getCampaignPoints();
-
+    const campaignPoints = await this.getCampaignPoints();
     return this.setSuccess(200, {
       maxBonusBug: await this.getMaxBonusBug(),
       testSuccess: {
         payout: await this.getBasePayout(),
-        points: this.testPointsSuccess,
+        points: campaignPoints.success,
       },
       testFailure: {
         payout: 0,
-        points: this.testPointsFailure,
+        points: campaignPoints.failure,
       },
     });
   }
@@ -69,7 +65,11 @@ export default class PayoutRoute extends CampaignRoute<{
       .where({ id: this.cp_id })
       .first();
 
-    this.testPointsSuccess = result?.campaign_pts || 0;
-    this.testPointsFailure = this.testPointsSuccess * -2;
+    const campaignCompletionPoints = result?.campaign_pts || 0;
+
+    return {
+      success: campaignCompletionPoints,
+      failure: campaignCompletionPoints * -2,
+    };
   }
 }
