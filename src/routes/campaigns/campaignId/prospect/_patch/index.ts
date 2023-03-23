@@ -80,21 +80,22 @@ export default class ProspectRoute extends CampaignRoute<{
     return Number(multiplier?.perfect) || this.perfectBugsMultiplier;
   }
 
-  // private async getTestersMadePerfectBugs() {
-  //   const testers = await tryber.tables.WpAppqEvdProfile.do()
-  //     .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"))
-  //     .join(
-  //       "wp_appq_evd_bug",
-  //       "wp_appq_evd_profile.id",
-  //       "wp_appq_evd_bug.profile_id"
-  //     )
-  //     .where({ id: this.cp_id })
-  //     .where("wp_appq_evd_bug.status", 2);
+  private async getTestersMadePerfectBugs() {
+    const testers = await tryber.tables.WpAppqEvdProfile.do()
+      .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"))
+      .join(
+        "wp_appq_evd_bug",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_appq_evd_bug.wp_user_id"
+      )
+      .where({ id: this.cp_id })
+      .where("wp_appq_evd_bug.status", 2)
+      .groupBy("id");
 
-  //   return testers.length
-  //     ? testers.map((tester) => tester.id)
-  //     : this.testersMadePerfectBugs;
-  // }
+    return testers.length
+      ? testers.map((tester) => tester.id)
+      : this.testersMadePerfectBugs;
+  }
 
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
