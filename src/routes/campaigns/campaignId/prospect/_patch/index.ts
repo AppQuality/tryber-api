@@ -78,6 +78,7 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    await this.saveProspect();
     // await this.checkPerfect(); // se tutti i bug del t sono approvati mette il bonus perfect
     //take all bugs at least one bugs approved and no one bug refused or need review and set the bonus perfect exp from cpmeta
 
@@ -178,4 +179,6 @@ export default class ProspectRoute extends CampaignRoute<{
         };
       });
   }
+
+  private async saveProspect() {}
 }
