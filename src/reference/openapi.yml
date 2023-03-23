@@ -3249,7 +3249,6 @@ paths:
                       - tester
                       - experience
                       - payout
-                      - note
               required:
                 - status
                 - items
