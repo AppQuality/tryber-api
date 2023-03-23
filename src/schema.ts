@@ -1092,6 +1092,14 @@ export interface operations {
         content: {
           "application/json": {
             maxBonusBug: number;
+            testSuccess: {
+              payout: number;
+              points: number;
+            };
+            testFailure: {
+              payout: number;
+              points: number;
+            };
           };
         };
       };

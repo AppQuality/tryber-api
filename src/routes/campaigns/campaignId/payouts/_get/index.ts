@@ -21,7 +21,18 @@ export default class PayoutRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    return this.setSuccess(200, { maxBonusBug: await this.getMaxBonusBug() });
+    const campaignPoints = await this.getCampaignPoints();
+    return this.setSuccess(200, {
+      maxBonusBug: await this.getMaxBonusBug(),
+      testSuccess: {
+        payout: await this.getBasePayout(),
+        points: campaignPoints.success,
+      },
+      testFailure: {
+        payout: 0,
+        points: campaignPoints.failure,
+      },
+    });
   }
 
   private async getMaxBonusBug() {
@@ -34,5 +45,31 @@ export default class PayoutRoute extends CampaignRoute<{
     if (!result) return 0;
 
     return Number(result.maxBonusBug);
+  }
+
+  private async getBasePayout() {
+    const result = await tryber.tables.WpAppqCpMeta.do()
+      .select(tryber.ref("meta_value").as("basePayout"))
+      .where({ campaign_id: this.cp_id })
+      .where("meta_key", "campaign_complete_bonus_eur")
+      .first();
+
+    if (!result) return 0;
+
+    return Number(result.basePayout);
+  }
+
+  private async getCampaignPoints() {
+    const result = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("campaign_pts")
+      .where({ id: this.cp_id })
+      .first();
+
+    const campaignCompletionPoints = result?.campaign_pts || 0;
+
+    return {
+      success: campaignCompletionPoints,
+      failure: campaignCompletionPoints * -2,
+    };
   }
 }
