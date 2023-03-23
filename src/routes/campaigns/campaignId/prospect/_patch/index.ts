@@ -286,6 +286,7 @@ export default class ProspectRoute extends CampaignRoute<{
       refund: prospect.payout.refund,
       complete_pts: prospect.experience.completion,
       extra_pts: prospect.experience.extra,
+      notes: prospect.note,
     }));
 
     const payouts = await tryber.tables.WpAppqProspectPayout.do()

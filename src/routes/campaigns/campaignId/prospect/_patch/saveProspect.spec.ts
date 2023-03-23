@@ -27,6 +27,7 @@ describe("PATCH /campaigns/campaignId/prospect - save prospect from default", ()
               extra: 3,
               refund: 4,
             },
+            note: "note",
           },
         ],
       })
@@ -45,6 +46,7 @@ describe("PATCH /campaigns/campaignId/prospect - save prospect from default", ()
     expect(prospect[0].refund).toBe(4);
     expect(prospect[0].complete_pts).toBe(10);
     expect(prospect[0].extra_pts).toBe(20);
+    expect(prospect[0].notes).toBe("note");
   });
 });
 
@@ -82,6 +84,7 @@ describe("PATCH /campaigns/campaignId/prospect - update prospect from db", () =>
               extra: 3,
               refund: 4,
             },
+            note: "note",
           },
         ],
       })
@@ -100,5 +103,6 @@ describe("PATCH /campaigns/campaignId/prospect - update prospect from db", () =>
     expect(prospect[0].refund).toBe(4);
     expect(prospect[0].complete_pts).toBe(10);
     expect(prospect[0].extra_pts).toBe(20);
+    expect(prospect[0].notes).toBe("note");
   });
 });

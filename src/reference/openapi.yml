@@ -3243,10 +3243,13 @@ paths:
                             type: number
                           refund:
                             type: number
+                      note:
+                        type: string
                     required:
                       - tester
                       - experience
                       - payout
+                      - note
               required:
                 - status
                 - items
