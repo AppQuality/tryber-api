@@ -1,6 +1,7 @@
 /** OPENAPI-CLASS: patch-campaigns-campaign-prospect */
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
+import { sendTemplate } from "@src/features/mail/sendTemplate";
 import OpenapiError from "@src/features/OpenapiError";
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["patch-campaigns-campaign-prospect"]["responses"]["200"];
@@ -127,7 +128,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
     await this.assignExpAttributions();
     await this.assignBooties();
-    // this.sendMail(); // to advise the tester that recived booties
+    await this.sendMail();
     return this.setSuccess(200, {});
   }
 
@@ -285,5 +286,24 @@ export default class ProspectRoute extends CampaignRoute<{
           })
           .update(update);
       }
+  }
+
+  private async sendMail() {
+    const template = process.env.BOOTY_UPDATED_EMAIL;
+    if (!template) return;
+    const testers = await tryber.tables.WpAppqEvdProfile.do()
+      .select("id", "email")
+      .whereIn(
+        "id",
+        this.prospect.map((prospect) => prospect.tester.id)
+      );
+    testers.forEach((tester) => {
+      sendTemplate({
+        email: tester.email,
+        template: template,
+        subject:
+          "[Tryber] Your booty and/or experience points have been updated",
+      });
+    });
   }
 }
