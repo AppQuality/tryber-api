@@ -180,5 +180,41 @@ export default class ProspectRoute extends CampaignRoute<{
       });
   }
 
-  private async saveProspect() {}
+  private async saveProspect() {
+    if (this.prospect.length === 0) return;
+
+    const updates = this.prospect.map((prospect) => ({
+      tester_id: prospect.tester.id,
+      campaign_id: this.cp_id,
+      complete_eur: prospect.payout.completion,
+      bonus_bug_eur: prospect.payout.bug,
+      extra_eur: prospect.payout.extra,
+      refund: prospect.payout.refund,
+      complete_pts: prospect.experience.completion,
+      extra_pts: prospect.experience.extra,
+    }));
+
+    const payouts = await tryber.tables.WpAppqProspectPayout.do()
+      .select("tester_id")
+      .where({ campaign_id: this.cp_id });
+
+    const toInsert = updates.filter((update) => {
+      return !payouts.map((p) => p.tester_id).includes(update.tester_id);
+    });
+    if (toInsert.length)
+      await tryber.tables.WpAppqProspectPayout.do().insert(toInsert);
+
+    const toUpdate = updates.filter((update) => {
+      return payouts.map((p) => p.tester_id).includes(update.tester_id);
+    });
+    if (toUpdate.length)
+      for (const update of toUpdate) {
+        await tryber.tables.WpAppqProspectPayout.do()
+          .where({
+            tester_id: update.tester_id,
+            campaign_id: update.campaign_id,
+          })
+          .update(update);
+      }
+  }
 }
