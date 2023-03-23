@@ -16,7 +16,7 @@ export default class ProspectRoute extends CampaignRoute<{
   private campaignTitle: string = "";
   private perfectBugsMultiplier = 0.25;
   private completionCampaignPoints = 0;
-  private testersMadePerfectBugs: number[] = [];
+  private testerPerfectCampaign: number[] = [];
 
   protected async init(): Promise<void> {
     await super.init();
@@ -24,7 +24,7 @@ export default class ProspectRoute extends CampaignRoute<{
     this.campaignTitle = await this.getCampaignTitle();
     this.perfectBugsMultiplier = await this.getPerfectBugsMultiplier();
     this.completionCampaignPoints = await this.getCompletionCampaignPoints();
-    // this.testersMadePerfectBugs = await this.getTestersMadePerfectBugs();
+    this.testerPerfectCampaign = await this.getTesterWithPerfectCampaign();
   }
 
   get prospect() {
@@ -78,24 +78,49 @@ export default class ProspectRoute extends CampaignRoute<{
       .select(tryber.ref("option_value").withSchema("wp_options").as("perfect"))
       .where({ option_name: "options_point_multiplier_perfect_campaign" })
       .first();
-    return Number(multiplier?.perfect) || this.perfectBugsMultiplier;
+    if (!multiplier) return this.perfectBugsMultiplier;
+    return Number(multiplier.perfect);
   }
 
-  private async getTestersMadePerfectBugs() {
-    const testers = await tryber.tables.WpAppqEvdProfile.do()
+  private getTesterWithPerfectCampaignQuery() {
+    return tryber.tables.WpAppqEvdProfile.do()
       .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"))
       .join(
         "wp_appq_evd_bug",
         "wp_appq_evd_profile.wp_user_id",
         "wp_appq_evd_bug.wp_user_id"
       )
-      .where({ id: this.cp_id })
-      .where("wp_appq_evd_bug.status", 2)
-      .groupBy("id");
+      .where("wp_appq_evd_bug.campaign_id", this.cp_id)
+      .where(
+        "wp_appq_evd_profile.id",
+        "IN",
+        this.prospect.map((p) => p.tester.id)
+      )
+      .groupBy("wp_appq_evd_profile.id");
+  }
 
-    return testers.length
-      ? testers.map((tester) => tester.id)
-      : this.testersMadePerfectBugs;
+  private async getTesterWithPerfectCampaign() {
+    const bugsApproved = await this.getTesterWithPerfectCampaignQuery().where(
+      "wp_appq_evd_bug.status_id",
+      2
+    );
+
+    const bugsNotApproved =
+      await this.getTesterWithPerfectCampaignQuery().where(
+        "wp_appq_evd_bug.status_id",
+        "<>",
+        2
+      );
+
+    const perfects = this.prospect
+      .map((p) => p.tester.id)
+      .filter((p) => {
+        const hasApproved = bugsApproved.find((b) => b.id === p);
+        const hasNotApproved = bugsNotApproved.find((b) => b.id === p);
+        return hasApproved && !hasNotApproved;
+      });
+
+    return perfects.length ? perfects : this.testerPerfectCampaign;
   }
 
   protected async filter(): Promise<boolean> {
@@ -135,9 +160,8 @@ export default class ProspectRoute extends CampaignRoute<{
   protected async assignExpAttributions() {
     const exp_data = [
       ...this.getExpDataForCompletion(),
-      //...this.getExpDataForPerfect(),
+      ...this.getExpDataForPerfect(),
     ];
-    console.log(exp_data);
     if (exp_data.length)
       await tryber.tables.WpAppqExpPoints.do().insert(exp_data);
   }
@@ -166,7 +190,7 @@ export default class ProspectRoute extends CampaignRoute<{
     // filter tester with perfect bugs
     return this.prospect
       .filter((prospect) =>
-        this.testersMadePerfectBugs.includes(prospect.tester.id)
+        this.testerPerfectCampaign.includes(prospect.tester.id)
       )
       .map((prospect) => {
         const {
