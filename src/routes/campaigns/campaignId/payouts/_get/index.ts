@@ -7,6 +7,9 @@ export default class PayoutRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-payouts"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-payouts"]["parameters"]["path"];
 }> {
+  private testPointsSuccess: number = 0;
+  private testPointsFailure: number = 0;
+
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
     if (
@@ -21,7 +24,19 @@ export default class PayoutRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    return this.setSuccess(200, { maxBonusBug: await this.getMaxBonusBug() });
+    await this.getCampaignPoints();
+
+    return this.setSuccess(200, {
+      maxBonusBug: await this.getMaxBonusBug(),
+      testSuccess: {
+        payout: await this.getBasePayout(),
+        points: this.testPointsSuccess,
+      },
+      testFailure: {
+        payout: 0,
+        points: this.testPointsFailure,
+      },
+    });
   }
 
   private async getMaxBonusBug() {
@@ -34,5 +49,27 @@ export default class PayoutRoute extends CampaignRoute<{
     if (!result) return 0;
 
     return Number(result.maxBonusBug);
+  }
+
+  private async getBasePayout() {
+    const result = await tryber.tables.WpAppqCpMeta.do()
+      .select(tryber.ref("meta_value").as("basePayout"))
+      .where({ campaign_id: this.cp_id })
+      .where("meta_key", "campaign_complete_bonus_eur")
+      .first();
+
+    if (!result) return 0;
+
+    return Number(result.basePayout);
+  }
+
+  private async getCampaignPoints() {
+    const result = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("campaign_pts")
+      .where({ id: this.cp_id })
+      .first();
+
+    this.testPointsSuccess = result?.campaign_pts || 0;
+    this.testPointsFailure = this.testPointsSuccess * -2;
   }
 }

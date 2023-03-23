@@ -2156,13 +2156,41 @@ paths:
                 properties:
                   maxBonusBug:
                     type: number
+                  testSuccess:
+                    type: object
+                    properties:
+                      payout:
+                        type: number
+                      points:
+                        type: number
+                    required:
+                      - payout
+                      - points
+                  testFailure:
+                    type: object
+                    properties:
+                      payout:
+                        type: number
+                      points:
+                        type: number
+                    required:
+                      - payout
+                      - points
                 required:
                   - maxBonusBug
+                  - testSuccess
+                  - testFailure
               examples:
                 '': {}
                 Example 1:
                   value:
                     maxBonusBug: 5.99
+                    testSuccess:
+                      payout: 15
+                      points: 100
+                    testFailure:
+                      payout: 0
+                      points: -200
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
