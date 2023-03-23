@@ -508,7 +508,11 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private defaultTesterNote(tid: number) {
-    return this.defaultTesterCompletion(tid) ? "Good job!" : "Bad job!";
+    return this.defaultTesterCompletion(tid)
+      ? "Ottimo lavoro!"
+      : `Purtroppo non hai completato l’attività, ricevi quindi ${
+          -this.payoutConfig.completion.experience * 2
+        } punti esperienza`;
   }
 
   private getTesterStatus(tid: number) {

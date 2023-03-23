@@ -139,7 +139,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
           isCompleted: true,
         }),
         expect.objectContaining({
-          note: "Bad job!",
+          note: `Purtroppo non hai completato l’attività, ricevi quindi -400 punti esperienza`,
           experience: { completion: -400, extra: 0 },
           payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
           isCompleted: false,
@@ -182,21 +182,21 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
           tester: expect.objectContaining({ id: 1 }),
           payout: expect.objectContaining({ completion: 25 }),
           experience: expect.objectContaining({ completion: 200 }),
-          note: "Good job!",
+          note: "Ottimo lavoro!",
           isCompleted: true,
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 2 }),
           payout: expect.objectContaining({ completion: 0 }),
           experience: expect.objectContaining({ completion: -400 }),
-          note: "Bad job!",
+          note: `Purtroppo non hai completato l’attività, ricevi quindi -400 punti esperienza`,
           isCompleted: false,
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 3 }),
           payout: expect.objectContaining({ completion: 0 }),
           experience: expect.objectContaining({ completion: -400 }),
-          note: "Bad job!",
+          note: `Purtroppo non hai completato l’attività, ricevi quindi -400 punti esperienza`,
           isCompleted: false,
         }),
       ])

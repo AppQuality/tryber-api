@@ -131,19 +131,19 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
           tester: expect.objectContaining({ id: 1 }),
           payout: expect.objectContaining({ completion: 25 }),
           experience: expect.objectContaining({ completion: 200 }),
-          note: "Good job!",
+          note: "Ottimo lavoro!",
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 2 }),
           payout: expect.objectContaining({ completion: 25 }),
           experience: expect.objectContaining({ completion: 200 }),
-          note: "Good job!",
+          note: "Ottimo lavoro!",
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 3 }),
           payout: expect.objectContaining({ completion: 25 }),
           experience: expect.objectContaining({ completion: 200 }),
-          note: "Good job!",
+          note: "Ottimo lavoro!",
         }),
       ])
     );
