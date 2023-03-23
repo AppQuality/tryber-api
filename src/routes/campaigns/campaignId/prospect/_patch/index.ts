@@ -11,12 +11,19 @@ export default class ProspectRoute extends CampaignRoute<{
   private REFUND_WORKTYPE = 3;
   private worktypes: Record<number, string> = {};
   private COMPLETION_ACTIVITY_ID = 1;
+  private PERFECT_BUGS_ACTIVITY_ID = 4;
   private campaignTitle: string = "";
+  private perfectBugsMultiplier = 0.25;
+  private completionCampaignPoints = 0;
+  private testersMadePerfectBugs: number[] = [];
 
   protected async init(): Promise<void> {
     await super.init();
     this.worktypes = await this.getWorktypes();
     this.campaignTitle = await this.getCampaignTitle();
+    this.perfectBugsMultiplier = await this.getPerfectBugsMultiplier();
+    this.completionCampaignPoints = await this.getCompletionCampaignPoints();
+    // this.testersMadePerfectBugs = await this.getTestersMadePerfectBugs();
   }
 
   get prospect() {
@@ -52,6 +59,43 @@ export default class ProspectRoute extends CampaignRoute<{
     return cp_title?.title || this.campaignTitle;
   }
 
+  private async getCompletionCampaignPoints() {
+    const points = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        tryber
+          .ref("campaign_pts")
+          .withSchema("wp_appq_evd_campaign")
+          .as("completion")
+      )
+      .where({ id: this.cp_id })
+      .first();
+    return points?.completion || this.completionCampaignPoints;
+  }
+
+  private async getPerfectBugsMultiplier() {
+    const multiplier = await tryber.tables.WpOptions.do()
+      .select(tryber.ref("option_value").withSchema("wp_options").as("perfect"))
+      .where({ option_name: "options_point_multiplier_perfect_campaign" })
+      .first();
+    return Number(multiplier?.perfect) || this.perfectBugsMultiplier;
+  }
+
+  // private async getTestersMadePerfectBugs() {
+  //   const testers = await tryber.tables.WpAppqEvdProfile.do()
+  //     .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"))
+  //     .join(
+  //       "wp_appq_evd_bug",
+  //       "wp_appq_evd_profile.id",
+  //       "wp_appq_evd_bug.profile_id"
+  //     )
+  //     .where({ id: this.cp_id })
+  //     .where("wp_appq_evd_bug.status", 2);
+
+  //   return testers.length
+  //     ? testers.map((tester) => tester.id)
+  //     : this.testersMadePerfectBugs;
+  // }
+
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
     if (
@@ -79,11 +123,6 @@ export default class ProspectRoute extends CampaignRoute<{
 
   protected async prepare(): Promise<void> {
     await this.saveProspect();
-    // await this.checkPerfect(); // se tutti i bug del t sono approvati mette il bonus perfect
-    //take all bugs at least one bugs approved and no one bug refused or need review and set the bonus perfect exp from cpmeta
-
-    //2testers, 1 bug, 1 approved, - 1 bug 1 refused e 1 approved
-    //terzo tester 1 bug approved e 1 need review
 
     await this.assignExpAttributions();
     await this.assignBooties();
@@ -92,27 +131,56 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async assignExpAttributions() {
-    if (this.prospect.length === 0) return;
+    const exp_data = [
+      ...this.getExpDataForCompletion(),
+      //...this.getExpDataForPerfect(),
+    ];
+    console.log(exp_data);
+    if (exp_data.length)
+      await tryber.tables.WpAppqExpPoints.do().insert(exp_data);
+  }
 
-    await tryber.tables.WpAppqExpPoints.do().insert(
-      this.prospect.map((prospect) => {
+  private getExpDataForCompletion() {
+    return this.prospect.map((prospect) => {
+      const {
+        tester: { id: tester_id },
+        experience: { completion: completion, extra: extra },
+      } = prospect;
+      const status = completion > 0 ? "successfully" : "unsuccessfully"; //isComplete
+      return {
+        tester_id,
+        campaign_id: this.cp_id,
+        activity_id: this.COMPLETION_ACTIVITY_ID,
+        reason: `[CP${this.cp_id}] ${this.campaignTitle} - Campaign ${status} completed`,
+        creation_date: this.assignmentDate,
+        pm_id: this.getTesterId(),
+        amount: completion + extra,
+        bug_id: -1,
+      };
+    });
+  }
+
+  private getExpDataForPerfect() {
+    // filter tester with perfect bugs
+    return this.prospect
+      .filter((prospect) =>
+        this.testersMadePerfectBugs.includes(prospect.tester.id)
+      )
+      .map((prospect) => {
         const {
           tester: { id: tester_id },
-          experience: { completion: completion, extra: extra },
         } = prospect;
-        const status = completion > 0 ? "successfully" : "unsuccessfully"; //isComplete
         return {
           tester_id,
           campaign_id: this.cp_id,
-          activity_id: this.COMPLETION_ACTIVITY_ID,
-          reason: `[CP${this.cp_id}] ${this.campaignTitle} - Campaign ${status} completed`,
+          activity_id: this.PERFECT_BUGS_ACTIVITY_ID,
+          reason: `Congratulations all your submitted bugs have been approved, here a bonus for you`,
           creation_date: this.assignmentDate,
           pm_id: this.getTesterId(),
-          amount: completion + extra,
+          amount: this.completionCampaignPoints * this.perfectBugsMultiplier,
           bug_id: -1,
         };
-      })
-    );
+      });
   }
 
   protected async assignBooties() {
