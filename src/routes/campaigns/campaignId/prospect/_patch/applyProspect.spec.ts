@@ -31,36 +31,6 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
         group_id: 1,
       },
     ]);
-    await tryber.tables.WpAppqProspectPayout.do().insert([
-      {
-        id: 1,
-        campaign_id: 1,
-        tester_id: 1,
-        complete_pts: 100,
-        extra_pts: 0,
-        complete_eur: 5,
-        bonus_bug_eur: 2,
-        extra_eur: 0,
-        refund: 0,
-        notes: "notes",
-        is_edit: 0,
-        is_completed: 0,
-      },
-      {
-        id: 2,
-        campaign_id: 1,
-        tester_id: 2,
-        complete_pts: -400,
-        extra_pts: 0,
-        complete_eur: 0,
-        bonus_bug_eur: 0,
-        extra_eur: 0,
-        refund: 0,
-        notes: "Non hai svolto l'attività",
-        is_edit: 0,
-        is_completed: 0,
-      },
-    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
@@ -73,7 +43,31 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
   it("Should assign exp points for each tester that has a prospect", async () => {
     await request(app)
       .patch("/campaigns/1/prospect")
-      .send({ status: "done" })
+      .send({
+        status: "done",
+        items: [
+          {
+            tester: { id: 1 },
+            experience: { completion: 100, extra: 0 },
+            payout: {
+              completion: 5,
+              bug: 2,
+              extra: 0,
+              refund: 0,
+            },
+          },
+          {
+            tester: { id: 2 },
+            experience: { completion: -400, extra: 0 },
+            payout: {
+              completion: 0,
+              bug: 0,
+              extra: 0,
+              refund: 0,
+            },
+          },
+        ],
+      })
       .set(
         "Authorization",
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
@@ -111,7 +105,31 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
   it("Should allocate the booty to the testers who have amount > 0", async () => {
     await request(app)
       .patch("/campaigns/1/prospect")
-      .send({ status: "done" })
+      .send({
+        status: "done",
+        items: [
+          {
+            tester: { id: 1 },
+            experience: { completion: 100, extra: 0 },
+            payout: {
+              completion: 5,
+              bug: 2,
+              extra: 0,
+              refund: 0,
+            },
+          },
+          {
+            tester: { id: 2 },
+            experience: { completion: -400, extra: 0 },
+            payout: {
+              completion: 0,
+              bug: 0,
+              extra: 0,
+              refund: 0,
+            },
+          },
+        ],
+      })
       .set(
         "Authorization",
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
@@ -142,24 +160,6 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
 });
 
 describe("PATCH /campaigns/campaignId/prospect - with database entries - testers with refund", () => {
-  beforeAll(async () => {
-    await tryber.tables.WpAppqProspectPayout.do().insert([
-      {
-        id: 1,
-        campaign_id: 1,
-        tester_id: 1,
-        complete_pts: 100,
-        extra_pts: 0,
-        complete_eur: 5,
-        bonus_bug_eur: 2,
-        extra_eur: 0,
-        refund: 9,
-        notes: "notes",
-        is_edit: 0,
-        is_completed: 0,
-      },
-    ]);
-  });
   afterAll(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
@@ -170,7 +170,21 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - testers
   it("Should allocate different booties for completion and refund", async () => {
     await request(app)
       .patch("/campaigns/1/prospect")
-      .send({ status: "done" })
+      .send({
+        status: "done",
+        items: [
+          {
+            tester: { id: 1 },
+            experience: { completion: 100, extra: 0 },
+            payout: {
+              completion: 5,
+              bug: 2,
+              extra: 0,
+              refund: 9,
+            },
+          },
+        ],
+      })
       .set(
         "Authorization",
         'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'

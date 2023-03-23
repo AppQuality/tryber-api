@@ -1,7 +1,6 @@
 /** OPENAPI-CLASS: patch-campaigns-campaign-prospect */
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
-import GetProspectRoute from "@src/routes/campaigns/campaignId/prospect/_get";
 import OpenapiError from "@src/features/OpenapiError";
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["patch-campaigns-campaign-prospect"]["responses"]["200"];
@@ -14,36 +13,15 @@ export default class ProspectRoute extends CampaignRoute<{
   private COMPLETION_ACTIVITY_ID = 1;
   private campaignTitle: string = "";
 
-  private prospectData:
-    | {
-        tester: { id: number };
-        experience: { completion: number; extra: number };
-        payout: {
-          completion: number;
-          bug: number;
-          extra: number;
-          refund: number;
-        };
-      }[]
-    | undefined;
-
   protected async init(): Promise<void> {
     await super.init();
-    const getProspectRoute = new GetProspectRoute(this.configuration);
-    try {
-      const prospectData = await getProspectRoute.getResolvedData();
-      if (prospectData && "items" in prospectData) {
-        this.prospectData = prospectData.items;
-      }
-    } catch {}
     this.worktypes = await this.getWorktypes();
     this.campaignTitle = await this.getCampaignTitle();
   }
 
   get prospect() {
-    if (typeof this.prospectData === "undefined")
-      throw new Error("Invalid prospect data");
-    return this.prospectData;
+    const { items } = this.getBody();
+    return items;
   }
 
   get assignmentDate() {
@@ -113,6 +91,8 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async assignExpAttributions() {
+    if (this.prospect.length === 0) return;
+
     await tryber.tables.WpAppqExpPoints.do().insert(
       this.prospect.map((prospect) => {
         const {

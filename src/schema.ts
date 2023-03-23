@@ -1471,6 +1471,21 @@ export interface operations {
         "application/json": {
           /** @enum {string} */
           status: "done";
+          items: {
+            tester: {
+              id: number;
+            };
+            experience: {
+              completion: number;
+              extra: number;
+            };
+            payout: {
+              completion: number;
+              bug: number;
+              extra: number;
+              refund: number;
+            };
+          }[];
         };
       };
     };
