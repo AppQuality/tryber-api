@@ -31,23 +31,17 @@ describe("GET /campaigns/campaignId/prospect", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should return 200 if logged in as tester with both olps tester_selection, prospect", async () => {
+  it("Should return 200 if logged in as tester with both olp tester_selection", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(200);
   });
 
   it("Should return an item for each selected tester", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body).toHaveProperty("items");
     expect(response.body.items).toHaveLength(1);
   });
@@ -77,10 +71,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
   it("Should return 200 ", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(200);
   });
 });
@@ -93,10 +84,7 @@ describe("GET /campaigns/campaignId/prospect - there are no testers in Campaign"
   it("Should return 404 when there are no selected testers in Campaign", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(404);
   });
 });

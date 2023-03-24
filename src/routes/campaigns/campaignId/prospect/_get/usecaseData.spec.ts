@@ -192,10 +192,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
   it("Should return prospect for each tester with usecases data", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -230,10 +227,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
   it("Should return prospect for each tester with usecases data", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -262,10 +256,7 @@ describe("GET /campaigns/campaignId/prospect - a tester or usecase switched grou
   it("Should return prospect for each tester with usecases data", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

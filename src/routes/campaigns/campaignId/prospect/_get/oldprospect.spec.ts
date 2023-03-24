@@ -29,10 +29,7 @@ describe("GET /campaigns/campaignId/prospect - there is an edit in old prospect"
   it("Should return 412 if some tester payout was edit", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(412);
   });
 });

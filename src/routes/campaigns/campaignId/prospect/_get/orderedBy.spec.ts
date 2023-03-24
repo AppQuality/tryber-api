@@ -105,10 +105,7 @@ describe("GET /campaigns/campaignId/prospect - orderedBy", () => {
   it("Should return prospect rows ordered by TesterID as default", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items.length).toEqual(3);
     expect(response.body.items).toEqual(
       expect.arrayContaining([

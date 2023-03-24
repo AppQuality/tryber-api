@@ -323,10 +323,7 @@ export default class ProspectRoute extends CampaignRoute<{
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
 
-    if (
-      !this.hasAccessTesterSelection(this.cp_id) ||
-      !this.hasAccessToProspect(this.cp_id)
-    ) {
+    if (!this.hasAccessTesterSelection(this.cp_id)) {
       this.setError(403, new OpenapiError("Access denied"));
       return false;
     }
