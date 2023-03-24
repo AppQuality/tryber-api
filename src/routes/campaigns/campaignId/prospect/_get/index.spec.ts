@@ -84,3 +84,19 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     expect(response.status).toBe(200);
   });
 });
+
+describe("GET /campaigns/campaignId/prospect - there are no testers in Campaign", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+  });
+
+  it("Should return 404 when there are no selected testers in Campaign", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(404);
+  });
+});
