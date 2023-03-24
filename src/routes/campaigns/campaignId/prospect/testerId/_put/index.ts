@@ -68,10 +68,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async filter() {
-    if (
-      !this.hasAccessTesterSelection(this.campaignId) ||
-      !this.hasAccessToProspect(this.campaignId)
-    ) {
+    if (!this.hasAccessTesterSelection(this.campaignId)) {
       this.setError(403, new OpenapiError("You are not authorized."));
       return false;
     }

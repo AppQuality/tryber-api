@@ -75,7 +75,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId", () => {
     expect(response.status).toBe(403);
   });
 
-  it("should answer 200 if user has prospect and tester_selection olps ", async () => {
+  it("should answer 200 if user has tester_selection olp", async () => {
     const response = await request(app)
       .put("/campaigns/1/prospect/1")
       .send({
@@ -92,10 +92,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId", () => {
         note: "string",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     expect(response.status).toBe(200);
   });
 
@@ -116,10 +113,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId", () => {
         note: "string",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     expect(response.status).toBe(403);
   });
 
@@ -140,10 +134,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId", () => {
         note: "string",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     expect(response.status).toBe(403);
   });
 
@@ -164,10 +155,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId", () => {
         note: "string",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       payout: {
