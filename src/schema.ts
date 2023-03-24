@@ -1486,6 +1486,7 @@ export interface operations {
               refund: number;
             };
             note?: string;
+            completed: boolean;
           }[];
         };
       };

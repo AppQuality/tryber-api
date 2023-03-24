@@ -3245,10 +3245,13 @@ paths:
                             type: number
                       note:
                         type: string
+                      completed:
+                        type: boolean
                     required:
                       - tester
                       - experience
                       - payout
+                      - completed
               required:
                 - status
                 - items

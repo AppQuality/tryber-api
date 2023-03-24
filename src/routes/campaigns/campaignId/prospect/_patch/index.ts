@@ -286,6 +286,7 @@ export default class ProspectRoute extends CampaignRoute<{
       refund: prospect.payout.refund,
       complete_pts: prospect.experience.completion,
       extra_pts: prospect.experience.extra,
+      is_completed: prospect.completed ? 1 : 0,
       ...(prospect.note ? { notes: prospect.note } : {}),
     }));
 

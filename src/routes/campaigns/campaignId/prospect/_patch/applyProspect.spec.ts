@@ -55,6 +55,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
           {
             tester: { id: 2 },
@@ -65,6 +66,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
               extra: 0,
               refund: 0,
             },
+            completed: false,
           },
         ],
       })
@@ -117,6 +119,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
           {
             tester: { id: 2 },
@@ -127,6 +130,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
               extra: 0,
               refund: 0,
             },
+            completed: false,
           },
         ],
       })
@@ -182,6 +186,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - testers
               extra: 0,
               refund: 9,
             },
+            completed: true,
           },
         ],
       })

@@ -124,6 +124,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - configured", () => {
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
           {
             tester: { id: 2 },
@@ -134,6 +135,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - configured", () => {
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
           {
             tester: { id: 3 },
@@ -144,6 +146,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - configured", () => {
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
         ],
       })
@@ -189,6 +192,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - not configured", () =
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
           {
             tester: { id: 2 },
@@ -199,6 +203,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - not configured", () =
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
           {
             tester: { id: 3 },
@@ -209,6 +214,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - not configured", () =
               extra: 0,
               refund: 0,
             },
+            completed: true,
           },
         ],
       })
