@@ -22,15 +22,18 @@ export default class PayoutRoute extends CampaignRoute<{
 
   protected async prepare(): Promise<void> {
     const campaignPoints = await this.getCampaignPoints();
+
     return this.setSuccess(200, {
       maxBonusBug: await this.getMaxBonusBug(),
       testSuccess: {
         payout: await this.getBasePayout(),
         points: campaignPoints.success,
+        message: "Ottimo lavoro!",
       },
       testFailure: {
         payout: 0,
         points: campaignPoints.failure,
+        message: `Purtroppo non hai completato l’attività, ricevi quindi ${campaignPoints.failure} punti esperienza`,
       },
     });
   }

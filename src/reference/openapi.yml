@@ -2158,24 +2158,30 @@ paths:
                     type: number
                   testSuccess:
                     type: object
+                    required:
+                      - payout
+                      - points
+                      - message
                     properties:
                       payout:
                         type: number
                       points:
                         type: number
-                    required:
-                      - payout
-                      - points
+                      message:
+                        type: string
                   testFailure:
                     type: object
+                    required:
+                      - payout
+                      - points
+                      - message
                     properties:
                       payout:
                         type: number
                       points:
                         type: number
-                    required:
-                      - payout
-                      - points
+                      message:
+                        type: string
                 required:
                   - maxBonusBug
                   - testSuccess

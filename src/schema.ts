@@ -1097,10 +1097,12 @@ export interface operations {
             testSuccess: {
               payout: number;
               points: number;
+              message: string;
             };
             testFailure: {
               payout: number;
               points: number;
+              message: string;
             };
           };
         };
