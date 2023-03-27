@@ -160,7 +160,23 @@ paths:
         - Campaign
       responses:
         '200':
-          $ref: '#/components/responses/SingleCampaign'
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: i1785lvlbyxqf
+                  title:
+                    type: string
+                    x-stoplight:
+                      id: yn3wgwjboe9a2
+                required:
+                  - id
+                  - title
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
