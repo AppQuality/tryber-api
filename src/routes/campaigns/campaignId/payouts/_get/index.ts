@@ -18,58 +18,72 @@ export default class PayoutRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const campaignPoints = await this.getCampaignPoints();
+    const config = await this.getCampaignConfig();
 
     return this.setSuccess(200, {
-      maxBonusBug: await this.getMaxBonusBug(),
+      maxBonusBug: config.maxBonusBug,
+      completionRule: {
+        bugs: config.minimumBugs,
+        usecases: config.percentUsecases,
+      },
       testSuccess: {
-        payout: await this.getBasePayout(),
-        points: campaignPoints.success,
+        payout: config.basePayout,
+        points: config.campaignPoints.success,
         message: "Ottimo lavoro!",
       },
       testFailure: {
         payout: 0,
-        points: campaignPoints.failure,
-        message: `Purtroppo non hai completato l’attività, ricevi quindi ${campaignPoints.failure} punti esperienza`,
+        points: config.campaignPoints.failure,
+        message: `Purtroppo non hai completato l’attività, ricevi quindi ${config.campaignPoints.failure} punti esperienza`,
       },
     });
   }
 
-  private async getMaxBonusBug() {
+  private async getCampaignConfig() {
     const result = await tryber.tables.WpAppqCpMeta.do()
-      .select(tryber.ref("meta_value").as("maxBonusBug"))
+      .select(["meta_key", "meta_value"])
       .where({ campaign_id: this.cp_id })
-      .where("meta_key", "payout_limit")
-      .first();
+      .where("meta_key", "IN", [
+        "minimum_bugs",
+        "percent_usecases",
+        "payout_limit",
+        "campaign_complete_bonus_eur",
+      ]);
 
-    if (!result) return 0;
+    const config = {
+      minimumBugs: 0,
+      percentUsecases: 0,
+      maxBonusBug: 0,
+      campaignPoints: { success: 0, failure: 0 },
+      basePayout: 0,
+    };
+    for (const row of result) {
+      switch (row.meta_key) {
+        case "minimum_bugs":
+          config.minimumBugs = Number(row.meta_value);
+          break;
+        case "percent_usecases":
+          config.percentUsecases = Number(row.meta_value);
+          break;
+        case "payout_limit":
+          config.maxBonusBug = Number(row.meta_value);
+          break;
+        case "campaign_complete_bonus_eur":
+          config.basePayout = Number(row.meta_value);
+          break;
+      }
+    }
 
-    return Number(result.maxBonusBug);
-  }
-
-  private async getBasePayout() {
-    const result = await tryber.tables.WpAppqCpMeta.do()
-      .select(tryber.ref("meta_value").as("basePayout"))
-      .where({ campaign_id: this.cp_id })
-      .where("meta_key", "campaign_complete_bonus_eur")
-      .first();
-
-    if (!result) return 0;
-
-    return Number(result.basePayout);
-  }
-
-  private async getCampaignPoints() {
-    const result = await tryber.tables.WpAppqEvdCampaign.do()
+    const campaignPoints = await tryber.tables.WpAppqEvdCampaign.do()
       .select("campaign_pts")
       .where({ id: this.cp_id })
       .first();
 
-    const campaignCompletionPoints = result?.campaign_pts || 0;
+    if (campaignPoints) {
+      config.campaignPoints.success = campaignPoints.campaign_pts;
+      config.campaignPoints.failure = campaignPoints.campaign_pts * -2;
+    }
 
-    return {
-      success: campaignCompletionPoints,
-      failure: campaignCompletionPoints * -2,
-    };
+    return config;
   }
 }

@@ -29,6 +29,17 @@ beforeAll(async () => {
     meta_key: "campaign_complete_bonus_eur",
     meta_value: "30",
   });
+
+  await tryber.tables.WpAppqCpMeta.do().insert({
+    campaign_id: 1234,
+    meta_key: "minimum_bugs",
+    meta_value: "3",
+  });
+  await tryber.tables.WpAppqCpMeta.do().insert({
+    campaign_id: 1234,
+    meta_key: "percent_usecases",
+    meta_value: "65",
+  });
 });
 
 describe("GET /campaigns/campaignId/payouts", () => {
@@ -108,16 +119,9 @@ describe("GET /campaigns/campaignId/payouts", () => {
       );
     expect(response.body).toEqual(
       expect.objectContaining({
-        testSuccess: {
-          payout: 30,
-          points: 150,
-          message: "Ottimo lavoro!",
-        },
-        testFailure: {
-          payout: 0,
-          points: -300,
-          message:
-            "Purtroppo non hai completato l’attività, ricevi quindi -300 punti esperienza",
+        completionRule: {
+          bugs: 3,
+          usecases: 65,
         },
       })
     );
