@@ -2187,16 +2187,17 @@ paths:
                   - testSuccess
                   - testFailure
               examples:
-                '': {}
                 Example 1:
                   value:
                     maxBonusBug: 5.99
                     testSuccess:
                       payout: 15
                       points: 100
+                      message: message
                     testFailure:
                       payout: 0
                       points: -200
+                      message: message
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3157,28 +3158,31 @@ paths:
                 Example 1:
                   value:
                     items:
-                      - usecases:
-                          completed: 1
-                          required: 1
-                        tester:
+                      - tester:
                           id: 1
                           name: Jhon
                           surname: Doe
+                        usecases:
+                          completed: 3
+                          required: 3
                         bugs:
-                          critical: 1
+                          critical: 11
                           high: 2
-                          medium: 0
-                          low: 3
+                          medium: 3
+                          low: 4
                         payout:
                           completion: 100
                           bug: 10
                           refund: 0
                           extra: 0
                         experience:
-                          completion: 10
+                          completion: 200
                           extra: 0
                         note: no extra
                         status: pending
+                        weightedBugs: 0
+                        isCompleted: true
+                        isTopTester: true
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3265,6 +3269,19 @@ paths:
               Example 1:
                 value:
                   status: done
+                  items:
+                    - tester:
+                        id: 0
+                      experience:
+                        completion: 0
+                        extra: 0
+                      payout:
+                        completion: 0
+                        bug: 0
+                        extra: 0
+                        refund: 0
+                      note: string
+                      completed: true
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:
