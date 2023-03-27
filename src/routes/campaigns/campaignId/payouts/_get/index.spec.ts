@@ -29,6 +29,17 @@ beforeAll(async () => {
     meta_key: "campaign_complete_bonus_eur",
     meta_value: "30",
   });
+
+  await tryber.tables.WpAppqCpMeta.do().insert({
+    campaign_id: 1234,
+    meta_key: "minimum_bugs",
+    meta_value: "3",
+  });
+  await tryber.tables.WpAppqCpMeta.do().insert({
+    campaign_id: 1234,
+    meta_key: "percent_usecases",
+    meta_value: "65",
+  });
 });
 
 describe("GET /campaigns/campaignId/payouts", () => {
@@ -56,7 +67,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       .get("/campaigns/1234/payouts")
       .set(
         "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1234],"appq_prospect":[1234]}'
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
       );
     expect(response.status).toBe(200);
   });
@@ -66,7 +77,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       .get("/campaigns/1234/payouts")
       .set(
         "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1234],"appq_prospect":[1234]}'
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
       );
     expect(response.body).toEqual(
       expect.objectContaining({
@@ -80,7 +91,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       .get("/campaigns/1234/payouts")
       .set(
         "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1234],"appq_prospect":[1234]}'
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
       );
     expect(response.body).toEqual(
       expect.objectContaining({
@@ -94,6 +105,23 @@ describe("GET /campaigns/campaignId/payouts", () => {
           points: -300,
           message:
             "Purtroppo non hai completato l’attività, ricevi quindi -300 punti esperienza",
+        },
+      })
+    );
+  });
+
+  it("Should return completion rule", async () => {
+    const response = await request(app)
+      .get("/campaigns/1234/payouts")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
+      );
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        completionRule: {
+          bugs: 3,
+          usecases: 65,
         },
       })
     );

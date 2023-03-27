@@ -2156,6 +2156,13 @@ paths:
                 properties:
                   maxBonusBug:
                     type: number
+                  completionRule:
+                    type: object
+                    properties:
+                      bugs:
+                        type: number
+                      usecases:
+                        type: number
                   testSuccess:
                     type: object
                     required:
@@ -2184,12 +2191,16 @@ paths:
                         type: string
                 required:
                   - maxBonusBug
+                  - completionRule
                   - testSuccess
                   - testFailure
               examples:
                 Example 1:
                   value:
                     maxBonusBug: 5.99
+                    completionRule:
+                      bugs: 4
+                      usecases: 53
                     testSuccess:
                       payout: 15
                       points: 100
