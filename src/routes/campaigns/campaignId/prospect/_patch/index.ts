@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: patch-campaigns-campaign-prospect */
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
-import { sendTemplate } from "@src/features/mail/sendTemplate";
+import { send } from "@src/features/mail/send";
 import OpenapiError from "@src/features/OpenapiError";
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["patch-campaigns-campaign-prospect"]["responses"]["200"];
@@ -315,21 +315,40 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private async sendMail() {
-    const template = process.env.BOOTY_UPDATED_EMAIL;
-    if (!template) return;
     const testers = await tryber.tables.WpAppqEvdProfile.do()
-      .select("id", "email")
+      .select("email")
       .whereIn(
         "id",
         this.prospect.map((prospect) => prospect.tester.id)
       );
+    if (!testers.length) return;
+
+    const templateHtml = await this.getMailTemplate();
+    if (!templateHtml) return;
     testers.forEach((tester) => {
-      sendTemplate({
-        email: tester.email,
-        template: template,
+      send({
+        to: tester.email,
         subject:
           "[Tryber] Your booty and/or experience points have been updated",
+        html: templateHtml,
       });
     });
+  }
+
+  private async getMailTemplate() {
+    const template = process.env.BOOTY_UPDATED_EMAIL;
+    if (!template) return false;
+    const mailTemplate = await tryber.tables.WpAppqUnlayerMailTemplate.do()
+      .select("html_body")
+      .join(
+        "wp_appq_event_transactional_mail",
+        "wp_appq_event_transactional_mail.template_id",
+        "wp_appq_unlayer_mail_template.id"
+      )
+      .where("wp_appq_event_transactional_mail.event_name", template)
+      .first();
+    if (!mailTemplate) return false;
+
+    return mailTemplate.html_body;
   }
 }
