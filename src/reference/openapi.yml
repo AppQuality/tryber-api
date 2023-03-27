@@ -7251,7 +7251,7 @@ paths:
                     appq_prospect: false
                     appq_tester_selection: true
         '500':
-          $ref: '#/components/responses/NotAuthorized'
+          description: Internal Server Error
       operationId: get-users-me-permissions
       description: Return all user permissions
       security:
