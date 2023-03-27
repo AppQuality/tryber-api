@@ -633,7 +633,7 @@ export interface components {
       content?: string;
       title?: string;
     };
-    Olp: Partial<number[]> & Partial<boolean>;
+    Olp: number[] | boolean;
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
       question: string;
