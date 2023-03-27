@@ -168,12 +168,8 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: i1785lvlbyxqf
                   title:
                     type: string
-                    x-stoplight:
-                      id: yn3wgwjboe9a2
                 required:
                   - id
                   - title
