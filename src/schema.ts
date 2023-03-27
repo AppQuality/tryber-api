@@ -418,6 +418,11 @@ export interface paths {
     get: operations["get-users-me-pending-booty"];
     parameters: {};
   };
+  "/users/me/permissions": {
+    /** Return all user permissions */
+    get: operations["get-users-me-permissions"];
+    parameters: {};
+  };
   "/users/me/popups": {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
@@ -3141,6 +3146,24 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  /** Return all user permissions */
+  "get-users-me-permissions": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            appq_bug?: Partial<number[]> & Partial<boolean>;
+            appq_campaign?: Partial<number[]> & Partial<boolean>;
+            appq_prospect?: Partial<number[]> & Partial<boolean>;
+            appq_tester_selection?: Partial<number[]> & Partial<boolean>;
+          };
+        };
+      };
+      500: components["responses"]["NotAuthorized"];
     };
   };
   /** Get all popup defined for your user */
