@@ -633,6 +633,7 @@ export interface components {
       content?: string;
       title?: string;
     };
+    Olp: Partial<number[]> & Partial<boolean>;
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
       question: string;
@@ -3156,10 +3157,11 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            appq_bug?: Partial<number[]> & Partial<boolean>;
-            appq_campaign?: Partial<number[]> & Partial<boolean>;
-            appq_prospect?: Partial<number[]> & Partial<boolean>;
-            appq_tester_selection?: Partial<number[]> & Partial<boolean>;
+            appq_bug?: components["schemas"]["Olp"];
+            appq_campaign?: components["schemas"]["Olp"];
+            appq_message_center?: components["schemas"]["Olp"];
+            appq_prospect?: components["schemas"]["Olp"];
+            appq_tester_selection?: components["schemas"]["Olp"];
           };
         };
       };
