@@ -117,6 +117,7 @@ export default class ProspectRoute extends CampaignRoute<{
         "wp_crowd_appq_has_candidate.user_id"
       )
       .where({ campaign_id: this.cp_id })
+      .where("name", "!=", "Deleted User")
       .where("accepted", 1)
       .orderBy("wp_appq_evd_profile.id", "ASC");
   }

@@ -4,8 +4,10 @@ import { tryber } from "@src/features/database";
  * Basic dataset for the test
  *
  * 1 tester
+ * 1 deleted tester
  * 1 campaign
  * 1 candidature for the tester in the campaign
+ * 1 candidature for the deleted user
  * payout configuration for the campaign
  *  - bug values
  *    - critical: 6
@@ -38,6 +40,18 @@ const useCampaign = () => {
       },
     ]);
     await tryber.tables.WpUsers.do().insert([{ ID: 1 }]);
+
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 100,
+        name: "Deleted User",
+        surname: "",
+        wp_user_id: 110,
+        email: "",
+        employment_id: 1,
+        education_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert({
       id: 1,
       platform_id: 1,
@@ -57,6 +71,18 @@ const useCampaign = () => {
       {
         campaign_id: 1,
         user_id: 1,
+        accepted: 1,
+        devices: "0",
+        selected_device: 1,
+        results: 0,
+        group_id: 1,
+      },
+    ]);
+
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
+      {
+        campaign_id: 1,
+        user_id: 110,
         accepted: 1,
         devices: "0",
         selected_device: 1,
