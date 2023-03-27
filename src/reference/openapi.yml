@@ -7188,6 +7188,47 @@ paths:
           name: orderBy
         - $ref: '#/components/parameters/order'
     parameters: []
+  /users/me/permissions:
+    get:
+      summary: Get all your permissions
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appq_bug:
+                    $ref: '#/components/schemas/Olp'
+                  appq_campaign:
+                    $ref: '#/components/schemas/Olp'
+                  appq_message_center:
+                    $ref: '#/components/schemas/Olp'
+                  appq_prospect:
+                    $ref: '#/components/schemas/Olp'
+                  appq_tester_selection:
+                    $ref: '#/components/schemas/Olp'
+              examples:
+                Example 1:
+                  value:
+                    appq_bug:
+                      - 1
+                      - 2
+                    appq_campaign:
+                      - 1
+                      - 2
+                    appq_prospect: false
+                    appq_tester_selection: true
+        '500':
+          description: Internal Server Error
+      operationId: get-users-me-permissions
+      description: Return all user permissions
+      security:
+        - JWT: []
+      parameters: []
+    parameters: []
   /users/me/popups:
     get:
       summary: Get your popups
@@ -8121,6 +8162,13 @@ components:
           minLength: 1
         title:
           type: string
+    Olp:
+      x-examples: {}
+      oneOf:
+        - type: array
+          items:
+            type: integer
+        - type: boolean
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:

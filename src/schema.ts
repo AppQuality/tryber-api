@@ -418,6 +418,11 @@ export interface paths {
     get: operations["get-users-me-pending-booty"];
     parameters: {};
   };
+  "/users/me/permissions": {
+    /** Return all user permissions */
+    get: operations["get-users-me-permissions"];
+    parameters: {};
+  };
   "/users/me/popups": {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
@@ -628,6 +633,7 @@ export interface components {
       content?: string;
       title?: string;
     };
+    Olp: number[] | boolean;
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
       question: string;
@@ -3145,6 +3151,26 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  /** Return all user permissions */
+  "get-users-me-permissions": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            appq_bug?: components["schemas"]["Olp"];
+            appq_campaign?: components["schemas"]["Olp"];
+            appq_message_center?: components["schemas"]["Olp"];
+            appq_prospect?: components["schemas"]["Olp"];
+            appq_tester_selection?: components["schemas"]["Olp"];
+          };
+        };
+      };
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   /** Get all popup defined for your user */
