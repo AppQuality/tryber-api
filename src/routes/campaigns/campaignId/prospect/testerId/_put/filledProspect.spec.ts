@@ -71,10 +71,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId - with a propect databa
         note: "Note",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     expect(response.status).toBe(200);
   });
 
@@ -99,10 +96,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId - with a propect databa
         note: "Note",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     const prospect = await tryber.tables.WpAppqProspectPayout.do()
       .select()
       .where("campaign_id", 1);

@@ -88,4 +88,14 @@ export default class Route<T extends RouteClassTypes> {
     }
     return this.responseData;
   }
+
+  public async getResolvedData() {
+    try {
+      await this.init();
+    } catch (e) {
+      return this.responseData;
+    }
+    await this.prepare();
+    return this.responseData;
+  }
 }

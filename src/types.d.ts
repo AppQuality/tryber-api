@@ -85,4 +85,10 @@ declare global {
   interface Object {
     hasOwnProperty<K extends PropertyKey>(key: K): this is Record<K, unknown>;
   }
+
+  namespace jest {
+    interface Matchers<R> {
+      toBeNow(precision: number): jest.CustomMatcherResult;
+    }
+  }
 }

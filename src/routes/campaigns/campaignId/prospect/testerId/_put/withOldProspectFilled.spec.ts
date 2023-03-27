@@ -81,10 +81,7 @@ describe("PUT /campaigns/:campaignId/prospects/:testerId - with old prospect fil
         note: "string",
         completed: true,
       })
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":true,"appq_prospect":true}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":true}');
     expect(response.status).toBe(412);
   });
 });

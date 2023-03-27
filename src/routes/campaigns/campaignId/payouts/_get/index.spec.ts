@@ -87,10 +87,13 @@ describe("GET /campaigns/campaignId/payouts", () => {
         testSuccess: {
           payout: 30,
           points: 150,
+          message: "Ottimo lavoro!",
         },
         testFailure: {
           payout: 0,
           points: -300,
+          message:
+            "Purtroppo non hai completato l’attività, ricevi quindi -300 punti esperienza",
         },
       })
     );

@@ -73,10 +73,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     //we expect that uploaded bugs have just status 2 = approved
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(200);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
@@ -94,10 +91,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     //we expect that uploaded bugs have just status 2 = approved
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(200);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
@@ -138,10 +132,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     //we expect that uploaded bugs have just status 2 = approved
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(200);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
@@ -160,10 +151,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     //we expect that uploaded bugs have just status 2 = approved
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.status).toBe(200);
     expect(response.body.items).toEqual(
       expect.arrayContaining([

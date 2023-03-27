@@ -126,10 +126,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
   it("Should return prospect if already exist", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -153,10 +150,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
   it("Should return basic data for bugs payout", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -172,10 +166,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
   it("Should return basic data for completion payout", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
-      .set(
-        "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
-      );
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

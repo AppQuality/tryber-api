@@ -6,22 +6,6 @@ import useCampaign from "./useCampaign";
 useCampaign();
 
 beforeAll(async () => {
-  await tryber.tables.WpAppqCpMeta.do()
-    .delete()
-    .where({ campaign_id: 1 })
-    .where("meta_key", "IN", ["minimum_bugs", "percent_usecases"]);
-  await tryber.tables.WpAppqCpMeta.do().insert([
-    {
-      campaign_id: 1,
-      meta_key: "minimum_bugs",
-      meta_value: "0",
-    },
-    {
-      campaign_id: 1,
-      meta_key: "percent_usecases",
-      meta_value: "0",
-    },
-  ]);
   await tryber.tables.WpAppqEvdProfile.do().insert([
     {
       id: 2,
@@ -117,32 +101,27 @@ beforeAll(async () => {
   ]);
 });
 
-describe("GET /campaigns/campaignId/prospect - there are no record", () => {
-  it("Should return basic data for completion payout", async () => {
+describe("GET /campaigns/campaignId/prospect - orderedBy", () => {
+  it("Should return prospect rows ordered by TesterID as default", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items.length).toEqual(3);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           tester: expect.objectContaining({ id: 1 }),
-          payout: expect.objectContaining({ completion: 25 }),
-          experience: expect.objectContaining({ completion: 200 }),
-          note: "Ottimo lavoro!",
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 2 }),
-          payout: expect.objectContaining({ completion: 25 }),
-          experience: expect.objectContaining({ completion: 200 }),
-          note: "Ottimo lavoro!",
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 3 }),
-          payout: expect.objectContaining({ completion: 25 }),
-          experience: expect.objectContaining({ completion: 200 }),
-          note: "Ottimo lavoro!",
         }),
       ])
     );
+    expect(
+      response.body.items.map((p: { tester: { id: number } }) => p.tester.id)
+    ).toEqual([1, 2, 3]);
   });
 });

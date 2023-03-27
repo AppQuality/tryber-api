@@ -121,6 +121,8 @@ export interface paths {
   };
   "/campaigns/{campaign}/prospect": {
     get: operations["get-campaigns-campaign-prospect"];
+    /** Make campaign perspective status done, and change exp points and tester payouts. */
+    patch: operations["patch-campaigns-campaign-prospect"];
     parameters: {
       path: {
         campaign: string;
@@ -1095,10 +1097,12 @@ export interface operations {
             testSuccess: {
               payout: number;
               points: number;
+              message: string;
             };
             testFailure: {
               payout: number;
               points: number;
+              message: string;
             };
           };
         };
@@ -1449,6 +1453,45 @@ export interface operations {
       404: components["responses"]["NotFound"];
       /** Precondition Failed */
       412: unknown;
+    };
+  };
+  /** Make campaign perspective status done, and change exp points and tester payouts. */
+  "patch-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Not Modified */
+      304: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          status: "done";
+          items: {
+            tester: {
+              id: number;
+            };
+            experience: {
+              completion: number;
+              extra: number;
+            };
+            payout: {
+              completion: number;
+              bug: number;
+              extra: number;
+              refund: number;
+            };
+            note?: string;
+            completed: boolean;
+          }[];
+        };
+      };
     };
   };
   "get-campaigns-campaign-stats": {

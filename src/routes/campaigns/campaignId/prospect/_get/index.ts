@@ -117,7 +117,8 @@ export default class ProspectRoute extends CampaignRoute<{
         "wp_crowd_appq_has_candidate.user_id"
       )
       .where({ campaign_id: this.cp_id })
-      .where("accepted", 1);
+      .where("accepted", 1)
+      .orderBy("wp_appq_evd_profile.id", "ASC");
   }
 
   private async getBugsByTesters(testers: { id: number }[]) {
@@ -321,18 +322,22 @@ export default class ProspectRoute extends CampaignRoute<{
 
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
-    if (
-      !this.hasAccessTesterSelection(this.cp_id) ||
-      !this.hasAccessToProspect(this.cp_id)
-    ) {
-      this.setError(403, new OpenapiError("Access denied"));
 
+    if (!this.hasAccessTesterSelection(this.cp_id)) {
+      this.setError(403, new OpenapiError("Access denied"));
       return false;
     }
+
+    if (!this.testers.length) {
+      this.setError(404, new OpenapiError("There are no testers selected"));
+      return false;
+    }
+
     if (await this.thereIsAnEditOnOldProspect()) {
       this.setError(412, new OpenapiError("You can't edit an old prospect"));
       return false;
     }
+
     return true;
   }
 
