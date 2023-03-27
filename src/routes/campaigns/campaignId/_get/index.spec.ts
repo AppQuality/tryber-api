@@ -7,4 +7,10 @@ describe("GET /campaigns/:campaignId", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(400);
   });
+  it("Should return 400 if campaign does not exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/999")
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(400);
+  });
 });
