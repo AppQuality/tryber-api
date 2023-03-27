@@ -8153,7 +8153,7 @@ components:
           type: string
     Olp:
       x-examples: {}
-      anyOf:
+      oneOf:
         - type: array
           items:
             type: integer
