@@ -2198,6 +2198,9 @@ paths:
                 Example 1:
                   value:
                     maxBonusBug: 5.99
+                    completionRule:
+                      bugs: 4
+                      usecases: 53
                     testSuccess:
                       payout: 15
                       points: 100
