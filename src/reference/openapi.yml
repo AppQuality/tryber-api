@@ -7190,29 +7190,15 @@ paths:
                 type: object
                 properties:
                   appq_bug:
-                    anyOf:
-                      - type: array
-                        items:
-                          type: integer
-                      - type: boolean
+                    $ref: '#/components/schemas/Olp'
                   appq_campaign:
-                    anyOf:
-                      - type: array
-                        items:
-                          type: integer
-                      - type: boolean
+                    $ref: '#/components/schemas/Olp'
+                  appq_message_center:
+                    $ref: '#/components/schemas/Olp'
                   appq_prospect:
-                    anyOf:
-                      - type: array
-                        items:
-                          type: integer
-                      - type: boolean
+                    $ref: '#/components/schemas/Olp'
                   appq_tester_selection:
-                    anyOf:
-                      - type: array
-                        items:
-                          type: integer
-                      - type: boolean
+                    $ref: '#/components/schemas/Olp'
               examples:
                 Example 1:
                   value:
@@ -8165,6 +8151,13 @@ components:
           minLength: 1
         title:
           type: string
+    Olp:
+      x-examples: {}
+      anyOf:
+        - type: array
+          items:
+            type: integer
+        - type: boolean
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
