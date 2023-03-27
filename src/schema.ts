@@ -3163,7 +3163,8 @@ export interface operations {
           };
         };
       };
-      500: components["responses"]["NotAuthorized"];
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   /** Get all popup defined for your user */
