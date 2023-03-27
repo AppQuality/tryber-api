@@ -7190,55 +7190,25 @@ paths:
                 type: object
                 properties:
                   appq_bug:
+                    $ref: '#/components/schemas/Olp'
                     x-stoplight:
                       id: xcbpbqfkau1hs
-                    anyOf:
-                      - type: array
-                        items:
-                          x-stoplight:
-                            id: xwbf7us5njeu9
-                          type: integer
-                      - type: boolean
-                        x-stoplight:
-                          id: 6n0lfu43lzac5
                   appq_campaign:
+                    $ref: '#/components/schemas/Olp'
                     x-stoplight:
                       id: g0utiaqon7tei
-                    anyOf:
-                      - type: array
-                        items:
-                          x-stoplight:
-                            id: cdmmhkk39de7x
-                          type: integer
-                      - type: boolean
-                        x-stoplight:
-                          id: jk8yslicluuva
+                  appq_message_center:
+                    $ref: '#/components/schemas/Olp'
+                    x-stoplight:
+                      id: ahixk9tm0ntzq
                   appq_prospect:
+                    $ref: '#/components/schemas/Olp'
                     x-stoplight:
                       id: eb5ftp812apcl
-                    anyOf:
-                      - type: array
-                        items:
-                          x-stoplight:
-                            id: knnlgtkfpv0ld
-                          type: integer
-                      - type: boolean
-                        x-stoplight:
-                          id: sfgo0drhx1i2r
                   appq_tester_selection:
+                    $ref: '#/components/schemas/Olp'
                     x-stoplight:
                       id: 8ckmryvby2n81
-                    anyOf:
-                      - type: array
-                        x-stoplight:
-                          id: e667e67jclna4
-                        items:
-                          x-stoplight:
-                            id: s078tzn7sxs0m
-                          type: integer
-                      - type: boolean
-                        x-stoplight:
-                          id: 73synvwce1p81
               examples:
                 Example 1:
                   value:
@@ -8191,6 +8161,19 @@ components:
           minLength: 1
         title:
           type: string
+    Olp:
+      x-stoplight:
+        id: pcdrdb0ewtv4s
+      x-examples: {}
+      anyOf:
+        - type: array
+          items:
+            x-stoplight:
+              id: wgsw5k69e6vbo
+            type: integer
+        - type: boolean
+          x-stoplight:
+            id: hloeks12yw4vv
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
