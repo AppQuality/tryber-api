@@ -8,24 +8,11 @@ export default class PermissionRoute extends UserRoute<{
 
     if (!olps) return {};
     return {
-      appq_bug:
-        typeof olps.appq_bug == "number" ? [olps.appq_bug] : olps.appq_bug,
-      appq_campaign:
-        typeof olps.appq_campaign == "number"
-          ? [olps.appq_campaign]
-          : olps.appq_campaign,
-      appq_message_center:
-        typeof olps.appq_message_center == "number"
-          ? [olps.appq_message_center]
-          : olps.appq_message_center,
-      appq_prospect:
-        typeof olps.appq_prospect == "number"
-          ? [olps.appq_prospect]
-          : olps.appq_prospect,
-      appq_tester_selection:
-        typeof olps.appq_tester_selection == "number"
-          ? [olps.appq_tester_selection]
-          : olps.appq_tester_selection,
+      appq_bug: olps.appq_bug,
+      appq_campaign: olps.appq_campaign,
+      appq_message_center: olps.appq_message_center,
+      appq_prospect: olps.appq_prospect,
+      appq_tester_selection: olps.appq_tester_selection,
     };
   }
 

@@ -78,44 +78,23 @@ describe("GET /users/me/permissions", () => {
     expect(response.body).toEqual({ appq_tester_selection: true });
   });
 
+  it("Should return permissions of prospect and tester selection if the user has it", async () => {
+    const response = await request(app)
+      .get("/users/me/permissions")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1,7],"appq_prospect":true}'
+      );
+    expect(response.body).toEqual({
+      appq_tester_selection: [1, 7],
+      appq_prospect: true,
+    });
+  });
+
   it("Should return empty object if user is not admin and has no permissions", async () => {
     const response = await request(app)
       .get("/users/me/permissions")
       .set("Authorization", "Bearer tester");
     expect(response.body).toEqual({});
-  });
-
-  it("Should return permission of bug management for sigle campaign", async () => {
-    const response = await request(app)
-      .get("/users/me/permissions")
-      .set("Authorization", 'Bearer tester olp {"appq_bug":8}');
-    expect(response.body).toEqual({ appq_bug: [8] });
-  });
-  it("Should return permission of campaign management for sigle campaign", async () => {
-    const response = await request(app)
-      .get("/users/me/permissions")
-      .set("Authorization", 'Bearer tester olp {"appq_campaign":8}');
-    expect(response.body).toEqual({ appq_campaign: [8] });
-  });
-
-  it("Should return permission of message_center management for sigle campaign", async () => {
-    const response = await request(app)
-      .get("/users/me/permissions")
-      .set("Authorization", 'Bearer tester olp {"appq_message_center":8}');
-    expect(response.body).toEqual({ appq_message_center: [8] });
-  });
-
-  it("Should return permission of appq_prospect management for sigle campaign", async () => {
-    const response = await request(app)
-      .get("/users/me/permissions")
-      .set("Authorization", 'Bearer tester olp {"appq_prospect":8}');
-    expect(response.body).toEqual({ appq_prospect: [8] });
-  });
-
-  it("Should return permission of tester_selection management for sigle campaign", async () => {
-    const response = await request(app)
-      .get("/users/me/permissions")
-      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":8}');
-    expect(response.body).toEqual({ appq_tester_selection: [8] });
   });
 });
