@@ -314,11 +314,24 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private async getPaidTesters() {
-    const testers = await tryber.tables.WpAppqExpPoints.do()
+    const testersWithExpAttribution = await tryber.tables.WpAppqExpPoints.do()
       .select("tester_id")
       .where("campaign_id", this.cp_id)
       .where("activity_id", 1);
-    return testers.map((t) => t.tester_id);
+
+    const testersWithBootyAttribution = await tryber.tables.WpAppqPayment.do()
+      .select("tester_id")
+      .where("campaign_id", this.cp_id)
+      .where("work_type_id", 1);
+
+    const testers = [
+      ...new Set([
+        ...testersWithExpAttribution.map((t) => t.tester_id),
+        ...testersWithBootyAttribution.map((t) => t.tester_id),
+      ]),
+    ];
+
+    return testers;
   }
 
   protected async filter(): Promise<boolean> {
