@@ -56,7 +56,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       .get("/campaigns/1234/payouts")
       .set(
         "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1234],"appq_prospect":[1234]}'
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
       );
     expect(response.status).toBe(200);
   });
@@ -66,7 +66,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       .get("/campaigns/1234/payouts")
       .set(
         "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1234],"appq_prospect":[1234]}'
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
       );
     expect(response.body).toEqual(
       expect.objectContaining({
@@ -80,7 +80,31 @@ describe("GET /campaigns/campaignId/payouts", () => {
       .get("/campaigns/1234/payouts")
       .set(
         "Authorization",
-        'Bearer tester olp {"appq_tester_selection":[1234],"appq_prospect":[1234]}'
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
+      );
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        testSuccess: {
+          payout: 30,
+          points: 150,
+          message: "Ottimo lavoro!",
+        },
+        testFailure: {
+          payout: 0,
+          points: -300,
+          message:
+            "Purtroppo non hai completato l’attività, ricevi quindi -300 punti esperienza",
+        },
+      })
+    );
+  });
+
+  it("Should return completion rule", async () => {
+    const response = await request(app)
+      .get("/campaigns/1234/payouts")
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1234]}'
       );
     expect(response.body).toEqual(
       expect.objectContaining({
