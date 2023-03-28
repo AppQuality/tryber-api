@@ -26,7 +26,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
 
   private async getCampaignTitle() {
     const campaignTitle = await tryber.tables.WpAppqEvdCampaign.do()
-      .select(tryber.ref("title").withSchema("wp_appq_evd_campaign"))
+      .select("title")
       .where({ id: this.cp_id })
       .first();
     if (campaignTitle === undefined) return "";
