@@ -902,7 +902,15 @@ export interface operations {
       };
     };
     responses: {
-      200: components["responses"]["SingleCampaign"];
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: string;
+          };
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       /** Not Found */
       404: unknown;
