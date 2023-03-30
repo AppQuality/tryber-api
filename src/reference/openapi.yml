@@ -160,7 +160,19 @@ paths:
         - Campaign
       responses:
         '200':
-          $ref: '#/components/responses/SingleCampaign'
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                required:
+                  - id
+                  - title
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -2137,6 +2149,86 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
+  '/campaigns/{campaign}/payouts':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    get:
+      summary: Get payout data for a specific campaign
+      operationId: get-campaigns-campaign-payouts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    maxBonusBug: 4.99
+                properties:
+                  maxBonusBug:
+                    type: number
+                  completionRule:
+                    type: object
+                    properties:
+                      bugs:
+                        type: number
+                      usecases:
+                        type: number
+                  testSuccess:
+                    type: object
+                    required:
+                      - payout
+                      - points
+                      - message
+                    properties:
+                      payout:
+                        type: number
+                      points:
+                        type: number
+                      message:
+                        type: string
+                  testFailure:
+                    type: object
+                    required:
+                      - payout
+                      - points
+                      - message
+                    properties:
+                      payout:
+                        type: number
+                      points:
+                        type: number
+                      message:
+                        type: string
+                required:
+                  - maxBonusBug
+                  - completionRule
+                  - testSuccess
+                  - testFailure
+              examples:
+                Example 1:
+                  value:
+                    maxBonusBug: 5.99
+                    completionRule:
+                      bugs: 4
+                      usecases: 53
+                    testSuccess:
+                      payout: 15
+                      points: 100
+                      message: message
+                    testFailure:
+                      payout: 0
+                      points: -200
+                      message: message
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: ''
+      security:
+        - JWT: []
+      parameters: []
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -2816,6 +2908,403 @@ paths:
       description: ''
       security:
         - JWT: []
+  '/campaigns/{campaign}/prospect/{testerId}':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+      - $ref: '#/components/parameters/testerId'
+    put:
+      summary: ''
+      operationId: put-campaigns-campaign-prospect-testerId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    payout:
+                      completion: 0.2
+                      bugs: 0.2
+                      refund: 0.2
+                      extra: 0.2
+                    experience:
+                      completion: 0
+                      extra: 0
+                    note: string
+                    completed: true
+                properties:
+                  payout:
+                    type: object
+                    required:
+                      - completion
+                      - bugs
+                      - refund
+                      - extra
+                    properties:
+                      completion:
+                        type: number
+                      bugs:
+                        type: number
+                      refund:
+                        type: number
+                      extra:
+                        type: number
+                  experience:
+                    type: object
+                    required:
+                      - completion
+                      - extra
+                    properties:
+                      completion:
+                        type: integer
+                      extra:
+                        type: integer
+                  note:
+                    type: string
+                  completed:
+                    type: boolean
+                required:
+                  - payout
+                  - experience
+                  - note
+                  - completed
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  payout:
+                    completion: 10
+                    bugs: 10
+                    refund: 10
+                    extra: 10
+                  experience:
+                    completion: 10
+                    extra: 10
+                  note: string
+                  completed: true
+              properties:
+                payout:
+                  type: object
+                  required:
+                    - completion
+                    - bugs
+                    - refund
+                    - extra
+                  properties:
+                    completion:
+                      type: number
+                    bugs:
+                      type: number
+                    refund:
+                      type: number
+                    extra:
+                      type: number
+                experience:
+                  type: object
+                  required:
+                    - completion
+                    - extra
+                  properties:
+                    completion:
+                      type: integer
+                    extra:
+                      type: integer
+                note:
+                  type: string
+                completed:
+                  type: boolean
+              required:
+                - payout
+                - experience
+                - note
+                - completed
+            examples:
+              Example 1:
+                value:
+                  payout:
+                    completion: 0
+                    bugs: 0
+                    refund: 0
+                    extra: 0
+                  experience:
+                    completion: 0
+                    extra: 0
+                  note: string
+                  completed: true
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a prospect by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - usecases:
+                          completed: 0
+                          required: 0
+                        tester:
+                          id: 0
+                          name: string
+                          surname: string
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                        usecases:
+                          type: object
+                          required:
+                            - completed
+                            - required
+                          properties:
+                            completed:
+                              type: integer
+                            required:
+                              type: integer
+                        bugs:
+                          type: object
+                          required:
+                            - critical
+                            - high
+                            - medium
+                            - low
+                          properties:
+                            critical:
+                              type: integer
+                            high:
+                              type: integer
+                            medium:
+                              type: integer
+                            low:
+                              type: integer
+                        payout:
+                          type: object
+                          required:
+                            - completion
+                            - bug
+                            - refund
+                            - extra
+                          properties:
+                            completion:
+                              type: number
+                            bug:
+                              type: number
+                            refund:
+                              type: number
+                            extra:
+                              type: number
+                        experience:
+                          type: object
+                          required:
+                            - completion
+                            - extra
+                          properties:
+                            completion:
+                              type: integer
+                            extra:
+                              type: integer
+                        note:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - pending
+                            - done
+                        weightedBugs:
+                          type: number
+                        isCompleted:
+                          type: boolean
+                        isTopTester:
+                          type: boolean
+                      required:
+                        - tester
+                        - usecases
+                        - bugs
+                        - payout
+                        - experience
+                        - note
+                        - status
+                        - weightedBugs
+                        - isCompleted
+                        - isTopTester
+                required:
+                  - items
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - tester:
+                          id: 1
+                          name: Jhon
+                          surname: Doe
+                        usecases:
+                          completed: 3
+                          required: 3
+                        bugs:
+                          critical: 11
+                          high: 2
+                          medium: 3
+                          low: 4
+                        payout:
+                          completion: 100
+                          bug: 10
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 200
+                          extra: 0
+                        note: no extra
+                        status: pending
+                        weightedBugs: 0
+                        isCompleted: true
+                        isTopTester: true
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          description: Precondition Failed
+      operationId: get-campaigns-campaign-prospect
+      description: ''
+      security:
+        - JWT: []
+    patch:
+      summary: Patch the status for a campaign prospect
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+      security:
+        - JWT: []
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - done
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tester:
+                        type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: integer
+                      experience:
+                        type: object
+                        required:
+                          - completion
+                          - extra
+                        properties:
+                          completion:
+                            type: integer
+                          extra:
+                            type: integer
+                      payout:
+                        type: object
+                        required:
+                          - completion
+                          - bug
+                          - extra
+                          - refund
+                        properties:
+                          completion:
+                            type: number
+                          bug:
+                            type: number
+                          extra:
+                            type: number
+                          refund:
+                            type: number
+                      note:
+                        type: string
+                      completed:
+                        type: boolean
+                    required:
+                      - tester
+                      - experience
+                      - payout
+                      - completed
+              required:
+                - status
+                - items
+            examples:
+              Example 1:
+                value:
+                  status: done
+                  items:
+                    - tester:
+                        id: 0
+                      experience:
+                        completion: 0
+                        extra: 0
+                      payout:
+                        completion: 0
+                        bug: 0
+                        extra: 0
+                        refund: 0
+                      note: string
+                      completed: true
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:
@@ -6711,6 +7200,47 @@ paths:
           name: orderBy
         - $ref: '#/components/parameters/order'
     parameters: []
+  /users/me/permissions:
+    get:
+      summary: Get all your permissions
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appq_bug:
+                    $ref: '#/components/schemas/Olp'
+                  appq_campaign:
+                    $ref: '#/components/schemas/Olp'
+                  appq_message_center:
+                    $ref: '#/components/schemas/Olp'
+                  appq_prospect:
+                    $ref: '#/components/schemas/Olp'
+                  appq_tester_selection:
+                    $ref: '#/components/schemas/Olp'
+              examples:
+                Example 1:
+                  value:
+                    appq_bug:
+                      - 1
+                      - 2
+                    appq_campaign:
+                      - 1
+                      - 2
+                    appq_prospect: false
+                    appq_tester_selection: true
+        '500':
+          description: Internal Server Error
+      operationId: get-users-me-permissions
+      description: Return all user permissions
+      security:
+        - JWT: []
+      parameters: []
+    parameters: []
   /users/me/popups:
     get:
       summary: Get your popups
@@ -7644,6 +8174,13 @@ components:
           minLength: 1
         title:
           type: string
+    Olp:
+      x-examples: {}
+      oneOf:
+        - type: array
+          items:
+            type: integer
+        - type: boolean
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
@@ -8207,6 +8744,12 @@ components:
       schema:
         type: string
       description: The value to search for
+    testerId:
+      name: testerId
+      in: path
+      required: true
+      schema:
+        type: string
   examples: {}
 tags:
   - name: Authentication

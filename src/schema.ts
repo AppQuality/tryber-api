@@ -52,6 +52,15 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/payouts": {
+    get: operations["get-campaigns-campaign-payouts"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
   "/campaigns/{campaign}/tasks": {
     /** Get all UseCases linked to a Campaign */
     get: operations["get-campaigns-campaign-tasks"];
@@ -94,6 +103,26 @@ export interface paths {
   };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/prospect/{testerId}": {
+    put: operations["put-campaigns-campaign-prospect-testerId"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+        testerId: components["parameters"]["testerId"];
+      };
+    };
+  };
+  "/campaigns/{campaign}/prospect": {
+    get: operations["get-campaigns-campaign-prospect"];
+    /** Make campaign perspective status done, and change exp points and tester payouts. */
+    patch: operations["patch-campaigns-campaign-prospect"];
     parameters: {
       path: {
         campaign: string;
@@ -389,6 +418,11 @@ export interface paths {
     get: operations["get-users-me-pending-booty"];
     parameters: {};
   };
+  "/users/me/permissions": {
+    /** Return all user permissions */
+    get: operations["get-users-me-permissions"];
+    parameters: {};
+  };
   "/users/me/popups": {
     /** Get all popup defined for your user */
     get: operations["get-users-me-popups"];
@@ -599,6 +633,7 @@ export interface components {
       content?: string;
       title?: string;
     };
+    Olp: number[] | boolean;
     /** PreselectionFormQuestion */
     PreselectionFormQuestion: {
       question: string;
@@ -787,6 +822,7 @@ export interface components {
     searchBy: string;
     /** @description The value to search for */
     search: string;
+    testerId: string;
   };
 }
 
@@ -866,7 +902,15 @@ export interface operations {
       };
     };
     responses: {
-      200: components["responses"]["SingleCampaign"];
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: string;
+          };
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       /** Not Found */
       404: unknown;
@@ -1049,6 +1093,40 @@ export interface operations {
               device?: number | "random";
             };
       };
+    };
+  };
+  "get-campaigns-campaign-payouts": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            maxBonusBug: number;
+            completionRule: {
+              bugs?: number;
+              usecases?: number;
+            };
+            testSuccess: {
+              payout: number;
+              points: number;
+              message: string;
+            };
+            testFailure: {
+              payout: number;
+              points: number;
+              message: string;
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** Get all UseCases linked to a Campaign */
@@ -1292,6 +1370,146 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "put-campaigns-campaign-prospect-testerId": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+        testerId: components["parameters"]["testerId"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            payout: {
+              completion: number;
+              bugs: number;
+              refund: number;
+              extra: number;
+            };
+            experience: {
+              completion: number;
+              extra: number;
+            };
+            note: string;
+            completed: boolean;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          payout: {
+            completion: number;
+            bugs: number;
+            refund: number;
+            extra: number;
+          };
+          experience: {
+            completion: number;
+            extra: number;
+          };
+          note: string;
+          completed: boolean;
+        };
+      };
+    };
+  };
+  "get-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              tester: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+              usecases: {
+                completed: number;
+                required: number;
+              };
+              bugs: {
+                critical: number;
+                high: number;
+                medium: number;
+                low: number;
+              };
+              payout: {
+                completion: number;
+                bug: number;
+                refund: number;
+                extra: number;
+              };
+              experience: {
+                completion: number;
+                extra: number;
+              };
+              note: string;
+              /** @enum {string} */
+              status: "pending" | "done";
+              weightedBugs: number;
+              isCompleted: boolean;
+              isTopTester: boolean;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Precondition Failed */
+      412: unknown;
+    };
+  };
+  /** Make campaign perspective status done, and change exp points and tester payouts. */
+  "patch-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Not Modified */
+      304: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          status: "done";
+          items: {
+            tester: {
+              id: number;
+            };
+            experience: {
+              completion: number;
+              extra: number;
+            };
+            payout: {
+              completion: number;
+              bug: number;
+              extra: number;
+              refund: number;
+            };
+            note?: string;
+            completed: boolean;
+          }[];
+        };
+      };
     };
   };
   "get-campaigns-campaign-stats": {
@@ -2941,6 +3159,26 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  /** Return all user permissions */
+  "get-users-me-permissions": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            appq_bug?: components["schemas"]["Olp"];
+            appq_campaign?: components["schemas"]["Olp"];
+            appq_message_center?: components["schemas"]["Olp"];
+            appq_prospect?: components["schemas"]["Olp"];
+            appq_tester_selection?: components["schemas"]["Olp"];
+          };
+        };
+      };
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   /** Get all popup defined for your user */
