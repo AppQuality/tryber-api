@@ -194,3 +194,35 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     );
   });
 });
+
+describe("GET /campaigns/campaignId/prospect - should cap at bonus bug", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqProspectPayout.do().insert({
+      id: 1,
+      campaign_id: 1,
+      tester_id: 1,
+      complete_pts: 100,
+      extra_pts: 69,
+      complete_eur: 25,
+      bonus_bug_eur: 2000,
+      extra_eur: 9,
+      refund: 1,
+      notes: "This is the notes",
+      is_edit: 0,
+      is_completed: 1,
+    });
+  });
+  it("Should return capped bonus bug", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 1 }),
+          payout: expect.objectContaining({ bug: 30 }),
+        }),
+      ])
+    );
+  });
+});
