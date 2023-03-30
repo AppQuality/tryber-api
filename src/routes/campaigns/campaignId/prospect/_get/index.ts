@@ -50,6 +50,7 @@ export default class ProspectRoute extends CampaignRoute<{
     completion: { payout: number; experience: number };
     minimumBugs: number;
     percentUsecases: number;
+    maxBonusBug?: number;
   } = {
     bugs: {
       critical: 0,
@@ -256,6 +257,7 @@ export default class ProspectRoute extends CampaignRoute<{
         "campaign_complete_bonus_eur",
         "minimum_bugs",
         "percent_usecases",
+        "payout_limit",
         "point_multiplier_critical",
         "point_multiplier_high",
         "point_multiplier_medium",
@@ -300,6 +302,10 @@ export default class ProspectRoute extends CampaignRoute<{
     this.payoutConfig.bugsExperience.critical = parseFloat(
       meta.find((m) => m.meta_key === "point_multiplier_critical")
         ?.meta_value || "0"
+    );
+
+    this.payoutConfig.maxBonusBug = parseFloat(
+      meta.find((m) => m.meta_key === "payout_limit")?.meta_value || "0"
     );
 
     const campaign = await tryber.tables.WpAppqEvdCampaign.do()
@@ -448,9 +454,12 @@ export default class ProspectRoute extends CampaignRoute<{
   private getTesterPayout(tid: number) {
     const result = this.currentProspect.find((t) => t.tester_id === tid);
     if (!result) return this.defaultTesterPayout(tid);
+    const bugPayout = this.payoutConfig.maxBonusBug
+      ? Math.min(result.bonus_bug_eur, this.payoutConfig.maxBonusBug)
+      : result.bonus_bug_eur;
     return {
       completion: result.complete_eur,
-      bug: result.bonus_bug_eur,
+      bug: bugPayout,
       refund: result.refund,
       extra: result.extra_eur,
     };
