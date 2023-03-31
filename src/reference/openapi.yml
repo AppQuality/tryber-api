@@ -2908,6 +2908,8 @@ paths:
       description: ''
       security:
         - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
   '/campaigns/{campaign}/prospect/{testerId}':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -3043,6 +3045,11 @@ paths:
       - schema:
           type: string
         name: campaign
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: ''
         in: path
         required: true
     get:
