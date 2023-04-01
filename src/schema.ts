@@ -1356,10 +1356,6 @@ export interface operations {
       path: {
         campaign: string;
       };
-      query: {
-        /** Key-value Array for item filtering */
-        filterBy?: components["parameters"]["filterBy"];
-      };
     };
     responses: {
       /** OK */
