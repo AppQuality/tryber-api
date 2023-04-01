@@ -3217,7 +3217,14 @@ paths:
       security:
         - JWT: []
       parameters:
-        - $ref: '#/components/parameters/filterBy'
+        - schema: {}
+          in: query
+          name: filterByInclude
+          description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByExclude
+          description: Key-value Array for item filtering
     patch:
       summary: Patch the status for a campaign prospect
       operationId: patch-campaigns-campaign-prospect
