@@ -3047,11 +3047,6 @@ paths:
         name: campaign
         in: path
         required: true
-      - schema:
-          type: string
-        name: ''
-        in: path
-        required: true
     get:
       summary: Get a prospect by campaign id
       tags: []
