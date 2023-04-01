@@ -2908,8 +2908,7 @@ paths:
       description: ''
       security:
         - JWT: []
-      parameters:
-        - $ref: '#/components/parameters/filterBy'
+      parameters: []
   '/campaigns/{campaign}/prospect/{testerId}':
     parameters:
       - $ref: '#/components/parameters/campaign'
