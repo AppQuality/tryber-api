@@ -156,7 +156,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
 });
 
 describe("GET /campaigns/campaignId/prospect - there are no record", () => {
-  it("Should return basic data for bugs payout filtered by including id list", async () => {
+  it("Should return prospect filtered by including id list", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect?filterByInclude[ids]=2,0,3")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
@@ -173,7 +173,7 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     );
   });
 
-  it("Should return basic data for bugs payout filtered by excluding id list", async () => {
+  it("Should return prospect filtered by excluding id list", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect?filterByExclude[ids]=0,3")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
