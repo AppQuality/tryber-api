@@ -1427,7 +1427,9 @@ export interface operations {
       };
       query: {
         /** Key-value Array for item filtering */
-        filterBy?: components["parameters"]["filterBy"];
+        filterByInclude?: unknown;
+        /** Key-value Array for item filtering */
+        filterByExclude?: unknown;
       };
     };
     responses: {
