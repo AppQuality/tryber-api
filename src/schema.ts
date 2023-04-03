@@ -1425,6 +1425,12 @@ export interface operations {
       path: {
         campaign: string;
       };
+      query: {
+        /** Key-value Array for item filtering */
+        filterByInclude?: unknown;
+        /** Key-value Array for item filtering */
+        filterByExclude?: unknown;
+      };
     };
     responses: {
       /** OK */
