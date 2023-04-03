@@ -123,7 +123,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
 
-  it("Should return prospect if already exist filtered including id list ", async () => {
+  it("Should return prospect if already exist filtered including id list", async () => {
     const response = await request(app)
       .get("/campaigns/1/prospect?filterByInclude[ids]=1,3")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
@@ -141,7 +141,7 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
   });
 });
 
-it("Should return prospect if already exist filtered excluding id list ", async () => {
+it("Should return prospect if already exist filtered excluding id list", async () => {
   const response = await request(app)
     .get("/campaigns/1/prospect?filterByExclude[ids]=1,3")
     .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
