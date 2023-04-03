@@ -73,53 +73,13 @@ export default class ProspectRoute extends CampaignRoute<{
   };
   private paidTesters: number[] = [];
 
-  private idsToExclude: integer[] | undefined = [];
-  private idsToInclude: integer[] | undefined = [];
-
   protected async init(): Promise<void> {
     await super.init();
 
-    this.testers = await this.getFilteredTesters();
-
+    this.testers = await this.getTestersData();
     this.currentProspect = await this.getActualProspectData();
     this.payoutConfig = await this.getPayoutConfig();
     this.paidTesters = await this.getPaidTesters();
-  }
-
-  private async getFilteredTesters() {
-    const testers = await this.getTestersData();
-
-    this.idsToExclude = this.getIdsToExclude();
-    this.idsToInclude = this.getIdsToInclude();
-
-    if (this.idsToInclude && this.idsToInclude.length > 0) {
-      return testers.filter((t) => {
-        if (this.idsToInclude) return this.idsToInclude.includes(t.id);
-      });
-    }
-    if (this.idsToExclude && this.idsToExclude.length > 0) {
-      return testers.filter((t) => {
-        if (this.idsToExclude) return !this.idsToExclude.includes(t.id);
-      });
-    }
-    return testers;
-  }
-
-  private getIdsToExclude() {
-    const query = this.getQuery();
-    const filterByExclude = query.filterByExclude as filterBy;
-    if (filterByExclude && "ids" in filterByExclude && filterByExclude.ids) {
-      return filterByExclude.ids.split(",").map((id) => parseInt(id));
-    }
-    return [];
-  }
-  private getIdsToInclude() {
-    const query = this.getQuery();
-    const filterByInclude = query.filterByInclude as filterBy;
-    if (filterByInclude && "ids" in filterByInclude && filterByInclude.ids) {
-      return filterByInclude.ids.split(",").map((id) => parseInt(id));
-    }
-    return [];
   }
 
   private async getTestersData() {
@@ -146,7 +106,7 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private async getSelectedTesters() {
-    const selectedTesters = await tryber.tables.WpCrowdAppqHasCandidate.do()
+    const result = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         tryber.ref("name").withSchema("wp_appq_evd_profile"),
@@ -166,7 +126,37 @@ export default class ProspectRoute extends CampaignRoute<{
       .where("accepted", 1)
       .orderBy("wp_appq_evd_profile.id", "ASC");
 
+    return this.getFilteredTesters<(typeof result)[number]>(result);
+  }
+
+  private getFilteredTesters<T>(selectedTesters: (T & { id: number })[]) {
+    const idsToInclude = this.getIdsToInclude();
+    if (idsToInclude.length > 0)
+      return selectedTesters.filter((t) => idsToInclude.includes(t.id));
+
+    const idsToExclude = this.getIdsToExclude();
+    if (idsToExclude.length > 0)
+      return selectedTesters.filter((t) => !idsToExclude.includes(t.id));
+
     return selectedTesters;
+  }
+
+  private getIdsToExclude() {
+    const query = this.getQuery();
+    const filterByExclude = query.filterByExclude as filterBy;
+    if (filterByExclude && "ids" in filterByExclude && filterByExclude.ids) {
+      return filterByExclude.ids.split(",").map((id) => parseInt(id));
+    }
+    return [];
+  }
+
+  private getIdsToInclude() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+    if (filterByInclude && "ids" in filterByInclude && filterByInclude.ids) {
+      return filterByInclude.ids.split(",").map((id) => parseInt(id));
+    }
+    return [];
   }
 
   private async getBugsByTesters(testers: { id: number }[]) {
