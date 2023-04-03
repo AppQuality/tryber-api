@@ -139,20 +139,20 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
       ])
     );
   });
-});
 
-it("Should return prospect if already exist filtered excluding id list", async () => {
-  const response = await request(app)
-    .get("/campaigns/1/prospect?filterByExclude[ids]=1,3")
-    .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
-  expect(response.body.items.length).toEqual(1);
-  expect(response.body.items).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        tester: expect.objectContaining({ id: 2 }),
-      }),
-    ])
-  );
+  it("Should return prospect if already exist filtered excluding id list", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect?filterByExclude[ids]=1,3")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items.length).toEqual(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 2 }),
+        }),
+      ])
+    );
+  });
 });
 
 describe("GET /campaigns/campaignId/prospect - there are no record", () => {
