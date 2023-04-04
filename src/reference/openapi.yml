@@ -3237,6 +3237,8 @@ paths:
           content: {}
         '304':
           description: Not Modified
+        '501':
+          description: Not Implemented
       security:
         - JWT: []
       description: 'Make campaign perspective status done, and change exp points and tester payouts.'
@@ -3321,8 +3323,8 @@ paths:
       responses:
         '200':
           description: OK
-        '304':
-          description: Not Modified
+        '501':
+          description: Not Implemented
       security:
         - JWT: []
       requestBody:
