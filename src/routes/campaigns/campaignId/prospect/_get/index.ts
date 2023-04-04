@@ -1,8 +1,7 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-prospect */
-import CampaignRoute from "@src/features/routes/CampaignRoute";
-import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import { integer } from "aws-sdk/clients/cloudfront";
+import { tryber } from "@src/features/database";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
 type filterBy = { ids?: string } | undefined;
 export default class ProspectRoute extends CampaignRoute<{
@@ -428,6 +427,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
     return this.setSuccess(200, {
       items,
+      status: "draft",
     });
   }
 
