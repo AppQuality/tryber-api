@@ -1,11 +1,11 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import { useCampaign } from "./dataset";
 
 useCampaign();
 
-describe("PATCH /campaigns/campaignId/prospect - save prospect from default", () => {
+describe("PUT /campaigns/campaignId/prospect - save prospect from default", () => {
   afterEach(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
     await tryber.tables.WpAppqExpPoints.do().delete();
@@ -14,7 +14,7 @@ describe("PATCH /campaigns/campaignId/prospect - save prospect from default", ()
 
   it("Should save prospect", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [
@@ -53,7 +53,7 @@ describe("PATCH /campaigns/campaignId/prospect - save prospect from default", ()
 
   it("Should prospect as not completed", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [
@@ -82,7 +82,7 @@ describe("PATCH /campaigns/campaignId/prospect - save prospect from default", ()
   });
 });
 
-describe("PATCH /campaigns/campaignId/prospect - update prospect from db", () => {
+describe("PUT /campaigns/campaignId/prospect - update prospect from db", () => {
   beforeEach(async () => {
     await tryber.tables.WpAppqProspectPayout.do().insert({
       tester_id: 1,
@@ -103,7 +103,7 @@ describe("PATCH /campaigns/campaignId/prospect - update prospect from db", () =>
 
   it("Should save prospect", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [
