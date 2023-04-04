@@ -1,25 +1,25 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import { useCampaign } from "./dataset";
 
 useCampaign();
 
-describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => {
+describe("PUT /campaigns/campaignId/prospect - prospect not delivered", () => {
   afterEach(async () => {
     await tryber.tables.WpAppqExpPoints.do().delete();
     await tryber.tables.WpAppqPayment.do().delete();
   });
   it("Should return 403 if logged out", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({ status: "done", items: [] });
     expect(response.status).toBe(403);
   });
 
   it("Should return 403 if logged in as not admin user", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({ status: "done", items: [] })
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
@@ -27,7 +27,7 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
 
   it("Should return 400 if campaign does not exists", async () => {
     const response = await request(app)
-      .patch("/campaigns/100/prospect")
+      .put("/campaigns/100/prospect")
       .send({ status: "done", items: [] })
       .set("Authorization", "Bearer tester");
 
@@ -36,7 +36,7 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
 
   it("Should return 200 if logged in as admin", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({ status: "done", items: [] })
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(200);
@@ -44,7 +44,7 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
 
   it("Should return 200 if logged in as tester with both olps tester_selection, prospect", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({ status: "done", items: [] })
       .set(
         "Authorization",
@@ -54,7 +54,7 @@ describe("PATCH /campaigns/campaignId/prospect - prospect not delivered", () => 
   });
 });
 
-describe("PATCH /campaigns/campaignId/prospect - should return 304 if prospect is delivered", () => {
+describe("PUT /campaigns/campaignId/prospect - should return 304 if prospect is delivered", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqExpPoints.do().insert({
       tester_id: 1,
@@ -71,7 +71,7 @@ describe("PATCH /campaigns/campaignId/prospect - should return 304 if prospect i
 
   it("Should return 304 if logged in as tester with both olps tester_selection, prospect", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({ status: "done", items: [] })
       .set(
         "Authorization",
@@ -82,7 +82,7 @@ describe("PATCH /campaigns/campaignId/prospect - should return 304 if prospect i
 
   it("Should return 304 if logged in as admin", async () => {
     const response = await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({ status: "done", items: [] })
       .set(
         "Authorization",

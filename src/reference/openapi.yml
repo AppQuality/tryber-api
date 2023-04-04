@@ -3225,9 +3225,9 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
-    patch:
-      summary: Patch the status for a campaign prospect
-      operationId: patch-campaigns-campaign-prospect
+    put:
+      summary: Edit a campaign prospect
+      operationId: put-campaigns-campaign-prospect
       responses:
         '200':
           description: OK

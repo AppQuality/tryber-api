@@ -1,12 +1,12 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import { useCampaign, usePaymentWorktypes } from "./dataset";
 
 useCampaign();
 usePaymentWorktypes();
 
-describe("PATCH /campaigns/campaignId/prospect - with database entries - 2testers 1 completed cp", () => {
+describe("PUT /campaigns/campaignId/prospect - with database entries - 2testers 1 completed cp", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
@@ -42,7 +42,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
 
   it("Should assign exp points for each tester that has a prospect", async () => {
     await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [
@@ -106,7 +106,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
 
   it("Should allocate the booty to the testers who have amount > 0", async () => {
     await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [
@@ -163,7 +163,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - 2tester
   });
 });
 
-describe("PATCH /campaigns/campaignId/prospect - with database entries - testers with refund", () => {
+describe("PUT /campaigns/campaignId/prospect - with database entries - testers with refund", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
@@ -173,7 +173,7 @@ describe("PATCH /campaigns/campaignId/prospect - with database entries - testers
   });
   it("Should allocate different booties for completion and refund", async () => {
     await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [

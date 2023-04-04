@@ -122,7 +122,7 @@ export interface paths {
   "/campaigns/{campaign}/prospect": {
     get: operations["get-campaigns-campaign-prospect"];
     /** Make campaign perspective status done, and change exp points and tester payouts. */
-    patch: operations["patch-campaigns-campaign-prospect"];
+    put: operations["put-campaigns-campaign-prospect"];
     parameters: {
       path: {
         campaign: string;
@@ -541,8 +541,11 @@ export interface components {
       projectManager?: components["schemas"]["User"];
       customerCanViewReviewing?: boolean;
       additionalFields?: components["schemas"]["CampaignField"][];
+      /** @default 0 */
       tokens?: number;
+      /** @default 0 */
       csm_effort?: number;
+      /** @default 0 */
       ux_effort?: number;
       preview_link?: components["schemas"]["TranslatablePage"];
       manual_link?: components["schemas"]["TranslatablePage"];
@@ -1480,7 +1483,7 @@ export interface operations {
     };
   };
   /** Make campaign perspective status done, and change exp points and tester payouts. */
-  "patch-campaigns-campaign-prospect": {
+  "put-campaigns-campaign-prospect": {
     parameters: {
       path: {
         campaign: string;

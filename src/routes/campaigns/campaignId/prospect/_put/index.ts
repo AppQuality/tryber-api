@@ -1,12 +1,12 @@
-/** OPENAPI-CLASS: patch-campaigns-campaign-prospect */
-import CampaignRoute from "@src/features/routes/CampaignRoute";
+/** OPENAPI-CLASS: put-campaigns-campaign-prospect */
+import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import { send } from "@src/features/mail/send";
-import OpenapiError from "@src/features/OpenapiError";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 export default class ProspectRoute extends CampaignRoute<{
-  response: StoplightOperations["patch-campaigns-campaign-prospect"]["responses"]["200"];
-  parameters: StoplightOperations["patch-campaigns-campaign-prospect"]["parameters"]["path"];
-  body: StoplightOperations["patch-campaigns-campaign-prospect"]["requestBody"]["content"]["application/json"];
+  response: StoplightOperations["put-campaigns-campaign-prospect"]["responses"]["200"];
+  parameters: StoplightOperations["put-campaigns-campaign-prospect"]["parameters"]["path"];
+  body: StoplightOperations["put-campaigns-campaign-prospect"]["requestBody"]["content"]["application/json"];
 }> {
   private COMPLETION_WORKTYPE = 1;
   private REFUND_WORKTYPE = 3;
