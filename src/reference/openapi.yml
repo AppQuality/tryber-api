@@ -3314,6 +3314,43 @@ paths:
                         refund: 0
                       note: string
                       completed: true
+  '/prospect/{prospect}':
+    parameters:
+      - schema:
+          type: string
+        name: prospect
+        in: path
+        required: true
+    patch:
+      summary: Patch the status for a campaign prospect
+      operationId: patch-prospects-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+      security:
+        - JWT: []
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - confirmed
+                    - draft
+              required:
+                - status
+            examples:
+              Example 1:
+                value:
+                  status: confirmed
+        description: ''
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:
