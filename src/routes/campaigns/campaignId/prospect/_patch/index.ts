@@ -30,6 +30,11 @@ export default class ProspectRoute extends CampaignRoute<{
       return false;
     }
 
+    if ((await this.getProspect())?.status === this.status) {
+      this.setError(304, new OpenapiError("Not Modified"));
+      return false;
+    }
+
     if (this.status === "done") {
       this.setError(501, new OpenapiError("Not Implemented"));
       return false;
@@ -39,13 +44,25 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    await this.updateProspectStatus();
+    await this.updateProspect();
     return this.setSuccess(200, {});
   }
 
-  private async updateProspectStatus() {
-    const updated = await tryber.tables.WpAppqProspect.do()
-      .update({ status: this.status })
-      .where({ campaign_id: this.cp_id });
+  private async getProspect() {
+    const prospect = await tryber.tables.WpAppqProspect.do()
+      .select()
+      .where({ campaign_id: this.cp_id })
+      .first();
+    return prospect;
+  }
+
+  private async updateProspect() {
+    await tryber.tables.WpAppqProspect.do()
+      .insert({
+        campaign_id: this.cp_id,
+        status: this.status,
+      })
+      .onConflict("campaign_id")
+      .merge(["status"]);
   }
 }
