@@ -3183,6 +3183,7 @@ paths:
               examples:
                 Example 1:
                   value:
+                    status: done
                     items:
                       - tester:
                           id: 1
@@ -3323,6 +3324,8 @@ paths:
       responses:
         '200':
           description: OK
+        '403':
+          description: Forbidden
         '501':
           description: Not Implemented
       security:
