@@ -1535,6 +1535,8 @@ export interface operations {
     responses: {
       /** OK */
       200: unknown;
+      /** Forbidden */
+      403: unknown;
       /** Not Implemented */
       501: unknown;
     };
