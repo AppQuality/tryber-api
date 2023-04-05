@@ -21,7 +21,6 @@ beforeAll(async () => {
     id: 1,
     campaign_id: 1,
     status: "draft",
-    created_at: "",
   });
 });
 

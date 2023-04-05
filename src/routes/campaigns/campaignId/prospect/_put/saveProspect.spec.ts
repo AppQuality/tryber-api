@@ -7,6 +7,7 @@ useCampaign();
 
 describe("PUT /campaigns/campaignId/prospect - save prospect from default", () => {
   afterEach(async () => {
+    await tryber.tables.WpAppqProspect.do().delete();
     await tryber.tables.WpAppqProspectPayout.do().delete();
     await tryber.tables.WpAppqExpPoints.do().delete();
     await tryber.tables.WpAppqPayment.do().delete();
@@ -80,6 +81,43 @@ describe("PUT /campaigns/campaignId/prospect - save prospect from default", () =
     expect(prospect).toHaveLength(1);
     expect(prospect[0].is_completed).toBe(0);
   });
+
+  it("Should save prospect status to table", async () => {
+    const response = await request(app)
+      .put("/campaigns/1/prospect")
+      .send({
+        status: "done",
+        items: [
+          {
+            tester: { id: 1 },
+            experience: { completion: 10, extra: 20 },
+            payout: {
+              completion: 1,
+              bug: 2,
+              extra: 3,
+              refund: 4,
+            },
+            note: "note",
+            completed: false,
+          },
+        ],
+      })
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
+    const prospect = await tryber.tables.WpAppqProspect.do()
+      .select()
+      .where("campaign_id", 1);
+    expect(prospect).toHaveLength(1);
+    expect(prospect[0].status).toBe("done");
+
+    const prospectItems =
+      await tryber.tables.WpAppqProspectPayout.do().select();
+    expect(prospectItems).toHaveLength(1);
+    expect(prospectItems[0].prospect_id).toBe(prospect[0].id);
+  });
 });
 
 describe("PUT /campaigns/campaignId/prospect - update prospect from db", () => {
@@ -93,9 +131,11 @@ describe("PUT /campaigns/campaignId/prospect - update prospect from db", () => {
       refund: 100,
       complete_pts: 100,
       extra_pts: 100,
+      prospect_id: 10000,
     });
   });
   afterEach(async () => {
+    await tryber.tables.WpAppqProspect.do().delete();
     await tryber.tables.WpAppqProspectPayout.do().delete();
     await tryber.tables.WpAppqExpPoints.do().delete();
     await tryber.tables.WpAppqPayment.do().delete();
@@ -138,5 +178,43 @@ describe("PUT /campaigns/campaignId/prospect - update prospect from db", () => {
     expect(prospect[0].extra_pts).toBe(20);
     expect(prospect[0].notes).toBe("note");
     expect(prospect[0].is_completed).toBe(1);
+  });
+
+  it("Should save prospect status to table", async () => {
+    const response = await request(app)
+      .put("/campaigns/1/prospect")
+      .send({
+        status: "done",
+        items: [
+          {
+            tester: { id: 1 },
+            experience: { completion: 10, extra: 20 },
+            payout: {
+              completion: 1,
+              bug: 2,
+              extra: 3,
+              refund: 4,
+            },
+            note: "note",
+            completed: false,
+          },
+        ],
+      })
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_tester_selection":[1],"appq_prospect":[1]}'
+      );
+    expect(response.status).toBe(200);
+    const prospect = await tryber.tables.WpAppqProspect.do()
+      .select()
+      .where("campaign_id", 1);
+    expect(prospect).toHaveLength(1);
+    expect(prospect[0].status).toBe("done");
+
+    const prospectItems =
+      await tryber.tables.WpAppqProspectPayout.do().select();
+    expect(prospectItems).toHaveLength(1);
+    expect(prospectItems[0].prospect_id).toBe(prospect[0].id);
+    expect(prospectItems[0].prospect_id).not.toBe(10000);
   });
 });
