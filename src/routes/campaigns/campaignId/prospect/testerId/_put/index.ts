@@ -152,7 +152,6 @@ export default class RouteItem extends UserRoute<{
         campaign_id: this.campaignId,
         status: "draft",
       })
-      .where("campaign_id", this.campaignId)
       .onConflict("campaign_id")
       .ignore();
 
