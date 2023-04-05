@@ -427,7 +427,8 @@ export default class ProspectRoute extends CampaignRoute<{
 
     return this.setSuccess(200, {
       items,
-      status: "draft",
+      status:
+        ((await this.getProspectStatus()) as "confirmed") || "done" || "draft",
     });
   }
 
@@ -450,6 +451,15 @@ export default class ProspectRoute extends CampaignRoute<{
       }
       return prev;
     });
+  }
+
+  private async getProspectStatus() {
+    const prospect = await tryber.tables.WpAppqProspect.do()
+      .select("status")
+      .where("campaign_id", this.cp_id)
+      .first();
+    if (!prospect) return "draft";
+    return prospect.status;
   }
 
   private getTesterBugs(tid: number) {
