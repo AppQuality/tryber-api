@@ -3323,6 +3323,8 @@ paths:
       responses:
         '200':
           description: OK
+        '403':
+          description: Forbidden
         '501':
           description: Not Implemented
       security:
