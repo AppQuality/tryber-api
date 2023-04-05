@@ -3183,6 +3183,7 @@ paths:
               examples:
                 Example 1:
                   value:
+                    status: done
                     items:
                       - tester:
                           id: 1
