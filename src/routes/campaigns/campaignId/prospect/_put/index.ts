@@ -277,6 +277,8 @@ export default class ProspectRoute extends CampaignRoute<{
   private async saveProspect() {
     if (this.prospect.length === 0) return;
 
+    const prospect_id = await this.createProspect();
+
     const updates = this.prospect.map((prospect) => ({
       tester_id: prospect.tester.id,
       campaign_id: this.cp_id,
@@ -298,7 +300,9 @@ export default class ProspectRoute extends CampaignRoute<{
       return !payouts.map((p) => p.tester_id).includes(update.tester_id);
     });
     if (toInsert.length)
-      await tryber.tables.WpAppqProspectPayout.do().insert(toInsert);
+      await tryber.tables.WpAppqProspectPayout.do().insert(
+        toInsert.map((item) => ({ ...item, prospect_id }))
+      );
 
     const toUpdate = updates.filter((update) => {
       return payouts.map((p) => p.tester_id).includes(update.tester_id);
@@ -310,8 +314,28 @@ export default class ProspectRoute extends CampaignRoute<{
             tester_id: update.tester_id,
             campaign_id: update.campaign_id,
           })
-          .update(update);
+          .update({ ...update, prospect_id });
       }
+  }
+
+  private async createProspect() {
+    await tryber.tables.WpAppqProspect.do()
+      .insert({
+        campaign_id: this.cp_id,
+        status: "done",
+      })
+      .where("campaign_id", this.cp_id)
+      .onConflict("campaign_id")
+      .merge();
+
+    const prospect = await tryber.tables.WpAppqProspect.do()
+      .select("id")
+      .where("campaign_id", this.cp_id)
+      .first();
+
+    if (!prospect) throw new Error("Error saving prospect");
+
+    return prospect.id;
   }
 
   private async sendMail() {
