@@ -324,7 +324,6 @@ export default class ProspectRoute extends CampaignRoute<{
         campaign_id: this.cp_id,
         status: "done",
       })
-      .where("campaign_id", this.cp_id)
       .onConflict("campaign_id")
       .merge();
 
