@@ -74,6 +74,22 @@ describe("PATCH /campaigns/campaignId/prospect", () => {
     expect(response.status).toBe(200);
   });
 
+  // GIVEN:
+  /*
+
+
+  */
+  // WHEN:
+  /*
+
+
+  */
+  // THEN:
+  /*
+
+
+
+  */
   it("Should return 200 if logged in as tester with both olps tester_selection", async () => {
     const response = await request(app)
       .patch("/campaigns/1/prospect")
