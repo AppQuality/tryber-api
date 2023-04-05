@@ -427,8 +427,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
     return this.setSuccess(200, {
       items,
-      status:
-        ((await this.getProspectStatus()) as "confirmed") || "done" || "draft",
+      status: await this.getProspectStatus(),
     });
   }
 
@@ -458,6 +457,7 @@ export default class ProspectRoute extends CampaignRoute<{
       .select("status")
       .where("campaign_id", this.cp_id)
       .first();
+    console.log(prospect);
     if (!prospect) return "draft";
     return prospect.status;
   }
