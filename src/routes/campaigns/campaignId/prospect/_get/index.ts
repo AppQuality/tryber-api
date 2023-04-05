@@ -457,8 +457,14 @@ export default class ProspectRoute extends CampaignRoute<{
       .select("status")
       .where("campaign_id", this.cp_id)
       .first();
-    console.log(prospect);
-    if (!prospect) return "draft";
+    if (!prospect) return "draft" as const;
+
+    const isValidStatus = (
+      status: string
+    ): status is StoplightComponents["schemas"]["ProspectStatus"] =>
+      ["draft", "done", "confirmed"].includes(status);
+    if (!isValidStatus(prospect.status)) return "draft" as const;
+
     return prospect.status;
   }
 
