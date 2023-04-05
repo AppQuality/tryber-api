@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import useCampaign from "./useCampaign";
 
 useCampaign();
@@ -252,7 +252,6 @@ describe("GET /campaigns/campaignId/prospect we have no prospect", () => {
     const response = await request(app)
       .get("/campaigns/1/prospect")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
-    console.log(response.body);
     expect(response.body.status).toEqual("draft");
   });
 });
