@@ -228,7 +228,7 @@ describe("GET /campaigns/campaignId/prospect - should cap at bonus bug", () => {
 });
 
 describe("GET /campaigns/campaignId/prospect we have a prospect", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await tryber.tables.WpAppqProspect.do().insert({
       id: 1,
       campaign_id: 1,
@@ -241,5 +241,18 @@ describe("GET /campaigns/campaignId/prospect we have a prospect", () => {
       .get("/campaigns/1/prospect")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
     expect(response.body.status).toEqual("confirmed");
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect we have no prospect", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpAppqProspect.do().delete();
+  });
+  it("Should return status draft as default", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    console.log(response.body);
+    expect(response.body.status).toEqual("draft");
   });
 });
