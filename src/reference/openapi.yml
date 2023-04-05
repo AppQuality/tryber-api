@@ -3324,6 +3324,8 @@ paths:
       responses:
         '200':
           description: OK
+        '304':
+          description: Not Modified
         '403':
           description: Forbidden
         '501':
