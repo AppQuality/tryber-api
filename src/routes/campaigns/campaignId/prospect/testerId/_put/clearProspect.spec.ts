@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
 describe("PUT /campaigns/:campaignId/prospects/:testerId - without a propect database item", () => {
   beforeAll(async () => {

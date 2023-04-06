@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-prospect */
-import CampaignRoute from "@src/features/routes/CampaignRoute";
-import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-prospect"]["parameters"]["path"];
@@ -452,17 +452,21 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private getTesterPayout(tid: number) {
+    let payout;
     const result = this.currentProspect.find((t) => t.tester_id === tid);
-    if (!result) return this.defaultTesterPayout(tid);
-    const bugPayout = this.payoutConfig.maxBonusBug
-      ? Math.min(result.bonus_bug_eur, this.payoutConfig.maxBonusBug)
-      : result.bonus_bug_eur;
-    return {
-      completion: result.complete_eur,
-      bug: bugPayout,
-      refund: result.refund,
-      extra: result.extra_eur,
-    };
+    if (!result) payout = this.defaultTesterPayout(tid);
+    else {
+      payout = {
+        completion: result.complete_eur,
+        bug: result.bonus_bug_eur,
+        refund: result.refund,
+        extra: result.extra_eur,
+      };
+    }
+    if (this.payoutConfig.maxBonusBug) {
+      payout.bug = Math.min(payout.bug, this.payoutConfig.maxBonusBug);
+    }
+    return payout;
   }
 
   private defaultTesterPayout(tid: number) {
