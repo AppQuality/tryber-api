@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import useCampaign from "./useCampaign";
 
 useCampaign();
@@ -224,5 +224,34 @@ describe("GET /campaigns/campaignId/prospect - should cap at bonus bug", () => {
         }),
       ])
     );
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect we have a prospect", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpAppqProspect.do().insert({
+      id: 1,
+      campaign_id: 1,
+      status: "confirmed",
+      last_modified: "2021-01-01 00:00:00",
+    });
+  });
+  it("Should return status from table wp_appq_prospect if exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.status).toEqual("confirmed");
+  });
+});
+
+describe("GET /campaigns/campaignId/prospect we have no prospect", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpAppqProspect.do().delete();
+  });
+  it("Should return status draft as default", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.status).toEqual("draft");
   });
 });

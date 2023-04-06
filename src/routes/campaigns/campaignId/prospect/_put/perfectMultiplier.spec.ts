@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import { useCampaign, usePaymentWorktypes } from "./dataset";
 
 useCampaign();
@@ -97,7 +97,7 @@ afterEach(async () => {
   await tryber.tables.WpAppqExpPoints.do().delete();
 });
 
-describe("PATCH /campaigns/campaignId/prospect - perfect - configured", () => {
+describe("PUT /campaigns/campaignId/prospect - perfect - configured", () => {
   beforeAll(async () => {
     await tryber.tables.WpOptions.do().insert({
       option_id: 1,
@@ -111,7 +111,7 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - configured", () => {
 
   it("Should add bonus perfect to exp if there are no bug refused, need-review", async () => {
     await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [
@@ -176,10 +176,10 @@ describe("PATCH /campaigns/campaignId/prospect - perfect - configured", () => {
   });
 });
 
-describe("PATCH /campaigns/campaignId/prospect - perfect - not configured", () => {
+describe("PUT /campaigns/campaignId/prospect - perfect - not configured", () => {
   it("Should add bonus perfect using default multiplier if there's  no options_point_multiplier_perfect_campaign", async () => {
     await request(app)
-      .patch("/campaigns/1/prospect")
+      .put("/campaigns/1/prospect")
       .send({
         status: "done",
         items: [

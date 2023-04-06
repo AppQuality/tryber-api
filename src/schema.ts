@@ -122,6 +122,7 @@ export interface paths {
   "/campaigns/{campaign}/prospect": {
     get: operations["get-campaigns-campaign-prospect"];
     /** Make campaign perspective status done, and change exp points and tester payouts. */
+    put: operations["put-campaigns-campaign-prospect"];
     patch: operations["patch-campaigns-campaign-prospect"];
     parameters: {
       path: {
@@ -541,8 +542,11 @@ export interface components {
       projectManager?: components["schemas"]["User"];
       customerCanViewReviewing?: boolean;
       additionalFields?: components["schemas"]["CampaignField"][];
+      /** @default 0 */
       tokens?: number;
+      /** @default 0 */
       csm_effort?: number;
+      /** @default 0 */
       ux_effort?: number;
       preview_link?: components["schemas"]["TranslatablePage"];
       manual_link?: components["schemas"]["TranslatablePage"];
@@ -738,6 +742,11 @@ export interface components {
       size: number;
       total?: number;
     };
+    /**
+     * ProspectStatus
+     * @enum {string}
+     */
+    ProspectStatus: "draft" | "confirmed" | "done";
   };
   responses: {
     /** A user */
@@ -1470,6 +1479,7 @@ export interface operations {
               isCompleted: boolean;
               isTopTester: boolean;
             }[];
+            status: components["schemas"]["ProspectStatus"];
           };
         };
       };
@@ -1480,7 +1490,7 @@ export interface operations {
     };
   };
   /** Make campaign perspective status done, and change exp points and tester payouts. */
-  "patch-campaigns-campaign-prospect": {
+  "put-campaigns-campaign-prospect": {
     parameters: {
       path: {
         campaign: string;
@@ -1491,12 +1501,13 @@ export interface operations {
       200: unknown;
       /** Not Modified */
       304: never;
+      /** Not Implemented */
+      501: unknown;
     };
     requestBody: {
       content: {
         "application/json": {
-          /** @enum {string} */
-          status: "done";
+          status: components["schemas"]["ProspectStatus"];
           items: {
             tester: {
               id: number;
@@ -1514,6 +1525,30 @@ export interface operations {
             note?: string;
             completed: boolean;
           }[];
+        };
+      };
+    };
+  };
+  "patch-campaigns-campaign-prospect": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Not Modified */
+      304: never;
+      /** Forbidden */
+      403: unknown;
+      /** Not Implemented */
+      501: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          status?: components["schemas"]["ProspectStatus"];
         };
       };
     };

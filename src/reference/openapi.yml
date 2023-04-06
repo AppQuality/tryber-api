@@ -3175,11 +3175,15 @@ paths:
                         - weightedBugs
                         - isCompleted
                         - isTopTester
+                  status:
+                    $ref: '#/components/schemas/ProspectStatus'
                 required:
                   - items
+                  - status
               examples:
                 Example 1:
                   value:
+                    status: done
                     items:
                       - tester:
                           id: 1
@@ -3225,15 +3229,17 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
-    patch:
-      summary: Patch the status for a campaign prospect
-      operationId: patch-campaigns-campaign-prospect
+    put:
+      summary: Edit a campaign prospect
+      operationId: put-campaigns-campaign-prospect
       responses:
         '200':
           description: OK
           content: {}
         '304':
           description: Not Modified
+        '501':
+          description: Not Implemented
       security:
         - JWT: []
       description: 'Make campaign perspective status done, and change exp points and tester payouts.'
@@ -3244,9 +3250,7 @@ paths:
               type: object
               properties:
                 status:
-                  type: string
-                  enum:
-                    - done
+                  $ref: '#/components/schemas/ProspectStatus'
                 items:
                   type: array
                   items:
@@ -3314,6 +3318,28 @@ paths:
                         refund: 0
                       note: string
                       completed: true
+    patch:
+      summary: ''
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+        '304':
+          description: Not Modified
+        '403':
+          description: Forbidden
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:
@@ -8470,6 +8496,13 @@ components:
       required:
         - start
         - size
+    ProspectStatus:
+      title: ProspectStatus
+      type: string
+      enum:
+        - draft
+        - confirmed
+        - done
   securitySchemes:
     JWT:
       type: http

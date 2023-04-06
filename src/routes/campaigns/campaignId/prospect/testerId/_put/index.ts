@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: put-campaigns-campaign-prospect-testerId */
 import OpenapiError from "@src/features/OpenapiError";
-import UserRoute from "@src/features/routes/UserRoute";
 import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["put-campaigns-campaign-prospect-testerId"]["responses"][200]["content"]["application/json"];
@@ -100,6 +100,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async updateProspectRow() {
+    const prospect_id = await this.createProspect();
     const body = this.getBody();
     if (!(await this.getProspectRow())) {
       await tryber.tables.WpAppqProspectPayout.do().insert({
@@ -114,6 +115,7 @@ export default class RouteItem extends UserRoute<{
         bonus_bug_eur: body.payout.bugs,
         notes: body.note,
         is_completed: body.completed ? 1 : 0,
+        prospect_id,
       });
     } else {
       await tryber.tables.WpAppqProspectPayout.do()
@@ -127,6 +129,7 @@ export default class RouteItem extends UserRoute<{
           bonus_bug_eur: body.payout.bugs,
           notes: body.note,
           is_completed: body.completed ? 1 : 0,
+          prospect_id,
         })
         .where("campaign_id", this.campaignId)
         .where("tester_id", this.tester);
@@ -141,5 +144,24 @@ export default class RouteItem extends UserRoute<{
       .where("campaign_id", this.campaignId)
       .where("tester_id", this.tester)
       .first();
+  }
+
+  private async createProspect() {
+    await tryber.tables.WpAppqProspect.do()
+      .insert({
+        campaign_id: this.campaignId,
+        status: "draft",
+      })
+      .onConflict("campaign_id")
+      .ignore();
+
+    const prospect = await tryber.tables.WpAppqProspect.do()
+      .select("id")
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    if (!prospect) throw new Error("Error saving prospect");
+
+    return prospect.id;
   }
 }
