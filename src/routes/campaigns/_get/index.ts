@@ -4,14 +4,25 @@ import UserRoute from "@src/features/routes/UserRoute";
 import { tryber } from "@src/features/database";
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
+  query: StoplightOperations["get-campaigns"]["parameters"]["query"];
 }> {
   private accessibleCampaigns: true | number[] = [];
+  private acceptableFields = ["id", "title"];
+  private fields: string[] = [];
+
   protected async init() {
     if (this.configuration.request.user.permission.admin?.appq_campaign) {
       this.accessibleCampaigns =
         this.configuration.request.user.permission.admin?.appq_campaign;
     }
+    const query = this.getQuery();
+    if (query.fields) {
+      this.fields = query.fields
+        .split(",")
+        .filter((field) => this.acceptableFields.includes(field));
+    }
   }
+
   protected async filter() {
     if (
       this.accessibleCampaigns !== true &&
@@ -27,13 +38,21 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    return this.setSuccess(200, await this.getCampaigns());
+    return this.setSuccess(
+      200,
+      (await this.getCampaigns()).map((campaign) => {
+        return {
+          id: campaign.id ? campaign.id : undefined,
+          name: campaign.title ? campaign.title : undefined,
+        };
+      })
+    );
   }
 
   private async getCampaigns() {
+    const defaultFields = ["id", "title"];
     let result = tryber.tables.WpAppqEvdCampaign.do().select(
-      "id",
-      tryber.ref("title").withSchema("wp_appq_evd_campaign").as("name")
+      this.fields?.length > 0 ? this.fields : defaultFields
     );
 
     if (this.accessibleCampaigns === true) {
