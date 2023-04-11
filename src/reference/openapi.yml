@@ -151,6 +151,11 @@ paths:
       description: Get all the Campaigns you have access to
       tags:
         - Campaign
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fields
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
