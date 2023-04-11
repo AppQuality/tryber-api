@@ -872,6 +872,11 @@ export interface operations {
   };
   /** Get all the Campaigns you have access to */
   "get-campaigns": {
+    parameters: {
+      query: {
+        fields?: string;
+      };
+    };
     responses: {
       /** OK */
       200: {
