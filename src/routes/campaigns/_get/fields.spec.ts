@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 const campaign = {
   id: 1,
   platform_id: 1,
@@ -27,7 +27,7 @@ describe("GET /campaigns", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
-  it("Should retrun campaigns with id and name if query parmater FIELDS is not set", async () => {
+  it("Should return campaigns with id and name if query parameter FIELDS is not set", async () => {
     const response = await request(app)
       .get("/campaigns")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
@@ -36,16 +36,13 @@ describe("GET /campaigns", () => {
       { id: 1, name: "First campaign" },
       { id: 3, name: "Third campaign" },
     ]);
-    expect(response.body[0].length).toEqual(response.body[1].length);
   });
 
-  it("Should retrun just campaigns ids if field is set with id", async () => {
+  it("Should return just campaigns ids if field is set with id", async () => {
     const response = await request(app)
       .get("/campaigns?fields=id")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
     expect(response.body).toEqual([{ id: 1 }, { id: 3 }]);
-    expect(response.body[0].length).toEqual(response.body[1].length);
-    expect(response.body[0].length).toBe(1);
   });
 
   it("Should retrun just campaigns name if field is set with name", async () => {
@@ -56,8 +53,6 @@ describe("GET /campaigns", () => {
       { name: "First campaign" },
       { name: "Third campaign" },
     ]);
-    expect(response.body[0].length).toEqual(response.body[1].length);
-    expect(response.body[0].length).toBe(1);
   });
 
   it("Should retrun just campaigns id and name if field is set with id,name", async () => {
@@ -68,7 +63,5 @@ describe("GET /campaigns", () => {
       { id: 1, name: "First campaign" },
       { id: 3, name: "Third campaign" },
     ]);
-    expect(response.body[0].length).toEqual(response.body[1].length);
-    expect(response.body[0].length).toBe(2);
   });
 });
