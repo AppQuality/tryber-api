@@ -51,9 +51,7 @@ class RouteItem extends UserRoute<{
 
   private async getCampaigns() {
     const defaultFields = ["id", "title"];
-    let result = tryber.tables.WpAppqEvdCampaign.do().select(
-      this.fields?.length > 0 ? this.fields : defaultFields
-    );
+    let result = tryber.tables.WpAppqEvdCampaign.do().select("id", "title");
 
     if (this.accessibleCampaigns === true) {
       return await result;
