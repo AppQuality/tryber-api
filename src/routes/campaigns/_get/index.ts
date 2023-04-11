@@ -1,14 +1,16 @@
 /** OPENAPI-CLASS : get-campaigns */
 
-import UserRoute from "@src/features/routes/UserRoute";
 import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+
+const ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
   query: StoplightOperations["get-campaigns"]["parameters"]["query"];
 }> {
   private accessibleCampaigns: true | number[] = [];
-  private acceptableFields = ["id", "title"];
-  private fields: string[] = [];
+  private fields: typeof ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
 
   protected async init() {
     if (this.configuration.request.user.permission.admin?.appq_campaign) {
@@ -19,7 +21,10 @@ class RouteItem extends UserRoute<{
     if (query.fields) {
       this.fields = query.fields
         .split(",")
-        .filter((field) => this.acceptableFields.includes(field));
+        .map((field) => (field === "name" ? "title" : field))
+        .filter((field): field is typeof ACCEPTABLE_FIELDS[number] =>
+          ACCEPTABLE_FIELDS.includes(field as any)
+        );
     }
   }
 
@@ -38,29 +43,28 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    return this.setSuccess(
-      200,
-      (await this.getCampaigns()).map((campaign) => {
-        return {
-          id: campaign.id ? campaign.id : undefined,
-          name: campaign.title ? campaign.title : undefined,
-        };
-      })
-    );
+    const campaigns = await this.getCampaigns();
+    return this.setSuccess(200, campaigns);
   }
 
   private async getCampaigns() {
-    const defaultFields = ["id", "title"];
-    let result = tryber.tables.WpAppqEvdCampaign.do().select("id", "title");
+    let query = tryber.tables.WpAppqEvdCampaign.do().select(this.fields);
 
-    if (this.accessibleCampaigns === true) {
-      return await result;
-    }
-    if (this.accessibleCampaigns.length > 0) {
-      return await result.whereIn("id", this.accessibleCampaigns);
+    if (
+      this.accessibleCampaigns !== true &&
+      this.accessibleCampaigns.length === 0
+    ) {
+      return [];
     }
 
-    return [];
+    if (Array.isArray(this.accessibleCampaigns)) {
+      query = query.whereIn("id", this.accessibleCampaigns);
+    }
+
+    return (await query).map((campaign) => ({
+      id: campaign.id ? campaign.id : undefined,
+      name: campaign.title ? campaign.title : undefined,
+    }));
   }
 }
 
