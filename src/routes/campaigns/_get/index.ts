@@ -1,9 +1,12 @@
 /** OPENAPI-CLASS : get-campaigns */
 
+import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 
 const ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+
+type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
@@ -13,10 +16,8 @@ class RouteItem extends UserRoute<{
   private fields: typeof ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
 
   protected async init() {
-    if (this.configuration.request.user.permission.admin?.appq_campaign) {
-      this.accessibleCampaigns =
-        this.configuration.request.user.permission.admin?.appq_campaign;
-    }
+    if (this.campaignOlps) this.accessibleCampaigns = this.campaignOlps;
+
     const query = this.getQuery();
     if (query.fields) {
       this.fields = query.fields
@@ -29,17 +30,18 @@ class RouteItem extends UserRoute<{
   }
 
   protected async filter() {
-    if (
-      this.accessibleCampaigns !== true &&
-      this.accessibleCampaigns.length === 0
-    ) {
-      this.setError(
-        403,
-        new Error("You are not authorized to do this") as OpenapiError
-      );
+    if ((await super.filter()) === false) return false;
+    if (this.doesNotHaveAccessToCampaigns()) {
+      this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
     return true;
+  }
+
+  private doesNotHaveAccessToCampaigns() {
+    return (
+      this.accessibleCampaigns !== true && this.accessibleCampaigns.length === 0
+    );
   }
 
   protected async prepare(): Promise<void> {
@@ -48,23 +50,32 @@ class RouteItem extends UserRoute<{
   }
 
   private async getCampaigns() {
-    let query = tryber.tables.WpAppqEvdCampaign.do().select(this.fields);
-
-    if (
-      this.accessibleCampaigns !== true &&
-      this.accessibleCampaigns.length === 0
-    ) {
-      return [];
-    }
+    let query = tryber.tables.WpAppqEvdCampaign.do();
 
     if (Array.isArray(this.accessibleCampaigns)) {
       query = query.whereIn("id", this.accessibleCampaigns);
     }
 
-    return (await query).map((campaign) => ({
-      id: campaign.id ? campaign.id : undefined,
-      name: campaign.title ? campaign.title : undefined,
-    }));
+    this.addIdTo(query);
+    this.addNameTo(query);
+
+    return await query;
+  }
+
+  private addIdTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("id")) {
+        query.select("id");
+      }
+    });
+  }
+
+  private addNameTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("title")) {
+        query.select(tryber.ref("title").as("name"));
+      }
+    });
   }
 }
 
