@@ -1,6 +1,6 @@
+import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
-import request from "supertest";
 import useCampaign from "./useCampaign";
 
 useCampaign();
@@ -123,23 +123,32 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     await tryber.tables.WpAppqProspectPayout.do().delete();
   });
 
-  it("Should return prospect if already exist", async () => {
+  it("Should return prospect if already exist filtered including id list", async () => {
     const response = await request(app)
-      .get("/campaigns/1/prospect")
+      .get("/campaigns/1/prospect?filterByInclude[ids]=1,3")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items.length).toEqual(2);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          note: "This is the notes",
-          experience: { completion: 100, extra: 69 },
-          payout: { bug: 5, completion: 25, extra: 9, refund: 1 },
-          isCompleted: true,
+          tester: expect.objectContaining({ id: 1 }),
         }),
         expect.objectContaining({
-          note: `Purtroppo non hai completato l’attività, ricevi quindi -400 punti esperienza`,
-          experience: { completion: -400, extra: 0 },
-          payout: { bug: 0, completion: 0, extra: 0, refund: 0 },
-          isCompleted: false,
+          tester: expect.objectContaining({ id: 3 }),
+        }),
+      ])
+    );
+  });
+
+  it("Should return prospect if already exist filtered excluding id list", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/prospect?filterByExclude[ids]=1,3")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items.length).toEqual(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 2 }),
         }),
       ])
     );
@@ -147,111 +156,37 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
 });
 
 describe("GET /campaigns/campaignId/prospect - there are no record", () => {
-  it("Should return basic data for bugs payout", async () => {
+  it("Should return prospect filtered by including id list", async () => {
     const response = await request(app)
-      .get("/campaigns/1/prospect")
+      .get("/campaigns/1/prospect?filterByInclude[ids]=2,0,3")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items.length).toEqual(2);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({
-          payout: expect.objectContaining({ bug: 7 }),
-        }),
-        expect.objectContaining({
-          payout: expect.objectContaining({ bug: 0 }),
-        }),
-      ])
-    );
-  });
-
-  it("Should return basic data for completion payout", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/prospect")
-      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
-    expect(response.body.items).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          tester: expect.objectContaining({ id: 1 }),
-          payout: expect.objectContaining({ completion: 25 }),
-          experience: expect.objectContaining({ completion: 200 }),
-          note: "Ottimo lavoro!",
-          isCompleted: true,
-        }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 2 }),
-          payout: expect.objectContaining({ completion: 0 }),
-          experience: expect.objectContaining({ completion: -400 }),
-          note: `Purtroppo non hai completato l’attività, ricevi quindi -400 punti esperienza`,
-          isCompleted: false,
         }),
         expect.objectContaining({
           tester: expect.objectContaining({ id: 3 }),
-          payout: expect.objectContaining({ completion: 0 }),
-          experience: expect.objectContaining({ completion: -400 }),
-          note: `Purtroppo non hai completato l’attività, ricevi quindi -400 punti esperienza`,
-          isCompleted: false,
         }),
       ])
     );
   });
-});
 
-describe("GET /campaigns/campaignId/prospect - should cap at bonus bug", () => {
-  beforeAll(async () => {
-    await tryber.tables.WpAppqProspectPayout.do().insert({
-      id: 1,
-      campaign_id: 1,
-      tester_id: 1,
-      complete_pts: 100,
-      extra_pts: 69,
-      complete_eur: 25,
-      bonus_bug_eur: 2000,
-      extra_eur: 9,
-      refund: 1,
-      notes: "This is the notes",
-      is_edit: 0,
-      is_completed: 1,
-    });
-  });
-  it("Should return capped bonus bug", async () => {
+  it("Should return prospect filtered by excluding id list", async () => {
     const response = await request(app)
-      .get("/campaigns/1/prospect")
+      .get("/campaigns/1/prospect?filterByExclude[ids]=0,3")
       .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.body.items.length).toEqual(2);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
+          tester: expect.objectContaining({ id: 2 }),
+        }),
+        expect.objectContaining({
           tester: expect.objectContaining({ id: 1 }),
-          payout: expect.objectContaining({ bug: 30 }),
         }),
       ])
     );
-  });
-});
-
-describe("GET /campaigns/campaignId/prospect we have a prospect", () => {
-  beforeEach(async () => {
-    await tryber.tables.WpAppqProspect.do().insert({
-      id: 1,
-      campaign_id: 1,
-      status: "confirmed",
-      last_modified: "2021-01-01 00:00:00",
-    });
-  });
-  it("Should return status from table wp_appq_prospect if exist", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/prospect")
-      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
-    expect(response.body.status).toEqual("confirmed");
-  });
-});
-
-describe("GET /campaigns/campaignId/prospect we have no prospect", () => {
-  beforeEach(async () => {
-    await tryber.tables.WpAppqProspect.do().delete();
-  });
-  it("Should return status draft as default", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/prospect")
-      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
-    expect(response.body.status).toEqual("draft");
   });
 });
