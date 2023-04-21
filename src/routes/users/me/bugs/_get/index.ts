@@ -12,11 +12,11 @@ export default async (
     const sqlSelectFields = `SELECT 
        b.id as id, s.id as severityID, s.name as severity, 
        st.id as statusID, st.name as status, 
-       c.title as campaignTITLE, c.id as campaign, b.message as title`;
+       IFNULL(c.title, "Deleted CP") as campaignTITLE, IFNULL(c.id, "Deleted CP") as campaign, b.message as title`;
 
     let fromSql = `
     FROM wp_appq_evd_bug b
-             JOIN wp_appq_evd_campaign c ON (c.id = b.campaign_id)
+             LEFT JOIN wp_appq_evd_campaign c ON (c.id = b.campaign_id)
              JOIN wp_appq_evd_severity s ON (s.id = b.severity_id)
              JOIN wp_appq_evd_bug_status st ON (st.id = b.status_id)
  WHERE b.wp_user_id  = ?`;
