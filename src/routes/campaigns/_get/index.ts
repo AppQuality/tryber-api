@@ -14,6 +14,8 @@ class RouteItem extends UserRoute<{
 }> {
   private accessibleCampaigns: true | number[] = [];
   private fields: typeof ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+  private start: number = 0;
+  private limit: number | undefined;
 
   protected async init() {
     if (this.campaignOlps) this.accessibleCampaigns = this.campaignOlps;
@@ -27,6 +29,11 @@ class RouteItem extends UserRoute<{
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
+
+    if (query.start) this.start = parseInt(query.start as unknown as string);
+    if (query.limit) {
+      this.limit = parseInt(query.limit as unknown as string);
+    } else if (query.start) this.limit = 10;
   }
 
   protected async filter() {
@@ -46,12 +53,18 @@ class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     const campaigns = await this.getCampaigns();
-    return this.setSuccess(200, campaigns);
+
+    return this.setSuccess(200, {
+      items: campaigns,
+      start: this.start,
+      limit: this.limit ? this.limit : undefined,
+      total: await this.getTotals(),
+      size: campaigns.length,
+    });
   }
 
   private async getCampaigns() {
     let query = tryber.tables.WpAppqEvdCampaign.do();
-
     if (Array.isArray(this.accessibleCampaigns)) {
       query = query.whereIn("id", this.accessibleCampaigns);
     }
@@ -59,7 +72,28 @@ class RouteItem extends UserRoute<{
     this.addIdTo(query);
     this.addNameTo(query);
 
+    if (this.limit) {
+      query.limit(this.limit);
+    }
+
+    if (this.start) {
+      query.offset(this.start);
+    }
+
     return await query;
+  }
+
+  private async getTotals() {
+    if (this.limit === undefined) return undefined;
+    let query = tryber.tables.WpAppqEvdCampaign.do();
+
+    if (Array.isArray(this.accessibleCampaigns)) {
+      query = query.whereIn("id", this.accessibleCampaigns);
+    }
+
+    const count = await query.count({ count: "id" });
+    const totalCount = count[0].count;
+    return typeof totalCount === "number" ? totalCount : 0;
   }
 
   private addIdTo(query: CampaignSelect) {
