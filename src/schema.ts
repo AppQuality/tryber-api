@@ -872,6 +872,10 @@ export interface operations {
     parameters: {
       query: {
         fields?: string;
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
       };
     };
     responses: {
@@ -879,9 +883,11 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            id?: number;
-            name?: string;
-          }[];
+            items?: {
+              id?: number;
+              name?: string;
+            }[];
+          } & components["schemas"]["PaginationData"];
         };
       };
       403: components["responses"]["NotAuthorized"];
