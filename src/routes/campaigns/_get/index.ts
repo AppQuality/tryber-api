@@ -1,53 +1,81 @@
 /** OPENAPI-CLASS : get-campaigns */
 
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
-import * as db from "@src/features/db";
+
+const ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+
+type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
+
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
+  query: StoplightOperations["get-campaigns"]["parameters"]["query"];
 }> {
   private accessibleCampaigns: true | number[] = [];
+  private fields: typeof ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+
   protected async init() {
-    if (this.configuration.request.user.permission.admin?.appq_campaign) {
-      this.accessibleCampaigns =
-        this.configuration.request.user.permission.admin?.appq_campaign;
+    if (this.campaignOlps) this.accessibleCampaigns = this.campaignOlps;
+
+    const query = this.getQuery();
+    if (query.fields) {
+      this.fields = query.fields
+        .split(",")
+        .map((field) => (field === "name" ? "title" : field))
+        .filter((field): field is typeof ACCEPTABLE_FIELDS[number] =>
+          ACCEPTABLE_FIELDS.includes(field as any)
+        );
     }
   }
+
   protected async filter() {
-    if (
-      this.accessibleCampaigns !== true &&
-      this.accessibleCampaigns.length === 0
-    ) {
-      this.setError(
-        403,
-        new Error("You are not authorized to do this") as OpenapiError
-      );
+    if ((await super.filter()) === false) return false;
+    if (this.doesNotHaveAccessToCampaigns()) {
+      this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
     return true;
   }
-  protected async prepare() {
-    try {
-      this.setSuccess(200, await this.getCampaigns());
-    } catch (e) {
-      const error = e as OpenapiError;
-      this.setError(error.status_code || 500, error);
-    }
+
+  private doesNotHaveAccessToCampaigns() {
+    return (
+      this.accessibleCampaigns !== true && this.accessibleCampaigns.length === 0
+    );
+  }
+
+  protected async prepare(): Promise<void> {
+    const campaigns = await this.getCampaigns();
+    return this.setSuccess(200, campaigns);
   }
 
   private async getCampaigns() {
-    let result: { id: number; name: string }[] = [];
-    if (this.accessibleCampaigns === true) {
-      result = await db.query(
-        "SELECT id, title as name FROM wp_appq_evd_campaign"
-      );
-    } else {
-      result = await db.query(
-        `SELECT id, title as name 
-          FROM wp_appq_evd_campaign 
-          WHERE id IN (${this.accessibleCampaigns.join(",")})`
-      );
+    let query = tryber.tables.WpAppqEvdCampaign.do();
+
+    if (Array.isArray(this.accessibleCampaigns)) {
+      query = query.whereIn("id", this.accessibleCampaigns);
     }
-    return result;
+
+    this.addIdTo(query);
+    this.addNameTo(query);
+
+    return await query;
+  }
+
+  private addIdTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("id")) {
+        query.select("id");
+      }
+    });
+  }
+
+  private addNameTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("title")) {
+        query.select(tryber.ref("title").as("name"));
+      }
+    });
   }
 }
 

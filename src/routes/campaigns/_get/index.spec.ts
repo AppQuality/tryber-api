@@ -1,14 +1,30 @@
 import request from "supertest";
 import app from "@src/app";
-import Campaign from "@src/__mocks__/mockedDb/campaign";
+import { tryber } from "@src/features/database";
+const campaign = {
+  id: 1,
+  platform_id: 1,
+  start_date: "2020-01-01",
+  end_date: "2020-01-01",
+  title: "This is the title",
+  page_preview_id: 1,
+  page_manual_id: 1,
+  customer_id: 1,
+  pm_id: 1,
+  project_id: 1,
+  customer_title: "",
+  campaign_pts: 200,
+};
 describe("GET /campaigns", () => {
-  beforeAll(() => {
-    Campaign.insert({ id: 1, title: "First campaign" });
-    Campaign.insert({ id: 2, title: "Second campaign" });
-    Campaign.insert({ id: 3, title: "Third campaign" });
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, title: "First campaign" },
+      { ...campaign, id: 2, title: "Second campaign" },
+      { ...campaign, id: 3, title: "Third campaign" },
+    ]);
   });
-  afterAll(() => {
-    Campaign.clear();
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
   it("Should answer 403 if not logged in", () => {

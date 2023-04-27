@@ -542,11 +542,8 @@ export interface components {
       projectManager?: components["schemas"]["User"];
       customerCanViewReviewing?: boolean;
       additionalFields?: components["schemas"]["CampaignField"][];
-      /** @default 0 */
       tokens?: number;
-      /** @default 0 */
       csm_effort?: number;
-      /** @default 0 */
       ux_effort?: number;
       preview_link?: components["schemas"]["TranslatablePage"];
       manual_link?: components["schemas"]["TranslatablePage"];
@@ -872,6 +869,11 @@ export interface operations {
   };
   /** Get all the Campaigns you have access to */
   "get-campaigns": {
+    parameters: {
+      query: {
+        fields?: string;
+      };
+    };
     responses: {
       /** OK */
       200: {
