@@ -31,8 +31,8 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/campaigns")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
-    expect(response.body.length).toBe(2);
-    expect(response.body).toEqual([
+    expect(response.body.items.length).toBe(2);
+    expect(response.body.items).toEqual([
       { id: 1, name: "First campaign" },
       { id: 3, name: "Third campaign" },
     ]);
@@ -42,14 +42,14 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/campaigns?fields=id")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
-    expect(response.body).toEqual([{ id: 1 }, { id: 3 }]);
+    expect(response.body.items).toEqual([{ id: 1 }, { id: 3 }]);
   });
 
   it("Should retrun just campaigns name if field is set with name", async () => {
     const response = await request(app)
       .get("/campaigns?fields=name")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
-    expect(response.body).toEqual([
+    expect(response.body.items).toEqual([
       { name: "First campaign" },
       { name: "Third campaign" },
     ]);
@@ -59,7 +59,7 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/campaigns?fields=name,id")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
-    expect(response.body).toEqual([
+    expect(response.body.items).toEqual([
       { id: 1, name: "First campaign" },
       { id: 3, name: "Third campaign" },
     ]);
