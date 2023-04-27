@@ -6,23 +6,38 @@ name: Deploy to staging
 on:
   workflow_dispatch:
 
+env:
+  ECR_REPOSITORY: appquality-api-express
+  DEPLOY_BUCKET: tryber-staging-source
+  DEPLOY_KEY: tryber-api-staging-pipeline/source.zip
+  PIPELINE: tryber-api-staging-pipeline-pipeline
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    environment: staging
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Extract environment
+        shell: bash
+        run: |
+          echo "##[set-output name=ECR_REPOSITORY;]$ECR_REPOSITORY"
+          echo "##[set-output name=DEPLOY_BUCKET;]$DEPLOY_BUCKET"
+          echo "##[set-output name=DEPLOY_KEY;]$DEPLOY_KEY"
+          echo "##[set-output name=PIPELINE;]$PIPELINE"
+        id: environment
       - name: Extract branch name
         shell: bash
         run: |
           BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-          if [ "$BRANCH" = "main" ]; then
+          if [ "$BRANCH" = "master" ]; then
               TAG="latest"
           else
               TAG="$BRANCH"
@@ -32,16 +47,16 @@ jobs:
       - name: "Generate dist zip"
         run: |
           cd deployment
-          echo -n "appquality-api-express:${{steps.extract_branch.outputs.tag}}" > docker-image.txt
+          echo -n "${{steps.environment.outputs.ECR_REPOSITORY}}:${{steps.extract_branch.outputs.tag}}" > docker-image.txt
           zip dist.zip *
       - uses: zdurham/s3-upload-github-action@master
         env:
-          S3_BUCKET: crowd-api-app-staging-s3-source-bucket
+          S3_BUCKET: ${{steps.environment.outputs.DEPLOY_BUCKET}}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: "eu-west-1" # optional: defaults to us-east-1
           FILE: ./deployment/dist.zip
-          S3_KEY: dist.zip
+          S3_KEY: ${{steps.environment.outputs.DEPLOY_KEY}}
       - name: configure AWS creds
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -51,5 +66,5 @@ jobs:
       - name: Start CodePipeline
         uses: moia-oss/aws-codepipeline-trigger@v1
         with:
-          pipeline: crowd-api-app-staging-code-pipeline
+          pipeline: ${{steps.environment.outputs.PIPELINE}}
           wait: true

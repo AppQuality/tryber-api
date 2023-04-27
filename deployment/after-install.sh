@@ -12,6 +12,7 @@ aws ecr get-login-password --region eu-west-1 | docker login --username AWS --pa
 DOCKER_IMAGE=$(cat "/home/ec2-user/crowd-api/docker-image.txt")
 DOCKER_COMPOSE_FILE="/home/ec2-user/$APPLICATION_NAME/docker-compose.yml"
 INSTANCE_ID=$(wget -q -O - http://169.254.169.254/latest/meta-data/instance-id)
+ENVIRONMENT=$(aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=environment"  --output=text | cut -f5)
 
 # pull docker image from ecr
 docker pull 163482350712.dkr.ecr.eu-west-1.amazonaws.com/$DOCKER_IMAGE
@@ -19,8 +20,8 @@ docker pull 163482350712.dkr.ecr.eu-west-1.amazonaws.com/$DOCKER_IMAGE
 # get env variables from parameter store
 mkdir -p /var/docker/keys
 mkdir -p /home/ec2-user/$APPLICATION_NAME
-aws ssm get-parameter --region eu-west-1 --name "/$DEPLOYMENT_GROUP_NAME/.env" --with-decryption --query "Parameter.Value" | sed -e 's/\\n/\n/g' -e 's/\\"/"/g' -e 's/^"//' -e 's/"$//' > /var/docker/.env
-aws ssm get-parameter --region eu-west-1 --name "/$DEPLOYMENT_GROUP_NAME/private_tw.pem" --with-decryption --query "Parameter.Value" | sed -e 's/\\n/\n/g' -e 's/\\"/"/g' -e 's/^"//' -e 's/"$//' > /var/docker/keys/private_tw.pem
+aws ssm get-parameter --region eu-west-1 --name "/tryber/api/$ENVIRONMENT/.env" --with-decryption --query "Parameter.Value" | sed -e 's/\\n/\n/g' -e 's/\\"/"/g' -e 's/^"//' -e 's/"$//' > /var/docker/.env
+aws ssm get-parameter --region eu-west-1 --name "/tryber/api/$ENVIRONMENT/private_tw.pem" --with-decryption --query "Parameter.Value" | sed -e 's/\\n/\n/g' -e 's/\\"/"/g' -e 's/^"//' -e 's/"$//' > /var/docker/keys/private_tw.pem
 
 source /var/docker/.env
 if test -f "$DOCKER_COMPOSE_FILE"; then
@@ -80,7 +81,7 @@ services:
       driver: awslogs
       options:
         awslogs-region: eu-west-1
-        awslogs-group: "${APPLICATION_NAME}-${DEPLOYMENT_GROUP_NAME}"
+        awslogs-group: "tryber-api-${ENVIRONMENT}-${ENVIRONMENT}"
         awslogs-stream: ${INSTANCE_ID}
         awslogs-create-group: 'true'
 " > $DOCKER_COMPOSE_FILE
