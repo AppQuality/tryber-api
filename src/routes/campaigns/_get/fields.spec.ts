@@ -21,8 +21,7 @@ describe("GET /campaigns", () => {
       {
         id: 1,
         company: "Company 1",
-        email: "",
-        phone_number: "",
+        pm_id: 1,
       },
     ]);
     await tryber.tables.WpAppqProject.do().insert([
