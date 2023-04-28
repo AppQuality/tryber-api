@@ -196,9 +196,6 @@ paths:
                                   enum:
                                     - quality
                                     - experience
-                          required:
-                            - id
-                            - name
                   - $ref: '#/components/schemas/PaginationData'
         '403':
           $ref: '#/components/responses/NotAuthorized'
