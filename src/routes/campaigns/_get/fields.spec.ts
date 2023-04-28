@@ -17,10 +17,32 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 1,
+        name: "name",
+        surname: "surname",
+        email: "",
+        wp_user_id: 1,
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 2,
+        name: "test",
+        surname: "test",
+        email: "",
+        wp_user_id: 2,
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, title: "First campaign" },
       { ...campaign, id: 2, title: "Second campaign" },
-      { ...campaign, id: 3, title: "Third campaign" },
+      { ...campaign, id: 3, pm_id: 2, title: "Third campaign" },
     ]);
   });
   afterAll(async () => {
@@ -38,12 +60,14 @@ describe("GET /campaigns", () => {
         name: "First campaign",
         startDate: "2023-01-13 10:10:10",
         endDate: "2023-01-14 10:10:10",
+        csm: { id: 1, name: "name", surname: "surname" },
       },
       {
         id: 3,
         name: "Third campaign",
         startDate: "2023-01-13 10:10:10",
         endDate: "2023-01-14 10:10:10",
+        csm: { id: 2, name: "test", surname: "test" },
       },
     ]);
   });
@@ -65,7 +89,17 @@ describe("GET /campaigns", () => {
     ]);
   });
 
-  it("Should retrun just campaigns id and name if fields is set with id,name", async () => {
+  it("Should retrun just csm data if field is set with csm", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=csm")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    expect(response.body.items).toEqual([
+      { csm: { id: 1, name: "name", surname: "surname" } },
+      { csm: { id: 2, name: "test", surname: "test" } },
+    ]);
+  });
+
+  it("Should retrun just campaigns id and name if field is set with id,name", async () => {
     const response = await request(app)
       .get("/campaigns?fields=name,id")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');

@@ -9,6 +9,7 @@ const ACCEPTABLE_FIELDS = [
   "title" as const,
   "startDate" as const,
   "endDate" as const,
+  "csm" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -18,12 +19,7 @@ class RouteItem extends UserRoute<{
   query: StoplightOperations["get-campaigns"]["parameters"]["query"];
 }> {
   private accessibleCampaigns: true | number[] = [];
-  private fields: typeof ACCEPTABLE_FIELDS = [
-    "id" as const,
-    "title" as const,
-    "startDate" as const,
-    "endDate" as const,
-  ];
+  private fields = ACCEPTABLE_FIELDS;
   private start: number = 0;
   private limit: number | undefined;
 
@@ -35,7 +31,7 @@ class RouteItem extends UserRoute<{
       this.fields = query.fields
         .split(",")
         .map((field) => (field === "name" ? "title" : field))
-        .filter((field): field is (typeof ACCEPTABLE_FIELDS)[number] =>
+        .filter((field): field is typeof ACCEPTABLE_FIELDS[number] =>
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
@@ -62,7 +58,7 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const campaigns = await this.getCampaigns();
+    const campaigns = this.formatCampaigns(await this.getCampaigns());
 
     return this.setSuccess(200, {
       items: campaigns,
@@ -76,13 +72,17 @@ class RouteItem extends UserRoute<{
   private async getCampaigns() {
     let query = tryber.tables.WpAppqEvdCampaign.do();
     if (Array.isArray(this.accessibleCampaigns)) {
-      query = query.whereIn("id", this.accessibleCampaigns);
+      query = query.whereIn(
+        "wp_appq_evd_campaign.id",
+        this.accessibleCampaigns
+      );
     }
 
     this.addIdTo(query);
     this.addNameTo(query);
     this.addStartDateTo(query);
     this.addEndDateTo(query);
+    this.addCsmTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -97,7 +97,30 @@ class RouteItem extends UserRoute<{
       name?: string;
       startDate?: string;
       endDate?: string;
+      csm_name?: string;
+      csm_surname?: string;
+      csm_id?: number;
     }[];
+  }
+
+  private formatCampaigns(
+    campaigns: Awaited<ReturnType<typeof this.getCampaigns>>
+  ) {
+    return campaigns.map((campaign) => ({
+      id: campaign.id,
+      name: campaign.name,
+      startDate: campaign.startDate,
+      endDate: campaign.endDate,
+      ...(this.fields.includes("csm")
+        ? {
+            csm: {
+              id: campaign.csm_id,
+              name: campaign.csm_name,
+              surname: campaign.csm_surname,
+            },
+          }
+        : {}),
+    }));
   }
 
   private async getTotals() {
@@ -116,7 +139,7 @@ class RouteItem extends UserRoute<{
   private addIdTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("id")) {
-        query.select("id");
+        query.select(tryber.ref("id").withSchema("wp_appq_evd_campaign"));
       }
     });
   }
@@ -141,6 +164,24 @@ class RouteItem extends UserRoute<{
     query.modify((query) => {
       if (this.fields.includes("endDate")) {
         query.select(tryber.ref("end_date").as("endDate"));
+      }
+    });
+  }
+
+  private addCsmTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("csm")) {
+        query
+          .join(
+            "wp_appq_evd_profile",
+            "wp_appq_evd_profile.id",
+            "wp_appq_evd_campaign.pm_id"
+          )
+          .select(
+            tryber.ref("wp_appq_evd_profile.name").as("csm_name"),
+            tryber.ref("wp_appq_evd_profile.surname").as("csm_surname"),
+            tryber.ref("wp_appq_evd_profile.id").as("csm_id")
+          );
       }
     });
   }
