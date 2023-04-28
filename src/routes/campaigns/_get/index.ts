@@ -80,7 +80,10 @@ class RouteItem extends UserRoute<{
       query.offset(this.start);
     }
 
-    return await query;
+    return (await query) as {
+      id?: number;
+      name?: string;
+    }[];
   }
 
   private async getTotals() {
