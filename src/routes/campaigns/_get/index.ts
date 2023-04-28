@@ -4,7 +4,12 @@ import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 
-const ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+const ACCEPTABLE_FIELDS = [
+  "id" as const,
+  "title" as const,
+  "startDate" as const,
+  "endDate" as const,
+];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
 
@@ -13,7 +18,12 @@ class RouteItem extends UserRoute<{
   query: StoplightOperations["get-campaigns"]["parameters"]["query"];
 }> {
   private accessibleCampaigns: true | number[] = [];
-  private fields: typeof ACCEPTABLE_FIELDS = ["id" as const, "title" as const];
+  private fields: typeof ACCEPTABLE_FIELDS = [
+    "id" as const,
+    "title" as const,
+    "startDate" as const,
+    "endDate" as const,
+  ];
   private start: number = 0;
   private limit: number | undefined;
 
@@ -25,7 +35,7 @@ class RouteItem extends UserRoute<{
       this.fields = query.fields
         .split(",")
         .map((field) => (field === "name" ? "title" : field))
-        .filter((field): field is typeof ACCEPTABLE_FIELDS[number] =>
+        .filter((field): field is (typeof ACCEPTABLE_FIELDS)[number] =>
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
@@ -71,6 +81,8 @@ class RouteItem extends UserRoute<{
 
     this.addIdTo(query);
     this.addNameTo(query);
+    this.addStartDateTo(query);
+    this.addEndDateTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -83,6 +95,8 @@ class RouteItem extends UserRoute<{
     return (await query) as {
       id?: number;
       name?: string;
+      startDate?: string;
+      endDate?: string;
     }[];
   }
 
@@ -111,6 +125,22 @@ class RouteItem extends UserRoute<{
     query.modify((query) => {
       if (this.fields.includes("title")) {
         query.select(tryber.ref("title").as("name"));
+      }
+    });
+  }
+
+  private addStartDateTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("startDate")) {
+        query.select(tryber.ref("start_date").as("startDate"));
+      }
+    });
+  }
+
+  private addEndDateTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("endDate")) {
+        query.select(tryber.ref("end_date").as("endDate"));
       }
     });
   }
