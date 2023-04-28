@@ -108,6 +108,8 @@ describe("GET /campaigns", () => {
         customer: { id: 1, name: "Company 1" },
         status: "running",
         type: { name: "CampaignType 1", area: "quality" },
+        visibility: "admin",
+        resultType: "bug",
       },
       {
         id: 3,
@@ -120,6 +122,8 @@ describe("GET /campaigns", () => {
         customer: { name: "N.D." },
         status: "closed",
         type: { name: "CampaignType 2", area: "experience" },
+        visibility: "admin",
+        resultType: "bug",
       },
     ]);
   });

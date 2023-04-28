@@ -13,6 +13,8 @@ const ACCEPTABLE_FIELDS = [
   "customer" as const,
   "customerTitle" as const,
   "project" as const,
+  "visibility" as const,
+  "resultType" as const,
   "status" as const,
   "type" as const,
 ];
@@ -95,6 +97,8 @@ class RouteItem extends UserRoute<{
     this.addCsmTo(query);
     this.addStatusTo(query);
     this.addTypeTo(query);
+    this.addVisibilityTo(query);
+    this.addResultTypeTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -120,6 +124,8 @@ class RouteItem extends UserRoute<{
       status?: number;
       type_name?: string;
       type_area?: number;
+      visibility?: 0 | 1 | 2 | 3;
+      resultType?: -1 | 0 | 1;
     }[];
   }
 
@@ -182,7 +188,37 @@ class RouteItem extends UserRoute<{
                 : undefined,
           }
         : {}),
+      visibility: this.getVisibilityName(campaign.visibility),
+      resultType: this.getResultTypeName(campaign.resultType),
     }));
+  }
+
+  private getVisibilityName(visibility: 0 | 1 | 2 | 3 | undefined) {
+    switch (visibility) {
+      case 0:
+        return "admin" as const;
+      case 1:
+        return "logged" as const;
+      case 2:
+        return "public" as const;
+      case 3:
+        return "smallgroup" as const;
+      default:
+        return undefined;
+    }
+  }
+
+  private getResultTypeName(resultType: -1 | 0 | 1 | undefined) {
+    switch (resultType) {
+      case -1:
+        return "no" as const;
+      case 0:
+        return "bug" as const;
+      case 1:
+        return "bugparade" as const;
+      default:
+        return undefined;
+    }
   }
 
   private async getTotals() {
@@ -315,6 +351,22 @@ class RouteItem extends UserRoute<{
             tryber.ref("wp_appq_campaign_type.name").as("type_name"),
             tryber.ref("wp_appq_campaign_type.type").as("type_area")
           );
+      }
+    });
+  }
+
+  private addVisibilityTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("visibility")) {
+        query.select(tryber.ref("is_public").as("visibility"));
+      }
+    });
+  }
+
+  private addResultTypeTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("resultType")) {
+        query.select(tryber.ref("campaign_type").as("resultType"));
       }
     });
   }
