@@ -13,6 +13,7 @@ const ACCEPTABLE_FIELDS = [
   "customer" as const,
   "customerTitle" as const,
   "project" as const,
+  "visibility" as const,
   "status" as const,
   "type" as const,
 ];
@@ -95,6 +96,7 @@ class RouteItem extends UserRoute<{
     this.addCsmTo(query);
     this.addStatusTo(query);
     this.addTypeTo(query);
+    this.addVisibilityTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -120,6 +122,7 @@ class RouteItem extends UserRoute<{
       status?: number;
       type_name?: string;
       type_area?: number;
+      visibility?: 0 | 1 | 2 | 3;
     }[];
   }
 
@@ -182,7 +185,24 @@ class RouteItem extends UserRoute<{
                 : undefined,
           }
         : {}),
+      visibility: this.getVisibilityName(campaign.visibility),
     }));
+  }
+
+  private getVisibilityName(visibility: 0 | 1 | 2 | 3 | undefined) {
+    const VISIBILITIES: Record<
+      0 | 1 | 2 | 3,
+      NonNullable<
+        StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"]["items"]
+      >[number]["visibility"]
+    > = {
+      0: "admin",
+      1: "logged",
+      2: "public",
+      3: "smallgroup",
+    };
+    if (typeof visibility === "undefined") return undefined;
+    return VISIBILITIES[visibility];
   }
 
   private async getTotals() {
@@ -315,6 +335,14 @@ class RouteItem extends UserRoute<{
             tryber.ref("wp_appq_campaign_type.name").as("type_name"),
             tryber.ref("wp_appq_campaign_type.type").as("type_area")
           );
+      }
+    });
+  }
+
+  private addVisibilityTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("visibility")) {
+        query.select(tryber.ref("is_public").as("visibility"));
       }
     });
   }
