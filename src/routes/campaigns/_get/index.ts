@@ -63,7 +63,6 @@ class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     const campaigns = this.formatCampaigns(await this.getCampaigns());
-
     return this.setSuccess(200, {
       items: campaigns,
       start: this.start,
@@ -198,7 +197,7 @@ class RouteItem extends UserRoute<{
   private addStartDateTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("startDate")) {
-        query.select(tryber.ref("start_date").as("startDate"));
+        query.select(tryber.raw("CAST(start_date AS CHAR) as startDate"));
       }
     });
   }
@@ -206,7 +205,7 @@ class RouteItem extends UserRoute<{
   private addEndDateTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("endDate")) {
-        query.select(tryber.ref("end_date").as("endDate"));
+        query.select(tryber.raw("CAST(end_date AS CHAR) as endDate"));
       }
     });
   }
