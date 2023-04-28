@@ -13,6 +13,7 @@ const ACCEPTABLE_FIELDS = [
   "customer" as const,
   "customerTitle" as const,
   "project" as const,
+  "status" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -34,7 +35,7 @@ class RouteItem extends UserRoute<{
       this.fields = query.fields
         .split(",")
         .map((field) => (field === "name" ? "title" : field))
-        .filter((field): field is typeof ACCEPTABLE_FIELDS[number] =>
+        .filter((field): field is (typeof ACCEPTABLE_FIELDS)[number] =>
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
@@ -92,6 +93,7 @@ class RouteItem extends UserRoute<{
     this.addCustomerTo(query);
 
     this.addCsmTo(query);
+    this.addStatusTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -114,6 +116,7 @@ class RouteItem extends UserRoute<{
       project_name?: string;
       customer_id?: number;
       customer_name?: string;
+      status?: number;
     }[];
   }
 
@@ -149,6 +152,15 @@ class RouteItem extends UserRoute<{
               id: campaign.customer_id ?? undefined,
               name: campaign.customer_name ?? "N.D.",
             },
+          }
+        : {}),
+      ...(this.fields.includes("status")
+        ? {
+            status: campaign.status
+              ? campaign.status === 1
+                ? ("running" as const)
+                : ("closed" as const)
+              : undefined,
           }
         : {}),
     }));
@@ -261,6 +273,13 @@ class RouteItem extends UserRoute<{
             tryber.ref("wp_appq_customer.id").as("customer_id"),
             tryber.ref("wp_appq_customer.company").as("customer_name")
           );
+      }
+    });
+  }
+  private addStatusTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("status")) {
+        query.select(tryber.ref("status_id").as("status"));
       }
     });
   }

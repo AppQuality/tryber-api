@@ -61,6 +61,7 @@ describe("GET /campaigns", () => {
         id: 1,
         title: "First campaign",
         customer_title: "C First campaign",
+        status_id: 1,
       },
       {
         ...campaign,
@@ -75,6 +76,7 @@ describe("GET /campaigns", () => {
         title: "Third campaign",
         customer_title: "C Third campaign",
         project_id: 0,
+        status_id: 2,
       },
     ]);
   });
@@ -86,7 +88,6 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/campaigns")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
-    console.log(response.body);
     expect(response.body.items.length).toBe(2);
     expect(response.body.items).toEqual([
       {
@@ -98,6 +99,7 @@ describe("GET /campaigns", () => {
         csm: { id: 1, name: "name", surname: "surname" },
         project: { id: 1, name: "Project 1" },
         customer: { id: 1, name: "Company 1" },
+        status: "running",
       },
       {
         id: 3,
@@ -108,6 +110,7 @@ describe("GET /campaigns", () => {
         csm: { id: 2, name: "test", surname: "test" },
         project: { name: "N.D." },
         customer: { name: "N.D." },
+        status: "closed",
       },
     ]);
   });
@@ -199,6 +202,21 @@ describe("GET /campaigns", () => {
         id: 3,
         startDate: "2023-01-13 10:10:10",
         endDate: "2023-01-14 10:10:10",
+      },
+    ]);
+  });
+  it("Should retrun campaigns id,status if fields is set with id,status", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=status,id")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    expect(response.body.items).toEqual([
+      {
+        id: 1,
+        status: "running",
+      },
+      {
+        id: 3,
+        status: "closed",
       },
     ]);
   });
