@@ -17,6 +17,14 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqProject.do().insert([
+      {
+        id: 1,
+        display_name: "Project 1",
+        customer_id: 1,
+        edited_by: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
         id: 1,
@@ -58,6 +66,7 @@ describe("GET /campaigns", () => {
         pm_id: 2,
         title: "Third campaign",
         customer_title: "C Third campaign",
+        project_id: 0,
       },
     ]);
   });
@@ -78,6 +87,7 @@ describe("GET /campaigns", () => {
         endDate: "2023-01-14 10:10:10",
         customerTitle: "C First campaign",
         csm: { id: 1, name: "name", surname: "surname" },
+        project: { id: 1, name: "Project 1" },
       },
       {
         id: 3,
@@ -86,6 +96,7 @@ describe("GET /campaigns", () => {
         endDate: "2023-01-14 10:10:10",
         customerTitle: "C Third campaign",
         csm: { id: 2, name: "test", surname: "test" },
+        project: { name: "N.D." },
       },
     ]);
   });
@@ -123,6 +134,20 @@ describe("GET /campaigns", () => {
     expect(response.body.items).toEqual([
       { customerTitle: "C First campaign" },
       { customerTitle: "C Third campaign" },
+    ]);
+  });
+
+  it("Should return just project data if field is set with project", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=project")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    expect(response.body.items).toEqual([
+      {
+        project: { id: 1, name: "Project 1" },
+      },
+      {
+        project: { name: "N.D." },
+      },
     ]);
   });
 

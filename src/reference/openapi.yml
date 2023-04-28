@@ -179,6 +179,10 @@ paths:
                                   type: string
                                 surname:
                                   type: string
+                              required:
+                                - id
+                                - name
+                                - surname
                             customer:
                               type: object
                               properties:
@@ -186,6 +190,9 @@ paths:
                                   type: integer
                                 name:
                                   type: string
+                              required:
+                                - id
+                                - name
                             type:
                               type: object
                               properties:
@@ -196,6 +203,18 @@ paths:
                                   enum:
                                     - quality
                                     - experience
+                              required:
+                                - name
+                                - area
+                            project:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                                - name
                   - $ref: '#/components/schemas/PaginationData'
         '403':
           $ref: '#/components/responses/NotAuthorized'

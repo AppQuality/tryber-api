@@ -11,6 +11,7 @@ const ACCEPTABLE_FIELDS = [
   "endDate" as const,
   "csm" as const,
   "customerTitle" as const,
+  "project" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -84,6 +85,7 @@ class RouteItem extends UserRoute<{
     this.addStartDateTo(query);
     this.addEndDateTo(query);
     this.addCustomerTitleTo(query);
+    this.addProjectTo(query);
     this.addCsmTo(query);
 
     if (this.limit) {
@@ -103,12 +105,15 @@ class RouteItem extends UserRoute<{
       csm_name?: string;
       csm_surname?: string;
       csm_id?: number;
+      project_id?: number;
+      project_name?: string;
     }[];
   }
 
   private formatCampaigns(
     campaigns: Awaited<ReturnType<typeof this.getCampaigns>>
   ) {
+    console.log(campaigns);
     return campaigns.map((campaign) => ({
       id: campaign.id,
       name: campaign.name,
@@ -118,9 +123,17 @@ class RouteItem extends UserRoute<{
       ...(this.fields.includes("csm")
         ? {
             csm: {
-              id: campaign.csm_id,
-              name: campaign.csm_name,
-              surname: campaign.csm_surname,
+              id: campaign.csm_id || 0,
+              name: campaign.csm_name || "",
+              surname: campaign.csm_surname || "",
+            },
+          }
+        : {}),
+      ...(this.fields.includes("project")
+        ? {
+            project: {
+              id: campaign.project_id ?? undefined,
+              name: campaign.project_name ?? "N.D.",
             },
           }
         : {}),
@@ -193,6 +206,23 @@ class RouteItem extends UserRoute<{
             tryber.ref("wp_appq_evd_profile.name").as("csm_name"),
             tryber.ref("wp_appq_evd_profile.surname").as("csm_surname"),
             tryber.ref("wp_appq_evd_profile.id").as("csm_id")
+          );
+      }
+    });
+  }
+
+  private addProjectTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("project")) {
+        query
+          .leftJoin(
+            "wp_appq_project",
+            "wp_appq_project.id",
+            "wp_appq_evd_campaign.project_id"
+          )
+          .select(
+            tryber.ref("wp_appq_project.id").as("project_id"),
+            tryber.ref("wp_appq_project.display_name").as("project_name")
           );
       }
     });
