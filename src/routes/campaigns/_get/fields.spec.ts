@@ -17,6 +17,14 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqCustomer.do().insert([
+      {
+        id: 1,
+        company: "Company 1",
+        email: "",
+        phone_number: "",
+      },
+    ]);
     await tryber.tables.WpAppqProject.do().insert([
       {
         id: 1,
@@ -78,6 +86,7 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/campaigns")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    console.log(response.body);
     expect(response.body.items.length).toBe(2);
     expect(response.body.items).toEqual([
       {
@@ -88,6 +97,7 @@ describe("GET /campaigns", () => {
         customerTitle: "C First campaign",
         csm: { id: 1, name: "name", surname: "surname" },
         project: { id: 1, name: "Project 1" },
+        customer: { id: 1, name: "Company 1" },
       },
       {
         id: 3,
@@ -97,6 +107,7 @@ describe("GET /campaigns", () => {
         customerTitle: "C Third campaign",
         csm: { id: 2, name: "test", surname: "test" },
         project: { name: "N.D." },
+        customer: { name: "N.D." },
       },
     ]);
   });
@@ -147,6 +158,20 @@ describe("GET /campaigns", () => {
       },
       {
         project: { name: "N.D." },
+      },
+    ]);
+  });
+
+  it("Should return just customer data if field is set with customer", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=customer")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    expect(response.body.items).toEqual([
+      {
+        customer: { id: 1, name: "Company 1" },
+      },
+      {
+        customer: { name: "N.D." },
       },
     ]);
   });

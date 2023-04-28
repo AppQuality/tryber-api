@@ -10,6 +10,7 @@ const ACCEPTABLE_FIELDS = [
   "startDate" as const,
   "endDate" as const,
   "csm" as const,
+  "customer" as const,
   "customerTitle" as const,
   "project" as const,
 ];
@@ -85,7 +86,11 @@ class RouteItem extends UserRoute<{
     this.addStartDateTo(query);
     this.addEndDateTo(query);
     this.addCustomerTitleTo(query);
+
+    this.addJoinToProject(query);
     this.addProjectTo(query);
+    this.addCustomerTo(query);
+
     this.addCsmTo(query);
 
     if (this.limit) {
@@ -107,13 +112,14 @@ class RouteItem extends UserRoute<{
       csm_id?: number;
       project_id?: number;
       project_name?: string;
+      customer_id?: number;
+      customer_name?: string;
     }[];
   }
 
   private formatCampaigns(
     campaigns: Awaited<ReturnType<typeof this.getCampaigns>>
   ) {
-    console.log(campaigns);
     return campaigns.map((campaign) => ({
       id: campaign.id,
       name: campaign.name,
@@ -134,6 +140,14 @@ class RouteItem extends UserRoute<{
             project: {
               id: campaign.project_id ?? undefined,
               name: campaign.project_name ?? "N.D.",
+            },
+          }
+        : {}),
+      ...(this.fields.includes("customer")
+        ? {
+            customer: {
+              id: campaign.customer_id ?? undefined,
+              name: campaign.customer_name ?? "N.D.",
             },
           }
         : {}),
@@ -211,18 +225,41 @@ class RouteItem extends UserRoute<{
     });
   }
 
+  private addJoinToProject(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("project") || this.fields.includes("customer")) {
+        query.leftJoin(
+          "wp_appq_project",
+          "wp_appq_project.id",
+          "wp_appq_evd_campaign.project_id"
+        );
+      }
+    });
+  }
+
   private addProjectTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("project")) {
+        query.select(
+          tryber.ref("wp_appq_project.id").as("project_id"),
+          tryber.ref("wp_appq_project.display_name").as("project_name")
+        );
+      }
+    });
+  }
+
+  private addCustomerTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("customer")) {
         query
           .leftJoin(
-            "wp_appq_project",
-            "wp_appq_project.id",
-            "wp_appq_evd_campaign.project_id"
+            "wp_appq_customer",
+            "wp_appq_customer.id",
+            "wp_appq_project.customer_id"
           )
           .select(
-            tryber.ref("wp_appq_project.id").as("project_id"),
-            tryber.ref("wp_appq_project.display_name").as("project_name")
+            tryber.ref("wp_appq_customer.id").as("customer_id"),
+            tryber.ref("wp_appq_customer.company").as("customer_name")
           );
       }
     });

@@ -191,7 +191,6 @@ paths:
                                 name:
                                   type: string
                               required:
-                                - id
                                 - name
                             type:
                               type: object

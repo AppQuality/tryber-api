@@ -901,7 +901,7 @@ export interface operations {
                 surname: string;
               };
               customer?: {
-                id: number;
+                id?: number;
                 name: string;
               };
               type?: {
