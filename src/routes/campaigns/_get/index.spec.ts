@@ -4,8 +4,13 @@ import request from "supertest";
 const campaign = {
   id: 1,
   platform_id: 1,
-  start_date: "2020-01-01",
-  end_date: "2020-01-01",
+  // start_date: is stringified today date in format yyyy-mm-dd
+  start_date: new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0],
+  end_date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0],
   title: "This is the title",
   page_preview_id: 1,
   page_manual_id: 1,
