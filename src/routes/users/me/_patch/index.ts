@@ -1,3 +1,5 @@
+/** OPENAPI-ROUTE: patch-users-me */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
@@ -5,7 +7,6 @@ import { CheckPassword, HashPassword } from "wordpress-hash-node";
 import escapeCharacters from "../../../../features/escapeCharacters";
 import getUserData from "../_get/getUserData";
 
-/** OPENAPI-ROUTE: patch-users-me */
 const acceptedFields = [
   "name",
   "surname",

@@ -1,7 +1,8 @@
+/** OPENAPI-ROUTE: patch-users-me-devices-deviceId */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-/** OPENAPI-ROUTE: patch-users-me-devices-deviceId */
 export default async (
   c: Context,
   req: OpenapiRequest,

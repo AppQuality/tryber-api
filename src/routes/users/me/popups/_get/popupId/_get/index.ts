@@ -1,8 +1,9 @@
+/** OPENAPI-ROUTE: get-users-me-popups-popup */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 import getByUser from "../../../getByUser";
 
-/** OPENAPI-ROUTE: get-users-me-popups-popup */
 export default async (
   c: Context,
   req: OpenapiRequest,

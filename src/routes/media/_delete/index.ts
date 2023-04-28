@@ -1,9 +1,10 @@
+/** OPENAPI-ROUTE: delete-media */
+
 import debugMessage from "@src/features/debugMessage";
 import deleteFromS3 from "@src/features/deleteFromS3";
 import { Context } from "openapi-backend";
 import * as db from "@src/features/db";
 
-/** OPENAPI-ROUTE: delete-media */
 export default async (
   c: Context,
   req: OpenapiRequest,

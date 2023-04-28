@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: post-campaigns-forms */
+
 import UserRoute from "@src/features/routes/UserRoute";
 import FieldCreator from "../FieldCreator";
 import PreselectionForms from "@src/features/db/class/PreselectionForms";
