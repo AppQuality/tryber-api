@@ -542,11 +542,8 @@ export interface components {
       projectManager?: components["schemas"]["User"];
       customerCanViewReviewing?: boolean;
       additionalFields?: components["schemas"]["CampaignField"][];
-      /** @default 0 */
       tokens?: number;
-      /** @default 0 */
       csm_effort?: number;
-      /** @default 0 */
       ux_effort?: number;
       preview_link?: components["schemas"]["TranslatablePage"];
       manual_link?: components["schemas"]["TranslatablePage"];
@@ -899,18 +896,22 @@ export interface operations {
               /** @enum {string} */
               resultType?: "bug" | "bugparade" | "no";
               csm?: {
-                id?: number;
-                name?: string;
-                surname?: string;
+                id: number;
+                name: string;
+                surname: string;
               };
               customer?: {
                 id?: number;
-                name?: string;
+                name: string;
               };
               type?: {
-                name?: string;
+                name: string;
                 /** @enum {string} */
-                area?: "quality" | "experience";
+                area: "quality" | "experience";
+              };
+              project?: {
+                id?: number;
+                name: string;
               };
             }[];
           } & components["schemas"]["PaginationData"];
