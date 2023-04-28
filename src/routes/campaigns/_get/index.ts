@@ -123,7 +123,7 @@ class RouteItem extends UserRoute<{
       customer_name?: string;
       status?: number;
       type_name?: string;
-      type_area?: number;
+      type_area?: 0 | 1;
       visibility?: 0 | 1 | 2 | 3;
       resultType?: -1 | 0 | 1;
     }[];
@@ -174,18 +174,10 @@ class RouteItem extends UserRoute<{
         : {}),
       ...(this.fields.includes("type")
         ? {
-            type:
-              campaign.type_area !== undefined &&
-              [0, 1].includes(campaign.type_area) &&
-              campaign.type_name
-                ? {
-                    name: campaign.type_name,
-                    area:
-                      campaign.type_area === 1
-                        ? ("experience" as const)
-                        : ("quality" as const),
-                  }
-                : undefined,
+            type: {
+              name: campaign.type_name || "no type",
+              area: this.getArea(campaign.type_area) || "quality",
+            },
           }
         : {}),
       visibility: this.getVisibilityName(campaign.visibility),
@@ -216,6 +208,17 @@ class RouteItem extends UserRoute<{
         return "bug" as const;
       case 1:
         return "bugparade" as const;
+      default:
+        return undefined;
+    }
+  }
+
+  private getArea(area: 0 | 1 | undefined) {
+    switch (area) {
+      case 0:
+        return "quality" as const;
+      case 1:
+        return "experience" as const;
       default:
         return undefined;
     }
