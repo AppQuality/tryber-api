@@ -14,6 +14,7 @@ const ACCEPTABLE_FIELDS = [
   "customerTitle" as const,
   "project" as const,
   "status" as const,
+  "type" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -35,7 +36,7 @@ class RouteItem extends UserRoute<{
       this.fields = query.fields
         .split(",")
         .map((field) => (field === "name" ? "title" : field))
-        .filter((field): field is (typeof ACCEPTABLE_FIELDS)[number] =>
+        .filter((field): field is typeof ACCEPTABLE_FIELDS[number] =>
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
@@ -93,6 +94,7 @@ class RouteItem extends UserRoute<{
 
     this.addCsmTo(query);
     this.addStatusTo(query);
+    this.addTypeTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -116,6 +118,8 @@ class RouteItem extends UserRoute<{
       customer_id?: number;
       customer_name?: string;
       status?: number;
+      type_name?: string;
+      type_area?: number;
     }[];
   }
 
@@ -160,6 +164,22 @@ class RouteItem extends UserRoute<{
                 ? ("running" as const)
                 : ("closed" as const)
               : undefined,
+          }
+        : {}),
+      ...(this.fields.includes("type")
+        ? {
+            type:
+              campaign.type_area !== undefined &&
+              [0, 1].includes(campaign.type_area) &&
+              campaign.type_name
+                ? {
+                    name: campaign.type_name,
+                    area:
+                      campaign.type_area === 1
+                        ? ("experience" as const)
+                        : ("quality" as const),
+                  }
+                : undefined,
           }
         : {}),
     }));
@@ -279,6 +299,22 @@ class RouteItem extends UserRoute<{
     query.modify((query) => {
       if (this.fields.includes("status")) {
         query.select(tryber.ref("status_id").as("status"));
+      }
+    });
+  }
+  private addTypeTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("type")) {
+        query
+          .leftJoin(
+            "wp_appq_campaign_type",
+            "wp_appq_campaign_type.id",
+            "wp_appq_evd_campaign.campaign_type_id"
+          )
+          .select(
+            tryber.ref("wp_appq_campaign_type.name").as("type_name"),
+            tryber.ref("wp_appq_campaign_type.type").as("type_area")
+          );
       }
     });
   }

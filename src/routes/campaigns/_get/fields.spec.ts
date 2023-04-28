@@ -56,6 +56,10 @@ describe("GET /campaigns", () => {
         employment_id: 1,
       },
     ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      { id: 1, name: "CampaignType 1", type: 0, category_id: 1 }, // type 0 -> quality
+      { id: 2, name: "CampaignType 2", type: 1, category_id: 1 }, // type 1 -> experience
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         ...campaign,
@@ -63,6 +67,7 @@ describe("GET /campaigns", () => {
         title: "First campaign",
         customer_title: "C First campaign",
         status_id: 1,
+        campaign_type_id: 1,
       },
       {
         ...campaign,
@@ -78,6 +83,7 @@ describe("GET /campaigns", () => {
         customer_title: "C Third campaign",
         project_id: 0,
         status_id: 2,
+        campaign_type_id: 2,
       },
     ]);
   });
@@ -101,6 +107,7 @@ describe("GET /campaigns", () => {
         project: { id: 1, name: "Project 1" },
         customer: { id: 1, name: "Company 1" },
         status: "running",
+        type: { name: "CampaignType 1", area: "quality" },
       },
       {
         id: 3,
@@ -112,6 +119,7 @@ describe("GET /campaigns", () => {
         project: { name: "N.D." },
         customer: { name: "N.D." },
         status: "closed",
+        type: { name: "CampaignType 2", area: "experience" },
       },
     ]);
   });
@@ -218,6 +226,22 @@ describe("GET /campaigns", () => {
       {
         id: 3,
         status: "closed",
+      },
+    ]);
+  });
+
+  it("Should retrun campaigns id,type if fields is set with id,type", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=type,id")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    expect(response.body.items).toEqual([
+      {
+        id: 1,
+        type: { name: "CampaignType 1", area: "quality" },
+      },
+      {
+        id: 3,
+        type: { name: "CampaignType 2", area: "experience" },
       },
     ]);
   });
