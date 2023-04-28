@@ -10,6 +10,7 @@ const ACCEPTABLE_FIELDS = [
   "startDate" as const,
   "endDate" as const,
   "csm" as const,
+  "customerTitle" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -82,6 +83,7 @@ class RouteItem extends UserRoute<{
     this.addNameTo(query);
     this.addStartDateTo(query);
     this.addEndDateTo(query);
+    this.addCustomerTitleTo(query);
     this.addCsmTo(query);
 
     if (this.limit) {
@@ -97,6 +99,7 @@ class RouteItem extends UserRoute<{
       name?: string;
       startDate?: string;
       endDate?: string;
+      customerTitle?: string;
       csm_name?: string;
       csm_surname?: string;
       csm_id?: number;
@@ -111,6 +114,7 @@ class RouteItem extends UserRoute<{
       name: campaign.name,
       startDate: campaign.startDate,
       endDate: campaign.endDate,
+      customerTitle: campaign.customerTitle,
       ...(this.fields.includes("csm")
         ? {
             csm: {
@@ -164,6 +168,14 @@ class RouteItem extends UserRoute<{
     query.modify((query) => {
       if (this.fields.includes("endDate")) {
         query.select(tryber.ref("end_date").as("endDate"));
+      }
+    });
+  }
+
+  private addCustomerTitleTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("customerTitle")) {
+        query.select(tryber.ref("customer_title").as("customerTitle"));
       }
     });
   }

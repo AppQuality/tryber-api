@@ -40,9 +40,25 @@ describe("GET /campaigns", () => {
       },
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 1, title: "First campaign" },
-      { ...campaign, id: 2, title: "Second campaign" },
-      { ...campaign, id: 3, pm_id: 2, title: "Third campaign" },
+      {
+        ...campaign,
+        id: 1,
+        title: "First campaign",
+        customer_title: "C First campaign",
+      },
+      {
+        ...campaign,
+        id: 2,
+        title: "Second campaign",
+        customer_title: "C Second campaign",
+      },
+      {
+        ...campaign,
+        id: 3,
+        pm_id: 2,
+        title: "Third campaign",
+        customer_title: "C Third campaign",
+      },
     ]);
   });
   afterAll(async () => {
@@ -60,6 +76,7 @@ describe("GET /campaigns", () => {
         name: "First campaign",
         startDate: "2023-01-13 10:10:10",
         endDate: "2023-01-14 10:10:10",
+        customerTitle: "C First campaign",
         csm: { id: 1, name: "name", surname: "surname" },
       },
       {
@@ -67,6 +84,7 @@ describe("GET /campaigns", () => {
         name: "Third campaign",
         startDate: "2023-01-13 10:10:10",
         endDate: "2023-01-14 10:10:10",
+        customerTitle: "C Third campaign",
         csm: { id: 2, name: "test", surname: "test" },
       },
     ]);
@@ -96,6 +114,15 @@ describe("GET /campaigns", () => {
     expect(response.body.items).toEqual([
       { csm: { id: 1, name: "name", surname: "surname" } },
       { csm: { id: 2, name: "test", surname: "test" } },
+    ]);
+  });
+  it("Should return just customer title if field is set with customerTitle", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=customerTitle")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+    expect(response.body.items).toEqual([
+      { customerTitle: "C First campaign" },
+      { customerTitle: "C Third campaign" },
     ]);
   });
 
