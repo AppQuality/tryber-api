@@ -889,7 +889,29 @@ export interface operations {
             items?: {
               id?: number;
               name?: string;
+              customerTitle?: string;
               startDate?: string;
+              endDate?: string;
+              /** @enum {string} */
+              status?: "running" | "closed";
+              /** @enum {string} */
+              visibility?: "admin" | "smallgroup" | "logged" | "public";
+              /** @enum {string} */
+              resultType?: "bug" | "bugparade" | "no";
+              csm?: {
+                id?: number;
+                name?: string;
+                surname?: string;
+              };
+              customer?: {
+                id?: number;
+                name?: string;
+              };
+              type?: {
+                name?: string;
+                /** @enum {string} */
+                area?: "quality" | "experience";
+              };
             }[];
           } & components["schemas"]["PaginationData"];
         };
