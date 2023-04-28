@@ -887,8 +887,8 @@ export interface operations {
         content: {
           "application/json": {
             items?: {
-              id?: number;
-              name?: string;
+              id: number;
+              name: string;
               customerTitle?: string;
               startDate?: string;
               endDate?: string;
