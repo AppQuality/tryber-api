@@ -240,7 +240,10 @@ class RouteItem extends UserRoute<{
   private addFiltersTo(query: CampaignSelect) {
     query.modify((query) => {
       if (Array.isArray(this.accessibleCampaigns)) {
-        query = query.whereIn("id", this.accessibleCampaigns);
+        query = query.whereIn(
+          "wp_appq_evd_campaign.id",
+          this.accessibleCampaigns
+        );
       }
 
       if (this.showMineOnly) {
