@@ -83,16 +83,8 @@ class RouteItem extends UserRoute<{
 
   private async getCampaigns() {
     let query = tryber.tables.WpAppqEvdCampaign.do();
-    if (Array.isArray(this.accessibleCampaigns)) {
-      query = query.whereIn(
-        "wp_appq_evd_campaign.id",
-        this.accessibleCampaigns
-      );
-    }
 
-    if (this.showMineOnly) {
-      query = query.where("wp_appq_evd_campaign.pm_id", this.getTesterId());
-    }
+    this.addFiltersTo(query);
 
     this.addIdTo(query);
     this.addNameTo(query);
@@ -238,13 +230,23 @@ class RouteItem extends UserRoute<{
     if (this.limit === undefined) return undefined;
     let query = tryber.tables.WpAppqEvdCampaign.do();
 
-    if (Array.isArray(this.accessibleCampaigns)) {
-      query = query.whereIn("id", this.accessibleCampaigns);
-    }
+    this.addFiltersTo(query);
 
     const count = await query.count({ count: "id" });
     const totalCount = count[0].count;
     return typeof totalCount === "number" ? totalCount : 0;
+  }
+
+  private addFiltersTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (Array.isArray(this.accessibleCampaigns)) {
+        query = query.whereIn("id", this.accessibleCampaigns);
+      }
+
+      if (this.showMineOnly) {
+        query = query.where("wp_appq_evd_campaign.pm_id", this.getTesterId());
+      }
+    });
   }
 
   private addIdTo(query: CampaignSelect) {

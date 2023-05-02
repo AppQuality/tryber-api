@@ -63,4 +63,13 @@ describe("GET /campaigns", () => {
     expect(response.body.items[0].name).toBe("First campaign");
     expect(response.body.items[1].name).toBe("Third campaign");
   });
+
+  it("Should return filtered campaign total", async () => {
+    const response = await request(app)
+      .get("/campaigns?mine=true&limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(2);
+    expect(response.body.total).toBe(2);
+  });
 });
