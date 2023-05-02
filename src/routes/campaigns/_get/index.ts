@@ -32,6 +32,7 @@ class RouteItem extends UserRoute<{
   private start: number = 0;
   private limit: number | undefined;
   private showMineOnly = false;
+  private search: string | undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -46,6 +47,7 @@ class RouteItem extends UserRoute<{
         );
     }
     if (query.mine) this.showMineOnly = true;
+    if (query.search) this.search = query.search;
 
     if (query.start) this.start = parseInt(query.start as unknown as string);
     if (query.limit) {
@@ -248,6 +250,15 @@ class RouteItem extends UserRoute<{
 
       if (this.showMineOnly) {
         query = query.where("wp_appq_evd_campaign.pm_id", this.getTesterId());
+      }
+
+      if (this.search) {
+        const search = this.search.toLowerCase();
+        query = query.where(function () {
+          this.whereLike("wp_appq_evd_campaign.id", `%${search}%`)
+            .orWhereLike("wp_appq_evd_campaign.title", `%${search}%`)
+            .orWhereLike("wp_appq_evd_campaign.customer_title", `%${search}%`);
+        });
       }
     });
   }

@@ -878,6 +878,8 @@ export interface operations {
         limit?: components["parameters"]["limit"];
         /** Return only your campaign? */
         mine?: "true";
+        /** A value to search in id or title */
+        search?: string;
       };
     };
     responses: {
