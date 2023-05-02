@@ -33,6 +33,12 @@ class RouteItem extends UserRoute<{
   private limit: number | undefined;
   private showMineOnly = false;
   private search: string | undefined;
+  private order: StoplightOperations["get-campaigns"]["parameters"]["query"]["order"] =
+    "DESC";
+  private orderBy:
+    | "wp_appq_evd_campaign.id"
+    | "wp_appq_evd_campaign.start_date"
+    | "wp_appq_evd_campaign.end_date" = "wp_appq_evd_campaign.id";
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -54,6 +60,21 @@ class RouteItem extends UserRoute<{
       this.limit = parseInt(query.limit as unknown as string);
     } else if (query.start) {
       this.limit = 10;
+    }
+
+    if (query.order) this.order = query.order;
+    if (query.orderBy) {
+      switch (query.orderBy) {
+        case "id":
+          this.orderBy = "wp_appq_evd_campaign.id";
+          break;
+        case "startDate":
+          this.orderBy = "wp_appq_evd_campaign.start_date";
+          break;
+        case "endDate":
+          this.orderBy = "wp_appq_evd_campaign.end_date";
+          break;
+      }
     }
   }
 
@@ -111,6 +132,8 @@ class RouteItem extends UserRoute<{
     if (this.start) {
       query.offset(this.start);
     }
+
+    query.orderBy(this.orderBy, this.order);
 
     return (await query) as {
       id?: number;

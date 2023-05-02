@@ -244,6 +244,16 @@ paths:
           in: query
           name: search
           description: A value to search in id or title
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - id
+              - startDate
+              - endDate
+          in: query
+          name: orderBy
+          description: The parameter to order by
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'

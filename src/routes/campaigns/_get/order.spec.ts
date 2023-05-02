@@ -32,21 +32,10 @@ describe("GET /campaigns", () => {
         employment_id: 1,
       },
     ]);
-    await tryber.tables.WpAppqEvdProfile.do().insert([
-      {
-        id: 2,
-        name: "name",
-        surname: "surname",
-        email: "",
-        wp_user_id: 2,
-        education_id: 1,
-        employment_id: 1,
-      },
-    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 1, title: "First campaign", pm_id: 1 },
-      { ...campaign, id: 2, title: "Second campaign", pm_id: 2 },
-      { ...campaign, id: 3, title: "Third campaign", pm_id: 1 },
+      { ...campaign, id: 1, title: "First campaign" },
+      { ...campaign, id: 2, title: "Second campaign" },
+      { ...campaign, id: 3, title: "Third campaign" },
     ]);
   });
   afterAll(async () => {
@@ -54,26 +43,14 @@ describe("GET /campaigns", () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
-  it("Should return only campaigns where the logged in user is the PM when mine is true", async () => {
+  it("Should order by id DESC by default", async () => {
     const response = await request(app)
-      .get("/campaigns?mine=true")
+      .get("/campaigns")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
-    expect(response.body.items).toHaveLength(2);
-    expect(response.body.items).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: 1, name: "First campaign" }),
-        expect.objectContaining({ id: 3, name: "Third campaign" }),
-      ])
-    );
-  });
-
-  it("Should return filtered campaign total", async () => {
-    const response = await request(app)
-      .get("/campaigns?mine=true&limit=10")
-      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    expect(response.status).toBe(200);
-    expect(response.body.items).toHaveLength(2);
-    expect(response.body.total).toBe(2);
+    expect(response.body.items).toHaveLength(3);
+    expect(response.body.items[0].id).toBe(3);
+    expect(response.body.items[1].id).toBe(2);
+    expect(response.body.items[2].id).toBe(1);
   });
 });

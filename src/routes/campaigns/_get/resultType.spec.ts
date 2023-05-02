@@ -44,18 +44,23 @@ describe("GET /campaigns", () => {
 
   it("Should return just visibility data if field is set with resultType", async () => {
     const response = await request(app)
-      .get("/campaigns?fields=resultType")
+      .get("/campaigns?fields=id,resultType")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    expect(response.body.items).toEqual([
-      {
-        resultType: "bugparade",
-      },
-      {
-        resultType: "bug",
-      },
-      {
-        resultType: "no",
-      },
-    ]);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          resultType: "bugparade",
+        }),
+        expect.objectContaining({
+          id: 2,
+          resultType: "bug",
+        }),
+        expect.objectContaining({
+          id: 3,
+          resultType: "no",
+        }),
+      ])
+    );
   });
 });
