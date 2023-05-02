@@ -255,11 +255,9 @@ class RouteItem extends UserRoute<{
       if (this.search) {
         const search = this.search.toLowerCase();
         query = query.where(function () {
-          this.whereLike("wp_appq_evd_campaign.id", `%${search}%`).orWhere(
-            "wp_appq_evd_campaign.title",
-            "like",
-            `%${search}%`
-          );
+          this.whereLike("wp_appq_evd_campaign.id", `%${search}%`)
+            .orWhereLike("wp_appq_evd_campaign.title", `%${search}%`)
+            .orWhereLike("wp_appq_evd_campaign.customer_title", `%${search}%`);
         });
       }
     });
