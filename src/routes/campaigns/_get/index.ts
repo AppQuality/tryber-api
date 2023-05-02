@@ -25,13 +25,16 @@ class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
   query: StoplightOperations["get-campaigns"]["parameters"]["query"];
 }> {
-  private accessibleCampaigns: true | number[] = [];
+  private accessibleCampaigns: true | number[] = this.campaignOlps
+    ? this.campaignOlps
+    : [];
   private fields = ACCEPTABLE_FIELDS;
   private start: number = 0;
   private limit: number | undefined;
+  private showMineOnly = false;
 
-  protected async init() {
-    if (this.campaignOlps) this.accessibleCampaigns = this.campaignOlps;
+  constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
 
     const query = this.getQuery();
     if (query.fields) {
@@ -42,11 +45,14 @@ class RouteItem extends UserRoute<{
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
+    if (query.mine) this.showMineOnly = true;
 
     if (query.start) this.start = parseInt(query.start as unknown as string);
     if (query.limit) {
       this.limit = parseInt(query.limit as unknown as string);
-    } else if (query.start) this.limit = 10;
+    } else if (query.start) {
+      this.limit = 10;
+    }
   }
 
   protected async filter() {
@@ -82,6 +88,10 @@ class RouteItem extends UserRoute<{
         "wp_appq_evd_campaign.id",
         this.accessibleCampaigns
       );
+    }
+
+    if (this.showMineOnly) {
+      query = query.where("wp_appq_evd_campaign.pm_id", this.getTesterId());
     }
 
     this.addIdTo(query);

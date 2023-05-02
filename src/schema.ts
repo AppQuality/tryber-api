@@ -876,6 +876,8 @@ export interface operations {
         start?: components["parameters"]["start"];
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
+        /** Return only your campaign? */
+        mine?: "true";
       };
     };
     responses: {
