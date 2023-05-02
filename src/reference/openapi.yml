@@ -239,6 +239,11 @@ paths:
           name: mine
           description: Return only your campaign?
           allowEmptyValue: true
+        - schema:
+            type: string
+          in: query
+          name: search
+          description: A value to search in id or title
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
