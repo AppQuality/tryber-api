@@ -256,7 +256,7 @@ class RouteItem extends UserRoute<{
         const search = this.search.toLowerCase();
         query = query.where(function () {
           this.whereLike("wp_appq_evd_campaign.id", `%${search}%`).orWhere(
-            tryber.raw('LOWER("title")'),
+            tryber.raw("LOWER(wp_appq_evd_campaign.title)"),
             "like",
             `%${search}%`
           );
