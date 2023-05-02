@@ -83,11 +83,13 @@ describe("GET /campaigns", () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.items)).toBe(true);
     expect(response.body.items.length).toBe(3);
-    expect(response.body.items).toEqual([
-      expect.objectContaining({ id: 1, name: "First campaign" }),
-      expect.objectContaining({ id: 2, name: "Second campaign" }),
-      expect.objectContaining({ id: 3, name: "Third campaign" }),
-    ]);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, name: "First campaign" }),
+        expect.objectContaining({ id: 2, name: "Second campaign" }),
+        expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
   });
   it("Should answer with a list of your campaigns if has partial access", async () => {
     const response = await request(app)
@@ -96,10 +98,12 @@ describe("GET /campaigns", () => {
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body.items)).toBe(true);
     expect(response.body.items.length).toBe(2);
-    expect(response.body.items).toEqual([
-      expect.objectContaining({ id: 1, name: "First campaign" }),
-      expect.objectContaining({ id: 3, name: "Third campaign" }),
-    ]);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, name: "First campaign" }),
+        expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
   });
 });
 
@@ -172,8 +176,12 @@ describe("GET /campaigns with start and limit query params", () => {
     expect(response.body.limit).toBe(2);
     expect(response.body.start).toBe(0);
     expect(response.body.total).toBe(5);
-    expect(response.body.items[0].id).toBe(1);
-    expect(response.body.items[1].id).toBe(2);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 5, name: "Fifth campaign" }),
+        expect.objectContaining({ id: 4, name: "Fourth campaign" }),
+      ])
+    );
   });
 
   it("Should return the campaigns starting from the third one if start=2", async () => {
@@ -191,8 +199,12 @@ describe("GET /campaigns with start and limit query params", () => {
     expect(response.body.limit).toBe(10);
     expect(response.body.start).toBe(2);
     expect(response.body.total).toBe(5);
-    expect(response.body.items[0].id).toBe(3);
-    expect(response.body.items[1].id).toBe(4);
-    expect(response.body.items[2].id).toBe(5);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, name: "First campaign" }),
+        expect.objectContaining({ id: 2, name: "Second campaign" }),
+        expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
   });
 });

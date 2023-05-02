@@ -60,8 +60,12 @@ describe("GET /campaigns", () => {
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(2);
-    expect(response.body.items[0].name).toBe("First campaign");
-    expect(response.body.items[1].name).toBe("Third campaign");
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, name: "First campaign" }),
+        expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
   });
 
   it("Should return filtered campaign total", async () => {

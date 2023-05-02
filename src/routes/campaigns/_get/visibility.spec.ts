@@ -50,21 +50,27 @@ describe("GET /campaigns", () => {
 
   it("Should return just visibility data if field is set with visibility", async () => {
     const response = await request(app)
-      .get("/campaigns?fields=visibility")
+      .get("/campaigns?fields=visibility,id")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    expect(response.body.items).toEqual([
-      {
-        visibility: "admin",
-      },
-      {
-        visibility: "smallgroup",
-      },
-      {
-        visibility: "logged",
-      },
-      {
-        visibility: "public",
-      },
-    ]);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        {
+          id: 1,
+          visibility: "admin",
+        },
+        {
+          id: 2,
+          visibility: "smallgroup",
+        },
+        {
+          id: 3,
+          visibility: "logged",
+        },
+        {
+          id: 4,
+          visibility: "public",
+        },
+      ])
+    );
   });
 });

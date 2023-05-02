@@ -880,6 +880,10 @@ export interface operations {
         mine?: "true";
         /** A value to search in id or title */
         search?: string;
+        /** How to order values (ASC, DESC) */
+        order?: components["parameters"]["order"];
+        /** The parameter to order by */
+        orderBy?: "id" | "startDate" | "endDate";
       };
     };
     responses: {
