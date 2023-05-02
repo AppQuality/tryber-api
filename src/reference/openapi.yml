@@ -3559,11 +3559,12 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/Customer'
-                    - type: object
-                      properties:
+                    - properties:
                         id:
                           type: integer
+                        name:
+                          type: string
+                  type: object
               examples:
                 example-1:
                   value:
@@ -3576,88 +3577,7 @@ paths:
       description: Get all the customers you have access to
       security:
         - JWT: []
-    post:
-      summary: Create Customers
-      operationId: post-customers
-      responses:
-        '201':
-          description: Created
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      description: Add a new Customer to the platform
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The customer you want to create
-      security:
-        - JWT: []
     parameters: []
-  '/customers/{customer}':
-    parameters:
-      - $ref: '#/components/parameters/customer'
-    get:
-      summary: Get a specific Customer
-      tags:
-        - Customer
-      responses:
-        '200':
-          description: The Customer data you requested
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-              examples:
-                example-1:
-                  value:
-                    username: Elon71
-                    customer_name: Elon71
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-customers-customer_id
-      description: Get the data for a Customer if you have access to it
-      security:
-        - JWT: []
-    put:
-      summary: Edit a Customer
-      operationId: put-customers-customer
-      responses:
-        '200':
-          description: OK
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: Change the data of a Customer if you have access to it
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The Customer data to edit
-      security:
-        - JWT: []
   /custom_user_fields:
     get:
       summary: Get all custom user fields
@@ -8182,13 +8102,6 @@ components:
         - area
         - institute
         - achievement_date
-    Customer:
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - properties:
-            customer_name:
-              type: string
-          type: object
     CustomUserFieldsData:
       title: CustomUserFieldsData
       type: object

@@ -154,21 +154,7 @@ export interface paths {
   "/customers": {
     /** Get all the customers you have access to */
     get: operations["get-customers"];
-    /** Add a new Customer to the platform */
-    post: operations["post-customers"];
     parameters: {};
-  };
-  "/customers/{customer}": {
-    /** Get the data for a Customer if you have access to it */
-    get: operations["get-customers-customer_id"];
-    /** Change the data of a Customer if you have access to it */
-    put: operations["put-customers-customer"];
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-      };
-    };
   };
   "/custom_user_fields": {
     get: operations["get-customUserFields"];
@@ -569,9 +555,6 @@ export interface components {
       institute: string;
       /** Format: date */
       achievement_date: string;
-    };
-    Customer: components["schemas"]["User"] & {
-      customer_name?: string;
     };
     /** CustomUserFieldsData */
     CustomUserFieldsData: {
@@ -1665,69 +1648,13 @@ export interface operations {
       /** An array of Customer objects */
       200: {
         content: {
-          "application/json": (components["schemas"]["Customer"] & {
+          "application/json": {
             id?: number;
-          })[];
+            name?: string;
+          }[];
         };
       };
       403: components["responses"]["NotAuthorized"];
-    };
-  };
-  /** Add a new Customer to the platform */
-  "post-customers": {
-    parameters: {};
-    responses: {
-      /** Created */
-      201: unknown;
-      400: components["responses"]["MissingParameters"];
-      403: components["responses"]["NotAuthorized"];
-    };
-    /** The customer you want to create */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["Customer"];
-      };
-    };
-  };
-  /** Get the data for a Customer if you have access to it */
-  "get-customers-customer_id": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-      };
-    };
-    responses: {
-      /** The Customer data you requested */
-      200: {
-        content: {
-          "application/json": components["schemas"]["Customer"];
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
-  /** Change the data of a Customer if you have access to it */
-  "put-customers-customer": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: components["parameters"]["customer"];
-      };
-    };
-    responses: {
-      /** OK */
-      200: unknown;
-      400: components["responses"]["MissingParameters"];
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-    /** The Customer data to edit */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["Customer"];
-      };
     };
   };
   "get-customUserFields": {
