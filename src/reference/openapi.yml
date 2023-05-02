@@ -231,6 +231,14 @@ paths:
           name: fields
         - $ref: '#/components/parameters/start'
         - $ref: '#/components/parameters/limit'
+        - schema:
+            type: string
+            enum:
+              - 'true'
+          in: query
+          name: mine
+          description: Return only your campaign?
+          allowEmptyValue: true
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
