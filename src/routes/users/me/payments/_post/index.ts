@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: post-users-me-payments */
+
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { sendTemplate } from "@src/features/mail/sendTemplate";

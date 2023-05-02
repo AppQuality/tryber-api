@@ -1,3 +1,5 @@
+/** OPENAPI-CLASS: post-users-me-campaigns-campaignId-forms */
+
 import { CampaignObject } from "@src/features/db/class/Campaigns";
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
@@ -10,8 +12,6 @@ import PreseselectionFormData from "@src/features/db/class/PreselectionFormData"
 import QuestionFactory from "../QuestionFactory";
 import Question from "../QuestionFactory/Questions";
 import CampaignApplications from "@src/features/db/class/CampaignApplications";
-
-/** OPENAPI-CLASS: post-users-me-campaigns-campaignId-forms */
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-users-me-campaigns-campaignId-forms"]["responses"]["200"];

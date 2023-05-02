@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-payouts */
+
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";

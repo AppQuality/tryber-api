@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-campaign */
+
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import CampaignRoute from "@src/features/routes/CampaignRoute";

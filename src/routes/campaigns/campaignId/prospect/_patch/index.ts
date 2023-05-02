@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: patch-campaigns-campaign-prospect */
+
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import { send } from "@src/features/mail/send";

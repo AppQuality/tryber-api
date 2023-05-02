@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
+
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
@@ -175,11 +176,11 @@ export default class BugsRoute extends CampaignRoute<{
     if (!bugs || !bugs.length) return [];
 
     const bugsWithDuplication = await this.enhanceBugsWithDuplication<
-      typeof bugs[number]
+      (typeof bugs)[number]
     >(bugs);
 
     const bugWithTags = await this.enhanceBugsWithTags<
-      typeof bugsWithDuplication[number]
+      (typeof bugsWithDuplication)[number]
     >(bugsWithDuplication);
 
     return bugWithTags.map((bug) => ({

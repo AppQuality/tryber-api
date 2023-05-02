@@ -4,8 +4,13 @@ import request from "supertest";
 const campaign = {
   id: 1,
   platform_id: 1,
-  start_date: "2020-01-01",
-  end_date: "2020-01-01",
+  // start_date: is stringified today date in format yyyy-mm-dd
+  start_date: new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0],
+  end_date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+    .toISOString()
+    .split("T")[0],
   title: "This is the title",
   page_preview_id: 1,
   page_manual_id: 1,
@@ -17,6 +22,28 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 1,
+        name: "name",
+        surname: "surname",
+        email: "",
+        wp_user_id: 1,
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 2,
+        name: "test",
+        surname: "test",
+        email: "",
+        wp_user_id: 2,
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, title: "First campaign" },
       { ...campaign, id: 2, title: "Second campaign" },
@@ -25,6 +52,7 @@ describe("GET /campaigns", () => {
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
   it("Should answer 403 if not logged in", () => {
@@ -56,9 +84,9 @@ describe("GET /campaigns", () => {
     expect(Array.isArray(response.body.items)).toBe(true);
     expect(response.body.items.length).toBe(3);
     expect(response.body.items).toEqual([
-      { id: 1, name: "First campaign" },
-      { id: 2, name: "Second campaign" },
-      { id: 3, name: "Third campaign" },
+      expect.objectContaining({ id: 1, name: "First campaign" }),
+      expect.objectContaining({ id: 2, name: "Second campaign" }),
+      expect.objectContaining({ id: 3, name: "Third campaign" }),
     ]);
   });
   it("Should answer with a list of your campaigns if has partial access", async () => {
@@ -69,14 +97,36 @@ describe("GET /campaigns", () => {
     expect(Array.isArray(response.body.items)).toBe(true);
     expect(response.body.items.length).toBe(2);
     expect(response.body.items).toEqual([
-      { id: 1, name: "First campaign" },
-      { id: 3, name: "Third campaign" },
+      expect.objectContaining({ id: 1, name: "First campaign" }),
+      expect.objectContaining({ id: 3, name: "Third campaign" }),
     ]);
   });
 });
 
 describe("GET /campaigns with start and limit query params", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 1,
+        name: "name",
+        surname: "surname",
+        email: "",
+        wp_user_id: 1,
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 2,
+        name: "test",
+        surname: "test",
+        email: "",
+        wp_user_id: 2,
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, title: "First campaign" },
       { ...campaign, id: 2, title: "Second campaign" },
@@ -88,6 +138,7 @@ describe("GET /campaigns with start and limit query params", () => {
 
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
   it("Should return all campaigns if no start and limit are passed", async () => {

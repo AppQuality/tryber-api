@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-candidates */
+
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 import Campaigns from "@src/features/db/class/Campaigns";
