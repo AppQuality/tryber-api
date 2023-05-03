@@ -39,7 +39,9 @@ class RouteItem extends UserRoute<{
     | "wp_appq_evd_campaign.id"
     | "wp_appq_evd_campaign.start_date"
     | "wp_appq_evd_campaign.end_date" = "wp_appq_evd_campaign.id";
-  private filterBy: PartialRecord<"customer", string> = {};
+  private filterBy: {
+    customer?: number[];
+  } = {};
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -80,7 +82,9 @@ class RouteItem extends UserRoute<{
 
     if (query.filterBy) {
       if ((query.filterBy as any).customer) {
-        this.filterBy.customer = (query.filterBy as any).customer;
+        this.filterBy.customer = (query.filterBy as any).customer
+          .split(",")
+          .map((id: string) => parseInt(id));
       }
     }
   }
@@ -114,6 +118,8 @@ class RouteItem extends UserRoute<{
   private async getCampaigns() {
     let query = tryber.tables.WpAppqEvdCampaign.do();
 
+    this.addJoinToProject(query);
+
     this.addFiltersTo(query);
 
     this.addIdTo(query);
@@ -122,7 +128,6 @@ class RouteItem extends UserRoute<{
     this.addEndDateTo(query);
     this.addCustomerTitleTo(query);
 
-    this.addJoinToProject(query);
     this.addProjectTo(query);
     this.addCustomerTo(query);
 
@@ -285,10 +290,21 @@ class RouteItem extends UserRoute<{
       if (this.search) {
         const search = this.search.toLowerCase();
         query = query.where(function () {
-          this.whereILike("wp_appq_evd_campaign.id", `%${search}%`)
-            .orWhereILike("wp_appq_evd_campaign.title", `%${search}%`)
-            .orWhereILike("wp_appq_evd_campaign.customer_title", `%${search}%`);
+          this.where("wp_appq_evd_campaign.id", "like", `%${search}%`)
+            .orWhere("wp_appq_evd_campaign.title", "like", `%${search}%`)
+            .orWhere(
+              "wp_appq_evd_campaign.customer_title",
+              "like",
+              `%${search}%`
+            );
         });
+      }
+
+      if (this.filterBy.customer) {
+        query = query.whereIn(
+          "wp_appq_project.customer_id",
+          this.filterBy.customer
+        );
       }
     });
   }
@@ -353,7 +369,11 @@ class RouteItem extends UserRoute<{
 
   private addJoinToProject(query: CampaignSelect) {
     query.modify((query) => {
-      if (this.fields.includes("project") || this.fields.includes("customer")) {
+      if (
+        this.fields.includes("project") ||
+        this.fields.includes("customer") ||
+        this.filterBy.customer
+      ) {
         query.leftJoin(
           "wp_appq_project",
           "wp_appq_project.id",

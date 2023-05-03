@@ -94,6 +94,7 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/campaigns?search=2&limit=10")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.total).toBe(2);
   });
