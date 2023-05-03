@@ -267,9 +267,10 @@ class RouteItem extends UserRoute<{
     if (this.limit === undefined) return undefined;
     let query = tryber.tables.WpAppqEvdCampaign.do();
 
+    this.addJoinToProject(query);
     this.addFiltersTo(query);
 
-    const count = await query.count({ count: "id" });
+    const count = await query.count({ count: "wp_appq_evd_campaign.id" });
     const totalCount = count[0].count;
     return typeof totalCount === "number" ? totalCount : 0;
   }

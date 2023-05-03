@@ -80,4 +80,14 @@ describe("GET /campaigns", () => {
       ])
     );
   });
+
+  it("Should return total based on filter", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[customer]=1,2&limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    console.log(response.body);
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(2);
+    expect(response.body.total).toBe(2);
+  });
 });
