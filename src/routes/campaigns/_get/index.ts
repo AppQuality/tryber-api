@@ -39,6 +39,7 @@ class RouteItem extends UserRoute<{
     | "wp_appq_evd_campaign.id"
     | "wp_appq_evd_campaign.start_date"
     | "wp_appq_evd_campaign.end_date" = "wp_appq_evd_campaign.id";
+  private filterBy: PartialRecord<"customer", string> = {};
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -74,6 +75,12 @@ class RouteItem extends UserRoute<{
         case "endDate":
           this.orderBy = "wp_appq_evd_campaign.end_date";
           break;
+      }
+    }
+
+    if (query.filterBy) {
+      if ((query.filterBy as any).customer) {
+        this.filterBy.customer = (query.filterBy as any).customer;
       }
     }
   }
@@ -278,9 +285,9 @@ class RouteItem extends UserRoute<{
       if (this.search) {
         const search = this.search.toLowerCase();
         query = query.where(function () {
-          this.whereLike("wp_appq_evd_campaign.id", `%${search}%`)
-            .orWhereLike("wp_appq_evd_campaign.title", `%${search}%`)
-            .orWhereLike("wp_appq_evd_campaign.customer_title", `%${search}%`);
+          this.whereILike("wp_appq_evd_campaign.id", `%${search}%`)
+            .orWhereILike("wp_appq_evd_campaign.title", `%${search}%`)
+            .orWhereILike("wp_appq_evd_campaign.customer_title", `%${search}%`);
         });
       }
     });
