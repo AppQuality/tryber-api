@@ -254,6 +254,9 @@ paths:
           in: query
           name: orderBy
           description: The parameter to order by
+        - schema: {}
+          in: query
+          name: filterBy
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'

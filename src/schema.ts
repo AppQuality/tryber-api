@@ -867,6 +867,7 @@ export interface operations {
         order?: components["parameters"]["order"];
         /** The parameter to order by */
         orderBy?: "id" | "startDate" | "endDate";
+        filterBy?: unknown;
       };
     };
     responses: {
