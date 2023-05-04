@@ -41,6 +41,7 @@ class RouteItem extends UserRoute<{
     | "wp_appq_evd_campaign.end_date" = "wp_appq_evd_campaign.id";
   private filterBy: {
     customer?: number[];
+    status?: "closed" | "running" | "incoming";
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -85,6 +86,12 @@ class RouteItem extends UserRoute<{
         this.filterBy.customer = (query.filterBy as any).customer
           .split(",")
           .map((id: string) => parseInt(id));
+      }
+      if ((query.filterBy as any).status) {
+        const status = (query.filterBy as any).status;
+        if (status === "closed") this.filterBy.status = "closed" as const;
+        if (status === "running") this.filterBy.status = "running" as const;
+        if (status === "incoming") this.filterBy.status = "incoming" as const;
       }
     }
   }
@@ -306,6 +313,21 @@ class RouteItem extends UserRoute<{
           "wp_appq_project.customer_id",
           this.filterBy.customer
         );
+      }
+      if (this.filterBy.status) {
+        if (this.filterBy.status === "closed") {
+          query = query.where("wp_appq_evd_campaign.status_id", 2);
+        }
+        if (this.filterBy.status === "running") {
+          query = query
+            .where("wp_appq_evd_campaign.status_id", 1)
+            .where("wp_appq_evd_campaign.start_date", "<=", tryber.fn.now());
+        }
+        if (this.filterBy.status === "incoming") {
+          query = query
+            .where("wp_appq_evd_campaign.status_id", 1)
+            .where("wp_appq_evd_campaign.start_date", ">", tryber.fn.now());
+        }
       }
     });
   }
