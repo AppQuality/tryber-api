@@ -116,7 +116,6 @@ describe("GET /campaigns", () => {
     const response = await request(app)
       .get("/customers")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,2]}');
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBe(2);

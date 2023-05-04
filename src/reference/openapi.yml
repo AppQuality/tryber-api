@@ -3473,6 +3473,37 @@ paths:
       description: ''
       security:
         - JWT: []
+  /campaignTypes:
+    parameters: []
+    get:
+      summary: Get Campaign Types
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples:
+                Example 1:
+                  value:
+                    - id: 1
+                      name: Type 1
+          description: ''
+      operationId: get-campaign-types
+      description: ''
+      security:
+        - JWT: []
   /certifications:
     get:
       summary: Retrive and filter all certifications

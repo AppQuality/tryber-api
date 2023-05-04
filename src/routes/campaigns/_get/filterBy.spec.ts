@@ -21,6 +21,23 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "Campaign Type 1",
+        category_id: 1,
+      },
+      {
+        id: 2,
+        name: "Campaign Type 2",
+        category_id: 1,
+      },
+      {
+        id: 3,
+        name: "Campaign Type 3",
+        category_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
         id: 1,
@@ -63,6 +80,7 @@ describe("GET /campaigns", () => {
         title: "First campaign",
         project_id: 1,
         status_id: 1,
+        campaign_type_id: 1,
       },
       {
         ...campaign,
@@ -73,6 +91,7 @@ describe("GET /campaigns", () => {
           .toISOString()
           .split("T")[0],
         status_id: 1,
+        campaign_type_id: 2,
       },
       {
         ...campaign,
@@ -80,6 +99,7 @@ describe("GET /campaigns", () => {
         title: "Third campaign",
         project_id: 2,
         status_id: 2,
+        campaign_type_id: 3,
       },
     ]);
   });
@@ -172,5 +192,27 @@ describe("GET /campaigns", () => {
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(1);
     expect(response.body.total).toBe(1);
+  });
+  it("Should return only campaigns of specific type if filterBy is set", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[type]=1,3")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(2);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, name: "First campaign" }),
+        expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
+  });
+
+  it("Should return total based on filter", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[type]=1,3&limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(2);
+    expect(response.body.total).toBe(2);
   });
 });
