@@ -57,9 +57,30 @@ describe("GET /campaigns", () => {
       },
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 1, title: "First campaign", project_id: 1 },
-      { ...campaign, id: 2, title: "Second campaign", project_id: 3 },
-      { ...campaign, id: 3, title: "Third campaign", project_id: 2 },
+      {
+        ...campaign,
+        id: 1,
+        title: "First campaign",
+        project_id: 1,
+        status_id: 1,
+      },
+      {
+        ...campaign,
+        id: 2,
+        title: "Second campaign",
+        project_id: 3,
+        start_date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+        status_id: 1,
+      },
+      {
+        ...campaign,
+        id: 3,
+        title: "Third campaign",
+        project_id: 2,
+        status_id: 2,
+      },
     ]);
   });
   afterAll(async () => {
@@ -81,13 +102,75 @@ describe("GET /campaigns", () => {
     );
   });
 
-  it("Should return total based on filter", async () => {
+  it("Should return total based on filter customer", async () => {
     const response = await request(app)
       .get("/campaigns?filterBy[customer]=1,2&limit=10")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(2);
     expect(response.body.total).toBe(2);
+  });
+
+  it("Should return only campaigns closed if filterBy is set", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[status]=closed")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
+  });
+  it("Should return total based on filter status closed", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[status]=closed&limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.total).toBe(1);
+  });
+
+  it("Should return only campaigns running if filterBy is set", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[status]=running")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 1, name: "First campaign" }),
+      ])
+    );
+  });
+  it("Should return total based on filter status running", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[status]=running&limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.total).toBe(1);
+  });
+
+  it("Should return only campaigns incoming if filterBy is set", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[status]=incoming")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 2, name: "Second campaign" }),
+      ])
+    );
+  });
+  it("Should return total based on filter status incoming", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[status]=incoming&limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.total).toBe(1);
   });
 });
