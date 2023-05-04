@@ -138,6 +138,10 @@ export interface paths {
       };
     };
   };
+  "/campaignTypes": {
+    get: operations["get-campaign-types"];
+    parameters: {};
+  };
   "/certifications": {
     /** Get all certificatio */
     get: operations["get-certifications"];
@@ -1593,6 +1597,19 @@ export interface operations {
           "application/json": {
             selected: number;
           };
+        };
+      };
+    };
+  };
+  "get-campaign-types": {
+    parameters: {};
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          }[];
         };
       };
     };
