@@ -41,6 +41,7 @@ class RouteItem extends UserRoute<{
     | "wp_appq_evd_campaign.end_date" = "wp_appq_evd_campaign.id";
   private filterBy: {
     customer?: number[];
+    type?: number[];
     status?: "closed" | "running" | "incoming";
   } = {};
 
@@ -84,6 +85,11 @@ class RouteItem extends UserRoute<{
     if (query.filterBy) {
       if ((query.filterBy as any).customer) {
         this.filterBy.customer = (query.filterBy as any).customer
+          .split(",")
+          .map((id: string) => parseInt(id));
+      }
+      if ((query.filterBy as any).type) {
+        this.filterBy.type = (query.filterBy as any).type
           .split(",")
           .map((id: string) => parseInt(id));
       }
@@ -312,6 +318,12 @@ class RouteItem extends UserRoute<{
         query = query.whereIn(
           "wp_appq_project.customer_id",
           this.filterBy.customer
+        );
+      }
+      if (this.filterBy.type) {
+        query = query.whereIn(
+          "wp_appq_evd_campaign.campaign_type_id",
+          this.filterBy.type
         );
       }
       if (this.filterBy.status) {
