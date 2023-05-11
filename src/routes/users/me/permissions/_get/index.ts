@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-users-me-permissions */
+
 import UserRoute from "@src/features/routes/UserRoute";
 export default class PermissionRoute extends UserRoute<{
   response: StoplightOperations["get-users-me-permissions"]["responses"]["200"]["content"]["application/json"];

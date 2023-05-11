@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE:get-users-me-fiscal */
+
 import { Context } from "openapi-backend";
 import getByUser from "../getByUser";
 

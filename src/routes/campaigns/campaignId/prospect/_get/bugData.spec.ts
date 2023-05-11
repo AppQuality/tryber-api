@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import useCampaign from "./useCampaign";
 
 useCampaign();
@@ -108,6 +108,24 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
       ])
     );
     expect(response.body.items.length).toEqual(2);
+  });
+
+  it("Should not show top tester if is filtered out", async () => {
+    //we expect that uploaded bugs have just status 2 = approved
+    const response = await request(app)
+      .get("/campaigns/1/prospect?filterByInclude[ids]=2")
+      .set("Authorization", 'Bearer tester olp {"appq_tester_selection":[1]}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({ id: 2 }),
+          weightedBugs: 0,
+          isTopTester: false,
+        }),
+      ])
+    );
+    expect(response.body.items.length).toEqual(1);
   });
 });
 

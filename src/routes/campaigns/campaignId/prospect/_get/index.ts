@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-prospect */
+
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
@@ -126,17 +127,19 @@ export default class ProspectRoute extends CampaignRoute<{
       .where("accepted", 1)
       .orderBy("wp_appq_evd_profile.id", "ASC");
 
-    return this.getFilteredTesters<(typeof result)[number]>(result);
+    return result;
   }
 
-  private getFilteredTesters<T>(selectedTesters: (T & { id: number })[]) {
+  private getFilteredTesters<T>(
+    selectedTesters: (T & { tester: { id: number } })[]
+  ) {
     const idsToInclude = this.getIdsToInclude();
     if (idsToInclude.length > 0)
-      return selectedTesters.filter((t) => idsToInclude.includes(t.id));
+      return selectedTesters.filter((t) => idsToInclude.includes(t.tester.id));
 
     const idsToExclude = this.getIdsToExclude();
     if (idsToExclude.length > 0)
-      return selectedTesters.filter((t) => !idsToExclude.includes(t.id));
+      return selectedTesters.filter((t) => !idsToExclude.includes(t.tester.id));
 
     return selectedTesters;
   }
@@ -425,8 +428,9 @@ export default class ProspectRoute extends CampaignRoute<{
     const topTester = this.getTopTester(items);
     topTester.isTopTester = true;
 
+    const result = this.getFilteredTesters<typeof items[0]>(items);
     return this.setSuccess(200, {
-      items,
+      items: result,
       status: await this.getProspectStatus(),
     });
   }

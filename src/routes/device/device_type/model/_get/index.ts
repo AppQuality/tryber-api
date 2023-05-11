@@ -1,7 +1,8 @@
+/** OPENAPI-ROUTE: get-devices-devices-type-model */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-/** OPENAPI-ROUTE: get-devices-devices-type-model */
 export default async (
   c: Context,
   req: OpenapiRequest,

@@ -1,3 +1,5 @@
+/** OPENAPI-CLASS: post-campaigns-campaign-candidates */
+
 import debugMessage from "@src/features/debugMessage";
 import createCandidature from "./createCandidature";
 import AdminRoute from "@src/features/routes/AdminRoute";
@@ -10,7 +12,6 @@ import TesterDevices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
 
-/** OPENAPI-CLASS: post-campaigns-campaign-candidates */
 export default class RouteItem extends AdminRoute<{
   response:
     | StoplightOperations["post-campaigns-campaign-candidates"]["responses"]["200"]["content"]["application/json"]
@@ -121,7 +122,7 @@ export default class RouteItem extends AdminRoute<{
     );
   }
 
-  private testerHasDevice(application: typeof this.selection[number]) {
+  private testerHasDevice(application: (typeof this.selection)[number]) {
     if (application.device === 0 || application.device === "random")
       return true;
     const userDevices = (this.devices[application.tester] || []).map(

@@ -1,10 +1,10 @@
+/** OPENAPI-CLASS: get-users-me-campaigns-campaignId-compatible-devices */
+
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import TesterDevices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
-
-/** OPENAPI-CLASS: get-users-me-campaigns-campaignId-compatible-devices */
 
 class RouteItem extends UserRoute<{
   parameters: StoplightOperations["get-users-me-campaigns-campaignId-compatible-devices"]["parameters"]["path"];

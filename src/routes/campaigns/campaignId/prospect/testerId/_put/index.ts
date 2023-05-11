@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: put-campaigns-campaign-prospect-testerId */
+
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";

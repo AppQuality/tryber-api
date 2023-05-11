@@ -1,7 +1,7 @@
-import UserRoute from "@src/features/routes/UserRoute";
-import * as db from "@src/features/db";
 /** OPENAPI-CLASS: get-campaigns-forms-formId */
 
+import UserRoute from "@src/features/routes/UserRoute";
+import * as db from "@src/features/db";
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-forms-formId"]["parameters"]["path"];

@@ -1,8 +1,9 @@
+/** OPENAPI-ROUTE: get-users-me-campaigns-campaignId */
+
 import { Context } from "openapi-backend";
 import Campaign from "@src/features/class/Campaign";
 import { Result } from "./types.d";
 
-/** OPENAPI-ROUTE: get-users-me-campaigns-campaignId */
 export default async (
   c: Context,
   req: OpenapiRequest,

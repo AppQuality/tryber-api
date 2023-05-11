@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: post-authenticate */
+
 import jwt from "jsonwebtoken";
 import { Context, Request } from "openapi-backend";
 import hasher from "wordpress-hash-node";

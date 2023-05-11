@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-users-me */
+
 import { Context } from "openapi-backend";
 
 import getUserData from "./getUserData";

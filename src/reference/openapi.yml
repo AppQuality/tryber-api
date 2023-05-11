@@ -134,14 +134,88 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            customerTitle:
+                              type: string
+                            startDate:
+                              type: string
+                            endDate:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - running
+                                - closed
+                                - incoming
+                            visibility:
+                              type: string
+                              enum:
+                                - admin
+                                - smallgroup
+                                - logged
+                                - public
+                            resultType:
+                              type: string
+                              enum:
+                                - bug
+                                - bugparade
+                                - 'no'
+                            csm:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                                surname:
+                                  type: string
+                              required:
+                                - id
+                                - name
+                                - surname
+                            customer:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                                - name
+                            type:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                area:
+                                  type: string
+                                  enum:
+                                    - quality
+                                    - experience
+                              required:
+                                - name
+                                - area
+                            project:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                                - name
+                  - $ref: '#/components/schemas/PaginationData'
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -151,6 +225,39 @@ paths:
       description: Get all the Campaigns you have access to
       tags:
         - Campaign
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fields
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - schema:
+            type: string
+            enum:
+              - 'true'
+          in: query
+          name: mine
+          description: Return only your campaign?
+          allowEmptyValue: true
+        - schema:
+            type: string
+          in: query
+          name: search
+          description: A value to search in id or title
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - id
+              - startDate
+              - endDate
+          in: query
+          name: orderBy
+          description: The parameter to order by
+        - schema: {}
+          in: query
+          name: filterBy
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -3367,6 +3474,37 @@ paths:
       description: ''
       security:
         - JWT: []
+  /campaignTypes:
+    parameters: []
+    get:
+      summary: Get Campaign Types
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples:
+                Example 1:
+                  value:
+                    - id: 1
+                      name: Type 1
+          description: ''
+      operationId: get-campaign-types
+      description: ''
+      security:
+        - JWT: []
   /certifications:
     get:
       summary: Retrive and filter all certifications
@@ -3456,11 +3594,12 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/Customer'
-                    - type: object
-                      properties:
+                    - properties:
                         id:
                           type: integer
+                        name:
+                          type: string
+                  type: object
               examples:
                 example-1:
                   value:
@@ -3473,88 +3612,7 @@ paths:
       description: Get all the customers you have access to
       security:
         - JWT: []
-    post:
-      summary: Create Customers
-      operationId: post-customers
-      responses:
-        '201':
-          description: Created
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      description: Add a new Customer to the platform
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The customer you want to create
-      security:
-        - JWT: []
     parameters: []
-  '/customers/{customer}':
-    parameters:
-      - $ref: '#/components/parameters/customer'
-    get:
-      summary: Get a specific Customer
-      tags:
-        - Customer
-      responses:
-        '200':
-          description: The Customer data you requested
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-              examples:
-                example-1:
-                  value:
-                    username: Elon71
-                    customer_name: Elon71
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-customers-customer_id
-      description: Get the data for a Customer if you have access to it
-      security:
-        - JWT: []
-    put:
-      summary: Edit a Customer
-      operationId: put-customers-customer
-      responses:
-        '200':
-          description: OK
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: Change the data of a Customer if you have access to it
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The Customer data to edit
-      security:
-        - JWT: []
   /custom_user_fields:
     get:
       summary: Get all custom user fields
@@ -8079,13 +8137,6 @@ components:
         - area
         - institute
         - achievement_date
-    Customer:
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - properties:
-            customer_name:
-              type: string
-          type: object
     CustomUserFieldsData:
       title: CustomUserFieldsData
       type: object
