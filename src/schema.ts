@@ -886,7 +886,7 @@ export interface operations {
               startDate?: string;
               endDate?: string;
               /** @enum {string} */
-              status?: "running" | "closed";
+              status?: "running" | "closed" | "incoming";
               /** @enum {string} */
               visibility?: "admin" | "smallgroup" | "logged" | "public";
               /** @enum {string} */

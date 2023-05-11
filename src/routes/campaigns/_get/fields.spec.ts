@@ -73,7 +73,11 @@ describe("GET /campaigns", () => {
         ...campaign,
         id: 2,
         title: "Second campaign",
+        start_date: new Date(new Date().getTime() + 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         customer_title: "C Second campaign",
+        status_id: 1,
       },
       {
         ...campaign,
@@ -246,14 +250,18 @@ describe("GET /campaigns", () => {
   it("Should retrun campaigns id,status if fields is set with id,status", async () => {
     const response = await request(app)
       .get("/campaigns?fields=status,id")
-      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,3]}');
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,2,3]}');
 
-    expect(response.body.items.length).toBe(2);
+    expect(response.body.items.length).toBe(3);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         {
           id: 1,
           status: "running",
+        },
+        {
+          id: 2,
+          status: "incoming",
         },
         {
           id: 3,

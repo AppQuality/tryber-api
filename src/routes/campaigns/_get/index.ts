@@ -187,7 +187,9 @@ class RouteItem extends UserRoute<{
     return campaigns.map((campaign) => ({
       id: campaign.id,
       name: campaign.name,
-      startDate: campaign.startDate,
+      ...(this.fields.includes("startDate")
+        ? { startDate: campaign.startDate }
+        : {}),
       endDate: campaign.endDate,
       customerTitle: campaign.customerTitle,
       ...(this.fields.includes("csm")
@@ -217,11 +219,7 @@ class RouteItem extends UserRoute<{
         : {}),
       ...(this.fields.includes("status")
         ? {
-            status: campaign.status
-              ? campaign.status === 1
-                ? ("running" as const)
-                : ("closed" as const)
-              : undefined,
+            status: this.getStatusName(campaign.startDate, campaign.status),
           }
         : {}),
       ...(this.fields.includes("type")
@@ -235,6 +233,19 @@ class RouteItem extends UserRoute<{
       visibility: this.getVisibilityName(campaign.visibility),
       resultType: this.getResultTypeName(campaign.resultType),
     }));
+  }
+
+  private getStatusName(
+    startDate: string | undefined,
+    status: number | undefined
+  ) {
+    if (!startDate || !status) return undefined;
+    if (status === 1) {
+      if (new Date(startDate) > new Date()) return "incoming" as const;
+      return "running" as const;
+    }
+
+    return "closed" as const;
   }
 
   private getVisibilityName(visibility: 0 | 1 | 2 | 3 | undefined) {
@@ -362,7 +373,7 @@ class RouteItem extends UserRoute<{
 
   private addStartDateTo(query: CampaignSelect) {
     query.modify((query) => {
-      if (this.fields.includes("startDate")) {
+      if (this.fields.includes("startDate") || this.fields.includes("status")) {
         query.select(tryber.raw("CAST(start_date AS CHAR) as startDate"));
       }
     });

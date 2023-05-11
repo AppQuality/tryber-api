@@ -157,6 +157,7 @@ paths:
                               enum:
                                 - running
                                 - closed
+                                - incoming
                             visibility:
                               type: string
                               enum:
