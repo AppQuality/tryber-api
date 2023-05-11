@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import useCampaign from "./useCampaign";
 
 useCampaign();
@@ -28,7 +28,7 @@ beforeAll(async () => {
       devices: "0",
       selected_device: 1,
       results: 0,
-      group_id: 1,
+      group_id: 2,
     },
   ]);
 });
@@ -42,10 +42,10 @@ describe("GET /campaigns/campaignId/prospect - there are no record", () => {
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          tester: { id: 1, name: "John", surname: "Doe" },
+          tester: { id: 1, name: "John", surname: "Doe", group: 1 },
         }),
         expect.objectContaining({
-          tester: { id: 2, name: "John", surname: "Doe" },
+          tester: { id: 2, name: "John", surname: "Doe", group: 2 },
         }),
       ])
     );
@@ -77,10 +77,10 @@ describe("GET /campaigns/campaignId/prospect - tester payouts were edit", () => 
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          tester: { id: 1, name: "John", surname: "Doe" },
+          tester: { id: 1, name: "John", surname: "Doe", group: 1 },
         }),
         expect.objectContaining({
-          tester: { id: 2, name: "John", surname: "Doe" },
+          tester: { id: 2, name: "John", surname: "Doe", group: 2 },
         }),
       ])
     );
