@@ -1482,6 +1482,7 @@ export interface operations {
                 id: number;
                 name: string;
                 surname: string;
+                group: number;
               };
               usecases: {
                 completed: number;

@@ -3199,6 +3199,7 @@ paths:
                             - id
                             - name
                             - surname
+                            - group
                           properties:
                             id:
                               type: integer
@@ -3206,6 +3207,8 @@ paths:
                               type: string
                             surname:
                               type: string
+                            group:
+                              type: number
                         usecases:
                           type: object
                           required:

@@ -414,6 +414,7 @@ export default class ProspectRoute extends CampaignRoute<{
         id: tester.id,
         name: tester.name,
         surname: tester.surname,
+        group: tester.group,
       },
       bugs: this.getTesterBugs(tester.id),
       usecases: this.getTesterUsecases(tester.id),
