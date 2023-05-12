@@ -41,6 +41,16 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/groups": {
+    /** Get all groups used in a Campaign if you have access to it */
+    get: operations["get-campaigns-cid-groups"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/candidates": {
     get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -1028,6 +1038,28 @@ export interface operations {
               isFavourite: boolean;
             }[];
           } & components["schemas"]["PaginationData"];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get all groups used in a Campaign if you have access to it */
+  "get-campaigns-cid-groups": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          }[];
         };
       };
       403: components["responses"]["NotAuthorized"];

@@ -481,6 +481,45 @@ paths:
           name: orderBy
           description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
         - $ref: '#/components/parameters/filterBy'
+  '/campaigns/{campaign}/groups':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get all Campaign Groups
+      tags:
+        - Campaign
+      operationId: get-campaigns-cid-groups
+      description: 'Get all groups used in a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters: []
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
