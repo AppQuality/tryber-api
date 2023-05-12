@@ -133,6 +133,8 @@ export default class BugsRoute extends CampaignRoute<{
         "is_duplicated",
         "duplicated_of_id",
         "is_favorite",
+        "created",
+        "updated",
         tryber.ref("message").as("title"),
         "bug_replicability_id",
         "internal_id",
@@ -176,11 +178,11 @@ export default class BugsRoute extends CampaignRoute<{
     if (!bugs || !bugs.length) return [];
 
     const bugsWithDuplication = await this.enhanceBugsWithDuplication<
-      (typeof bugs)[number]
+      typeof bugs[number]
     >(bugs);
 
     const bugWithTags = await this.enhanceBugsWithTags<
-      (typeof bugsWithDuplication)[number]
+      typeof bugsWithDuplication[number]
     >(bugsWithDuplication);
 
     return bugWithTags.map((bug) => ({
@@ -269,6 +271,12 @@ export default class BugsRoute extends CampaignRoute<{
         duplication: bug.duplication,
         tags: bug.tags,
         isFavourite: !!bug.is_favorite,
+        created: bug.created
+          ? bug.created
+          : new Date().toISOString().slice(0, 19).replace("T", " "),
+        updated: bug.updated
+          ? bug.updated
+          : new Date().toISOString().slice(0, 19).replace("T", " "),
       };
     });
   }
