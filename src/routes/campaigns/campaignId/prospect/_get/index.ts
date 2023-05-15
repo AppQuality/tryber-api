@@ -601,7 +601,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private defaultBugPayout(tid: number) {
     const bugs = this.getTesterBugs(tid);
-    return Object.keys(bugs).reduce((acc, key) => {
+    const result = Object.keys(bugs).reduce((acc, key) => {
       const value = bugs[key as keyof typeof bugs];
       switch (key) {
         case "critical":
@@ -616,6 +616,7 @@ export default class ProspectRoute extends CampaignRoute<{
           return acc;
       }
     }, 0);
+    return parseFloat(result.toPrecision(2));
   }
 
   private getTesterExperience(tid: number) {
