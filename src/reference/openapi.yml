@@ -258,6 +258,41 @@ paths:
         - schema: {}
           in: query
           name: filterBy
+  /campaigns/owners:
+    get:
+      summary: Get owners of Campaigns
+      operationId: get-campaigns-owners
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    surname:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - surname
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      description: Get all the owners of campaigns you have access to
+      tags:
+        - Campaign
+      parameters: []
+    parameters: []
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'

@@ -19,6 +19,11 @@ export interface paths {
     /** Create a new Campaign if you have access to the creation */
     post: operations["post-campaigns"];
   };
+  "/campaigns/owners": {
+    /** Get all the owners of campaigns you have access to */
+    get: operations["get-campaigns-owners"];
+    parameters: {};
+  };
   "/campaigns/{campaign}": {
     /** Get the data of a Campaign if you have access to it */
     get: operations["get-campaigns-campaign"];
@@ -941,6 +946,24 @@ export interface operations {
           project_id?: number;
         };
       };
+    };
+  };
+  /** Get all the owners of campaigns you have access to */
+  "get-campaigns-owners": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            surname: string;
+          }[];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** Get the data of a Campaign if you have access to it */
