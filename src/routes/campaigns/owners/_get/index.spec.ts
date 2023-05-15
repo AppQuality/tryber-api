@@ -35,6 +35,11 @@ describe("GET /campaigns/owners", () => {
         id: 3,
         pm_id: 3,
       },
+      {
+        ...campaign,
+        id: 4,
+        pm_id: 1,
+      },
     ]);
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {

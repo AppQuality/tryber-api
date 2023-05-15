@@ -31,7 +31,8 @@ export default class Route extends UserRoute<{
         tryber.ref("name").withSchema("wp_appq_evd_profile"),
         tryber.ref("surname").withSchema("wp_appq_evd_profile")
       )
-      .where("wp_appq_evd_profile.name", "<>", "Deleted User");
+      .where("wp_appq_evd_profile.name", "<>", "Deleted User")
+      .groupBy("wp_appq_evd_profile.id");
     if (Array.isArray(this.campaignOlps)) {
       query = query.whereIn("wp_appq_evd_campaign.id", this.campaignOlps);
     }
