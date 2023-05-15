@@ -616,7 +616,7 @@ export default class ProspectRoute extends CampaignRoute<{
           return acc;
       }
     }, 0);
-    return parseFloat(result.toPrecision(2));
+    return parseFloat(result.toFixed(2));
   }
 
   private getTesterExperience(tid: number) {
