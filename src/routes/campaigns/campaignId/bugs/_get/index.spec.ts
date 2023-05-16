@@ -1,12 +1,9 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
-const yesterday = new Date(new Date().getTime() - 86400000)
-  .toISOString()
-  .slice(0, 19)
-  .replace("T", " ");
-const today = new Date().toISOString().slice(0, 19).replace("T", " ");
+const yesterday = new Date(new Date().getTime() - 86400000).toISOString();
+const tomorrow = new Date(new Date().getTime() + 86400000).toISOString();
 
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdProfile.do().insert({
@@ -47,7 +44,7 @@ beforeAll(async () => {
       message: "this is title Bug 1",
       is_favorite: 0,
       created: yesterday,
-      updated: today,
+      updated: tomorrow,
     },
     {
       id: 2,
@@ -63,7 +60,7 @@ beforeAll(async () => {
       message: "this is title Bug 2",
       is_favorite: 1,
       created: yesterday,
-      updated: today,
+      updated: tomorrow,
     },
     {
       id: 3,
@@ -79,7 +76,7 @@ beforeAll(async () => {
       message: "this is title Bug 3",
       is_favorite: 0,
       created: yesterday,
-      updated: today,
+      updated: tomorrow,
     },
   ]);
 
@@ -180,15 +177,15 @@ describe("GET /campaigns/campaignId/bugs", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 1,
-          created: yesterday,
+          created: yesterday.slice(0, 19).replace("T", " "),
         }),
         expect.objectContaining({
           id: 2,
-          created: yesterday,
+          created: yesterday.slice(0, 19).replace("T", " "),
         }),
         expect.objectContaining({
           id: 3,
-          created: yesterday,
+          created: yesterday.slice(0, 19).replace("T", " "),
         }),
       ])
     );
@@ -201,22 +198,18 @@ describe("GET /campaigns/campaignId/bugs", () => {
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("items");
 
-    expect(response.body.items).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-          updated: today,
-        }),
-        expect.objectContaining({
-          id: 2,
-          updated: today,
-        }),
-        expect.objectContaining({
-          id: 3,
-          updated: today,
-        }),
-      ])
+    expect(response.body.items).toHaveLength(3);
+    expect(response.body.items[0]).toHaveProperty(
+      "updated",
+      tomorrow.slice(0, 19).replace("T", " ")
     );
-    expect(response.body.items.length).toBe(3);
+    expect(response.body.items[1]).toHaveProperty(
+      "updated",
+      tomorrow.slice(0, 19).replace("T", " ")
+    );
+    expect(response.body.items[2]).toHaveProperty(
+      "updated",
+      tomorrow.slice(0, 19).replace("T", " ")
+    );
   });
 });
