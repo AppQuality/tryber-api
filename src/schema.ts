@@ -1059,6 +1059,8 @@ export interface operations {
               /** @enum {string} */
               duplication: "father" | "unique" | "duplicated";
               isFavourite: boolean;
+              created: string;
+              updated: string;
             }[];
           } & components["schemas"]["PaginationData"];
         };

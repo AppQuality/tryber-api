@@ -460,6 +460,10 @@ paths:
                                 - duplicated
                             isFavourite:
                               type: boolean
+                            created:
+                              type: string
+                            updated:
+                              type: string
                           required:
                             - id
                             - title
@@ -470,6 +474,8 @@ paths:
                             - tester
                             - duplication
                             - isFavourite
+                            - created
+                            - updated
                     required:
                       - items
                   - $ref: '#/components/schemas/PaginationData'

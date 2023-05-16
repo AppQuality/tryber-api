@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
 
-import CampaignRoute from "@src/features/routes/CampaignRoute";
-import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
 interface Tag {
   id: number;
@@ -133,6 +133,8 @@ export default class BugsRoute extends CampaignRoute<{
         "is_duplicated",
         "duplicated_of_id",
         "is_favorite",
+        tryber.raw("CAST(created AS CHAR) as created"),
+        tryber.raw("CAST(updated AS CHAR) as updated"),
         tryber.ref("message").as("title"),
         "bug_replicability_id",
         "internal_id",
@@ -169,18 +171,21 @@ export default class BugsRoute extends CampaignRoute<{
       })
       .orderBy(columnMapping[this.orderBy], this.order);
     if (!bugs) return false as const;
-    return bugs;
+    return bugs as (typeof bugs[number] & {
+      created?: string;
+      updated?: string;
+    })[];
   }
 
   private async enhanceBugs(bugs: Awaited<ReturnType<typeof this.getBugs>>) {
     if (!bugs || !bugs.length) return [];
 
     const bugsWithDuplication = await this.enhanceBugsWithDuplication<
-      (typeof bugs)[number]
+      typeof bugs[number]
     >(bugs);
 
     const bugWithTags = await this.enhanceBugsWithTags<
-      (typeof bugsWithDuplication)[number]
+      typeof bugsWithDuplication[number]
     >(bugsWithDuplication);
 
     return bugWithTags.map((bug) => ({
@@ -269,6 +274,14 @@ export default class BugsRoute extends CampaignRoute<{
         duplication: bug.duplication,
         tags: bug.tags,
         isFavourite: !!bug.is_favorite,
+        created: (bug.created ? new Date(bug.created) : new Date())
+          .toISOString()
+          .slice(0, 19)
+          .replace("T", " "),
+        updated: (bug.updated ? new Date(bug.updated) : new Date())
+          .toISOString()
+          .slice(0, 19)
+          .replace("T", " "),
       };
     });
   }
