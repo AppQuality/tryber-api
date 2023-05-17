@@ -1,7 +1,7 @@
-import request from "supertest";
 import app from "@src/app";
-import useCampaign from "./useCampaign";
 import { tryber } from "@src/features/database";
+import request from "supertest";
+import useCampaign from "./useCampaign";
 
 useCampaign();
 
@@ -83,15 +83,15 @@ describe("GET /campaigns/campaignId/prospect - payment status", () => {
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          tester: { id: 1, name: "John", surname: "Doe" },
+          tester: { id: 1, name: "John", surname: "Doe", group: 1 },
           status: "done",
         }),
         expect.objectContaining({
-          tester: { id: 2, name: "John", surname: "Doe" },
+          tester: { id: 2, name: "John", surname: "Doe", group: 1 },
           status: "pending",
         }),
         expect.objectContaining({
-          tester: { id: 3, name: "John", surname: "Doe" },
+          tester: { id: 3, name: "John", surname: "Doe", group: 1 },
           status: "done",
         }),
       ])

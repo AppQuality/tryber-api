@@ -31,7 +31,6 @@ class RouteItem extends UserRoute<{
   private fields = ACCEPTABLE_FIELDS;
   private start: number = 0;
   private limit: number | undefined;
-  private showMineOnly = false;
   private search: string | undefined;
   private order: StoplightOperations["get-campaigns"]["parameters"]["query"]["order"] =
     "DESC";
@@ -43,6 +42,7 @@ class RouteItem extends UserRoute<{
     customer?: number[];
     type?: number[];
     status?: "closed" | "running" | "incoming";
+    csm?: number;
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -57,7 +57,6 @@ class RouteItem extends UserRoute<{
           ACCEPTABLE_FIELDS.includes(field as any)
         );
     }
-    if (query.mine) this.showMineOnly = true;
     if (query.search) this.search = query.search;
 
     if (query.start) this.start = parseInt(query.start as unknown as string);
@@ -98,6 +97,10 @@ class RouteItem extends UserRoute<{
         if (status === "closed") this.filterBy.status = "closed" as const;
         if (status === "running") this.filterBy.status = "running" as const;
         if (status === "incoming") this.filterBy.status = "incoming" as const;
+      }
+      if ((query.filterBy as any).csm) {
+        const csmId = (query.filterBy as any).csm;
+        this.filterBy.csm = Number(csmId);
       }
     }
   }
@@ -308,8 +311,8 @@ class RouteItem extends UserRoute<{
         );
       }
 
-      if (this.showMineOnly) {
-        query = query.where("wp_appq_evd_campaign.pm_id", this.getTesterId());
+      if (this.filterBy.csm) {
+        query = query.where("wp_appq_evd_campaign.pm_id", this.filterBy.csm);
       }
 
       if (this.search) {

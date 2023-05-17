@@ -19,6 +19,11 @@ export interface paths {
     /** Create a new Campaign if you have access to the creation */
     post: operations["post-campaigns"];
   };
+  "/campaigns/owners": {
+    /** Get all the owners of campaigns you have access to */
+    get: operations["get-campaigns-owners"];
+    parameters: {};
+  };
   "/campaigns/{campaign}": {
     /** Get the data of a Campaign if you have access to it */
     get: operations["get-campaigns-campaign"];
@@ -38,6 +43,16 @@ export interface paths {
       path: {
         /** A campaign id */
         campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
+  "/campaigns/{campaign}/groups": {
+    /** Get all groups used in a Campaign if you have access to it */
+    get: operations["get-campaigns-cid-groups"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
       };
     };
   };
@@ -933,6 +948,24 @@ export interface operations {
       };
     };
   };
+  /** Get all the owners of campaigns you have access to */
+  "get-campaigns-owners": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            surname: string;
+          }[];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
   /** Get the data of a Campaign if you have access to it */
   "get-campaigns-campaign": {
     parameters: {
@@ -1026,8 +1059,32 @@ export interface operations {
               /** @enum {string} */
               duplication: "father" | "unique" | "duplicated";
               isFavourite: boolean;
+              created: string;
+              updated: string;
             }[];
           } & components["schemas"]["PaginationData"];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get all groups used in a Campaign if you have access to it */
+  "get-campaigns-cid-groups": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          }[];
         };
       };
       403: components["responses"]["NotAuthorized"];
@@ -1482,6 +1539,7 @@ export interface operations {
                 id: number;
                 name: string;
                 surname: string;
+                group: number;
               };
               usecases: {
                 completed: number;

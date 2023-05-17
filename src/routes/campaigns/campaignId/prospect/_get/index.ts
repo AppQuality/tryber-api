@@ -4,7 +4,7 @@ import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 
-type filterBy = { ids?: string } | undefined;
+type filterBy = { ids?: string; groups?: string } | undefined;
 export default class ProspectRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-prospect"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-prospect"]["parameters"]["path"];
@@ -131,15 +131,35 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private getFilteredTesters<T>(
-    selectedTesters: (T & { tester: { id: number } })[]
+    selectedTesters: (T & { tester: { id: number; group: number } })[]
   ) {
+    const testerByGroup =
+      this.filterByGroup<typeof selectedTesters[number]>(selectedTesters);
     const idsToInclude = this.getIdsToInclude();
     if (idsToInclude.length > 0)
-      return selectedTesters.filter((t) => idsToInclude.includes(t.tester.id));
+      return testerByGroup.filter((t) => idsToInclude.includes(t.tester.id));
 
     const idsToExclude = this.getIdsToExclude();
     if (idsToExclude.length > 0)
-      return selectedTesters.filter((t) => !idsToExclude.includes(t.tester.id));
+      return testerByGroup.filter((t) => !idsToExclude.includes(t.tester.id));
+
+    return testerByGroup;
+  }
+
+  private filterByGroup<T>(
+    selectedTesters: (T & { tester: { group: number } })[]
+  ) {
+    const groupsToInclude = this.getGroupToInclude();
+    if (groupsToInclude.length > 0)
+      return selectedTesters.filter((t) =>
+        groupsToInclude.includes(t.tester.group)
+      );
+
+    const groupsToExclude = this.getGroupToExclude();
+    if (groupsToExclude.length > 0)
+      return selectedTesters.filter(
+        (t) => !groupsToExclude.includes(t.tester.group)
+      );
 
     return selectedTesters;
   }
@@ -153,6 +173,19 @@ export default class ProspectRoute extends CampaignRoute<{
     return [];
   }
 
+  private getGroupToExclude() {
+    const query = this.getQuery();
+    const filterByExclude = query.filterByExclude as filterBy;
+    if (
+      filterByExclude &&
+      "groups" in filterByExclude &&
+      filterByExclude.groups
+    ) {
+      return filterByExclude.groups.split(",").map((id) => parseInt(id));
+    }
+    return [];
+  }
+
   private getIdsToInclude() {
     const query = this.getQuery();
     const filterByInclude = query.filterByInclude as filterBy;
@@ -162,6 +195,18 @@ export default class ProspectRoute extends CampaignRoute<{
     return [];
   }
 
+  private getGroupToInclude() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+    if (
+      filterByInclude &&
+      "groups" in filterByInclude &&
+      filterByInclude.groups
+    ) {
+      return filterByInclude.groups.split(",").map((id) => parseInt(id));
+    }
+    return [];
+  }
   private async getBugsByTesters(testers: { id: number }[]) {
     const testerIds = testers.map((t) => t.id);
     const approvedBugList = await tryber.tables.WpAppqEvdBug.do()
@@ -414,6 +459,7 @@ export default class ProspectRoute extends CampaignRoute<{
         id: tester.id,
         name: tester.name,
         surname: tester.surname,
+        group: tester.group,
       },
       bugs: this.getTesterBugs(tester.id),
       usecases: this.getTesterUsecases(tester.id),
@@ -555,7 +601,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private defaultBugPayout(tid: number) {
     const bugs = this.getTesterBugs(tid);
-    return Object.keys(bugs).reduce((acc, key) => {
+    const result = Object.keys(bugs).reduce((acc, key) => {
       const value = bugs[key as keyof typeof bugs];
       switch (key) {
         case "critical":
@@ -570,6 +616,7 @@ export default class ProspectRoute extends CampaignRoute<{
           return acc;
       }
     }, 0);
+    return parseFloat(result.toFixed(2));
   }
 
   private getTesterExperience(tid: number) {

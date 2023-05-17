@@ -54,9 +54,9 @@ describe("GET /campaigns", () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
-  it("Should return only campaigns where the logged in user is the PM when mine is true", async () => {
+  it("Should return only campaigns where the logged in user is the PM when filterByCsm = current user id", async () => {
     const response = await request(app)
-      .get("/campaigns?mine=true")
+      .get("/campaigns?filterBy[csm]=1")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(2);
@@ -70,10 +70,23 @@ describe("GET /campaigns", () => {
 
   it("Should return filtered campaign total", async () => {
     const response = await request(app)
-      .get("/campaigns?mine=true&limit=10")
+      .get("/campaigns?filterBy[csm]=1&limit=10")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(2);
     expect(response.body.total).toBe(2);
+  });
+
+  it("Should return only campaigns with filtered csm", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[csm]=2")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 2, name: "Second campaign" }),
+      ])
+    );
   });
 });
