@@ -4648,6 +4648,7 @@ paths:
       description: Get your user data
       security:
         - JWT: []
+        - User Token: []
       parameters:
         - schema:
             type: string
