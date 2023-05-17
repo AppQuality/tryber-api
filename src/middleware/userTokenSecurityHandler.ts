@@ -9,10 +9,10 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
-  if ("key" in c.request.query === false)
+  if ("apikey" in c.request.headers === false)
     return jwt.verify("", config.jwt.secret);
 
-  const key = c.request.query.key as string;
+  const key = c.request.headers.apikey as string;
   const tester = await tryber.tables.WpAppqUserTokens.do()
     .select("tester_id")
     .where("token", key)
@@ -36,5 +36,9 @@ export default async (
     .first();
   if (!userData) return jwt.verify("", config.jwt.secret);
 
-  return await authenticate({ ...userData, ID: userData.ID.toString() });
+  const user = await authenticate({ ...userData, ID: userData.ID.toString() });
+  if (user instanceof Error) return jwt.verify("", config.jwt.secret);
+
+  req.user = user;
+  return user;
 };

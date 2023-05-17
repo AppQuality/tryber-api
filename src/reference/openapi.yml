@@ -4648,18 +4648,12 @@ paths:
       description: Get your user data
       security:
         - JWT: []
-        - User Token: []
       parameters:
         - schema:
             type: string
           in: query
           name: fields
           description: Comma separated string of specific fields requested
-        - schema:
-            type: string
-          in: query
-          description: The api key
-          name: key
     put:
       summary: Edit your user data
       operationId: put-users-me
@@ -8650,8 +8644,8 @@ components:
       description: ''
     User Token:
       type: apiKey
-      in: query
-      name: key
+      in: header
+      name: apikey
   responses:
     UserData:
       description: A user
