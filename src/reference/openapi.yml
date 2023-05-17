@@ -8642,6 +8642,10 @@ components:
       type: http
       scheme: bearer
       description: ''
+    User Token:
+      type: apiKey
+      in: query
+      name: User Token
   responses:
     UserData:
       description: A user
