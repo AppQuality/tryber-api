@@ -1,13 +1,13 @@
 import bodyParser from "body-parser";
+import busboy from "connect-busboy";
 import cors from "cors";
 import express from "express";
+import morgan from "morgan";
 import OpenAPIBackend, { Options, Request } from "openapi-backend";
 import config from "./config";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
 import routes from "./routes";
-import busboy from "connect-busboy";
-import morgan from "morgan";
 
 const opts: Options = {
   definition: __dirname + "/reference/openapi.yml",
@@ -29,6 +29,7 @@ api.register({
 api.registerHandler("notImplemented", middleware.notImplemented(api));
 // register security handler for jwt auth
 api.registerSecurityHandler("JWT", middleware.jwtSecurityHandler);
+api.registerSecurityHandler("User Token", middleware.userTokenSecurityHandler);
 api.register("postResponseHandler", middleware.postResponseHandler);
 routes(api);
 api.init();
