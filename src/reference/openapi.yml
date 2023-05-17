@@ -8646,7 +8646,7 @@ components:
     User Token:
       type: apiKey
       in: query
-      name: User Token
+      name: key
   responses:
     UserData:
       description: A user
