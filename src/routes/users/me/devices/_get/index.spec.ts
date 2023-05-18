@@ -1,14 +1,13 @@
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
-import deviceOs from "@src/__mocks__/mockedDb/deviceOs";
-import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 const tester1 = {
   id: 1,
   wp_user_id: 1,
+  email: "jhon.doe@unguess.io",
+  education_id: 1,
+  employment_id: 1,
 };
 const device1 = {
   id: 1,
@@ -37,34 +36,40 @@ const deviceDisabled = {
 const platform1 = {
   id: 10,
   name: "Androis",
+  architecture: "arm",
 };
 const os1 = {
   id: 11,
   display_name: "Lollipoop",
   version_number: "1.0.0",
+  platform_id: 10,
+  main_release: 1,
+  version_family: "1.0",
 };
 
 describe("Route GET users-me-devices", () => {
   beforeEach(async () => {
-    await sqlite3.insert("wp_appq_evd_profile", tester1);
-    await TesterDevice.insert({ ...device1, id: 1, form_factor: "Smart-tv" });
-    await TesterDevice.insert({ ...device1, id: 2, form_factor: "Tablet" });
-    await TesterDevice.insert({
-      ...device1,
-      id: 3,
-      form_factor: "PC",
-      pc_type: "Notebook",
-    });
-    await TesterDevice.insert({ ...device1, id: 4, form_factor: "Smartphone" });
-    await DevicePlatform.insert(platform1);
-    await deviceOs.insert(os1);
+    await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      { ...device1, id: 1, form_factor: "Smart-tv" },
+      { ...device1, id: 2, form_factor: "Tablet" },
+      {
+        ...device1,
+        id: 3,
+        form_factor: "PC",
+        pc_type: "Notebook",
+      },
+      { ...device1, id: 4, form_factor: "Smartphone" },
+    ]);
+    await tryber.tables.WpAppqEvdPlatform.do().insert(platform1);
+    await tryber.tables.WpAppqOs.do().insert(os1);
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await Profile.clear();
-      await TesterDevice.clear();
-      await DevicePlatform.clear();
-      await deviceOs.clear();
+      await tryber.tables.WpAppqEvdProfile.do().delete();
+      await tryber.tables.WpCrowdAppqDevice.do().delete();
+      await tryber.tables.WpAppqEvdPlatform.do().delete();
+      await tryber.tables.WpAppqOs.do().delete();
       resolve(null);
     });
   });
@@ -148,13 +153,13 @@ describe("Route GET users-me-devices", () => {
 describe("Route GET users-me-devices when the user hasn't devices", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
+      await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
       resolve(null);
     });
   });
   afterEach(async () => {
     return new Promise(async (resolve) => {
-      await Profile.clear();
+      await tryber.tables.WpAppqEvdProfile.do().delete();
       resolve(null);
     });
   });
@@ -174,16 +179,16 @@ describe("Route GET users-me-devices when the user hasn't devices", () => {
 
 describe("Route GET users-me-devices when the user devices are all disabled", () => {
   beforeEach(async () => {
-    await sqlite3.insert("wp_appq_evd_profile", tester1);
-    await TesterDevice.insert(deviceDisabled);
-    await DevicePlatform.insert(platform1);
-    await deviceOs.insert(os1);
+    await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
+    await tryber.tables.WpCrowdAppqDevice.do().insert(deviceDisabled);
+    await tryber.tables.WpAppqEvdPlatform.do().insert(platform1);
+    await tryber.tables.WpAppqOs.do().insert(os1);
   });
   afterEach(async () => {
-    await Profile.clear();
-    await TesterDevice.clear();
-    await DevicePlatform.clear();
-    await deviceOs.clear();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
   });
   it("Should answer 404 if the user devices are all disabled", async () => {
     const response = await request(app)
