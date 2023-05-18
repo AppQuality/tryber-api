@@ -1,11 +1,13 @@
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+/** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
+
 import busboyMapper from "@src/features/busboyMapper";
+import { tryber } from "@src/features/database";
+import debugMessage from "@src/features/debugMessage";
+import upload from "@src/features/upload";
+import { Context } from "openapi-backend";
 import path from "path";
 import crypt from "./crypt";
-import upload from "@src/features/upload";
-import debugMessage from "@src/features/debugMessage";
-/** OPENAPI-ROUTE: post-users-me-campaigns-campaignId-media */
+
 export default async (
   c: Context,
   req: OpenapiRequest,
@@ -44,34 +46,27 @@ export default async (
   res.status_code = 200;
   return result;
   async function getValidFileExtensions() {
-    const validFileExtensionsString = (
-      await db.query(
-        "SELECT option_value FROM wp_options WHERE option_name = 'options_appq_valid_upload_extensions'"
-      )
-    )[0].option_value;
-    let validFileExtensions: string[] = [];
-    if (validFileExtensionsString) {
-      validFileExtensions = validFileExtensionsString.split(",");
-    }
+    const option = await tryber.tables.WpOptions.do()
+      .select("option_value")
+      .where("option_name", "options_appq_valid_upload_extensions")
+      .first();
+    const validFileExtensionsString = option?.option_value;
+    const validFileExtensions: string[] = validFileExtensionsString
+      ? validFileExtensionsString.split(",")
+      : [];
+
     return validFileExtensions;
   }
 
   async function isCandidate() {
-    const candidature = await db.query(
-      db.format(
-        "SELECT * FROM wp_crowd_appq_has_candidate WHERE user_id = ? AND campaign_id = ?",
-        [req.user.ID, campaignId]
-      )
-    );
+    const candidature = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("user_id")
+      .where("user_id", req.user.ID)
+      .andWhere("campaign_id", campaignId);
     if (candidature.length === 0)
       throw Error("You are not selected for this campaign");
   }
-  async function uploadFiles(
-    files: Media[],
-    testerId: number
-  ): Promise<
-    StoplightOperations["post-media"]["responses"]["200"]["content"]["application/json"]["files"]
-  > {
+  async function uploadFiles(files: Media[], testerId: number) {
     let uploadedFiles = [];
     for (const media of files) {
       const currentPath = (
@@ -115,14 +110,10 @@ export default async (
 
   async function createUploadedFile(path: string, creationDate: string) {
     try {
-      await db.query(
-        db.format(
-          `
-        INSERT INTO wp_appq_uploaded_media (url, creation_date)
-        VALUES (?, ?);`,
-          [path, creationDate]
-        )
-      );
+      await tryber.tables.WpAppqUploadedMedia.do().insert({
+        url: path,
+        creation_date: creationDate,
+      });
     } catch (e) {
       debugMessage(e);
     }
