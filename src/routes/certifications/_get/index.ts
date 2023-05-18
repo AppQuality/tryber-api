@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-certifications */
+
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";

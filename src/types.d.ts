@@ -34,11 +34,11 @@ declare global {
     capabilities: string[];
     permission: {
       admin?: {
-        appq_prospect?: Olp;
-        appq_message_center?: Olp;
-        appq_campaign?: Olp;
-        appq_tester_selection?: Olp;
         appq_bug?: Olp;
+        appq_campaign?: Olp;
+        appq_message_center?: Olp;
+        appq_prospect?: Olp;
+        appq_tester_selection?: Olp;
       };
     };
   };
@@ -83,5 +83,11 @@ declare global {
 
   interface Object {
     hasOwnProperty<K extends PropertyKey>(key: K): this is Record<K, unknown>;
+  }
+
+  namespace jest {
+    interface Matchers<R> {
+      toBeNow(precision: number): jest.CustomMatcherResult;
+    }
   }
 }

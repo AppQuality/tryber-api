@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-levels */
+
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";

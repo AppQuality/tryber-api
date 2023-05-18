@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdProfile.do().insert({
@@ -244,7 +244,6 @@ describe("GET /campaigns/campaignId/bugs - filterby", () => {
       .get("/campaigns/1/bugs?filterBy[types]=2,1")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("items");
-    console.log(response.body.items);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

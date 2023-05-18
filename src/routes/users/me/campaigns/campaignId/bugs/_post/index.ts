@@ -443,7 +443,7 @@ export default async (
   }
   function checkIsoStringDate() {
     const regexpISOString =
-      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}\+[0-9]{2}:[0-9]{2}/gm;
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}/gm;
     if (!regexpISOString.test(body.lastSeen)) {
       throw {
         status_code: 403,

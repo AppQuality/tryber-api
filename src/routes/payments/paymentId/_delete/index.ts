@@ -1,8 +1,9 @@
+/** OPENAPI-ROUTE: delete-payments-paymentId */
+
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
 
-/** OPENAPI-ROUTE: delete-payments-paymentId */
 export default async (
   c: Context,
   req: OpenapiRequest,

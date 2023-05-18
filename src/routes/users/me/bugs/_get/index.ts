@@ -1,7 +1,8 @@
+/** OPENAPI-ROUTE: get-users-me-bugs */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
-/** OPENAPI-ROUTE: get-users-me-bugs */
 export default async (
   c: Context,
   req: OpenapiRequest,

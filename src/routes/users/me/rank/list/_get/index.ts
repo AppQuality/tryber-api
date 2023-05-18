@@ -1,4 +1,5 @@
 /** OPENAPI-ROUTE: get-users-me-rank-list */
+
 import * as db from "@src/features/db";
 import Leaderboard from "@src/features/leaderboard";
 import { Context } from "openapi-backend";

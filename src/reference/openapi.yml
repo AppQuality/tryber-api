@@ -134,14 +134,88 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            customerTitle:
+                              type: string
+                            startDate:
+                              type: string
+                            endDate:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - running
+                                - closed
+                                - incoming
+                            visibility:
+                              type: string
+                              enum:
+                                - admin
+                                - smallgroup
+                                - logged
+                                - public
+                            resultType:
+                              type: string
+                              enum:
+                                - bug
+                                - bugparade
+                                - 'no'
+                            csm:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                                surname:
+                                  type: string
+                              required:
+                                - id
+                                - name
+                                - surname
+                            customer:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                                - name
+                            type:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                area:
+                                  type: string
+                                  enum:
+                                    - quality
+                                    - experience
+                              required:
+                                - name
+                                - area
+                            project:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                              required:
+                                - name
+                  - $ref: '#/components/schemas/PaginationData'
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -151,6 +225,74 @@ paths:
       description: Get all the Campaigns you have access to
       tags:
         - Campaign
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: fields
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+        - schema:
+            type: string
+            enum:
+              - 'true'
+          in: query
+          name: mine
+          description: Return only your campaign?
+          allowEmptyValue: true
+        - schema:
+            type: string
+          in: query
+          name: search
+          description: A value to search in id or title
+        - $ref: '#/components/parameters/order'
+        - schema:
+            type: string
+            enum:
+              - id
+              - startDate
+              - endDate
+          in: query
+          name: orderBy
+          description: The parameter to order by
+        - schema: {}
+          in: query
+          name: filterBy
+  /campaigns/owners:
+    get:
+      summary: Get owners of Campaigns
+      operationId: get-campaigns-owners
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    surname:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - surname
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      description: Get all the owners of campaigns you have access to
+      tags:
+        - Campaign
+      parameters: []
+    parameters: []
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -160,7 +302,19 @@ paths:
         - Campaign
       responses:
         '200':
-          $ref: '#/components/responses/SingleCampaign'
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                required:
+                  - id
+                  - title
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -306,6 +460,10 @@ paths:
                                 - duplicated
                             isFavourite:
                               type: boolean
+                            created:
+                              type: string
+                            updated:
+                              type: string
                           required:
                             - id
                             - title
@@ -316,6 +474,8 @@ paths:
                             - tester
                             - duplication
                             - isFavourite
+                            - created
+                            - updated
                     required:
                       - items
                   - $ref: '#/components/schemas/PaginationData'
@@ -362,6 +522,45 @@ paths:
           name: orderBy
           description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
         - $ref: '#/components/parameters/filterBy'
+  '/campaigns/{campaign}/groups':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get all Campaign Groups
+      tags:
+        - Campaign
+      operationId: get-campaigns-cid-groups
+      description: 'Get all groups used in a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters: []
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
@@ -2137,6 +2336,86 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
+  '/campaigns/{campaign}/payouts':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    get:
+      summary: Get payout data for a specific campaign
+      operationId: get-campaigns-campaign-payouts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    maxBonusBug: 4.99
+                properties:
+                  maxBonusBug:
+                    type: number
+                  completionRule:
+                    type: object
+                    properties:
+                      bugs:
+                        type: number
+                      usecases:
+                        type: number
+                  testSuccess:
+                    type: object
+                    required:
+                      - payout
+                      - points
+                      - message
+                    properties:
+                      payout:
+                        type: number
+                      points:
+                        type: number
+                      message:
+                        type: string
+                  testFailure:
+                    type: object
+                    required:
+                      - payout
+                      - points
+                      - message
+                    properties:
+                      payout:
+                        type: number
+                      points:
+                        type: number
+                      message:
+                        type: string
+                required:
+                  - maxBonusBug
+                  - completionRule
+                  - testSuccess
+                  - testFailure
+              examples:
+                Example 1:
+                  value:
+                    maxBonusBug: 5.99
+                    completionRule:
+                      bugs: 4
+                      usecases: 53
+                    testSuccess:
+                      payout: 15
+                      points: 100
+                      message: message
+                    testFailure:
+                      payout: 0
+                      points: -200
+                      message: message
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: ''
+      security:
+        - JWT: []
+      parameters: []
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -2816,6 +3095,441 @@ paths:
       description: ''
       security:
         - JWT: []
+  '/campaigns/{campaign}/prospect/{testerId}':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+      - $ref: '#/components/parameters/testerId'
+    put:
+      summary: ''
+      operationId: put-campaigns-campaign-prospect-testerId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    payout:
+                      completion: 0.2
+                      bugs: 0.2
+                      refund: 0.2
+                      extra: 0.2
+                    experience:
+                      completion: 0
+                      extra: 0
+                    note: string
+                    completed: true
+                properties:
+                  payout:
+                    type: object
+                    required:
+                      - completion
+                      - bugs
+                      - refund
+                      - extra
+                    properties:
+                      completion:
+                        type: number
+                      bugs:
+                        type: number
+                      refund:
+                        type: number
+                      extra:
+                        type: number
+                  experience:
+                    type: object
+                    required:
+                      - completion
+                      - extra
+                    properties:
+                      completion:
+                        type: integer
+                      extra:
+                        type: integer
+                  note:
+                    type: string
+                  completed:
+                    type: boolean
+                required:
+                  - payout
+                  - experience
+                  - note
+                  - completed
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  payout:
+                    completion: 10
+                    bugs: 10
+                    refund: 10
+                    extra: 10
+                  experience:
+                    completion: 10
+                    extra: 10
+                  note: string
+                  completed: true
+              properties:
+                payout:
+                  type: object
+                  required:
+                    - completion
+                    - bugs
+                    - refund
+                    - extra
+                  properties:
+                    completion:
+                      type: number
+                    bugs:
+                      type: number
+                    refund:
+                      type: number
+                    extra:
+                      type: number
+                experience:
+                  type: object
+                  required:
+                    - completion
+                    - extra
+                  properties:
+                    completion:
+                      type: integer
+                    extra:
+                      type: integer
+                note:
+                  type: string
+                completed:
+                  type: boolean
+              required:
+                - payout
+                - experience
+                - note
+                - completed
+            examples:
+              Example 1:
+                value:
+                  payout:
+                    completion: 0
+                    bugs: 0
+                    refund: 0
+                    extra: 0
+                  experience:
+                    completion: 0
+                    extra: 0
+                  note: string
+                  completed: true
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a prospect by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - usecases:
+                          completed: 0
+                          required: 0
+                        tester:
+                          id: 0
+                          name: string
+                          surname: string
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                            - group
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                            group:
+                              type: number
+                        usecases:
+                          type: object
+                          required:
+                            - completed
+                            - required
+                          properties:
+                            completed:
+                              type: integer
+                            required:
+                              type: integer
+                        bugs:
+                          type: object
+                          required:
+                            - critical
+                            - high
+                            - medium
+                            - low
+                          properties:
+                            critical:
+                              type: integer
+                            high:
+                              type: integer
+                            medium:
+                              type: integer
+                            low:
+                              type: integer
+                        payout:
+                          type: object
+                          required:
+                            - completion
+                            - bug
+                            - refund
+                            - extra
+                          properties:
+                            completion:
+                              type: number
+                            bug:
+                              type: number
+                            refund:
+                              type: number
+                            extra:
+                              type: number
+                        experience:
+                          type: object
+                          required:
+                            - completion
+                            - extra
+                          properties:
+                            completion:
+                              type: integer
+                            extra:
+                              type: integer
+                        note:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - pending
+                            - done
+                        weightedBugs:
+                          type: number
+                        isCompleted:
+                          type: boolean
+                        isTopTester:
+                          type: boolean
+                      required:
+                        - tester
+                        - usecases
+                        - bugs
+                        - payout
+                        - experience
+                        - note
+                        - status
+                        - weightedBugs
+                        - isCompleted
+                        - isTopTester
+                  status:
+                    $ref: '#/components/schemas/ProspectStatus'
+                required:
+                  - items
+                  - status
+              examples:
+                Example 1:
+                  value:
+                    status: done
+                    items:
+                      - tester:
+                          id: 1
+                          name: Jhon
+                          surname: Doe
+                        usecases:
+                          completed: 3
+                          required: 3
+                        bugs:
+                          critical: 11
+                          high: 2
+                          medium: 3
+                          low: 4
+                        payout:
+                          completion: 100
+                          bug: 10
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 200
+                          extra: 0
+                        note: no extra
+                        status: pending
+                        weightedBugs: 0
+                        isCompleted: true
+                        isTopTester: true
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          description: Precondition Failed
+      operationId: get-campaigns-campaign-prospect
+      description: ''
+      security:
+        - JWT: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterByInclude
+          description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByExclude
+          description: Key-value Array for item filtering
+    put:
+      summary: Edit a campaign prospect
+      operationId: put-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tester:
+                        type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: integer
+                      experience:
+                        type: object
+                        required:
+                          - completion
+                          - extra
+                        properties:
+                          completion:
+                            type: integer
+                          extra:
+                            type: integer
+                      payout:
+                        type: object
+                        required:
+                          - completion
+                          - bug
+                          - extra
+                          - refund
+                        properties:
+                          completion:
+                            type: number
+                          bug:
+                            type: number
+                          extra:
+                            type: number
+                          refund:
+                            type: number
+                      note:
+                        type: string
+                      completed:
+                        type: boolean
+                    required:
+                      - tester
+                      - experience
+                      - payout
+                      - completed
+              required:
+                - status
+                - items
+            examples:
+              Example 1:
+                value:
+                  status: done
+                  items:
+                    - tester:
+                        id: 0
+                      experience:
+                        completion: 0
+                        extra: 0
+                      payout:
+                        completion: 0
+                        bug: 0
+                        extra: 0
+                        refund: 0
+                      note: string
+                      completed: true
+    patch:
+      summary: ''
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+        '304':
+          description: Not Modified
+        '403':
+          description: Forbidden
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
   '/campaigns/{campaign}/stats':
     parameters:
       - schema:
@@ -2840,6 +3554,37 @@ paths:
                   - selected
               examples: {}
       operationId: get-campaigns-campaign-stats
+      description: ''
+      security:
+        - JWT: []
+  /campaignTypes:
+    parameters: []
+    get:
+      summary: Get Campaign Types
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples:
+                Example 1:
+                  value:
+                    - id: 1
+                      name: Type 1
+          description: ''
+      operationId: get-campaign-types
       description: ''
       security:
         - JWT: []
@@ -2932,11 +3677,12 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/Customer'
-                    - type: object
-                      properties:
+                    - properties:
                         id:
                           type: integer
+                        name:
+                          type: string
+                  type: object
               examples:
                 example-1:
                   value:
@@ -2949,88 +3695,7 @@ paths:
       description: Get all the customers you have access to
       security:
         - JWT: []
-    post:
-      summary: Create Customers
-      operationId: post-customers
-      responses:
-        '201':
-          description: Created
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-      description: Add a new Customer to the platform
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The customer you want to create
-      security:
-        - JWT: []
     parameters: []
-  '/customers/{customer}':
-    parameters:
-      - $ref: '#/components/parameters/customer'
-    get:
-      summary: Get a specific Customer
-      tags:
-        - Customer
-      responses:
-        '200':
-          description: The Customer data you requested
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Customer'
-              examples:
-                example-1:
-                  value:
-                    username: Elon71
-                    customer_name: Elon71
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-customers-customer_id
-      description: Get the data for a Customer if you have access to it
-      security:
-        - JWT: []
-    put:
-      summary: Edit a Customer
-      operationId: put-customers-customer
-      responses:
-        '200':
-          description: OK
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      description: Change the data of a Customer if you have access to it
-      tags:
-        - Customer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Customer'
-            examples:
-              example-1:
-                value:
-                  username: Elon71
-                  customer_name: Elon71
-        description: The Customer data to edit
-      security:
-        - JWT: []
   /custom_user_fields:
     get:
       summary: Get all custom user fields
@@ -3561,7 +4226,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -3578,17 +4242,19 @@ paths:
                   id:
                     type: number
                   message:
-                    type: object
-                    required:
-                      - code
-                      - data
-                    properties:
-                      code:
-                        type: string
-                        enum:
-                          - GENERIC_ERROR
-                      data:
-                        type: string
+                    anyOf:
+                      - type: object
+                        properties:
+                          code:
+                            type: string
+                            enum:
+                              - GENERIC_ERROR
+                          data:
+                            type: string
+                        required:
+                          - code
+                          - data
+                      - type: string
                 required:
                   - element
                   - id
@@ -6710,6 +7376,47 @@ paths:
           name: orderBy
         - $ref: '#/components/parameters/order'
     parameters: []
+  /users/me/permissions:
+    get:
+      summary: Get all your permissions
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  appq_bug:
+                    $ref: '#/components/schemas/Olp'
+                  appq_campaign:
+                    $ref: '#/components/schemas/Olp'
+                  appq_message_center:
+                    $ref: '#/components/schemas/Olp'
+                  appq_prospect:
+                    $ref: '#/components/schemas/Olp'
+                  appq_tester_selection:
+                    $ref: '#/components/schemas/Olp'
+              examples:
+                Example 1:
+                  value:
+                    appq_bug:
+                      - 1
+                      - 2
+                    appq_campaign:
+                      - 1
+                      - 2
+                    appq_prospect: false
+                    appq_tester_selection: true
+        '500':
+          description: Internal Server Error
+      operationId: get-users-me-permissions
+      description: Return all user permissions
+      security:
+        - JWT: []
+      parameters: []
+    parameters: []
   /users/me/popups:
     get:
       summary: Get your popups
@@ -7513,13 +8220,6 @@ components:
         - area
         - institute
         - achievement_date
-    Customer:
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - properties:
-            customer_name:
-              type: string
-          type: object
     CustomUserFieldsData:
       title: CustomUserFieldsData
       type: object
@@ -7643,6 +8343,13 @@ components:
           minLength: 1
         title:
           type: string
+    Olp:
+      x-examples: {}
+      oneOf:
+        - type: array
+          items:
+            type: integer
+        - type: boolean
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
@@ -7923,11 +8630,22 @@ components:
       required:
         - start
         - size
+    ProspectStatus:
+      title: ProspectStatus
+      type: string
+      enum:
+        - draft
+        - confirmed
+        - done
   securitySchemes:
     JWT:
       type: http
       scheme: bearer
       description: ''
+    User Token:
+      type: apiKey
+      in: header
+      name: apikey
   responses:
     UserData:
       description: A user
@@ -8206,6 +8924,12 @@ components:
       schema:
         type: string
       description: The value to search for
+    testerId:
+      name: testerId
+      in: path
+      required: true
+      schema:
+        type: string
   examples: {}
 tags:
   - name: Authentication

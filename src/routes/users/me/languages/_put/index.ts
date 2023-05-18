@@ -1,11 +1,11 @@
+/** OPENAPI-ROUTE:put-users-me-languages */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-
 import deleteUserLanguages from "../deleteUserLanguages";
 import getAvailableLanguages from "../getAvailableLanguages";
 import getUserLanguages from "../getUserLanguages";
 
-/** OPENAPI-ROUTE:put-users-me-languages */
 export default async (
   c: Context,
   req: OpenapiRequest,

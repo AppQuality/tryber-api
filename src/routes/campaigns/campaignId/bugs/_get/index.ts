@@ -1,13 +1,15 @@
 /** OPENAPI-CLASS: get-campaigns-cid-bugs */
-import AdminCampaignRoute from "@src/features/routes/AdminCampaignRoute";
+
+import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
 interface Tag {
   id: number;
   name: string;
 }
 
-export default class BugsRoute extends AdminCampaignRoute<{
+export default class BugsRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-cid-bugs"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["path"];
   query: StoplightOperations["get-campaigns-cid-bugs"]["parameters"]["query"];
@@ -76,6 +78,17 @@ export default class BugsRoute extends AdminCampaignRoute<{
     }
   }
 
+  protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
+
+    if (!this.hasAccessToBugs(this.cp_id)) {
+      this.setError(403, new OpenapiError("Access denied"));
+
+      return false;
+    }
+    return true;
+  }
+
   protected async prepare(): Promise<void> {
     let bugs;
     try {
@@ -120,6 +133,8 @@ export default class BugsRoute extends AdminCampaignRoute<{
         "is_duplicated",
         "duplicated_of_id",
         "is_favorite",
+        tryber.raw("CAST(created AS CHAR) as created"),
+        tryber.raw("CAST(updated AS CHAR) as updated"),
         tryber.ref("message").as("title"),
         "bug_replicability_id",
         "internal_id",
@@ -156,7 +171,10 @@ export default class BugsRoute extends AdminCampaignRoute<{
       })
       .orderBy(columnMapping[this.orderBy], this.order);
     if (!bugs) return false as const;
-    return bugs;
+    return bugs as (typeof bugs[number] & {
+      created?: string;
+      updated?: string;
+    })[];
   }
 
   private async enhanceBugs(bugs: Awaited<ReturnType<typeof this.getBugs>>) {
@@ -190,29 +208,32 @@ export default class BugsRoute extends AdminCampaignRoute<{
   private async enhanceBugsWithDuplication<
     T extends { is_duplicated: number; id: number }
   >(bugs: T[]) {
-    const result = [];
-    for (const bug of bugs) {
-      result.push({
+    const childrens = await this.getBugChildrens<T>(bugs);
+    return bugs.map((bug) => {
+      const hasChildren =
+        childrens.filter((c) => c.duplicated_of_id === bug.id).length > 0;
+      return {
         ...bug,
-        duplication: await this.getDuplicationStatus<T>(bug),
-      });
-    }
-    return result;
+        duplication: bug.is_duplicated
+          ? ("duplicated" as const)
+          : hasChildren
+          ? ("father" as const)
+          : ("unique" as const),
+      };
+    });
   }
 
-  private async getDuplicationStatus<T>(
-    bug: T & { is_duplicated: number; id: number }
-  ) {
-    if (bug.is_duplicated) return "duplicated" as const;
-
-    const data = await tryber.tables.WpAppqEvdBug.do()
-      .count("id", { as: "count" })
-      .where({
-        duplicated_of_id: bug.id,
-      });
-    const children = data[0]?.count || 0;
-
-    return children > 0 ? ("father" as const) : ("unique" as const);
+  private async getBugChildrens<
+    T extends { is_duplicated: number; id: number }
+  >(bugs: T[]) {
+    return await tryber.tables.WpAppqEvdBug.do()
+      .select(["duplicated_of_id", "id"])
+      .where(
+        "duplicated_of_id",
+        "in",
+        bugs.map((b) => b.id)
+      )
+      .where({ campaign_id: this.cp_id });
   }
 
   private async enhanceBugsWithTags<T extends { id: number }>(bugs: T[]) {
@@ -253,6 +274,14 @@ export default class BugsRoute extends AdminCampaignRoute<{
         duplication: bug.duplication,
         tags: bug.tags,
         isFavourite: !!bug.is_favorite,
+        created: (bug.created ? new Date(bug.created) : new Date())
+          .toISOString()
+          .slice(0, 19)
+          .replace("T", " "),
+        updated: (bug.updated ? new Date(bug.updated) : new Date())
+          .toISOString()
+          .slice(0, 19)
+          .replace("T", " "),
       };
     });
   }

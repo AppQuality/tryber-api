@@ -1,9 +1,9 @@
+/** OPENAPI-ROUTE: post-users-me-certifications */
+
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
-
 import updateEmptyCerts from "./updateEmptyCerts";
 
-/** OPENAPI-ROUTE: post-users-me-certifications */
 export default async (
   c: Context,
   req: OpenapiRequest,

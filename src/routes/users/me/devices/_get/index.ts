@@ -1,7 +1,7 @@
+/** OPENAPI-CLASS: get-users-me-devices */
+
 import Devices from "@src/features/class/Devices";
 import UserRoute from "@src/features/routes/UserRoute";
-
-/** OPENAPI-CLASS: get-users-me-devices */
 
 export default class UserDeviceRoute extends UserRoute<{
   response: StoplightOperations["get-users-me-devices"]["responses"]["200"]["content"]["application/json"];

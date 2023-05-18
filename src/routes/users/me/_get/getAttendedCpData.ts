@@ -1,11 +1,14 @@
 import * as db from "@src/features/db";
 
 export default async (id: string) => {
-  let sql = `SELECT COUNT(*) AS attended_cp
-        FROM wp_crowd_appq_has_candidate c
-        WHERE c.user_id  = ?
-        AND c.accepted = 1
-        AND c.results >= 2`;
+  let sql = `
+    SELECT COUNT(DISTINCT campaign_id) AS attended_cp 
+      FROM wp_appq_exp_points pts
+      JOIN wp_appq_evd_profile p ON (p.id = pts.tester_id)
+      WHERE pts.activity_id = 1
+        AND pts.amount > 0
+        AND p.wp_user_id = ?;
+  `;
 
   return db
     .query(db.format(sql, [id]))

@@ -252,6 +252,14 @@ describe("Route POST a bug to a specific campaign", () => {
       .send({ ...bug, usecase: 7 });
     expect(response.status).toBe(200);
   });
+
+  it("Should answer 200 if a user sends a lastSeenDate with another timezone", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/4/bugs")
+      .set("authorization", "Bearer tester")
+      .send({ ...bug, lastSeen: "2023-03-16T07:56:16.000-03:00", usecase: 7 });
+    expect(response.status).toBe(200);
+  });
   //
   it("Should answer 403 if a user sends a bug with a device that's not the candidate one", async () => {
     const response = await request(app)

@@ -1,5 +1,4 @@
 import UserRoute from "./UserRoute";
-import * as db from "@src/features/db";
 import { tryber } from "@src/features/database";
 import OpenapiError from "../OpenapiError";
 
@@ -7,7 +6,7 @@ type CampaignRouteParameters = { campaign: string };
 
 export type { CampaignRouteParameters };
 
-export default class AdminCampaignRoute<
+export default class CampaignRoute<
   T extends RouteClassTypes & {
     parameters: T["parameters"] & CampaignRouteParameters;
   }
@@ -53,18 +52,6 @@ export default class AdminCampaignRoute<
       .where({ id: this.cp_id })
       .first();
     return campaign;
-  }
-
-  protected async filter(): Promise<boolean> {
-    if (!(await super.filter())) return false;
-
-    if (!(await this.hasAccessToBugs(this.cp_id))) {
-      this.setError(403, new OpenapiError("Access denied"));
-
-      return false;
-    }
-
-    return true;
   }
 
   protected async getTags() {

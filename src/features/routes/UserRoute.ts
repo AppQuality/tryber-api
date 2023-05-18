@@ -34,14 +34,23 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
     return !!(this.capabilities && this.capabilities.includes(capability));
   }
 
+  get campaignOlps() {
+    return this.configuration.request.user.permission.admin?.appq_campaign;
+  }
+
   protected hasAccessToCampaign(campaignId: number) {
-    const olp = this.configuration.request.user.permission.admin?.appq_campaign;
+    const olp = this.campaignOlps;
     if (!olp) return false;
     return olp === true || olp?.includes(campaignId);
   }
 
   protected hasAccessToBugs(campaignId: number) {
     const olp = this.configuration.request.user.permission.admin?.appq_bug;
+    if (!olp) return false;
+    return olp === true || olp?.includes(campaignId);
+  }
+  protected hasAccessToProspect(campaignId: number) {
+    const olp = this.configuration.request.user.permission.admin?.appq_prospect;
     if (!olp) return false;
     return olp === true || olp?.includes(campaignId);
   }
