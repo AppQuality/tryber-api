@@ -36,7 +36,8 @@ const deviceDisabled = {
 const platform1 = {
   id: 10,
   name: "Androis",
-  architecture: "arm",
+  architecture: 1,
+  form_factor: 1,
 };
 const os1 = {
   id: 11,
@@ -44,7 +45,7 @@ const os1 = {
   version_number: "1.0.0",
   platform_id: 10,
   main_release: 1,
-  version_family: "1.0",
+  version_family: 1,
 };
 
 describe("Route GET users-me-devices", () => {
