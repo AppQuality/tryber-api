@@ -227,10 +227,8 @@ class Campaign {
   }
 
   public async getBugLanguageMessage() {
-    console.log("bug_lang", this.bug_lang);
     if (!(await this.ready)) throw Error("Campaign not initialized");
     if (this.bug_lang === 0) return undefined;
-    console.log("bug_lang", this.bug_lang);
     const meta = await tryber.tables.WpAppqCpMeta.do()
       .select("meta_key", "meta_value")
       .where({
