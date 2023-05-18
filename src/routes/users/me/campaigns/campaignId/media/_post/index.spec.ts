@@ -1,10 +1,11 @@
-import app from "@src/app";
-import upload from "@src/features/upload";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
-import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
+import app from "@src/app";
+import { tryber } from "@src/features/database";
+import upload from "@src/features/upload";
 import request from "supertest";
 import crypt from "./crypt";
 
@@ -22,10 +23,26 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       }
     );
     (crypt as jest.Mock).mockImplementation((string: string) => `crypted`);
-    await Profile.insert();
-    await WpUsers.insert();
-    await WpOptions.validUploadExtensions(["jpg", "mov", "png"]);
-    await Candidature.insert({ campaign_id: 1, user_id: 1 });
+
+    await tryber.tables.WpAppqEvdProfile.do().insert({
+      id: 1,
+      wp_user_id: 1,
+      email: "",
+      education_id: 1,
+      employment_id: 1,
+    });
+    await tryber.tables.WpUsers.do().insert({
+      ID: 1,
+    });
+
+    await tryber.tables.WpOptions.do().insert({
+      option_name: "options_appq_valid_upload_extensions",
+      option_value: "jpg,mov,png",
+    });
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+      campaign_id: 1,
+      user_id: 1,
+    });
   });
   afterAll(async () => {
     await WpUsers.clear();
@@ -129,7 +146,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       .attach("media", mockFileBuffer, "void.png")
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    const insertedMedia = await UploadedMedia.all();
+    const insertedMedia = await tryber.tables.WpAppqUploadedMedia.do().select();
     expect(insertedMedia).not.toEqual(undefined);
     expect(insertedMedia[0].url).toEqual(response.body.files[0].path);
     if (insertedMedia[0].creation_date)
