@@ -5456,6 +5456,7 @@ paths:
       description: ''
       security:
         - JWT: []
+        - User Token: []
   '/users/me/campaigns/{campaign}/compatible_devices':
     parameters:
       - name: campaign
@@ -5702,6 +5703,7 @@ paths:
                 - media
       security:
         - JWT: []
+        - User Token: []
     parameters:
       - schema:
           type: string
@@ -5800,6 +5802,7 @@ paths:
       operationId: get-users-me-campaigns-campaignId-devices
       security:
         - JWT: []
+        - User Token: []
   '/users/me/campaigns/{campaignId}/media':
     parameters:
       - schema:
@@ -5848,6 +5851,7 @@ paths:
                         - errorCode
       security:
         - JWT: []
+        - User Token: []
       requestBody:
         content:
           multipart/form-data:
