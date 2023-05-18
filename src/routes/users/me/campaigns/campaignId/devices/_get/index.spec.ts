@@ -1,6 +1,6 @@
 import app from "@src/app";
-import request from "supertest";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import useBasicData from "./useBasicData";
 
 describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
@@ -173,6 +173,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
     const response = await request(app)
       .get("/users/me/campaigns/1/devices/")
       .set("Authorization", "Bearer tester");
+    console.log(response.body);
     expect(response.body.length).toBe(2);
     expect(response.body).toEqual([
       {
