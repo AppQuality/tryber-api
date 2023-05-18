@@ -1,4 +1,3 @@
-import * as db from "@src/features/db";
 import { tryber } from "@src/features/database";
 import Devices from "./Devices";
 
