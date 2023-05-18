@@ -1,5 +1,7 @@
+/** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
+
 import Devices from "@src/features/class/Devices";
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 import debugMessage from "@src/features/debugMessage";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import { Context } from "openapi-backend";
@@ -19,7 +21,6 @@ import {
   UserDevice,
 } from "./types";
 
-/** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
 export default async (
   c: Context,
   req: OpenapiRequest,
@@ -141,12 +142,13 @@ export default async (
   };
 
   async function campaignExists() {
-    const result = await db.query(
-      db.format(`SELECT id FROM wp_appq_evd_campaign WHERE id=? ;`, [
-        campaignId,
-      ])
-    );
-    if (!result.length) {
+    const result = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id")
+      .where({
+        id: campaignId,
+      })
+      .first();
+    if (!result) {
       throw {
         status_code: 404,
         message: `CP${campaignId}, does not exists.`,
@@ -154,15 +156,10 @@ export default async (
     }
   }
   async function getTesterCandidature() {
-    const result = await db.query(
-      db.format(
-        `SELECT group_id, selected_device 
-          FROM wp_crowd_appq_has_candidate 
-          WHERE user_id=? AND campaign_id=? 
-        ;`,
-        [req.user.ID, campaignId]
-      )
-    );
+    const result = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("group_id", "selected_device")
+      .where("user_id", req.user.ID)
+      .andWhere("campaign_id", campaignId);
     if (!result.length) {
       throw {
         status_code: 403,
@@ -190,21 +187,16 @@ export default async (
     };
     async function getSeverities(): Promise<Severity[]> {
       const data = await getCampaignAdditionalSeverities();
-      const result = (await db.query(
-        "SELECT id,name FROM wp_appq_evd_severity " +
-          (data.length ? `WHERE id IN (${data.join(",")})` : "")
-      )) as { id: number; name: string }[];
+      const query = tryber.tables.WpAppqEvdSeverity.do().select("id", "name");
+      if (data.length) query.whereIn("id", data);
+      const result = await query;
       return result.map((item) => ({ ...item, name: item.name } as Severity));
     }
     async function getCampaignAdditionalSeverities(): Promise<number[]> {
-      return (
-        (await db.query(
-          db.format(
-            "SELECT bug_severity_id AS id FROM wp_appq_additional_bug_severities WHERE campaign_id = ?",
-            [campaignId]
-          )
-        )) as { id: number }[]
-      ).map((item) => item.id);
+      const result = await tryber.tables.WpAppqAdditionalBugSeverities.do()
+        .select("bug_severity_id")
+        .where("campaign_id", campaignId);
+      return result.map((item) => item.bug_severity_id);
     }
   }
   async function getReplicability() {
@@ -219,23 +211,23 @@ export default async (
     };
     async function getReplicabilities(): Promise<Replicability[]> {
       const data = await getCampaignAdditionalReplicabilities();
-      const result = (await db.query(
-        "SELECT id,name FROM wp_appq_evd_bug_replicability " +
-          (data.length ? `WHERE id IN (${data.join(",")})` : "")
-      )) as { id: number; name: string }[];
+
+      const query = tryber.tables.WpAppqEvdBugReplicability.do().select(
+        "id",
+        "name"
+      );
+      if (data.length) query.whereIn("id", data);
+      const result = await query;
+
       return result.map(
         (item) => ({ ...item, name: item.name.toUpperCase() } as Replicability)
       );
     }
     async function getCampaignAdditionalReplicabilities(): Promise<number[]> {
-      return (
-        (await db.query(
-          db.format(
-            "SELECT bug_replicability_id AS id FROM wp_appq_additional_bug_replicabilities WHERE campaign_id = ?",
-            [campaignId]
-          )
-        )) as { id: number }[]
-      ).map((item) => item.id);
+      const result = await tryber.tables.WpAppqAdditionalBugReplicabilities.do()
+        .select("bug_replicability_id")
+        .where("campaign_id", campaignId);
+      return result.map((item) => item.bug_replicability_id);
     }
   }
   async function getBugType() {
@@ -248,23 +240,20 @@ export default async (
     };
     async function getBugTypes(): Promise<BugType[]> {
       const data = await getCampaignAdditionalBugTypes();
-      const result = (await db.query(
-        "SELECT id,name FROM wp_appq_evd_bug_type " +
-          (data.length ? `WHERE id IN (${data.join(",")})` : "")
-      )) as { id: number; name: string }[];
+
+      const query = tryber.tables.WpAppqEvdBugType.do().select("id", "name");
+      if (data.length) query.whereIn("id", data);
+      const result = await query;
+
       return result.map(
         (item) => ({ ...item, name: item.name.toUpperCase() } as BugType)
       );
     }
     async function getCampaignAdditionalBugTypes(): Promise<number[]> {
-      return (
-        (await db.query(
-          db.format(
-            "SELECT bug_type_id AS id FROM wp_appq_additional_bug_types WHERE campaign_id = ?",
-            [campaignId]
-          )
-        )) as { id: number }[]
-      ).map((item) => item.id);
+      const result = await tryber.tables.WpAppqAdditionalBugTypes.do()
+        .select("bug_type_id")
+        .where("campaign_id", campaignId);
+      return result.map((item) => item.bug_type_id);
     }
   }
   async function getMediaData() {
@@ -290,30 +279,40 @@ export default async (
     if (isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
 
-    let query = db.format(
-      `SELECT tsk.id AS id, tsk.title AS title
-        FROM wp_appq_campaign_task tsk
-                 JOIN wp_appq_campaign_task_group tskgrp ON tskgrp.task_id = tsk.id
-        WHERE tsk.campaign_id = ?
-          AND (tskgrp.group_id = 0 OR tskgrp.group_id = ?)
-          AND tsk.id = ?
-       ;`,
-      [campaignId, group_id, body.usecase]
-    );
+    let query =
+      group_id === 0
+        ? tryber.tables.WpAppqCampaignTask.do()
+            .select(
+              tryber.ref("id").withSchema("wp_appq_campaign_task"),
+              "title"
+            )
+            .join(
+              "wp_appq_campaign_task_group",
+              "wp_appq_campaign_task.id",
+              "wp_appq_campaign_task_group.task_id"
+            )
+            .where("group_id", 0)
+            .where("campaign_id", campaignId)
+            .where("wp_appq_campaign_task.id", body.usecase)
+        : tryber.tables.WpAppqCampaignTask.do()
+            .select(
+              tryber.ref("id").withSchema("wp_appq_campaign_task"),
+              "title"
+            )
+            .join(
+              "wp_appq_campaign_task_group",
+              "wp_appq_campaign_task.id",
+              "wp_appq_campaign_task_group.task_id"
+            )
+            .where((builder) => {
+              builder
+                .where("wp_appq_campaign_task_group.group_id", group_id)
+                .orWhere("wp_appq_campaign_task_group.group_id", 0);
+            })
+            .where("campaign_id", campaignId)
+            .where("wp_appq_campaign_task.id", body.usecase);
 
-    if (group_id === 0) {
-      query = db.format(
-        `SELECT id, title
-          FROM wp_appq_campaign_task usecase
-          WHERE campaign_id = ?
-            AND group_id = 0 
-            AND tsk.id = ?
-         ;`,
-        [campaignId, body.usecase]
-      );
-    }
-
-    let usecases = await db.query(query);
+    let usecases = await query;
     if (!usecases.length) {
       throw {
         status_code: 403,
@@ -355,15 +354,9 @@ export default async (
     async function getCampaignAdditionalFields(): Promise<
       CampaignAdditional[]
     > {
-      return await db.query(
-        db.format(
-          `SELECT id, slug, type, validation 
-          FROM wp_appq_campaign_additional_fields 
-          WHERE cp_id = ?
-         ;`,
-          [campaignId]
-        )
-      );
+      return await tryber.tables.WpAppqCampaignAdditionalFields.do()
+        .select("id", "slug", "type", "validation")
+        .where("cp_id", campaignId);
     }
     function getValidAdditionalFields(
       bodyAdditional: { slug: string; value: string }[]
@@ -464,50 +457,42 @@ export default async (
       return !!d.hasOwnProperty("pc_type");
     };
 
-    let format = db.format(
-      `INSERT INTO wp_appq_evd_bug (
-        wp_user_id, message, description, expected_result, current_result, campaign_id,
-        status_id, publish, status_reason, severity_id, created,
-        bug_replicability_id, bug_type_id, application_section, application_section_id,note, 
-        dev_id, last_seen
-        ,manufacturer,model,os,os_version
-           )
-      VALUES (
-        ?,?,?,?,?,?,3,1,"Bug under review.",?,NOW(),?,?,?,?,?,
-        ?,?
-        ,?,?,?,?
-        )
-       ;`,
-      [
-        req.user.ID,
-        body.title,
-        body.description,
-        body.expected,
-        body.current,
-        campaignId,
-        severityId,
-        replicabilityId,
-        bugTypeId,
-        usecase.title,
-        usecase.id,
-        body.notes,
-
-        device.id,
-        body.lastSeen,
-        isPC(deviceData) ? "-" : deviceData.manufacturer,
-        isPC(deviceData) ? deviceData.pc_type : deviceData.model,
-        deviceOsData.platform,
-        deviceOsData.version,
-      ]
-    );
-    let inserted = await db.query(format);
-    if (inserted.affectedRows === 0) {
+    try {
+      const result = await tryber.tables.WpAppqEvdBug.do()
+        .insert({
+          wp_user_id: Number(req.user.ID),
+          message: body.title,
+          description: body.description,
+          expected_result: body.expected,
+          current_result: body.current,
+          campaign_id: campaignId,
+          status_id: 3,
+          publish: 1,
+          status_reason: "Bug under review.",
+          severity_id: severityId,
+          created: tryber.fn.now(),
+          bug_replicability_id: replicabilityId,
+          bug_type_id: bugTypeId,
+          application_section: usecase.title,
+          application_section_id: usecase.id,
+          note: body.notes,
+          dev_id: device.id,
+          last_seen: body.lastSeen,
+          manufacturer: isPC(deviceData) ? "-" : deviceData.manufacturer,
+          model: isPC(deviceData) ? deviceData.pc_type : deviceData.model,
+          os: deviceOsData.platform,
+          os_version: deviceOsData.version,
+          reviewer: 0,
+          last_editor_id: 0,
+        })
+        .returning("id");
+      return result[0]?.id ?? result[0];
+    } catch (error) {
       throw {
         status_code: 403,
         message: `Error on uploading Bug`,
       };
     }
-    return inserted.insertId;
   }
   async function getUserDevice(deviceId: number): Promise<UserDevice> {
     try {
@@ -523,28 +508,27 @@ export default async (
     }
   }
   async function updateInternalBugId(bugId: number): Promise<string> {
-    const internalBugId = (
-      await db.query(
-        db.format(
-          `SELECT CONCAT(cp.base_bug_internal_id, bug.id) AS internal
-          FROM wp_appq_evd_campaign cp
-                   JOIN wp_appq_evd_bug bug ON cp.id = bug.campaign_id
-          where bug.id = ?
-         ;`,
-          [bugId]
-        )
+    const result = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        "base_bug_internal_id",
+        tryber.ref("wp_appq_evd_bug.id").as("bug_id")
       )
-    )[0].internal;
+      .join(
+        "wp_appq_evd_bug",
+        "wp_appq_evd_campaign.id",
+        "wp_appq_evd_bug.campaign_id"
+      )
+      .where("wp_appq_evd_bug.id", bugId)
+      .first();
+    if (!result) throw Error("Error on updating internal bug id");
 
-    await db.query(
-      db.format(
-        `UPDATE wp_appq_evd_bug
-          SET internal_id = ?
-          WHERE id = ?          
-         ;`,
-        [internalBugId, bugId]
-      )
-    );
+    const internalBugId = `${result.base_bug_internal_id}${result.bug_id}`;
+
+    await tryber.tables.WpAppqEvdBug.do()
+      .update({
+        internal_id: internalBugId,
+      })
+      .where("id", bugId);
     return internalBugId;
   }
   async function createMediasBug(
@@ -553,29 +537,25 @@ export default async (
   ): Promise<Media> {
     if (medias) {
       for (const media of medias) {
-        await db.query(
-          db.format(
-            `INSERT INTO wp_appq_evd_bug_media 
-          ( type, location, bug_id, uploaded )
-          VALUES ( ?,?,?, NOW() )
-           ;`,
-            [media.type, media.url, bugId]
-          )
-        );
+        await tryber.tables.WpAppqEvdBugMedia.do().insert({
+          type: media.type,
+          location: media.url,
+          bug_id: bugId,
+          uploaded: tryber.fn.now(),
+        });
       }
     }
     const inserted = (
-      await db.query(
-        db.format(
-          `SELECT media.location AS url
-        FROM wp_appq_evd_bug bug
-                 JOIN wp_appq_evd_bug_media media ON bug.id = media.bug_id
-        WHERE bug.wp_user_id = ? AND bug.id = ?
-         ;`,
-          [req.user.ID, bugId]
+      await tryber.tables.WpAppqEvdBugMedia.do()
+        .select(tryber.ref("location").as("url"))
+        .join(
+          "wp_appq_evd_bug",
+          "wp_appq_evd_bug.id",
+          "wp_appq_evd_bug_media.bug_id"
         )
-      )
-    ).map((item: { url: string }) => item.url);
+        .where("wp_appq_evd_bug.wp_user_id", req.user.ID)
+        .andWhere("wp_appq_evd_bug.id", bugId)
+    ).map((item) => item.url);
     return inserted.length ? inserted : [];
   }
   async function createAdditionalFields(
@@ -587,25 +567,21 @@ export default async (
     }
 
     for (const additional of additionals) {
-      await db.query(
-        db.format(
-          `
-          INSERT INTO wp_appq_campaign_additional_fields_data (bug_id, type_id, value)
-            VALUES (?, ?, ? ) ;`,
-          [bugId, additional.id, additional.value]
-        )
-      );
+      await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().insert({
+        bug_id: bugId,
+        type_id: additional.id,
+        value: additional.value,
+      });
     }
-    const inserted: { value: string; slug: string }[] = await db.query(
-      db.format(
-        `
-        SELECT  data.value, field.slug
-        FROM wp_appq_campaign_additional_fields_data data
-        JOIN wp_appq_campaign_additional_fields field ON field.id = data.type_id
-        WHERE data.bug_id = ? ;`,
-        [bugId]
+
+    const inserted = await tryber.tables.WpAppqCampaignAdditionalFieldsData.do()
+      .select(tryber.ref("value").as("value"), tryber.ref("slug").as("slug"))
+      .join(
+        "wp_appq_campaign_additional_fields",
+        "wp_appq_campaign_additional_fields.id",
+        "wp_appq_campaign_additional_fields_data.type_id"
       )
-    );
+      .where("wp_appq_campaign_additional_fields_data.bug_id", bugId);
     return inserted.map((item) => ({
       slug: item.slug,
       value: item.value,

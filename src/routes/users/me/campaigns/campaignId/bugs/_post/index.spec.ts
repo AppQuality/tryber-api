@@ -1,26 +1,8 @@
-import AdditionalReplicability from "@src/__mocks__/mockedDb/bugAdditionalReplicabilities";
-import AdditionalSeverity from "@src/__mocks__/mockedDb/bugAdditionalSeverities";
-import AdditionalBugType from "@src/__mocks__/mockedDb/bugAdditionalTypes";
-import { data as additionalFieldsData } from "@src/__mocks__/mockedDb/bugHasAdditionalFields";
-import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
-import Replicability from "@src/__mocks__/mockedDb/bugReplicabilities";
-import Severity from "@src/__mocks__/mockedDb/bugSeverities";
-import BugType from "@src/__mocks__/mockedDb/bugTypes";
-import Campaign from "@src/__mocks__/mockedDb/campaign";
-import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
-import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
-import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
-import Usecases from "@src/__mocks__/mockedDb/usecases";
-import UsecaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
-import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import useBasicData from "./useBasicData";
 
 const bug = {
   title: "Campaign Title",
@@ -54,84 +36,44 @@ const bugNotSpecificUsecase = {
   usecase: -1,
 };
 
-beforeAll(async () => {
-  await WpUsers.insert();
-  await Profile.insert();
-
-  await Campaign.insert({
-    id: 1,
-    base_bug_internal_id: "BASE1BUGINTERNAL",
-  });
-  await Candidature.insert({
-    selected_device: 1,
-    accepted: 1,
-    campaign_id: 1,
-  });
-  await Usecases.insert({ id: 1, title: "Title of usecase1", campaign_id: 1 });
-  await UsecaseGroups.insert({ task_id: 1, group_id: 1 });
-  await Usecases.insert({ id: 2, campaign_id: 1 });
-
-  await Campaign.insert({ id: 2 });
-
-  await Campaign.insert({ id: 3, base_bug_internal_id: "BASE3BUGINTERNAL" });
-  await Candidature.insert({
-    selected_device: 0,
-    accepted: 1,
-    campaign_id: 3,
-    group_id: 1,
-  });
-  await Usecases.insert({ id: 4, campaign_id: 3 });
-  await Usecases.insert({ id: 5, campaign_id: 3, group_id: 1 });
-  await UsecaseGroups.insert({ task_id: 5, group_id: 1 });
-
-  await Campaign.insert({
-    id: 4,
-    base_bug_internal_id: "BASE4BUGINTERNAL",
-  });
-  await Usecases.insert({ id: 3, campaign_id: 4 });
-  await UsecaseGroups.insert({ task_id: 3, group_id: 1 });
-  await Usecases.insert({ id: 6, campaign_id: 4 });
-  await UsecaseGroups.insert({ task_id: 6, group_id: 2 });
-  await Usecases.insert({ id: 7, campaign_id: 4 });
-  await UsecaseGroups.insert({ task_id: 7, group_id: 0 });
-
-  await Candidature.insert({
-    selected_device: 0,
-    accepted: 1,
-    campaign_id: 4,
-    group_id: 1,
-  });
-});
-
-afterAll(async () => {
-  await Candidature.clear();
-  await Campaign.clear();
-  await WpUsers.clear();
-  await Profile.clear();
-
-  await Usecases.clear();
-  await UsecaseGroups.clear();
-});
-
 jest.mock("@src/features/getMimetypeFromS3");
 (getMimetypeFromS3 as jest.Mock).mockReturnValue("image");
 
 describe("Route POST a bug to a specific campaign", () => {
+  useBasicData();
   beforeEach(async () => {
-    await Severity.insert({ name: "LOW" });
-    await Severity.insert({ id: 2, name: "HIGH" });
-    await Replicability.insert({ name: "Once" });
-    await Replicability.insert({ id: 2, name: "Sometimes" });
-    await BugType.insert({ name: "Crash" });
-    await BugType.insert({ id: 2, name: "Typo" });
-    await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await DevicePlatform.insert({ name: "Android" });
-    await DeviceOs.insert({
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 2, name: "HIGH" });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 1,
+      name: "Once",
+    });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 2,
+      name: "Sometimes",
+    });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 2, name: "Typo" });
+    await tryber.tables.WpAppqEvdBugType.do().insert({
+      id: 3,
+      name: "Other",
+      is_enabled: 0,
+    });
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Android",
+      architecture: 1,
+    });
+    await tryber.tables.WpAppqOs.do().insert({
       id: 798,
       version_number: "11",
       display_name: "11",
+      platform_id: 1,
+      main_release: 1,
+      version_family: 1,
     });
-    await TesterDevice.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
+      id: 1,
       enabled: 1,
       id_profile: 1,
       manufacturer: "Acer",
@@ -141,10 +83,10 @@ describe("Route POST a bug to a specific campaign", () => {
       form_factor: "Tablet",
       source_id: 950,
     });
-    await TesterDevice.insert({
-      enabled: 1,
-      id_profile: 1,
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
       id: 2,
+      enabled: 1,
+      id_profile: 1,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
@@ -152,10 +94,10 @@ describe("Route POST a bug to a specific campaign", () => {
       form_factor: "Tablet",
       source_id: 950,
     });
-    await TesterDevice.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
+      id: 3,
       enabled: 1,
       id_profile: 1,
-      id: 3,
       manufacturer: "Acer",
       model: "Iconia A1",
       platform_id: 1,
@@ -164,32 +106,40 @@ describe("Route POST a bug to a specific campaign", () => {
       source_id: 950,
       pc_type: "Notebook",
     });
-    await CampaignAdditionals.insert({
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert({
+      id: 1,
       slug: "codice-cliente",
       type: "regex",
+      title: "Codice cliente",
+      error_message: "",
       validation: "^[0-9a-zA-Z]+$",
+      cp_id: 1,
     });
-    await CampaignAdditionals.insert({
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert({
       id: 2,
       slug: "nome-banca",
       type: "select",
       validation: "intesa; etruria; sanpaolo",
+      title: "Nome banca",
+      error_message: "",
+      cp_id: 1,
     });
   });
   afterEach(async () => {
-    await Severity.clear();
-    await AdditionalSeverity.clear();
-    await Replicability.clear();
-    await AdditionalReplicability.clear();
-    await BugType.clear();
-    await AdditionalBugType.clear();
-    await bugData.drop();
-    await bugMedia.clear();
-    await DevicePlatform.clear();
-    await TesterDevice.clear();
-    await DeviceOs.clear();
-    await CampaignAdditionals.clear();
-    await additionalFieldsData.drop();
+    await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete();
+    await tryber.tables.WpAppqEvdBugMedia.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().delete();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).post("/users/me/campaigns/1/bugs");
@@ -287,7 +237,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .send(bug);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("testerId", 1);
-    expect(response.body).toHaveProperty("id", 1);
   });
   it("Should serialize device data on the bug on success", async () => {
     const response = await request(app)
@@ -295,11 +244,12 @@ describe("Route POST a bug to a specific campaign", () => {
       .set("authorization", "Bearer tester")
       .send(bug);
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("id", 1);
-    const bugData = await sqlite3.get(
-      `SELECT manufacturer,model,os,os_version FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
-    );
-    expect(bugData).toEqual({
+    expect(response.body).toHaveProperty("id", response.body.id);
+    const bugData = await tryber.tables.WpAppqEvdBug.do()
+      .select("manufacturer", "model", "os", "os_version")
+      .where("id", response.body.id);
+    expect(bugData).toHaveLength(1);
+    expect(bugData[0]).toEqual({
       manufacturer: "Acer",
       model: "Iconia A1",
       os: "Android",
@@ -312,11 +262,12 @@ describe("Route POST a bug to a specific campaign", () => {
       .set("authorization", "Bearer tester")
       .send({ ...bug, device: 3, usecase: 5 });
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("id", 1);
-    const bugData = await sqlite3.get(
-      `SELECT manufacturer,model,os,os_version FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
-    );
-    expect(bugData).toEqual({
+
+    const bugData = await tryber.tables.WpAppqEvdBug.do()
+      .select("manufacturer", "model", "os", "os_version")
+      .where("id", response.body.id);
+    expect(bugData).toHaveLength(1);
+    expect(bugData[0]).toEqual({
       manufacturer: "-",
       model: "Notebook",
       os: "Android",
@@ -419,11 +370,14 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-    const baseInternal = await sqlite3.get(
-      `SELECT internal_id FROM wp_appq_evd_bug WHERE id = 1`
-    );
+    const baseInternal = await tryber.tables.WpAppqEvdBug.do()
+      .select("internal_id")
+      .where("id", response.body.id);
+    expect(baseInternal).toHaveLength(1);
     expect(response.status).toBe(200);
-    expect(baseInternal.internal_id).toEqual("BASE1BUGINTERNAL1");
+    expect(baseInternal[0].internal_id).toEqual(
+      "BASE1BUGINTERNAL" + response.body.id
+    );
   });
   it("Should return 403 if a user sends an invalid lastSeen date", async () => {
     const response = await request(app)
@@ -442,11 +396,14 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
-    const insertedLastSeen = await sqlite3.get(
-      `SELECT last_seen FROM wp_appq_evd_bug WHERE id = 1`
-    );
+    const insertedLastSeen = await tryber.tables.WpAppqEvdBug.do()
+      .select("last_seen")
+      .where("id", response.body.id);
     expect(response.status).toBe(200);
-    expect(insertedLastSeen.last_seen).toEqual("2022-07-01T13:44:00.000+02:00");
+    expect(insertedLastSeen).toHaveLength(1);
+    expect(insertedLastSeen[0].last_seen).toEqual(
+      "2022-07-01T13:44:00.000+02:00"
+    );
   });
   it("Should return inserted MEDIA if a user sends a bug with medias", async () => {
     const response = await request(app)
@@ -496,27 +453,38 @@ describe("Route POST a bug to a specific campaign", () => {
 });
 
 describe("Route POST a bug to a specific campaign - with custom type", () => {
+  useBasicData();
   beforeEach(async () => {
-    await Severity.insert({ id: 1, name: "LOW" });
-    await Severity.insert({ id: 2, name: "HIGH" });
-    await AdditionalSeverity.insert({ bug_severity_id: 1, campaign_id: 1 });
-    await Replicability.insert({ name: "Once" });
-    await BugType.insert({ name: "Crash" });
-    await BugType.insert({ id: 2, name: "Typo" });
-    await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await AdditionalBugType.insert({ campaign_id: 1 });
-    await AdditionalBugType.insert({
-      id: 2,
-      campaign_id: 1,
-      bug_type_id: 3,
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 2, name: "HIGH" });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 1,
+      name: "Once",
     });
-    await DevicePlatform.insert({ name: "Android" });
-    await DeviceOs.insert({
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 2, name: "Typo" });
+    await tryber.tables.WpAppqEvdBugType.do().insert({
+      id: 3,
+      name: "Other",
+      is_enabled: 0,
+    });
+
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Android",
+      architecture: 1,
+    });
+    await tryber.tables.WpAppqOs.do().insert({
       id: 798,
       version_number: "11",
       display_name: "11",
+      platform_id: 1,
+      main_release: 1,
+      version_family: 1,
     });
-    await TesterDevice.insert({
+
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
+      id: 1,
       enabled: 1,
       id_profile: 1,
       manufacturer: "Acer",
@@ -526,21 +494,38 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       form_factor: "Tablet",
       source_id: 950,
     });
+
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().insert({
+      bug_severity_id: 1,
+      campaign_id: 1,
+    });
+
+    await tryber.tables.WpAppqAdditionalBugTypes.do().insert({
+      bug_type_id: 1,
+      campaign_id: 1,
+    });
+    await tryber.tables.WpAppqAdditionalBugTypes.do().insert({
+      bug_type_id: 3,
+      campaign_id: 1,
+    });
   });
   afterEach(async () => {
-    await Severity.clear();
-    await AdditionalSeverity.clear();
-    await Replicability.clear();
-    await AdditionalReplicability.clear();
-    await BugType.clear();
-    await AdditionalBugType.clear();
-    await bugData.drop();
-    await bugMedia.clear();
-    await DevicePlatform.clear();
-    await DeviceOs.clear();
-    await TesterDevice.clear();
-    await CampaignAdditionals.clear();
-    await additionalFieldsData.drop();
+    await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete();
+    await tryber.tables.WpAppqEvdBugMedia.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
   });
   it("Should return inserted bug with TYPE if a user sends the bug type", async () => {
     const response = await request(app)
@@ -565,19 +550,30 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
 });
 
 describe("Route POST a bug to a specific campaign - with custom severities", () => {
+  useBasicData();
   beforeEach(async () => {
-    await Severity.insert({ name: "LOW" });
-    await Severity.insert({ id: 2, name: "HIGH" });
-    await AdditionalSeverity.insert({ campaign_id: 1 });
-    await Replicability.insert({ name: "Once" });
-    await BugType.insert({ name: "Crash" });
-    await DevicePlatform.insert({ name: "Android" });
-    await DeviceOs.insert({
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 2, name: "HIGH" });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 1,
+      name: "Once",
+    });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Android",
+      architecture: 1,
+    });
+    await tryber.tables.WpAppqOs.do().insert({
       id: 798,
       version_number: "11",
       display_name: "11",
+      platform_id: 1,
+      main_release: 1,
+      version_family: 1,
     });
-    await TesterDevice.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
+      id: 1,
       enabled: 1,
       id_profile: 1,
       manufacturer: "Acer",
@@ -587,21 +583,29 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
       form_factor: "Tablet",
       source_id: 950,
     });
+
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().insert({
+      bug_severity_id: 1,
+      campaign_id: 1,
+    });
   });
   afterEach(async () => {
-    await Severity.clear();
-    await AdditionalSeverity.clear();
-    await Replicability.clear();
-    await AdditionalReplicability.clear();
-    await BugType.clear();
-    await AdditionalBugType.clear();
-    await bugData.drop();
-    await bugMedia.clear();
-    await DevicePlatform.clear();
-    await DeviceOs.clear();
-    await TesterDevice.clear();
-    await CampaignAdditionals.clear();
-    await additionalFieldsData.drop();
+    await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete();
+    await tryber.tables.WpAppqEvdBugMedia.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
   });
   it("Should return inserted bug with SEVERITY if a user sends the bug severity", async () => {
     const response = await request(app)
@@ -626,19 +630,33 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
 });
 
 describe("Route POST a bug to a specific campaign - with custom replicability", () => {
+  useBasicData();
   beforeEach(async () => {
-    await Severity.insert({ name: "LOW" });
-    await Replicability.insert({ name: "Once" });
-    await Replicability.insert({ id: 2, name: "Sometimes" });
-    await AdditionalReplicability.insert({ campaign_id: 1 });
-    await BugType.insert({ name: "Crash" });
-    await DevicePlatform.insert({ name: "Android" });
-    await DeviceOs.insert({
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 1,
+      name: "Once",
+    });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 2,
+      name: "Sometimes",
+    });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Android",
+      architecture: 1,
+    });
+    await tryber.tables.WpAppqOs.do().insert({
       id: 798,
       version_number: "11",
       display_name: "11",
+      platform_id: 1,
+      main_release: 1,
+      version_family: 1,
     });
-    await TesterDevice.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
+      id: 1,
       enabled: 1,
       id_profile: 1,
       manufacturer: "Acer",
@@ -648,21 +666,29 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
       form_factor: "Tablet",
       source_id: 950,
     });
+
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().insert({
+      bug_replicability_id: 1,
+      campaign_id: 1,
+    });
   });
   afterEach(async () => {
-    await Severity.clear();
-    await AdditionalSeverity.clear();
-    await Replicability.clear();
-    await AdditionalReplicability.clear();
-    await BugType.clear();
-    await AdditionalBugType.clear();
-    await bugData.drop();
-    await bugMedia.clear();
-    await DevicePlatform.clear();
-    await DeviceOs.clear();
-    await TesterDevice.clear();
-    await CampaignAdditionals.clear();
-    await additionalFieldsData.drop();
+    await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete();
+    await tryber.tables.WpAppqEvdBugMedia.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
   });
 
   it("Should return inserted bug with REPLICABILITY if a user sends the bug replicability", async () => {
@@ -687,25 +713,36 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
   });
 });
 describe("Route POST a bug to a specific campaign - with user has not devices", () => {
+  useBasicData();
   beforeEach(async () => {
-    await Severity.insert({ name: "LOW" });
-    await Replicability.insert({ name: "Once" });
-    await Replicability.insert({ id: 2, name: "Sometimes" });
-    await AdditionalReplicability.insert({ campaign_id: 1 });
-    await BugType.insert({ name: "Crash" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 1,
+      name: "Once",
+    });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 2,
+      name: "Sometimes",
+    });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
   });
   afterEach(async () => {
-    await Severity.clear();
-    await AdditionalSeverity.clear();
-    await Replicability.clear();
-    await AdditionalReplicability.clear();
-    await BugType.clear();
-    await AdditionalBugType.clear();
-    await bugData.drop();
-    await bugMedia.clear();
-    await TesterDevice.clear();
-    await CampaignAdditionals.clear();
-    await additionalFieldsData.drop();
+    await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete();
+    await tryber.tables.WpAppqEvdBugMedia.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
   });
 
   it("Should return 403 if a user has no device", async () => {
@@ -718,22 +755,41 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
 });
 
 describe("Route POST a bug to a specific campaign - with invalid additional fields", () => {
+  useBasicData();
   beforeEach(async () => {
-    await Severity.insert({ name: "LOW" });
-    await Severity.insert({ id: 2, name: "HIGH" });
-    await Replicability.insert({ name: "Once" });
-    await Replicability.insert({ id: 2, name: "Sometimes" });
-    await BugType.insert({ name: "Crash" });
-    await BugType.insert({ id: 2, name: "Typo" });
-    await BugType.insert({ id: 3, name: "Other", is_enabled: 0 });
-    await UsecaseGroups.insert();
-    await DevicePlatform.insert({ name: "Android" });
-    await DeviceOs.insert({
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 2, name: "HIGH" });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 1,
+      name: "Once",
+    });
+    await tryber.tables.WpAppqEvdBugReplicability.do().insert({
+      id: 2,
+      name: "Sometimes",
+    });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
+    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 2, name: "Typo" });
+    await tryber.tables.WpAppqEvdBugType.do().insert({
+      id: 3,
+      name: "Other",
+      is_enabled: 0,
+    });
+
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Android",
+      architecture: 1,
+    });
+    await tryber.tables.WpAppqOs.do().insert({
       id: 798,
       version_number: "11",
       display_name: "11",
+      platform_id: 1,
+      main_release: 1,
+      version_family: 1,
     });
-    await TesterDevice.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert({
+      id: 1,
       enabled: 1,
       id_profile: 1,
       manufacturer: "Acer",
@@ -743,32 +799,43 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
       form_factor: "Tablet",
       source_id: 950,
     });
-    await CampaignAdditionals.insert({
+
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert({
+      id: 1,
       slug: "codice-cliente",
       type: "regex",
+      title: "Codice cliente",
+      error_message: "",
       validation: "^[0-9a-zA-Z]+$",
+      cp_id: 1,
     });
-    await CampaignAdditionals.insert({
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert({
       id: 2,
       slug: "nome-banca",
       type: "select",
       validation: "intesa; etruria; sanpaolo",
+      title: "Nome banca",
+      error_message: "",
+      cp_id: 1,
     });
   });
   afterEach(async () => {
-    await Severity.clear();
-    await AdditionalSeverity.clear();
-    await Replicability.clear();
-    await AdditionalReplicability.clear();
-    await BugType.clear();
-    await AdditionalBugType.clear();
-    await bugData.drop();
-    await bugMedia.clear();
-    await TesterDevice.clear();
-    await DevicePlatform.clear();
-    await DeviceOs.clear();
-    await CampaignAdditionals.clear();
-    await additionalFieldsData.drop();
+    await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete();
+    await tryber.tables.WpAppqEvdBugMedia.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
   });
 
   it("Should return inserted bug without additional if a user send invalid additional fields", async () => {
@@ -779,6 +846,7 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
         ...bug,
         additional: [{ slug: "browser", value: "Chrome" }],
       });
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.additional).toBe(undefined);
   });
@@ -811,9 +879,10 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("usecase", "Not a specific use case");
     expect(response.body).toHaveProperty("id");
-    const bugData = await sqlite3.get(
-      `SELECT application_section_id FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
-    );
-    expect(bugData).toHaveProperty("application_section_id", -1);
+    const bugData = await tryber.tables.WpAppqEvdBug.do()
+      .select("application_section_id")
+      .where("id", response.body.id);
+    expect(bugData).toHaveLength(1);
+    expect(bugData[0]).toHaveProperty("application_section_id", -1);
   });
 });
