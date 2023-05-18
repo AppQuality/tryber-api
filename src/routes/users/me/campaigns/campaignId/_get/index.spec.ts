@@ -1,141 +1,10 @@
-import Replicabilities from "@src/__mocks__/mockedDb/bugReplicabilities";
-import Severities from "@src/__mocks__/mockedDb/bugSeverities";
-import BugTypes from "@src/__mocks__/mockedDb/bugTypes";
-import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import CampaignAdditionals from "@src/__mocks__/mockedDb/campaignAdditionals";
-import CampaignMeta from "@src/__mocks__/mockedDb/campaignMeta";
-import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import CustomBugTypes from "@src/__mocks__/mockedDb/customBugTypes";
-import CustomReplicabilities from "@src/__mocks__/mockedDb/customReplicabilities";
-import CustomSeverities from "@src/__mocks__/mockedDb/customSeverities";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import UseCases from "@src/__mocks__/mockedDb/usecases";
-import UseCaseGroups from "@src/__mocks__/mockedDb/usecasesGroups";
-import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
 import request from "supertest";
+import { tryber } from "@src/features/database";
+import useBasicData from "./useBasicData";
 
-beforeAll(async () => {
-  await Profile.insert();
-  await WpUsers.insert();
-  await Candidature.insert({
-    campaign_id: 1,
-    user_id: 1,
-    group_id: 1,
-    accepted: 1,
-  });
-  await Severities.insert({ id: 1, name: "Low" });
-  await Severities.insert({ id: 2, name: "Medium" });
-  await BugTypes.insert({ id: 1, name: "Typo" });
-  await BugTypes.insert({ id: 2, name: "Crash" });
-  await BugTypes.insert({ id: 3, name: "Atomic", is_enabled: 0 });
-  await Replicabilities.insert({ id: 1, name: "Once" });
-  await Replicabilities.insert({ id: 2, name: "Always" });
-
-  await UseCases.insert({
-    id: 2,
-    title: "First Usecase All groups",
-    group_id: 0,
-    position: 1,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 1,
-    title: "Second Usecase All groups",
-    group_id: 0,
-    position: 2,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 3,
-    title: "Third Usecase All groups",
-    group_id: 0,
-    position: 2,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 4,
-    title: "Fourth Usecase Group 1",
-    group_id: 1,
-    position: 4,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 5,
-    title: "Fourth Usecase Group 2",
-    group_id: 2,
-    position: 4,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 6,
-    title: "Usecase of another campaign",
-    group_id: 0,
-    position: 0,
-    campaign_id: 2,
-  });
-  await UseCases.insert({
-    id: 7,
-    title: "Usecase multigroup",
-    group_id: -1,
-    position: 5,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 9,
-    title: "Usecase multigroup without current user",
-    group_id: -1,
-    position: 5,
-    campaign_id: 1,
-  });
-  await UseCases.insert({
-    id: 8,
-    title: "Usecase multigroup of another campaign",
-    group_id: -1,
-    position: 5,
-    campaign_id: 2,
-  });
-  await UseCases.insert({
-    id: 10,
-    title: "Usecase multigroup all groups",
-    group_id: -1,
-    position: 10,
-    campaign_id: 1,
-  });
-  await UseCaseGroups.insert({ task_id: 7, group_id: 1 });
-  await UseCaseGroups.insert({ task_id: 7, group_id: 2 });
-  await UseCaseGroups.insert({ task_id: 8, group_id: 1 });
-  await UseCaseGroups.insert({ task_id: 8, group_id: 2 });
-  await UseCaseGroups.insert({ task_id: 9, group_id: 2 });
-  await UseCaseGroups.insert({ task_id: 9, group_id: 3 });
-  await UseCaseGroups.insert({ task_id: 10, group_id: 0 });
-  await Campaigns.insert({
-    id: 1,
-    title: "My campaign",
-    min_allowed_media: 4,
-    campaign_type: 0,
-  });
-
-  await WpOptions.insert({
-    option_name: "options_appq_valid_upload_extensions",
-    option_value: "jpg,png,gif",
-  });
-});
-afterAll(async () => {
-  await WpUsers.clear();
-  await Profile.clear();
-  await WpOptions.clear();
-  await Candidature.clear();
-  await Severities.clear();
-  await Campaigns.clear();
-  await BugTypes.clear();
-  await Replicabilities.clear();
-  await UseCases.clear();
-  await WpOptions.clear();
-  await UseCaseGroups.clear();
-});
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
+  useBasicData();
   it("Should return 403 if user is not logged in", () => {
     return request(app).get("/users/me/campaigns/1").expect(403);
   });
@@ -209,11 +78,15 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
 });
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set", () => {
+  useBasicData();
   beforeAll(async () => {
-    await CustomSeverities.insert({ campaign_id: 1, bug_severity_id: 1 });
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().insert({
+      campaign_id: 1,
+      bug_severity_id: 1,
+    });
   });
   afterAll(async () => {
-    await CustomSeverities.clear();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
   });
   it("Should return only selected severities", async () => {
     const response = await request(app)
@@ -226,11 +99,15 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set", 
 });
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set", () => {
+  useBasicData();
   beforeAll(async () => {
-    await CustomBugTypes.insert({ campaign_id: 1, bug_type_id: 1 });
+    await tryber.tables.WpAppqAdditionalBugTypes.do().insert({
+      campaign_id: 1,
+      bug_type_id: 1,
+    });
   });
   afterAll(async () => {
-    await CustomBugTypes.clear();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
   });
   it("Should return only selected bug types", async () => {
     const response = await request(app)
@@ -243,14 +120,15 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set", (
 });
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - custom replicabilities set", () => {
+  useBasicData();
   beforeAll(async () => {
-    await CustomReplicabilities.insert({
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().insert({
       campaign_id: 1,
       bug_replicability_id: 1,
     });
   });
   afterAll(async () => {
-    await CustomReplicabilities.clear();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
   });
   it("Should return only selected bug types", async () => {
     const response = await request(app)
@@ -263,37 +141,40 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom replicabilities s
 });
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", () => {
+  useBasicData();
   beforeAll(async () => {
-    await CampaignAdditionals.insert({
-      id: 1,
-      cp_id: 1,
-      slug: "browser",
-      title: "Browser",
-      type: "select",
-      validation: 'Chromé;Sa Fari\\"',
-      error_message: "Please select the browser used",
-    });
-    await CampaignAdditionals.insert({
-      id: 2,
-      cp_id: 1,
-      slug: "codice-cliente",
-      title: "Codice Cliente",
-      type: "regex",
-      validation: '^[A-Z]{3}[0-9]{4}"\\$',
-      error_message: "Inserisci un codice cliente valido (es. ABC1234)",
-    });
-    await CampaignAdditionals.insert({
-      id: 3,
-      cp_id: 2,
-      slug: "altra-cp",
-      title: "Altra CP",
-      type: "regex",
-      validation: "",
-      error_message: "",
-    });
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert([
+      {
+        id: 1,
+        cp_id: 1,
+        slug: "browser",
+        title: "Browser",
+        type: "select",
+        validation: 'Chromé;Sa Fari\\"',
+        error_message: "Please select the browser used",
+      },
+      {
+        id: 2,
+        cp_id: 1,
+        slug: "codice-cliente",
+        title: "Codice Cliente",
+        type: "regex",
+        validation: '^[A-Z]{3}[0-9]{4}"\\$',
+        error_message: "Inserisci un codice cliente valido (es. ABC1234)",
+      },
+      {
+        id: 3,
+        cp_id: 2,
+        slug: "altra-cp",
+        title: "Altra CP",
+        type: "regex",
+        validation: "",
+        error_message: "",
+      },
+    ]);
   });
   afterAll(async () => {
-    await CampaignAdditionals.clear();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
   });
   it("Should return a list of additional fields", async () => {
     const response = await request(app)
@@ -321,43 +202,54 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - additional fields set", 
 });
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - bug language set", () => {
+  useBasicData();
   beforeAll(async () => {
-    await Campaigns.clear();
-
-    await Campaigns.insert({
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
       id: 1,
       title: "My campaign",
       min_allowed_media: 4,
       campaign_type: 0,
       bug_lang: 1,
+      platform_id: 1,
+      start_date: "2020-01-01 00:00:00",
+      end_date: "2020-12-31 23:59:59",
+      page_preview_id: 1,
+      page_manual_id: 1,
+      customer_id: 1,
+      pm_id: 1,
+      project_id: 1,
+      customer_title: "My campaign",
     });
-    await CampaignMeta.insert({
-      meta_id: 1,
-      campaign_id: 5,
-      meta_key: "bug_lang_code",
-      meta_value: "en",
-    });
-    await CampaignMeta.insert({
-      meta_id: 2,
-      campaign_id: 5,
-      meta_key: "bug_lang_message",
-      meta_value: "Bug in english",
-    });
-    await CampaignMeta.insert({
-      meta_id: 3,
-      campaign_id: 1,
-      meta_key: "bug_lang_code",
-      meta_value: "it",
-    });
-    await CampaignMeta.insert({
-      meta_id: 4,
-      campaign_id: 1,
-      meta_key: "bug_lang_message",
-      meta_value: "Bug in italiano",
-    });
+    await tryber.tables.WpAppqCpMeta.do().insert([
+      {
+        meta_id: 1,
+        campaign_id: 5,
+        meta_key: "bug_lang_code",
+        meta_value: "en",
+      },
+      {
+        meta_id: 2,
+        campaign_id: 5,
+        meta_key: "bug_lang_message",
+        meta_value: "Bug in english",
+      },
+      {
+        meta_id: 3,
+        campaign_id: 1,
+        meta_key: "bug_lang_code",
+        meta_value: "it",
+      },
+      {
+        meta_id: 4,
+        campaign_id: 1,
+        meta_key: "bug_lang_message",
+        meta_value: "Bug in italiano",
+      },
+    ]);
   });
   afterAll(async () => {
-    await CampaignMeta.clear();
+    await tryber.tables.WpAppqCpMeta.do().delete();
   });
   it("Should return a the language with a message", async () => {
     const response = await request(app)
@@ -373,8 +265,9 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - bug language set", () =>
 });
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - title rule set", () => {
+  useBasicData();
   beforeAll(async () => {
-    await CampaignMeta.insert({
+    await tryber.tables.WpAppqCpMeta.do().insert({
       meta_id: 1,
       campaign_id: 1,
       meta_key: "bug_title_rule",
@@ -382,7 +275,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - title rule set", () => {
     });
   });
   afterAll(async () => {
-    await CampaignMeta.clear();
+    await tryber.tables.WpAppqCpMeta.do().delete();
   });
   it("Should return title rule = true", async () => {
     const response = await request(app)
