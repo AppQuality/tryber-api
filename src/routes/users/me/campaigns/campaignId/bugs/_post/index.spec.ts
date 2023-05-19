@@ -153,7 +153,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(404);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: "CP100, does not exists.",
     });
   });
@@ -162,10 +162,11 @@ describe("Route POST a bug to a specific campaign", () => {
       .post("/users/me/campaigns/2/bugs")
       .set("authorization", "Bearer tester")
       .send({ ...bug });
+
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: "T1 is not candidate on CP2.",
     });
   });
@@ -177,7 +178,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `Usecase 100 not found for CP1.`,
     });
   });
@@ -190,7 +191,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `Usecase 6 not found for CP4.`,
     });
   });
@@ -219,7 +220,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `Device is not candidate on CP1.`,
     });
   });
@@ -387,7 +388,7 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `Date format is not correct.`,
     });
   });
@@ -543,7 +544,7 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `BugType TYPO is not accepted from CP1.`,
     });
   });
@@ -623,7 +624,7 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `Severity ${bugBadSeverity.severity} is not accepted from CP1.`,
     });
   });
@@ -707,7 +708,7 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
       element: "bugs",
-      id: 0,
+      id: 1,
       message: `Replicability ${bugBadReplicability.replicability} is not accepted from CP1.`,
     });
   });
@@ -846,7 +847,6 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
         ...bug,
         additional: [{ slug: "browser", value: "Chrome" }],
       });
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.additional).toBe(undefined);
   });
