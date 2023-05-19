@@ -45,6 +45,14 @@ class Campaign {
   }
 
   public async getAvailableSeverities() {
+    const result = await this.getAvailableSeveritiesItems();
+    return {
+      valid: result.valid.map((s) => s.name),
+      invalid: result.invalid.map((s) => s.name),
+    };
+  }
+
+  public async getAvailableSeveritiesItems() {
     const customSeverities = (
       await tryber.tables.WpAppqAdditionalBugSeverities.do().select(
         "bug_severity_id"
@@ -53,17 +61,17 @@ class Campaign {
     const severities = await getSeverities();
     if (!customSeverities.length) {
       return {
-        valid: severities.map((s) => s.name),
+        valid: severities.filter(isValidSeverity),
         invalid: [],
       };
     }
     return {
       valid: severities
         .filter((s) => customSeverities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidSeverity),
       invalid: severities
         .filter((s) => !customSeverities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidSeverity),
     };
 
     async function getSeverities() {
@@ -74,24 +82,41 @@ class Campaign {
         name: s.name.toUpperCase(),
       }));
     }
+
+    function isValidSeverity(item: {
+      id: number;
+      name: string;
+    }): item is { id: number; name: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" } {
+      return ["CRITICAL", "HIGH", "MEDIUM", "LOW"].includes(item.name);
+    }
   }
 
   public async getAvailableTypes() {
+    const result = await this.getAvailableTypesItems();
+    return {
+      valid: result.valid.map((s) => s.name),
+      invalid: result.invalid.map((s) => s.name),
+    };
+  }
+
+  public async getAvailableTypesItems() {
     const customTypes = (
       await tryber.tables.WpAppqAdditionalBugTypes.do().select("bug_type_id")
     ).map((c) => c.bug_type_id);
     const types = await getTypes();
     if (!customTypes.length) {
       return {
-        valid: types.map((s) => s.name),
+        valid: types.filter(isValidBugType),
         invalid: [],
       };
     }
     return {
-      valid: types.filter((s) => customTypes.includes(s.id)).map((s) => s.name),
+      valid: types
+        .filter((s) => customTypes.includes(s.id))
+        .filter(isValidBugType),
       invalid: types
         .filter((s) => !customTypes.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidBugType),
     };
 
     async function getTypes(): Promise<{ id: number; name: string }[]> {
@@ -104,9 +129,41 @@ class Campaign {
         name: s.name.toUpperCase(),
       }));
     }
+
+    function isValidBugType(item: { id: number; name: string }): item is {
+      id: number;
+      name:
+        | "CRASH"
+        | "GRAPHIC"
+        | "MALFUNCTION"
+        | "OTHER"
+        | "PERFORMANCE"
+        | "SECURITY"
+        | "TYPO"
+        | "USABILITY";
+    } {
+      return [
+        "CRASH",
+        "GRAPHIC",
+        "MALFUNCTION",
+        "OTHER",
+        "PERFORMANCE",
+        "SECURITY",
+        "TYPO",
+        "USABILITY",
+      ].includes(item.name);
+    }
   }
 
   public async getAvailableReplicabilities() {
+    const result = await this.getAvailableReplicabilitiesItems();
+    return {
+      valid: result.valid.map((s) => s.name),
+      invalid: result.invalid.map((s) => s.name),
+    };
+  }
+
+  public async getAvailableReplicabilitiesItems() {
     const customReplicabilities = (
       await tryber.tables.WpAppqAdditionalBugReplicabilities.do().select(
         "bug_replicability_id"
@@ -115,17 +172,17 @@ class Campaign {
     const replicabilities = await getReplicabilities();
     if (!customReplicabilities.length) {
       return {
-        valid: replicabilities.map((s) => s.name),
+        valid: replicabilities.filter(isValidReplicability),
         invalid: [],
       };
     }
     return {
       valid: replicabilities
         .filter((s) => customReplicabilities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidReplicability),
       invalid: replicabilities
         .filter((s) => !customReplicabilities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidReplicability),
     };
 
     async function getReplicabilities(): Promise<
@@ -140,6 +197,13 @@ class Campaign {
         ...s,
         name: s.name.toUpperCase(),
       }));
+    }
+
+    function isValidReplicability(item: {
+      id: number;
+      name: string;
+    }): item is { id: number; name: "ALWAYS" | "SOMETIMES" | "ONCE" } {
+      return ["ALWAYS", "SOMETIMES", "ONCE"].includes(item.name);
     }
   }
 

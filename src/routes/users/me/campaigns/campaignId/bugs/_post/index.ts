@@ -1,21 +1,20 @@
 /** OPENAPI-CLASS: post-users-me-campaigns-campaign-bugs */
 
+import OpenapiError from "@src/features/OpenapiError";
+import Campaign from "@src/features/class/Campaign";
 import Devices from "@src/features/class/Devices";
 import { tryber } from "@src/features/database";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
+import UserRoute from "@src/features/routes/UserRoute";
 import {
   BugMedia,
-  BugType,
   CampaignAdditional,
   CreateAdditionals,
   Media,
-  Replicability,
-  Severity,
   Usecase,
   UserAdditionals,
   UserDevice,
 } from "./types";
-import UserRoute from "@src/features/routes/UserRoute";
 
 export default class PostBugsOnCampaignRoute extends UserRoute<{
   response: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
@@ -23,112 +22,152 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   body: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number = parseInt(this.getParameters().campaignId);
-  private wpUserId: number = this.getWordpressId();
-  private reqBody: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["requestBody"]["content"]["application/json"] =
-    this.getBody();
 
   private candidature: Awaited<ReturnType<typeof this.getTesterCandidature>>;
   private device: Awaited<ReturnType<typeof this.getUserDevice>> | false =
     false;
-  private replicability: Awaited<ReturnType<typeof this.getReplicability>>;
-  private severity: Awaited<ReturnType<typeof this.getSeverity>>;
-  private bugType: Awaited<ReturnType<typeof this.getBugType>>;
   private usecase: Awaited<ReturnType<typeof this.getValidUsecase>> | undefined;
 
   constructor(protected configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "bugs" });
   }
 
-  protected async init(): Promise<void> {
+  protected async init() {
     this.candidature = await this.getTesterCandidature();
-    this.device = await this.getUserDevice(this.reqBody.device);
-    this.replicability = await this.getReplicability();
+    this.device = await this.getUserDevice();
 
-    this.severity = await this.getSeverity();
-    this.bugType = await this.getBugType();
     this.usecase = await this.getValidUsecase(
       this.candidature ? this.candidature.group_id : 0
     );
   }
 
-  protected async filter(): Promise<boolean> {
+  protected async filter() {
     if (!(await super.filter())) return false;
-    if (!(await this.campaignExists())) {
-      this.setError(404, {
-        message: `CP${this.campaignId}, does not exists.`,
-      } as OpenapiError);
-      return false;
-    }
-    if (!this.candidature) {
-      this.setError(403, {
-        message: `T${this.getTesterId()} is not candidate on CP${
-          this.campaignId
-        }.`,
-      } as OpenapiError);
+    if (await this.campaignDoesNotExists()) return false;
+    if (this.lastSeenIsInvalid()) return false;
+    if (await this.deviceDoesNotExists()) return false;
+    if (await this.severityIsNotValid()) return false;
+    if (await this.bugTypeIsNotValid()) return false;
+
+    const candidature = await this.getTesterCandidature();
+
+    if (!candidature) {
+      this.setError(
+        403,
+        new OpenapiError(
+          `T${this.getTesterId()} is not candidate on CP${this.campaignId}.`
+        )
+      );
       return false;
     }
     if (
-      this.candidature.selected_device !== 0 &&
-      this.candidature.selected_device !== this.getBody().device
+      candidature.selected_device !== 0 &&
+      candidature.selected_device !== this.getBody().device
     ) {
-      console.log("fail");
-      this.setError(403, {
-        message: `Device is not candidate on CP${this.campaignId}.`,
-      } as OpenapiError);
-      return false;
-    }
-    if (!this.lastSeenIsValid()) {
-      this.setError(403, {
-        message: `Date format is not correct.`,
-      } as OpenapiError);
-      return false;
-    }
-    if (!this.device) {
-      this.setError(403, { message: `No device on your user` } as OpenapiError);
-      return false;
-    }
-    if (!this.replicability) {
-      this.setError(403, {
-        message: `Replicability ${this.reqBody.replicability} is not accepted from CP${this.campaignId}.`,
-      } as OpenapiError);
+      this.setError(
+        403,
+        new OpenapiError(`Device is not candidate on CP${this.campaignId}.`)
+      );
       return false;
     }
 
-    if (!this.severity) {
-      this.setError(403, {
-        message: `Severity ${this.reqBody.severity} is not accepted from CP${this.campaignId}.`,
-      } as OpenapiError);
-      return false;
-    }
-    if (!this.bugType) {
-      this.setError(403, {
-        message: `BugType ${this.reqBody.type} is not accepted from CP${this.campaignId}.`,
-      } as OpenapiError);
-      return false;
-    }
-
-    if (!this.usecase) {
-      this.setError(403, {
-        message: `Usecase ${this.reqBody.usecase} not found for CP${this.campaignId}.`,
-      } as OpenapiError);
+    if (!(await this.getValidUsecase(candidature ? candidature.group_id : 0))) {
+      this.setError(
+        403,
+        new OpenapiError(
+          `Usecase ${this.getBody().usecase} not found for CP${
+            this.campaignId
+          }.`
+        )
+      );
       return false;
     }
 
     return true;
   }
+
+  private async campaignDoesNotExists() {
+    const result = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id")
+      .where({
+        id: this.campaignId,
+      })
+      .first();
+    if (result) return false;
+    this.setError(
+      404,
+      new OpenapiError(`CP${this.campaignId}, does not exists.`)
+    );
+    return true;
+  }
+
+  private lastSeenIsInvalid() {
+    if (this.lastSeenShouldBeIsoFormat()) return false;
+    this.setError(403, new OpenapiError(`Date format is not correct.`));
+    return true;
+  }
+
+  private lastSeenShouldBeIsoFormat() {
+    const regexpISOString =
+      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}/gm;
+    if (!regexpISOString.test(this.getBody().lastSeen)) {
+      return false;
+    }
+    return true;
+  }
+
+  private async deviceDoesNotExists() {
+    const device = await tryber.tables.WpCrowdAppqDevice.do()
+      .select(tryber.ref("id").withSchema("wp_crowd_appq_device"))
+      .where({ id: this.getBody().device, enabled: 1 })
+      .first();
+    if (device) return false;
+    this.setError(403, new OpenapiError(`No device on your user`));
+    return true;
+  }
+
+  private async severityIsNotValid() {
+    try {
+      const severity = await this.getSeverity();
+      if (severity) return false;
+    } catch (e) {}
+    this.setError(
+      403,
+      new OpenapiError(
+        `Severity ${this.getBody().severity} is not accepted from CP${
+          this.campaignId
+        }.`
+      )
+    );
+    return true;
+  }
+
+  private async bugTypeIsNotValid() {
+    try {
+      const bugType = await this.getBugType();
+      if (bugType) return false;
+    } catch (e) {}
+    this.setError(
+      403,
+      new OpenapiError(
+        `BugType ${this.getBody().type} is not accepted from CP${
+          this.campaignId
+        }.`
+      )
+    );
+    return true;
+  }
+
   protected async prepare() {
     if (!this.usecase) throw new Error("Usecase not found");
     if (!this.device) throw new Error("Device not found");
 
     const body = this.getBody();
 
-    let severity: Severity,
-      bugtype: BugType,
-      media: BugMedia,
-      additional: CreateAdditionals;
+    let media: BugMedia, additional: CreateAdditionals;
 
-    severity = (await this.getSeverity()) as Severity;
-    bugtype = (await this.getBugType()) as BugType;
+    const severity = await this.getSeverity();
+    const bugtype = await this.getBugType();
     media = await this.getMediaData();
     additional = await this.filterValidAdditionalFields();
 
@@ -136,9 +175,8 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     insertedBugId = await this.createBug(
       this.usecase,
       severity.id,
-      (this.replicability as Replicability).id,
       bugtype.id,
-      this.device as UserDevice
+      this.device
     );
 
     let internalBugID: string;
@@ -176,16 +214,6 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     });
   }
 
-  private async campaignExists() {
-    const result = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("id")
-      .where({
-        id: this.campaignId,
-      })
-      .first();
-    if (!result) return false;
-    return true;
-  }
   private async getTesterCandidature() {
     const result = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select("group_id", "selected_device")
@@ -194,81 +222,33 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       .first();
     return result;
   }
+
   private async getSeverity() {
-    const severities = await this.getSeverities();
-    const result = severities.find(
-      (item) => item.name === this.reqBody.severity
+    const campaign = new Campaign(this.campaignId);
+    const severities = await campaign.getAvailableSeveritiesItems();
+    const result = severities.valid.find(
+      ({ name }) => name === this.getBody().severity
     );
-    if (result) return result;
-  }
-  private async getSeverities(): Promise<Severity[]> {
-    const data = await this.getCampaignAdditionalSeverities();
-    const query = tryber.tables.WpAppqEvdSeverity.do().select("id", "name");
-    if (data.length) query.whereIn("id", data);
-    const result = await query;
-    return result.map((item) => ({ ...item, name: item.name } as Severity));
-  }
-  private async getCampaignAdditionalSeverities(): Promise<number[]> {
-    const result = await tryber.tables.WpAppqAdditionalBugSeverities.do()
-      .select("bug_severity_id")
-      .where("campaign_id", this.campaignId);
-    return result.map((item) => item.bug_severity_id);
-  }
-  private async getReplicability() {
-    const replicabilities = await this.getReplicabilities();
-    const result = replicabilities.find(
-      (item) => item.name === this.reqBody.replicability
-    );
-    if (result) return result;
+    if (!result) throw new Error("Severity not found");
+
+    return result;
   }
 
-  private async getReplicabilities(): Promise<Replicability[]> {
-    const data = await this.getCampaignAdditionalReplicabilities();
-
-    const query = tryber.tables.WpAppqEvdBugReplicability.do().select(
-      "id",
-      "name"
-    );
-    if (data.length) query.whereIn("id", data);
-    const result = await query;
-
-    return result.map(
-      (item) => ({ ...item, name: item.name.toUpperCase() } as Replicability)
-    );
-  }
-  private async getCampaignAdditionalReplicabilities(): Promise<number[]> {
-    const result = await tryber.tables.WpAppqAdditionalBugReplicabilities.do()
-      .select("bug_replicability_id")
-      .where("campaign_id", this.campaignId);
-    return result.map((item) => item.bug_replicability_id);
-  }
   private async getBugType() {
-    const bugtypes = await this.getBugTypes();
-    const result = bugtypes.find((item) => item.name === this.reqBody.type);
-    if (result) return result;
-  }
-  private async getBugTypes(): Promise<BugType[]> {
-    const data = await this.getCampaignAdditionalBugTypes();
-
-    const query = tryber.tables.WpAppqEvdBugType.do().select("id", "name");
-    if (data.length) query.whereIn("id", data);
-    const result = await query;
-
-    return result.map(
-      (item) => ({ ...item, name: item.name.toUpperCase() } as BugType)
+    const campaign = new Campaign(this.campaignId);
+    const bugTypes = await campaign.getAvailableTypesItems();
+    const result = bugTypes.valid.find(
+      (item) => item.name === this.getBody().type
     );
+    if (!result) throw new Error("BugType not found");
+    return result;
   }
-  private async getCampaignAdditionalBugTypes(): Promise<number[]> {
-    const result = await tryber.tables.WpAppqAdditionalBugTypes.do()
-      .select("bug_type_id")
-      .where("campaign_id", this.campaignId);
-    return result.map((item) => item.bug_type_id);
-  }
+
   private async getMediaData() {
     let media: BugMedia;
-    if (this.reqBody.media) {
+    if (this.getBody().media) {
       media = [];
-      for (const url of this.reqBody.media) {
+      for (const url of this.getBody().media) {
         const mimeType = await getMimetypeFromS3({ url });
         if (!mimeType) media.push({ url: url, type: "other" });
         else {
@@ -282,7 +262,8 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     }
     return media;
   }
-  private async getValidUsecase(group_id: number): Promise<Usecase> {
+
+  private async getValidUsecase(group_id: number) {
     let usecase: Usecase;
     if (this.isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
@@ -296,7 +277,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
             )
             .where("group_id", 0)
             .where("campaign_id", this.campaignId)
-            .where("wp_appq_campaign_task.id", this.reqBody.usecase)
+            .where("wp_appq_campaign_task.id", this.getBody().usecase)
         : tryber.tables.WpAppqCampaignTask.do()
             .select(
               tryber.ref("id").withSchema("wp_appq_campaign_task"),
@@ -313,7 +294,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
                 .orWhere("wp_appq_campaign_task_group.group_id", 0);
             })
             .where("campaign_id", this.campaignId)
-            .where("wp_appq_campaign_task.id", this.reqBody.usecase);
+            .where("wp_appq_campaign_task.id", this.getBody().usecase);
 
     let awaitedUusecase = await query;
 
@@ -321,11 +302,13 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
 
     return usecase;
   }
+
   private isNotSpecificUsecase() {
-    return this.reqBody.usecase === -1;
+    return this.getBody().usecase === -1;
   }
-  private async filterValidAdditionalFields(): Promise<CreateAdditionals> {
-    let additionals = this.reqBody.additional || [];
+
+  private async filterValidAdditionalFields() {
+    let additionals = this.getBody().additional || [];
     let campaignAdditionalFields = await this.getCampaignAdditionalFields();
 
     if (!campaignAdditionalFields.length) {
@@ -353,11 +336,13 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       campaignAdditionalFields
     );
   }
-  private async getCampaignAdditionalFields(): Promise<CampaignAdditional[]> {
+
+  private async getCampaignAdditionalFields() {
     return await tryber.tables.WpAppqCampaignAdditionalFields.do()
       .select("id", "slug", "type", "validation")
       .where("cp_id", this.campaignId);
   }
+
   private getValidAdditionalFields(
     bodyAdditional: { slug: string; value: string }[],
     bugSlugs: string[],
@@ -438,25 +423,14 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       }
     }
   }
-  private lastSeenIsValid() {
-    return this.checkIsoStringDate(this.reqBody.lastSeen);
-  }
 
-  private checkIsoStringDate(ISOString: string) {
-    const regexpISOString =
-      /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}/gm;
-    if (!regexpISOString.test(ISOString)) {
-      return false;
-    }
-    return true;
-  }
   private async createBug(
     usecase: { id: number; title: string },
     severityId: number,
-    replicabilityId: number,
     bugTypeId: number,
     device: UserDevice
   ): Promise<number> {
+    const replicability = await this.getReplicability();
     const deviceData = device.device;
     const deviceOsData = device.operating_system;
     const isPC = (d: typeof deviceData): d is { pc_type: string } => {
@@ -466,24 +440,24 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     try {
       const result = await tryber.tables.WpAppqEvdBug.do()
         .insert({
-          wp_user_id: this.wpUserId,
-          message: this.reqBody.title,
-          description: this.reqBody.description,
-          expected_result: this.reqBody.expected,
-          current_result: this.reqBody.current,
+          wp_user_id: this.getWordpressId(),
+          message: this.getBody().title,
+          description: this.getBody().description,
+          expected_result: this.getBody().expected,
+          current_result: this.getBody().current,
           campaign_id: this.campaignId,
           status_id: 3,
           publish: 1,
           status_reason: "Bug under review.",
           severity_id: severityId,
           created: tryber.fn.now(),
-          bug_replicability_id: replicabilityId,
+          bug_replicability_id: replicability.id,
           bug_type_id: bugTypeId,
           application_section: usecase.title,
           application_section_id: usecase.id === -1 ? 0 : usecase.id,
           note: "",
           dev_id: device.id,
-          last_seen: this.reqBody.lastSeen,
+          last_seen: this.getBody().lastSeen,
           manufacturer: isPC(deviceData) ? "-" : deviceData.manufacturer,
           model: isPC(deviceData) ? deviceData.pc_type : deviceData.model,
           os: deviceOsData.platform,
@@ -500,11 +474,32 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       };
     }
   }
-  private async getUserDevice(deviceId: number): Promise<UserDevice | false> {
-    const device = await new Devices().getOne(deviceId);
+
+  private async getReplicability() {
+    const campaign = new Campaign(this.campaignId);
+    const replicabilities = await campaign.getAvailableReplicabilitiesItems();
+    const result = replicabilities.valid.find(
+      ({ name }) => name === this.getBody().replicability
+    );
+    if (!result) {
+      this.setError(
+        403,
+        new OpenapiError(
+          `Replicability ${
+            this.getBody().replicability
+          } is not accepted from CP${this.campaignId}.`
+        )
+      );
+      throw new OpenapiError("Replicability not found");
+    }
+    return result;
+  }
+
+  private async getUserDevice() {
+    const device = await new Devices().getOne(this.getBody().device);
     return device;
   }
-  private async updateInternalBugId(bugId: number): Promise<string> {
+  private async updateInternalBugId(bugId: number) {
     const result = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
         "base_bug_internal_id",
@@ -550,7 +545,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
           "wp_appq_evd_bug.id",
           "wp_appq_evd_bug_media.bug_id"
         )
-        .where("wp_appq_evd_bug.wp_user_id", this.wpUserId)
+        .where("wp_appq_evd_bug.wp_user_id", this.getWordpressId())
         .andWhere("wp_appq_evd_bug.id", bugId)
     ).map((item) => item.url);
     return inserted.length ? inserted : [];
