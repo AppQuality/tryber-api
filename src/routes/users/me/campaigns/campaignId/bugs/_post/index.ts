@@ -52,6 +52,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   }
 
   protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
     if (!(await this.campaignExists())) {
       this.setError(404, {
         message: `CP${this.campaignId}, does not exists.`,
@@ -59,7 +60,6 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       return false;
     }
     if (!this.candidature) {
-      console.log("not candidature");
       this.setError(403, {
         message: `T${this.getTesterId()} is not candidate on CP${
           this.campaignId
