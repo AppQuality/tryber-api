@@ -5,14 +5,15 @@ import useBasicData from "./useBasicData";
 
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   useBasicData();
-  it("Should return 403 if user is not logged in", () => {
-    return request(app).get("/users/me/campaigns/1").expect(403);
+  it("Should return 403 if user is not logged in", async () => {
+    const res = await request(app).get("/users/me/campaigns/1");
+    expect(res.status).toBe(403);
   });
-  it("Should return 404 if user is logged in but not selected", () => {
-    return request(app)
-      .get("/users/me/campaigns/100")
-      .set("Authorization", "Bearer tester")
-      .expect(404);
+  it("Should return 404 if user is logged in but not selected", async () => {
+    const res = await request(app)
+      .get("/users/me/campaigns/2")
+      .set("Authorization", "Bearer tester");
+    expect(res.status).toBe(404);
   });
   it("Should return 200 if user is logged and selected", async () => {
     const response = await request(app)
