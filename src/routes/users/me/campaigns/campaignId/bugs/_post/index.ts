@@ -1,266 +1,274 @@
-/** OPENAPI-ROUTE: post-users-me-campaigns-campaign-bugs */
+/** OPENAPI-CLASS: post-users-me-campaigns-campaign-bugs */
 
 import Devices from "@src/features/class/Devices";
 import { tryber } from "@src/features/database";
-import debugMessage from "@src/features/debugMessage";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
-import { Context } from "openapi-backend";
 import {
-  Bug,
   BugMedia,
   BugType,
   CampaignAdditional,
   CreateAdditionals,
-  CreateBugError,
   Media,
   Replicability,
-  RequestParams,
   Severity,
   Usecase,
   UserAdditionals,
   UserDevice,
 } from "./types";
+import UserRoute from "@src/features/routes/UserRoute";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-): Promise<Bug | CreateBugError> => {
-  const params = c.request.params as RequestParams;
-  const campaignId = parseInt(params.campaignId);
-  const body: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["requestBody"]["content"]["application/json"] =
-    req.body;
+export default class PostBugsOnCampaignRoute extends UserRoute<{
+  response: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
+  parameters: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["parameters"]["path"];
+  body: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["requestBody"]["content"]["application/json"];
+}> {
+  private campaignId: number = parseInt(this.getParameters().campaignId);
+  private wpUserId: number = this.getWordpressId();
+  private reqBody: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["requestBody"]["content"]["application/json"] =
+    this.getBody();
 
-  let candidature,
-    usecase: Usecase,
-    severity: Severity,
-    replicability: Replicability,
-    bugtype: BugType,
-    media: BugMedia,
-    device: UserDevice,
-    additional: CreateAdditionals;
-  try {
-    await campaignExists();
-    candidature = await getTesterCandidature();
-    usecase = await usecaseIsValid(candidature.group_id);
-    severity = await getSeverity();
-    replicability = await getReplicability();
-    bugtype = await getBugType();
-    media = await getMediaData();
-    device = await getUserDevice(body.device);
-    additional = await filterValidAdditionalFields();
-    checkIsoStringDate();
-  } catch (error) {
-    debugMessage(error);
-    res.status_code = (error as OpenapiError).status_code || 400;
-    return {
-      element: "bugs",
-      id: 0,
-      message: (error as OpenapiError).message,
-    };
+  private candidature: Awaited<ReturnType<typeof this.getTesterCandidature>>;
+  private device: Awaited<ReturnType<typeof this.getUserDevice>> | false =
+    false;
+  private replicability: Awaited<ReturnType<typeof this.getReplicability>>;
+  private severity: Awaited<ReturnType<typeof this.getSeverity>>;
+  private bugType: Awaited<ReturnType<typeof this.getBugType>>;
+  private usecase: Awaited<ReturnType<typeof this.getValidUsecase>> | undefined;
+
+  constructor(protected configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "bugs" });
   }
-  let insertedBugId: number;
-  try {
-    insertedBugId = await createBug(
-      usecase,
-      severity.id,
-      replicability.id,
-      bugtype.id,
-      device
+
+  protected async init(): Promise<void> {
+    this.candidature = await this.getTesterCandidature();
+    this.device = await this.getUserDevice(this.reqBody.device);
+    this.replicability = await this.getReplicability();
+
+    this.severity = await this.getSeverity();
+    this.bugType = await this.getBugType();
+    this.usecase = await this.getValidUsecase(
+      this.candidature ? this.candidature.group_id : 0
     );
-  } catch (error) {
-    debugMessage(error);
-    res.status_code = 500;
-    return {
-      element: "bugs",
-      id: 0,
-      message: "Error creating bug",
-    };
   }
 
-  let internalBugID: string;
-  try {
-    internalBugID = await updateInternalBugId(insertedBugId);
-  } catch (error) {
-    debugMessage(error);
-    res.status_code = 500;
-    return {
-      element: "bugs",
-      id: 0,
-      message: "Error updating internal bug id",
-    };
-  }
+  protected async filter(): Promise<boolean> {
+    if (!(await this.campaignExists())) {
+      this.setError(404, {
+        message: `CP${this.campaignId}, does not exists.`,
+      } as OpenapiError);
+      return false;
+    }
+    if (!this.candidature) {
+      console.log("not candidature");
+      this.setError(403, {
+        message: `T${this.getTesterId()} is not candidate on CP${
+          this.campaignId
+        }.`,
+      } as OpenapiError);
+      return false;
+    }
+    if (
+      this.candidature.selected_device !== 0 &&
+      this.candidature.selected_device !== this.getBody().device
+    ) {
+      console.log("fail");
+      this.setError(403, {
+        message: `Device is not candidate on CP${this.campaignId}.`,
+      } as OpenapiError);
+      return false;
+    }
+    if (!this.lastSeenIsValid()) {
+      this.setError(403, {
+        message: `Date format is not correct.`,
+      } as OpenapiError);
+      return false;
+    }
+    if (!this.device) {
+      this.setError(403, { message: `No device on your user` } as OpenapiError);
+      return false;
+    }
+    if (!this.replicability) {
+      this.setError(403, {
+        message: `Replicability ${this.reqBody.replicability} is not accepted from CP${this.campaignId}.`,
+      } as OpenapiError);
+      return false;
+    }
 
-  let insertedMedia: Media = [];
-  try {
-    if (body.media) insertedMedia = await createMediasBug(insertedBugId, media);
-  } catch (error) {
-    debugMessage(error);
-    res.status_code = 500;
-    return {
-      element: "bugs",
-      id: 0,
-      message: "Error on insert media",
-    };
+    if (!this.severity) {
+      this.setError(403, {
+        message: `Severity ${this.reqBody.severity} is not accepted from CP${this.campaignId}.`,
+      } as OpenapiError);
+      return false;
+    }
+    if (!this.bugType) {
+      this.setError(403, {
+        message: `BugType ${this.reqBody.type} is not accepted from CP${this.campaignId}.`,
+      } as OpenapiError);
+      return false;
+    }
+
+    if (!this.usecase) {
+      this.setError(403, {
+        message: `Usecase ${this.reqBody.usecase} not found for CP${this.campaignId}.`,
+      } as OpenapiError);
+      return false;
+    }
+
+    return true;
   }
-  let insertedAdditional: UserAdditionals;
-  if (additional) {
-    try {
-      insertedAdditional = await createAdditionalFields(
+  protected async prepare() {
+    if (!this.usecase) throw new Error("Usecase not found");
+    if (!this.device) throw new Error("Device not found");
+
+    const body = this.getBody();
+
+    let severity: Severity,
+      bugtype: BugType,
+      media: BugMedia,
+      additional: CreateAdditionals;
+
+    severity = (await this.getSeverity()) as Severity;
+    bugtype = (await this.getBugType()) as BugType;
+    media = await this.getMediaData();
+    additional = await this.filterValidAdditionalFields();
+
+    let insertedBugId: number;
+    insertedBugId = await this.createBug(
+      this.usecase,
+      severity.id,
+      (this.replicability as Replicability).id,
+      bugtype.id,
+      this.device as UserDevice
+    );
+
+    let internalBugID: string;
+    internalBugID = await this.updateInternalBugId(insertedBugId);
+
+    let insertedMedia: Media = [];
+    if (body.media)
+      insertedMedia = await this.createMediasBug(insertedBugId, media);
+
+    let insertedAdditional: UserAdditionals;
+    if (additional) {
+      insertedAdditional = await this.createAdditionalFields(
         insertedBugId,
         additional
       );
-    } catch (error) {
-      debugMessage(error);
-      res.status_code = 500;
-      return {
-        element: "bugs",
-        id: 0,
-        message: "Error on insert additional fields",
-      };
     }
+
+    this.setSuccess(200, {
+      id: insertedBugId,
+      testerId: this.getTesterId(),
+      internalId: internalBugID,
+      title: body.title,
+      description: body.description,
+      notes: body.notes,
+      severity: severity.name,
+      replicability: body.replicability,
+      type: body.type,
+      status: "PENDING",
+      expected: body.expected,
+      current: body.current,
+      usecase: this.usecase.title,
+      media: insertedMedia,
+      device: this.device,
+      additional: insertedAdditional,
+    });
   }
 
-  res.status_code = 200;
-  return {
-    id: insertedBugId,
-    testerId: req.user.testerId,
-    internalId: internalBugID,
-    title: body.title,
-    description: body.description,
-    notes: body.notes,
-    severity: severity.name,
-    replicability: body.replicability,
-    type: body.type,
-    status: "PENDING",
-    expected: body.expected,
-    current: body.current,
-    usecase: usecase.title,
-    media: insertedMedia,
-    device: device,
-    additional: insertedAdditional,
-  };
-
-  async function campaignExists() {
+  private async campaignExists() {
     const result = await tryber.tables.WpAppqEvdCampaign.do()
       .select("id")
       .where({
-        id: campaignId,
+        id: this.campaignId,
       })
       .first();
-    if (!result) {
-      throw {
-        status_code: 404,
-        message: `CP${campaignId}, does not exists.`,
-      };
-    }
+    if (!result) return false;
+    return true;
   }
-  async function getTesterCandidature() {
+  private async getTesterCandidature() {
     const result = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select("group_id", "selected_device")
-      .where("user_id", req.user.ID)
-      .andWhere("campaign_id", campaignId);
-    if (!result.length) {
-      throw {
-        status_code: 403,
-        message: `T${req.user.testerId} is not candidate on CP${campaignId}.`,
-      };
-    }
-    if (
-      result[0].selected_device !== 0 &&
-      result[0].selected_device !== body.device
-    ) {
-      throw {
-        status_code: 403,
-        message: `Device is not candidate on CP${campaignId}.`,
-      };
-    }
-    return result[0];
+      .where("user_id", this.getWordpressId())
+      .andWhere("campaign_id", this.campaignId)
+      .first();
+    return result;
   }
-  async function getSeverity() {
-    const severities = await getSeverities();
-    const result = severities.find((item) => item.name === body.severity);
-    if (result) return result;
-    throw {
-      status_code: 403,
-      message: `Severity ${body.severity} is not accepted from CP${campaignId}.`,
-    };
-    async function getSeverities(): Promise<Severity[]> {
-      const data = await getCampaignAdditionalSeverities();
-      const query = tryber.tables.WpAppqEvdSeverity.do().select("id", "name");
-      if (data.length) query.whereIn("id", data);
-      const result = await query;
-      return result.map((item) => ({ ...item, name: item.name } as Severity));
-    }
-    async function getCampaignAdditionalSeverities(): Promise<number[]> {
-      const result = await tryber.tables.WpAppqAdditionalBugSeverities.do()
-        .select("bug_severity_id")
-        .where("campaign_id", campaignId);
-      return result.map((item) => item.bug_severity_id);
-    }
-  }
-  async function getReplicability() {
-    const replicabilities = await getReplicabilities();
-    const result = replicabilities.find(
-      (item) => item.name === body.replicability
+  private async getSeverity() {
+    const severities = await this.getSeverities();
+    const result = severities.find(
+      (item) => item.name === this.reqBody.severity
     );
     if (result) return result;
-    throw {
-      status_code: 403,
-      message: `Replicability ${body.replicability} is not accepted from CP${campaignId}.`,
-    };
-    async function getReplicabilities(): Promise<Replicability[]> {
-      const data = await getCampaignAdditionalReplicabilities();
-
-      const query = tryber.tables.WpAppqEvdBugReplicability.do().select(
-        "id",
-        "name"
-      );
-      if (data.length) query.whereIn("id", data);
-      const result = await query;
-
-      return result.map(
-        (item) => ({ ...item, name: item.name.toUpperCase() } as Replicability)
-      );
-    }
-    async function getCampaignAdditionalReplicabilities(): Promise<number[]> {
-      const result = await tryber.tables.WpAppqAdditionalBugReplicabilities.do()
-        .select("bug_replicability_id")
-        .where("campaign_id", campaignId);
-      return result.map((item) => item.bug_replicability_id);
-    }
   }
-  async function getBugType() {
-    const bugtypes = await getBugTypes();
-    const result = bugtypes.find((item) => item.name === body.type);
+  private async getSeverities(): Promise<Severity[]> {
+    const data = await this.getCampaignAdditionalSeverities();
+    const query = tryber.tables.WpAppqEvdSeverity.do().select("id", "name");
+    if (data.length) query.whereIn("id", data);
+    const result = await query;
+    return result.map((item) => ({ ...item, name: item.name } as Severity));
+  }
+  private async getCampaignAdditionalSeverities(): Promise<number[]> {
+    const result = await tryber.tables.WpAppqAdditionalBugSeverities.do()
+      .select("bug_severity_id")
+      .where("campaign_id", this.campaignId);
+    return result.map((item) => item.bug_severity_id);
+  }
+  private async getReplicability() {
+    const replicabilities = await this.getReplicabilities();
+    const result = replicabilities.find(
+      (item) => item.name === this.reqBody.replicability
+    );
     if (result) return result;
-    throw {
-      status_code: 403,
-      message: `BugType ${body.type} is not accepted from CP${campaignId}.`,
-    };
-    async function getBugTypes(): Promise<BugType[]> {
-      const data = await getCampaignAdditionalBugTypes();
-
-      const query = tryber.tables.WpAppqEvdBugType.do().select("id", "name");
-      if (data.length) query.whereIn("id", data);
-      const result = await query;
-
-      return result.map(
-        (item) => ({ ...item, name: item.name.toUpperCase() } as BugType)
-      );
-    }
-    async function getCampaignAdditionalBugTypes(): Promise<number[]> {
-      const result = await tryber.tables.WpAppqAdditionalBugTypes.do()
-        .select("bug_type_id")
-        .where("campaign_id", campaignId);
-      return result.map((item) => item.bug_type_id);
-    }
   }
-  async function getMediaData() {
+
+  private async getReplicabilities(): Promise<Replicability[]> {
+    const data = await this.getCampaignAdditionalReplicabilities();
+
+    const query = tryber.tables.WpAppqEvdBugReplicability.do().select(
+      "id",
+      "name"
+    );
+    if (data.length) query.whereIn("id", data);
+    const result = await query;
+
+    return result.map(
+      (item) => ({ ...item, name: item.name.toUpperCase() } as Replicability)
+    );
+  }
+  private async getCampaignAdditionalReplicabilities(): Promise<number[]> {
+    const result = await tryber.tables.WpAppqAdditionalBugReplicabilities.do()
+      .select("bug_replicability_id")
+      .where("campaign_id", this.campaignId);
+    return result.map((item) => item.bug_replicability_id);
+  }
+  private async getBugType() {
+    const bugtypes = await this.getBugTypes();
+    const result = bugtypes.find((item) => item.name === this.reqBody.type);
+    if (result) return result;
+  }
+  private async getBugTypes(): Promise<BugType[]> {
+    const data = await this.getCampaignAdditionalBugTypes();
+
+    const query = tryber.tables.WpAppqEvdBugType.do().select("id", "name");
+    if (data.length) query.whereIn("id", data);
+    const result = await query;
+
+    return result.map(
+      (item) => ({ ...item, name: item.name.toUpperCase() } as BugType)
+    );
+  }
+  private async getCampaignAdditionalBugTypes(): Promise<number[]> {
+    const result = await tryber.tables.WpAppqAdditionalBugTypes.do()
+      .select("bug_type_id")
+      .where("campaign_id", this.campaignId);
+    return result.map((item) => item.bug_type_id);
+  }
+  private async getMediaData() {
     let media: BugMedia;
-    if (body.media) {
+    if (this.reqBody.media) {
       media = [];
-      for (const url of body.media) {
+      for (const url of this.reqBody.media) {
         const mimeType = await getMimetypeFromS3({ url });
         if (!mimeType) media.push({ url: url, type: "other" });
         else {
@@ -274,9 +282,9 @@ export default async (
     }
     return media;
   }
-  async function usecaseIsValid(group_id: number): Promise<Usecase> {
+  private async getValidUsecase(group_id: number): Promise<Usecase> {
     let usecase: Usecase;
-    if (isNotSpecificUsecase())
+    if (this.isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
 
     let query =
@@ -286,14 +294,9 @@ export default async (
               tryber.ref("id").withSchema("wp_appq_campaign_task"),
               "title"
             )
-            .join(
-              "wp_appq_campaign_task_group",
-              "wp_appq_campaign_task.id",
-              "wp_appq_campaign_task_group.task_id"
-            )
             .where("group_id", 0)
-            .where("campaign_id", campaignId)
-            .where("wp_appq_campaign_task.id", body.usecase)
+            .where("campaign_id", this.campaignId)
+            .where("wp_appq_campaign_task.id", this.reqBody.usecase)
         : tryber.tables.WpAppqCampaignTask.do()
             .select(
               tryber.ref("id").withSchema("wp_appq_campaign_task"),
@@ -309,27 +312,21 @@ export default async (
                 .where("wp_appq_campaign_task_group.group_id", group_id)
                 .orWhere("wp_appq_campaign_task_group.group_id", 0);
             })
-            .where("campaign_id", campaignId)
-            .where("wp_appq_campaign_task.id", body.usecase);
+            .where("campaign_id", this.campaignId)
+            .where("wp_appq_campaign_task.id", this.reqBody.usecase);
 
-    let usecases = await query;
-    if (!usecases.length) {
-      throw {
-        status_code: 403,
-        message: `Usecase ${body.usecase} not found for CP${campaignId}.`,
-      };
-    }
-    usecase = usecases[0];
+    let awaitedUusecase = await query;
+
+    usecase = awaitedUusecase[0];
 
     return usecase;
-
-    function isNotSpecificUsecase() {
-      return body.usecase === -1;
-    }
   }
-  async function filterValidAdditionalFields(): Promise<CreateAdditionals> {
-    let additionals = body.additional || [];
-    let campaignAdditionalFields = await getCampaignAdditionalFields();
+  private isNotSpecificUsecase() {
+    return this.reqBody.usecase === -1;
+  }
+  private async filterValidAdditionalFields(): Promise<CreateAdditionals> {
+    let additionals = this.reqBody.additional || [];
+    let campaignAdditionalFields = await this.getCampaignAdditionalFields();
 
     if (!campaignAdditionalFields.length) {
       return undefined;
@@ -349,102 +346,111 @@ export default async (
     );
     const bugSlugs = additionals.map((item: { slug: string }) => item.slug);
     //filter additionals in request that are acceptable
-    return getValidAdditionalFields(additionals);
-
-    async function getCampaignAdditionalFields(): Promise<
-      CampaignAdditional[]
-    > {
-      return await tryber.tables.WpAppqCampaignAdditionalFields.do()
-        .select("id", "slug", "type", "validation")
-        .where("cp_id", campaignId);
+    return this.getValidAdditionalFields(
+      additionals,
+      bugSlugs,
+      acceptedSlugs,
+      campaignAdditionalFields
+    );
+  }
+  private async getCampaignAdditionalFields(): Promise<CampaignAdditional[]> {
+    return await tryber.tables.WpAppqCampaignAdditionalFields.do()
+      .select("id", "slug", "type", "validation")
+      .where("cp_id", this.campaignId);
+  }
+  private getValidAdditionalFields(
+    bodyAdditional: { slug: string; value: string }[],
+    bugSlugs: string[],
+    acceptedSlugs: string[],
+    campaignAdditionalFields: CampaignAdditional[]
+  ) {
+    let acceptableAdditional: CreateAdditionals = [];
+    for (const slug of bugSlugs) {
+      if (!acceptedSlugs.includes(slug)) continue;
+      const currentBugAdditional = bodyAdditional.find(
+        (item) => item.slug == slug
+      );
+      if (!currentBugAdditional) continue;
+      const currentCpAdditional = campaignAdditionalFields.find(
+        (item) => item.slug == slug
+      );
+      if (!currentCpAdditional) continue;
+      if (
+        isValidSelect(currentCpAdditional, currentBugAdditional) ||
+        isValidRegex(currentCpAdditional, currentBugAdditional)
+      ) {
+        acceptableAdditional.push({
+          id: currentCpAdditional.id,
+          value: currentBugAdditional.value,
+        });
+      }
     }
-    function getValidAdditionalFields(
-      bodyAdditional: { slug: string; value: string }[]
+    return acceptableAdditional.length ? acceptableAdditional : undefined;
+
+    function isValidRegex(
+      currentCpAdditional: CampaignAdditional,
+      currentBugAdditional: any
     ) {
-      let acceptableAdditional: CreateAdditionals = [];
-      for (const slug of bugSlugs) {
-        if (!acceptedSlugs.includes(slug)) continue;
-        const currentBugAdditional = bodyAdditional.find(
-          (item) => item.slug == slug
-        );
-        if (!currentBugAdditional) continue;
-        const currentCpAdditional = campaignAdditionalFields.find(
-          (item) => item.slug == slug
-        );
-        if (!currentCpAdditional) continue;
-        if (
-          isValidSelect(currentCpAdditional, currentBugAdditional) ||
-          isValidRegex(currentCpAdditional, currentBugAdditional)
-        ) {
-          acceptableAdditional.push({
-            id: currentCpAdditional.id,
-            value: currentBugAdditional.value,
-          });
+      return (
+        isRegex(currentCpAdditional) &&
+        respectRegex(currentBugAdditional, currentCpAdditional)
+      );
+      function isRegex(item: { type: string }) {
+        return item.type === "regex";
+      }
+      function respectRegex(
+        bugAdditional: { value: string },
+        cpAdditional: { validation: string }
+      ) {
+        if (cpAdditional.validation === "") return true;
+        if (cpAdditional.validation) {
+          const regexp = new RegExp(
+            cpAdditional.validation.replace(/(?:\\(.))/g, "$1")
+          );
+          return regexp.test(bugAdditional.value);
         }
+        return false;
       }
-      return acceptableAdditional.length ? acceptableAdditional : undefined;
+    }
 
-      function isValidRegex(
-        currentCpAdditional: CampaignAdditional,
-        currentBugAdditional: any
-      ) {
-        return (
-          isRegex(currentCpAdditional) &&
-          respectRegex(currentBugAdditional, currentCpAdditional)
-        );
-      }
-
-      function isValidSelect(
-        currentCpAdditional: CampaignAdditional,
-        currentBugAdditional: any
-      ) {
-        return (
-          isSelect(currentCpAdditional) &&
-          hasValidOption(currentBugAdditional, currentCpAdditional)
-        );
-      }
-    }
-    function isSelect(item: { type: string }) {
-      return item.type === "select";
-    }
-    function isRegex(item: { type: string }) {
-      return item.type === "regex";
-    }
-    function hasValidOption(
-      bugAdditional: { value: string },
-      cpAdditional: { validation: string }
+    function isValidSelect(
+      currentCpAdditional: CampaignAdditional,
+      currentBugAdditional: any
     ) {
-      if (cpAdditional.validation) {
-        const options = cpAdditional.validation.split(";").map((s) => s.trim());
-        return options.includes(bugAdditional.value);
+      return (
+        isSelect(currentCpAdditional) &&
+        hasValidOption(currentBugAdditional, currentCpAdditional)
+      );
+      function isSelect(item: { type: string }) {
+        return item.type === "select";
       }
-      return false;
-    }
-    function respectRegex(
-      bugAdditional: { value: string },
-      cpAdditional: { validation: string }
-    ) {
-      if (cpAdditional.validation === "") return true;
-      if (cpAdditional.validation) {
-        const regexp = new RegExp(
-          cpAdditional.validation.replace(/(?:\\(.))/g, "$1")
-        );
-        return regexp.test(bugAdditional.value);
+      function hasValidOption(
+        bugAdditional: { value: string },
+        cpAdditional: { validation: string }
+      ) {
+        if (cpAdditional.validation) {
+          const options = cpAdditional.validation
+            .split(";")
+            .map((s) => s.trim());
+          return options.includes(bugAdditional.value);
+        }
+        return false;
       }
-      return false;
     }
   }
-  function checkIsoStringDate() {
+  private lastSeenIsValid() {
+    return this.checkIsoStringDate(this.reqBody.lastSeen);
+  }
+
+  private checkIsoStringDate(ISOString: string) {
     const regexpISOString =
       /[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}[+-][0-9]{2}:[0-9]{2}/gm;
-    if (!regexpISOString.test(body.lastSeen)) {
-      throw {
-        status_code: 403,
-        message: `Date format is not correct.`,
-      };
+    if (!regexpISOString.test(ISOString)) {
+      return false;
     }
+    return true;
   }
-  async function createBug(
+  private async createBug(
     usecase: { id: number; title: string },
     severityId: number,
     replicabilityId: number,
@@ -460,12 +466,12 @@ export default async (
     try {
       const result = await tryber.tables.WpAppqEvdBug.do()
         .insert({
-          wp_user_id: Number(req.user.ID),
-          message: body.title,
-          description: body.description,
-          expected_result: body.expected,
-          current_result: body.current,
-          campaign_id: campaignId,
+          wp_user_id: this.wpUserId,
+          message: this.reqBody.title,
+          description: this.reqBody.description,
+          expected_result: this.reqBody.expected,
+          current_result: this.reqBody.current,
+          campaign_id: this.campaignId,
           status_id: 3,
           publish: 1,
           status_reason: "Bug under review.",
@@ -477,7 +483,7 @@ export default async (
           application_section_id: usecase.id === -1 ? 0 : usecase.id,
           note: "",
           dev_id: device.id,
-          last_seen: body.lastSeen,
+          last_seen: this.reqBody.lastSeen,
           manufacturer: isPC(deviceData) ? "-" : deviceData.manufacturer,
           model: isPC(deviceData) ? deviceData.pc_type : deviceData.model,
           os: deviceOsData.platform,
@@ -494,20 +500,11 @@ export default async (
       };
     }
   }
-  async function getUserDevice(deviceId: number): Promise<UserDevice> {
-    try {
-      const device = await new Devices().getOne(deviceId);
-      if (!device) throw Error("No device on your user");
-      return device;
-    } catch (error) {
-      debugMessage(error);
-      throw {
-        status_code: 403,
-        message: (error as OpenapiError).message,
-      };
-    }
+  private async getUserDevice(deviceId: number): Promise<UserDevice | false> {
+    const device = await new Devices().getOne(deviceId);
+    return device;
   }
-  async function updateInternalBugId(bugId: number): Promise<string> {
+  private async updateInternalBugId(bugId: number): Promise<string> {
     const result = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
         "base_bug_internal_id",
@@ -531,7 +528,7 @@ export default async (
       .where("id", bugId);
     return internalBugId;
   }
-  async function createMediasBug(
+  private async createMediasBug(
     bugId: number,
     medias: BugMedia
   ): Promise<Media> {
@@ -553,12 +550,12 @@ export default async (
           "wp_appq_evd_bug.id",
           "wp_appq_evd_bug_media.bug_id"
         )
-        .where("wp_appq_evd_bug.wp_user_id", req.user.ID)
+        .where("wp_appq_evd_bug.wp_user_id", this.wpUserId)
         .andWhere("wp_appq_evd_bug.id", bugId)
     ).map((item) => item.url);
     return inserted.length ? inserted : [];
   }
-  async function createAdditionalFields(
+  private async createAdditionalFields(
     bugId: number,
     additionals: CreateAdditionals
   ): Promise<UserAdditionals> {
@@ -587,4 +584,4 @@ export default async (
       value: item.value,
     }));
   }
-};
+}

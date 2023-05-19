@@ -8,12 +8,12 @@ export default class UserSingleCampaignRoute extends UserRoute<{
   parameters: StoplightOperations["get-users-me-campaigns-campaignId"]["parameters"]["path"];
 }> {
   private campaign: Campaign;
+  private campaignId: number = parseInt(this.getParameters().campaignId);
 
   constructor(protected configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "campaigns" });
     const params = this.getParameters();
-    const campaignId = parseInt(params.campaignId);
-    this.campaign = new Campaign(campaignId, false);
+    this.campaign = new Campaign(this.campaignId, false);
   }
 
   protected async init(): Promise<void> {
