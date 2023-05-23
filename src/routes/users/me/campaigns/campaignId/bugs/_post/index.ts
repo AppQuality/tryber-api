@@ -11,7 +11,6 @@ import {
   CampaignAdditional,
   CreateAdditionals,
   Media,
-  Usecase,
   UserAdditionals,
   UserDevice,
 } from "./types";
@@ -23,22 +22,8 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
 }> {
   private campaignId: number = parseInt(this.getParameters().campaignId);
 
-  private candidature: Awaited<ReturnType<typeof this.getTesterCandidature>>;
-  private device: Awaited<ReturnType<typeof this.getUserDevice>> | false =
-    false;
-  private usecase: Awaited<ReturnType<typeof this.getValidUsecase>> | undefined;
-
   constructor(protected configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "bugs" });
-  }
-
-  protected async init() {
-    this.candidature = await this.getTesterCandidature();
-    this.device = await this.getUserDevice();
-
-    this.usecase = await this.getValidUsecase(
-      this.candidature ? this.candidature.group_id : 0
-    );
   }
 
   protected async filter() {
@@ -48,30 +33,20 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     if (await this.deviceDoesNotExists()) return false;
     if (await this.severityIsNotValid()) return false;
     if (await this.bugTypeIsNotValid()) return false;
+    if (await this.testerIsNotCandidate()) return false;
+    if (await this.deviceIsNotCandidate()) return false;
+    if (await this.usecaseIsNotValid()) return false;
 
+    return true;
+  }
+
+  private async usecaseIsNotValid() {
     const candidature = await this.getTesterCandidature();
-
-    if (!candidature) {
-      this.setError(
-        403,
-        new OpenapiError(
-          `T${this.getTesterId()} is not candidate on CP${this.campaignId}.`
-        )
-      );
-      return false;
-    }
     if (
-      candidature.selected_device !== 0 &&
-      candidature.selected_device !== this.getBody().device
+      candidature &&
+      candidature.group_id &&
+      !(await this.getValidUsecase(candidature.group_id))
     ) {
-      this.setError(
-        403,
-        new OpenapiError(`Device is not candidate on CP${this.campaignId}.`)
-      );
-      return false;
-    }
-
-    if (!(await this.getValidUsecase(candidature ? candidature.group_id : 0))) {
       this.setError(
         403,
         new OpenapiError(
@@ -80,10 +55,39 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
           }.`
         )
       );
-      return false;
+      return true;
     }
+    return false;
+  }
 
-    return true;
+  private async testerIsNotCandidate() {
+    const candidature = await this.getTesterCandidature();
+    if (!candidature) {
+      this.setError(
+        403,
+        new OpenapiError(
+          `T${this.getTesterId()} is not candidate on CP${this.campaignId}.`
+        )
+      );
+      return true;
+    }
+    return false;
+  }
+
+  private async deviceIsNotCandidate() {
+    const candidature = await this.getTesterCandidature();
+    if (
+      candidature &&
+      candidature.selected_device !== 0 &&
+      candidature.selected_device !== this.getBody().device
+    ) {
+      this.setError(
+        403,
+        new OpenapiError(`Device is not candidate on CP${this.campaignId}.`)
+      );
+      return true;
+    }
+    return false;
   }
 
   private async campaignDoesNotExists() {
@@ -122,7 +126,10 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       .where({ id: this.getBody().device, enabled: 1 })
       .first();
     if (device) return false;
-    this.setError(403, new OpenapiError(`No device on your user`));
+    this.setError(
+      403,
+      new OpenapiError(`This device doesn't exist on your user`)
+    );
     return true;
   }
 
@@ -159,24 +166,29 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   }
 
   protected async prepare() {
-    if (!this.usecase) throw new Error("Usecase not found");
-    if (!this.device) throw new Error("Device not found");
+    const candidature = await this.getTesterCandidature();
+    if (!candidature || !candidature.group_id)
+      throw new Error("Candidature not found");
+
+    const usecase = await this.getValidUsecase(candidature.group_id);
+    if (!usecase) throw new Error("Usecase not found");
+
+    const device = await this.getUserDevice();
+    if (!device) throw new Error("Device not found");
 
     const body = this.getBody();
 
-    let media: BugMedia, additional: CreateAdditionals;
-
     const severity = await this.getSeverity();
     const bugtype = await this.getBugType();
-    media = await this.getMediaData();
-    additional = await this.filterValidAdditionalFields();
+    const media = await this.getMediaData();
+    const additional = await this.filterValidAdditionalFields();
 
     let insertedBugId: number;
     insertedBugId = await this.createBug(
-      this.usecase,
+      usecase,
       severity.id,
       bugtype.id,
-      this.device
+      device
     );
 
     let internalBugID: string;
@@ -207,9 +219,9 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       status: "PENDING",
       expected: body.expected,
       current: body.current,
-      usecase: this.usecase.title,
+      usecase: usecase.title,
       media: insertedMedia,
-      device: this.device,
+      device: device,
       additional: insertedAdditional,
     });
   }
@@ -245,7 +257,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   }
 
   private async getMediaData() {
-    let media: BugMedia;
+    let media;
     if (this.getBody().media) {
       media = [];
       for (const url of this.getBody().media) {
@@ -264,7 +276,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   }
 
   private async getValidUsecase(group_id: number) {
-    let usecase: Usecase;
+    let usecase;
     if (this.isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
 
@@ -349,7 +361,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     acceptedSlugs: string[],
     campaignAdditionalFields: CampaignAdditional[]
   ) {
-    let acceptableAdditional: CreateAdditionals = [];
+    let acceptableAdditional = [];
     for (const slug of bugSlugs) {
       if (!acceptedSlugs.includes(slug)) continue;
       const currentBugAdditional = bodyAdditional.find(
@@ -429,7 +441,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     severityId: number,
     bugTypeId: number,
     device: UserDevice
-  ): Promise<number> {
+  ) {
     const replicability = await this.getReplicability();
     const deviceData = device.device;
     const deviceOsData = device.operating_system;
@@ -523,10 +535,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       .where("id", bugId);
     return internalBugId;
   }
-  private async createMediasBug(
-    bugId: number,
-    medias: BugMedia
-  ): Promise<Media> {
+  private async createMediasBug(bugId: number, medias: BugMedia) {
     if (medias) {
       for (const media of medias) {
         await tryber.tables.WpAppqEvdBugMedia.do().insert({
@@ -553,7 +562,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   private async createAdditionalFields(
     bugId: number,
     additionals: CreateAdditionals
-  ): Promise<UserAdditionals> {
+  ) {
     if (!additionals) {
       return undefined;
     }
