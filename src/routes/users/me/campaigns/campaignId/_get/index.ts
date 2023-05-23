@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS: get-users-me-campaigns-campaignId */
 
+import OpenapiError from "@src/features/OpenapiError";
 import Campaign from "@src/features/class/Campaign";
 import UserRoute from "@src/features/routes/UserRoute";
 
@@ -7,57 +8,58 @@ export default class UserSingleCampaignRoute extends UserRoute<{
   response: StoplightOperations["get-users-me-campaigns-campaignId"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-users-me-campaigns-campaignId"]["parameters"]["path"];
 }> {
-  private campaign: Campaign;
-  private campaignId: number = parseInt(this.getParameters().campaignId);
-
-  constructor(protected configuration: RouteClassConfiguration) {
-    super({ ...configuration, element: "campaigns" });
-    const params = this.getParameters();
-    this.campaign = new Campaign(this.campaignId, false);
-  }
-
-  protected async init(): Promise<void> {
-    this.campaign.init();
-    await this.campaign.ready;
-  }
+  private campaignId = parseInt(this.getParameters().campaignId);
 
   protected async filter(): Promise<boolean> {
+    if (await this.testerIsNotCandidate()) return false;
+
+    return true;
+  }
+
+  protected async prepare() {
+    const campaign = new Campaign(this.campaignId, false);
+    campaign.init();
+    await campaign.ready;
+    if (!campaign) throw new Error("Campaign not found");
+
+    try {
+      this.setSuccess(200, {
+        id: campaign.id,
+        title: campaign.title,
+        minimumMedia: campaign.min_allowed_media,
+        hasBugForm: campaign.hasBugForm,
+        bugSeverity: await campaign.getAvailableSeverities(),
+        bugReplicability: await campaign.getAvailableReplicabilities(),
+        useCases: await campaign.getUserUseCases(
+          this.getWordpressId().toString()
+        ),
+        bugTypes: await campaign.getAvailableTypes(),
+        validFileExtensions: await campaign.getAvailableFileExtensions(),
+        additionalFields: await campaign.getAdditionalFields(),
+        language: await campaign.getBugLanguageMessage(),
+        titleRule: await campaign.getTitleRule(),
+      });
+    } catch (error) {
+      this.setError(500, error as OpenapiError);
+    }
+  }
+
+  private async testerIsNotCandidate() {
+    const campaign = new Campaign(this.campaignId, false);
+
     if (
-      !(await this.campaign.isUserCandidate(
+      !(await campaign.isUserCandidate(
         this.getWordpressId().toString(),
         this.isAdmin()
       ))
     ) {
       this.setError(
         404,
-        "You are not selected for this campaign" as unknown as OpenapiError
+        new OpenapiError("You are not selected for this campaign")
       );
-      return false;
+      return true;
     }
-    return true;
-  }
-
-  protected async prepare() {
-    try {
-      this.setSuccess(200, {
-        id: this.campaign.id,
-        title: this.campaign.title,
-        minimumMedia: this.campaign.min_allowed_media,
-        hasBugForm: this.campaign.hasBugForm,
-        bugSeverity: await this.campaign.getAvailableSeverities(),
-        bugReplicability: await this.campaign.getAvailableReplicabilities(),
-        useCases: await this.campaign.getUserUseCases(
-          this.getWordpressId().toString()
-        ),
-        bugTypes: await this.campaign.getAvailableTypes(),
-        validFileExtensions: await this.campaign.getAvailableFileExtensions(),
-        additionalFields: await this.campaign.getAdditionalFields(),
-        language: await this.campaign.getBugLanguageMessage(),
-        titleRule: await this.campaign.getTitleRule(),
-      });
-    } catch (error) {
-      this.setError(500, error as OpenapiError);
-    }
+    return false;
   }
 
   private isAdmin() {
@@ -68,7 +70,7 @@ export default class UserSingleCampaignRoute extends UserRoute<{
       return true;
     if (
       this.configuration.request.user.permission.admin.appq_campaign.includes(
-        this.campaign.id
+        this.campaignId
       )
     )
       return true;
