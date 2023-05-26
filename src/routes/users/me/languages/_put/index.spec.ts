@@ -18,6 +18,19 @@ describe("Route PUT /users/me/languages/", () => {
       .expect(404);
   });
 
+  it("Should return 404 if languages does not exist", async () => {
+    const response = await request(app)
+      .put("/users/me/languages/")
+      .send([3, 69])
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      element: "element",
+      id: 1,
+      message: "Bad request: lang_id=69 not found.",
+    });
+  });
+
   it("Should return 200 if user is logged", async () => {
     const response = await request(app)
       .put("/users/me/languages/")
