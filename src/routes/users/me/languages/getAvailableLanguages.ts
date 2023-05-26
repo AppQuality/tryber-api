@@ -1,18 +1,14 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
-export default async (): Promise<{ id: string; name: string }[]> => {
+export default async () => {
   try {
-    const SELECT = `SELECT *`;
-    const FROM = ` FROM wp_appq_lang`;
-    const rows = await db.query(`
-        ${SELECT}
-        ${FROM}
-        `);
-    if (!rows.length) throw Error("No languages");
-    return rows.map((row: { id: string; display_name: string }) => ({
-      id: row.id,
-      name: row.display_name,
-    }));
+    const languages = await tryber.tables.WpAppqLang.do().select(
+      "id",
+      tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
+    );
+
+    if (!languages.length) throw Error("No languages");
+    return languages;
   } catch (error) {
     if (process.env && process.env.DEBUG) console.log(error);
     throw error;

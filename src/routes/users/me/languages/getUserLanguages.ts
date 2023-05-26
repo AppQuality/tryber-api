@@ -1,16 +1,21 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
-export default async (
-  testerId: number
-): Promise<{ id: string; name: string }[]> => {
+export default async (testerId: number) => {
   try {
-    let sql = `SELECT l.id AS id, l.display_name AS name
-  FROM wp_appq_profile_has_lang hl
-           JOIN wp_appq_lang l ON hl.language_id = l.id
-  WHERE profile_id = ? ;`;
-    let rows = await db.query(db.format(sql, [testerId]));
-    if (!rows.length) return [];
-    return rows;
+    const testerLanguages = await tryber.tables.WpAppqProfileHasLang.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_lang").as("id"),
+        tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
+      )
+      .join(
+        "wp_appq_lang",
+        "wp_appq_lang.id",
+        "wp_appq_profile_has_lang.language_id"
+      )
+      .where({ profile_id: testerId });
+
+    if (!testerLanguages.length) return [];
+    return testerLanguages;
   } catch (error) {
     if (process.env && process.env.DEBUG) console.log(error);
     throw error;

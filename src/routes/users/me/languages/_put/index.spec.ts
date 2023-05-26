@@ -21,7 +21,27 @@ describe("Route PUT /users/me/languages/", () => {
   it("Should return 200 if user is logged", async () => {
     const response = await request(app)
       .put("/users/me/languages/")
+      .send([3, 5])
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 3,
+        }),
+        expect.objectContaining({
+          id: 5,
+        }),
+      ])
+    );
+  });
+
+  it("Should return empty array if send empty array", async () => {
+    const response = await request(app)
+      .put("/users/me/languages/")
+      .send([])
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([]);
   });
 });
