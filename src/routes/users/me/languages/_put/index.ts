@@ -1,10 +1,10 @@
 /** OPENAPI-ROUTE:put-users-me-languages */
 
-import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 import deleteUserLanguages from "../deleteUserLanguages";
 import getAvailableLanguages from "../getAvailableLanguages";
 import getUserLanguages from "../getUserLanguages";
+import { tryber } from "@src/features/database";
 
 export default async (
   c: Context,
@@ -14,9 +14,9 @@ export default async (
   try {
     // 0. check if id to insert exists
     let langs = (await getAvailableLanguages()).map((l) => l.id);
-    const newLangs = [...new Set(req.body)]; //remove duplicated entries
+    const newLangs: number[] = [...new Set(req.body as number[])]; //remove duplicated entries
     newLangs.forEach((nl) => {
-      if (langs.indexOf(nl as string) === -1) {
+      if (!langs.includes(nl)) {
         throw new Error("Bad request: lang_id=" + nl + " not found.");
       }
     });
@@ -26,17 +26,15 @@ export default async (
     // 2. insert new user languages
     if (newLangs.length) {
       let insertData: string[] = [];
-      let insertSql = `INSERT INTO wp_appq_profile_has_lang (language_id, profile_id)  VALUES `;
-      let valuesSql: string[] = [];
-      newLangs.forEach((nl) => {
-        valuesSql.push(`(?, ?)`);
-        insertData.push(nl as string, req.user.testerId.toString());
+      let insertSql = tryber.tables.WpAppqProfileHasLang.do();
+
+      const values = newLangs.map((nl) => {
+        return { language_id: nl, profile_id: req.user.testerId };
       });
-      let inserted;
+      insertSql = insertSql.insert(values);
+
       try {
-        inserted = await db.query(
-          db.format(insertSql + valuesSql.join(", ") + `;`, insertData)
-        );
+        await insertSql;
       } catch (e) {
         if (process.env && process.env.DEBUG) console.log(e);
         if (

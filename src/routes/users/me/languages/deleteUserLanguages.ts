@@ -1,10 +1,11 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (testerId: number) => {
-  let deleteSql = `DELETE FROM wp_appq_profile_has_lang WHERE profile_id = ? ;`;
-  let deleted;
+  let deletedLanguages = tryber.tables.WpAppqProfileHasLang.do()
+    .where({ profile_id: testerId })
+    .delete();
   try {
-    deleted = await db.query(db.format(deleteSql, [testerId]));
+    await deletedLanguages;
     return { message: "Languages successfully removed", ok: true };
   } catch (e) {
     if (process.env && process.env.DEBUG) console.log(e);
