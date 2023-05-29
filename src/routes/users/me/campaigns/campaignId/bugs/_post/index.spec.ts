@@ -697,6 +697,7 @@ describe("Route POST a bug to a specific campaign - with custom replicability", 
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
       .send(bug);
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("replicability", "ONCE");
   });

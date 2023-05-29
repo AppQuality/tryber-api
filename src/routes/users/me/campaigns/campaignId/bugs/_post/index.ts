@@ -6,14 +6,7 @@ import Devices from "@src/features/class/Devices";
 import { tryber } from "@src/features/database";
 import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 import UserRoute from "@src/features/routes/UserRoute";
-import {
-  BugMedia,
-  CampaignAdditional,
-  CreateAdditionals,
-  Media,
-  UserAdditionals,
-  UserDevice,
-} from "./types";
+import { CampaignAdditional, UserDevice } from "./types";
 
 export default class PostBugsOnCampaignRoute extends UserRoute<{
   response: StoplightOperations["post-users-me-campaigns-campaign-bugs"]["responses"]["200"]["content"]["application/json"];
@@ -41,12 +34,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   }
 
   private async usecaseIsNotValid() {
-    const candidature = await this.getTesterCandidature();
-    if (
-      candidature &&
-      candidature.group_id &&
-      !(await this.getValidUsecase(candidature.group_id))
-    ) {
+    if (!(await this.getValidUsecase())) {
       this.setError(
         403,
         new OpenapiError(
@@ -166,11 +154,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
   }
 
   protected async prepare() {
-    const candidature = await this.getTesterCandidature();
-    if (!candidature || !candidature.group_id)
-      throw new Error("Candidature not found");
-
-    const usecase = await this.getValidUsecase(candidature.group_id);
+    const usecase = await this.getValidUsecase();
     if (!usecase) throw new Error("Usecase not found");
 
     const device = await this.getUserDevice();
@@ -180,36 +164,18 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
 
     const severity = await this.getSeverity();
     const bugtype = await this.getBugType();
-    const media = await this.getMediaData();
-    const additional = await this.filterValidAdditionalFields();
 
-    let insertedBugId: number;
-    insertedBugId = await this.createBug(
+    const insertedBugId = await this.createBug(
       usecase,
       severity.id,
       bugtype.id,
       device
     );
 
-    let internalBugID: string;
-    internalBugID = await this.updateInternalBugId(insertedBugId);
-
-    let insertedMedia: Media = [];
-    if (body.media)
-      insertedMedia = await this.createMediasBug(insertedBugId, media);
-
-    let insertedAdditional: UserAdditionals;
-    if (additional) {
-      insertedAdditional = await this.createAdditionalFields(
-        insertedBugId,
-        additional
-      );
-    }
-
     this.setSuccess(200, {
       id: insertedBugId,
       testerId: this.getTesterId(),
-      internalId: internalBugID,
+      internalId: await this.updateInternalBugId(insertedBugId),
       title: body.title,
       description: body.description,
       notes: body.notes,
@@ -220,9 +186,9 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       expected: body.expected,
       current: body.current,
       usecase: usecase.title,
-      media: insertedMedia,
+      media: await this.createMediasBug(insertedBugId),
       device: device,
-      additional: insertedAdditional,
+      additional: await this.createAdditionalFields(insertedBugId),
     });
   }
 
@@ -256,31 +222,16 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     return result;
   }
 
-  private async getMediaData() {
-    let media;
-    if (this.getBody().media) {
-      media = [];
-      for (const url of this.getBody().media) {
-        const mimeType = await getMimetypeFromS3({ url });
-        if (!mimeType) media.push({ url: url, type: "other" });
-        else {
-          if (mimeType.startsWith("image"))
-            media.push({ url: url, type: "image" });
-          else if (mimeType.startsWith("video"))
-            media.push({ url: url, type: "video" });
-          else media.push({ url: url, type: mimeType });
-        }
-      }
-    }
-    return media;
-  }
+  private async getValidUsecase() {
+    const candidature = await this.getTesterCandidature();
+    if (!candidature || !candidature.group_id)
+      throw new Error("Candidature not found");
+    const group_id = candidature.group_id;
 
-  private async getValidUsecase(group_id: number) {
-    let usecase;
     if (this.isNotSpecificUsecase())
       return { id: -1, title: "Not a specific use case" };
 
-    let query =
+    const query =
       group_id === 0
         ? tryber.tables.WpAppqCampaignTask.do()
             .select(
@@ -308,63 +259,27 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
             .where("campaign_id", this.campaignId)
             .where("wp_appq_campaign_task.id", this.getBody().usecase);
 
-    let awaitedUusecase = await query;
+    const awaitedUsecase = await query;
 
-    usecase = awaitedUusecase[0];
-
-    return usecase;
+    return awaitedUsecase[0];
   }
 
   private isNotSpecificUsecase() {
     return this.getBody().usecase === -1;
   }
 
-  private async filterValidAdditionalFields() {
-    let additionals = this.getBody().additional || [];
-    let campaignAdditionalFields = await this.getCampaignAdditionalFields();
-
-    if (!campaignAdditionalFields.length) {
-      return undefined;
-    }
-    for (const campaignAdditionalField of campaignAdditionalFields) {
-      if (
-        !additionals.find((item) => item.slug === campaignAdditionalField.slug)
-      ) {
-        additionals.push({
-          slug: campaignAdditionalField.slug,
-          value: "",
-        });
-      }
-    }
-    const acceptedSlugs = campaignAdditionalFields.map(
-      (item: { slug: string }) => item.slug
-    );
-    const bugSlugs = additionals.map((item: { slug: string }) => item.slug);
-    //filter additionals in request that are acceptable
-    return this.getValidAdditionalFields(
-      additionals,
-      bugSlugs,
-      acceptedSlugs,
-      campaignAdditionalFields
-    );
-  }
-
-  private async getCampaignAdditionalFields() {
-    return await tryber.tables.WpAppqCampaignAdditionalFields.do()
-      .select("id", "slug", "type", "validation")
-      .where("cp_id", this.campaignId);
-  }
-
   private getValidAdditionalFields(
-    bodyAdditional: { slug: string; value: string }[],
     bugSlugs: string[],
     acceptedSlugs: string[],
     campaignAdditionalFields: CampaignAdditional[]
   ) {
+    const additionalsFromBody = this.getBody().additional;
+    if (!additionalsFromBody) return undefined;
+
     let acceptableAdditional = [];
     for (const slug of bugSlugs) {
       if (!acceptedSlugs.includes(slug)) continue;
-      const currentBugAdditional = bodyAdditional.find(
+      const currentBugAdditional = additionalsFromBody.find(
         (item) => item.slug == slug
       );
       if (!currentBugAdditional) continue;
@@ -445,6 +360,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     const replicability = await this.getReplicability();
     const deviceData = device.device;
     const deviceOsData = device.operating_system;
+
     const isPC = (d: typeof deviceData): d is { pc_type: string } => {
       return !!d.hasOwnProperty("pc_type");
     };
@@ -511,6 +427,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
     const device = await new Devices().getOne(this.getBody().device);
     return device;
   }
+
   private async updateInternalBugId(bugId: number) {
     const result = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
@@ -535,16 +452,17 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       .where("id", bugId);
     return internalBugId;
   }
-  private async createMediasBug(bugId: number, medias: BugMedia) {
-    if (medias) {
-      for (const media of medias) {
-        await tryber.tables.WpAppqEvdBugMedia.do().insert({
-          type: media.type,
-          location: media.url,
-          bug_id: bugId,
-          uploaded: tryber.fn.now(),
-        });
-      }
+
+  private async createMediasBug(bugId: number) {
+    const medias = await this.getMediaData();
+    if (!medias) return [];
+    for (const media of medias) {
+      await tryber.tables.WpAppqEvdBugMedia.do().insert({
+        type: media.type,
+        location: media.url,
+        bug_id: bugId,
+        uploaded: tryber.fn.now(),
+      });
     }
     const inserted = (
       await tryber.tables.WpAppqEvdBugMedia.do()
@@ -557,15 +475,31 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
         .where("wp_appq_evd_bug.wp_user_id", this.getWordpressId())
         .andWhere("wp_appq_evd_bug.id", bugId)
     ).map((item) => item.url);
-    return inserted.length ? inserted : [];
+    return inserted;
   }
-  private async createAdditionalFields(
-    bugId: number,
-    additionals: CreateAdditionals
-  ) {
-    if (!additionals) {
-      return undefined;
+
+  private async getMediaData() {
+    let media;
+    if (this.getBody().media) {
+      media = [];
+      for (const url of this.getBody().media) {
+        const mimeType = await getMimetypeFromS3({ url });
+        if (!mimeType) media.push({ url: url, type: "other" });
+        else {
+          if (mimeType.startsWith("image"))
+            media.push({ url: url, type: "image" });
+          else if (mimeType.startsWith("video"))
+            media.push({ url: url, type: "video" });
+          else media.push({ url: url, type: mimeType });
+        }
+      }
     }
+    return media;
+  }
+
+  private async createAdditionalFields(bugId: number) {
+    const additionals = await this.getCampaignAdditionalFields();
+    if (!additionals) return undefined;
 
     for (const additional of additionals) {
       await tryber.tables.WpAppqCampaignAdditionalFieldsData.do().insert({
@@ -587,5 +521,36 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
       slug: item.slug,
       value: item.value,
     }));
+  }
+
+  private async getCampaignAdditionalFields() {
+    const additionals = this.getBody().additional || [];
+    const campaignAdditionalFields =
+      await tryber.tables.WpAppqCampaignAdditionalFields.do()
+        .select("id", "slug", "type", "validation")
+        .where("cp_id", this.campaignId);
+
+    if (!campaignAdditionalFields.length) return undefined;
+
+    for (const campaignAdditionalField of campaignAdditionalFields) {
+      if (
+        !additionals.find((item) => item.slug === campaignAdditionalField.slug)
+      ) {
+        additionals.push({
+          slug: campaignAdditionalField.slug,
+          value: "",
+        });
+      }
+    }
+    const acceptedSlugs = campaignAdditionalFields.map(
+      (item: { slug: string }) => item.slug
+    );
+    const bugSlugs = additionals.map((item: { slug: string }) => item.slug);
+    //filter additionals in request that are acceptable
+    return this.getValidAdditionalFields(
+      bugSlugs,
+      acceptedSlugs,
+      campaignAdditionalFields
+    );
   }
 }
