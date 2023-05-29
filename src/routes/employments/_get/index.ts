@@ -1,6 +1,6 @@
 /** OPENAPI-ROUTE: get-employments */
 
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 import { Context } from "openapi-backend";
 
 export default async (
@@ -9,20 +9,16 @@ export default async (
   res: OpenapiResponse
 ) => {
   try {
-    const SELECT = `SELECT *`;
-    const FROM = ` FROM wp_appq_employment`;
-    const rows = await db.query(`
-        ${SELECT}
-        ${FROM}
-    `);
+    const rows = await tryber.tables.WpAppqEmployment.do().select(
+      "id",
+      tryber.ref("display_name").withSchema("wp_appq_employment").as("name")
+    );
+
     if (!rows.length) throw Error("No employments");
 
     res.status_code = 200;
 
-    return rows.map((row: { id: string; display_name: string }) => ({
-      id: row.id,
-      name: row.display_name,
-    }));
+    return rows;
   } catch (error) {
     if (process.env && process.env.DEBUG) {
       console.error(error);
