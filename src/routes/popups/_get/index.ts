@@ -12,22 +12,25 @@ type ProfileType =
   | "not-logged-in-year";
 export default class Route extends UserRoute<{
   response: StoplightOperations["get-popups"]["responses"]["200"]["content"]["application/json"];
+  query: StoplightOperations["get-popups"]["parameters"]["query"];
 }> {
-  private popups: {
-    id: number;
-    title: string;
-    content: string;
-    is_once: number;
-    targets: string;
-    extras: string;
-    is_auto: number;
-  }[] = [];
+  private limit: number | undefined;
+  private start: number | undefined;
+
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "popups" });
     this.setId(0);
+
+    const query = this.getQuery();
+    if (query.limit) {
+      this.limit = parseInt(query.limit as unknown as string);
+      if (query.start) {
+        this.start = parseInt(query.start as unknown as string);
+      }
+    }
   }
 
-  protected async filter(): Promise<boolean> {
+  protected async filter() {
     if (!this.hasCapability("appq_message_center") && this.isNotAdmin()) {
       this.setError(403, new OpenapiError("You cannot list popups"));
       return false;
@@ -35,46 +38,37 @@ export default class Route extends UserRoute<{
     return true;
   }
 
-  protected async prepare(): Promise<void> {
-    const params =
-      this.getQuery() as StoplightOperations["get-popups"]["parameters"]["query"];
+  protected async prepare() {
+    let query = tryber.tables.WpAppqPopups.do().select().where("is_auto", 0);
 
-    try {
-      let query = tryber.tables.WpAppqPopups.do().select().where("is_auto", 0);
+    if (this.limit) query = query.limit(this.limit);
+    if (this.start) query = query.offset(this.start);
 
-      if (params.limit && typeof params.limit == "string") {
-        query = query.limit(parseInt(params.limit));
-        if (params.start && typeof params.start == "string") {
-          query = query.offset(parseInt(params.start));
-        }
-      }
-
-      const rows = await query;
-      if (!rows.length) {
-        return this.setError(404, new OpenapiError("No popups found"));
-      }
-      this.popups = rows;
-
-      this.setSuccess(200, this.mapPopups());
-    } catch (error) {
-      if (process.env && process.env.DEBUG) {
-        console.error(error);
-      }
-      return this.setError(
-        400,
-        new OpenapiError(
-          "Missing parameters: " + (error as OpenapiError).message
-        )
-      );
+    const rows = await query;
+    if (!rows.length) {
+      return this.setError(404, new OpenapiError("No popups found"));
     }
+
+    this.setSuccess(200, this.mapPopups(rows));
   }
+
   protected isNotAdmin() {
     if (this.configuration.request.user.role !== "administrator") return true;
     return false;
   }
 
-  protected mapPopups() {
-    return this.popups.map((popup) => {
+  protected mapPopups(
+    popups: {
+      id: number;
+      title: string;
+      content: string;
+      is_once: number;
+      targets: string;
+      extras: string;
+      is_auto: number;
+    }[]
+  ) {
+    return popups.map((popup) => {
       let currentProfiles: number[] | ProfileType = [];
       if (popup.targets) {
         if (popup.targets == "list") {
