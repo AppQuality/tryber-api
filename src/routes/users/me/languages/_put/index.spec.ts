@@ -27,7 +27,7 @@ describe("Route PUT /users/me/languages/", () => {
     expect(response.body).toEqual({
       element: "element",
       id: 1,
-      message: "Bad request: lang_id=69 not found.",
+      message: "Bad request: lang_id not found.",
     });
   });
 
