@@ -43,10 +43,38 @@ describe("Route GET popups", () => {
     await tryber.tables.WpAppqPopups.do().delete();
   });
 
-  it("Should return all not automatic popups if user has appq_message_center permission", async () => {
+  it("Should return all not automatic popups if user is admin", async () => {
     const response = await request(app)
       .get("/popups")
       .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          title: "This is the POPUP title 1",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: "italian",
+        }),
+        expect.objectContaining({
+          id: 2,
+          title: "This is the POPUP title 2",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: [],
+        }),
+        expect.objectContaining({
+          id: 3,
+          title: "This is the POPUP title 3",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: [],
+        }),
+      ])
+    );
+  });
+  it("Should return all not automatic popups if user has appq_message_center permission", async () => {
+    const response = await request(app)
+      .get("/popups")
+      .set("authorization", `Bearer tester capability ["appq_message_center"]`);
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
@@ -101,16 +129,16 @@ describe("Route GET popups", () => {
   });
 });
 
-// describe("Route GET popups - when there are no popups", () => {
-//   it("Should answer 404 when there are no popups", async () => {
-//     const response = await request(app)
-//       .get("/popups")
-//       .set("authorization", "Bearer admin");
-//     expect(response.status).toBe(404);
-//     expect(response.body).toMatchObject({
-//       element: "popups",
-//       id: 0,
-//       message: "Error on finding popups",
-//     });
-//   });
-// });
+describe("Route GET popups - when there are no popups", () => {
+  it("Should answer 404 when there are no popups", async () => {
+    const response = await request(app)
+      .get("/popups")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({
+      element: "popups",
+      id: 0,
+      message: "No popups found",
+    });
+  });
+});
