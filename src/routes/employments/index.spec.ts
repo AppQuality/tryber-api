@@ -48,7 +48,7 @@ describe("GET /employments", () => {
   });
 });
 
-describe("GET /employments when there are not employment", () => {
+describe("GET /employments when there are no employment", () => {
   it("should return 404 if the are no employment", async () => {
     const response = await request(app)
       .get("/employments")
