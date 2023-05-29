@@ -633,7 +633,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 4,
+      fiscal_category: 3,
     });
     data.attribution = await Attributions.insert({
       amount: data.tester.pending_booty,
@@ -651,7 +651,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     expect(response.status).toBe(403);
   });
 
-  it("Should answer 403 if fiscal category is 4 (i.e. company)", async () => {
+  it("Should answer 403 if fiscal category is 5 (i.e. company)", async () => {
     await WpUsers.insert({
       ID: 1,
     });
@@ -660,7 +660,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 3,
+      fiscal_category: 5,
     });
     data.attribution = await Attributions.insert({
       amount: data.tester.pending_booty,
