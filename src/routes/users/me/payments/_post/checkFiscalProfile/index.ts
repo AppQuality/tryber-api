@@ -1,23 +1,12 @@
 import * as db from "@src/features/db";
 
-const fiscalTypes = [
-  {
-    id: 1,
-    alias: "< 5000",
-  },
-  {
-    id: 2,
-    alias: "> 5000",
-  },
-  {
-    id: 3,
-    alias: "not compatible",
-  },
-  {
-    id: 4,
-    alias: "company",
-  },
-];
+const fiscalTypes = {
+  withholding: 1,
+  "witholding-extra": 2,
+  other: 3,
+  "non-italian": 4,
+  company: 5,
+};
 
 export default async (testerId: number) => {
   const fiscalProfile = await db.query(
@@ -35,9 +24,11 @@ export default async (testerId: number) => {
   }
 
   if (
-    [fiscalTypes[1].id, fiscalTypes[2].id, fiscalTypes[3].id].includes(
-      fiscalProfile[0].fiscal_category
-    )
+    [
+      fiscalTypes["witholding-extra"],
+      fiscalTypes.other,
+      fiscalTypes.company,
+    ].includes(fiscalProfile[0].fiscal_category)
   ) {
     throw new Error("Your fiscal profile doesn't match the requirements");
   }
