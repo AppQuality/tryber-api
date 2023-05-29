@@ -598,7 +598,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       data.tester.expected_withholding
     );
   });
-  it("Should answer 403 if fiscal category is 2", async () => {
+  it("Should answer 403 if fiscal category is 2 (i.e. witholding > 5000 )", async () => {
     await WpUsers.insert({
       ID: 1,
     });
@@ -624,7 +624,34 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
-  it("Should answer 403 if fiscal category is 3", async () => {
+  it("Should answer 403 if fiscal category is 3 (i.e. not a compatible regime)", async () => {
+    await WpUsers.insert({
+      ID: 1,
+    });
+    data.tester = await Profile.insert({
+      pending_booty: 129.99,
+    });
+    data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
+      tester_id: data.tester.id,
+      fiscal_category: 4,
+    });
+    data.attribution = await Attributions.insert({
+      amount: data.tester.pending_booty,
+      is_paid: 0,
+    });
+    const response = await request(app)
+      .post("/users/me/payments")
+      .send({
+        method: {
+          type: "paypal",
+          email: "test@example.com",
+        },
+      })
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
+  });
+
+  it("Should answer 403 if fiscal category is 4 (i.e. company)", async () => {
     await WpUsers.insert({
       ID: 1,
     });
