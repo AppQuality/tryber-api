@@ -1,6 +1,6 @@
 /** OPENAPI-ROUTE: get-popups */
 
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 import { Context } from "openapi-backend";
 
 export default async (
@@ -17,23 +17,20 @@ export default async (
     };
   }
   try {
-    const SELECT = `SELECT *`;
-    const FROM = ` FROM wp_appq_popups`;
-    const WHERE = ` WHERE is_auto <> TRUE `;
-    let LIMIT = ``;
+    let query = tryber.tables.WpAppqPopups.do().select().where("is_auto", 0);
 
     if (req.query.limit && typeof req.query.limit == "string") {
-      LIMIT = ` LIMIT ${parseInt(req.query.limit)}`;
+      query = query.limit(parseInt(req.query.limit));
       if (req.query.start && typeof req.query.start == "string") {
-        LIMIT += ` OFFSET ${parseInt(req.query.start)}`;
+        query = query.offset(parseInt(req.query.start));
       }
     }
 
-    const rows = await db.query(`${SELECT}${FROM}${WHERE}${LIMIT}`);
+    const rows = await query;
     if (!rows.length) throw Error("No popups");
 
     res.status_code = 200;
-    return rows.map(mapQueryToObject);
+    return mapPopups(rows);
   } catch (error) {
     if (process.env && process.env.DEBUG) {
       console.error(error);
@@ -45,38 +42,35 @@ export default async (
   }
 };
 
-const mapQueryToObject = (data: {
-  id: string;
-  title: string;
-  content: string;
-  is_once: number;
-  targets: string;
-  extras: string;
-}) => {
-  const obj: {
-    id?: number;
-    title?: string;
-    content?: string;
-    once?: boolean;
-    targets?: string;
-    extras?: string;
-    profiles?: number[] | string;
-  } = {
-    ...(data.id && { id: parseInt(data.id || "") }),
-    ...(data.content && { content: data.content }),
-    ...(data.is_once && { once: data.is_once == 1 }),
-    ...(data.title && { title: data.title }),
-  };
-  if (data.targets) {
-    if (data.targets == "list") {
-      obj.profiles = [];
-      if (data.extras) {
-        const profiles = data.extras.split(",").map((id) => parseInt(id));
-        if (profiles) obj.profiles = profiles;
+async function mapPopups(
+  popups: {
+    id: number;
+    title: string;
+    content: string;
+    is_once: number;
+    targets: string;
+    extras: string;
+  }[]
+) {
+  return popups.map((popup) => {
+    let currentProfiles: number[] | string = [];
+    if (popup.targets) {
+      if (popup.targets == "list") {
+        currentProfiles = [];
+        if (popup.extras) {
+          const profiles = popup.extras.split(",").map((id) => parseInt(id));
+          if (profiles) currentProfiles = profiles;
+        }
+      } else {
+        currentProfiles = popup.targets;
       }
-    } else {
-      obj.profiles = data.targets;
     }
-  }
-  return obj;
-};
+    return {
+      id: popup.id,
+      title: popup.title,
+      content: popup.content,
+      once: popup.is_once === 1,
+      profiles: currentProfiles,
+    };
+  });
+}
