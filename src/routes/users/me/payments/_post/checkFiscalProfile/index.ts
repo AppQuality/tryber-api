@@ -3,8 +3,8 @@ import * as db from "@src/features/db";
 const fiscalTypes = {
   withholding: 1,
   "witholding-extra": 2,
-  other: 3,
-  "non-italian": 4,
+  "non-italian": 3,
+  vat: 4,
   company: 5,
 };
 
@@ -26,7 +26,7 @@ export default async (testerId: number) => {
   if (
     [
       fiscalTypes["witholding-extra"],
-      fiscalTypes.other,
+      fiscalTypes.vat,
       fiscalTypes.company,
     ].includes(fiscalProfile[0].fiscal_category)
   ) {
