@@ -7,6 +7,7 @@ import checkCodiceFiscale from "../checkCodiceFiscale";
 import geocodePlaceId from "../geocodeByPlaceId";
 import getActiveProfile from "../getActiveProfile";
 import getByUser from "../getByUser";
+import { fiscalTypes } from "@src/constants";
 
 export default async (
   c: Context,
@@ -35,13 +36,6 @@ export default async (
     if (!tester.birth_date) {
       tester.birth_date = "";
     }
-    const fiscalTypes = {
-      withholding: 1,
-      "witholding-extra": 2,
-      "non-italian": 3,
-      vat: 4,
-      company: 5,
-    };
 
     let isVerified = 1;
     if (

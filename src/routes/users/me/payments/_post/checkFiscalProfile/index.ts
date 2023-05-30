@@ -1,12 +1,5 @@
+import { fiscalTypes } from "@src/constants";
 import * as db from "@src/features/db";
-
-const fiscalTypes = {
-  withholding: 1,
-  "witholding-extra": 2,
-  vat: 3,
-  "non-italian": 4,
-  company: 5,
-};
 
 export default async (testerId: number) => {
   const fiscalProfile = await db.query(

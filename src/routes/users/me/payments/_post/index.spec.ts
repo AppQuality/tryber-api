@@ -451,7 +451,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     expect(requestData.withholding_tax_percentage).toBe(20);
   });
 
-  it("Should create a row in the requests withholding_tax_percentage = 0  if fiscal category is 4", async () => {
+  it("Should create a row in the requests withholding_tax_percentage = 0  if fiscal category is 3", async () => {
     await WpUsers.insert({
       ID: 1,
     });
@@ -460,7 +460,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 4,
+      fiscal_category: 3,
     });
     data.attribution = await Attributions.insert({
       amount: data.tester.pending_booty,
@@ -523,7 +523,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     );
   });
 
-  it("Should create a row in the requests with amount_gross = 100% of the amount if fiscal category is 4", async () => {
+  it("Should create a row in the requests with amount_gross = 100% of the amount if fiscal category is 3", async () => {
     await WpUsers.insert({
       ID: 1,
     });
@@ -540,7 +540,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 4,
+      fiscal_category: 3,
     });
     const response = await request(app)
       .post("/users/me/payments")
@@ -560,7 +560,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     expect(requestData.amount_gross).toBe(data.tester.expected_gross);
   });
 
-  it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 4", async () => {
+  it("Should create a row in the requests amount_witholding = gross - amount  if fiscal category is 3", async () => {
     await WpUsers.insert({
       ID: 1,
     });
@@ -573,7 +573,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     };
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 4,
+      fiscal_category: 3,
     });
     data.attribution = await Attributions.insert({
       amount: data.tester.pending_booty,
@@ -624,7 +624,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
-  it("Should answer 403 if fiscal category is 3 (i.e. not a compatible regime)", async () => {
+  it("Should answer 403 if fiscal category is 4 (i.e. not a compatible regime)", async () => {
     await WpUsers.insert({
       ID: 1,
     });
@@ -633,7 +633,7 @@ describe("POST /users/me/payments/ - fiscal profiles", () => {
     });
     data.fiscalProfile = await fiscalProfileData.validFiscalProfile({
       tester_id: data.tester.id,
-      fiscal_category: 3,
+      fiscal_category: 4,
     });
     data.attribution = await Attributions.insert({
       amount: data.tester.pending_booty,
