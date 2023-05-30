@@ -239,6 +239,17 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("testerId", 1);
   });
+  it("Should insert profile_id on bug if send a valid bug", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    const bugData = await sqlite3.get(
+      `SELECT profile_id FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
+    );
+    expect(bugData).toHaveProperty("profile_id", 1);
+  });
   it("Should serialize device data on the bug on success", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")

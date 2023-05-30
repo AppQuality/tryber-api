@@ -370,6 +370,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
         .insert({
           wp_user_id: this.getWordpressId(),
           message: this.getBody().title,
+          profile_id: this.getTesterId(),
           description: this.getBody().description,
           expected_result: this.getBody().expected,
           current_result: this.getBody().current,
