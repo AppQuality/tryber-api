@@ -38,8 +38,9 @@ WHERE id = ?`,
     const fiscalTypes = {
       withholding: 1,
       "witholding-extra": 2,
-      other: 3,
-      "non-italian": 4,
+      "non-italian": 3,
+      vat: 4,
+      company: 5,
     };
 
     let isVerified = 1;
