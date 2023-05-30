@@ -26,8 +26,8 @@ export default async (
     let tester = await db.query(
       db.format(
         `SELECT name,surname,COALESCE(CAST(birth_date as CHAR),"1970-01-01 00:00:00") as birth_date
-FROM wp_appq_evd_profile 
-WHERE id = ?`,
+        FROM wp_appq_evd_profile 
+        WHERE id = ?`,
         [req.user.testerId]
       )
     );

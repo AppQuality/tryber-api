@@ -32,6 +32,7 @@ WHERE id = ?`,
       "witholding-extra": 2,
       other: 3,
       "non-italian": 4,
+      vat: 5,
     };
 
     let isVerified = 1;
