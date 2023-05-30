@@ -12,7 +12,8 @@ export default async (
   if (Array.isArray(authHeader)) {
     authHeader = authHeader.join(" ");
   }
-  if (!authHeader) {
+
+  if (!authHeader && "apikey" in c.request.headers === false) {
     const user = await checkCookies(req);
     if (user instanceof Error) {
       return jwt.verify("", config.jwt.secret);
