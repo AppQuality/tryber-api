@@ -8290,8 +8290,9 @@ components:
       enum:
         - withholding
         - witholding-extra
-        - other
         - non-italian
+        - vat
+        - company
     LevelDefinition:
       title: LevelDefinition
       type: object
