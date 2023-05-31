@@ -84,31 +84,25 @@ export default class ProspectRoute extends CampaignRoute<{
   }
 
   private getTesterWithPerfectCampaignQuery() {
-    return tryber.tables.WpAppqEvdProfile.do()
-      .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"))
-      .join(
-        "wp_appq_evd_bug",
-        "wp_appq_evd_profile.wp_user_id",
-        "wp_appq_evd_bug.wp_user_id"
-      )
-      .where("wp_appq_evd_bug.campaign_id", this.cp_id)
-      .where(
-        "wp_appq_evd_profile.id",
-        "IN",
+    return tryber.tables.WpAppqEvdBug.do()
+      .select(tryber.ref("profile_id").withSchema("wp_appq_evd_bug").as("id"))
+      .where("campaign_id", this.cp_id)
+      .whereIn(
+        "profile_id",
         this.prospect.map((p) => p.tester.id)
       )
-      .groupBy("wp_appq_evd_profile.id");
+      .groupBy("profile_id");
   }
 
   private async getTesterWithPerfectCampaign() {
     const bugsApproved = await this.getTesterWithPerfectCampaignQuery().where(
-      "wp_appq_evd_bug.status_id",
+      "status_id",
       2
     );
 
     const bugsNotApproved =
       await this.getTesterWithPerfectCampaignQuery().where(
-        "wp_appq_evd_bug.status_id",
+        "status_id",
         "<>",
         2
       );
