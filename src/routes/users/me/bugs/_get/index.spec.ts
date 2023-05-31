@@ -21,6 +21,7 @@ const bug1 = {
   campaign_id: campaign1.id,
   status_id: 1,
   wp_user_id: 1,
+  profile_id: 1,
   severity_id: 1,
 };
 const bug2 = {
@@ -29,6 +30,7 @@ const bug2 = {
   campaign_id: campaign2.id,
   status_id: 1,
   wp_user_id: 1,
+  profile_id: 1,
   severity_id: 1,
 };
 const severity1 = {
