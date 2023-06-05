@@ -7,6 +7,7 @@ import checkCodiceFiscale from "../checkCodiceFiscale";
 import geocodePlaceId from "../geocodeByPlaceId";
 import getActiveProfile from "../getActiveProfile";
 import getByUser from "../getByUser";
+import { fiscalTypes } from "@src/constants";
 
 export default async (
   c: Context,
@@ -26,8 +27,8 @@ export default async (
     let tester = await db.query(
       db.format(
         `SELECT name,surname,COALESCE(CAST(birth_date as CHAR),"1970-01-01 00:00:00") as birth_date
-FROM wp_appq_evd_profile 
-WHERE id = ?`,
+        FROM wp_appq_evd_profile 
+        WHERE id = ?`,
         [req.user.testerId]
       )
     );
@@ -35,12 +36,6 @@ WHERE id = ?`,
     if (!tester.birth_date) {
       tester.birth_date = "";
     }
-    const fiscalTypes = {
-      withholding: 1,
-      "witholding-extra": 2,
-      other: 3,
-      "non-italian": 4,
-    };
 
     let isVerified = 1;
     if (

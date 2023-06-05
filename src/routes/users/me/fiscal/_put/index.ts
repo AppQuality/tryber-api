@@ -5,6 +5,7 @@ import checkCodiceFiscale from "../checkCodiceFiscale";
 import geocodePlaceId from "../geocodeByPlaceId";
 import getActiveProfile from "../getActiveProfile";
 import getByUser from "../getByUser";
+import { fiscalTypes } from "@src/constants";
 
 /** OPENAPI-ROUTE:put-users-me-fiscal */
 export default async (
@@ -27,12 +28,6 @@ WHERE id = ?`,
     if (!tester.birth_date) {
       tester.birth_date = "";
     }
-    const fiscalTypes = {
-      withholding: 1,
-      "witholding-extra": 2,
-      other: 3,
-      "non-italian": 4,
-    };
 
     let isVerified = 1;
     if (

@@ -1,3 +1,4 @@
+import { fiscalTypes } from "@src/constants";
 import * as db from "@src/features/db";
 
 export default async (testerId: number) => {
@@ -10,10 +11,18 @@ export default async (testerId: number) => {
       [testerId]
     )
   );
+
   if (fiscalProfile.length === 0) {
     throw new Error("You don't have a fiscal profile");
   }
-  if ([2, 3].includes(fiscalProfile[0].fiscal_category)) {
+
+  if (
+    [
+      fiscalTypes["witholding-extra"],
+      fiscalTypes.vat,
+      fiscalTypes.company,
+    ].includes(fiscalProfile[0].fiscal_category)
+  ) {
     throw new Error("Your fiscal profile doesn't match the requirements");
   }
   return fiscalProfile[0];
