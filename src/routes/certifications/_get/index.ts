@@ -1,73 +1,49 @@
-/** OPENAPI-ROUTE: get-certifications */
+/** OPENAPI-CLASS: get-certifications */
 
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+import OpenapiError from "@src/features/OpenapiError";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    const SELECT = `SELECT *`;
-    const FROM = ` FROM wp_appq_certifications_list`;
-    let WHERE = ``;
-    let queryData: string[] = [];
+export default class Route extends UserRoute<{
+  response: StoplightOperations["get-certifications"]["responses"]["200"]["content"]["application/json"];
+  query: StoplightOperations["get-certifications"]["parameters"]["query"];
+}> {
+  private filterBy: PartialRecord<"area" | "institute", string | string[]>;
 
-    const filter = req.query.filterBy as { [key: string]: string | string[] };
-
-    if (filter) {
-      let acceptedFilters = ["area", "institute"].filter((f) =>
-        Object.keys(filter).includes(f)
-      );
-      //check filter
-      if (acceptedFilters.length) {
-        acceptedFilters = acceptedFilters.map((k) => {
-          const v = filter[k];
-          if (typeof v === "string") {
-            queryData.push(v);
-            return `${k}=?`;
-          }
-          const orQuery = v
-            .map((el: string) => {
-              queryData.push(el);
-              return `${k}=?`;
-            })
-            .join(" OR ");
-          return ` ( ${orQuery} ) `;
-        });
-        WHERE += " WHERE " + Object.values(acceptedFilters).join(" AND ");
-      }
-    }
-    const rows = await db.query(
-      db.format(
-        `
-        ${SELECT} ${FROM} ${WHERE}`,
-        queryData
-      )
-    );
-    if (!rows.length) throw Error("No certifications");
-
-    res.status_code = 200;
-
-    return rows.map(
-      (row: { id: string; name: string; area: string; institute: string }) => ({
-        id: row.id,
-        name: row.name,
-        area: row.area,
-        institute: row.institute,
-      })
-    );
-  } catch (error) {
-    if (process.env && process.env.DEBUG) {
-      console.error(error);
-    }
-
-    res.status_code = 404;
-    return {
-      element: "certifications",
-      id: 0,
-      message: (error as OpenapiError).message,
+  constructor(configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "certifications" });
+    this.setId(0);
+    const { filterBy } = this.getQuery();
+    this.filterBy = {
+      ...(filterBy?.area ? { area: filterBy?.area as string | string[] } : {}),
+      ...(filterBy?.institute
+        ? { institute: filterBy?.institute as string | string[] }
+        : {}),
     };
   }
-};
+
+  protected async prepare(): Promise<void> {
+    let query = tryber.tables.WpAppqCertificationsList.do().select([
+      "area",
+      "id",
+      "institute",
+      "name",
+    ]);
+
+    for (const f in this.filterBy) {
+      const key = f as keyof typeof this.filterBy;
+      if (typeof this.filterBy[key] === "string") {
+        query = query.where(key, this.filterBy[key]);
+      } else {
+        query = query.whereIn(key, this.filterBy[key] as string[]);
+      }
+    }
+
+    const rows = await query;
+    if (!rows.length) {
+      return this.setError(404, new OpenapiError("No certifications found"));
+    }
+
+    this.setSuccess(200, await query);
+  }
+}
