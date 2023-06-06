@@ -814,6 +814,6 @@ describe("Route POST a bug to a specific campaign - with invalid additional fiel
     const bugData = await sqlite3.get(
       `SELECT application_section_id FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
     );
-    expect(bugData).toHaveProperty("application_section_id", 0);
+    expect(bugData).toHaveProperty("application_section_id", -1);
   });
 });
