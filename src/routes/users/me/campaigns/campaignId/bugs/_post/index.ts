@@ -383,7 +383,7 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
           bug_type_id: bugTypeId,
           application_section: usecase.title,
           application_section_id: usecase.id,
-          note: body.notes,
+          note: this.getBody().notes,
           dev_id: device.id,
           last_seen: this.getBody().lastSeen,
           manufacturer: isPC(deviceData) ? "-" : deviceData.manufacturer,
