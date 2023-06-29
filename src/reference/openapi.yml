@@ -42,17 +42,26 @@ paths:
                   - type: object
                     properties:
                       items:
-                        $ref: '#/components/schemas/Agreement'
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Agreement'
+                    required:
+                      - items
                   - $ref: '#/components/schemas/PaginationData'
               examples:
                 Example 1:
                   value:
                     items:
-                      field_id: 0
-                      name: string
-                      value: string
-                      text: string
-                      is_candidate: true
+                      - id: 1
+                        title: Agreement Title
+                        tokens: 10.5
+                        unit_price: 165
+                        expiration: '2023-06-06 12:59:16'
+                        note: Agreement Notes
+                        customer:
+                          id: 1
+                          company: Customer Company
+                        is_token_based: true
                     start: 0
                     limit: 0
                     size: 0
