@@ -9,6 +9,11 @@ export interface paths {
     get: operations["get-root"];
     parameters: {};
   };
+  "/agreements": {
+    /** Retrive all agreements */
+    get: operations["get-agreements"];
+    parameters: {};
+  };
   "/authenticate": {
     /** A request to login with your username and password */
     post: operations["post-authenticate"];
@@ -469,6 +474,19 @@ export interface components {
       text?: string;
       is_candidate?: boolean;
     };
+    Agreement: {
+      id: number;
+      title: string;
+      tokens: number;
+      unit_price: number;
+      expiration: string;
+      note?: string;
+      customer: {
+        id: number;
+        company: string;
+      };
+      is_token_based?: boolean;
+    };
     /** Bug */
     Bug: {
       severity?: components["schemas"]["BugSeverity"];
@@ -547,11 +565,8 @@ export interface components {
       projectManager?: components["schemas"]["User"];
       customerCanViewReviewing?: boolean;
       additionalFields?: components["schemas"]["CampaignField"][];
-      /** @default 0 */
       tokens?: number;
-      /** @default 0 */
       csm_effort?: number;
-      /** @default 0 */
       ux_effort?: number;
       preview_link?: components["schemas"]["TranslatablePage"];
       manual_link?: components["schemas"]["TranslatablePage"];
@@ -612,7 +627,12 @@ export interface components {
      * FiscalType
      * @enum {string}
      */
-    FiscalType: "withholding" | "witholding-extra" | "other" | "non-italian";
+    FiscalType:
+      | "withholding"
+      | "witholding-extra"
+      | "non-italian"
+      | "vat"
+      | "company";
     /** LevelDefinition */
     LevelDefinition: {
       id: number;
@@ -846,6 +866,25 @@ export interface operations {
       200: {
         content: {
           "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+  };
+  /** Retrive all agreements */
+  "get-agreements": {
+    parameters: {
+      query: {
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: components["schemas"]["Agreement"][];
+          } & components["schemas"]["PaginationData"];
         };
       };
     };
