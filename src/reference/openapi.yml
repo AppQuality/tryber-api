@@ -27,6 +27,41 @@ paths:
       operationId: get-root
       description: Get all routes available for this apis
     parameters: []
+  /agreements:
+    parameters: []
+    get:
+      summary: GET Agreements
+      operationId: get-agreements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        $ref: '#/components/schemas/Agreement'
+                  - $ref: '#/components/schemas/PaginationData'
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      field_id: 0
+                      name: string
+                      value: string
+                      text: string
+                      is_candidate: true
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 0
+      security:
+        - JWT: []
+      description: Retrive all agreements
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
   /authenticate:
     post:
       description: A request to login with your username and password
@@ -7907,6 +7942,57 @@ components:
         - field_id
         - name
         - value
+    Agreement:
+      type: object
+      x-examples:
+        Example 1:
+          id: 1
+          title: Agreement Title
+          tokens: 10.5
+          unit_price: 165
+          expiration: '2023-06-06 12:59:16'
+          note: Agreement Notes
+          customer:
+            id: 1
+            company: Customer Company
+          is_token_based: true
+      x-stoplight:
+        id: a1062dea11dce
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        tokens:
+          type: number
+        unit_price:
+          type: number
+        expiration:
+          type: string
+        note:
+          type: string
+        customer:
+          type: object
+          required:
+            - id
+            - company
+          properties:
+            id:
+              type: integer
+            company:
+              type: string
+        is_token_based:
+          type: boolean
+          default: false
+      required:
+        - id
+        - title
+        - tokens
+        - unit_price
+        - expiration
+        - customer
+      description: ''
     Bug:
       title: Bug
       type: object
