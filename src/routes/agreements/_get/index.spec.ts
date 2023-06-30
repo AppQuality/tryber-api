@@ -1,7 +1,6 @@
 import request from "supertest";
 import app from "@src/app";
 import useAgreementsData from "./useAgreementsData";
-import { tryber } from "@src/features/database";
 
 describe("GET /agreements", () => {
   useAgreementsData();
@@ -92,7 +91,32 @@ describe("GET /agreements filtered by customerId", () => {
   useAgreementsData();
   it("Should return agreements filtered by customerIds", async () => {
     const response = await request(app)
-      .get("/agreements?filterBy[customer]=11")
+      .get("/agreements?filterBy[customer]=11,66")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.items).toEqual([
+      expect.objectContaining({
+        id: 11,
+        title: "Title Agreement11",
+        tokens: 111,
+        unitPrice: 165,
+        startDate: "2021-01-01 00:00:00",
+        expirationDate: "2021-01-10 00:00:00",
+        note: "Notes Agreement11",
+        customer: {
+          id: 11,
+          company: "Company11",
+        },
+        isTokenBased: true,
+      }),
+    ]);
+  });
+});
+
+describe("GET /agreements paginated", () => {
+  useAgreementsData();
+  it("Should return agreements limited to 1", async () => {
+    const response = await request(app)
+      .get("/agreements?limit=1")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.body.items).toEqual([
       expect.objectContaining({

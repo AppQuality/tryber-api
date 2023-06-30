@@ -887,6 +887,10 @@ export interface operations {
       query: {
         /** Key-value Array for item filtering */
         filterBy?: components["parameters"]["filterBy"];
+        /** Items to skip for pagination */
+        start?: components["parameters"]["start"];
+        /** Max items to retrieve */
+        limit?: components["parameters"]["limit"];
       };
     };
     responses: {
