@@ -15,6 +15,6 @@ jobs:
       - name: Install dependencies
         run: | 
           echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
-          npm install
+          yarn
       - name: "Run Test"
-        run: npm run test
+        run: yarn test

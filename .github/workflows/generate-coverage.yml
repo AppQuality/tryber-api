@@ -16,10 +16,10 @@ jobs:
       - name: Install dependencies
         run: |
           echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
-          npm ci
+          yarn
       - name: "Generate Coverage"
         run: |
-          npm run coverage
+          yarn coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
