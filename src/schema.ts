@@ -12,7 +12,22 @@ export interface paths {
   "/agreements": {
     /** Retrive all agreements */
     get: operations["get-agreements"];
+    /** Create a new Agreement */
+    post: operations["post-agreements"];
     parameters: {};
+  };
+  "/agreements/{agreementId}": {
+    /** Get a specific Agreement */
+    get: operations["get-agreements-agreement-id"];
+    /** Put a specific Agreement */
+    put: operations["put-agreements-agreement-id"];
+    /** Delete a specific Agreement */
+    delete: operations["delete-agreements-agreement-id"];
+    parameters: {
+      path: {
+        agreementId: string;
+      };
+    };
   };
   "/authenticate": {
     /** A request to login with your username and password */
@@ -478,15 +493,12 @@ export interface components {
       id: number;
       title: string;
       tokens: number;
-      unit_price: number;
-      expiration: string;
+      unitPrice: number;
+      startDate: string;
+      expirationDate: string;
       note?: string;
-      customer: {
-        id: number;
-        company: string;
-      };
       /** @default false */
-      is_token_based?: boolean;
+      isTokenBased?: boolean;
     };
     /** Bug */
     Bug: {
@@ -887,11 +899,112 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            items: components["schemas"]["Agreement"][];
+            items: (components["schemas"]["Agreement"] & {
+              customer: {
+                id: number;
+                company: string;
+              };
+            })[];
           } & components["schemas"]["PaginationData"];
         };
       };
       403: components["responses"]["NotAuthorized"];
+    };
+  };
+  /** Create a new Agreement */
+  "post-agreements": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            agreementId: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          customerId: number;
+        } & components["schemas"]["Agreement"];
+      };
+    };
+  };
+  /** Get a specific Agreement */
+  "get-agreements-agreement-id": {
+    parameters: {
+      path: {
+        agreementId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Agreement"] & {
+            customer: {
+              id: number;
+              company: string;
+            };
+          };
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
+    };
+  };
+  /** Put a specific Agreement */
+  "put-agreements-agreement-id": {
+    parameters: {
+      path: {
+        agreementId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Agreement"] & {
+            customer: {
+              id: number;
+              company: string;
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["Agreement"] & {
+          customerId: number;
+        };
+      };
+    };
+  };
+  /** Delete a specific Agreement */
+  "delete-agreements-agreement-id": {
+    parameters: {
+      path: {
+        agreementId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   /** A request to login with your username and password */
