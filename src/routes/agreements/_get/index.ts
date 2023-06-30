@@ -7,6 +7,10 @@ export default class SingleCampaignRoute extends UserRoute<{
   response: StoplightOperations["get-agreements"]["responses"]["200"]["content"]["application/json"];
   query: StoplightOperations["get-agreements"]["parameters"]["query"];
 }> {
+  private limit: number | false = false;
+  private start: number = 0;
+  private order: "ASC" | "DESC" = "ASC";
+
   private filterBy: {
     customer?: number[];
   } = {};
@@ -21,6 +25,13 @@ export default class SingleCampaignRoute extends UserRoute<{
           .split(",")
           .map((id: string) => parseInt(id));
       }
+    }
+
+    if (query.start) this.start = parseInt(query.start as unknown as string);
+    if (query.limit) {
+      this.limit = parseInt(query.limit as unknown as string);
+    } else if (query.start) {
+      this.limit = 10;
     }
   }
 
@@ -89,6 +100,7 @@ export default class SingleCampaignRoute extends UserRoute<{
     }
 
     const filteredAgreements = await agreements;
+
     if (filteredAgreements.length === 0) return [];
 
     return filteredAgreements.map((agreement) => ({

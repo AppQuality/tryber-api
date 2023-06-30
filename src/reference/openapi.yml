@@ -95,6 +95,8 @@ paths:
       description: Retrive all agreements
       parameters:
         - $ref: '#/components/parameters/filterBy'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
     post:
       summary: POST Agreement
       operationId: post-agreements
