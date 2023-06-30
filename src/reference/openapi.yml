@@ -66,6 +66,8 @@ paths:
                     limit: 0
                     size: 0
                     total: 0
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
       security:
         - JWT: []
       description: Retrive all agreements
