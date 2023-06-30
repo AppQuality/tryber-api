@@ -45,6 +45,12 @@ paths:
                         type: array
                         items:
                           allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                              required:
+                                - id
                             - $ref: '#/components/schemas/Agreement'
                             - type: object
                               properties:
@@ -152,6 +158,12 @@ paths:
             application/json:
               schema:
                 allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                    required:
+                      - id
                   - $ref: '#/components/schemas/Agreement'
                   - type: object
                     properties:
@@ -236,6 +248,12 @@ paths:
             application/json:
               schema:
                 allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                    required:
+                      - id
                   - $ref: '#/components/schemas/Agreement'
                   - type: object
                     properties:
@@ -728,24 +746,31 @@ paths:
                 Example 1:
                   value:
                     items:
-                      - id: 1
-                        title: This is a Bug
-                        internalId: ID123
+                      - id: 0
+                        title: string
+                        internalId: string
                         status:
-                          id: 1
-                          name: refused
+                          id: 0
+                          name: string
                         type:
-                          id: 1
-                          name: crash
+                          id: 0
+                          name: string
                         severity:
-                          id: 1
-                          name: low
+                          id: 0
+                          name: string
                         tester:
-                          id: 1
-                        duplication: unique
+                          id: 0
+                        tags:
+                          - id: 0
+                            name: string
+                        duplication: father
                         isFavourite: true
+                        created: string
+                        updated: string
                     start: 0
-                    size: 1
+                    limit: 0
+                    size: 0
+                    total: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3618,33 +3643,34 @@ paths:
               examples:
                 Example 1:
                   value:
-                    status: done
                     items:
                       - tester:
-                          id: 1
-                          name: Jhon
-                          surname: Doe
+                          id: 0
+                          name: string
+                          surname: string
+                          group: 0
                         usecases:
-                          completed: 3
-                          required: 3
+                          completed: 0
+                          required: 0
                         bugs:
-                          critical: 11
-                          high: 2
-                          medium: 3
-                          low: 4
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
                         payout:
-                          completion: 100
-                          bug: 10
+                          completion: 0
+                          bug: 0
                           refund: 0
                           extra: 0
                         experience:
-                          completion: 200
+                          completion: 0
                           extra: 0
-                        note: no extra
+                        note: string
                         status: pending
                         weightedBugs: 0
                         isCompleted: true
                         isTopTester: true
+                    status: draft
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -8170,8 +8196,6 @@ components:
       x-stoplight:
         id: a1062dea11dce
       properties:
-        id:
-          type: integer
         title:
           type: string
           minLength: 1
@@ -8189,7 +8213,6 @@ components:
           type: boolean
           default: false
       required:
-        - id
         - title
         - tokens
         - unitPrice

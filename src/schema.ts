@@ -490,7 +490,6 @@ export interface components {
       is_candidate?: boolean;
     };
     Agreement: {
-      id: number;
       title: string;
       tokens: number;
       unitPrice: number;
@@ -899,12 +898,14 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            items: (components["schemas"]["Agreement"] & {
-              customer: {
-                id: number;
-                company: string;
-              };
-            })[];
+            items: ({
+              id: number;
+            } & components["schemas"]["Agreement"] & {
+                customer: {
+                  id: number;
+                  company: string;
+                };
+              })[];
           } & components["schemas"]["PaginationData"];
         };
       };
@@ -946,12 +947,14 @@ export interface operations {
       /** OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Agreement"] & {
-            customer: {
-              id: number;
-              company: string;
+          "application/json": {
+            id: number;
+          } & components["schemas"]["Agreement"] & {
+              customer: {
+                id: number;
+                company: string;
+              };
             };
-          };
         };
       };
       /** Forbidden */
@@ -971,12 +974,14 @@ export interface operations {
       /** OK */
       200: {
         content: {
-          "application/json": components["schemas"]["Agreement"] & {
-            customer: {
-              id: number;
-              company: string;
+          "application/json": {
+            id: number;
+          } & components["schemas"]["Agreement"] & {
+              customer: {
+                id: number;
+                company: string;
+              };
             };
-          };
         };
       };
       403: components["responses"]["NotAuthorized"];
