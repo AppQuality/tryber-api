@@ -1,13 +1,13 @@
-import app from "@src/app";
-import request from "supertest";
 import campaign from "@src/__mocks__/mockedDb/campaign";
+import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
+import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
+import customUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import pageAccess from "@src/__mocks__/mockedDb/pageAccess";
 import preselectionForms from "@src/__mocks__/mockedDb/preselectionForm";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import customUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
-import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 import profile from "@src/__mocks__/mockedDb/profile";
+import app from "@src/app";
+import request from "supertest";
 
 describe("GET users/me/campaigns/:campaignId/forms", () => {
   beforeAll(async () => {
@@ -595,11 +595,11 @@ describe("GET users/me/campaigns/:campaignId/forms - empty profile", () => {
         }),
       ])
     );
-    expect(response.body).not.toEqual(
+    expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: "gender",
-          value: expect.anything(),
+          value: "not-specified",
         }),
       ])
     );

@@ -1,7 +1,6 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as receiptData } from "@src/__mocks__/mockedDb/receipt";
+import app from "@src/app";
 import request from "supertest";
 
 const paymentRequestPaypal = {
@@ -9,7 +8,7 @@ const paymentRequestPaypal = {
   tester_id: 1,
   amount: 269,
   paypal_email: "john.doe@example.com",
-  is_paid: 1,
+  is_paid: 1 as const,
   update_date: "1980-01-01 00:00:00",
   paid_date: "1980-01-01 00:00:00",
 };
@@ -19,7 +18,7 @@ const paymentRequestPaypalNotMine = {
   tester_id: 2,
   amount: 269,
   paypal_email: "john.doe@example.com",
-  is_paid: 1,
+  is_paid: 1 as const,
   update_date: "1980-01-01 00:00:00",
   paid_date: "1980-01-01 00:00:00",
 };
@@ -28,7 +27,7 @@ const paymentRequestWise = {
   tester_id: 1,
   amount: 169,
   iban: "DE12345678901234567890",
-  is_paid: 1,
+  is_paid: 1 as const,
   update_date: "1992-05-01 00:00:00",
   paid_date: "1992-05-01 00:00:00",
   receipt_id: 69,
@@ -37,7 +36,7 @@ const paymentRequestInvalid = {
   id: 3,
   tester_id: 1,
   amount: 69,
-  is_paid: 1,
+  is_paid: 1 as const,
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
   receipt_id: 69,
@@ -46,7 +45,7 @@ const paymentRequestPaypal2 = {
   id: 4,
   tester_id: 1,
   amount: 170,
-  is_paid: 1,
+  is_paid: 1 as const,
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
@@ -56,7 +55,7 @@ const paymentRequestPaypalProcessing = {
   id: 5,
   tester_id: 1,
   amount: 49000,
-  is_paid: 0,
+  is_paid: 0 as const,
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
@@ -72,20 +71,14 @@ const receiptPaypal = {
 describe("GET /users/me/payments", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal2);
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestPaypalNotMine
-      );
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestPaypalProcessing
-      );
-      await sqlite3.insert("wp_appq_receipt", receiptWise);
-      await sqlite3.insert("wp_appq_receipt", receiptPaypal);
+      await paymentRequestData.basicPayment(paymentRequestPaypal);
+      await paymentRequestData.basicPayment(paymentRequestWise);
+      await paymentRequestData.basicPayment(paymentRequestInvalid);
+      await paymentRequestData.basicPayment(paymentRequestPaypal2);
+      await paymentRequestData.basicPayment(paymentRequestPaypalNotMine);
+      await paymentRequestData.basicPayment(paymentRequestPaypalProcessing);
+      await receiptData.basicReceipt(receiptWise);
+      await receiptData.basicReceipt(receiptPaypal);
       resolve(null);
     });
   });

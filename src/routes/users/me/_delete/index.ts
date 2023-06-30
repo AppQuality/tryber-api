@@ -1,3 +1,4 @@
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
@@ -13,32 +14,32 @@ export default async (
       db.format(insertDeltionReason, [req.user.testerId, req.body.reason])
     );
 
-    const updateProfile = `UPDATE wp_appq_evd_profile 
-    SET name = "Deleted User", 
-    email = "",
-    surname = "",
-    birth_date = NULL,
-    sex = -1,
-    phone_number = NULL,
-    city = NULL,
-    address = NULL,
-    postal_code = NULL,
-    province = NULL,
-    country = NULL,
-    booty = 0,
-    pending_booty = 0,
-    address_number = NULL,
-    u2b_login_token = NULL,
-    fb_login_token = NULL,
-    ln_login_token = NULL,
-    total_exp_pts = 0,
-    employment_id = 0,
-    education_id = 0,
-    state = NULL,
-    country_code = NULL,
-    deletion_date = CURRENT_TIMESTAMP
-    WHERE id = ?`;
-    await db.query(db.format(updateProfile, [req.user.testerId]));
+    await tryber.tables.WpAppqEvdProfile.do()
+      .update({
+        name: "Deleted User",
+        email: "",
+        surname: "",
+        birth_date: "",
+        sex: -1,
+        phone_number: "",
+        city: "",
+        address: "",
+        postal_code: 0,
+        province: "",
+        country: "",
+        booty: 0,
+        pending_booty: 0,
+        u2b_login_token: "",
+        fb_login_token: "",
+        ln_login_token: "",
+        total_exp_pts: 0,
+        employment_id: 0,
+        education_id: 0,
+        state: "",
+        country_code: "",
+        deletion_date: tryber.fn.now(),
+      })
+      .where({ id: req.user.testerId });
 
     const disableDevice = `UPDATE wp_crowd_appq_device
     SET enabled = 0

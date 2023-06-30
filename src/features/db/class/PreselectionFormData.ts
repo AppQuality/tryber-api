@@ -6,6 +6,7 @@ type PreselectionFormDataType = {
   tester_id: number;
   field_id: number;
   value: string;
+  candidate: 0 | 1;
 };
 
 class PreselectionFormDataObject {
@@ -14,6 +15,7 @@ class PreselectionFormDataObject {
   field_id: number;
   value: string;
   tester_id: number;
+  candidate: 0 | 1;
 
   constructor(item: PreselectionFormDataType) {
     this.id = item.id;
@@ -21,6 +23,7 @@ class PreselectionFormDataObject {
     this.tester_id = item.tester_id;
     this.field_id = item.field_id;
     this.value = item.value;
+    this.candidate = item.candidate;
   }
 }
 
@@ -33,7 +36,7 @@ class PreselectionFormData extends Database<{
       primaryKey: "id",
       fields: fields
         ? fields
-        : ["id", "campaign_id", "field_id", "value", "tester_id"],
+        : ["id", "campaign_id", "field_id", "value", "tester_id", "candidate"],
     });
   }
 

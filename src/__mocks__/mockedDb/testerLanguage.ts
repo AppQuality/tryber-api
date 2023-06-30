@@ -30,7 +30,6 @@ const data: {
 };
 data.assignLanguage = async (params) => {
   const item = {
-    id: 1,
     profile_id: 1,
     language_id: 1,
     ...params,

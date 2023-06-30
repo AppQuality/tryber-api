@@ -17,6 +17,7 @@ class CustomUserFieldExtras extends Table<CustomUserFieldExtrasParams> {
     super({
       id: 1,
       name: "CUF item name",
+      custom_user_field_id: 0,
     });
   }
 }

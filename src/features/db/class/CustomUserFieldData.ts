@@ -5,6 +5,7 @@ type CustomUserFieldDataType = {
   custom_user_field_id: number;
   profile_id: number;
   value: string | number;
+  candidate: 0 | 1;
 };
 
 class CustomUserFieldDataObject {
@@ -12,12 +13,14 @@ class CustomUserFieldDataObject {
   custom_user_field_id: number;
   profile_id: number;
   value: string | number;
+  candidate: 0 | 1;
 
   constructor(item: CustomUserFieldDataType) {
     this.id = item.id;
     this.custom_user_field_id = item.custom_user_field_id;
     this.profile_id = item.profile_id;
     this.value = item.value;
+    this.candidate = item.candidate;
   }
 }
 

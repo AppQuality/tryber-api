@@ -30,6 +30,8 @@ const defaultItem: ProfileParams = {
   is_verified: 0,
   last_activity: new Date("01/01/2021").toISOString(),
   total_exp_pts: 1000,
+  employment_id: 1,
+  education_id: 1,
 };
 class Profile extends Table<ProfileParams> {
   protected name = "wp_appq_evd_profile";
