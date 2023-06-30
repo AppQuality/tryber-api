@@ -215,4 +215,36 @@ describe("POST /agreements", () => {
       .first();
     expect(agreement?.last_editor_id).toBe(1);
   });
+
+  it("Should allow setting decimal as token number", async () => {
+    const response = await request(app)
+      .post("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({
+        ...basicPostData,
+        tokens: 1.5,
+      });
+
+    const agreement = await tryber.tables.FinanceAgreements.do()
+      .select("tokens")
+      .where({ id: response.body.agreementId })
+      .first();
+    expect(agreement?.tokens).toBe(1.5);
+  });
+
+  it("Should allow setting decimal as token unit price", async () => {
+    const response = await request(app)
+      .post("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({
+        ...basicPostData,
+        unitPrice: 1.5,
+      });
+
+    const agreement = await tryber.tables.FinanceAgreements.do()
+      .select("token_unit_price")
+      .where({ id: response.body.agreementId })
+      .first();
+    expect(agreement?.token_unit_price).toBe(1.5);
+  });
 });
