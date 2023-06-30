@@ -54,6 +54,20 @@ const data: {
   },
 };
 
+data.basicPayment = async (params) => {
+  const item = {
+    id: 1,
+    tester_id: 1,
+    is_paid: 0,
+    update_date: "1979-05-03 00:00:00",
+    under_threshold: 0,
+    withholding_tax_percentage: 0,
+    ...params,
+  };
+  await sqlite3.insert("wp_appq_payment_request", item);
+  return item;
+};
+
 data.processingPaypalPayment = async (params) => {
   const item = {
     id: 1,

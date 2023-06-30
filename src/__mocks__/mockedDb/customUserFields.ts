@@ -3,6 +3,10 @@ import Table from "./table";
 type CUFParams = {
   id?: number;
   name?: string;
+  slug?: string;
+  extras?: string;
+  placeholder?: string;
+  custom_user_field_group_id?: number;
   type?: string;
   enabled?: number;
   options?: string;
@@ -22,8 +26,12 @@ class CustomUserFields extends Table<CUFParams> {
   constructor() {
     super({
       id: 1,
+      slug: "",
+      placeholder: "",
+      extras: "",
       name: "CUF name",
       enabled: 1,
+      custom_user_field_group_id: 0,
       type: "text",
       allow_other: 0,
     });

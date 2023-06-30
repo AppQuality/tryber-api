@@ -22,6 +22,7 @@ class CustomUserFieldExtras extends Table<CustomUserFieldExtrasParams> {
       id: 1,
       custom_user_field_id: 1,
       profile_id: 1,
+      candidate: 0,
     });
   }
 }

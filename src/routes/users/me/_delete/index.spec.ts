@@ -1,8 +1,8 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const user = {
@@ -63,6 +63,7 @@ describe("Route DELETE users/me", () => {
     const userData = await sqlite3.get(
       `SELECT * FROM wp_appq_evd_profile WHERE id = ${tester1.id} `
     );
+
     expect(userData.name).toBe("Deleted User");
   });
   it("Should clear birth date", async () => {
@@ -74,7 +75,7 @@ describe("Route DELETE users/me", () => {
     const userData = await sqlite3.get(
       `SELECT * FROM wp_appq_evd_profile WHERE id = ${tester1.id} `
     );
-    expect(userData.birth_date).toBe(null);
+    expect(userData.birth_date).toBe("");
   });
   it("Should update deletion date", async () => {
     const userData = await sqlite3.get(
@@ -94,7 +95,7 @@ describe("Route DELETE users/me", () => {
   });
   it("Should remove user from activity levels", async () => {
     const userLevel = await sqlite3.get(
-      `SELECT * FROM wp_appq_activity_level WHERE tester_id = 1 `
+      `SELECT id,tester_id,level_id FROM wp_appq_activity_level WHERE tester_id = 1 `
     );
     expect(userLevel).toEqual({ id: 1, tester_id: 1, level_id: 10 });
 

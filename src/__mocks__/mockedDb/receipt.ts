@@ -12,17 +12,22 @@ export const table = {
   },
 };
 
-type UsersDeletionReasonParams = {
-  ID?: number;
+type ReceiptParams = {
+  id?: number;
+  url?: string;
 };
 const data: {
-  [key: string]: (
-    params?: UsersDeletionReasonParams
-  ) => Promise<{ [key: string]: any }>;
+  [key: string]: (params?: ReceiptParams) => Promise<{ [key: string]: any }>;
 } = {
   drop: async () => {
     return await sqlite3.run(`DELETE FROM ${tableName}`);
   },
+};
+
+data.basicReceipt = async (params) => {
+  const item = { tester_id: 1 };
+  await sqlite3.insert(tableName, { ...item, ...params });
+  return item;
 };
 
 export { data };

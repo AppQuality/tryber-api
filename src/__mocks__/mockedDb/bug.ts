@@ -79,6 +79,8 @@ data.basicBug = async (params) => {
     id: 1,
     wp_user_id: 1,
     campaign_id: 1,
+    reviewer: 1,
+    last_editor_id: 1,
     ...params,
   };
   await sqlite3.insert(tableName, item);

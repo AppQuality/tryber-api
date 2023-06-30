@@ -1,16 +1,16 @@
-import app from "@src/app";
-import request from "supertest";
 import campaign from "@src/__mocks__/mockedDb/campaign";
-import pageAccess from "@src/__mocks__/mockedDb/pageAccess";
-import testerDevice from "@src/__mocks__/mockedDb/testerDevice";
-import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
-import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
+import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
 import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import customUserFieldsExtra from "@src/__mocks__/mockedDb/customUserFieldsExtra";
-import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
-import profile from "@src/__mocks__/mockedDb/profile";
 import Experience from "@src/__mocks__/mockedDb/experience";
+import pageAccess from "@src/__mocks__/mockedDb/pageAccess";
+import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
+import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
+import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import profile from "@src/__mocks__/mockedDb/profile";
+import testerDevice from "@src/__mocks__/mockedDb/testerDevice";
+import app from "@src/app";
+import request from "supertest";
 
 describe("POST users/me/campaigns/:campaignId/forms", () => {
   beforeEach(() => {
@@ -178,7 +178,6 @@ describe("POST users/me/campaigns/:campaignId/forms", () => {
     expect(expAttribution).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 1,
           tester_id: 1,
           campaign_id: 1,
           amount: 5,

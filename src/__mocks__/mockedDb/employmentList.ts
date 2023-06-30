@@ -29,6 +29,7 @@ data.employment1 = async (params) => {
   const item = {
     id: 1,
     display_name: "Employment name",
+    category: "",
     ...params,
   };
   await sqlite3.insert(tableName, item);

@@ -1,9 +1,10 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 import { unserialize } from "php-unserialize";
 
 export default async (key: string) => {
-  const sql = `SELECT option_value FROM wp_options WHERE option_name = "crowd_options_option_name"`;
-  const results = await db.query(sql);
+  const results = await tryber.tables.WpOptions.do()
+    .select("option_value")
+    .where({ option_name: "crowd_options_option_name" });
   if (!results.length) {
     throw new Error(`Option crowd_options_option_name not found`);
   }

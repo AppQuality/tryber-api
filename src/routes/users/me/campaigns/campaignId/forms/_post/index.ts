@@ -1,17 +1,16 @@
 /** OPENAPI-CLASS: post-users-me-campaigns-campaignId-forms */
 
-import { CampaignObject } from "@src/features/db/class/Campaigns";
-import UserRoute from "@src/features/routes/UserRoute";
-import Campaigns from "@src/features/db/class/Campaigns";
+import CampaignApplications from "@src/features/db/class/CampaignApplications";
+import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import Experience from "@src/features/db/class/Experience";
+import PreseselectionFormData from "@src/features/db/class/PreselectionFormData";
+import PreseselectionFormFields from "@src/features/db/class/PreselectionFormFields";
 import TesterDevices, {
   TesterDeviceObject,
 } from "@src/features/db/class/TesterDevices";
-import PreseselectionFormFields from "@src/features/db/class/PreselectionFormFields";
-import PreseselectionFormData from "@src/features/db/class/PreselectionFormData";
+import UserRoute from "@src/features/routes/UserRoute";
 import QuestionFactory from "../QuestionFactory";
 import Question from "../QuestionFactory/Questions";
-import CampaignApplications from "@src/features/db/class/CampaignApplications";
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-users-me-campaigns-campaignId-forms"]["responses"]["200"];
@@ -168,6 +167,7 @@ class RouteItem extends UserRoute<{
       reason: "Subscription to " + (await this.getCampaign()).title,
       creation_date: new Date().toISOString().split(".")[0].replace("T", " "),
       activity_id: 4,
+      pm_id: 0,
     });
   }
 
