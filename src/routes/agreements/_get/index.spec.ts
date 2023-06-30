@@ -76,6 +76,14 @@ describe("GET /agreements", () => {
       ])
     );
   });
+  it("Should return an array of agreements ordered by Agreement ID desc", async () => {
+    const response = await request(app)
+      .get("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(
+      response.body.items.map((agreement: { id: number }) => agreement.id)
+    ).toEqual([11, 10, 9]);
+  });
 });
 
 describe("GET /agreements when there are no agreements", () => {
@@ -112,27 +120,81 @@ describe("GET /agreements filtered by customerId", () => {
   });
 });
 
-describe("GET /agreements paginated", () => {
+describe("GET /agreements pagination", () => {
   useAgreementsData();
-  it("Should return agreements limited to 1", async () => {
+  it("Should return agreements limited to 1 when limit is set to 1", async () => {
     const response = await request(app)
       .get("/agreements?limit=1")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    expect(response.body.items).toEqual([
-      expect.objectContaining({
-        id: 11,
-        title: "Title Agreement11",
-        tokens: 111,
-        unitPrice: 165,
-        startDate: "2021-01-01 00:00:00",
-        expirationDate: "2021-01-10 00:00:00",
-        note: "Notes Agreement11",
-        customer: {
-          id: 11,
-          company: "Company11",
-        },
-        isTokenBased: true,
-      }),
-    ]);
+    expect(response.body.items.length).toBe(1);
+  });
+  it("Should return limit = 1 when limit is set to 1", async () => {
+    const response = await request(app)
+      .get("/agreements?limit=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.limit).toBeDefined();
+    expect(response.body.limit).toBe(1);
+  });
+
+  it("Should not return limit if limit is not set", async () => {
+    const response = await request(app)
+      .get("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.limit).not.toBeDefined();
+  });
+
+  it("Should not return total if limit is not set", async () => {
+    const response = await request(app)
+      .get("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.total).not.toBeDefined();
+  });
+
+  it("Should return start = 0 (as default) if start is not set", async () => {
+    const response = await request(app)
+      .get("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.start).toBeDefined();
+    expect(response.body.start).toBe(0);
+  });
+
+  it("Should return start = 1 if start is set to 1", async () => {
+    const response = await request(app)
+      .get("/agreements?start=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.start).toBeDefined();
+    expect(response.body.start).toBe(1);
+  });
+
+  it("Should return limited agreements if start is set", async () => {
+    const response = await request(app)
+      .get("/agreements?start=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.start).toBeDefined();
+    expect(response.body.items.length).toBe(2);
+  });
+
+  it("Should return total = 3 if limit is set", async () => {
+    const response = await request(app)
+      .get("/agreements?limit=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.total).toBeDefined();
+    expect(response.body.total).toBe(3);
+  });
+
+  it("Should return size = 1 if limit is 1 and there are more than one agreement", async () => {
+    const response = await request(app)
+      .get("/agreements?limit=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.size).toBeDefined();
+    expect(response.body.size).toBe(1);
+  });
+
+  it("Should return size = 3 if limit is 10 and there are only 3 agreements", async () => {
+    const response = await request(app)
+      .get("/agreements?limit=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.body.size).toBeDefined();
+    expect(response.body.size).toBe(3);
   });
 });

@@ -9,7 +9,8 @@ export default class SingleCampaignRoute extends UserRoute<{
 }> {
   private limit: number | false = false;
   private start: number = 0;
-  private order: "ASC" | "DESC" = "ASC";
+  private order: "ASC" | "DESC" = "DESC";
+  private orderBy: "id" = "id";
 
   private filterBy: {
     customer?: number[];
@@ -46,12 +47,13 @@ export default class SingleCampaignRoute extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const agreements = await this.getAgreements();
     return this.setSuccess(200, {
-      items: await this.getAgreements(),
-      start: 0,
-      total: 0,
-      limit: 0,
-      size: 0,
+      items: agreements.data,
+      start: this.start ? this.start : 0,
+      total: agreements.total,
+      limit: this.limit ? this.limit : undefined,
+      size: agreements.data.length,
     });
   }
 
@@ -93,17 +95,42 @@ export default class SingleCampaignRoute extends UserRoute<{
         "wp_appq_customer.id",
         "=",
         "finance_agreements.customer_id"
-      );
+      )
+      .orderBy("finance_agreements." + this.orderBy, this.order);
 
     if (this.filterBy.customer) {
       agreements.whereIn("customer_id", this.filterBy.customer);
     }
 
+    if (this.limit) {
+      agreements.limit(this.limit);
+    }
+
+    if (this.start) {
+      agreements.offset(this.start);
+    }
+
+    let total = undefined;
+    if (this.limit) {
+      const suchino = await tryber.tables.FinanceAgreements.do()
+        .join(
+          "wp_appq_customer",
+          "wp_appq_customer.id",
+          "=",
+          "finance_agreements.customer_id"
+        )
+        .count({
+          count: tryber.ref("id").withSchema("finance_agreements"),
+        });
+      const totalCount = suchino[0].count;
+      total = typeof totalCount === "number" ? totalCount : 0;
+    }
+
     const filteredAgreements = await agreements;
 
-    if (filteredAgreements.length === 0) return [];
+    if (filteredAgreements.length === 0) return { data: [], total };
 
-    return filteredAgreements.map((agreement) => ({
+    const data = filteredAgreements.map((agreement) => ({
       id: agreement.id,
       title: agreement.title,
       tokens: agreement.tokens,
@@ -117,5 +144,7 @@ export default class SingleCampaignRoute extends UserRoute<{
       note: agreement.note.length > 0 ? agreement.note : undefined,
       isTokenBased: agreement.isTokenBased > 0 ? true : false,
     }));
+
+    return { data, total };
   }
 }
