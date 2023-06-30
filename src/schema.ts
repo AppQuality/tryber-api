@@ -496,7 +496,6 @@ export interface components {
       startDate: string;
       expirationDate: string;
       note?: string;
-      /** @default false */
       isTokenBased?: boolean;
     };
     /** Bug */
@@ -577,11 +576,8 @@ export interface components {
       projectManager?: components["schemas"]["User"];
       customerCanViewReviewing?: boolean;
       additionalFields?: components["schemas"]["CampaignField"][];
-      /** @default 0 */
       tokens?: number;
-      /** @default 0 */
       csm_effort?: number;
-      /** @default 0 */
       ux_effort?: number;
       preview_link?: components["schemas"]["TranslatablePage"];
       manual_link?: components["schemas"]["TranslatablePage"];
