@@ -449,7 +449,6 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
         ],
       })
       .set("Authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(200);
     const data = await preselectionFormData.all(undefined, [{ field_id: 5 }]);
     expect(data).toEqual(
