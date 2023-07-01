@@ -101,18 +101,17 @@ export default class SingleCampaignRoute extends UserRoute<{
     if (this.filterBy.customer) {
       agreements.whereIn("customer_id", this.filterBy.customer);
     }
+    if (this.start) {
+      agreements.offset(this.start);
+    }
 
     if (this.limit) {
       agreements.limit(this.limit);
     }
 
-    if (this.start) {
-      agreements.offset(this.start);
-    }
-
     let total = undefined;
     if (this.limit) {
-      const suchino = await tryber.tables.FinanceAgreements.do()
+      const agreementsCounter = await tryber.tables.FinanceAgreements.do()
         .join(
           "wp_appq_customer",
           "wp_appq_customer.id",
@@ -122,7 +121,7 @@ export default class SingleCampaignRoute extends UserRoute<{
         .count({
           count: tryber.ref("id").withSchema("finance_agreements"),
         });
-      const totalCount = suchino[0].count;
+      const totalCount = agreementsCounter[0].count;
       total = typeof totalCount === "number" ? totalCount : 0;
     }
 
