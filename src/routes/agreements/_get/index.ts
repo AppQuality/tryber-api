@@ -47,13 +47,13 @@ export default class SingleCampaignRoute extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const agreements = await this.getAgreements();
+    const { data: items, total } = await this.getAgreements();
     return this.setSuccess(200, {
-      items: agreements.data,
+      items: items,
       start: this.start ? this.start : 0,
-      total: agreements.total,
+      total: total,
       limit: this.limit ? this.limit : undefined,
-      size: agreements.data.length,
+      size: items.length,
     });
   }
 
