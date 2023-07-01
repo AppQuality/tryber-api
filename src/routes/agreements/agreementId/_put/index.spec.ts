@@ -85,7 +85,6 @@ describe("PUT /agreements/{agreementId}", () => {
       .put("/agreements/1")
       .send({ ...basicPutData, title: "Agreement new title" })
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    console.log(response.body);
     const agreementsAfter = await tryber.tables.FinanceAgreements.do()
       .select()
       .where({ id: 1 })
