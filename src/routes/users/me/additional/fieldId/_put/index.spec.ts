@@ -1,9 +1,43 @@
-import request from "supertest";
-import app from "@src/app";
 import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import customUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import app from "@src/app";
+import { tryber } from "@src/features/database";
+import request from "supertest";
 
 beforeAll(async () => {
+  await tryber.tables.WpAppqCustomUserField.do().insert({
+    id: 1,
+    enabled: 1,
+    name: "test",
+    slug: "test",
+    placeholder: "",
+    extras: "",
+    custom_user_field_group_id: 0,
+  });
+  await tryber.tables.WpAppqCustomUserField.do().insert({
+    id: 2,
+    enabled: 0,
+    name: "test",
+    slug: "test",
+    placeholder: "",
+    extras: "",
+    custom_user_field_group_id: 0,
+  });
+  await tryber.tables.WpAppqCustomUserField.do().insert({
+    id: 3,
+    enabled: 1,
+    type: "select",
+    name: "test",
+    slug: "test",
+    placeholder: "",
+    extras: "",
+    custom_user_field_group_id: 0,
+  });
+  await tryber.tables.WpAppqCustomUserFieldExtras.do().insert({
+    id: 1,
+    custom_user_field_id: 3,
+    name: "test",
+  });
   customUserFields.insert({
     id: 1,
     enabled: 1,
