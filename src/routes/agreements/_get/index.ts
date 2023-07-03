@@ -72,14 +72,8 @@ export default class SingleCampaignRoute extends UserRoute<{
           .ref("token_unit_price")
           .withSchema("finance_agreements")
           .as("unitPrice"),
-        tryber
-          .ref("agreement_date")
-          .withSchema("finance_agreements")
-          .as("startDate"),
-        tryber
-          .ref("agreement_close_date")
-          .withSchema("finance_agreements")
-          .as("expirationDate"),
+        tryber.raw("CAST(agreement_date AS CHAR) as startDate"),
+        tryber.raw("CAST(agreement_close_date AS CHAR) as expirationDate"),
         "customer_id",
         tryber.ref("company").withSchema("wp_appq_customer"),
         tryber
@@ -115,7 +109,12 @@ export default class SingleCampaignRoute extends UserRoute<{
 
     if (agreements.length === 0) return { data: [], total };
 
-    const data = agreements.map((agreement) => ({
+    const data = (
+      agreements as (typeof agreements[number] & {
+        startDate: string;
+        expirationDate: string;
+      })[]
+    ).map((agreement) => ({
       id: agreement.id,
       title: agreement.title,
       tokens: agreement.tokens,
