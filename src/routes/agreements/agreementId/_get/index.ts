@@ -66,8 +66,10 @@ export default class Route extends UserRoute<{
       .select(
         tryber.ref("id").withSchema("finance_agreements"),
         "title",
-        "agreement_date",
-        "agreement_close_date",
+        tryber.raw("CAST(agreement_date AS CHAR) as agreement_date"),
+        tryber.raw(
+          "CAST(agreement_close_date AS CHAR) as agreement_close_date"
+        ),
         tryber.ref("tokens").withSchema("finance_agreements"),
         "token_unit_price",
         tryber.ref("id").withSchema("wp_appq_customer").as("customer_id"),
@@ -86,6 +88,9 @@ export default class Route extends UserRoute<{
       .where("finance_agreements.id", this.agreementId)
       .first();
     if (!agreement) throw new Error("Agreement not found");
-    return agreement;
+    return agreement as typeof agreement & {
+      agreement_date: string;
+      agreement_close_date: string;
+    };
   }
 }
