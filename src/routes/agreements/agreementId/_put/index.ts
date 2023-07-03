@@ -118,6 +118,9 @@ export default class Route extends UserRoute<{
       .first();
     if (!agreement) throw new Error("Error updating agreement");
 
-    return agreement;
+    return agreement as typeof agreement & {
+      agreement_date: string;
+      agreement_close_date: string;
+    };
   }
 }
