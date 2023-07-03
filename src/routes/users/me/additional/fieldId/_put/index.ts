@@ -118,6 +118,14 @@ export default class Route extends UserRoute<{
     if (Array.isArray(body)) {
       throw new OpenapiError("Can't add multiple values to select field");
     }
+
+    if (body.value === "") {
+      await tryber.tables.WpAppqCustomUserFieldData.do()
+        .delete()
+        .where("custom_user_field_id", this.field.id)
+        .andWhere("profile_id", this.getTesterId());
+      return;
+    }
     const oldValue = await tryber.tables.WpAppqCustomUserFieldData.do()
       .select("id")
       .where("custom_user_field_id", this.field.id)
