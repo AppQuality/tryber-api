@@ -21,18 +21,19 @@ export default class SingleCampaignRoute extends UserRoute<{
 
     const query = this.getQuery();
     if (query.filterBy) {
-      if ((query.filterBy as any).customer) {
-        this.filterBy.customer = (query.filterBy as any).customer
+      if (query.filterBy.customer) {
+        this.filterBy.customer = (query.filterBy.customer as string)
           .split(",")
           .map((id: string) => parseInt(id));
       }
     }
 
-    if (query.start) this.start = parseInt(query.start as unknown as string);
+    if (query.start) {
+      this.start = parseInt(query.start as unknown as string);
+      this.limit = 10;
+    }
     if (query.limit) {
       this.limit = parseInt(query.limit as unknown as string);
-    } else if (query.start) {
-      this.limit = 10;
     }
   }
 
@@ -62,7 +63,7 @@ export default class SingleCampaignRoute extends UserRoute<{
   }
 
   private async getAgreements() {
-    const agreements = tryber.tables.FinanceAgreements.do()
+    const agreementsQuery = tryber.tables.FinanceAgreements.do()
       .select(
         tryber.ref("id").withSchema("finance_agreements"),
         "title",
@@ -98,38 +99,23 @@ export default class SingleCampaignRoute extends UserRoute<{
       )
       .orderBy("finance_agreements." + this.orderBy, this.order);
 
-    if (this.filterBy.customer) {
-      agreements.whereIn("customer_id", this.filterBy.customer);
-    }
+    this.filterQuery(agreementsQuery);
+
     if (this.start) {
-      agreements.offset(this.start);
+      agreementsQuery.offset(this.start);
     }
 
     if (this.limit) {
-      agreements.limit(this.limit);
+      agreementsQuery.limit(this.limit);
     }
 
-    let total = undefined;
-    if (this.limit) {
-      const agreementsCounter = await tryber.tables.FinanceAgreements.do()
-        .join(
-          "wp_appq_customer",
-          "wp_appq_customer.id",
-          "=",
-          "finance_agreements.customer_id"
-        )
-        .count({
-          count: tryber.ref("id").withSchema("finance_agreements"),
-        });
-      const totalCount = agreementsCounter[0].count;
-      total = typeof totalCount === "number" ? totalCount : 0;
-    }
+    const total = await this.getTotal();
 
-    const filteredAgreements = await agreements;
+    const agreements = await agreementsQuery;
 
-    if (filteredAgreements.length === 0) return { data: [], total };
+    if (agreements.length === 0) return { data: [], total };
 
-    const data = filteredAgreements.map((agreement) => ({
+    const data = agreements.map((agreement) => ({
       id: agreement.id,
       title: agreement.title,
       tokens: agreement.tokens,
@@ -145,5 +131,34 @@ export default class SingleCampaignRoute extends UserRoute<{
     }));
 
     return { data, total };
+  }
+
+  private async getTotal() {
+    if (!this.limit) return undefined;
+    const agreementsCounterQuery = tryber.tables.FinanceAgreements.do()
+      .join(
+        "wp_appq_customer",
+        "wp_appq_customer.id",
+        "=",
+        "finance_agreements.customer_id"
+      )
+      .count({
+        count: tryber.ref("id").withSchema("finance_agreements"),
+      });
+
+    this.filterQuery(agreementsCounterQuery);
+
+    const agreementsCounter = await agreementsCounterQuery;
+
+    const totalCount = agreementsCounter[0].count;
+    return typeof totalCount === "number" ? totalCount : 0;
+  }
+
+  private filterQuery<T>(
+    query: T & { whereIn: (column: string, value: number[]) => T }
+  ) {
+    if (this.filterBy.customer) {
+      query.whereIn("customer_id", this.filterBy.customer);
+    }
   }
 }
