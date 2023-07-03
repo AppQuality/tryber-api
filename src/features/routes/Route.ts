@@ -1,4 +1,5 @@
 import debugMessage from "@src/features/debugMessage";
+import OpenapiError from "../OpenapiError";
 
 export default class Route<T extends RouteClassTypes> {
   private errorMessage: StoplightComponents["responses"]["NotFound"]["content"]["application/json"] =
@@ -84,7 +85,15 @@ export default class Route<T extends RouteClassTypes> {
       return this.responseData;
     }
     if (await this.filter()) {
-      await this.prepare();
+      try {
+        await this.prepare();
+      } catch (e) {
+        if (e instanceof OpenapiError) {
+          return this.responseData;
+        } else {
+          throw e;
+        }
+      }
     }
     return this.responseData;
   }
@@ -95,7 +104,15 @@ export default class Route<T extends RouteClassTypes> {
     } catch (e) {
       return this.responseData;
     }
-    await this.prepare();
+    try {
+      await this.prepare();
+    } catch (e) {
+      if (e instanceof OpenapiError) {
+        return this.responseData;
+      } else {
+        throw e;
+      }
+    }
     return this.responseData;
   }
 }

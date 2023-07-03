@@ -1,5 +1,4 @@
-import * as db from "@src/features/db";
-
+import { tryber } from "@src/features/database";
 import Devices from "./Devices";
 
 type AdditionalField =
@@ -23,129 +22,188 @@ class Campaign {
 
   public init() {
     this.ready = new Promise(async (resolve, reject) => {
-      const campaignData = await db.query(
-        db.format(
-          `SELECT id,title,min_allowed_media,campaign_type,bug_lang FROM wp_appq_evd_campaign WHERE id = ?`,
-          [this.id]
-        )
-      );
-      if (!campaignData.length) {
-        reject(Error("Invalid campaign data"));
+      const campaignData = await tryber.tables.WpAppqEvdCampaign.do()
+        .select([
+          "id",
+          "title",
+          "min_allowed_media",
+          "campaign_type",
+          "bug_lang",
+        ])
+        .where({ id: this.id })
+        .first();
+      if (!campaignData) {
+        return reject(Error("Invalid campaign data"));
       }
-      this.title = campaignData[0].title;
-      this.min_allowed_media = campaignData[0].min_allowed_media;
-      this.campaign_type = campaignData[0].campaign_type;
-      this.bug_lang = campaignData[0].bug_lang;
+      this.title = campaignData.title;
+      this.min_allowed_media = campaignData.min_allowed_media;
+      this.campaign_type = campaignData.campaign_type as 0 | 1 | -1;
+      this.bug_lang = campaignData.bug_lang as 0 | 1;
       this.ready = Promise.resolve(true);
       resolve(true);
     });
   }
 
-  private async getCustomSelectItem(
-    name: string,
-    table: string
-  ): Promise<number[]> {
-    return (
-      await db.query(
-        db.format(`SELECT ${name} FROM ${table} WHERE campaign_id = ?`, [
-          this.id,
-        ])
-      )
-    ).map((s: { [key: string]: number }) => s[name]);
+  public async getAvailableSeverities() {
+    const result = await this.getAvailableSeveritiesItems();
+    return {
+      valid: result.valid.map((s) => s.name),
+      invalid: result.invalid.map((s) => s.name),
+    };
   }
 
-  public async getAvailableSeverities() {
-    const customSeverities = await this.getCustomSelectItem(
-      "bug_severity_id",
-      "wp_appq_additional_bug_severities"
-    );
+  public async getAvailableSeveritiesItems() {
+    const customSeverities = (
+      await tryber.tables.WpAppqAdditionalBugSeverities.do().select(
+        "bug_severity_id"
+      )
+    ).map((c) => c.bug_severity_id);
     const severities = await getSeverities();
     if (!customSeverities.length) {
       return {
-        valid: severities.map((s) => s.name),
+        valid: severities.filter(isValidSeverity),
         invalid: [],
       };
     }
     return {
       valid: severities
         .filter((s) => customSeverities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidSeverity),
       invalid: severities
         .filter((s) => !customSeverities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidSeverity),
     };
 
-    async function getSeverities(): Promise<CampaignSelectItem[]> {
-      return (await db.query(`SELECT id,name FROM wp_appq_evd_severity `)).map(
-        (s: CampaignSelectItem) => ({
-          ...s,
-          name: s.name.toUpperCase(),
-        })
-      );
+    async function getSeverities() {
+      return (
+        await tryber.tables.WpAppqEvdSeverity.do().select(["id", "name"])
+      ).map((s) => ({
+        ...s,
+        name: s.name.toUpperCase(),
+      }));
+    }
+
+    function isValidSeverity(item: {
+      id: number;
+      name: string;
+    }): item is { id: number; name: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" } {
+      return ["CRITICAL", "HIGH", "MEDIUM", "LOW"].includes(item.name);
     }
   }
 
   public async getAvailableTypes() {
-    const customTypes = await this.getCustomSelectItem(
-      "bug_type_id",
-      "wp_appq_additional_bug_types"
-    );
+    const result = await this.getAvailableTypesItems();
+    return {
+      valid: result.valid.map((s) => s.name),
+      invalid: result.invalid.map((s) => s.name),
+    };
+  }
+
+  public async getAvailableTypesItems() {
+    const customTypes = (
+      await tryber.tables.WpAppqAdditionalBugTypes.do().select("bug_type_id")
+    ).map((c) => c.bug_type_id);
     const types = await getTypes();
     if (!customTypes.length) {
       return {
-        valid: types.map((s) => s.name),
+        valid: types.filter(isValidBugType),
         invalid: [],
       };
     }
     return {
-      valid: types.filter((s) => customTypes.includes(s.id)).map((s) => s.name),
+      valid: types
+        .filter((s) => customTypes.includes(s.id))
+        .filter(isValidBugType),
       invalid: types
         .filter((s) => !customTypes.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidBugType),
     };
 
     async function getTypes(): Promise<{ id: number; name: string }[]> {
       return (
-        await db.query(
-          `SELECT id,name FROM wp_appq_evd_bug_type WHERE  is_enabled = 1 `
-        )
+        await tryber.tables.WpAppqEvdBugType.do()
+          .select(["id", "name"])
+          .where({ is_enabled: 1 })
       ).map((s: typeof types[0]) => ({
         ...s,
         name: s.name.toUpperCase(),
       }));
     }
+
+    function isValidBugType(item: { id: number; name: string }): item is {
+      id: number;
+      name:
+        | "CRASH"
+        | "GRAPHIC"
+        | "MALFUNCTION"
+        | "OTHER"
+        | "PERFORMANCE"
+        | "SECURITY"
+        | "TYPO"
+        | "USABILITY";
+    } {
+      return [
+        "CRASH",
+        "GRAPHIC",
+        "MALFUNCTION",
+        "OTHER",
+        "PERFORMANCE",
+        "SECURITY",
+        "TYPO",
+        "USABILITY",
+      ].includes(item.name);
+    }
   }
 
   public async getAvailableReplicabilities() {
-    const customReplicabilities = await this.getCustomSelectItem(
-      "bug_replicability_id",
-      "wp_appq_additional_bug_replicabilities"
-    );
+    const result = await this.getAvailableReplicabilitiesItems();
+    return {
+      valid: result.valid.map((s) => s.name),
+      invalid: result.invalid.map((s) => s.name),
+    };
+  }
+
+  public async getAvailableReplicabilitiesItems() {
+    const customReplicabilities = (
+      await tryber.tables.WpAppqAdditionalBugReplicabilities.do().select(
+        "bug_replicability_id"
+      )
+    ).map((c) => c.bug_replicability_id);
     const replicabilities = await getReplicabilities();
     if (!customReplicabilities.length) {
       return {
-        valid: replicabilities.map((s) => s.name),
+        valid: replicabilities.filter(isValidReplicability),
         invalid: [],
       };
     }
     return {
       valid: replicabilities
         .filter((s) => customReplicabilities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidReplicability),
       invalid: replicabilities
         .filter((s) => !customReplicabilities.includes(s.id))
-        .map((s) => s.name),
+        .filter(isValidReplicability),
     };
 
     async function getReplicabilities(): Promise<
       { id: number; name: string }[]
     > {
       return (
-        await db.query(`SELECT id,name FROM wp_appq_evd_bug_replicability `)
+        await tryber.tables.WpAppqEvdBugReplicability.do().select([
+          "id",
+          "name",
+        ])
       ).map((s: typeof replicabilities[0]) => ({
         ...s,
         name: s.name.toUpperCase(),
       }));
+    }
+
+    function isValidReplicability(item: {
+      id: number;
+      name: string;
+    }): item is { id: number; name: "ALWAYS" | "SOMETIMES" | "ONCE" } {
+      return ["ALWAYS", "SOMETIMES", "ONCE"].includes(item.name);
     }
   }
 
@@ -159,26 +217,18 @@ class Campaign {
     const candidatureData = await this.getUserCandidature(userId, isAdmin);
 
     if (candidatureData.length === 0) return [];
-    let useCases: { id: number; name: string; group_id: number }[] =
-      await db.query(
-        db.format(
-          `SELECT id,title as name,group_id FROM wp_appq_campaign_task 
-          WHERE group_id IN (?,0, -1) 
-          AND campaign_id = ?
-          ORDER BY position ASC, id ASC`,
-          [candidatureData[0].group_id, this.id]
-        )
-      );
+    let useCases = await tryber.tables.WpAppqCampaignTask.do()
+      .select("id", "title as name", "group_id")
+      .whereIn("group_id", [candidatureData[0].group_id, 0, -1])
+      .where({ campaign_id: this.id })
+      .orderBy("position", "asc")
+      .orderBy("id", "asc");
     const multigroupUsecase = useCases.filter((u) => u.group_id === -1);
     if (multigroupUsecase.length) {
       const UseCaseGroups: number[] = (
-        await db.query(
-          db.format(
-            `SELECT task_id FROM wp_appq_campaign_task_group
-          WHERE group_id IN (?,0)`,
-            [candidatureData[0].group_id]
-          )
-        )
+        await tryber.tables.WpAppqCampaignTaskGroup.do()
+          .select("task_id")
+          .whereIn("group_id", [candidatureData[0].group_id, 0])
       ).map((g: { task_id: number }) => g.task_id);
       useCases = useCases.filter(
         (u) => u.group_id !== -1 || UseCaseGroups.includes(u.id)
@@ -197,31 +247,22 @@ class Campaign {
   }
 
   public async getAvailableFileExtensions() {
-    const option = await db.query(
-      `SELECT option_value FROM wp_options WHERE option_name = 'options_appq_valid_upload_extensions'`
-    );
-    if (option.length === 0) return [];
-    return option[0].option_value
+    const options = await tryber.tables.WpOptions.do()
+      .select("option_value")
+      .where({
+        option_name: "options_appq_valid_upload_extensions",
+      })
+      .first();
+    if (!options) return [];
+    return options.option_value
       .split(",")
       .map((option: string) => `.${option}`);
   }
 
-  public async getAdditionalFields(): Promise<AdditionalField[] | undefined> {
-    const additionals: {
-      id: number;
-      slug: string;
-      title: string;
-      type: "regex" | "select";
-      validation: string;
-      error_message: string;
-    }[] = await db.query(
-      db.format(
-        `SELECT id,slug,title,type,validation,error_message 
-          FROM wp_appq_campaign_additional_fields 
-          WHERE cp_id = ?`,
-        [this.id]
-      )
-    );
+  public async getAdditionalFields() {
+    const additionals = await tryber.tables.WpAppqCampaignAdditionalFields.do()
+      .select("id", "slug", "title", "type", "validation", "error_message")
+      .where({ cp_id: this.id });
     if (additionals.length === 0) return undefined;
     return additionals.map((item) => {
       const result = {
@@ -233,14 +274,14 @@ class Campaign {
       if (item.type === "regex") {
         return {
           ...result,
-          type: "text",
+          type: "text" as const,
           regex: item.validation,
         };
       }
       if (item.type === "select") {
         return {
           ...result,
-          type: "select",
+          type: "select" as const,
           options: item.validation.split(";"),
         };
       }
@@ -251,15 +292,12 @@ class Campaign {
   public async getBugLanguageMessage() {
     if (!(await this.ready)) throw Error("Campaign not initialized");
     if (this.bug_lang === 0) return undefined;
-
-    const meta: { meta_key: string; meta_value: string }[] = await db.query(
-      db.format(
-        `SELECT meta_key,meta_value 
-        FROM wp_appq_cp_meta
-        WHERE campaign_id = ? AND meta_key IN ("bug_lang_message","bug_lang_code")`,
-        [this.id]
-      )
-    );
+    const meta = await tryber.tables.WpAppqCpMeta.do()
+      .select("meta_key", "meta_value")
+      .where({
+        campaign_id: this.id,
+      })
+      .whereIn("meta_key", ["bug_lang_message", "bug_lang_code"]);
     if (meta.length === 0) return undefined;
     const message = meta.find(
       (m) => m.meta_key === "bug_lang_message"
@@ -271,31 +309,26 @@ class Campaign {
     return { message, code };
   }
   public async getTitleRule() {
-    const meta: { meta_key: string; meta_value: string }[] = await db.query(
-      db.format(
-        `SELECT meta_key,meta_value 
-        FROM wp_appq_cp_meta
-        WHERE campaign_id = ? AND meta_key = "bug_title_rule"`,
-        [this.id]
-      )
-    );
+    const meta = await tryber.tables.WpAppqCpMeta.do()
+      .select("meta_key", "meta_value")
+      .where({
+        campaign_id: this.id,
+        meta_key: "bug_title_rule",
+      });
+
     if (meta.length === 0) return undefined;
     if (meta[0].meta_value === "1") return true;
     return undefined;
   }
 
-  public async getUserCandidature(
-    userId: string,
-    isAdmin: boolean
-  ): Promise<{ selected_device: number; group_id: number }[]> {
-    const candidature = await db.query(
-      db.format(
-        `SELECT selected_device, group_id 
-          FROM wp_crowd_appq_has_candidate 
-          WHERE user_id = ? AND campaign_id = ? AND accepted = 1`,
-        [userId, this.id]
-      )
-    );
+  public async getUserCandidature(userId: string, isAdmin: boolean) {
+    const candidature = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("selected_device", "group_id")
+      .where({
+        user_id: Number(userId),
+        campaign_id: this.id,
+        accepted: 1,
+      });
     if (isAdmin && candidature.length === 0)
       return [{ selected_device: -1, group_id: 0 }];
     return candidature;

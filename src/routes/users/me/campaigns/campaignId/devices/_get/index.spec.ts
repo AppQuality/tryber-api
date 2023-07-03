@@ -1,80 +1,37 @@
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import request from "supertest";
-import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
-import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
-import DeviceOS from "@src/__mocks__/mockedDb/deviceOs";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import useBasicData from "./useBasicData";
 
-beforeAll(async () => {
-  await Profile.insert();
-  await WpUsers.insert();
-  await Campaigns.insert({
-    id: 1,
-    title: "My campaign",
-    min_allowed_media: 4,
-    campaign_type: 0,
-  });
-  await Campaigns.insert({
-    id: 10,
-    title: "My campaign",
-    min_allowed_media: 4,
-    campaign_type: 0,
-  });
-  await DeviceOS.insert({
-    id: 1,
-    display_name: "Lollipop",
-    version_number: "5.1.1",
-  });
-  await DevicePlatform.insert({
-    id: 1,
-    name: "Android",
-  });
-
-  await DeviceOS.insert({
-    id: 2,
-    display_name: "XP",
-    version_number: "1.0",
-  });
-  await DevicePlatform.insert({
-    id: 2,
-    name: "Windows",
-  });
-});
-afterAll(async () => {
-  await WpUsers.clear();
-  await Profile.clear();
-  await TesterDevice.clear();
-  await DeviceOS.clear();
-});
 describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
+  useBasicData();
   beforeAll(async () => {
-    await TesterDevice.insert({
-      id: 1,
-      id_profile: 1,
-      platform_id: 1,
-      os_version_id: 1,
-      enabled: 1,
-      form_factor: "Smartphone",
-      manufacturer: "Google",
-      model: "Pixel 3",
-      source_id: 10,
-    });
-    await TesterDevice.insert({
-      id: 2,
-      id_profile: 1,
-      platform_id: 2,
-      os_version_id: 2,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Desktop",
-      manufacturer: "Acer",
-      model: "Aspire",
-      source_id: 15,
-    });
-    await Candidature.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      {
+        id: 1,
+        id_profile: 1,
+        platform_id: 1,
+        os_version_id: 1,
+        enabled: 1,
+        form_factor: "Smartphone",
+        manufacturer: "Google",
+        model: "Pixel 3",
+        source_id: 10,
+      },
+      {
+        id: 2,
+        id_profile: 1,
+        platform_id: 2,
+        os_version_id: 2,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Desktop",
+        manufacturer: "Acer",
+        model: "Aspire",
+        source_id: 15,
+      },
+    ]);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: 1,
       user_id: 1,
       group_id: 1,
@@ -83,8 +40,8 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
     });
   });
   afterAll(async () => {
-    await Candidature.clear();
-    await TesterDevice.clear();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get("/users/me/campaigns/1/devices");
@@ -111,31 +68,34 @@ describe("Route GET /users/me/campaign/{campaignId}/devices ", () => {
 });
 
 describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", () => {
+  useBasicData();
   beforeAll(async () => {
-    await TesterDevice.insert({
-      id: 1,
-      id_profile: 1,
-      platform_id: 1,
-      os_version_id: 1,
-      enabled: 1,
-      form_factor: "Smartphone",
-      manufacturer: "Google",
-      model: "Pixel 3",
-      source_id: 10,
-    });
-    await TesterDevice.insert({
-      id: 2,
-      id_profile: 1,
-      platform_id: 2,
-      os_version_id: 2,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Desktop",
-      manufacturer: "Acer",
-      model: "Aspire",
-      source_id: 15,
-    });
-    await Candidature.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      {
+        id: 1,
+        id_profile: 1,
+        platform_id: 1,
+        os_version_id: 1,
+        enabled: 1,
+        form_factor: "Smartphone",
+        manufacturer: "Google",
+        model: "Pixel 3",
+        source_id: 10,
+      },
+      {
+        id: 2,
+        id_profile: 1,
+        platform_id: 2,
+        os_version_id: 2,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Desktop",
+        manufacturer: "Acer",
+        model: "Aspire",
+        source_id: 15,
+      },
+    ]);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: 1,
       user_id: 1,
       group_id: 1,
@@ -144,8 +104,8 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
     });
   });
   afterAll(async () => {
-    await Candidature.clear();
-    await TesterDevice.clear();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
   });
   it("Should answer 200 with device data", async () => {
     const response = await request(app)
@@ -170,31 +130,34 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - single device ", (
 });
 
 describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () => {
+  useBasicData();
   beforeAll(async () => {
-    await TesterDevice.insert({
-      id: 1,
-      id_profile: 1,
-      platform_id: 1,
-      os_version_id: 1,
-      enabled: 1,
-      form_factor: "Smartphone",
-      manufacturer: "Google",
-      model: "Pixel 3",
-      source_id: 10,
-    });
-    await TesterDevice.insert({
-      id: 2,
-      id_profile: 1,
-      platform_id: 2,
-      os_version_id: 2,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Desktop",
-      manufacturer: "Acer",
-      model: "Aspire",
-      source_id: 15,
-    });
-    await Candidature.insert({
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      {
+        id: 1,
+        id_profile: 1,
+        platform_id: 1,
+        os_version_id: 1,
+        enabled: 1,
+        form_factor: "Smartphone",
+        manufacturer: "Google",
+        model: "Pixel 3",
+        source_id: 10,
+      },
+      {
+        id: 2,
+        id_profile: 1,
+        platform_id: 2,
+        os_version_id: 2,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Desktop",
+        manufacturer: "Acer",
+        model: "Aspire",
+        source_id: 15,
+      },
+    ]);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: 1,
       user_id: 1,
       group_id: 1,
@@ -203,13 +166,14 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
     });
   });
   afterAll(async () => {
-    await Candidature.clear();
-    await TesterDevice.clear();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
   });
   it("Should answer 200 with device data", async () => {
     const response = await request(app)
       .get("/users/me/campaigns/1/devices/")
       .set("Authorization", "Bearer tester");
+    console.log(response.body);
     expect(response.body.length).toBe(2);
     expect(response.body).toEqual([
       {
@@ -243,8 +207,9 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
 });
 
 describe("Route GET /users/me/campaign/{campaignId}/devices - selected with all devices but have none", () => {
+  useBasicData();
   beforeAll(async () => {
-    await Candidature.insert({
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: 1,
       user_id: 1,
       group_id: 1,
@@ -253,7 +218,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - selected with all 
     });
   });
   afterAll(async () => {
-    await Candidature.clear();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
   });
   it("Should answer 404 with device data", async () => {
     const response = await request(app)
@@ -264,8 +229,9 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - selected with all 
 });
 
 describe("Route GET /users/me/campaign/{campaignId}/devices - selected with a device but have none", () => {
+  useBasicData();
   beforeAll(async () => {
-    await Candidature.insert({
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: 1,
       user_id: 1,
       group_id: 1,
@@ -274,7 +240,7 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - selected with a de
     });
   });
   afterAll(async () => {
-    await Candidature.clear();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
   });
   it("Should answer 404 with device data", async () => {
     const response = await request(app)

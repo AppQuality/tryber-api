@@ -1,61 +1,79 @@
-/** OPENAPI-ROUTE: get-users-me-campaigns-campaignId */
+/** OPENAPI-CLASS: get-users-me-campaigns-campaignId */
 
-import { Context } from "openapi-backend";
+import OpenapiError from "@src/features/OpenapiError";
 import Campaign from "@src/features/class/Campaign";
-import { Result } from "./types.d";
+import UserRoute from "@src/features/routes/UserRoute";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-): Promise<Result | ReturnErrorType> => {
-  const params = c.request.params as PathParameters;
-  const campaignId = parseInt(params.campaignId);
-  const campaign = new Campaign(campaignId, false);
-  try {
-    if (!(await campaign.isUserCandidate(req.user.ID, isAdmin())))
-      throw new Error("You are not selected for this campaign");
-  } catch {
-    res.status_code = 404;
-    return {
-      id: campaignId,
-      element: "campaigns",
-      message: "You don't have access to a campaign with this id",
-    };
+export default class UserSingleCampaignRoute extends UserRoute<{
+  response: StoplightOperations["get-users-me-campaigns-campaignId"]["responses"]["200"]["content"]["application/json"];
+  parameters: StoplightOperations["get-users-me-campaigns-campaignId"]["parameters"]["path"];
+}> {
+  private campaignId = parseInt(this.getParameters().campaignId);
+
+  protected async filter(): Promise<boolean> {
+    if (await this.testerIsNotCandidate()) return false;
+
+    return true;
   }
-  try {
+
+  protected async prepare() {
+    const campaign = new Campaign(this.campaignId, false);
     campaign.init();
     await campaign.ready;
-    res.status_code = 200;
-    return {
-      id: campaign.id,
-      title: campaign.title,
-      minimumMedia: campaign.min_allowed_media,
-      hasBugForm: campaign.hasBugForm,
-      bugSeverity: await campaign.getAvailableSeverities(),
-      bugReplicability: await campaign.getAvailableReplicabilities(),
-      useCases: await campaign.getUserUseCases(req.user.ID),
-      bugTypes: await campaign.getAvailableTypes(),
-      validFileExtensions: await campaign.getAvailableFileExtensions(),
-      additionalFields: await campaign.getAdditionalFields(),
-      language: await campaign.getBugLanguageMessage(),
-      titleRule: await campaign.getTitleRule(),
-    };
-  } catch (err) {
-    res.status_code = 500;
-    return {
-      id: campaignId,
-      element: "campaigns",
-      message: (err as OpenapiError).message,
-    };
+    if (!campaign) throw new Error("Campaign not found");
+
+    try {
+      this.setSuccess(200, {
+        id: campaign.id,
+        title: campaign.title,
+        minimumMedia: campaign.min_allowed_media,
+        hasBugForm: campaign.hasBugForm,
+        bugSeverity: await campaign.getAvailableSeverities(),
+        bugReplicability: await campaign.getAvailableReplicabilities(),
+        useCases: await campaign.getUserUseCases(
+          this.getWordpressId().toString()
+        ),
+        bugTypes: await campaign.getAvailableTypes(),
+        validFileExtensions: await campaign.getAvailableFileExtensions(),
+        additionalFields: await campaign.getAdditionalFields(),
+        language: await campaign.getBugLanguageMessage(),
+        titleRule: await campaign.getTitleRule(),
+      });
+    } catch (error) {
+      this.setError(500, error as OpenapiError);
+    }
   }
 
-  function isAdmin(): any {
-    if (!req.user.permission.admin) return false;
-    if (!req.user.permission.admin.appq_campaign) return false;
-    if (req.user.permission.admin.appq_campaign === true) return true;
-    if (req.user.permission.admin.appq_campaign.includes(campaignId))
+  private async testerIsNotCandidate() {
+    const campaign = new Campaign(this.campaignId, false);
+
+    if (
+      !(await campaign.isUserCandidate(
+        this.getWordpressId().toString(),
+        this.isAdmin()
+      ))
+    ) {
+      this.setError(
+        404,
+        new OpenapiError("You are not selected for this campaign")
+      );
+      return true;
+    }
+    return false;
+  }
+
+  private isAdmin() {
+    if (!this.configuration.request.user.permission.admin) return false;
+    if (!this.configuration.request.user.permission.admin.appq_campaign)
+      return false;
+    if (this.configuration.request.user.permission.admin.appq_campaign === true)
+      return true;
+    if (
+      this.configuration.request.user.permission.admin.appq_campaign.includes(
+        this.campaignId
+      )
+    )
       return true;
     return false;
   }
-};
+}
