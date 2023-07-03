@@ -96,8 +96,11 @@ export default class Route extends UserRoute<{
         "title",
         tryber.ref("tokens").withSchema("finance_agreements").as("tokens"),
         "token_unit_price",
-        "agreement_date",
-        "agreement_close_date",
+
+        tryber.raw("CAST(agreement_date AS CHAR) as agreement_date"),
+        tryber.raw(
+          "CAST(agreement_close_date AS CHAR) as agreement_close_date"
+        ),
         "additional_note",
         "is_token_based",
         tryber.ref("id").withSchema("wp_appq_customer").as("customer_id"),
