@@ -5,6 +5,10 @@ import useAgreementsData from "./useAgreementsData";
 describe("GET /agreements", () => {
   useAgreementsData();
 
+  it("Should return 403 if the user is not logged in", async () => {
+    const response = await request(app).get("/agreements");
+    expect(response.status).toBe(403);
+  });
   it("Should return 403 if the user is not autorized", async () => {
     const response = await request(app)
       .get("/agreements")
