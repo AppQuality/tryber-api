@@ -18,29 +18,7 @@ export default class Route extends UserRoute<{
       this.setError(403, new OpenapiError("Customer not found"));
       return false;
     }
-    if ((await this.dateIsAcceptable(this.getBody().startDate)) === false) {
-      return this.badRequestResponse();
-    }
-
-    if (
-      (await this.dateIsAcceptable(this.getBody().expirationDate)) === false
-    ) {
-      return this.badRequestResponse();
-    }
     return true;
-  }
-
-  private async dateIsAcceptable(date: string) {
-    //startDate respect regular expression  "YYYY-mm-dd";
-    const dateRegex = new RegExp(
-      "^(19|20)\\d\\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])$"
-    );
-    //startDate respect datetime  regular expression  "YYYY-mm-dd hh:mm:ss";
-    const dateTimeRegex = new RegExp(
-      "^(19|20)\\d\\d[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])[ ]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
-    );
-
-    return dateRegex.test(date) || dateTimeRegex.test(date);
   }
 
   private async customerExists() {
@@ -50,10 +28,6 @@ export default class Route extends UserRoute<{
         id: this.getBody().customerId,
       });
     return customer.length !== 0;
-  }
-  private badRequestResponse() {
-    this.setError(400, new OpenapiError("Bad Request"));
-    return false;
   }
 
   protected async prepare() {

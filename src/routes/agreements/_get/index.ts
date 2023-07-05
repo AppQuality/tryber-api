@@ -110,7 +110,7 @@ export default class SingleCampaignRoute extends UserRoute<{
     if (agreements.length === 0) return { data: [], total };
 
     const data = (
-      agreements as (typeof agreements[number] & {
+      agreements as ((typeof agreements)[number] & {
         startDate: string;
         expirationDate: string;
       })[]
@@ -119,8 +119,8 @@ export default class SingleCampaignRoute extends UserRoute<{
       title: agreement.title,
       tokens: agreement.tokens,
       unitPrice: agreement.unitPrice,
-      startDate: agreement.startDate,
-      expirationDate: agreement.expirationDate,
+      startDate: agreement.startDate.split(" ")[0],
+      expirationDate: agreement.expirationDate.split(" ")[0],
       customer: {
         id: agreement.customer_id,
         company: agreement.company,
@@ -128,6 +128,7 @@ export default class SingleCampaignRoute extends UserRoute<{
       note: agreement.note.length > 0 ? agreement.note : undefined,
       isTokenBased: agreement.isTokenBased > 0 ? true : false,
     }));
+    console.log(data);
 
     return { data, total };
   }

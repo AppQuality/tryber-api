@@ -1,5 +1,5 @@
-import request from "supertest";
 import app from "@src/app";
+import request from "supertest";
 import useAgreementsData from "./useAgreementsData";
 
 describe("GET /agreements", () => {
@@ -156,15 +156,15 @@ describe("GET /agreements", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 9,
-          startDate: "2021-01-01 00:00:00",
+          startDate: "2021-01-01",
         }),
         expect.objectContaining({
           id: 10,
-          startDate: "2021-01-01 00:00:00",
+          startDate: "2021-01-01",
         }),
         expect.objectContaining({
           id: 11,
-          startDate: "2021-01-01 00:00:00",
+          startDate: "2021-01-01",
         }),
       ])
     );
@@ -178,15 +178,15 @@ describe("GET /agreements", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 9,
-          expirationDate: "2021-01-10 00:00:00",
+          expirationDate: "2021-01-10",
         }),
         expect.objectContaining({
           id: 10,
-          expirationDate: "2021-01-10 00:00:00",
+          expirationDate: "2021-01-10",
         }),
         expect.objectContaining({
           id: 11,
-          expirationDate: "2021-01-10 00:00:00",
+          expirationDate: "2021-01-10",
         }),
       ])
     );
@@ -287,8 +287,8 @@ describe("GET /agreements filtered by customerId", () => {
         title: "Title Agreement11",
         tokens: 111,
         unitPrice: 165,
-        startDate: "2021-01-01 00:00:00",
-        expirationDate: "2021-01-10 00:00:00",
+        startDate: "2021-01-01",
+        expirationDate: "2021-01-10",
         note: "Notes Agreement11",
         customer: {
           id: 11,
