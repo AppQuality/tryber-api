@@ -44,7 +44,7 @@ describe("POST /agreements", () => {
     expect(response.status).toBe(403);
   });
 
-  it("Should return 400 if send a bad startDate", async () => {
+  it("Should return 400 if send a startDate that's not YYYY-mm-dd", async () => {
     const responseBadDate = await request(app)
       .post("/agreements")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
@@ -58,7 +58,7 @@ describe("POST /agreements", () => {
     expect(responseBadDatetime.status).toBe(400);
   });
 
-  it("Should return 400 if send a bad expirationDate", async () => {
+  it("Should return 400 if send a expirationDate that's not YYYY-mm-dd", async () => {
     const responseBadDate = await request(app)
       .post("/agreements")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
