@@ -43,6 +43,35 @@ describe("POST /agreements", () => {
       .send(basicPostData);
     expect(response.status).toBe(403);
   });
+
+  it("Should return 400 if send a bad startDate", async () => {
+    const responseBadDate = await request(app)
+      .post("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPostData, startDate: "badDate" });
+    expect(responseBadDate.status).toBe(400);
+
+    const responseBadDatetime = await request(app)
+      .post("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPostData, startDate: "2020-01-01 badTime" });
+    expect(responseBadDatetime.status).toBe(400);
+  });
+
+  it("Should return 400 if send a bad expirationDate", async () => {
+    const responseBadDate = await request(app)
+      .post("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPostData, expirationDate: "badDate" });
+    expect(responseBadDate.status).toBe(400);
+
+    const responseBadDatetime = await request(app)
+      .post("/agreements")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPostData, expirationDate: "2020-01-01 badTime" });
+    expect(responseBadDatetime.status).toBe(400);
+  });
+
   it("Should return 200 if logged in as user with full access to campaign", async () => {
     const response = await request(app)
       .post("/agreements")
@@ -59,7 +88,6 @@ describe("POST /agreements", () => {
       .post("/agreements")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
       .send(basicPostData);
-    console.log(response.body);
     const agreementsAfter = await tryber.tables.FinanceAgreements.do().select(
       "id"
     );

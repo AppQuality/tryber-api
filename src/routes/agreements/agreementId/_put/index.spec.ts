@@ -64,6 +64,34 @@ describe("PUT /agreements/{agreementId}", () => {
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,2]}');
     expect(response.status).toBe(403);
   });
+  it("Should return 400 if send a bad startDate", async () => {
+    const responseBadDate = await request(app)
+      .put("/agreements/1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPutData, startDate: "badDate" });
+    expect(responseBadDate.status).toBe(400);
+
+    const responseBadDatetime = await request(app)
+      .put("/agreements/1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPutData, startDate: "2020-01-01 badTime" });
+    expect(responseBadDatetime.status).toBe(400);
+  });
+
+  it("Should return 400 if send a bad expirationDate", async () => {
+    const responseBadDate = await request(app)
+      .put("/agreements/1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPutData, expirationDate: "badDate" });
+    expect(responseBadDate.status).toBe(400);
+
+    const responseBadDatetime = await request(app)
+      .put("/agreements/1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}')
+      .send({ ...basicPutData, expirationDate: "2020-01-01 badTime" });
+    expect(responseBadDatetime.status).toBe(400);
+  });
+
   it("Should return 200 if logged in as user with full access to campaign", async () => {
     const response = await request(app)
       .put("/agreements/1")
