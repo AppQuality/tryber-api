@@ -29,6 +29,7 @@ export default class Route extends UserRoute<{
     if ((await this.customerExists()) === false) {
       return this.forbiddenResponse();
     }
+
     return true;
   }
 
