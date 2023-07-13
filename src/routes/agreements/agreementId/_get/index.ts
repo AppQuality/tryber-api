@@ -51,8 +51,8 @@ export default class Route extends UserRoute<{
       title: agreement.title,
       tokens: agreement.tokens,
       unitPrice: agreement.token_unit_price,
-      startDate: agreement.agreement_date,
-      expirationDate: agreement.agreement_close_date,
+      startDate: agreement.agreement_date.split(" ")[0],
+      expirationDate: agreement.agreement_close_date.split(" ")[0],
       note:
         agreement.additional_note !== ""
           ? agreement.additional_note
