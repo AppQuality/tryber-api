@@ -15,12 +15,13 @@
     "start": "tsnd --respawn -r tsconfig-paths/register  --transpile-only  ./src/index.ts",
     "start:debug": "tsnd --respawn  --inspect=4321 -r tsconfig-paths/register  --transpile-only  ./src/index.ts",
     "prepare": "npx husky install",
+    "extract": "tsnd --quiet ./extract_tests.ts",
     "types": "npx openapi-typescript src/reference/openapi.yml --output src/schema.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@appquality/tryber-database": "^0.9.0",
+    "@appquality/tryber-database": "^0.12.0",
     "@appquality/wp-auth": "^1.0.7",
     "@googlemaps/google-maps-services-js": "^3.3.7",
     "@sendgrid/mail": "^7.6.0",
@@ -46,6 +47,7 @@
     "wordpress-hash-node": "^1.0.0"
   },
   "devDependencies": {
+    "@appquality/jest-extract": "^1.3.0",
     "@swc/core": "^1.2.196",
     "@swc/jest": "^0.2.21",
     "@types/connect-busboy": "^1.0.0",

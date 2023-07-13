@@ -1,0 +1,76 @@
+name: Add new tests to PR
+
+on:
+  pull_request:
+
+jobs:
+  test-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: |
+          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
+          yarn --frozen-lockfile
+
+      - name: Extract tests from origin branch
+        run: |
+          yarn extract tests.txt
+          cat tests.txt | sort > origin_tests.txt
+          rm tests.txt
+        env:
+          CI: true
+
+      - name: Extract tests from destination branch
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git checkout ${{ github.base_ref }}
+          echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
+          yarn --frozen-lockfile
+          yarn extract tests.txt
+          cat tests.txt | sort > destination_tests.txt
+          rm tests.txt
+        env:
+          CI: true
+
+      - name: Compare tests
+        run: |
+          diff origin_tests.txt destination_tests.txt > tests_diff.txt || true
+
+          touch new_tests.txt
+          NEW_TESTS_LINES=$(cat tests_diff.txt | grep "<" | wc -l)
+          if [ $NEW_TESTS_LINES -gt 0 ]; then
+              echo "**New Tests**" > new_tests.txt
+              echo "\`\`\`"  >> new_tests.txt
+              cat tests_diff.txt | grep "<" >> new_tests.txt
+              echo "\`\`\`"  >> new_tests.txt
+          fi
+
+          touch removed_tests.txt
+          REMOVED_TESTS_LINES=$(cat tests_diff.txt | grep ">" | wc -l)
+          if [ $REMOVED_TESTS_LINES -gt 0 ]; then
+              echo "**Removed Tests**" > removed_tests.txt
+              echo "\`\`\`"  >> removed_tests.txt
+              cat tests_diff.txt | grep ">" >> removed_tests.txt
+              echo "\`\`\`"  >> removed_tests.txt
+          fi
+
+
+          echo "### Tests difference:"  > comment.txt
+          cat new_tests.txt >> comment.txt
+          cat removed_tests.txt >> comment.txt
+          cat comment.txt
+
+      - name: PR comment with file
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          filePath: comment.txt
+          comment_tag: "Tests Difference"

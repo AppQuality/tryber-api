@@ -27,10 +27,275 @@ paths:
       operationId: get-root
       description: Get all routes available for this apis
     parameters: []
+  /agreements:
+    parameters: []
+    get:
+      summary: GET Agreements
+      operationId: get-agreements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                              required:
+                                - id
+                            - $ref: '#/components/schemas/Agreement'
+                            - type: object
+                              properties:
+                                customer:
+                                  type: object
+                                  required:
+                                    - id
+                                    - company
+                                  properties:
+                                    id:
+                                      type: integer
+                                    company:
+                                      type: string
+                              required:
+                                - customer
+                    required:
+                      - items
+                  - $ref: '#/components/schemas/PaginationData'
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 1
+                        title: Agreement Title
+                        tokens: 10.5
+                        unitPrice: 165
+                        expirationDate: '2023-06-06 12:59:16'
+                        startDate: '2023-06-06 12:59:16'
+                        note: Agreement Notes
+                        customer:
+                          id: 1
+                          company: Customer Company
+                        isTokenBased: true
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 0
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      security:
+        - JWT: []
+      description: Retrive all agreements
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+    post:
+      summary: POST Agreement
+      operationId: post-agreements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agreementId:
+                    type: integer
+                required:
+                  - agreementId
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '500':
+          description: Internal Server Error
+      description: Create a new Agreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    customerId:
+                      type: integer
+                  required:
+                    - customerId
+                - $ref: '#/components/schemas/Agreement'
+            examples:
+              Example 1:
+                value:
+                  customerId: 1
+                  id: 1
+                  title: string
+                  tokens: 0
+                  unitPrice: 0
+                  startDate: string
+                  expirationDate: string
+                  note: string
+                  isTokenBased: true
+      security:
+        - JWT: []
+  '/agreements/{agreementId}':
+    parameters:
+      - schema:
+          type: string
+        name: agreementId
+        in: path
+        required: true
+    put:
+      summary: ''
+      operationId: put-agreements-agreement-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                    required:
+                      - id
+                  - $ref: '#/components/schemas/Agreement'
+                  - type: object
+                    properties:
+                      customer:
+                        type: object
+                        required:
+                          - id
+                          - company
+                        properties:
+                          id:
+                            type: integer
+                          company:
+                            type: string
+                    required:
+                      - customer
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+                    title: string
+                    tokens: 0
+                    unitPrice: 0
+                    startDate: string
+                    expirationDate: string
+                    note: string
+                    isTokenBased: false
+                    customer:
+                      id: 0
+                      company: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '500':
+          description: Internal Server Error
+      description: Put a specific Agreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Agreement'
+                - type: object
+                  properties:
+                    customerId:
+                      type: integer
+                  required:
+                    - customerId
+            examples:
+              Example 1:
+                value:
+                  id: 1
+                  title: string
+                  tokens: 165
+                  unitPrice: 165
+                  startDate: string
+                  expirationDate: string
+                  note: string
+                  isTokenBased: true
+                  customerId: 0
+        description: ''
+      security:
+        - JWT: []
+    delete:
+      summary: ''
+      operationId: delete-agreements-agreement-id
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      description: Delete a specific Agreement
+    get:
+      summary: ''
+      operationId: get-agreements-agreement-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                    required:
+                      - id
+                  - $ref: '#/components/schemas/Agreement'
+                  - type: object
+                    properties:
+                      customer:
+                        type: object
+                        required:
+                          - id
+                          - company
+                        properties:
+                          id:
+                            type: integer
+                          company:
+                            type: string
+                    required:
+                      - customer
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title: string
+                    tokens: 1
+                    unitPrice: 165
+                    startDate: string
+                    expirationDate: string
+                    note: string
+                    isTokenBased: false
+                    customer:
+                      id: 1
+                      company: string
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      description: Get a specific Agreement
+      security:
+        - JWT: []
   /authenticate:
     post:
       description: A request to login with your username and password
-      summary: Authenticate to the API
+      summary: ''
       operationId: post-authenticate
       responses:
         '200':
@@ -483,24 +748,31 @@ paths:
                 Example 1:
                   value:
                     items:
-                      - id: 1
-                        title: This is a Bug
-                        internalId: ID123
+                      - id: 0
+                        title: string
+                        internalId: string
                         status:
-                          id: 1
-                          name: refused
+                          id: 0
+                          name: string
                         type:
-                          id: 1
-                          name: crash
+                          id: 0
+                          name: string
                         severity:
-                          id: 1
-                          name: low
+                          id: 0
+                          name: string
                         tester:
-                          id: 1
-                        duplication: unique
+                          id: 0
+                        tags:
+                          - id: 0
+                            name: string
+                        duplication: father
                         isFavourite: true
+                        created: string
+                        updated: string
                     start: 0
-                    size: 1
+                    limit: 0
+                    size: 0
+                    total: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3373,33 +3645,34 @@ paths:
               examples:
                 Example 1:
                   value:
-                    status: done
                     items:
                       - tester:
-                          id: 1
-                          name: Jhon
-                          surname: Doe
+                          id: 0
+                          name: string
+                          surname: string
+                          group: 0
                         usecases:
-                          completed: 3
-                          required: 3
+                          completed: 0
+                          required: 0
                         bugs:
-                          critical: 11
-                          high: 2
-                          medium: 3
-                          low: 4
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
                         payout:
-                          completion: 100
-                          bug: 10
+                          completion: 0
+                          bug: 0
                           refund: 0
                           extra: 0
                         experience:
-                          completion: 200
+                          completion: 0
                           extra: 0
-                        note: no extra
+                        note: string
                         status: pending
                         weightedBugs: 0
                         isCompleted: true
                         isTopTester: true
+                    status: draft
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -7907,6 +8180,48 @@ components:
         - field_id
         - name
         - value
+    Agreement:
+      type: object
+      x-examples:
+        Example 1:
+          id: 1
+          title: Agreement Title
+          tokens: 10.5
+          unitPrice: 165
+          expirationDate: '2023-06-06 12:59:16'
+          startDate: '2023-06-06 12:59:16'
+          note: Agreement Notes
+          customer:
+            id: 1
+            company: Customer Company
+          isTokenBased: true
+      x-stoplight:
+        id: a1062dea11dce
+      properties:
+        title:
+          type: string
+          minLength: 1
+        tokens:
+          type: number
+        unitPrice:
+          type: number
+        startDate:
+          type: string
+          pattern: '^[0-9]{4}-(0[0-9]|1[0-2])-([0-1][0-9]|3[0-1])$'
+        expirationDate:
+          type: string
+          pattern: '^[0-9]{4}-(0[0-9]|1[0-2])-([0-1][0-9]|3[0-1])$'
+        note:
+          type: string
+        isTokenBased:
+          type: boolean
+          default: false
+      required:
+        - title
+        - tokens
+        - unitPrice
+        - startDate
+        - expirationDate
     Bug:
       title: Bug
       type: object
