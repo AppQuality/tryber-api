@@ -27,7 +27,6 @@ const useAgreementsData = () => {
         last_editor_id: 9,
         agreement_date: "2021-01-01 00:00:00",
         agreement_close_date: "2021-01-10 00:00:00",
-        salesman: 9,
         is_token_based: 1,
       },
       {
@@ -42,7 +41,6 @@ const useAgreementsData = () => {
         last_editor_id: 10,
         agreement_date: "2021-01-01 00:00:00",
         agreement_close_date: "2021-01-10 00:00:00",
-        salesman: 10,
         is_token_based: 0,
       },
       {
@@ -57,7 +55,6 @@ const useAgreementsData = () => {
         last_editor_id: 11,
         agreement_date: "2021-01-01 00:00:00",
         agreement_close_date: "2021-01-10 00:00:00",
-        salesman: 11,
         is_token_based: 1,
       },
     ]);
