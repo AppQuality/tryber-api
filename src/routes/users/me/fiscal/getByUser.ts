@@ -6,8 +6,9 @@ export default async (testerId: number) => {
     const fiscalTypes = {
       1: "withholding",
       2: "witholding-extra",
-      3: "other",
-      4: "non-italian",
+      3: "non-italian",
+      4: "vat",
+      5: "company",
     };
 
     const fiscalType = fiscalTypes.hasOwnProperty(fiscal.fiscal_category)

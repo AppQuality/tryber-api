@@ -1,68 +1,92 @@
-/** OPENAPI-ROUTE:put-users-me-languages */
+/** OPENAPI-CLASS:put-users-me-languages */
 
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
-import deleteUserLanguages from "../deleteUserLanguages";
-import getAvailableLanguages from "../getAvailableLanguages";
-import getUserLanguages from "../getUserLanguages";
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    // 0. check if id to insert exists
-    let langs = (await getAvailableLanguages()).map((l) => l.id);
-    const newLangs = [...new Set(req.body)]; //remove duplicated entries
-    newLangs.forEach((nl) => {
-      if (langs.indexOf(nl as string) === -1) {
-        throw new Error("Bad request: lang_id=" + nl + " not found.");
-      }
-    });
-    // 1. delete all user languages
-    let data = await deleteUserLanguages(req.user.testerId);
+export default class UserLanguagesRoute extends UserRoute<{
+  response: StoplightOperations["put-users-me-languages"]["responses"]["200"]["content"]["application/json"];
+  body: StoplightOperations["put-users-me-languages"]["requestBody"]["content"]["application/json"];
+}> {
+  private languages: number[] | undefined;
 
-    // 2. insert new user languages
-    if (newLangs.length) {
-      let insertData: string[] = [];
-      let insertSql = `INSERT INTO wp_appq_profile_has_lang (language_id, profile_id)  VALUES `;
-      let valuesSql: string[] = [];
-      newLangs.forEach((nl) => {
-        valuesSql.push(`(?, ?)`);
-        insertData.push(nl as string, req.user.testerId.toString());
-      });
-      let inserted;
-      try {
-        inserted = await db.query(
-          db.format(insertSql + valuesSql.join(", ") + `;`, insertData)
-        );
-      } catch (e) {
-        if (process.env && process.env.DEBUG) console.log(e);
-        if (
-          (e as MySqlError).hasOwnProperty("code") &&
-          (e as MySqlError).code == "ER_DUP_ENTRY"
-        ) {
-          return Promise.reject(
-            Error(
-              "Failed. Duplication entry. Languages already assigned to the tester."
-            )
-          );
-        }
-        return Promise.reject(Error("Failed to add user Language"));
-      }
+  private constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
+    const body = this.getBody();
+    if (body) {
+      this.languages = [...new Set(body)];
+    }
+  }
+
+  protected async filter() {
+    if (await this.desiredLanguagesDoesNotExist()) return false;
+    return true;
+  }
+
+  protected async desiredLanguagesDoesNotExist() {
+    if (!this.languages) return false;
+
+    const availableLanguagesIds = await this.getAvailableLanguages();
+
+    const everyLanguageExists = this.languages.every((nl) =>
+      availableLanguagesIds.includes(nl)
+    );
+
+    if (!everyLanguageExists) {
+      this.setError(404, new OpenapiError(`Bad request: lang_id not found.`));
+      return true;
     }
 
-    // 3. return user languages
-    let languages = await getUserLanguages(req.user.testerId);
-    res.status_code = 200;
-    return languages.map((l) => ({ id: l.id, name: l.name }));
-  } catch (error) {
-    res.status_code = (error as OpenapiError).status_code || 500;
-    return {
-      element: "languages",
-      id: parseInt(req.user.ID),
-      message: (error as OpenapiError).message,
-    };
+    return false;
   }
-};
+
+  protected async prepare() {
+    await this.insertNewLanguages();
+
+    this.setSuccess(200, await this.getUserLanguages());
+  }
+
+  protected async getAvailableLanguages() {
+    const languages = await tryber.tables.WpAppqLang.do().select(
+      "id",
+      tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
+    );
+
+    if (!languages.length) throw Error("No languages");
+    return languages.map((l) => l.id);
+  }
+
+  protected async getUserLanguages() {
+    const testerLanguages = await tryber.tables.WpAppqProfileHasLang.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_lang").as("id"),
+        tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
+      )
+      .join(
+        "wp_appq_lang",
+        "wp_appq_lang.id",
+        "wp_appq_profile_has_lang.language_id"
+      )
+      .where({ profile_id: this.getTesterId() });
+
+    return testerLanguages;
+  }
+
+  protected async insertNewLanguages() {
+    await this.deleteUserLanguages();
+    if (!this.languages || !this.languages.length) return undefined;
+
+    const values = this.languages.map((nl) => {
+      return { language_id: nl, profile_id: this.getTesterId() };
+    });
+
+    await tryber.tables.WpAppqProfileHasLang.do().insert(values);
+  }
+
+  protected async deleteUserLanguages() {
+    await tryber.tables.WpAppqProfileHasLang.do()
+      .where({ profile_id: this.getTesterId() })
+      .delete();
+    return true;
+  }
+}

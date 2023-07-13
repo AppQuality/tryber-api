@@ -27,10 +27,275 @@ paths:
       operationId: get-root
       description: Get all routes available for this apis
     parameters: []
+  /agreements:
+    parameters: []
+    get:
+      summary: GET Agreements
+      operationId: get-agreements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          allOf:
+                            - type: object
+                              properties:
+                                id:
+                                  type: integer
+                              required:
+                                - id
+                            - $ref: '#/components/schemas/Agreement'
+                            - type: object
+                              properties:
+                                customer:
+                                  type: object
+                                  required:
+                                    - id
+                                    - company
+                                  properties:
+                                    id:
+                                      type: integer
+                                    company:
+                                      type: string
+                              required:
+                                - customer
+                    required:
+                      - items
+                  - $ref: '#/components/schemas/PaginationData'
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 1
+                        title: Agreement Title
+                        tokens: 10.5
+                        unitPrice: 165
+                        expirationDate: '2023-06-06'
+                        startDate: '2023-06-06'
+                        note: Agreement Notes
+                        customer:
+                          id: 1
+                          company: Customer Company
+                        isTokenBased: true
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 0
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      security:
+        - JWT: []
+      description: Retrive all agreements
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
+        - $ref: '#/components/parameters/start'
+        - $ref: '#/components/parameters/limit'
+    post:
+      summary: POST Agreement
+      operationId: post-agreements
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  agreementId:
+                    type: integer
+                required:
+                  - agreementId
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '500':
+          description: Internal Server Error
+      description: Create a new Agreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    customerId:
+                      type: integer
+                  required:
+                    - customerId
+                - $ref: '#/components/schemas/Agreement'
+            examples:
+              Example 1:
+                value:
+                  customerId: 1
+                  id: 1
+                  title: string
+                  tokens: 0
+                  unitPrice: 0
+                  startDate: '2023-07-03'
+                  expirationDate: '2023-07-03'
+                  note: string
+                  isTokenBased: true
+      security:
+        - JWT: []
+  '/agreements/{agreementId}':
+    parameters:
+      - schema:
+          type: string
+        name: agreementId
+        in: path
+        required: true
+    put:
+      summary: ''
+      operationId: put-agreements-agreement-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                    required:
+                      - id
+                  - $ref: '#/components/schemas/Agreement'
+                  - type: object
+                    properties:
+                      customer:
+                        type: object
+                        required:
+                          - id
+                          - company
+                        properties:
+                          id:
+                            type: integer
+                          company:
+                            type: string
+                    required:
+                      - customer
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+                    title: string
+                    tokens: 0
+                    unitPrice: 0
+                    startDate: '2023-07-03'
+                    expirationDate: '2023-07-03'
+                    note: string
+                    isTokenBased: false
+                    customer:
+                      id: 0
+                      company: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '500':
+          description: Internal Server Error
+      description: Put a specific Agreement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Agreement'
+                - type: object
+                  properties:
+                    customerId:
+                      type: integer
+                  required:
+                    - customerId
+            examples:
+              Example 1:
+                value:
+                  id: 1
+                  title: string
+                  tokens: 165
+                  unitPrice: 165
+                  startDate: '2023-07-03'
+                  expirationDate: '2023-07-03'
+                  note: string
+                  isTokenBased: true
+                  customerId: 0
+        description: ''
+      security:
+        - JWT: []
+    delete:
+      summary: ''
+      operationId: delete-agreements-agreement-id
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      description: Delete a specific Agreement
+    get:
+      summary: ''
+      operationId: get-agreements-agreement-id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: integer
+                    required:
+                      - id
+                  - $ref: '#/components/schemas/Agreement'
+                  - type: object
+                    properties:
+                      customer:
+                        type: object
+                        required:
+                          - id
+                          - company
+                        properties:
+                          id:
+                            type: integer
+                          company:
+                            type: string
+                    required:
+                      - customer
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title: string
+                    tokens: 1
+                    unitPrice: 165
+                    startDate: '2023-07-03'
+                    expirationDate: '2023-07-03'
+                    note: string
+                    isTokenBased: false
+                    customer:
+                      id: 1
+                      company: string
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      description: Get a specific Agreement
+      security:
+        - JWT: []
   /authenticate:
     post:
       description: A request to login with your username and password
-      summary: Authenticate to the API
+      summary: ''
       operationId: post-authenticate
       responses:
         '200':
@@ -483,24 +748,31 @@ paths:
                 Example 1:
                   value:
                     items:
-                      - id: 1
-                        title: This is a Bug
-                        internalId: ID123
+                      - id: 0
+                        title: string
+                        internalId: string
                         status:
-                          id: 1
-                          name: refused
+                          id: 0
+                          name: string
                         type:
-                          id: 1
-                          name: crash
+                          id: 0
+                          name: string
                         severity:
-                          id: 1
-                          name: low
+                          id: 0
+                          name: string
                         tester:
-                          id: 1
-                        duplication: unique
+                          id: 0
+                        tags:
+                          - id: 0
+                            name: string
+                        duplication: father
                         isFavourite: true
+                        created: string
+                        updated: string
                     start: 0
-                    size: 1
+                    limit: 0
+                    size: 0
+                    total: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -743,9 +1015,9 @@ paths:
                 example-2:
                   value:
                     results:
-                      - id: 34463
-                        name: Sara
-                        surname: Galasso
+                      - id: 1234
+                        name: Giulia
+                        surname: Baldini
                         experience: 21541
                         level: Diamond
                         devices:
@@ -775,9 +1047,9 @@ paths:
                             id: 5
                             os: Android
                             osVersion: 13(beta) (13(beta))
-                      - id: 57742
-                        name: Alessandra
-                        surname: Casole
+                      - id: 1235
+                        name: Cesare
+                        surname: Alagna
                         experience: 4390
                         level: Platinum
                         devices:
@@ -789,9 +1061,9 @@ paths:
                             id: 7
                             os: Android
                             osVersion: 11 (11)
-                      - id: 25325
-                        name: Paolo
-                        surname: Cattelan
+                      - id: 12346
+                        name: Carlo
+                        surname: Paolini
                         experience: 33745
                         level: Diamond
                         devices:
@@ -800,9 +1072,9 @@ paths:
                             id: 8
                             os: Android
                             osVersion: 10 (10.0)
-                      - id: 6631
-                        name: Margherita
-                        surname: Colamartino
+                      - id: 1239
+                        name: Chiara
+                        surname: Mancini
                         experience: 28310
                         level: Platinum
                         devices:
@@ -814,9 +1086,9 @@ paths:
                             id: 10
                             os: Android
                             osVersion: 12 (12)
-                      - id: 58300
-                        name: Chiara
-                        surname: Risaliti
+                      - id: 1236
+                        name: Rosa
+                        surname: Contralto
                         experience: 3035
                         level: Platinum
                         devices:
@@ -828,9 +1100,9 @@ paths:
                             id: 12
                             os: Android
                             osVersion: 12 (12)
-                      - id: 8972
-                        name: Giuseppe
-                        surname: Brandonisio
+                      - id: 12356
+                        name: Beppe
+                        surname: Gianduiotto
                         experience: 38619
                         level: Diamond
                         devices:
@@ -844,9 +1116,9 @@ paths:
                             id: 14
                             os: Android
                             osVersion: 11 (11)
-                      - id: 51930
-                        name: Laura
-                        surname: Manca
+                      - id: 12369
+                        name: Monica
+                        surname: Lorenzini
                         experience: 7672
                         level: Platinum
                         devices:
@@ -858,9 +1130,9 @@ paths:
                             id: 16
                             os: Android
                             osVersion: Pie (9.0)
-                      - id: 58342
-                        name: Marco
-                        surname: Trevisani
+                      - id: 12389
+                        name: Tullio
+                        surname: De Sica
                         experience: 2081
                         level: Platinum
                         devices:
@@ -869,9 +1141,9 @@ paths:
                             id: 17
                             os: iOS
                             osVersion: iOS 16(beta) (16(beta))
-                      - id: 50359
-                        name: Pietro
-                        surname: Petrone
+                      - id: 12340
+                        name: Persio
+                        surname: Panfalone
                         experience: 8577
                         level: Platinum
                         devices:
@@ -888,9 +1160,9 @@ paths:
                             id: 20
                             os: iOS
                             osVersion: iOS 12.4.9 (12.4.9)
-                      - id: 29987
-                        name: Dario
-                        surname: Bonfanti
+                      - id: 12349
+                        name: Bernardo
+                        surname: Tognazzi
                         experience: 16471
                         level: Diamond
                         devices:
@@ -907,9 +1179,9 @@ paths:
                             id: 23
                             os: Android
                             osVersion: 10 (10.0)
-                      - id: 48050
-                        name: giovanni
-                        surname: velo
+                      - id: 12379
+                        name: Vincenza
+                        surname: Giacomazzi
                         experience: 7703
                         level: Platinum
                         devices:
@@ -918,9 +1190,9 @@ paths:
                             id: 24
                             os: Android
                             osVersion: 12 (12)
-                      - id: 51822
-                        name: Carolina
-                        surname: Signorelli
+                      - id: 12394
+                        name: Serena
+                        surname: Gementi
                         experience: 14671
                         level: Diamond
                         devices:
@@ -932,9 +1204,9 @@ paths:
                             id: 26
                             os: iOS
                             osVersion: iOS 15.7 (15.7)
-                      - id: 31668
-                        name: Valentina
-                        surname: Catania
+                      - id: 12344
+                        name: Chiara
+                        surname: Veronesi
                         experience: 6927
                         level: Platinum
                         devices:
@@ -946,18 +1218,18 @@ paths:
                           - id: 28
                             os: Windows
                             osVersion: Windows 8.1 (8.1)
-                      - id: 48780
-                        name: Filippo
-                        surname: Fiori
+                      - id: 12398
+                        name: Fabrizio
+                        surname: Familiari
                         experience: 6240
                         level: Platinum
                         devices:
                           - id: 29
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 28029
-                        name: Vincenzo
-                        surname: Anginoni
+                      - id: 12355
+                        name: Andrea
+                        surname: Vigoni
                         experience: 9551
                         level: Platinum
                         devices:
@@ -969,9 +1241,9 @@ paths:
                           - id: 31
                             os: Windows
                             osVersion: Windows 10 May 2020 Update (19041)
-                      - id: 24494
-                        name: Fabrizio
-                        surname: Familiari
+                      - id: 12377
+                        name: Federico
+                        surname: Faenza
                         experience: 6900
                         level: Platinum
                         devices:
@@ -993,9 +1265,9 @@ paths:
                             id: 35
                             os: Android
                             osVersion: 12 (12)
-                      - id: 18179
-                        name: Stefano
-                        surname: Lombardo
+                      - id: 12391
+                        name: Leonardo
+                        surname: Di Stefano
                         experience: 4657
                         level: Gold
                         devices:
@@ -1004,9 +1276,9 @@ paths:
                             id: 36
                             os: iOS
                             osVersion: iOS 15.0.2 (15.0.2)
-                      - id: 25155
-                        name: Maurizio
-                        surname: Tortora
+                      - id: 12374
+                        name: Tatiana
+                        surname: Bongiorno
                         experience: 24180
                         level: Diamond
                         devices:
@@ -1015,9 +1287,9 @@ paths:
                             id: 37
                             os: Android
                             osVersion: 12 (12)
-                      - id: 12563
-                        name: Andrea
-                        surname: Zanin
+                      - id: 12350
+                        name: Zaira
+                        surname: Amato
                         experience: 32403
                         level: Diamond
                         devices:
@@ -1027,9 +1299,9 @@ paths:
                           - id: 39
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 55996
-                        name: Massimiliano
-                        surname: Maraglino
+                      - id: 12321
+                        name: Lele
+                        surname: Miccione
                         experience: 7715
                         level: Platinum
                         devices:
@@ -1043,18 +1315,18 @@ paths:
                             id: 41
                             os: Android
                             osVersion: 10 (10.0)
-                      - id: 32691
-                        name: Luigi William
-                        surname: Mercuri
+                      - id: 12387
+                        name: Marzia
+                        surname: Kostner
                         experience: 3083
                         level: Platinum
                         devices:
                           - id: 42
                             os: Windows
                             osVersion: Windows 10 May 2021 Update (19043)
-                      - id: 15458
-                        name: Daniela
-                        surname: Ciccone
+                      - id: 12342
+                        name: Daniel
+                        surname: Cilenti
                         experience: 20757
                         level: Diamond
                         devices:
@@ -1066,18 +1338,18 @@ paths:
                             id: 44
                             os: Android
                             osVersion: 12 (12)
-                      - id: 53536
-                        name: Daniele
-                        surname: Settembre
+                      - id: 12311
+                        name: David
+                        surname: Surace
                         experience: 5994
                         level: Platinum
                         devices:
                           - id: 45
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 15201
-                        name: Sara
-                        surname: Schiavone
+                      - id: 12329
+                        name: Daniela
+                        surname: Mogliacci
                         experience: 4033
                         level: Silver
                         devices:
@@ -1089,9 +1361,9 @@ paths:
                           - id: 47
                             os: Windows
                             osVersion: Windows 10 November 2019 Update (18363.778)
-                      - id: 50280
-                        name: Giovanni
-                        surname: Silvestri
+                      - id: 12392
+                        name: Gesualdo
+                        surname: Savona
                         experience: 5794
                         level: Platinum
                         devices:
@@ -1106,9 +1378,9 @@ paths:
                           - id: 50
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 47426
-                        name: Nicola
-                        surname: Caragiulo
+                      - id: 12344
+                        name: Neil
+                        surname: De Luca
                         experience: 6215
                         level: Platinum
                         devices:
@@ -1117,9 +1389,9 @@ paths:
                             id: 51
                             os: iOS
                             osVersion: iOS 15.0.2 (15.0.2)
-                      - id: 40658
-                        name: Mattia
-                        surname: Vigna
+                      - id: 123509
+                        name: Melania
+                        surname: Vignati
                         experience: 19669
                         level: Diamond
                         devices:
@@ -1136,9 +1408,9 @@ paths:
                             id: 54
                             os: Android
                             osVersion: 12 (12)
-                      - id: 43331
-                        name: Luca
-                        surname: Barban
+                      - id: 123495
+                        name: Fabio
+                        surname: Barbato
                         experience: 14727
                         level: Diamond
                         devices:
@@ -1147,9 +1419,9 @@ paths:
                             id: 55
                             os: Android
                             osVersion: 12 (12)
-                      - id: 15682
-                        name: Danilo
-                        surname: Minello
+                      - id: 123409
+                        name: Daniele
+                        surname: Minelli
                         experience: 21490
                         level: Diamond
                         devices:
@@ -1161,9 +1433,9 @@ paths:
                             id: 57
                             os: Android
                             osVersion: 12 (12)
-                      - id: 27907
-                        name: Diego
-                        surname: Braconi
+                      - id: 123098
+                        name: Davide
+                        surname: Bracconi
                         experience: 7654
                         level: Platinum
                         devices:
@@ -1178,9 +1450,9 @@ paths:
                           - id: 60
                             os: Windows
                             osVersion: Windows 10 October 2020 Update (19042)
-                      - id: 48530
-                        name: Martina
-                        surname: Mastromarino
+                      - id: 123702
+                        name: Cecilia
+                        surname: Modica
                         experience: 6457
                         level: Platinum
                         devices:
@@ -1192,18 +1464,18 @@ paths:
                           - id: 62
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 16439
-                        name: Gian Guido
-                        surname: Ferrozzi
+                      - id: 123967
+                        name: Germanno
+                        surname: Gelsomini
                         experience: 11688
                         level: Platinum
                         devices:
                           - id: 63
                             os: MacOS
                             osVersion: Mac OS X 12 (Monterey) (12.1)
-                      - id: 13098
-                        name: Miriam Giusy
-                        surname: Petrovik
+                      - id: 123987
+                        name: Giuliano
+                        surname: Panzerotti
                         experience: 29336
                         level: Gold
                         devices:
@@ -1212,9 +1484,9 @@ paths:
                             id: 64
                             os: Android
                             osVersion: 11 (11)
-                      - id: 51127
-                        name: Giovanni
-                        surname: Romeo
+                      - id: 1234509
+                        name: Giovanna
+                        surname: Romani
                         experience: 9291
                         level: Platinum
                         devices:
@@ -1226,9 +1498,9 @@ paths:
                             id: 66
                             os: Android
                             osVersion: 11 (11)
-                      - id: 16190
-                        name: Carmen
-                        surname: Piedimonte
+                      - id: 12367809
+                        name: Carmelo
+                        surname: Oreto
                         experience: 31122
                         level: Platinum
                         devices:
@@ -1258,9 +1530,9 @@ paths:
                             id: 72
                             os: Android
                             osVersion: 12 (12)
-                      - id: 12321
-                        name: Antonio
-                        surname: Maione
+                      - id: 12321245
+                        name: Antonia
+                        surname: Mione
                         experience: 18209
                         level: Diamond
                         devices:
@@ -1277,9 +1549,9 @@ paths:
                             id: 75
                             os: Android
                             osVersion: 10 (10.0)
-                      - id: 9959
-                        name: Nicolas
-                        surname: Garlatti
+                      - id: 123012
+                        name: Nicoletta
+                        surname: Scarlatti
                         experience: 9360
                         level: Platinum
                         devices:
@@ -1296,9 +1568,9 @@ paths:
                             id: 78
                             os: Android
                             osVersion: 12 (12)
-                      - id: 22021
-                        name: Francesco Pio
-                        surname: Magrì
+                      - id: 1230343
+                        name: Pio
+                        surname: Margiotta
                         experience: 1253
                         level: Silver
                         devices:
@@ -1313,9 +1585,9 @@ paths:
                             id: 81
                             os: Android
                             osVersion: 12 (12)
-                      - id: 16790
-                        name: Laura
-                        surname: Tenan
+                      - id: 1239485
+                        name: Giosuè
+                        surname: Taddei
                         experience: 15164
                         level: Platinum
                         devices:
@@ -1332,9 +1604,9 @@ paths:
                             id: 84
                             os: iOS
                             osVersion: iOS 15.6.1 (15.6.1)
-                      - id: 17968
-                        name: Vittorio
-                        surname: Amitrano
+                      - id: 1237968
+                        name: Vittoria
+                        surname: Amitrani
                         experience: 17744
                         level: Diamond
                         devices:
@@ -1349,18 +1621,18 @@ paths:
                           - id: 87
                             os: Windows
                             osVersion: Windows 11
-                      - id: 56673
-                        name: Valentina
-                        surname: Mirabelli
+                      - id: 12356673
+                        name: Valeria
+                        surname: Mazzancolle
                         experience: 12162
                         level: Diamond
                         devices:
                           - id: 88
                             os: Windows
                             osVersion: Windows 11
-                      - id: 49120
-                        name: Víctor
-                        surname: Vera
+                      - id: 12349120
+                        name: Vera
+                        surname: Amedei
                         experience: 8428
                         level: Platinum
                         devices:
@@ -1369,9 +1641,9 @@ paths:
                             id: 89
                             os: Android
                             osVersion: 11 (11)
-                      - id: 8299
-                        name: Antonino Germano
-                        surname: DAgostino
+                      - id: 1238299
+                        name: Germanno
+                        surname: Domini
                         experience: 54373
                         level: Diamond
                         devices:
@@ -1405,9 +1677,9 @@ paths:
                             id: 97
                             os: iOS
                             osVersion: iOS 15.6 (15.6)
-                      - id: 13525
-                        name: Mariangela
-                        surname: Iorgi
+                      - id: 123525
+                        name: Melania
+                        surname: Giorgi
                         experience: 38073
                         level: Platinum
                         devices:
@@ -1419,9 +1691,9 @@ paths:
                             id: 99
                             os: Android
                             osVersion: 12 (12)
-                      - id: 10729
-                        name: Teresa Maria Barbara
-                        surname: Carboni
+                      - id: 1230729
+                        name: Barbara
+                        surname: Neri
                         experience: 9264
                         level: Gold
                         devices:
@@ -1438,9 +1710,9 @@ paths:
                             id: 102
                             os: Android
                             osVersion: 12 (12)
-                      - id: 48134
-                        name: Emanuel
-                        surname: Roma
+                      - id: 12348134
+                        name: Emanuele
+                        surname: Romanini
                         experience: 16756
                         level: Diamond
                         devices:
@@ -1449,18 +1721,18 @@ paths:
                             id: 103
                             os: Android
                             osVersion: 12 (12)
-                      - id: 57948
-                        name: Roberto
-                        surname: Vergnani
+                      - id: 123457948
+                        name: Roberta
+                        surname: Vergnano
                         experience: 1466
                         level: Gold
                         devices:
                           - id: 104
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 47681
-                        name: Angelo
-                        surname: Conte
+                      - id: 12347681
+                        name: Luisa
+                        surname: Contecelli
                         experience: 10800
                         level: Platinum
                         devices:
@@ -1469,9 +1741,9 @@ paths:
                             id: 105
                             os: iOS
                             osVersion: iOS 15.6 (15.6)
-                      - id: 25042
-                        name: Marco
-                        surname: Argenti
+                      - id: 125042
+                        name: Quirino
+                        surname: Agnellini
                         experience: 12481
                         level: Diamond
                         devices:
@@ -1483,9 +1755,9 @@ paths:
                             id: 107
                             os: Android
                             osVersion: Pie (9.0)
-                      - id: 11628
-                        name: Sara
-                        surname: Moscariello
+                      - id: 123628
+                        name: Santo
+                        surname: Mosca
                         experience: 5309
                         level: Platinum
                         devices:
@@ -1497,18 +1769,18 @@ paths:
                             id: 109
                             os: iOS
                             osVersion: iOS 16 (16)
-                      - id: 16562
-                        name: Anna
-                        surname: De Angelis
+                      - id: 1236562
+                        name: Annalisa
+                        surname: De Luca
                         experience: 4357
                         level: Silver
                         devices:
                           - id: 110
                             os: MacOS
                             osVersion: Mac OS X 12 (Monterey) (12.1)
-                      - id: 51742
-                        name: Emanuele
-                        surname: Mignano
+                      - id: 123451742
+                        name: Edigildo
+                        surname: Mazzanti
                         experience: 4846
                         level: Platinum
                         devices:
@@ -1525,9 +1797,9 @@ paths:
                             id: 113
                             os: iOS
                             osVersion: iOS 15.4 (15.4)
-                      - id: 25731
-                        name: Gaetano
-                        surname: Cascino
+                      - id: 125731
+                        name: Zamir
+                        surname: Xhafaj
                         experience: 18249
                         level: Diamond
                         devices:
@@ -1539,9 +1811,9 @@ paths:
                           - id: 115
                             os: Windows
                             osVersion: Windows 10 May 2020 Update (19041)
-                      - id: 6261
-                        name: Gioia
-                        surname: Zagagnoli
+                      - id: 12436261
+                        name: Giorgia
+                        surname: Zanta
                         experience: 7117
                         level: Platinum
                         devices:
@@ -1550,9 +1822,9 @@ paths:
                             id: 116
                             os: Android
                             osVersion: 12 (12)
-                      - id: 58545
-                        name: Stefania
-                        surname: Pisano
+                      - id: 12358545
+                        name: Stefano
+                        surname: Modica
                         experience: 3538
                         level: Platinum
                         devices:
@@ -1564,9 +1836,9 @@ paths:
                             id: 118
                             os: Android
                             osVersion: 11 (11)
-                      - id: 52648
-                        name: Simone
-                        surname: Da Prada
+                      - id: 12352648
+                        name: Silvia
+                        surname: Padani
                         experience: 11088
                         level: Diamond
                         devices:
@@ -1578,9 +1850,9 @@ paths:
                             id: 120
                             os: Android
                             osVersion: 12beta (12beta)
-                      - id: 2773
-                        name: Francesco
-                        surname: Natali
+                      - id: 12773
+                        name: Natalia
+                        surname: Franceschini
                         experience: 48175
                         level: Diamond
                         devices:
@@ -1597,9 +1869,9 @@ paths:
                             id: 123
                             os: iOS
                             osVersion: iOS 16(beta) (16(beta))
-                      - id: 25108
-                        name: Lucia
-                        surname: Ricchitelli
+                      - id: 125108
+                        name: Luciano
+                        surname: Ricciardi
                         experience: 13689
                         level: Diamond
                         devices:
@@ -1608,9 +1880,9 @@ paths:
                             id: 124
                             os: Android
                             osVersion: 11 (11)
-                      - id: 50861
+                      - id: 12450861
                         name: Andrea
-                        surname: Recce
+                        surname: Rimini
                         experience: 6648
                         level: Platinum
                         devices:
@@ -1619,9 +1891,9 @@ paths:
                             id: 125
                             os: iOS
                             osVersion: iOS 16 (16)
-                      - id: 58201
-                        name: Diego
-                        surname: Robresco
+                      - id: 12358201
+                        name: Domenico
+                        surname: Gatti
                         experience: 4190
                         level: Platinum
                         devices:
@@ -1631,9 +1903,9 @@ paths:
                           - id: 127
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 10678
-                        name: Serena
-                        surname: Migliaccio
+                      - id: 1230678
+                        name: Sergio
+                        surname: Hoxha
                         experience: 4213
                         level: Bronze
                         devices:
@@ -1645,9 +1917,9 @@ paths:
                             id: 129
                             os: iOS
                             osVersion: iOS 16(beta) (16(beta))
-                      - id: 19040
-                        name: Alberto
-                        surname: Greco
+                      - id: 1239040
+                        name: Galileo
+                        surname: Albertini
                         experience: 10181
                         level: Diamond
                         devices:
@@ -1667,8 +1939,8 @@ paths:
                             id: 133
                             os: iOS
                             osVersion: iOS 15.6 (15.6)
-                      - id: 19705
-                        name: Angelo Agostino Maria
+                      - id: 1239705
+                        name: Maria
                         surname: Cangemi
                         experience: 16753
                         level: Diamond
@@ -1676,9 +1948,9 @@ paths:
                           - id: 134
                             os: Windows
                             osVersion: Windows 8 (8.0)
-                      - id: 56997
-                        name: Luca
-                        surname: Sgobio
+                      - id: 12356997
+                        name: Luciana
+                        surname: Sgattani
                         experience: 4481
                         level: Platinum
                         devices:
@@ -1763,9 +2035,9 @@ paths:
                             id: 157
                             os: iOS
                             osVersion: iOS 15.5 (15.5)
-                      - id: 25012
-                        name: Angelo
-                        surname: Costa
+                      - id: 1225012
+                        name: Alessia
+                        surname: Costantino
                         experience: 31814
                         level: Platinum
                         devices:
@@ -1787,9 +2059,9 @@ paths:
                             id: 161
                             os: iOS
                             osVersion: iOS 15.4 (15.4)
-                      - id: 27273
-                        name: Anna Laura
-                        surname: Colia
+                      - id: 127273
+                        name: Laura
+                        surname: Colli
                         experience: 10774
                         level: Gold
                         devices:
@@ -1816,9 +2088,9 @@ paths:
                             id: 166
                             os: iOS
                             osVersion: iOS 15.4 (15.4)
-                      - id: 49917
-                        name: Santo
-                        surname: Paviglianiti
+                      - id: 12349917
+                        name: Santocino
+                        surname: Pavetti
                         experience: 5880
                         level: Platinum
                         devices:
@@ -1863,36 +2135,36 @@ paths:
                             id: 175
                             os: Android
                             osVersion: 11 (11)
-                      - id: 29132
-                        name: Nicolò
-                        surname: Romagnosi
+                      - id: 129132
+                        name: Nera
+                        surname: Raimondi
                         experience: 5491
                         level: Gold
                         devices:
                           - id: 176
                             os: Windows
                             osVersion: Windows 10 May 2021 Update (19043)
-                      - id: 11098
-                        name: Giovanni
-                        surname: Seraghiti
+                      - id: 1231098
+                        name: Gigliola
+                        surname: Serio
                         experience: 14834
                         level: Platinum
                         devices:
                           - id: 177
                             os: Windows
                             osVersion: Windows 11
-                      - id: 56707
-                        name: Mirco
-                        surname: Tucci
+                      - id: 123456707
+                        name: Emmanuel
+                        surname: Tucicano
                         experience: 3661
                         level: Platinum
                         devices:
                           - id: 178
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 5248
-                        name: Roberto
-                        surname: Santamaro
+                      - id: 12345248
+                        name: Renato
+                        surname: Pimenti
                         experience: 59051
                         level: Diamond
                         devices:
@@ -1937,9 +2209,9 @@ paths:
                             id: 187
                             os: Android
                             osVersion: 11 (11)
-                      - id: 2048
-                        name: Giuseppe
-                        surname: Santamaro
+                      - id: 12048
+                        name: Giacoma
+                        surname: Santamaria
                         experience: 81698
                         level: Diamond
                         devices:
@@ -1979,18 +2251,18 @@ paths:
                             id: 195
                             os: Android
                             osVersion: KitKat (4.4.1)
-                      - id: 48053
-                        name: patrizia
-                        surname: assumma
+                      - id: 12348053
+                        name: Patrizio
+                        surname: Alessandrini
                         experience: 5496
                         level: Platinum
                         devices:
                           - id: 196
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 28135
+                      - id: 1228135
                         name: Dario
-                        surname: Losacco
+                        surname: Moccia
                         experience: 11215
                         level: Platinum
                         devices:
@@ -2002,9 +2274,9 @@ paths:
                             id: 198
                             os: Android
                             osVersion: 12 (12)
-                      - id: 25082
-                        name: Iole
-                        surname: Branca
+                      - id: 125082
+                        name: Iacono
+                        surname: Biondi
                         experience: 37039
                         level: Diamond
                         devices:
@@ -2021,9 +2293,9 @@ paths:
                             id: 201
                             os: iOS
                             osVersion: iOS 14.4 (14.4)
-                      - id: 31558
-                        name: Nicole
-                        surname: Meazza
+                      - id: 1231558
+                        name: Nicoletta
+                        surname: Messina
                         experience: 22816
                         level: Platinum
                         devices:
@@ -2040,9 +2312,9 @@ paths:
                             id: 204
                             os: iOS
                             osVersion: iOS 15.6.1 (15.6.1)
-                      - id: 55033
-                        name: Laura
-                        surname: Pes
+                      - id: 123455033
+                        name: Lilla
+                        surname: Pepe
                         experience: 1295
                         level: Gold
                         devices:
@@ -2062,9 +2334,9 @@ paths:
                             id: 208
                             os: iOS
                             osVersion: iOS 15.6 (15.6)
-                      - id: 53001
-                        name: Silvia
-                        surname: Buzzotta
+                      - id: 123453001
+                        name: Silvio
+                        surname: Banfi
                         experience: 13924
                         level: Diamond
                         devices:
@@ -2081,18 +2353,18 @@ paths:
                             id: 211
                             os: Android
                             osVersion: 12beta (12beta)
-                      - id: 52319
-                        name: Alessandro
-                        surname: Milano
+                      - id: 12345211
+                        name: Angelo
+                        surname: Bologna
                         experience: 5106
                         level: Platinum
                         devices:
                           - id: 212
                             os: Windows
                             osVersion: Windows 11 (22471)
-                      - id: 57352
-                        name: Paolo Maria
-                        surname: Trabattoni
+                      - id: 12357352
+                        name: Paolini
+                        surname: Tapia
                         experience: 4413
                         level: Platinum
                         devices:
@@ -2104,9 +2376,9 @@ paths:
                             id: 214
                             os: Android
                             osVersion: 12 (12)
-                      - id: 57938
-                        name: Matteo
-                        surname: Pivari
+                      - id: 12357938
+                        name: Matt765
+                        surname: Pisani
                         experience: 3249
                         level: Platinum
                         devices:
@@ -2118,9 +2390,9 @@ paths:
                             id: 216
                             os: Android
                             osVersion: 12 (12)
-                      - id: 46015
+                      - id: 12346015
                         name: Ilaria
-                        surname: Croce Tornieri
+                        surname: Crocetta
                         experience: 13496
                         level: Diamond
                         devices:
@@ -2129,9 +2401,9 @@ paths:
                             id: 217
                             os: Android
                             osVersion: 10 (10.0)
-                      - id: 51135
-                        name: Alessandra
-                        surname: Segreto
+                      - id: 12351135
+                        name: Adele
+                        surname: Segreti
                         experience: 7550
                         level: Platinum
                         devices:
@@ -2148,9 +2420,9 @@ paths:
                             id: 220
                             os: Android
                             osVersion: 11 (11)
-                      - id: 54599
-                        name: ANDREA
-                        surname: APOLLONI
+                      - id: 1234599
+                        name: Amato
+                        surname: Arona
                         experience: 4436
                         level: Platinum
                         devices:
@@ -2170,9 +2442,9 @@ paths:
                             id: 224
                             os: Windows
                             osVersion: Windows 11 (22471)
-                      - id: 7951
-                        name: Lorenzo
-                        surname: Silvestri
+                      - id: 1677951
+                        name: Liliana
+                        surname: Severini
                         experience: 3045
                         level: Bronze
                         devices:
@@ -2181,18 +2453,18 @@ paths:
                             id: 225
                             os: Android
                             osVersion: 11 (11)
-                      - id: 58189
-                        name: Andrea
-                        surname: Donadello
+                      - id: 123458189
+                        name: Andromeda
+                        surname: De Santis
                         experience: 2157
                         level: Gold
                         devices:
                           - id: 226
                             os: Windows
                             osVersion: Windows 11
-                      - id: 23796
-                        name: Ferdinando
-                        surname: Scavo
+                      - id: 123796
+                        name: Felice
+                        surname: Schiavo
                         experience: 4972
                         level: Platinum
                         devices:
@@ -2204,27 +2476,27 @@ paths:
                           - id: 228
                             os: MacOS
                             osVersion: Mac OS X 11 (Big Sur)
-                      - id: 54259
-                        name: Michele
-                        surname: Palese
+                      - id: 12354259
+                        name: Mariano
+                        surname: Pellegrini
                         experience: 4116
                         level: Platinum
                         devices:
                           - id: 229
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 22275
-                        name: Eliana
-                        surname: Alfano
+                      - id: 122275
+                        name: Elia
+                        surname: Alessi
                         experience: 7846
                         level: Platinum
                         devices:
                           - id: 230
                             os: Windows
                             osVersion: Windows 10 May 2021 Update
-                      - id: 31454
+                      - id: 1231454
                         name: Romina
-                        surname: Castellini
+                        surname: Power
                         experience: 7855
                         level: Platinum
                         devices:
@@ -2233,9 +2505,9 @@ paths:
                             id: 231
                             os: iOS
                             osVersion: iOS 16 (16)
-                      - id: 48229
-                        name: Alexandro
-                        surname: Sollai
+                      - id: 12348229
+                        name: Aleandro
+                        surname: Serio
                         experience: 1055
                         level: Bronze
                         devices:
@@ -2244,18 +2516,18 @@ paths:
                             id: 232
                             os: iOS
                             osVersion: iOS 15.3 (15.3)
-                      - id: 57647
-                        name: Francesco
-                        surname: Campus
+                      - id: 12357647
+                        name: Fabrizio
+                        surname: Cecchi
                         experience: 3407
                         level: Platinum
                         devices:
                           - id: 233
                             os: MacOS
                             osVersion: Mac OS X 10.15 (Catalina)
-                      - id: 52064
-                        name: Mara
-                        surname: Arra
+                      - id: 12352064
+                        name: Mariano
+                        surname: Arabelli
                         experience: 6669
                         level: Platinum
                         devices:
@@ -2271,9 +2543,9 @@ paths:
                 example-with-questions:
                   value:
                     results:
-                      - id: 34463
-                        name: Sara
-                        surname: Galasso
+                      - id: 1344163
+                        name: Sandro
+                        surname: Gentilini
                         experience: 21541
                         level: Diamond
                         devices:
@@ -3373,33 +3645,34 @@ paths:
               examples:
                 Example 1:
                   value:
-                    status: done
                     items:
                       - tester:
-                          id: 1
-                          name: Jhon
-                          surname: Doe
+                          id: 0
+                          name: string
+                          surname: string
+                          group: 0
                         usecases:
-                          completed: 3
-                          required: 3
+                          completed: 0
+                          required: 0
                         bugs:
-                          critical: 11
-                          high: 2
-                          medium: 3
-                          low: 4
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
                         payout:
-                          completion: 100
-                          bug: 10
+                          completion: 0
+                          bug: 0
                           refund: 0
                           extra: 0
                         experience:
-                          completion: 200
+                          completion: 0
                           extra: 0
-                        note: no extra
+                        note: string
                         status: pending
                         weightedBugs: 0
                         isCompleted: true
                         isTopTester: true
+                    status: draft
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -7907,6 +8180,48 @@ components:
         - field_id
         - name
         - value
+    Agreement:
+      type: object
+      x-examples:
+        Example 1:
+          id: 1
+          title: Agreement Title
+          tokens: 10.5
+          unitPrice: 165
+          expirationDate: '2023-06-06 12:59:16'
+          startDate: '2023-06-06 12:59:16'
+          note: Agreement Notes
+          customer:
+            id: 1
+            company: Customer Company
+          isTokenBased: true
+      x-stoplight:
+        id: a1062dea11dce
+      properties:
+        title:
+          type: string
+          minLength: 1
+        tokens:
+          type: number
+        unitPrice:
+          type: number
+        startDate:
+          type: string
+          pattern: '^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$'
+        expirationDate:
+          type: string
+          pattern: '^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$'
+        note:
+          type: string
+        isTokenBased:
+          type: boolean
+          default: false
+      required:
+        - title
+        - tokens
+        - unitPrice
+        - startDate
+        - expirationDate
     Bug:
       title: Bug
       type: object
@@ -8290,8 +8605,9 @@ components:
       enum:
         - withholding
         - witholding-extra
-        - other
         - non-italian
+        - vat
+        - company
     LevelDefinition:
       title: LevelDefinition
       type: object

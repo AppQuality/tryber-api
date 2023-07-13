@@ -1,61 +1,103 @@
 import app from "@src/app";
-import { data as popupData } from "@src/__mocks__/mockedDb/popups";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 describe("Route GET popups", () => {
-  const data: { [key: string]: any } = {};
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      data.popup1 = await popupData.basicPopup({
+    await tryber.tables.WpAppqPopups.do().insert([
+      {
         id: 1,
+        title: "This is the POPUP title 1",
         targets: "italian",
-      });
-      data.popup2 = await popupData.basicPopup({
+        extras: "",
+        content: "eyJST09ertgetrerbsfgUIjp",
+        is_auto: 0,
+      },
+      {
         id: 2,
-      });
-      data.popup3 = await popupData.basicPopup({
+        title: "This is the POPUP title 2",
+        targets: "list",
+        extras: "",
+        content: "eyJST09ertgetrerbsfgUIjp",
+        is_auto: 0,
+      },
+      {
         id: 3,
-      });
-      data.popup4 = await popupData.basicPopup({
+        title: "This is the POPUP title 3",
+        targets: "list",
+        extras: "",
+        content: "eyJST09ertgetrerbsfgUIjp",
+        is_auto: 0,
+      },
+      {
         id: 4,
+        title: "This is the POPUP title 4",
+        targets: "list",
+        extras: "",
+        content: "eyJST09ertgetrerbsfgUIjp",
         is_auto: 1,
-      });
-
-      resolve(null);
-    });
+      },
+    ]);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await popupData.drop();
-      resolve(null);
-    });
+    await tryber.tables.WpAppqPopups.do().delete();
   });
 
-  it("Should return all not automatic popups if user has appq_message_center permission", async () => {
+  it("Should return all not automatic popups if user is admin", async () => {
     const response = await request(app)
       .get("/popups")
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
-    expect(response.body).toEqual([
-      {
-        content: data.popup1.content,
-        id: data.popup1.id,
-        profiles: "italian",
-        title: data.popup1.title,
-      },
-      {
-        content: data.popup2.content,
-        id: data.popup2.id,
-        profiles: [],
-        title: data.popup2.title,
-      },
-      {
-        content: data.popup3.content,
-        id: data.popup3.id,
-        profiles: [],
-        title: data.popup3.title,
-      },
-    ]);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          title: "This is the POPUP title 1",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: "italian",
+        }),
+        expect.objectContaining({
+          id: 2,
+          title: "This is the POPUP title 2",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: [],
+        }),
+        expect.objectContaining({
+          id: 3,
+          title: "This is the POPUP title 3",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: [],
+        }),
+      ])
+    );
+  });
+  it("Should return all not automatic popups if user has appq_message_center permission", async () => {
+    const response = await request(app)
+      .get("/popups")
+      .set("authorization", `Bearer tester capability ["appq_message_center"]`);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          title: "This is the POPUP title 1",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: "italian",
+        }),
+        expect.objectContaining({
+          id: 2,
+          title: "This is the POPUP title 2",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: [],
+        }),
+        expect.objectContaining({
+          id: 3,
+          title: "This is the POPUP title 3",
+          content: "eyJST09ertgetrerbsfgUIjp",
+          profiles: [],
+        }),
+      ])
+    );
   });
   it("Should return 403 if user has not appq_message_center permission", async () => {
     const response = await request(app)
@@ -84,5 +126,19 @@ describe("Route GET popups", () => {
     expect(response.status).toBe(200);
     expect(response.body.length).toBe(1);
     expect(response.body[0].id).toBe(2);
+  });
+});
+
+describe("Route GET popups - when there are no popups", () => {
+  it("Should answer 404 when there are no popups", async () => {
+    const response = await request(app)
+      .get("/popups")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(404);
+    expect(response.body).toMatchObject({
+      element: "popups",
+      id: 0,
+      message: "No popups found",
+    });
   });
 });
