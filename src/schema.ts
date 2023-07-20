@@ -1530,7 +1530,7 @@ export interface operations {
             insight?: {
               id: number;
               title: string;
-              description?: string;
+              description: string;
               severity: {
                 id: number;
                 name: string;
@@ -1538,24 +1538,25 @@ export interface operations {
               cluster:
                 | "all"
                 | {
-                    id: string;
+                    id: number;
                     name: string;
-                  };
-              mediaExtracts?: {
-                mediaId: number;
+                  }[];
+              videoPart: {
+                id: number;
                 start: number;
                 end: number;
-                description?: string;
+                mediaId: number;
                 url: string;
-                streamUrl?: string;
-              };
-              sentiments?: {
-                value: string;
-                cluster: {
-                  id?: number;
-                  name?: string;
-                };
+                streamUrl: string;
+                description: string;
               }[];
+            }[];
+            sentiments: {
+              value: number;
+              cluster: {
+                id: number;
+                name: string;
+              };
             }[];
           };
         };
@@ -1575,34 +1576,39 @@ export interface operations {
       /** OK */
       200: {
         content: {
-          "application/json": {
-            /** @enum {string} */
-            status?: "draft" | "publish";
-            insights: {
-              id: number;
-              title: string;
-              description?: string;
-              severityId: number;
-              order: number;
-              clusterId: number;
-              mediaExtracts: {
-                id: number;
-                start: number;
-                end: number;
-                mediaId: number;
-                description?: string;
-                order: number;
-              }[];
-            }[];
-            sentiments: {
-              clusterId: number;
-              value: string;
-            }[];
-          };
+          "application/json": { [key: string]: unknown };
         };
       };
       403: components["responses"]["Authentication"];
       404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {string} */
+          status?: "draft" | "publish";
+          insights: {
+            id: number;
+            title: string;
+            description: string;
+            severityId: number;
+            order: number;
+            clusterId: number[] | "all";
+            videoPart: {
+              id: number;
+              start: number;
+              end: number;
+              mediaId: number;
+              description: string;
+              order: number;
+            }[];
+          }[];
+          sentiments: {
+            clusterId: number;
+            value: string;
+          }[];
+        };
+      };
     };
   };
   /** Get all clusters for  a specific campaign */
@@ -1619,8 +1625,8 @@ export interface operations {
         content: {
           "application/json": {
             items: {
-              id?: number;
-              name?: string;
+              id: number;
+              name: string;
             }[];
           };
         };
@@ -1646,6 +1652,14 @@ export interface operations {
               id: number;
               name: string;
               time: number;
+              tester: {
+                id: number;
+                name: string;
+              };
+              cluster: {
+                id: number;
+                name: string;
+              };
             }[];
           };
         };
