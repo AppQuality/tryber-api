@@ -122,6 +122,37 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/ux": {
+    /** Get the data of a UseCase in a Campaign */
+    get: operations["get-campaigns-campaign-ux"];
+    patch: operations["patch-campaigns-campaign-ux"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/clusters": {
+    /** Get all clusters for  a specific campaign */
+    get: operations["get-campaigns-campaign-clusters"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/observations": {
+    /** Get observations for a campaign */
+    get: operations["get-campaigns-campaign-observations"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/forms": {
     get: operations["get-campaigns-forms"];
     post: operations["post-campaigns-forms"];
@@ -1479,6 +1510,148 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["TaskOptional"];
       };
+    };
+  };
+  /** Get the data of a UseCase in a Campaign */
+  "get-campaigns-campaign-ux": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** A UseCase linked with the Campaign */
+      200: {
+        content: {
+          "application/json": {
+            /** @enum {string} */
+            status: "draft" | "published" | "draft-modified";
+            insight?: {
+              id: number;
+              title: string;
+              description?: string;
+              severity: {
+                id: number;
+                name: string;
+              };
+              cluster:
+                | "all"
+                | {
+                    id: string;
+                    name: string;
+                  };
+              mediaExtracts?: {
+                mediaId: number;
+                start: number;
+                end: number;
+                description?: string;
+                url: string;
+                streamUrl?: string;
+              };
+              sentiments?: {
+                value: string;
+                cluster: {
+                  id?: number;
+                  name?: string;
+                };
+              }[];
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "patch-campaigns-campaign-ux": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            /** @enum {string} */
+            status?: "draft" | "publish";
+            insights: {
+              id: number;
+              title: string;
+              description?: string;
+              severityId: number;
+              order: number;
+              clusterId: number;
+              mediaExtracts: {
+                id: number;
+                start: number;
+                end: number;
+                mediaId: number;
+                description?: string;
+                order: number;
+              }[];
+            }[];
+            sentiments: {
+              clusterId: number;
+              value: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["Authentication"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get all clusters for  a specific campaign */
+  "get-campaigns-campaign-clusters": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** A UseCase linked with the Campaign */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id?: number;
+              name?: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get observations for a campaign */
+  "get-campaigns-campaign-observations": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** A UseCase linked with the Campaign */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+              time: number;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-campaigns-forms": {
