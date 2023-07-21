@@ -36,7 +36,6 @@ describe("GET /campaigns/:campaignId/observations", () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 
@@ -44,7 +43,6 @@ describe("GET /campaigns/:campaignId/observations", () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 
@@ -52,7 +50,6 @@ describe("GET /campaigns/:campaignId/observations", () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 });
