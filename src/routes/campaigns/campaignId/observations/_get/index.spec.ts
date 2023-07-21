@@ -20,10 +20,10 @@ beforeAll(async () => {
   await tryber.tables.WpAppqUsecaseMediaObservations.do().insert({
     id: 1,
     media_id: 1,
-    name: "name",
-    video_ts: 0,
-    description: "description",
-    ux_note: "ux_notes",
+    name: "Observation name",
+    video_ts: 59,
+    description: "Observation description",
+    ux_note: "Observation ux_notes",
   });
 });
 describe("GET /campaigns/:campaignId/observations", () => {
@@ -89,6 +89,18 @@ describe("GET /campaigns/:campaignId/observations", () => {
       expect.arrayContaining([
         expect.objectContaining({
           name: expect.any(String),
+        }),
+      ])
+    );
+  });
+  it("Should return items with time", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          time: expect.any(Number),
         }),
       ])
     );

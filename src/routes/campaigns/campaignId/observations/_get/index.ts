@@ -27,14 +27,15 @@ export default class SingleCampaignRoute extends CampaignRoute<{
     const obeservations =
       await tryber.tables.WpAppqUsecaseMediaObservations.do().select(
         "id",
-        "name"
+        "name",
+        tryber.ref("video_ts").as("time")
       );
     if (obeservations === undefined) return [];
     return obeservations.map((obeservation) => {
       return {
         id: obeservation.id,
         name: obeservation.name,
-        time: 0,
+        time: obeservation.time,
         tester: { id: 0, name: "name" },
         cluster: { id: 0, name: "name" },
       };
