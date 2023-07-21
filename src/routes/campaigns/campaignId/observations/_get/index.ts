@@ -25,14 +25,15 @@ export default class SingleCampaignRoute extends CampaignRoute<{
 
   private async getObeservations() {
     const obeservations =
-      await tryber.tables.WpAppqUsecaseMediaObservations.do()
-        .select("id")
-        .where({ id: this.cp_id });
+      await tryber.tables.WpAppqUsecaseMediaObservations.do().select(
+        "id",
+        "name"
+      );
     if (obeservations === undefined) return [];
     return obeservations.map((obeservation) => {
       return {
         id: obeservation.id,
-        name: "name",
+        name: obeservation.name,
         time: 0,
         tester: { id: 0, name: "name" },
         cluster: { id: 0, name: "name" },

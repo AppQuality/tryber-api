@@ -81,4 +81,16 @@ describe("GET /campaigns/:campaignId/observations", () => {
       ])
     );
   });
+  it("Should return items with name", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: expect.any(String),
+        }),
+      ])
+    );
+  });
 });
