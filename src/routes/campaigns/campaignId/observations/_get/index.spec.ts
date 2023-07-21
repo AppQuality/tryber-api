@@ -52,4 +52,11 @@ describe("GET /campaigns/:campaignId/observations", () => {
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(200);
   });
+
+  it("Should return items array", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body).toHaveProperty("items", []);
+  });
 });
