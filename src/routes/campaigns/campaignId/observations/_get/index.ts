@@ -14,13 +14,29 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       this.setError(403, new OpenapiError("Access denied"));
       return false;
     }
-
     return true;
   }
 
   protected async prepare(): Promise<void> {
     return this.setSuccess(200, {
-      items: [],
+      items: await this.getObeservations(),
+    });
+  }
+
+  private async getObeservations() {
+    const obeservations =
+      await tryber.tables.WpAppqUsecaseMediaObservations.do()
+        .select("id")
+        .where({ id: this.cp_id });
+    if (obeservations === undefined) return [];
+    return obeservations.map((obeservation) => {
+      return {
+        id: obeservation.id,
+        name: "name",
+        time: 0,
+        tester: { id: 0, name: "name" },
+        cluster: { id: 0, name: "name" },
+      };
     });
   }
 }
