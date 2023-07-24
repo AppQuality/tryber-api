@@ -3159,7 +3159,18 @@ paths:
                         - name
                 required:
                   - items
-              examples: {}
+              examples:
+                4-items:
+                  value:
+                    items:
+                      - id: 1
+                        name: 'UC1: Cart'
+                      - id: 2
+                        name: 'UC2: Login'
+                      - id: 3
+                        name: 'UC3: Checkout'
+                      - id: 4
+                        name: 'UC4: Search'
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
