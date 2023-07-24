@@ -22,6 +22,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       version: 1,
     });
     await tryber.tables.UxCampaignInsights.do().insert({
+      id: 1,
       campaign_id: 1,
       version: 1,
       title: "Test Insight",
@@ -31,6 +32,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       order: 1,
     });
     await tryber.tables.UxCampaignInsights.do().insert({
+      id: 2,
       campaign_id: 1,
       version: 1,
       title: "Test Insight All Cluster",
@@ -51,12 +53,31 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       title: "Test Cluster 2",
       subtitle: "",
     });
+
+    await tryber.tables.UxCampaignVideoParts.do().insert({
+      id: 1,
+      insight_id: 1,
+      start: 0,
+      end: 10,
+      order: 0,
+      media_id: 1,
+      description: "Test Description",
+    });
+    await tryber.tables.WpAppqUserTaskMedia.do().insert({
+      id: 1,
+      campaign_task_id: 1,
+      user_task_id: 1,
+      location: "http://example.com/video.mp4",
+      tester_id: 1,
+    });
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
+    await tryber.tables.UxCampaignVideoParts.do().delete();
+    await tryber.tables.WpAppqUserTaskMedia.do().delete();
   });
 
   it("Should return all the findings", async () => {
@@ -100,28 +121,28 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     );
   });
 
-  // it("Should return all the video part in a finding", async () => {
-  //   const response = await request(app)
-  //     .get("/campaigns/1/ux")
-  //     .set("Authorization", "Bearer admin");
-  //   expect(response.body).toHaveProperty("insight");
-  //   expect(response.body.insight).toHaveLength(1);
-  //   expect(response.body.insight[0]).toEqual(
-  //     expect.objectContaining({
-  //       title: "Test Insight",
-  //       description: "Test Description",
-  //       severity: expect.objectContaining({
-  //         id: 1,
-  //         name: "Minor",
-  //       }),
-  //       cluster: [
-  //         expect.objectContaining({
-  //           id: 1,
-  //           name: "Test Cluster",
-  //         }),
-  //       ],
-  //       videoPart: expect.arrayContaining([]),
-  //     })
-  //   );
-  // });
+  it("Should return all the video part in a finding", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("insight");
+    expect(response.body.insight).toHaveLength(2);
+    expect(response.body.insight[1]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        videoPart: expect.arrayContaining([]),
+      })
+    );
+    expect(response.body.insight[1].videoPart).toHaveLength(1);
+    expect(response.body.insight[1].videoPart[0]).toEqual(
+      expect.objectContaining({
+        start: 0,
+        end: 10,
+        description: "Test Description",
+        mediaId: 1,
+        url: "http://example.com/video.mp4",
+        streamUrl: "http://example.com/video-stream.m3u8",
+      })
+    );
+  });
 });
