@@ -25,20 +25,33 @@ export default class SingleCampaignRoute extends CampaignRoute<{
 
   private async getObeservations() {
     const obeservations =
-      await tryber.tables.WpAppqUsecaseMediaObservations.do().select(
-        "id",
-        "name",
-        tryber.ref("video_ts").as("time")
-      );
+      await tryber.tables.WpAppqUsecaseMediaObservations.do()
+        .select(
+          tryber.ref("id").withSchema("wp_appq_usecase_media_observations"),
+          tryber.ref("name").withSchema("wp_appq_usecase_media_observations"),
+          tryber
+            .ref("video_ts")
+            .withSchema("wp_appq_usecase_media_observations")
+            .as("time")
+        )
+        .join(
+          "wp_appq_user_task_media",
+          "wp_appq_usecase_media_observations.media_id",
+          "wp_appq_user_task_media.id"
+        )
+        .join(
+          "wp_appq_campaign_task",
+          "wp_appq_user_task_media.campaign_task_id",
+          "wp_appq_campaign_task.id"
+        )
+        .where("wp_appq_campaign_task.campaign_id", this.cp_id);
     if (obeservations === undefined) return [];
-    return obeservations.map((obeservation) => {
-      return {
-        id: obeservation.id,
-        name: obeservation.name,
-        time: obeservation.time,
-        tester: { id: 0, name: "name" },
-        cluster: { id: 0, name: "name" },
-      };
-    });
+    return obeservations.map((obeservation) => ({
+      id: obeservation.id,
+      name: obeservation.name,
+      time: obeservation.time,
+      tester: { id: 0, name: "name" },
+      cluster: { id: 0, name: "name" },
+    }));
   }
 }
