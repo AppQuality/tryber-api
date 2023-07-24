@@ -148,3 +148,24 @@ describe("GET /campaigns/:campaignId/clusters", () => {
     );
   });
 });
+
+describe("GET /campaigns/:campaignId/clusters - there are no clusters", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+  });
+  it("Should return items array", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/clusters")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toBeInstanceOf(Array);
+  });
+
+  it("Should return items as empty array if there are no clusters", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/clusters")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual([]);
+  });
+});
