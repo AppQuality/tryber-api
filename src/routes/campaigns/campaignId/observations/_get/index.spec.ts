@@ -55,6 +55,7 @@ beforeAll(async () => {
     {
       id: 10,
       campaign_id: 1,
+      cluster_id: 10,
       title: "Campaign Task1 title",
       simple_title: "Campaign Task1 simple_title",
       content: "Campaign Task1 content",
@@ -67,6 +68,7 @@ beforeAll(async () => {
     {
       id: 20,
       campaign_id: 2,
+      cluster_id: 20,
       title: "Campaign Task2 title",
       simple_title: "Campaign Task2 simple_title",
       content: "Campaign Task2 content",
@@ -75,6 +77,20 @@ beforeAll(async () => {
       is_required: 0,
       jf_code: "Campaign Task2 jf_code",
       jf_text: "Campaign Task2 jf_text",
+    },
+  ]);
+  await tryber.tables.WpAppqUsecaseCluster.do().insert([
+    {
+      id: 10,
+      campaign_id: 1,
+      title: "Cluster10 title",
+      subtitle: "Cluster10 subtitle",
+    },
+    {
+      id: 20,
+      campaign_id: 2,
+      title: "Cluster20 title",
+      subtitle: "Cluster20 subtitle",
     },
   ]);
 });
@@ -144,7 +160,6 @@ describe("GET /campaigns/:campaignId/observations", () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
-    console.log(response.body.items);
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -197,6 +212,37 @@ describe("GET /campaigns/:campaignId/observations", () => {
       expect.arrayContaining([
         expect.objectContaining({
           time: 59,
+        }),
+      ])
+    );
+  });
+
+  it("Should return items with cluster as id number and name string", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          cluster: expect.objectContaining({
+            id: expect.any(Number),
+            name: expect.any(String),
+          }),
+        }),
+      ])
+    );
+  });
+  it("Should return items with cluster", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          cluster: expect.objectContaining({
+            id: 10,
+            name: "Cluster10 title",
+          }),
         }),
       ])
     );
