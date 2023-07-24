@@ -17,6 +17,14 @@ beforeAll(async () => {
     customer_title: "",
     campaign_pts: 200,
   });
+  await tryber.tables.WpAppqEvdProfile.do().insert({
+    id: 1,
+    wp_user_id: 1,
+    name: "Tester1",
+    email: "jhon.doe@tryber.me",
+    employment_id: 1,
+    education_id: 1,
+  });
   await tryber.tables.WpAppqUsecaseMediaObservations.do().insert([
     {
       id: 1,
@@ -242,6 +250,38 @@ describe("GET /campaigns/:campaignId/observations", () => {
           cluster: expect.objectContaining({
             id: 10,
             name: "Cluster10 title",
+          }),
+        }),
+      ])
+    );
+  });
+
+  it("Should return items with tester as id number and name string", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({
+            id: expect.any(Number),
+            name: expect.any(String),
+          }),
+        }),
+      ])
+    );
+  });
+
+  it("Should return items with tester", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tester: expect.objectContaining({
+            id: 1,
+            name: "Tester1",
           }),
         }),
       ])

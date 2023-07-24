@@ -40,7 +40,9 @@ export default class SingleCampaignRoute extends CampaignRoute<{
           tryber
             .ref("title")
             .withSchema("wp_appq_usecase_cluster")
-            .as("cluster_title")
+            .as("cluster_title"),
+          tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
+          tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name")
         )
         .join(
           "wp_appq_user_task_media",
@@ -57,6 +59,11 @@ export default class SingleCampaignRoute extends CampaignRoute<{
           "wp_appq_campaign_task.cluster_id",
           "wp_appq_usecase_cluster.id"
         )
+        .join(
+          "wp_appq_evd_profile",
+          "wp_appq_user_task_media.tester_id",
+          "wp_appq_evd_profile.id"
+        )
         .where("wp_appq_campaign_task.campaign_id", this.cp_id);
     if (obeservations === undefined) return [];
     return obeservations.map((obeservation) => ({
@@ -67,7 +74,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         id: obeservation.cluster_id,
         name: obeservation.cluster_title,
       },
-      tester: { id: 0, name: "name" },
+      tester: { id: obeservation.tester_id, name: obeservation.tester_name },
     }));
   }
 }
