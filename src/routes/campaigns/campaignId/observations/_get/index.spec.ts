@@ -125,11 +125,10 @@ describe("GET /campaigns/:campaignId/observations", () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
-    console.log(response.body.items);
     expect(response.body.items.length).toBe(1);
   });
 
-  it("Should return items with id", async () => {
+  it("Should return items with id as number", async () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
@@ -141,7 +140,20 @@ describe("GET /campaigns/:campaignId/observations", () => {
       ])
     );
   });
-  it("Should return items with name", async () => {
+  it("Should return items with id", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    console.log(response.body.items);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+        }),
+      ])
+    );
+  });
+  it("Should return items with name as string", async () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
@@ -153,7 +165,19 @@ describe("GET /campaigns/:campaignId/observations", () => {
       ])
     );
   });
-  it("Should return items with time", async () => {
+  it("Should return items with name", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "Observation1 name",
+        }),
+      ])
+    );
+  });
+  it("Should return items with time as number", async () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
@@ -161,6 +185,18 @@ describe("GET /campaigns/:campaignId/observations", () => {
       expect.arrayContaining([
         expect.objectContaining({
           time: expect.any(Number),
+        }),
+      ])
+    );
+  });
+  it("Should return items with time", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          time: 59,
         }),
       ])
     );
