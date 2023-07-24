@@ -288,3 +288,24 @@ describe("GET /campaigns/:campaignId/observations", () => {
     );
   });
 });
+
+describe("GET /campaigns/:campaignId/observations - there are no observation", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqUsecaseMediaObservations.do().delete();
+  });
+  it("Should return items array", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toBeInstanceOf(Array);
+  });
+
+  it("Should return items as empty array if there are no obeservations", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body).toHaveProperty("items");
+    expect(response.body.items).toEqual([]);
+  });
+});
