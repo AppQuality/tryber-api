@@ -3047,7 +3047,7 @@ paths:
                         type: integer
                       order:
                         type: integer
-                      clusterId:
+                      clusterIds:
                         oneOf:
                           - type: array
                             items:
@@ -3085,7 +3085,7 @@ paths:
                       - description
                       - severityId
                       - order
-                      - clusterId
+                      - clusterIds
                       - videoPart
                 sentiments:
                   type: array
@@ -3112,7 +3112,7 @@ paths:
                       description: string
                       severityId: 0
                       order: 0
-                      clusterId:
+                      clusterIds:
                         - 0
                       videoPart:
                         - id: 0

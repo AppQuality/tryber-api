@@ -1593,7 +1593,7 @@ export interface operations {
             description: string;
             severityId: number;
             order: number;
-            clusterId: number[] | "all";
+            clusterIds: number[] | "all";
             videoPart: {
               id: number;
               start: number;
