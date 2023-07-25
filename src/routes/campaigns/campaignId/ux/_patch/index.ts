@@ -47,17 +47,13 @@ export default class PatchUx extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    await this.fetchUx();
+    await this.addInsights();
     return this.setSuccess(200, {});
   }
 
-  private async fetchUx() {
-    const requestBody = this.getBody();
-    const requestInsights = requestBody.insights ? requestBody.insights : [];
-
-    const mapInsightsToInsert = [];
-    for (const insight of requestInsights) {
-      mapInsightsToInsert.push({
+  private async addInsights() {
+    for (const insight of this.getBody().insights) {
+      const data = {
         campaign_id: this.campaignId,
         version: 1,
         title: insight.title ? insight.title : "",
@@ -70,9 +66,8 @@ export default class PatchUx extends UserRoute<{
             ? "0"
             : "0",
         order: insight.order ? insight.order : 1,
-      });
+      };
+      await tryber.tables.UxCampaignInsights.do().insert(data);
     }
-    if (mapInsightsToInsert.length)
-      await tryber.tables.UxCampaignInsights.do().insert(mapInsightsToInsert);
   }
 }
