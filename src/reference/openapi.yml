@@ -3278,7 +3278,10 @@ paths:
       description: Get observations for a campaign
       security:
         - JWT: []
-      parameters: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterBy
   /campaigns/forms:
     post:
       summary: Create a new preselection form
