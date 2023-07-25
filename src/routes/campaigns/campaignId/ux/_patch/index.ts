@@ -56,18 +56,20 @@ export default class PatchUx extends UserRoute<{
       const data = {
         campaign_id: this.campaignId,
         version: 1,
-        title: insight.title ? insight.title : "",
-        description: insight.description ? insight.description : "",
-        severity_id: insight.severityId ? insight.severityId : 1,
-        cluster_ids:
-          Array.isArray(insight.clusterIds) && insight.clusterIds.length
-            ? insight.clusterIds.join(",")
-            : insight.clusterIds === "all"
-            ? "0"
-            : "0",
-        order: insight.order ? insight.order : 1,
+        title: insight.title,
+        description: insight.description,
+        severity_id: insight.severityId,
+        cluster_ids: mapClustersForInsert(insight.clusterIds),
+        order: insight.order,
       };
       await tryber.tables.UxCampaignInsights.do().insert(data);
+    }
+
+    function mapClustersForInsert(clusterIds: "all" | number[]) {
+      if (clusterIds === "all") return "0";
+      if (Array.isArray(clusterIds) && clusterIds.length > 0)
+        return clusterIds.join(",");
+      throw new Error("Invalid clusterIds");
     }
   }
 }
