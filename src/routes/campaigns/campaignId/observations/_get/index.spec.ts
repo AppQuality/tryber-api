@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdCampaign.do().insert({
@@ -301,7 +301,7 @@ describe("GET /campaigns/:campaignId/observations - there are no observation", (
     expect(response.body.items).toBeInstanceOf(Array);
   });
 
-  it("Should return items as empty array if there are no obeservations", async () => {
+  it("Should return items as empty array if there are no observations", async () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');

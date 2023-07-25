@@ -19,62 +19,58 @@ export default class SingleCampaignRoute extends CampaignRoute<{
 
   protected async prepare(): Promise<void> {
     return this.setSuccess(200, {
-      items: await this.getObeservations(),
+      items: await this.getObservations(),
     });
   }
 
-  private async getObeservations() {
-    const obeservations =
-      await tryber.tables.WpAppqUsecaseMediaObservations.do()
-        .select(
-          tryber.ref("id").withSchema("wp_appq_usecase_media_observations"),
-          tryber.ref("name").withSchema("wp_appq_usecase_media_observations"),
-          tryber
-            .ref("video_ts")
-            .withSchema("wp_appq_usecase_media_observations")
-            .as("time"),
-          tryber
-            .ref("id")
-            .withSchema("wp_appq_usecase_cluster")
-            .as("cluster_id"),
-          tryber
-            .ref("title")
-            .withSchema("wp_appq_usecase_cluster")
-            .as("cluster_title"),
-          tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
-          tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name")
-        )
-        .join(
-          "wp_appq_user_task_media",
-          "wp_appq_usecase_media_observations.media_id",
-          "wp_appq_user_task_media.id"
-        )
-        .join(
-          "wp_appq_campaign_task",
-          "wp_appq_user_task_media.campaign_task_id",
-          "wp_appq_campaign_task.id"
-        )
-        .join(
-          "wp_appq_usecase_cluster",
-          "wp_appq_campaign_task.cluster_id",
-          "wp_appq_usecase_cluster.id"
-        )
-        .join(
-          "wp_appq_evd_profile",
-          "wp_appq_user_task_media.tester_id",
-          "wp_appq_evd_profile.id"
-        )
-        .where("wp_appq_campaign_task.campaign_id", this.cp_id);
-    if (obeservations === undefined) return [];
-    return obeservations.map((obeservation) => ({
-      id: obeservation.id,
-      name: obeservation.name,
-      time: obeservation.time,
+  private async getObservations() {
+    const observations = await tryber.tables.WpAppqUsecaseMediaObservations.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_usecase_media_observations"),
+        tryber.ref("name").withSchema("wp_appq_usecase_media_observations"),
+        tryber
+          .ref("video_ts")
+          .withSchema("wp_appq_usecase_media_observations")
+          .as("time"),
+        tryber.ref("id").withSchema("wp_appq_usecase_cluster").as("cluster_id"),
+        tryber
+          .ref("title")
+          .withSchema("wp_appq_usecase_cluster")
+          .as("cluster_title"),
+        tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
+        tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name")
+      )
+      .join(
+        "wp_appq_user_task_media",
+        "wp_appq_usecase_media_observations.media_id",
+        "wp_appq_user_task_media.id"
+      )
+      .join(
+        "wp_appq_campaign_task",
+        "wp_appq_user_task_media.campaign_task_id",
+        "wp_appq_campaign_task.id"
+      )
+      .join(
+        "wp_appq_usecase_cluster",
+        "wp_appq_campaign_task.cluster_id",
+        "wp_appq_usecase_cluster.id"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_user_task_media.tester_id",
+        "wp_appq_evd_profile.id"
+      )
+      .where("wp_appq_campaign_task.campaign_id", this.cp_id);
+
+    return observations.map((observation) => ({
+      id: observation.id,
+      name: observation.name,
+      time: observation.time,
       cluster: {
-        id: obeservation.cluster_id,
-        name: obeservation.cluster_title,
+        id: observation.cluster_id,
+        name: observation.cluster_title,
       },
-      tester: { id: obeservation.tester_id, name: obeservation.tester_name },
+      tester: { id: observation.tester_id, name: observation.tester_name },
     }));
   }
 }
