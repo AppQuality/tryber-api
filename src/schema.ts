@@ -1588,14 +1588,14 @@ export interface operations {
           /** @enum {string} */
           status?: "draft" | "publish";
           insights: {
-            id: number;
+            id?: number;
             title: string;
             description: string;
             severityId: number;
             order: number;
             clusterIds: number[] | "all";
             videoPart: {
-              id: number;
+              id?: number;
               start: number;
               end: number;
               mediaId: number;

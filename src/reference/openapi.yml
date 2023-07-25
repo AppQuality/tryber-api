@@ -3073,14 +3073,12 @@ paths:
                             order:
                               type: integer
                           required:
-                            - id
                             - start
                             - end
                             - mediaId
                             - description
                             - order
                     required:
-                      - id
                       - title
                       - description
                       - severityId
@@ -3103,11 +3101,11 @@ paths:
                 - insights
                 - sentiments
             examples:
-              Example 1:
+              edit-insight-and-videopart:
                 value:
                   status: draft
                   insights:
-                    - id: 0
+                    - id: 5
                       title: string
                       description: string
                       severityId: 0
@@ -3115,7 +3113,7 @@ paths:
                       clusterIds:
                         - 0
                       videoPart:
-                        - id: 0
+                        - id: 7
                           start: 0
                           end: 0
                           mediaId: 0
@@ -3124,6 +3122,25 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 4
+              add-new-insight-and-new-videopart:
+                value:
+                  status: draft
+                  insights:
+                    - title: string
+                      description: string
+                      severityId: 0
+                      order: 0
+                      clusterIds:
+                        - 0
+                      videoPart:
+                        - start: 0
+                          end: 0
+                          mediaId: 0
+                          description: string
+                          order: 0
+                  sentiments:
+                    - clusterId: 0
+                      value: 0
   '/campaigns/{campaign}/clusters':
     parameters:
       - name: campaign
