@@ -6,7 +6,24 @@ import CampaignRoute from "@src/features/routes/CampaignRoute";
 export default class SingleCampaignRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-observations"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-observations"]["parameters"]["path"];
+  query: StoplightOperations["get-campaigns-campaign-observations"]["parameters"]["query"];
 }> {
+  private filterBy: {
+    cluster?: number[];
+  } = {};
+
+  constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
+    const query = this.getQuery();
+    if (query.filterBy) {
+      if ((query.filterBy as any).cluster) {
+        this.filterBy.cluster = (query.filterBy as any).cluster
+          .split(",")
+          .map(Number);
+      }
+    }
+  }
+
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
 
@@ -24,7 +41,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
   }
 
   private async getObservations() {
-    const observations = await tryber.tables.WpAppqUsecaseMediaObservations.do()
+    const query = tryber.tables.WpAppqUsecaseMediaObservations.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_usecase_media_observations"),
         tryber.ref("name").withSchema("wp_appq_usecase_media_observations"),
@@ -62,6 +79,11 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       )
       .where("wp_appq_campaign_task.campaign_id", this.cp_id);
 
+    if (this.filterBy.cluster) {
+      query.whereIn("wp_appq_usecase_cluster.id", this.filterBy.cluster);
+    }
+
+    const observations = await query;
     return observations.map((observation) => ({
       id: observation.id,
       name: observation.name,

@@ -1642,6 +1642,9 @@ export interface operations {
         /** A campaign id */
         campaign: string;
       };
+      query: {
+        filterBy?: unknown;
+      };
     };
     responses: {
       /** A UseCase linked with the Campaign */

@@ -2,6 +2,19 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
+const task = {
+  campaign_id: 1,
+  cluster_id: 10,
+  title: "Campaign Task title",
+  simple_title: "Campaign Task simple_title",
+  content: "Campaign Task content",
+  info: "Campaign Task info",
+  prefix: "Campaign Task prefix",
+  is_required: 1,
+  jf_code: "Campaign Task jf_code",
+  jf_text: "Campaign Task jf_text",
+};
+
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdCampaign.do().insert({
     id: 1,
@@ -42,6 +55,14 @@ beforeAll(async () => {
       description: "Observation2 description",
       ux_note: "Observation2 ux_notes",
     },
+    {
+      id: 3,
+      media_id: 3,
+      name: "Observation2 name",
+      video_ts: 59,
+      description: "Observation2 description",
+      ux_note: "Observation2 ux_notes",
+    },
   ]);
   await tryber.tables.WpAppqUserTaskMedia.do().insert([
     {
@@ -58,33 +79,30 @@ beforeAll(async () => {
       tester_id: 1,
       location: "https://www.youtube.com/@tryber_official",
     },
+    {
+      id: 3,
+      campaign_task_id: 30,
+      user_task_id: 1,
+      tester_id: 1,
+      location: "https://www.youtube.com/@tryber_official",
+    },
   ]);
   await tryber.tables.WpAppqCampaignTask.do().insert([
     {
+      ...task,
       id: 10,
       campaign_id: 1,
-      cluster_id: 10,
-      title: "Campaign Task1 title",
-      simple_title: "Campaign Task1 simple_title",
-      content: "Campaign Task1 content",
-      info: "Campaign Task1 info",
-      prefix: "Campaign Task1 prefix",
-      is_required: 1,
-      jf_code: "Campaign Task1 jf_code",
-      jf_text: "Campaign Task1 jf_text",
     },
     {
+      ...task,
       id: 20,
       campaign_id: 2,
-      cluster_id: 20,
-      title: "Campaign Task2 title",
-      simple_title: "Campaign Task2 simple_title",
-      content: "Campaign Task2 content",
-      info: "Campaign Task2 info",
-      prefix: "Campaign Task2 prefix",
-      is_required: 0,
-      jf_code: "Campaign Task2 jf_code",
-      jf_text: "Campaign Task2 jf_text",
+    },
+    {
+      ...task,
+      id: 30,
+      campaign_id: 1,
+      cluster_id: 30,
     },
   ]);
   await tryber.tables.WpAppqUsecaseCluster.do().insert([
@@ -99,6 +117,12 @@ beforeAll(async () => {
       campaign_id: 2,
       title: "Cluster20 title",
       subtitle: "Cluster20 subtitle",
+    },
+    {
+      id: 30,
+      campaign_id: 1,
+      title: "Cluster title",
+      subtitle: "Cluster subtitle",
     },
   ]);
 });
@@ -142,6 +166,7 @@ describe("GET /campaigns/:campaignId/observations", () => {
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
     expect(response.body).toHaveProperty("items");
+    console.log(response.body.items);
     expect(response.body.items).toBeInstanceOf(Array);
   });
 
@@ -149,7 +174,7 @@ describe("GET /campaigns/:campaignId/observations", () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
-    expect(response.body.items.length).toBe(1);
+    expect(response.body.items.length).toBe(2);
   });
 
   it("Should return items with id as number", async () => {
@@ -282,6 +307,48 @@ describe("GET /campaigns/:campaignId/observations", () => {
           tester: expect.objectContaining({
             id: 1,
             name: "Tester1",
+          }),
+        }),
+      ])
+    );
+  });
+
+  it("Should allow filtering by cluster", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations?filterBy[cluster]=10")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items.length).toBe(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          cluster: expect.objectContaining({
+            id: 10,
+            name: "Cluster10 title",
+          }),
+        }),
+      ])
+    );
+  });
+  it("Should allow filtering by multiple cluster", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations?filterBy[cluster]=10,30")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items.length).toBe(2);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          cluster: expect.objectContaining({
+            id: 10,
+            name: "Cluster10 title",
+          }),
+        }),
+        expect.objectContaining({
+          id: 3,
+          cluster: expect.objectContaining({
+            id: 30,
+            name: "Cluster title",
           }),
         }),
       ])
