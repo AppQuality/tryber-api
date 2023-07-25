@@ -29,13 +29,10 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         tryber.ref("id").withSchema("wp_appq_usecase_cluster"),
         tryber.ref("title").withSchema("wp_appq_usecase_cluster").as("name")
       )
-      .join(
-        "wp_appq_evd_campaign",
-        "wp_appq_usecase_cluster.campaign_id",
-        "wp_appq_evd_campaign.id"
-      )
       .where("wp_appq_usecase_cluster.campaign_id", this.cp_id);
+
     if (clusters === undefined) return [];
+
     return clusters.map((cluster) => ({
       id: cluster.id,
       name: cluster.name,
