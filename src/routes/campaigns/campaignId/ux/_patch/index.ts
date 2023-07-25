@@ -72,6 +72,7 @@ export default class PatchUx extends UserRoute<{
         order: insight.order ? insight.order : 1,
       });
     }
-    await tryber.tables.UxCampaignInsights.do().insert(mapInsightsToInsert);
+    if (mapInsightsToInsert.length)
+      await tryber.tables.UxCampaignInsights.do().insert(mapInsightsToInsert);
   }
 }
