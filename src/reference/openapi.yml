@@ -3095,7 +3095,7 @@ paths:
                       clusterId:
                         type: integer
                       value:
-                        type: string
+                        type: integer
                     required:
                       - clusterId
                       - value

@@ -1605,7 +1605,7 @@ export interface operations {
           }[];
           sentiments: {
             clusterId: number;
-            value: string;
+            value: number;
           }[];
         };
       };
