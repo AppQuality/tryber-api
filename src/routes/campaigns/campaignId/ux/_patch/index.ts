@@ -55,9 +55,9 @@ export default class PatchUx extends UserRoute<{
     const requestBody = this.getBody();
     const requestInsights = requestBody.insights ? requestBody.insights : [];
 
-    // insert insights
-    const mapInsightsToInsert = requestInsights.map((insight) => {
-      return {
+    const mapInsightsToInsert = [];
+    for (const insight of requestInsights) {
+      mapInsightsToInsert.push({
         campaign_id: this.campaignId,
         version: 1,
         title: insight.title ? insight.title : "",
@@ -70,12 +70,8 @@ export default class PatchUx extends UserRoute<{
             ? "0"
             : "0",
         order: insight.order ? insight.order : 1,
-      };
-    });
+      });
+    }
     await tryber.tables.UxCampaignInsights.do().insert(mapInsightsToInsert);
-
-    // insert video parts
-
-    // if(requestInsights && requestInsights.videoPart.length)
   }
 }
