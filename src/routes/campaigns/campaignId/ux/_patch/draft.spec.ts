@@ -35,8 +35,6 @@ describe("PATCH /campaigns/{campaignId}/ux - CASE: publish first time a draft", 
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
   });
   afterEach(async () => {
     await tryber.tables.UxCampaignInsights.do().delete();
