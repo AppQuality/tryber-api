@@ -3123,7 +3123,7 @@ paths:
                           order: 0
                   sentiments:
                     - clusterId: 0
-                      value: string
+                      value: 4
   '/campaigns/{campaign}/clusters':
     parameters:
       - name: campaign
