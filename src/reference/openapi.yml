@@ -3231,12 +3231,26 @@ paths:
                               type: integer
                             name:
                               type: string
+                        media:
+                          type: object
+                          required:
+                            - id
+                            - url
+                            - streamUrl
+                          properties:
+                            id:
+                              type: integer
+                            url:
+                              type: string
+                            streamUrl:
+                              type: string
                       required:
                         - id
                         - name
                         - time
                         - tester
                         - cluster
+                        - media
                 required:
                   - items
               examples:

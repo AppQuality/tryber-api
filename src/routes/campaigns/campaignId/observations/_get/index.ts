@@ -55,7 +55,12 @@ export default class SingleCampaignRoute extends CampaignRoute<{
           .withSchema("wp_appq_usecase_cluster")
           .as("cluster_title"),
         tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
-        tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name")
+        tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name"),
+        tryber.ref("id").withSchema("wp_appq_user_task_media").as("media_id"),
+        tryber
+          .ref("location")
+          .withSchema("wp_appq_user_task_media")
+          .as("media_url")
       )
       .join(
         "wp_appq_user_task_media",
@@ -77,7 +82,8 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         "wp_appq_user_task_media.tester_id",
         "wp_appq_evd_profile.id"
       )
-      .where("wp_appq_campaign_task.campaign_id", this.cp_id);
+      .where("wp_appq_campaign_task.campaign_id", this.cp_id)
+      .where("wp_appq_user_task_media.location", "like", "%.mp4");
 
     if (this.filterBy.cluster) {
       query.whereIn("wp_appq_usecase_cluster.id", this.filterBy.cluster);
@@ -93,6 +99,11 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         name: observation.cluster_title,
       },
       tester: { id: observation.tester_id, name: observation.tester_name },
+      media: {
+        id: observation.media_id,
+        url: observation.media_url,
+        streamUrl: observation.media_url.replace(".mp4", "-stream.m3u8"),
+      },
     }));
   }
 }
