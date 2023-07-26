@@ -48,6 +48,7 @@ export default class PatchUx extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     await this.addInsights();
+    await this.updateUxVersion();
     return this.setSuccess(200, {});
   }
 
@@ -71,5 +72,13 @@ export default class PatchUx extends UserRoute<{
         return clusterIds.join(",");
       throw new Error("Invalid clusterIds");
     }
+  }
+
+  private async updateUxVersion() {
+    await tryber.tables.UxCampaignData.do().insert({
+      campaign_id: this.campaignId,
+      version: 1,
+      published: 1,
+    });
   }
 }
