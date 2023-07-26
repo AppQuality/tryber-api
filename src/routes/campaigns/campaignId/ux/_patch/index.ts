@@ -20,12 +20,12 @@ export default class PatchUx extends UserRoute<{
   }
 
   get lastDraft() {
-    if (!this._lastDraft) throw new Error("Last Draft not initialized");
+    if (!this._lastDraft) return false;
     return this._lastDraft;
   }
 
   get lastPublished() {
-    if (!this._lastPublished) throw new Error("Last Published not initialized");
+    if (!this._lastPublished) return false;
     return this._lastPublished;
   }
 
@@ -94,7 +94,7 @@ export default class PatchUx extends UserRoute<{
     if (
       !this.lastDraft &&
       !this.lastPublished &&
-      this.getBody().status === "draft"
+      this.getBody().status === undefined
     ) {
       await this.addInsights();
     }
@@ -102,6 +102,11 @@ export default class PatchUx extends UserRoute<{
     // case 2: update existing draft version
     else if (this.lastDraft && this.getBody().status === "draft") {
       await this.updateExistingInsights();
+    }
+
+    // case 3: publish current draft
+    else if (this.getBody().status === "publish") {
+      await this.addInsights();
     }
   }
 
@@ -134,7 +139,6 @@ export default class PatchUx extends UserRoute<{
       if (insight.id) insightsToUpdate.push(insight);
       else insightsToAdd.push(insight);
     }
-    console.log(insightsToAdd);
     for (const insight of insightsToUpdate) {
       const insightdata = await tryber.tables.UxCampaignInsights.do()
         .select("version")
