@@ -193,7 +193,6 @@ describe("PATCH /campaigns/{campaignId}/ux - CASE: publish first time a draft", 
       })
       .set("Authorization", "Bearer admin");
     const uxData = await tryber.tables.UxCampaignData.do().select();
-    console.log(uxData);
     expect(uxData).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
