@@ -184,6 +184,26 @@ describe("PATCH /campaigns/{campaignId}/ux - CASE: publish first time a draft", 
     );
   });
 
+  it("Should insert a new insight with version 1", async () => {
+    await request(app)
+      .patch("/campaigns/99/ux")
+      .send({
+        ...requestBody,
+        insights: [{ ...singleInsight, clusterIds: [3, 5] }],
+      })
+      .set("Authorization", "Bearer admin");
+    const insights = await tryber.tables.UxCampaignInsights.do().select(
+      "version"
+    );
+    expect(insights).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          version: 1,
+        }),
+      ])
+    );
+  });
+
   it("Should insert the first version as published", async () => {
     await request(app)
       .patch("/campaigns/99/ux")
