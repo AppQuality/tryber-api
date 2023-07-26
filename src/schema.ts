@@ -1663,6 +1663,10 @@ export interface operations {
                 id: number;
                 name: string;
               };
+              media: {
+                url: string;
+                streamUrl: string;
+              };
             }[];
           };
         };

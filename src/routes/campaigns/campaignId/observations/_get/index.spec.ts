@@ -70,21 +70,24 @@ beforeAll(async () => {
       campaign_task_id: 10,
       user_task_id: 1,
       tester_id: 1,
-      location: "https://www.youtube.com/@tryber_official",
+      location:
+        "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     },
     {
       id: 2,
       campaign_task_id: 20,
       user_task_id: 1,
       tester_id: 1,
-      location: "https://www.youtube.com/@tryber_official",
+      location:
+        "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     },
     {
       id: 3,
       campaign_task_id: 30,
       user_task_id: 1,
       tester_id: 1,
-      location: "https://www.youtube.com/@tryber_official",
+      location:
+        "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
     },
   ]);
   await tryber.tables.WpAppqCampaignTask.do().insert([
@@ -307,6 +310,24 @@ describe("GET /campaigns/:campaignId/observations", () => {
           tester: expect.objectContaining({
             id: 1,
             name: "Tester1",
+          }),
+        }),
+      ])
+    );
+  });
+
+  it("Should return items with media", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/observations")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          media: expect.objectContaining({
+            id: 1,
+            url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+            streamUrl:
+              "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny-stream.m3u8",
           }),
         }),
       ])
