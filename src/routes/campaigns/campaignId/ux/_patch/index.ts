@@ -147,7 +147,7 @@ export default class PatchUx extends UserRoute<{
       if (insightdata) {
         const data = {
           campaign_id: this.campaignId,
-          version: insightdata.version + 1,
+          version: insightdata.version,
           title: insight.title,
           description: insight.description,
           severity_id: insight.severityId,
@@ -214,7 +214,7 @@ export default class PatchUx extends UserRoute<{
   private async updateDraft() {
     await tryber.tables.UxCampaignData.do()
       .update({
-        version: this.lastDraft ? this.lastDraft.version + 1 : 1,
+        version: this.lastDraft,
       })
       .where({ campaign_id: this.campaignId });
   }
