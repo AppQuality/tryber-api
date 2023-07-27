@@ -11,45 +11,19 @@ export default class PatchUx extends UserRoute<{
   body: StoplightOperations["patch-campaigns-campaign-ux"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number;
-  private _lastDraft: any;
-  private _lastPublished: any;
+  private lastDraft: UxData | undefined;
+  private version: number = 0;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
     this.campaignId = Number(this.getParameters().campaign);
   }
 
-  get lastDraft() {
-    if (!this._lastDraft) return false;
-    return this._lastDraft;
-  }
-
-  get lastPublished() {
-    if (!this._lastPublished) return false;
-    return this._lastPublished;
-  }
-
-  protected async init(): Promise<void> {
+  protected async init() {
     await super.init();
-    const lastDraft = await tryber.tables.UxCampaignData.do()
-      .select()
-      .where({
-        campaign_id: this.campaignId,
-        published: 0,
-      })
-      .orderBy("version", "desc")
-      .first();
-    this._lastDraft = lastDraft;
-
-    const lastPublished = await tryber.tables.UxCampaignData.do()
-      .select()
-      .where({
-        campaign_id: this.campaignId,
-        published: 1,
-      })
-      .orderBy("version", "desc")
-      .first();
-    this._lastPublished = lastPublished;
+    this.lastDraft = new UxData(this.campaignId);
+    await this.lastDraft.lastDraft();
+    this.version = this.lastDraft.version || 0;
   }
 
   protected async filter() {
@@ -83,146 +57,147 @@ export default class PatchUx extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    await this.updateInsights();
-    await this.updateUxVersion();
+    const body = this.getBody();
+
+    if ("status" in body) {
+      if (body.status === "publish") {
+        await this.publish();
+      }
+    } else {
+      await this.update();
+    }
 
     return this.setSuccess(200, {});
   }
 
-  private async updateInsights() {
-    // case 1: save first draft
-    if (
-      !this.lastDraft &&
-      !this.lastPublished &&
-      this.getBody().status === undefined
-    ) {
-      await this.addInsights();
+  private async update() {
+    const body = this.getBody();
+    if ("status" in body) return;
+
+    if (!this.lastDraft?.data) {
+      await this.insertFirstVersion();
     }
 
-    // case 2: update existing draft version
-    else if (this.lastDraft && this.getBody().status === "draft") {
-      await this.updateExistingInsights();
-    }
-
-    // case 3: publish current draft
-    else if (this.getBody().status === "publish") {
-      await this.addInsights();
-    }
+    await this.updateInsights();
   }
 
-  private async addInsights() {
-    for (const insight of this.getBody().insights) {
-      const data = {
-        campaign_id: this.campaignId,
-        version: 1,
-        title: insight.title,
-        description: insight.description,
-        severity_id: insight.severityId,
-        cluster_ids: mapClustersForInsert(insight.clusterIds),
-        order: insight.order,
-      };
-      await tryber.tables.UxCampaignInsights.do().insert(data);
-    }
-
-    function mapClustersForInsert(clusterIds: "all" | number[]) {
-      if (clusterIds === "all") return "0";
-      if (Array.isArray(clusterIds) && clusterIds.length > 0)
-        return clusterIds.join(",");
-      throw new Error("Invalid clusterIds");
-    }
-  }
-
-  private async updateExistingInsights() {
-    let insightsToAdd = [];
-    let insightsToUpdate = [];
-    for (const insight of this.getBody().insights) {
-      if (insight.id) insightsToUpdate.push(insight);
-      else insightsToAdd.push(insight);
-    }
-    for (const insight of insightsToUpdate) {
-      const insightdata = await tryber.tables.UxCampaignInsights.do()
-        .select("version")
-        .where({ id: insight.id })
-        .first();
-      if (insightdata) {
-        const data = {
-          campaign_id: this.campaignId,
-          version: insightdata.version,
-          title: insight.title,
-          description: insight.description,
-          severity_id: insight.severityId,
-          cluster_ids: mapClustersForInsert(insight.clusterIds),
-          order: insight.order,
-        };
-
-        await tryber.tables.UxCampaignInsights.do()
-          .update(data)
-          .where({ id: insight.id });
-      }
-    }
-
-    for (const insight of insightsToAdd) {
-      const data = {
-        campaign_id: this.campaignId,
-        version: 1,
-        title: insight.title,
-        description: insight.description,
-        severity_id: insight.severityId,
-        cluster_ids: mapClustersForInsert(insight.clusterIds),
-        order: insight.order,
-      };
-      await tryber.tables.UxCampaignInsights.do().insert(data);
-    }
-
-    function mapClustersForInsert(clusterIds: "all" | number[]) {
-      if (clusterIds === "all") return "0";
-      if (Array.isArray(clusterIds) && clusterIds.length > 0)
-        return clusterIds.join(",");
-      throw new Error("Invalid clusterIds");
-    }
-  }
-
-  private async updateUxVersion() {
-    // case 1: save first draft
-    if (
-      !this.lastDraft &&
-      !this.lastPublished &&
-      this.getBody().status === "draft"
-    ) {
-      await this.saveFirstDraft();
-    }
-
-    // case 2: update existing draft version
-    else if (this.lastDraft && this.getBody().status === "draft") {
-      await this.updateDraft();
-    }
-
-    // case 3: publish current draft
-    else if (this.getBody().status === "publish") {
-      await this.publishCurrentDraft();
-    }
-  }
-
-  private async saveFirstDraft() {
+  private async insertFirstVersion() {
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: this.campaignId,
       version: 1,
       published: 0,
     });
+    this.version = 1;
   }
 
-  private async updateDraft() {
+  private async updateInsights() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { insights } = body;
+
+    const toUpdate = insights.filter((i) => i.id);
+    const currentInsightIds = (this.lastDraft?.findings || []).map((i) => i.id);
+
+    const notFoundIds = toUpdate
+      .map((i) => i.id)
+      .filter((id) => !currentInsightIds.includes(id as number));
+
+    if (notFoundIds.length) {
+      this.setError(500, new OpenapiError("Insight not found"));
+      throw new OpenapiError(
+        `Insights with id ${notFoundIds.join(", ")} not found`
+      );
+    }
+
+    await tryber.tables.UxCampaignInsights.do()
+      .delete()
+      .whereIn(
+        "id",
+        currentInsightIds.filter(
+          (id) => !toUpdate.map((i) => i.id).includes(id as number)
+        )
+      );
+
+    const toInsert = insights.filter((i) => !i.id);
+    if (toInsert.length)
+      await tryber.tables.UxCampaignInsights.do().insert(
+        toInsert.map((i) => ({
+          campaign_id: this.campaignId,
+          cluster_ids: i.clusterIds === "all" ? "0" : i.clusterIds.join(","),
+          description: i.description,
+          order: i.order,
+          severity_id: i.severityId,
+          title: i.title,
+          version: this.version,
+        }))
+      );
+
+    if (toUpdate.length) {
+      for (const item of toUpdate) {
+        await tryber.tables.UxCampaignInsights.do()
+          .update({
+            cluster_ids:
+              item.clusterIds === "all" ? "0" : item.clusterIds.join(","),
+            description: item.description,
+            order: item.order,
+            severity_id: item.severityId,
+            title: item.title,
+            version: this.version,
+          })
+          .where({
+            id: item.id,
+          });
+      }
+    }
+  }
+
+  private async publish() {
+    const draftData = this.lastDraft?.data;
+    if (!draftData) {
+      this.setError(400, new OpenapiError("No draft found"));
+      throw new OpenapiError("No draft found");
+    }
+
+    await this.publishData();
+    await this.publishInsight();
+    this.version++;
+  }
+
+  private async publishData() {
     await tryber.tables.UxCampaignData.do()
       .update({
-        version: this.lastDraft,
+        published: 1,
       })
-      .where({ campaign_id: this.campaignId });
-  }
-  private async publishCurrentDraft() {
+      .where({
+        campaign_id: this.campaignId,
+        version: this.version,
+      });
+
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: this.campaignId,
-      version: this.lastDraft ? this.lastDraft.version + 1 : 1,
-      published: 1,
+      version: this.version + 1,
+      published: 0,
     });
+  }
+
+  private async publishInsight() {
+    const draftData = this.lastDraft?.data;
+    if (!draftData) throw new OpenapiError("No draft found");
+
+    let order = 0;
+    for (const insight of draftData.findings) {
+      await tryber.tables.UxCampaignInsights.do().insert({
+        campaign_id: this.campaignId,
+        cluster_ids:
+          insight.cluster === "all"
+            ? "0"
+            : insight.cluster.map((c) => c.id).join(","),
+        description: insight.description,
+        order: order++,
+        severity_id: insight.severity.id,
+        title: insight.title,
+        version: this.version + 1,
+      });
+    }
   }
 }

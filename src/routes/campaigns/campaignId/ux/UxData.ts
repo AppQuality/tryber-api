@@ -112,6 +112,9 @@ export default class UxData {
     if (videoParts) this._videoParts = videoParts;
   }
 
+  get version() {
+    return this._data?.version;
+  }
   get data() {
     if (!this._data) return null;
     const { id: i, version: v, published: p, ...data } = this._data;
