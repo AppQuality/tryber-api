@@ -26,10 +26,21 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
       },
     ]);
+    await tryber.tables.WpAppqUserTaskMedia.do().insert([
+      {
+        id: 1,
+        campaign_task_id: 1,
+        user_task_id: 1,
+        tester_id: 1,
+        location:
+          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqUserTaskMedia.do().delete();
   });
   beforeEach(async () => {
     await tryber.tables.UxCampaignData.do().insert({
@@ -46,6 +57,15 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       description: "Draft description",
       severity_id: 1,
       cluster_ids: "1",
+    });
+
+    await tryber.tables.UxCampaignVideoParts.do().insert({
+      id: 1,
+      insight_id: 1,
+      start: 0,
+      end: 10,
+      description: "My video",
+      media_id: 1,
     });
   });
 
@@ -79,7 +99,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should remove a insights as draft if the insights are not sent if status is not provided", async () => {
+  it("Should remove a insights as draft if the insights are not sent ", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -127,7 +147,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should insert a insights as draft if an item without id is sent if status is not provided", async () => {
+  it("Should insert a insights as draft if an item without id is sent", async () => {
     const response = await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -180,7 +200,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should update a insights as draft if an item with id is sent if status is not provided", async () => {
+  it("Should update a insights as draft if an item with id is sent", async () => {
     const response = await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -268,6 +288,190 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "Draft description",
         severity_id: 1,
         cluster_ids: "1",
+      })
+    );
+  });
+
+  it("Should remove insight videopart if empty", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [
+          {
+            id: 1,
+            title: "My insight",
+            description: "My description",
+            severityId: 1,
+            order: 0,
+            clusterIds: "all",
+            videoPart: [],
+          },
+        ],
+        sentiments: [],
+      });
+
+    const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
+    expect(videoParts).toHaveLength(0);
+  });
+
+  it("Should add insight videopart as draft", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [
+          {
+            id: 1,
+            title: "My insight",
+            description: "My description",
+            severityId: 1,
+            order: 0,
+            clusterIds: "all",
+            videoPart: [
+              {
+                id: 1,
+                start: 0,
+                end: 10,
+                mediaId: 1,
+                description: "My video",
+                order: 0,
+              },
+              {
+                start: 10,
+                end: 100,
+                mediaId: 1,
+                description: "My second video",
+                order: 1,
+              },
+            ],
+          },
+        ],
+        sentiments: [],
+      });
+
+    const data = await tryber.tables.UxCampaignInsights.do().select();
+    expect(data).toHaveLength(1);
+    const insightId = data[0].id;
+    const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
+    expect(videoParts).toHaveLength(2);
+    expect(videoParts[0]).toEqual(
+      expect.objectContaining({
+        start: 0,
+        end: 10,
+        media_id: 1,
+        description: "My video",
+        order: 0,
+        insight_id: insightId,
+      })
+    );
+    expect(videoParts[1]).toEqual(
+      expect.objectContaining({
+        start: 10,
+        end: 100,
+        media_id: 1,
+        description: "My second video",
+        order: 1,
+        insight_id: insightId,
+      })
+    );
+  });
+
+  it("Should update insight videopart as draft", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [
+          {
+            id: 1,
+            title: "My insight",
+            description: "My description",
+            severityId: 1,
+            order: 0,
+            clusterIds: "all",
+            videoPart: [
+              {
+                id: 1,
+                start: 10,
+                end: 100,
+                mediaId: 1,
+                description: "Updated video",
+                order: 1,
+              },
+            ],
+          },
+        ],
+        sentiments: [],
+      });
+
+    const data = await tryber.tables.UxCampaignInsights.do().select();
+    expect(data).toHaveLength(1);
+    const insightId = data[0].id;
+    const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
+    expect(videoParts).toHaveLength(1);
+    expect(videoParts[0]).toEqual(
+      expect.objectContaining({
+        start: 10,
+        end: 100,
+        media_id: 1,
+        description: "Updated video",
+        order: 1,
+        insight_id: insightId,
+      })
+    );
+  });
+
+  it("Should insert new insight with videopart as draft", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [
+          {
+            title: "My new insight",
+            description: "My new description",
+            severityId: 1,
+            order: 0,
+            clusterIds: "all",
+            videoPart: [
+              {
+                start: 10,
+                end: 100,
+                mediaId: 1,
+                description: "New video",
+                order: 0,
+              },
+            ],
+          },
+        ],
+        sentiments: [],
+      });
+
+    const data = await tryber.tables.UxCampaignInsights.do().select();
+    expect(data).toHaveLength(1);
+    expect(data[0]).toEqual(
+      expect.objectContaining({
+        campaign_id: 1,
+        cluster_ids: "0",
+        description: "My new description",
+        order: 0,
+        severity_id: 1,
+        title: "My new insight",
+        version: 1,
+      })
+    );
+    const insightId = data[0].id;
+    const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
+    expect(videoParts).toHaveLength(1);
+    expect(videoParts[0]).toEqual(
+      expect.objectContaining({
+        start: 10,
+        end: 100,
+        media_id: 1,
+        description: "New video",
+        order: 0,
+        insight_id: insightId,
       })
     );
   });
