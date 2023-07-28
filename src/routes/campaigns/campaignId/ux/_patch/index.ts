@@ -280,6 +280,7 @@ export default class PatchUx extends UserRoute<{
 
     await this.publishData();
     await this.publishInsight();
+    await this.publishVideoPart();
     this.version++;
   }
 
@@ -304,20 +305,36 @@ export default class PatchUx extends UserRoute<{
     const draftData = this.lastDraft?.data;
     if (!draftData) throw new OpenapiError("No draft found");
 
-    let order = 0;
+    let findingOrder = 0;
     for (const insight of draftData.findings) {
-      await tryber.tables.UxCampaignInsights.do().insert({
-        campaign_id: this.campaignId,
-        cluster_ids:
-          insight.cluster === "all"
-            ? "0"
-            : insight.cluster.map((c) => c.id).join(","),
-        description: insight.description,
-        order: order++,
-        severity_id: insight.severity.id,
-        title: insight.title,
-        version: this.version + 1,
-      });
+      const insertedInsight = await tryber.tables.UxCampaignInsights.do()
+        .insert({
+          campaign_id: this.campaignId,
+          cluster_ids:
+            insight.cluster === "all"
+              ? "0"
+              : insight.cluster.map((c) => c.id).join(","),
+          description: insight.description,
+          order: findingOrder++,
+          severity_id: insight.severity.id,
+          title: insight.title,
+          version: this.version + 1,
+        })
+        .returning("id");
+
+      const insertedInsightId = insertedInsight[0].id ?? insertedInsight[0];
+
+      let videoPartOrder = 0;
+      for (const videoPart of insight.videoPart) {
+        await tryber.tables.UxCampaignVideoParts.do().insert({
+          start: videoPart.start,
+          end: videoPart.end,
+          media_id: videoPart.mediaId,
+          description: videoPart.description,
+          order: videoPartOrder++,
+          insight_id: insertedInsightId,
+        });
+      }
     }
   }
 }

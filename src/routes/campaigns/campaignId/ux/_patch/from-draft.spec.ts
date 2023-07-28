@@ -475,4 +475,50 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       })
     );
   });
+
+  it("Should create a new version of videoparts on publish", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        status: "publish",
+      });
+
+    const publishInsight = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({
+        version: 1,
+        campaign_id: 1,
+      })
+      .first();
+
+    const draftInsight = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({
+        version: 2,
+        campaign_id: 1,
+      })
+      .first();
+    expect(publishInsight).toBeDefined();
+    expect(draftInsight).toBeDefined();
+
+    if (!publishInsight || !draftInsight) throw new Error("Insight not found");
+
+    const publishVideoParts = await tryber.tables.UxCampaignVideoParts.do()
+      .select()
+      .where({
+        insight_id: publishInsight.id,
+      })
+      .first();
+
+    const draftVideoPart = await tryber.tables.UxCampaignVideoParts.do()
+      .select()
+      .where({
+        insight_id: draftInsight.id,
+      })
+      .first();
+
+    expect(publishVideoParts).toBeDefined();
+    expect(draftVideoPart).toBeDefined();
+  });
 });
