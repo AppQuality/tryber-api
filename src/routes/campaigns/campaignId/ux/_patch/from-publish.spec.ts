@@ -26,10 +26,21 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         campaign_id: 1,
       },
     ]);
+    await tryber.tables.WpAppqUserTaskMedia.do().insert([
+      {
+        id: 1,
+        campaign_task_id: 1,
+        user_task_id: 1,
+        tester_id: 1,
+        location:
+          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqUserTaskMedia.do().delete();
   });
   beforeEach(async () => {
     await tryber.tables.UxCampaignData.do().insert({
@@ -48,8 +59,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       id: 1,
       campaign_id: 1,
       version: 1,
-      title: "Draft insight",
-      description: "Draft description",
+      title: "Publish insight",
+      description: "Publish description",
       severity_id: 1,
       cluster_ids: "1",
     });
@@ -62,6 +73,24 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       description: "Draft description",
       severity_id: 1,
       cluster_ids: "1",
+    });
+
+    await tryber.tables.UxCampaignVideoParts.do().insert({
+      id: 1,
+      media_id: 1,
+      insight_id: 1,
+      start: 0,
+      end: 10,
+      description: "Publish video part",
+    });
+
+    await tryber.tables.UxCampaignVideoParts.do().insert({
+      id: 2,
+      media_id: 1,
+      insight_id: 1,
+      start: 0,
+      end: 10,
+      description: "Draft video part",
     });
   });
 
@@ -118,10 +147,10 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       expect.objectContaining({
         campaign_id: 1,
         cluster_ids: "1",
-        description: "Draft description",
+        description: "Publish description",
         order: 0,
         severity_id: 1,
-        title: "Draft insight",
+        title: "Publish insight",
         version: 1,
       })
     );
@@ -160,10 +189,10 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       expect.objectContaining({
         campaign_id: 1,
         cluster_ids: "1",
-        description: "Draft description",
+        description: "Publish description",
         order: 0,
         severity_id: 1,
-        title: "Draft insight",
+        title: "Publish insight",
         version: 1,
       })
     );
@@ -188,6 +217,71 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         severity_id: 2,
         title: "New insight",
         version: 2,
+      })
+    );
+  });
+
+  it("Should insert a insights video part in the draft", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [
+          {
+            id: 2,
+            title: "Draft insight",
+            description: "Draft description",
+            severityId: 1,
+            clusterIds: [1],
+            order: 0,
+            videoPart: [
+              {
+                id: 2,
+                start: 0,
+                end: 10,
+                mediaId: 1,
+                description: "Draft video part",
+                order: 0,
+              },
+              {
+                start: 10,
+                end: 100,
+                mediaId: 1,
+                description: "New video part",
+                order: 1,
+              },
+            ],
+          },
+          {
+            title: "New insight",
+            description: "New description",
+            severityId: 2,
+            clusterIds: "all",
+            order: 1,
+            videoPart: [],
+          },
+        ],
+        sentiments: [],
+      });
+
+    const videoPart = await tryber.tables.UxCampaignVideoParts.do().select();
+    expect(videoPart).toHaveLength(3);
+    expect(videoPart[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        description: "Publish video part",
+      })
+    );
+    expect(videoPart[1]).toEqual(
+      expect.objectContaining({
+        id: 2,
+        description: "Draft video part",
+      })
+    );
+    expect(videoPart[2]).toEqual(
+      expect.objectContaining({
+        id: 3,
+        description: "New video part",
       })
     );
   });
