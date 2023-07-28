@@ -280,7 +280,6 @@ export default class PatchUx extends UserRoute<{
 
     await this.publishData();
     await this.publishInsight();
-    await this.publishVideoPart();
     this.version++;
   }
 
