@@ -78,13 +78,19 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   });
 });
 
-describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set", () => {
+describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set for a specific CP", () => {
   useBasicData();
   beforeAll(async () => {
-    await tryber.tables.WpAppqAdditionalBugSeverities.do().insert({
-      campaign_id: 1,
-      bug_severity_id: 1,
-    });
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().insert([
+      {
+        campaign_id: 2,
+        bug_severity_id: 3,
+      },
+      {
+        campaign_id: 1,
+        bug_severity_id: 1,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
@@ -99,13 +105,19 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set", 
   });
 });
 
-describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set", () => {
+describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for a specific CP", () => {
   useBasicData();
   beforeAll(async () => {
-    await tryber.tables.WpAppqAdditionalBugTypes.do().insert({
-      campaign_id: 1,
-      bug_type_id: 1,
-    });
+    await tryber.tables.WpAppqAdditionalBugTypes.do().insert([
+      {
+        campaign_id: 2,
+        bug_type_id: 2,
+      },
+      {
+        campaign_id: 1,
+        bug_type_id: 1,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
@@ -120,13 +132,19 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set", (
   });
 });
 
-describe("Route GET /users/me/campaigns/{campaignId}/ - custom replicabilities set", () => {
+describe("Route GET /users/me/campaigns/{campaignId}/ - custom replicabilities set for a specific CP", () => {
   useBasicData();
   beforeAll(async () => {
-    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().insert({
-      campaign_id: 1,
-      bug_replicability_id: 1,
-    });
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().insert([
+      {
+        campaign_id: 2,
+        bug_replicability_id: 2,
+      },
+      {
+        campaign_id: 1,
+        bug_replicability_id: 1,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
