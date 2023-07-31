@@ -54,11 +54,12 @@ class Campaign {
 
   public async getAvailableSeveritiesItems() {
     const customSeverities = (
-      await tryber.tables.WpAppqAdditionalBugSeverities.do().select(
-        "bug_severity_id"
-      )
+      await tryber.tables.WpAppqAdditionalBugSeverities.do()
+        .select("bug_severity_id")
+        .where({ campaign_id: this.id })
     ).map((c) => c.bug_severity_id);
     const severities = await getSeverities();
+    console.log(severities);
     if (!customSeverities.length) {
       return {
         valid: severities.filter(isValidSeverity),
@@ -101,7 +102,9 @@ class Campaign {
 
   public async getAvailableTypesItems() {
     const customTypes = (
-      await tryber.tables.WpAppqAdditionalBugTypes.do().select("bug_type_id")
+      await tryber.tables.WpAppqAdditionalBugTypes.do()
+        .select("bug_type_id")
+        .where({ campaign_id: this.id })
     ).map((c) => c.bug_type_id);
     const types = await getTypes();
     if (!customTypes.length) {
@@ -165,9 +168,9 @@ class Campaign {
 
   public async getAvailableReplicabilitiesItems() {
     const customReplicabilities = (
-      await tryber.tables.WpAppqAdditionalBugReplicabilities.do().select(
-        "bug_replicability_id"
-      )
+      await tryber.tables.WpAppqAdditionalBugReplicabilities.do()
+        .select("bug_replicability_id")
+        .where({ campaign_id: this.id })
     ).map((c) => c.bug_replicability_id);
     const replicabilities = await getReplicabilities();
     if (!customReplicabilities.length) {
