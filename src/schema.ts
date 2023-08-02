@@ -1667,6 +1667,7 @@ export interface operations {
                 name: string;
               };
               media: {
+                id: number;
                 url: string;
                 streamUrl: string;
               };

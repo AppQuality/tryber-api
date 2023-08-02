@@ -3287,6 +3287,10 @@ paths:
                         cluster:
                           id: 1
                           name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
                       - id: 2
                         name: Observation Name2
                         time: 39
@@ -3296,6 +3300,10 @@ paths:
                         cluster:
                           id: 1
                           name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
                       - id: 3
                         name: Observation Name3
                         time: 19
@@ -3305,6 +3313,10 @@ paths:
                         cluster:
                           id: 2
                           name: Cluster Name2
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
