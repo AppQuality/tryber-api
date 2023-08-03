@@ -1,15 +1,9 @@
+import { fiscalTypes } from "@src/constants";
 import getActiveProfile from "./getActiveProfile";
 
 export default async (testerId: number) => {
   try {
     let fiscal = await getActiveProfile(testerId);
-    const fiscalTypes = {
-      1: "withholding",
-      2: "witholding-extra",
-      3: "non-italian",
-      4: "vat",
-      5: "company",
-    };
 
     const fiscalType = fiscalTypes.hasOwnProperty(fiscal.fiscal_category)
       ? fiscalTypes[fiscal.fiscal_category as keyof typeof fiscalTypes]
