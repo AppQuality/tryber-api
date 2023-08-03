@@ -15,13 +15,10 @@ export default async (testerId: number) => {
   if (fiscalProfile.length === 0) {
     throw new Error("You don't have a fiscal profile");
   }
-
   if (
-    [
-      fiscalTypes["witholding-extra"],
-      fiscalTypes.vat,
-      fiscalTypes.company,
-    ].includes(fiscalProfile[0].fiscal_category)
+    ["witholding-extra", "vat", "company"].includes(
+      fiscalTypes[fiscalProfile[0].fiscal_category]
+    )
   ) {
     throw new Error("Your fiscal profile doesn't match the requirements");
   }
