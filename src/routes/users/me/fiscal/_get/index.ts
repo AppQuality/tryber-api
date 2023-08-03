@@ -2,15 +2,7 @@
 
 import { Context } from "openapi-backend";
 import { tryber } from "@src/features/database";
-
-const fiscalTypes = [
-  "invalid",
-  "withholding",
-  "witholding-extra",
-  "vat",
-  "non-italian",
-  "company",
-] as const;
+import { fiscalTypes } from "@src/constants";
 
 export default async (
   c: Context,
@@ -20,7 +12,6 @@ export default async (
   try {
     res.status_code = 200;
     const fiscal = await getFiscalUser(req.user.testerId);
-    console.log(fiscal);
     return fiscal;
   } catch (error) {
     if (process.env && process.env.DEBUG) {
@@ -43,9 +34,10 @@ async function getFiscalUser(tid: number) {
   if (!fiscal) {
     throw { status_code: 404, message: "No fiscal profile" };
   }
-  const fiscalType = fiscalTypes.hasOwnProperty(fiscal.fiscal_category)
-    ? fiscalTypes[fiscal.fiscal_category]
-    : "invalid";
+  const fiscalType =
+    fiscal.fiscal_category > 0
+      ? fiscalTypes[fiscal.fiscal_category]
+      : "invalid";
   if (fiscalType == "invalid") {
     throw { status_code: 403, message: "Fiscal type is invalid" };
   }

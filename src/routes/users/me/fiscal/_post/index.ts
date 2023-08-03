@@ -38,9 +38,7 @@ export default async (
     }
 
     let isVerified = 1;
-    if (
-      [1, 2].includes(fiscalTypes[req.body.type as keyof typeof fiscalTypes])
-    ) {
+    if (["withholding", "witholding-extra"].includes(req.body.type)) {
       const birthPlace = await geocodePlaceId(req.body.birthPlace?.placeId);
       if (birthPlace) {
         req.body.birthPlace.city = birthPlace.city;
@@ -74,7 +72,7 @@ export default async (
       address: req.body.address.street,
       address_number: req.body.address.streetNumber,
       postal_code: req.body.address.cityCode,
-      fiscal_category: fiscalTypes[req.body.type as keyof typeof fiscalTypes],
+      fiscal_category: fiscalTypes.findIndex((x) => x === req.body.type),
       birth_city: req.body.birthPlace?.city,
       birth_province: req.body.birthPlace?.province,
       fiscal_id: req.body.fiscalId,
