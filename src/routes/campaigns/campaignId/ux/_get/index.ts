@@ -102,7 +102,13 @@ export default class Route extends UserRoute<{
       .first();
 
     if (!metodologyName) throw new Error("Error on finding Metodology");
+    let metodologyDescription = "";
+    const uxDescription = await tryber.tables.UxCampaignData.do()
+      .select("metodology_desciption")
+      .where("campaign_id", this.campaignId)
+      .first();
+    metodologyDescription = uxDescription?.metodology_desciption || "";
 
-    return { name: metodologyName.name };
+    return { name: metodologyName.name, description: metodologyDescription };
   }
 }

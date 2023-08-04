@@ -35,11 +35,13 @@ describe("GET /campaigns/{campaignId}/ux - published", () => {
       campaign_id: 1,
       version: 1,
       published: 1,
+      metodology_desciption: "Ux Description",
     });
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 2,
       published: 0,
+      metodology_desciption: "Ux Description",
     });
   });
   afterAll(async () => {
@@ -67,5 +69,11 @@ describe("GET /campaigns/{campaignId}/ux - published", () => {
       .set("Authorization", "Bearer admin");
     expect(response.body.metodology).toHaveProperty("name");
     expect(response.body.metodology.name).toEqual("Usability Test");
+  });
+  it("Should return metodology desciption", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology.description).toEqual("Ux Description");
   });
 });

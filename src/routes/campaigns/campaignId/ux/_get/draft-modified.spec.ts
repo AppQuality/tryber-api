@@ -197,11 +197,13 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
+        metodology_desciption: "Test Description NEW",
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
+        metodology_desciption: "Test Description OLD",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -233,5 +235,14 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
       .set("Authorization", "Bearer admin");
     expect(response.body.metodology).toHaveProperty("name");
     expect(response.body.metodology.name).toEqual("Usability Test");
+  });
+  it("Should return metodology description from ux data if exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("description");
+    expect(response.body.metodology.description).toEqual(
+      "Test Description NEW"
+    );
   });
 });
