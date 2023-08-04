@@ -30,6 +30,7 @@ describe("GET /campaigns/{campaignId}/ux", () => {
       campaign_id: 1,
       version: 1,
       metodology_type: "qualitative",
+      goal: "This is the goal of the reasearch",
     });
   });
   afterAll(async () => {

@@ -75,6 +75,7 @@ export default class Route extends UserRoute<{
   protected async prepare(): Promise<void> {
     this.setSuccess(200, {
       status: await this.getStatus(),
+      goal: await this.getGoal(),
       metodology: await this.getMetodology(),
       insight: this.draft.data?.findings || [],
       sentiments: [],
@@ -139,5 +140,26 @@ export default class Route extends UserRoute<{
       description: metodologyDescription,
       type: uxMetodology.metodology_type as "qualitative" | "quantitative",
     };
+  }
+
+  private async getGoal() {
+    let dataQuery = tryber.tables.UxCampaignData.do()
+      .select("goal")
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    const status = await this.getStatus();
+    if (status === "published") {
+      dataQuery.orderBy("version", "desc").where("published", 1);
+    } else if (status === "draft-modified" || status === "draft") {
+      dataQuery.orderBy("version", "desc").where("published", 0);
+    }
+    const data = await dataQuery;
+
+    if (!data?.goal) {
+      throw new Error("Error on finding Metodology Goal");
+    }
+
+    return data.goal;
   }
 }

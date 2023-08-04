@@ -37,27 +37,30 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       version: 1,
       metodology_desciption: "Ux Description",
       metodology_type: "qualitative",
+      goal: "This is the goal of the reasearch",
     });
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 1,
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1,2",
-      order: 1,
-    });
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 2,
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight All Cluster",
-      description: "Test Description All Cluster",
-      severity_id: 1,
-      cluster_ids: "0",
-      order: 0,
-    });
+    await tryber.tables.UxCampaignInsights.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1,2",
+        order: 1,
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight All Cluster",
+        description: "Test Description All Cluster",
+        severity_id: 1,
+        cluster_ids: "0",
+        order: 0,
+      },
+    ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert({
       id: 1,
       campaign_id: 1,
@@ -193,6 +196,13 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.metodology).toHaveProperty("type");
     expect(response.body.metodology.type).toEqual("qualitative");
   });
+  it("Should return research goal", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("goal");
+    expect(response.body.goal).toEqual("This is the goal of the reasearch");
+  });
 });
 describe("GET /campaigns/{campaignId}/ux - data - no metodology description", () => {
   beforeAll(async () => {
@@ -216,6 +226,7 @@ describe("GET /campaigns/{campaignId}/ux - data - no metodology description", ()
       campaign_id: 1,
       version: 1,
       metodology_type: "quantitative",
+      goal: "This is the goal of the reasearch",
     });
     await tryber.tables.UxCampaignInsights.do().insert({
       id: 1,

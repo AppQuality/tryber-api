@@ -2968,14 +2968,18 @@ paths:
                         enum:
                           - qualitative
                           - quantitative
+                  goal:
+                    type: string
                 required:
                   - status
                   - sentiments
                   - metodology
+                  - goal
               examples:
                 example-qualitative:
                   value:
                     status: draft
+                    goal: The Research Goal
                     metodology:
                       name: Usability Test
                       description: Metodology Description
@@ -3019,6 +3023,7 @@ paths:
                 example-quantitative:
                   value:
                     status: draft
+                    goal: The Research Goal
                     metodology:
                       name: Usability Test
                       description: Metodology Description

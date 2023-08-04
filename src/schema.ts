@@ -1564,6 +1564,7 @@ export interface operations {
               /** @enum {string} */
               type: "qualitative" | "quantitative";
             };
+            goal: string;
           };
         };
       };
