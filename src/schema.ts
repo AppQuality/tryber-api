@@ -1560,6 +1560,7 @@ export interface operations {
             }[];
             metodology: {
               name: string;
+              description: string;
             };
           };
         };

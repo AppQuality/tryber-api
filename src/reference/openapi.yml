@@ -2956,8 +2956,11 @@ paths:
                     type: object
                     required:
                       - name
+                      - description
                     properties:
                       name:
+                        type: string
+                      description:
                         type: string
                 required:
                   - status
@@ -2969,6 +2972,7 @@ paths:
                     status: draft
                     metodology:
                       name: Usability Test
+                      description: Metodology Description
                     insight:
                       - id: 1
                         title: My insight
