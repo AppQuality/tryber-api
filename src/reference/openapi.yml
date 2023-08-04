@@ -2957,22 +2957,72 @@ paths:
                     required:
                       - name
                       - description
+                      - type
                     properties:
                       name:
                         type: string
                       description:
                         type: string
+                      type:
+                        type: string
+                        enum:
+                          - qualitative
+                          - ' quantitative'
                 required:
                   - status
                   - sentiments
                   - metodology
               examples:
-                Draft example:
+                example-qualitative:
                   value:
                     status: draft
                     metodology:
                       name: Usability Test
                       description: Metodology Description
+                      type: qualitative
+                    insight:
+                      - id: 1
+                        title: My insight
+                        description: This is an insight
+                        severity:
+                          id: 1
+                          name: Minor
+                        cluster: all
+                        videoPart:
+                          - id: 1
+                            start: 10
+                            end: 20
+                            mediaId: 1
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                      - id: 2
+                        title: My second insight
+                        description: This is another insight
+                        severity:
+                          id: 2
+                          name: Positive
+                        cluster:
+                          - id: 1
+                            name: 'UC1: Cart'
+                          - id: 2
+                            name: 'UC2: Login'
+                        videoPart:
+                          - id: 2
+                            start: 15
+                            end: 25
+                            mediaId: 2
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                    sentiments: []
+                example-quantitative:
+                  value:
+                    status: draft
+                    metodology:
+                      name: Usability Test
+                      description: Metodology Description
+                      type: quantitative
                     insight:
                       - id: 1
                         title: My insight

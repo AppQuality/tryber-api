@@ -128,7 +128,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         ],
         sentiments: [],
       });
-    console.log(response.body);
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
     expect(data).toHaveLength(1);

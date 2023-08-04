@@ -1561,6 +1561,8 @@ export interface operations {
             metodology: {
               name: string;
               description: string;
+              /** @enum {string} */
+              type: "qualitative" | " quantitative";
             };
           };
         };
