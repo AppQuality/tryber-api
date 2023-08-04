@@ -29,6 +29,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         id: 10,
         name: "Usability Test",
         category_id: 1,
+        description: "Ux Description",
       },
     ]);
     await tryber.tables.UxCampaignData.do().insert({
@@ -89,6 +90,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
@@ -174,11 +176,104 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.metodology).toHaveProperty("name");
     expect(response.body.metodology.name).toEqual("Usability Test");
   });
+
   it("Should return metodology description from ux data if exist", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
     expect(response.body.metodology).toHaveProperty("description");
     expect(response.body.metodology.description).toEqual("Ux Description");
+  });
+});
+describe("GET /campaigns/{campaignId}/ux - data - no metodology description", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+        description: "Campaign Type Description",
+      },
+    ]);
+    await tryber.tables.UxCampaignData.do().insert({
+      campaign_id: 1,
+      version: 1,
+    });
+    await tryber.tables.UxCampaignInsights.do().insert({
+      id: 1,
+      campaign_id: 1,
+      version: 1,
+      title: "Test Insight",
+      description: "Test Description",
+      severity_id: 1,
+      cluster_ids: "1,2",
+      order: 1,
+    });
+    await tryber.tables.UxCampaignInsights.do().insert({
+      id: 2,
+      campaign_id: 1,
+      version: 1,
+      title: "Test Insight All Cluster",
+      description: "Test Description All Cluster",
+      severity_id: 1,
+      cluster_ids: "0",
+      order: 0,
+    });
+    await tryber.tables.WpAppqUsecaseCluster.do().insert({
+      id: 1,
+      campaign_id: 1,
+      title: "Test Cluster",
+      subtitle: "",
+    });
+    await tryber.tables.WpAppqUsecaseCluster.do().insert({
+      id: 2,
+      campaign_id: 1,
+      title: "Test Cluster 2",
+      subtitle: "",
+    });
+
+    await tryber.tables.UxCampaignVideoParts.do().insert({
+      id: 1,
+      insight_id: 1,
+      start: 0,
+      end: 10,
+      order: 0,
+      media_id: 1,
+      description: "Test Description",
+    });
+    await tryber.tables.WpAppqUserTaskMedia.do().insert({
+      id: 1,
+      campaign_task_id: 1,
+      user_task_id: 1,
+      location: "http://example.com/video.mp4",
+      tester_id: 1,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.UxCampaignInsights.do().delete();
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+    await tryber.tables.UxCampaignVideoParts.do().delete();
+    await tryber.tables.WpAppqUserTaskMedia.do().delete();
+  });
+
+  it("Should return metodology description from campaign type as default", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("description");
+    expect(response.body.metodology.description).toEqual(
+      "Campaign Type Description"
+    );
   });
 });

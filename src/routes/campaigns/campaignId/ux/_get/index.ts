@@ -28,6 +28,7 @@ export default class Route extends UserRoute<{
     await item.lastDraft();
     this._draft = item;
   }
+
   protected async filter() {
     if (!(await this.campaignExists())) {
       return this.setNoAccessError();
@@ -91,8 +92,14 @@ export default class Route extends UserRoute<{
   }
 
   private async getMetodology() {
-    const metodologyName = await tryber.tables.WpAppqCampaignType.do()
-      .select(tryber.ref("name").withSchema("wp_appq_campaign_type"))
+    const metodology = await tryber.tables.WpAppqCampaignType.do()
+      .select(
+        tryber.ref("name").withSchema("wp_appq_campaign_type"),
+        tryber
+          .ref("description")
+          .withSchema("wp_appq_campaign_type")
+          .as("fallback_description")
+      )
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.campaign_type_id",
@@ -101,14 +108,29 @@ export default class Route extends UserRoute<{
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
 
-    if (!metodologyName) throw new Error("Error on finding Metodology");
-    let metodologyDescription = "";
-    const uxDescription = await tryber.tables.UxCampaignData.do()
+    if (!metodology) throw new Error("Error on finding Metodology Name");
+    let metodologyDescription: string | undefined;
+    let uxDescriptionQuery = tryber.tables.UxCampaignData.do()
       .select("metodology_desciption")
       .where("campaign_id", this.campaignId)
       .first();
-    metodologyDescription = uxDescription?.metodology_desciption || "";
 
-    return { name: metodologyName.name, description: metodologyDescription };
+    const status = await this.getStatus();
+    if (status === "published") {
+      uxDescriptionQuery.orderBy("version", "desc").where("published", 1);
+    } else if (status === "draft-modified" || status === "draft") {
+      uxDescriptionQuery.orderBy("version", "desc").where("published", 0);
+    }
+    const uxDescription = await uxDescriptionQuery;
+
+    metodologyDescription = uxDescription?.metodology_desciption
+      ? uxDescription?.metodology_desciption
+      : metodology?.fallback_description;
+
+    if (!metodologyDescription) {
+      throw new Error("Error on finding Metodology Description");
+    }
+
+    return { name: metodology.name, description: metodologyDescription };
   }
 }

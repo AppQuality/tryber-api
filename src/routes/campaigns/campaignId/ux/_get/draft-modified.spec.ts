@@ -30,18 +30,21 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         id: 10,
         name: "Usability Test",
         category_id: 1,
+        description: "Description",
       },
     ]);
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 1,
-      version: 1,
-      published: 1,
-    });
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 1,
-      version: 2,
-      published: 0,
-    });
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+      },
+    ]);
     await tryber.tables.UxCampaignInsights.do().insert({
       campaign_id: 1,
       version: 1,
@@ -91,18 +94,21 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         id: 10,
         name: "Usability Test",
         category_id: 1,
+        description: "Description",
       },
     ]);
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 1,
-      version: 1,
-      published: 1,
-    });
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 1,
-      version: 2,
-      published: 0,
-    });
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+      },
+    ]);
     await tryber.tables.UxCampaignInsights.do().insert({
       id: 1,
       campaign_id: 1,
@@ -197,13 +203,13 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
-        metodology_desciption: "Test Description NEW",
+        metodology_desciption: "Test Description OLD",
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
-        metodology_desciption: "Test Description OLD",
+        metodology_desciption: "Test Description NEW",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -219,6 +225,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
   });
 
@@ -243,6 +250,79 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
     expect(response.body.metodology).toHaveProperty("description");
     expect(response.body.metodology.description).toEqual(
       "Test Description NEW"
+    );
+  });
+});
+
+describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no description", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+        description: "Campaign Type Description",
+      },
+    ]);
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+        metodology_desciption: "Test Description OLD",
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+      },
+    ]);
+    await tryber.tables.UxCampaignInsights.do().insert({
+      campaign_id: 1,
+      version: 1,
+      title: "Test Insight",
+      description: "Test Description",
+      severity_id: 1,
+      cluster_ids: "1",
+      order: 0,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.UxCampaignInsights.do().delete();
+  });
+
+  it("Should return metodology", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("metodology");
+  });
+
+  it("Should return metodology name", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("name");
+    expect(response.body.metodology.name).toEqual("Usability Test");
+  });
+  it("Should return metodology description from ux data if exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("description");
+    expect(response.body.metodology.description).toEqual(
+      "Campaign Type Description"
     );
   });
 });
