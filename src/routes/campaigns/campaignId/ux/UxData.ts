@@ -12,6 +12,10 @@ export default class UxData {
     | {
         id: number;
         campaign_id: number;
+        users: number;
+        goal: string;
+        metodology_type: string;
+        metodology_description: string;
         version: number;
         published: number;
       }

@@ -42,6 +42,11 @@ export default class Route extends UserRoute<{
       return this.setNoDataError();
     }
 
+    if (!this.draft.data?.metodology_type) {
+      this.setError(403, new OpenapiError("Error on finding Metodology Type"));
+      return false;
+    }
+
     return true;
   }
 
@@ -75,9 +80,14 @@ export default class Route extends UserRoute<{
   protected async prepare(): Promise<void> {
     this.setSuccess(200, {
       status: await this.getStatus(),
-      goal: await this.getGoal(),
-      usersNumber: await this.getUsersNumber(),
-      metodology: await this.getMetodology(),
+      goal: this.draft.data?.goal || "",
+      usersNumber: this.draft.data?.users || 0,
+      metodology: {
+        ...(await this.getMetodology()),
+        type: this.draft.data?.metodology_type as
+          | "qualitative"
+          | "quantitative",
+      },
       insight: this.draft.data?.findings || [],
       sentiments: [],
       questions: [],
@@ -113,76 +123,18 @@ export default class Route extends UserRoute<{
 
     if (!campaignType) throw new Error("Error on finding Metodology Name");
     let metodologyDescription: string | undefined;
-    let uxMetodologyQuery = tryber.tables.UxCampaignData.do()
-      .select("metodology_desciption", "metodology_type")
-      .where("campaign_id", this.campaignId)
-      .first();
 
-    const status = await this.getStatus();
-    if (status === "published") {
-      uxMetodologyQuery.orderBy("version", "desc").where("published", 1);
-    } else if (status === "draft-modified" || status === "draft") {
-      uxMetodologyQuery.orderBy("version", "desc").where("published", 0);
-    }
-    const uxMetodology = await uxMetodologyQuery;
-
-    metodologyDescription = uxMetodology?.metodology_desciption
-      ? uxMetodology?.metodology_desciption
+    metodologyDescription = this.draft.data?.metodology_description
+      ? this.draft.data?.metodology_description
       : campaignType?.fallback_description;
 
     if (!metodologyDescription) {
       throw new Error("Error on finding Metodology Description");
     }
-    if (!uxMetodology?.metodology_type) {
-      throw new Error("Error on finding Metodology Type");
-    }
 
     return {
       name: campaignType.name,
       description: metodologyDescription,
-      type: uxMetodology.metodology_type as "qualitative" | "quantitative",
     };
-  }
-
-  private async getGoal() {
-    let dataQuery = tryber.tables.UxCampaignData.do()
-      .select("goal")
-      .where("campaign_id", this.campaignId)
-      .first();
-
-    const status = await this.getStatus();
-    if (status === "published") {
-      dataQuery.orderBy("version", "desc").where("published", 1);
-    } else if (status === "draft-modified" || status === "draft") {
-      dataQuery.orderBy("version", "desc").where("published", 0);
-    }
-    const data = await dataQuery;
-
-    if (!data?.goal) {
-      throw new Error("Error on finding Metodology Goal");
-    }
-
-    return data.goal;
-  }
-
-  private async getUsersNumber() {
-    let dataQuery = tryber.tables.UxCampaignData.do()
-      .select("users")
-      .where("campaign_id", this.campaignId)
-      .first();
-
-    const status = await this.getStatus();
-    if (status === "published") {
-      dataQuery.orderBy("version", "desc").where("published", 1);
-    } else if (status === "draft-modified" || status === "draft") {
-      dataQuery.orderBy("version", "desc").where("published", 0);
-    }
-    const data = await dataQuery;
-
-    if (!data?.users) {
-      throw new Error("Error on finding Users Number");
-    }
-
-    return data.users;
   }
 }
