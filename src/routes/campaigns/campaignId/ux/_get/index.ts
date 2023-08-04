@@ -80,6 +80,7 @@ export default class Route extends UserRoute<{
       metodology: await this.getMetodology(),
       insight: this.draft.data?.findings || [],
       sentiments: [],
+      questions: [],
     });
   }
 

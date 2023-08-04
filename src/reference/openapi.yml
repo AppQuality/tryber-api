@@ -2972,18 +2972,26 @@ paths:
                         enum:
                           - qualitative
                           - quantitative
+                  questions:
+                    type: array
+                    items:
+                      type: string
                 required:
                   - status
                   - goal
                   - usersNumber
                   - sentiments
                   - metodology
+                  - questions
               examples:
                 example-qualitative:
                   value:
                     status: draft
                     goal: The Research Goal
                     usersNumber: 10
+                    questions:
+                      - Why the world exists?
+                      - How the world exists?
                     metodology:
                       name: Usability Test
                       description: Metodology Description
@@ -3029,6 +3037,9 @@ paths:
                     status: draft
                     goal: The Research Goal
                     usersNumber: 10
+                    questions:
+                      - Why the world exists?
+                      - How the world exists?
                     metodology:
                       name: Usability Test
                       description: Metodology Description

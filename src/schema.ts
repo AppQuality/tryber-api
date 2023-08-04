@@ -1566,6 +1566,7 @@ export interface operations {
               /** @enum {string} */
               type: "qualitative" | "quantitative";
             };
+            questions: string[];
           };
         };
       };
