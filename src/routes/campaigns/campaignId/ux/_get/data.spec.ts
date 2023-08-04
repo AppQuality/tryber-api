@@ -36,6 +36,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       campaign_id: 1,
       version: 1,
       metodology_desciption: "Ux Description",
+      metodology_type: "qualitative",
     });
     await tryber.tables.UxCampaignInsights.do().insert({
       id: 1,
@@ -184,6 +185,14 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.metodology).toHaveProperty("description");
     expect(response.body.metodology.description).toEqual("Ux Description");
   });
+
+  it("Should return metodology type", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("type");
+    expect(response.body.metodology.type).toEqual("qualitative");
+  });
 });
 describe("GET /campaigns/{campaignId}/ux - data - no metodology description", () => {
   beforeAll(async () => {
@@ -206,6 +215,7 @@ describe("GET /campaigns/{campaignId}/ux - data - no metodology description", ()
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 1,
+      metodology_type: "quantitative",
     });
     await tryber.tables.UxCampaignInsights.do().insert({
       id: 1,

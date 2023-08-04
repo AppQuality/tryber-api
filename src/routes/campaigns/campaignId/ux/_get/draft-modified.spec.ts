@@ -38,11 +38,13 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
+        metodology_type: "qualitative",
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
+        metodology_type: "qualitative",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -102,11 +104,13 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
+        metodology_type: "qualitative",
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
+        metodology_type: "qualitative",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -204,12 +208,14 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
         version: 1,
         published: 1,
         metodology_desciption: "Test Description OLD",
+        metodology_type: "qualitative",
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
         metodology_desciption: "Test Description NEW",
+        metodology_type: "qualitative",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -278,11 +284,13 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no descri
         version: 1,
         published: 1,
         metodology_desciption: "Test Description OLD",
+        metodology_type: "qualitative",
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
+        metodology_type: "qualitative",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({

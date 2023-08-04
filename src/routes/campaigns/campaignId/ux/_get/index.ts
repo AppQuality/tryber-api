@@ -92,7 +92,7 @@ export default class Route extends UserRoute<{
   }
 
   private async getMetodology() {
-    const metodology = await tryber.tables.WpAppqCampaignType.do()
+    const campaignType = await tryber.tables.WpAppqCampaignType.do()
       .select(
         tryber.ref("name").withSchema("wp_appq_campaign_type"),
         tryber
@@ -108,29 +108,36 @@ export default class Route extends UserRoute<{
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
 
-    if (!metodology) throw new Error("Error on finding Metodology Name");
+    if (!campaignType) throw new Error("Error on finding Metodology Name");
     let metodologyDescription: string | undefined;
-    let uxDescriptionQuery = tryber.tables.UxCampaignData.do()
-      .select("metodology_desciption")
+    let uxMetodologyQuery = tryber.tables.UxCampaignData.do()
+      .select("metodology_desciption", "metodology_type")
       .where("campaign_id", this.campaignId)
       .first();
 
     const status = await this.getStatus();
     if (status === "published") {
-      uxDescriptionQuery.orderBy("version", "desc").where("published", 1);
+      uxMetodologyQuery.orderBy("version", "desc").where("published", 1);
     } else if (status === "draft-modified" || status === "draft") {
-      uxDescriptionQuery.orderBy("version", "desc").where("published", 0);
+      uxMetodologyQuery.orderBy("version", "desc").where("published", 0);
     }
-    const uxDescription = await uxDescriptionQuery;
+    const uxMetodology = await uxMetodologyQuery;
 
-    metodologyDescription = uxDescription?.metodology_desciption
-      ? uxDescription?.metodology_desciption
-      : metodology?.fallback_description;
+    metodologyDescription = uxMetodology?.metodology_desciption
+      ? uxMetodology?.metodology_desciption
+      : campaignType?.fallback_description;
 
     if (!metodologyDescription) {
       throw new Error("Error on finding Metodology Description");
     }
+    if (!uxMetodology?.metodology_type) {
+      throw new Error("Error on finding Metodology Type");
+    }
 
-    return { name: metodology.name, description: metodologyDescription };
+    return {
+      name: campaignType.name,
+      description: metodologyDescription,
+      type: uxMetodology.metodology_type as "qualitative" | "quantitative",
+    };
   }
 }

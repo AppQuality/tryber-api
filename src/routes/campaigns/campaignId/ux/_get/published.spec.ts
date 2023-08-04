@@ -36,12 +36,14 @@ describe("GET /campaigns/{campaignId}/ux - published", () => {
       version: 1,
       published: 1,
       metodology_desciption: "Ux Description",
+      metodology_type: "qualitative",
     });
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 2,
       published: 0,
       metodology_desciption: "Ux Description",
+      metodology_type: "qualitative",
     });
   });
   afterAll(async () => {

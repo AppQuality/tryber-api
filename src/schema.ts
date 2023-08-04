@@ -1562,7 +1562,7 @@ export interface operations {
               name: string;
               description: string;
               /** @enum {string} */
-              type: "qualitative" | " quantitative";
+              type: "qualitative" | "quantitative";
             };
           };
         };

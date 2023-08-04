@@ -24,6 +24,7 @@ describe("GET /campaigns/{campaignId}/ux - draft", () => {
       campaign_id: 1,
       version: 1,
       metodology_desciption: "Ux Description",
+      metodology_type: "qualitative",
     });
     await tryber.tables.WpAppqCampaignType.do().insert([
       {
