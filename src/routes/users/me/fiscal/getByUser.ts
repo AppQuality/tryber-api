@@ -1,19 +1,17 @@
+import { fiscalTypes } from "@src/constants";
 import getActiveProfile from "./getActiveProfile";
 
 export default async (testerId: number) => {
   try {
     let fiscal = await getActiveProfile(testerId);
-    const fiscalTypes = {
-      1: "withholding",
-      2: "witholding-extra",
-      3: "non-italian",
-      4: "vat",
-      5: "company",
-    };
 
-    const fiscalType = fiscalTypes.hasOwnProperty(fiscal.fiscal_category)
-      ? fiscalTypes[fiscal.fiscal_category as keyof typeof fiscalTypes]
-      : "invalid";
+    const fiscalType =
+      fiscal.fiscal_category > 0
+        ? fiscalTypes[fiscal.fiscal_category]
+        : "invalid";
+    if (fiscalType == "invalid") {
+      throw { status_code: 403, message: "Fiscal type is invalid" };
+    }
     return {
       address: {
         country: fiscal.country || "",
