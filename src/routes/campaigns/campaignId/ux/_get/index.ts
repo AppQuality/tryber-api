@@ -74,6 +74,7 @@ export default class Route extends UserRoute<{
   protected async prepare(): Promise<void> {
     this.setSuccess(200, {
       status: await this.getStatus(),
+      metodology: await this.getMetodology(),
       insight: this.draft.data?.findings || [],
       sentiments: [],
     });
@@ -87,5 +88,21 @@ export default class Route extends UserRoute<{
     if (published.isEqual(this.draft)) return "published" as const;
 
     return "draft-modified" as const;
+  }
+
+  private async getMetodology() {
+    const metodologyName = await tryber.tables.WpAppqCampaignType.do()
+      .select(tryber.ref("name").withSchema("wp_appq_campaign_type"))
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_evd_campaign.campaign_type_id",
+        "wp_appq_campaign_type.id"
+      )
+      .where("wp_appq_evd_campaign.id", this.campaignId)
+      .first();
+
+    if (!metodologyName) throw new Error("Error on finding Metodology");
+
+    return { name: metodologyName.name };
   }
 }

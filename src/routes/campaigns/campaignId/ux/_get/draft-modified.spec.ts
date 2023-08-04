@@ -17,7 +17,21 @@ const campaign = {
 
 describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+      },
+    ]);
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 1,
@@ -49,6 +63,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
   });
@@ -63,7 +78,21 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
 
 describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+      },
+    ]);
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 1,
@@ -131,6 +160,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
@@ -142,5 +172,66 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("status", "draft-modified");
+  });
+});
+
+describe("GET /campaigns/{campaignId}/ux - draft modified - metodology", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+      },
+    ]);
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+      },
+    ]);
+    await tryber.tables.UxCampaignInsights.do().insert({
+      campaign_id: 1,
+      version: 1,
+      title: "Test Insight",
+      description: "Test Description",
+      severity_id: 1,
+      cluster_ids: "1",
+      order: 0,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.UxCampaignInsights.do().delete();
+  });
+
+  it("Should return metodology", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("metodology");
+  });
+
+  it("Should return metodology name", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("name");
+    expect(response.body.metodology.name).toEqual("Usability Test");
   });
 });

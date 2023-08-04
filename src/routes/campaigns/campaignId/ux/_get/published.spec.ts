@@ -16,7 +16,21 @@ const campaign = {
 };
 describe("GET /campaigns/{campaignId}/ux - published", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+      },
+    ]);
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 1,
@@ -38,5 +52,20 @@ describe("GET /campaigns/{campaignId}/ux - published", () => {
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("status", "published");
+  });
+
+  it("Should return metodology", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("metodology");
+  });
+
+  it("Should return metodology name", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.metodology).toHaveProperty("name");
+    expect(response.body.metodology.name).toEqual("Usability Test");
   });
 });
