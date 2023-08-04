@@ -173,7 +173,6 @@ describe("Route GET /users/me/campaign/{campaignId}/devices - all devices ", () 
     const response = await request(app)
       .get("/users/me/campaigns/1/devices/")
       .set("Authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.body.length).toBe(2);
     expect(response.body).toEqual([
       {
