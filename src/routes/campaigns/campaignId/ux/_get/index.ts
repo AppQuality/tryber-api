@@ -76,6 +76,7 @@ export default class Route extends UserRoute<{
     this.setSuccess(200, {
       status: await this.getStatus(),
       goal: await this.getGoal(),
+      usersNumber: await this.getUsersNumber(),
       metodology: await this.getMetodology(),
       insight: this.draft.data?.findings || [],
       sentiments: [],
@@ -161,5 +162,26 @@ export default class Route extends UserRoute<{
     }
 
     return data.goal;
+  }
+
+  private async getUsersNumber() {
+    let dataQuery = tryber.tables.UxCampaignData.do()
+      .select("users")
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    const status = await this.getStatus();
+    if (status === "published") {
+      dataQuery.orderBy("version", "desc").where("published", 1);
+    } else if (status === "draft-modified" || status === "draft") {
+      dataQuery.orderBy("version", "desc").where("published", 0);
+    }
+    const data = await dataQuery;
+
+    if (!data?.users) {
+      throw new Error("Error on finding Users Number");
+    }
+
+    return data.users;
   }
 }

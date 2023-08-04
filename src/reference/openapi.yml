@@ -2861,6 +2861,10 @@ paths:
                       - draft
                       - published
                       - draft-modified
+                  goal:
+                    type: string
+                  usersNumber:
+                    type: integer
                   insight:
                     type: array
                     items:
@@ -2968,18 +2972,18 @@ paths:
                         enum:
                           - qualitative
                           - quantitative
-                  goal:
-                    type: string
                 required:
                   - status
+                  - goal
+                  - usersNumber
                   - sentiments
                   - metodology
-                  - goal
               examples:
                 example-qualitative:
                   value:
                     status: draft
                     goal: The Research Goal
+                    usersNumber: 10
                     metodology:
                       name: Usability Test
                       description: Metodology Description
@@ -3024,6 +3028,7 @@ paths:
                   value:
                     status: draft
                     goal: The Research Goal
+                    usersNumber: 10
                     metodology:
                       name: Usability Test
                       description: Metodology Description

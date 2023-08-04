@@ -1527,6 +1527,8 @@ export interface operations {
           "application/json": {
             /** @enum {string} */
             status: "draft" | "published" | "draft-modified";
+            goal: string;
+            usersNumber: number;
             insight?: {
               id: number;
               title: string;
@@ -1564,7 +1566,6 @@ export interface operations {
               /** @enum {string} */
               type: "qualitative" | "quantitative";
             };
-            goal: string;
           };
         };
       };

@@ -31,22 +31,26 @@ describe("GET /campaigns/{campaignId}/ux - published", () => {
         category_id: 1,
       },
     ]);
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 1,
-      version: 1,
-      published: 1,
-      metodology_desciption: "Ux Description",
-      metodology_type: "qualitative",
-      goal: "This is the goal of the reasearch",
-    });
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 1,
-      version: 2,
-      published: 0,
-      metodology_desciption: "Ux Description",
-      metodology_type: "qualitative",
-      goal: "This is the goal of the reasearch",
-    });
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+        metodology_desciption: "Ux Description",
+        metodology_type: "qualitative",
+        goal: "This is the goal of the reasearch",
+        users: 100,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+        metodology_desciption: "Ux Description",
+        metodology_type: "qualitative",
+        goal: "This is the goal of the reasearch",
+        users: 100,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();

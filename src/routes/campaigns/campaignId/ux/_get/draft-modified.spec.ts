@@ -40,6 +40,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         published: 1,
         metodology_type: "qualitative",
         goal: "This is the goal of the reasearch",
+        users: 99,
       },
       {
         campaign_id: 1,
@@ -47,6 +48,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         published: 0,
         metodology_type: "quantitative",
         goal: "This is the NEW goal of the reasearch",
+        users: 100,
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -108,6 +110,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         published: 1,
         metodology_type: "qualitative",
         goal: "This is the goal of the reasearch",
+        users: 99,
       },
       {
         campaign_id: 1,
@@ -115,6 +118,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         published: 0,
         metodology_type: "quantitative",
         goal: "This is the NEW goal of the reasearch",
+        users: 100,
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -214,6 +218,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
         metodology_desciption: "Test Description OLD",
         metodology_type: "qualitative",
         goal: "This is the goal of the reasearch",
+        users: 99,
       },
       {
         campaign_id: 1,
@@ -222,6 +227,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
         metodology_desciption: "Test Description NEW",
         metodology_type: "quantitative",
         goal: "This is the NEW goal of the reasearch",
+        users: 100,
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -278,6 +284,14 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
     expect(response.body).toHaveProperty("goal");
     expect(response.body.goal).toEqual("This is the NEW goal of the reasearch");
   });
+
+  it("Should return research usersNumber", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("usersNumber");
+    expect(response.body.usersNumber).toEqual(100);
+  });
 });
 
 describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no description", () => {
@@ -306,6 +320,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no descri
         metodology_desciption: "Test Description OLD",
         metodology_type: "qualitative",
         goal: "This is the goal of the reasearch",
+        users: 99,
       },
       {
         campaign_id: 1,
@@ -313,6 +328,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no descri
         published: 0,
         metodology_type: "quantitative",
         goal: "This is the NEW goal of the reasearch",
+        users: 100,
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -330,21 +346,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no descri
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
-  });
-
-  it("Should return metodology", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("metodology");
-  });
-
-  it("Should return metodology name", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("name");
-    expect(response.body.metodology.name).toEqual("Usability Test");
   });
   it("Should return metodology description from ux data if exist", async () => {
     const response = await request(app)

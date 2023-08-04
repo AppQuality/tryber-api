@@ -26,6 +26,7 @@ describe("GET /campaigns/{campaignId}/ux - draft", () => {
       metodology_desciption: "Ux Description",
       metodology_type: "qualitative",
       goal: "This is the goal of the reasearch",
+      users: 100,
     });
     await tryber.tables.WpAppqCampaignType.do().insert([
       {
@@ -87,5 +88,13 @@ describe("GET /campaigns/{campaignId}/ux - draft", () => {
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("goal");
     expect(response.body.goal).toEqual("This is the goal of the reasearch");
+  });
+
+  it("Should return metodology usersNumber", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("usersNumber");
+    expect(response.body.usersNumber).toEqual(100);
   });
 });
