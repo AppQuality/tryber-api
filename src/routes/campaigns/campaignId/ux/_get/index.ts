@@ -42,11 +42,6 @@ export default class Route extends UserRoute<{
       return this.setNoDataError();
     }
 
-    if (!this.draft.data?.metodology_type) {
-      this.setError(403, new OpenapiError("Error on finding Metodology Type"));
-      return false;
-    }
-
     return true;
   }
 
