@@ -1558,6 +1558,9 @@ export interface operations {
                 name: string;
               };
             }[];
+            metodology: {
+              name: string;
+            };
           };
         };
       };

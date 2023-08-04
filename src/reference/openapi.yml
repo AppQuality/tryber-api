@@ -2952,13 +2952,23 @@ paths:
                       required:
                         - value
                         - cluster
+                  metodology:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
                 required:
                   - status
                   - sentiments
+                  - metodology
               examples:
                 Draft example:
                   value:
                     status: draft
+                    metodology:
+                      name: Usability Test
                     insight:
                       - id: 1
                         title: My insight
