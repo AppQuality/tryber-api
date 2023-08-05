@@ -42,6 +42,12 @@ export default class UxData {
     location: string;
   }[] = [];
 
+  private _questions: {
+    id: number;
+    campaign_id: number;
+    question: string;
+  }[] = [];
+
   private _clusters: { id: number; name: string }[] = [];
 
   constructor(private campaignId: number) {}
@@ -89,24 +95,31 @@ export default class UxData {
           .orderBy("order", "asc")
       : [];
 
-    return { data, findings, clusters, videoParts };
+    const questions = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: this.campaignId });
+
+    return { data, findings, clusters, videoParts, questions };
   }
 
   public async lastPublished() {
-    const { data, findings, clusters, videoParts } = await this.getOne({
-      published: 1,
-    });
+    const { data, findings, clusters, videoParts, questions } =
+      await this.getOne({
+        published: 1,
+      });
 
     if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = videoParts;
+    if (questions) this._questions = questions;
     this._data = data;
   }
 
   public async lastDraft() {
-    const { data, findings, clusters, videoParts } = await this.getOne({
-      published: 0,
-    });
+    const { data, findings, clusters, videoParts, questions } =
+      await this.getOne({
+        published: 0,
+      });
 
     if (!data) return;
     this._data = data;
@@ -114,15 +127,17 @@ export default class UxData {
     if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = videoParts;
+    if (questions) this._questions = questions;
   }
 
   get version() {
     return this._data?.version;
   }
+
   get data() {
     if (!this._data) return null;
     const { id: i, version: v, published: p, ...data } = this._data;
-    return { ...data, findings: this.findings };
+    return { ...data, findings: this.findings, questions: this.questions };
   }
 
   get findings() {
@@ -157,6 +172,10 @@ export default class UxData {
         return clusters.filter((c) => clusterIds.includes(c.id));
       }
     });
+  }
+
+  get questions() {
+    return this._questions.map((q) => q.question);
   }
 
   isEqual(other: UxData) {

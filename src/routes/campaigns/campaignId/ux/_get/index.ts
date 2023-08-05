@@ -85,7 +85,7 @@ export default class Route extends UserRoute<{
       },
       insight: this.draft.data?.findings || [],
       sentiments: [],
-      questions: [],
+      questions: this.draft.data?.questions || [],
     });
   }
 

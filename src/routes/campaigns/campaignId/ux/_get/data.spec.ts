@@ -91,6 +91,20 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       location: "http://example.com/video.mp4",
       tester_id: 1,
     });
+    await tryber.tables.UxCampaignQuestions.do().insert([
+      {
+        campaign_id: 1,
+        question: "Why the world is round?",
+      },
+      {
+        campaign_id: 1,
+        question: "How many stars are in the sky?",
+      },
+      {
+        campaign_id: 2,
+        question: "Be or not to be?",
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -100,6 +114,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
   it("Should return all the findings", async () => {
@@ -167,6 +182,27 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       })
     );
   });
+
+  it("Should return the questions", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("questions");
+    expect(Array.isArray(response.body.questions)).toBe(true);
+  });
+  it("Should return all the questions", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.questions).toHaveLength(2);
+    expect(response.body.questions).toEqual(
+      expect.arrayContaining([
+        "Why the world is round?",
+        "How many stars are in the sky?",
+      ])
+    );
+  });
+
   it("Should return metodology", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
