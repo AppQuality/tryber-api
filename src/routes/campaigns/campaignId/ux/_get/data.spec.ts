@@ -62,18 +62,20 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         order: 0,
       },
     ]);
-    await tryber.tables.WpAppqUsecaseCluster.do().insert({
-      id: 1,
-      campaign_id: 1,
-      title: "Test Cluster",
-      subtitle: "",
-    });
-    await tryber.tables.WpAppqUsecaseCluster.do().insert({
-      id: 2,
-      campaign_id: 1,
-      title: "Test Cluster 2",
-      subtitle: "",
-    });
+    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        title: "Test Cluster",
+        subtitle: "",
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        title: "Test Cluster 2",
+        subtitle: "",
+      },
+    ]);
 
     await tryber.tables.UxCampaignVideoParts.do().insert({
       id: 1,
@@ -105,6 +107,26 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         question: "Be or not to be?",
       },
     ]);
+    await tryber.tables.UxCampaignSentiments.do().insert([
+      {
+        cluster_id: 1,
+        campaign_id: 1,
+        value: 1,
+        comment: "Low Comment cluster1",
+      },
+      {
+        cluster_id: 2,
+        campaign_id: 1,
+        value: 5,
+        comment: "High Comment cluster2",
+      },
+      {
+        cluster_id: 1,
+        campaign_id: 2,
+        value: 5,
+        comment: "Medium Comment cluster1",
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -115,6 +137,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
+    await tryber.tables.UxCampaignSentiments.do().delete();
   });
 
   it("Should return all the findings", async () => {
@@ -199,6 +222,40 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       expect.arrayContaining([
         "Why the world is round?",
         "How many stars are in the sky?",
+      ])
+    );
+  });
+
+  it("Should return the sentiments", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("sentiments");
+    expect(Array.isArray(response.body.questions)).toBe(true);
+  });
+  it("Should return all the sentiments", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.sentiments).toHaveLength(2);
+    expect(response.body.sentiments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          value: 1,
+          comment: "Low Comment cluster1",
+          cluster: {
+            id: 1,
+            name: "Test Cluster",
+          },
+        }),
+        expect.objectContaining({
+          value: 5,
+          comment: "High Comment cluster2",
+          cluster: {
+            id: 2,
+            name: "Test Cluster 2",
+          },
+        }),
       ])
     );
   });

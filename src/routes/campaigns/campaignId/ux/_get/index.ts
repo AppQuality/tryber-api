@@ -84,7 +84,7 @@ export default class Route extends UserRoute<{
           | "quantitative",
       },
       insight: this.draft.data?.findings || [],
-      sentiments: [],
+      sentiments: this.draft.data?.sentiments || [],
       questions: this.draft.data?.questions || [],
     });
   }

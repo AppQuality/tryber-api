@@ -48,6 +48,14 @@ export default class UxData {
     question: string;
   }[] = [];
 
+  private _sentiments: {
+    id: number;
+    campaign_id: number;
+    cluster_id: number;
+    value: number;
+    comment: string;
+  }[] = [];
+
   private _clusters: { id: number; name: string }[] = [];
 
   constructor(private campaignId: number) {}
@@ -99,11 +107,15 @@ export default class UxData {
       .select()
       .where({ campaign_id: this.campaignId });
 
-    return { data, findings, clusters, videoParts, questions };
+    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({ campaign_id: this.campaignId });
+
+    return { data, findings, clusters, videoParts, questions, sentiments };
   }
 
   public async lastPublished() {
-    const { data, findings, clusters, videoParts, questions } =
+    const { data, findings, clusters, videoParts, questions, sentiments } =
       await this.getOne({
         published: 1,
       });
@@ -112,11 +124,12 @@ export default class UxData {
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = videoParts;
     if (questions) this._questions = questions;
+    if (sentiments) this._sentiments = sentiments;
     this._data = data;
   }
 
   public async lastDraft() {
-    const { data, findings, clusters, videoParts, questions } =
+    const { data, findings, clusters, videoParts, questions, sentiments } =
       await this.getOne({
         published: 0,
       });
@@ -128,6 +141,7 @@ export default class UxData {
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = videoParts;
     if (questions) this._questions = questions;
+    if (sentiments) this._sentiments = sentiments;
   }
 
   get version() {
@@ -137,7 +151,12 @@ export default class UxData {
   get data() {
     if (!this._data) return null;
     const { id: i, version: v, published: p, ...data } = this._data;
-    return { ...data, findings: this.findings, questions: this.questions };
+    return {
+      ...data,
+      findings: this.findings,
+      questions: this.questions,
+      sentiments: this.sentiments,
+    };
   }
 
   get findings() {
@@ -176,6 +195,17 @@ export default class UxData {
 
   get questions() {
     return this._questions.map((q) => q.question);
+  }
+
+  get sentiments() {
+    return this._sentiments.map((s) => ({
+      value: s.value,
+      comment: s.comment,
+      cluster: {
+        id: s.cluster_id,
+        name: this._clusters.find((c) => c.id === s.cluster_id)?.name || "",
+      },
+    }));
   }
 
   isEqual(other: UxData) {

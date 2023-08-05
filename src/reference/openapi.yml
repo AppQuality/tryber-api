@@ -2943,6 +2943,8 @@ paths:
                       properties:
                         value:
                           type: integer
+                        comment:
+                          type: string
                         cluster:
                           type: object
                           required:
@@ -2955,6 +2957,7 @@ paths:
                               type: string
                       required:
                         - value
+                        - comment
                         - cluster
                   metodology:
                     type: object
