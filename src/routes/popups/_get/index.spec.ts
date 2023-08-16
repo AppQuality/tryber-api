@@ -74,7 +74,7 @@ describe("Route GET popups", () => {
   it("Should return all not automatic popups if user has appq_message_center permission", async () => {
     const response = await request(app)
       .get("/popups")
-      .set("authorization", `Bearer tester capability ["appq_message_center"]`);
+      .set("authorization", 'Bearer tester olp {"appq_message_center":true}');
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
@@ -133,7 +133,7 @@ describe("Route GET popups", () => {
       .get("/popups")
       .set(
         "authorization",
-        `Bearer tester capability ["appq_message_center_full_access"]`
+        'Bearer tester olp {"appq_message_center_full_access":true}'
       );
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
