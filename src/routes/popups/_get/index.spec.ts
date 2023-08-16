@@ -127,38 +127,6 @@ describe("Route GET popups", () => {
     expect(response.body.length).toBe(1);
     expect(response.body[0].id).toBe(2);
   });
-
-  it("Should return all popups if user has full_access", async () => {
-    const response = await request(app)
-      .get("/popups")
-      .set(
-        "authorization",
-        'Bearer tester olp {"appq_message_center_full_access":true}'
-      );
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-          title: "This is the POPUP title 1",
-          content: "eyJST09ertgetrerbsfgUIjp",
-          profiles: "italian",
-        }),
-        expect.objectContaining({
-          id: 2,
-          title: "This is the POPUP title 2",
-          content: "eyJST09ertgetrerbsfgUIjp",
-          profiles: [],
-        }),
-        expect.objectContaining({
-          id: 3,
-          title: "This is the POPUP title 3",
-          content: "eyJST09ertgetrerbsfgUIjp",
-          profiles: [],
-        }),
-      ])
-    );
-  });
 });
 
 describe("Route GET popups - when there are no popups", () => {

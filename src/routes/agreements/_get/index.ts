@@ -110,7 +110,7 @@ export default class SingleCampaignRoute extends UserRoute<{
     if (agreements.length === 0) return { data: [], total };
 
     const data = (
-      agreements as ((typeof agreements)[number] & {
+      agreements as (typeof agreements[number] & {
         startDate: string;
         expirationDate: string;
       })[]
@@ -128,7 +128,6 @@ export default class SingleCampaignRoute extends UserRoute<{
       note: agreement.note.length > 0 ? agreement.note : undefined,
       isTokenBased: agreement.isTokenBased > 0 ? true : false,
     }));
-    console.log(data);
 
     return { data, total };
   }
