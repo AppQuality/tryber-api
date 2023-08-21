@@ -153,6 +153,7 @@ export default class UxData {
     const { id: i, version: v, published: p, ...data } = this._data;
     return {
       ...data,
+
       findings: this.findings,
       questions: this.questions,
       sentiments: this.sentiments,

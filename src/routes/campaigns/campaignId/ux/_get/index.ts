@@ -130,6 +130,7 @@ export default class Route extends UserRoute<{
     return {
       name: campaignType.name,
       description: metodologyDescription,
+      type: this.draft.data?.metodology_type ?? "qualitative",
     };
   }
 }
