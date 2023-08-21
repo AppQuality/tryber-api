@@ -16,7 +16,6 @@ const campaign = {
 };
 
 const metodology = {
-  name: "Metodology Name",
   type: "qualitative",
   description: "Metodology Description",
 };

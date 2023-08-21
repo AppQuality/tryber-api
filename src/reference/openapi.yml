@@ -2960,7 +2960,22 @@ paths:
                         - comment
                         - cluster
                   metodology:
-                    $ref: '#/components/schemas/UxMetodology'
+                    type: object
+                    required:
+                      - name
+                      - type
+                      - description
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - qualitative
+                          - quantitative
+                          - quali-quantitative
+                      description:
+                        type: string
                   questions:
                     type: array
                     items:
@@ -3167,7 +3182,19 @@ paths:
                           - clusterId
                           - value
                     metodology:
-                      $ref: '#/components/schemas/UxMetodology'
+                      type: object
+                      required:
+                        - type
+                        - description
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - qualitative
+                            - quantitative
+                            - quali-quantitative
+                        description:
+                          type: string
                   required:
                     - insights
                     - sentiments
@@ -3184,7 +3211,6 @@ paths:
               edit-insight-and-videopart:
                 value:
                   metodology:
-                    name: Usability Test
                     description: Metodology Description
                     type: quantitative
                   insights:
@@ -3208,7 +3234,6 @@ paths:
               add-new-insight-and-new-videopart:
                 value:
                   metodology:
-                    name: Usability Test
                     description: Metodology Description
                     type: qualitative
                   insights:
@@ -8775,6 +8800,8 @@ components:
             id: 1
             company: Customer Company
           isTokenBased: true
+      x-stoplight:
+        id: a1062dea11dce
       properties:
         title:
           type: string
@@ -9535,24 +9562,6 @@ components:
         - draft
         - confirmed
         - done
-    UxMetodology:
-      title: UxMetodology
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        type:
-          type: string
-          enum:
-            - qualitative
-            - quantitative
-            - quali-quantitative
-      required:
-        - name
-        - description
-        - type
   securitySchemes:
     JWT:
       type: http

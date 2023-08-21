@@ -125,10 +125,14 @@ export default class PatchUx extends UserRoute<{
   }
 
   private async insertFirstVersion() {
+    const body = this.getBody();
+    if ("status" in body) return;
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: this.campaignId,
       version: 1,
       published: 0,
+      metodology_type: body.metodology.type,
+      metodology_description: body.metodology.description,
     });
     this.version = 1;
   }

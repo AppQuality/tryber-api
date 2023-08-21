@@ -811,13 +811,6 @@ export interface components {
      * @enum {string}
      */
     ProspectStatus: "draft" | "confirmed" | "done";
-    /** UxMetodology */
-    UxMetodology: {
-      name: string;
-      description: string;
-      /** @enum {string} */
-      type: "qualitative" | "quantitative" | "quali-quantitative";
-    };
   };
   responses: {
     /** A user */
@@ -1568,7 +1561,12 @@ export interface operations {
                 name: string;
               };
             }[];
-            metodology: components["schemas"]["UxMetodology"];
+            metodology: {
+              name: string;
+              /** @enum {string} */
+              type: "qualitative" | "quantitative" | "quali-quantitative";
+              description: string;
+            };
             questions: string[];
           };
         };
@@ -1618,7 +1616,11 @@ export interface operations {
                 clusterId: number;
                 value: number;
               }[];
-              metodology: components["schemas"]["UxMetodology"];
+              metodology: {
+                /** @enum {string} */
+                type: "qualitative" | "quantitative" | "quali-quantitative";
+                description: string;
+              };
             }
           | {
               /** @enum {string} */

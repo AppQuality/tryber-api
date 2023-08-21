@@ -16,7 +16,6 @@ const campaign = {
 };
 
 const metodology = {
-  name: "Metodology Name",
   type: "qualitative",
   description: "Metodology Description",
 };
@@ -153,6 +152,43 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         insight_id: insightId,
       })
     );
+  });
+
+  it("Should insert metodology type as draft", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [],
+        sentiments: [],
+        metodology,
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("metodology_type", "version", "published")
+      .first();
+    expect(data?.metodology_type).toBeDefined();
+    expect(data?.metodology_type).toEqual(metodology.type);
+    expect(data?.published).toEqual(0);
+    expect(data?.version).toEqual(1);
+  });
+
+  it("Should insert metodology description as draft", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [],
+        sentiments: [],
+        metodology,
+      });
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("metodology_description", "version", "published")
+      .first();
+    expect(data?.metodology_description).toBeDefined();
+    expect(data?.metodology_description).toEqual(metodology.description);
+    expect(data?.published).toEqual(0);
+    expect(data?.version).toEqual(1);
   });
 
   it("Should return 400 if inserting video part with invalid media id", async () => {

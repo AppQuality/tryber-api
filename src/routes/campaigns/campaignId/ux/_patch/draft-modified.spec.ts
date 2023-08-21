@@ -16,7 +16,6 @@ const campaign = {
 };
 
 const metodology = {
-  name: "Metodology Name",
   type: "qualitative",
   description: "Metodology Description",
 };
@@ -57,64 +56,64 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
       published: 0,
     });
 
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 1,
-      campaign_id: 123,
-      version: 1,
-      title: "Publish insight",
-      description: "Publish description",
-      severity_id: 1,
-      cluster_ids: "1",
-    });
+    await tryber.tables.UxCampaignInsights.do().insert([
+      {
+        id: 1,
+        campaign_id: 123,
+        version: 1,
+        title: "Publish insight",
+        description: "Publish description",
+        severity_id: 1,
+        cluster_ids: "1",
+      },
+      {
+        id: 2,
+        campaign_id: 123,
+        version: 1,
+        title: "Publish insight 2",
+        description: "Publish description 2",
+        severity_id: 1,
+        cluster_ids: "1",
+      },
+      // Draft modified insights
+      {
+        id: 3,
+        campaign_id: 123,
+        version: 2,
+        title: "Publish insight",
+        description: "Publish description",
+        severity_id: 1,
+        cluster_ids: "1",
+      },
+      {
+        id: 4,
+        campaign_id: 123,
+        version: 2,
+        title: "Publish insight 2",
+        description: "Publish description 2",
+        severity_id: 1,
+        cluster_ids: "1",
+      },
+    ]);
 
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 2,
-      campaign_id: 123,
-      version: 1,
-      title: "Publish insight 2",
-      description: "Publish description 2",
-      severity_id: 1,
-      cluster_ids: "1",
-    });
-
-    // Draft modified insights
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 3,
-      campaign_id: 123,
-      version: 2,
-      title: "Publish insight",
-      description: "Publish description",
-      severity_id: 1,
-      cluster_ids: "1",
-    });
-
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 4,
-      campaign_id: 123,
-      version: 2,
-      title: "Publish insight 2",
-      description: "Publish description 2",
-      severity_id: 1,
-      cluster_ids: "1",
-    });
-
-    await tryber.tables.UxCampaignVideoParts.do().insert({
-      id: 1,
-      media_id: 1,
-      insight_id: 2,
-      start: 0,
-      end: 10,
-      description: "Publish video part",
-    });
-
-    await tryber.tables.UxCampaignVideoParts.do().insert({
-      id: 2,
-      media_id: 1,
-      insight_id: 4,
-      start: 0,
-      end: 10,
-      description: "Publish video part",
-    });
+    await tryber.tables.UxCampaignVideoParts.do().insert([
+      {
+        id: 1,
+        media_id: 1,
+        insight_id: 2,
+        start: 0,
+        end: 10,
+        description: "Publish video part",
+      },
+      {
+        id: 2,
+        media_id: 1,
+        insight_id: 4,
+        start: 0,
+        end: 10,
+        description: "Publish video part",
+      },
+    ]);
   });
 
   afterAll(async () => {
