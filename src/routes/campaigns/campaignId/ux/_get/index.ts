@@ -81,7 +81,8 @@ export default class Route extends UserRoute<{
         ...(await this.getMetodology()),
         type: this.draft.data?.metodology_type as
           | "qualitative"
-          | "quantitative",
+          | "quantitative"
+          | "quali-quantitative",
       },
       insights: this.draft.data?.findings || [],
       sentiments: this.draft.data?.sentiments || [],

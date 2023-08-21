@@ -15,6 +15,12 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
+const metodology = {
+  name: "Metodology Name",
+  type: "qualitative",
+  description: "Metodology Description",
+};
+
 describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
@@ -120,7 +126,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
   });
 
   it("Should not remove anything from latest draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/123/ux")
       .set("Authorization", "Bearer admin")
       .send({
@@ -154,6 +160,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
           },
         ],
         sentiments: [],
+        metodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do().select(

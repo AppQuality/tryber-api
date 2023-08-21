@@ -15,6 +15,12 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
+const metodology = {
+  name: "Metodology Name",
+  type: "qualitative",
+  description: "Metodology Description",
+};
+
 describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
@@ -107,6 +113,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         insights: [],
         sentiments: [],
+        metodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do().select(
@@ -138,6 +145,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         insights: [],
         sentiments: [],
+        metodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -181,6 +189,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
           },
         ],
         sentiments: [],
+        metodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -262,6 +271,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
           },
         ],
         sentiments: [],
+        metodology,
       });
 
     const videoPart = await tryber.tables.UxCampaignVideoParts.do().select();

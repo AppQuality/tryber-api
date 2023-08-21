@@ -14,9 +14,15 @@ const campaign = {
   project_id: 1,
   customer_title: "Test Customer",
 };
+
 const requestBody = {
   insights: [],
   sentiments: [],
+  metodology: {
+    name: "Metodology Name",
+    type: "qualitative",
+    description: "Metodology Description",
+  },
 };
 
 describe("PATCH /campaigns/{campaignId}/ux - permissions and loggin statuses", () => {

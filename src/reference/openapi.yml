@@ -2960,21 +2960,7 @@ paths:
                         - comment
                         - cluster
                   metodology:
-                    type: object
-                    required:
-                      - name
-                      - description
-                      - type
-                    properties:
-                      name:
-                        type: string
-                      description:
-                        type: string
-                      type:
-                        type: string
-                        enum:
-                          - qualitative
-                          - quantitative
+                    $ref: '#/components/schemas/UxMetodology'
                   questions:
                     type: array
                     items:
@@ -3180,9 +3166,12 @@ paths:
                         required:
                           - clusterId
                           - value
+                    metodology:
+                      $ref: '#/components/schemas/UxMetodology'
                   required:
                     - insights
                     - sentiments
+                    - metodology
                 - properties:
                     status:
                       type: string
@@ -3194,6 +3183,10 @@ paths:
             examples:
               edit-insight-and-videopart:
                 value:
+                  metodology:
+                    name: Usability Test
+                    description: Metodology Description
+                    type: quantitative
                   insights:
                     - id: 5
                       title: string
@@ -3214,6 +3207,10 @@ paths:
                       value: 4
               add-new-insight-and-new-videopart:
                 value:
+                  metodology:
+                    name: Usability Test
+                    description: Metodology Description
+                    type: qualitative
                   insights:
                     - title: string
                       description: string
@@ -8778,8 +8775,6 @@ components:
             id: 1
             company: Customer Company
           isTokenBased: true
-      x-stoplight:
-        id: a1062dea11dce
       properties:
         title:
           type: string
@@ -9540,6 +9535,24 @@ components:
         - draft
         - confirmed
         - done
+    UxMetodology:
+      title: UxMetodology
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - qualitative
+            - quantitative
+            - quali-quantitative
+      required:
+        - name
+        - description
+        - type
   securitySchemes:
     JWT:
       type: http
