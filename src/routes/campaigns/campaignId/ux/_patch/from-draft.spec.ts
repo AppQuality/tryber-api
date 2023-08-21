@@ -125,7 +125,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 2,
             clusterIds: "all",
             order: 0,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -160,7 +160,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             clusterIds: [1],
             order: 0,
-            videoPart: [],
+            videoParts: [],
           },
           {
             title: "New insight",
@@ -168,7 +168,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 2,
             clusterIds: "all",
             order: 1,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -213,7 +213,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 2,
             clusterIds: "all",
             order: 1,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -305,7 +305,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -328,7 +328,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 id: 1,
                 start: 0,
@@ -390,7 +390,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 id: 1,
                 start: 10,
@@ -434,7 +434,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 start: 10,
                 end: 100,

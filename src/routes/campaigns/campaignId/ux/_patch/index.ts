@@ -53,7 +53,7 @@ export default class PatchUx extends UserRoute<{
     if (!("status" in body)) {
       const { insights } = body;
       if (insights) {
-        const videoParts = insights.flatMap((i) => i.videoPart || []);
+        const videoParts = insights.flatMap((i) => i.videoParts || []);
         const mediaIds = videoParts.map((v) => v.mediaId);
         const media = await tryber.tables.WpAppqUserTaskMedia.do()
           .select()
@@ -193,10 +193,10 @@ export default class PatchUx extends UserRoute<{
             version: this.version,
           })
           .returning("id");
-        if (item.videoPart && item.videoPart.length) {
+        if (item.videoParts && item.videoParts.length) {
           const insightId = insight[0].id ?? insight[0];
           await tryber.tables.UxCampaignVideoParts.do().insert(
-            item.videoPart.map((v) => ({
+            item.videoParts.map((v) => ({
               start: v.start,
               end: v.end,
               media_id: v.mediaId,
@@ -232,7 +232,7 @@ export default class PatchUx extends UserRoute<{
             id: item.id,
           });
 
-        const newVideoParts = item.videoPart.filter((i) => !i.id);
+        const newVideoParts = item.videoParts.filter((i) => !i.id);
 
         if (newVideoParts.length) {
           await tryber.tables.UxCampaignVideoParts.do().insert(
@@ -246,10 +246,10 @@ export default class PatchUx extends UserRoute<{
             }))
           );
         }
-        const updatedVideoParts = item.videoPart.filter((i) => i.id);
+        const updatedVideoParts = item.videoParts.filter((i) => i.id);
 
         const currentVideoParts = (this.lastDraft?.findings || []).flatMap(
-          (f) => (f.id == item.id && f.videoPart ? f.videoPart : [])
+          (f) => (f.id == item.id && f.videoParts ? f.videoParts : [])
         );
 
         const currentVideoPartIds = currentVideoParts.map((i) => i.id);
@@ -344,7 +344,7 @@ export default class PatchUx extends UserRoute<{
       );
 
       let videoPartOrder = 0;
-      for (const videoPart of insight.videoPart) {
+      for (const videoPart of insight.videoParts) {
         await tryber.tables.UxCampaignVideoParts.do().insert({
           start: videoPart.start,
           end: videoPart.end,

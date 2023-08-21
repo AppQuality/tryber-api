@@ -1543,7 +1543,7 @@ export interface operations {
                     id: number;
                     name: string;
                   }[];
-              videoPart: {
+              videoParts: {
                 id: number;
                 start: number;
                 end: number;
@@ -1603,7 +1603,7 @@ export interface operations {
                 severityId: number;
                 order: number;
                 clusterIds: number[] | "all";
-                videoPart: {
+                videoParts: {
                   id?: number;
                   start: number;
                   end: number;

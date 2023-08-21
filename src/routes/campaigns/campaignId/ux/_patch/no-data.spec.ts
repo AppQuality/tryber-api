@@ -53,7 +53,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -85,7 +85,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -115,7 +115,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 start: 0,
                 end: 10,
@@ -158,7 +158,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 start: 0,
                 end: 10,

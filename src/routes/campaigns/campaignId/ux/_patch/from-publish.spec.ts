@@ -169,7 +169,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
             severityId: 1,
             clusterIds: [1],
             order: 0,
-            videoPart: [],
+            videoParts: [],
           },
           {
             title: "New insight",
@@ -177,7 +177,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
             severityId: 2,
             clusterIds: "all",
             order: 1,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
@@ -234,7 +234,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
             severityId: 1,
             clusterIds: [1],
             order: 0,
-            videoPart: [
+            videoParts: [
               {
                 id: 2,
                 start: 0,
@@ -258,7 +258,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
             severityId: 2,
             clusterIds: "all",
             order: 1,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],

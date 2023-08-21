@@ -132,7 +132,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
             order: 0,
             severityId: 1,
             clusterIds: [1],
-            videoPart: [],
+            videoParts: [],
           },
           {
             id: 4,
@@ -141,7 +141,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
             order: 0,
             severityId: 1,
             clusterIds: [1],
-            videoPart: [
+            videoParts: [
               {
                 id: 2,
                 order: 0,

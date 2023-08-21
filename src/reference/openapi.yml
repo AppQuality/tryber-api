@@ -2902,7 +2902,7 @@ paths:
                                 required:
                                   - id
                                   - name
-                        videoPart:
+                        videoParts:
                           type: array
                           items:
                             type: object
@@ -2935,7 +2935,7 @@ paths:
                         - description
                         - severity
                         - clusters
-                        - videoPart
+                        - videoParts
                   sentiments:
                     type: array
                     items:
@@ -3007,7 +3007,7 @@ paths:
                           id: 1
                           name: Minor
                         clusters: all
-                        videoPart:
+                        videoParts:
                           - id: 1
                             start: 10
                             end: 20
@@ -3026,7 +3026,7 @@ paths:
                             name: 'UC1: Cart'
                           - id: 2
                             name: 'UC2: Login'
-                        videoPart:
+                        videoParts:
                           - id: 2
                             start: 15
                             end: 25
@@ -3055,7 +3055,7 @@ paths:
                           id: 1
                           name: Minor
                         clusters: all
-                        videoPart:
+                        videoParts:
                           - id: 1
                             start: 10
                             end: 20
@@ -3074,7 +3074,7 @@ paths:
                             name: 'UC1: Cart'
                           - id: 2
                             name: 'UC2: Login'
-                        videoPart:
+                        videoParts:
                           - id: 2
                             start: 15
                             end: 25
@@ -3138,7 +3138,7 @@ paths:
                               - type: string
                                 enum:
                                   - all
-                          videoPart:
+                          videoParts:
                             type: array
                             items:
                               type: object
@@ -3167,7 +3167,7 @@ paths:
                           - severityId
                           - order
                           - clusterIds
-                          - videoPart
+                          - videoParts
                     sentiments:
                       type: array
                       items:
@@ -3202,7 +3202,7 @@ paths:
                       order: 0
                       clusterIds:
                         - 0
-                      videoPart:
+                      videoParts:
                         - id: 7
                           start: 0
                           end: 0
@@ -3221,7 +3221,7 @@ paths:
                       order: 0
                       clusterIds:
                         - 0
-                      videoPart:
+                      videoParts:
                         - start: 0
                           end: 0
                           mediaId: 0

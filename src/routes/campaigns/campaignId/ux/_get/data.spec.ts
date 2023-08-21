@@ -155,7 +155,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
           name: "Minor",
         }),
         clusters: "all",
-        videoPart: expect.arrayContaining([]),
+        videoParts: expect.arrayContaining([]),
       })
     );
     expect(response.body.insights[1]).toEqual(
@@ -176,7 +176,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
             name: "Test Cluster 2",
           }),
         ],
-        videoPart: expect.arrayContaining([]),
+        videoParts: expect.arrayContaining([]),
       })
     );
   });
@@ -190,11 +190,11 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.insights[1]).toEqual(
       expect.objectContaining({
         id: 1,
-        videoPart: expect.arrayContaining([]),
+        videoParts: expect.arrayContaining([]),
       })
     );
-    expect(response.body.insights[1].videoPart).toHaveLength(1);
-    expect(response.body.insights[1].videoPart[0]).toEqual(
+    expect(response.body.insights[1].videoParts).toHaveLength(1);
+    expect(response.body.insights[1].videoParts[0]).toEqual(
       expect.objectContaining({
         start: 0,
         end: 10,
