@@ -144,9 +144,9 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("insight");
-    expect(response.body.insight).toHaveLength(2);
-    expect(response.body.insight[0]).toEqual(
+    expect(response.body).toHaveProperty("insights");
+    expect(response.body.insights).toHaveLength(2);
+    expect(response.body.insights[0]).toEqual(
       expect.objectContaining({
         title: "Test Insight All Cluster",
         description: "Test Description All Cluster",
@@ -158,7 +158,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         videoPart: expect.arrayContaining([]),
       })
     );
-    expect(response.body.insight[1]).toEqual(
+    expect(response.body.insights[1]).toEqual(
       expect.objectContaining({
         title: "Test Insight",
         description: "Test Description",
@@ -185,16 +185,16 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("insight");
-    expect(response.body.insight).toHaveLength(2);
-    expect(response.body.insight[1]).toEqual(
+    expect(response.body).toHaveProperty("insights");
+    expect(response.body.insights).toHaveLength(2);
+    expect(response.body.insights[1]).toEqual(
       expect.objectContaining({
         id: 1,
         videoPart: expect.arrayContaining([]),
       })
     );
-    expect(response.body.insight[1].videoPart).toHaveLength(1);
-    expect(response.body.insight[1].videoPart[0]).toEqual(
+    expect(response.body.insights[1].videoPart).toHaveLength(1);
+    expect(response.body.insights[1].videoPart[0]).toEqual(
       expect.objectContaining({
         start: 0,
         end: 10,

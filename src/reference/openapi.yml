@@ -2865,7 +2865,7 @@ paths:
                     type: string
                   usersNumber:
                     type: integer
-                  insight:
+                  insights:
                     type: array
                     items:
                       type: object
@@ -2999,7 +2999,7 @@ paths:
                       name: Usability Test
                       description: Metodology Description
                       type: qualitative
-                    insight:
+                    insights:
                       - id: 1
                         title: My insight
                         description: This is an insight
@@ -3047,7 +3047,7 @@ paths:
                       name: Usability Test
                       description: Metodology Description
                       type: quantitative
-                    insight:
+                    insights:
                       - id: 1
                         title: My insight
                         description: This is an insight

@@ -1529,7 +1529,7 @@ export interface operations {
             status: "draft" | "published" | "draft-modified";
             goal: string;
             usersNumber: number;
-            insight?: {
+            insights?: {
               id: number;
               title: string;
               description: string;
