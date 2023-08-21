@@ -154,7 +154,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
           id: 1,
           name: "Minor",
         }),
-        cluster: "all",
+        clusters: "all",
         videoPart: expect.arrayContaining([]),
       })
     );
@@ -166,7 +166,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
           id: 1,
           name: "Minor",
         }),
-        cluster: [
+        clusters: [
           expect.objectContaining({
             id: 1,
             name: "Test Cluster",

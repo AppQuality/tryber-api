@@ -326,9 +326,9 @@ export default class PatchUx extends UserRoute<{
         .insert({
           campaign_id: this.campaignId,
           cluster_ids:
-            insight.cluster === "all"
+            insight.clusters === "all"
               ? "0"
-              : insight.cluster.map((c) => c.id).join(","),
+              : insight.clusters.map((c) => c.id).join(","),
           description: insight.description,
           order: findingOrder++,
           severity_id: insight.severity.id,

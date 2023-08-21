@@ -173,7 +173,7 @@ export default class UxData {
         id: f.id,
         title: f.title,
         description: f.description,
-        cluster: getClusters(this._clusters),
+        clusters: getClusters(this._clusters),
         severity: { id: f.severity_id, name: severityName },
         videoPart: videoParts.map((v) => ({
           id: v.id,

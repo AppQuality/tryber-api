@@ -1537,7 +1537,7 @@ export interface operations {
                 id: number;
                 name: string;
               };
-              cluster:
+              clusters:
                 | "all"
                 | {
                     id: number;
