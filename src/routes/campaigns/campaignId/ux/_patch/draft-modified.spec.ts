@@ -44,17 +44,18 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
       },
     ]);
 
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 123,
-      version: 1,
-      published: 1,
-    });
-
-    await tryber.tables.UxCampaignData.do().insert({
-      campaign_id: 123,
-      version: 2,
-      published: 0,
-    });
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 123,
+        version: 1,
+        published: 1,
+      },
+      {
+        campaign_id: 123,
+        version: 2,
+        published: 0,
+      },
+    ]);
 
     await tryber.tables.UxCampaignInsights.do().insert([
       {
