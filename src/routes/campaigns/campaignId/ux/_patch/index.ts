@@ -121,6 +121,7 @@ export default class PatchUx extends UserRoute<{
       await this.insertFirstVersion();
     }
 
+    await this.updateUxData();
     await this.updateInsights();
   }
 
@@ -135,6 +136,20 @@ export default class PatchUx extends UserRoute<{
       metodology_description: body.metodology.description,
     });
     this.version = 1;
+  }
+
+  private async updateUxData() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    await tryber.tables.UxCampaignData.do()
+      .update({
+        metodology_type: body.metodology.type,
+        metodology_description: body.metodology.description,
+      })
+      .where({
+        version: this.version,
+      })
+      .where({ campaign_id: this.campaignId });
   }
 
   private async updateInsights() {
@@ -312,6 +327,8 @@ export default class PatchUx extends UserRoute<{
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: this.campaignId,
       version: this.version + 1,
+      metodology_description: this.lastDraft?.data?.metodology_description,
+      metodology_type: this.lastDraft?.data?.metodology_type,
       published: 0,
     });
   }

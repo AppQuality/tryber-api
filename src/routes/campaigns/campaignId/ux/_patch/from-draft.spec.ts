@@ -52,6 +52,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       campaign_id: 1,
       version: 1,
       published: 0,
+      metodology_description: metodology.description,
+      metodology_type: metodology.type,
     });
 
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -243,6 +245,68 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
+  it("Should update metodology type as draft", async () => {
+    const actualData = await tryber.tables.UxCampaignData.do()
+      .select("metodology_type", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [],
+        sentiments: [],
+        metodology: { ...metodology, type: "quali-quantitative" },
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("metodology_type", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    expect(actualData?.metodology_type).not.toEqual(data?.metodology_type);
+    expect(data).toEqual(
+      expect.objectContaining({
+        published: 0,
+        version: 1,
+        metodology_type: "quali-quantitative",
+      })
+    );
+  });
+
+  it("Should update metodology description as draft", async () => {
+    const actualData = await tryber.tables.UxCampaignData.do()
+      .select("metodology_description", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        insights: [],
+        sentiments: [],
+        metodology: { ...metodology, description: "The new description" },
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("metodology_description", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    expect(actualData?.metodology_description).not.toEqual(
+      data?.metodology_description
+    );
+    expect(data).toEqual(
+      expect.objectContaining({
+        published: 0,
+        version: 1,
+        metodology_description: "The new description",
+      })
+    );
+  });
+
   it("Should create a new version on publish", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
@@ -258,6 +322,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
+        metodology_description: "Metodology Description",
+        metodology_type: "qualitative",
       })
     );
     expect(data[1]).toEqual(
@@ -265,6 +331,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
         version: 2,
         published: 0,
+        metodology_description: "Metodology Description",
+        metodology_type: "qualitative",
       })
     );
   });
