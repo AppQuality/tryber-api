@@ -3116,6 +3116,10 @@ paths:
             schema:
               oneOf:
                 - properties:
+                    goal:
+                      type: string
+                    usersNumber:
+                      type: integer
                     insights:
                       type: array
                       items:
@@ -3196,6 +3200,8 @@ paths:
                         description:
                           type: string
                   required:
+                    - goal
+                    - usersNumber
                     - insights
                     - sentiments
                     - metodology
@@ -3210,6 +3216,8 @@ paths:
             examples:
               edit-insight-and-videopart:
                 value:
+                  goal: this is the goal
+                  usersNumber: 5
                   metodology:
                     description: Metodology Description
                     type: quantitative
@@ -3233,6 +3241,8 @@ paths:
                       value: 4
               add-new-insight-and-new-videopart:
                 value:
+                  goal: this is the goal
+                  usersNumber: 5
                   metodology:
                     description: Metodology Description
                     type: qualitative

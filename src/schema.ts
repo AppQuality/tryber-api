@@ -1596,6 +1596,8 @@ export interface operations {
       content: {
         "application/json":
           | {
+              goal: string;
+              usersNumber: number;
               insights: {
                 id?: number;
                 title: string;
