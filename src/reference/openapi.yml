@@ -3202,7 +3202,15 @@ paths:
                     questions:
                       type: array
                       items:
-                        type: string
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                        required:
+                          - id
+                          - name
                   required:
                     - goal
                     - usersNumber
@@ -3245,11 +3253,16 @@ paths:
                     - clusterId: 0
                       value: 4
                   questions:
-                    - why?
-                    - what?
-                    - when?
-                    - how?
-                    - who?
+                    - id: 1
+                      name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - id: 5
+                      name: who?
               add-new-insight-and-new-videopart:
                 value:
                   goal: this is the goal
@@ -3274,11 +3287,16 @@ paths:
                     - clusterId: 0
                       value: 0
                   questions:
-                    - why?
-                    - what?
-                    - when?
-                    - how?
-                    - who?
+                    - id: 1
+                      name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - id: 5
+                      name: who?
               publish:
                 value:
                   status: publish
