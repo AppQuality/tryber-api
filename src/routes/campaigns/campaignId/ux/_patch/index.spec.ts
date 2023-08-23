@@ -20,6 +20,7 @@ const requestBody = {
   usersNumber: 5,
   insights: [],
   sentiments: [],
+  questions: [],
   methodology: {
     name: "Methodology Name",
     type: "qualitative",

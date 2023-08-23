@@ -123,6 +123,7 @@ export default class PatchUx extends UserRoute<{
 
     await this.updateUxData();
     await this.updateInsights();
+    await this.updateQuestions();
   }
 
   private async insertFirstVersion() {
@@ -160,6 +161,32 @@ export default class PatchUx extends UserRoute<{
     await this.removeFindings();
     await this.insertNewFindings();
     await this.updateExistingFindings();
+  }
+
+  private async updateQuestions() {
+    await this.removeCampaignQuestions();
+    await this.insertCampaignQuestions();
+  }
+
+  private async removeCampaignQuestions() {
+    await tryber.tables.UxCampaignQuestions.do().delete().where({
+      campaign_id: this.campaignId,
+    });
+  }
+
+  private async insertCampaignQuestions() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { questions } = body;
+    if (questions && questions.length) {
+      await tryber.tables.UxCampaignQuestions.do().insert(
+        questions.map((q) => ({
+          campaign_id: this.campaignId,
+          question: q,
+          version: this.version,
+        }))
+      );
+    }
   }
 
   private async removeFindings() {

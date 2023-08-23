@@ -123,6 +123,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
   it("Should not remove anything from latest draft", async () => {
@@ -162,6 +163,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
           },
         ],
         sentiments: [],
+        questions: [],
         methodology,
       });
 

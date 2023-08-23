@@ -44,6 +44,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
   it("Should insert data as draft", async () => {
@@ -64,6 +65,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
+        questions: [],
         methodology,
       });
     const data = await tryber.tables.UxCampaignData.do().select(
@@ -99,6 +101,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
+        questions: [],
         methodology,
       });
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -140,6 +143,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
+        questions: [],
         methodology,
       });
 
@@ -169,6 +173,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
+        questions: [],
         methodology,
       });
 
@@ -190,6 +195,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
+        questions: [],
+
         methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
@@ -210,6 +217,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
+        questions: [],
+
         methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
@@ -230,6 +239,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 6,
         insights: [],
         sentiments: [],
+        questions: [],
+
         methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
@@ -267,6 +278,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
+        questions: [],
+
         methodology,
       });
 

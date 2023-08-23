@@ -1623,6 +1623,7 @@ export interface operations {
                 type: "qualitative" | "quantitative" | "quali-quantitative";
                 description: string;
               };
+              questions: string[];
             }
           | {
               /** @enum {string} */

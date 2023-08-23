@@ -97,14 +97,17 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       {
         campaign_id: 1,
         question: "Why the world is round?",
+        version: 1,
       },
       {
         campaign_id: 1,
         question: "How many stars are in the sky?",
+        version: 1,
       },
       {
         campaign_id: 2,
         question: "Be or not to be?",
+        version: 1,
       },
     ]);
     await tryber.tables.UxCampaignSentiments.do().insert([
@@ -113,18 +116,21 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         campaign_id: 1,
         value: 1,
         comment: "Low Comment cluster1",
+        version: 1,
       },
       {
         cluster_id: 2,
         campaign_id: 1,
         value: 5,
         comment: "High Comment cluster2",
+        version: 1,
       },
       {
         cluster_id: 1,
         campaign_id: 2,
         value: 5,
         comment: "Medium Comment cluster1",
+        version: 1,
       },
     ]);
   });

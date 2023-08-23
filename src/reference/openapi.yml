@@ -3199,12 +3199,17 @@ paths:
                             - quali-quantitative
                         description:
                           type: string
+                    questions:
+                      type: array
+                      items:
+                        type: string
                   required:
                     - goal
                     - usersNumber
                     - insights
                     - sentiments
                     - methodology
+                    - questions
                 - properties:
                     status:
                       type: string
@@ -3239,6 +3244,12 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 4
+                  questions:
+                    - why?
+                    - what?
+                    - when?
+                    - how?
+                    - who?
               add-new-insight-and-new-videopart:
                 value:
                   goal: this is the goal
@@ -3262,6 +3273,12 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 0
+                  questions:
+                    - why?
+                    - what?
+                    - when?
+                    - how?
+                    - who?
               publish:
                 value:
                   status: publish
