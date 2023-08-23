@@ -1561,7 +1561,7 @@ export interface operations {
                 name: string;
               };
             }[];
-            metodology: {
+            methodology: {
               name: string;
               /** @enum {string} */
               type: "qualitative" | "quantitative" | "quali-quantitative";
@@ -1618,7 +1618,7 @@ export interface operations {
                 clusterId: number;
                 value: number;
               }[];
-              metodology: {
+              methodology: {
                 /** @enum {string} */
                 type: "qualitative" | "quantitative" | "quali-quantitative";
                 description: string;

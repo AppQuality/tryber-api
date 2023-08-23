@@ -15,9 +15,9 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
-const metodology = {
+const methodology = {
   type: "qualitative",
-  description: "Metodology Description",
+  description: "Methodology Description",
 };
 
 describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
@@ -162,7 +162,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do().select(

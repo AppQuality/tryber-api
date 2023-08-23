@@ -247,35 +247,35 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
     await tryber.tables.UxCampaignInsights.do().delete();
   });
 
-  it("Should return metodology", async () => {
+  it("Should return methodology", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("metodology");
+    expect(response.body).toHaveProperty("methodology");
   });
 
-  it("Should return metodology name", async () => {
+  it("Should return methodology name", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("name");
-    expect(response.body.metodology.name).toEqual("Usability Test");
+    expect(response.body.methodology).toHaveProperty("name");
+    expect(response.body.methodology.name).toEqual("Usability Test");
   });
-  it("Should return metodology description from ux data if exist", async () => {
+  it("Should return methodology description from ux data if exist", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("description");
-    expect(response.body.metodology.description).toEqual(
+    expect(response.body.methodology).toHaveProperty("description");
+    expect(response.body.methodology.description).toEqual(
       "Test Description NEW"
     );
   });
-  it("Should return metodology type", async () => {
+  it("Should return methodology type", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("type");
-    expect(response.body.metodology.type).toEqual("quantitative");
+    expect(response.body.methodology).toHaveProperty("type");
+    expect(response.body.methodology.type).toEqual("quantitative");
   });
   it("Should return research goal", async () => {
     const response = await request(app)
@@ -294,7 +294,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
   });
 });
 
-describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no description", () => {
+describe("GET /campaigns/{campaignId}/ux - draft modified - methodology no description", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, campaign_type_id: 10 },
@@ -347,12 +347,12 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - metodology no descri
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
   });
-  it("Should return metodology description from ux data if exist", async () => {
+  it("Should return methodology description from ux data if exist", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("description");
-    expect(response.body.metodology.description).toEqual(
+    expect(response.body.methodology).toHaveProperty("description");
+    expect(response.body.methodology.description).toEqual(
       "Campaign Type Description"
     );
   });

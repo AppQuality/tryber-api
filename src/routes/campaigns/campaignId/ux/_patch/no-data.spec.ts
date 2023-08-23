@@ -15,9 +15,9 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
-const metodology = {
+const methodology = {
   type: "qualitative",
-  description: "Metodology Description",
+  description: "Methodology Description",
 };
 
 describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
@@ -64,7 +64,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
     const data = await tryber.tables.UxCampaignData.do().select(
       "version",
@@ -99,7 +99,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
     const data = await tryber.tables.UxCampaignInsights.do().select();
     expect(data).toHaveLength(1);
@@ -140,7 +140,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -160,7 +160,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     );
   });
 
-  it("Should insert metodology type as draft", async () => {
+  it("Should insert methodology type as draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -169,19 +169,19 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do()
       .select("metodology_type", "version", "published")
       .first();
     expect(data?.metodology_type).toBeDefined();
-    expect(data?.metodology_type).toEqual(metodology.type);
+    expect(data?.metodology_type).toEqual(methodology.type);
     expect(data?.published).toEqual(0);
     expect(data?.version).toEqual(1);
   });
 
-  it("Should insert metodology description as draft", async () => {
+  it("Should insert methodology description as draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -190,13 +190,13 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
       .select("metodology_description", "version", "published")
       .first();
     expect(data?.metodology_description).toBeDefined();
-    expect(data?.metodology_description).toEqual(metodology.description);
+    expect(data?.metodology_description).toEqual(methodology.description);
     expect(data?.published).toEqual(0);
     expect(data?.version).toEqual(1);
   });
@@ -210,7 +210,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
       .select("goal", "version", "published")
@@ -230,7 +230,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         usersNumber: 6,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
       .select("users", "version", "published")
@@ -267,7 +267,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     expect(response.status).toBe(400);

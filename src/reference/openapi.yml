@@ -2959,7 +2959,7 @@ paths:
                         - value
                         - comment
                         - cluster
-                  metodology:
+                  methodology:
                     type: object
                     required:
                       - name
@@ -2985,7 +2985,7 @@ paths:
                   - goal
                   - usersNumber
                   - sentiments
-                  - metodology
+                  - methodology
                   - questions
               examples:
                 example-qualitative:
@@ -2996,9 +2996,9 @@ paths:
                     questions:
                       - Why the world exists?
                       - How the world exists?
-                    metodology:
+                    methodology:
                       name: Usability Test
-                      description: Metodology Description
+                      description: Methodology Description
                       type: qualitative
                     insights:
                       - id: 1
@@ -3044,9 +3044,9 @@ paths:
                     questions:
                       - Why the world exists?
                       - How the world exists?
-                    metodology:
+                    methodology:
                       name: Usability Test
-                      description: Metodology Description
+                      description: Methodology Description
                       type: quantitative
                     insights:
                       - id: 1
@@ -3185,7 +3185,7 @@ paths:
                         required:
                           - clusterId
                           - value
-                    metodology:
+                    methodology:
                       type: object
                       required:
                         - type
@@ -3204,7 +3204,7 @@ paths:
                     - usersNumber
                     - insights
                     - sentiments
-                    - metodology
+                    - methodology
                 - properties:
                     status:
                       type: string
@@ -3218,8 +3218,8 @@ paths:
                 value:
                   goal: this is the goal
                   usersNumber: 5
-                  metodology:
-                    description: Metodology Description
+                  methodology:
+                    description: Methodology Description
                     type: quantitative
                   insights:
                     - id: 5
@@ -3243,8 +3243,8 @@ paths:
                 value:
                   goal: this is the goal
                   usersNumber: 5
-                  metodology:
-                    description: Metodology Description
+                  methodology:
+                    description: Methodology Description
                     type: qualitative
                   insights:
                     - title: string

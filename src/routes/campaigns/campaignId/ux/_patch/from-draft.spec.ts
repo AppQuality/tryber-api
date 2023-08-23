@@ -15,9 +15,9 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
-const metodology = {
+const methodology = {
   type: "qualitative",
-  description: "Metodology Description",
+  description: "Methodology Description",
 };
 
 describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
@@ -54,8 +54,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       campaign_id: 1,
       version: 1,
       published: 0,
-      metodology_description: metodology.description,
-      metodology_type: metodology.type,
+      metodology_description: methodology.description,
+      metodology_type: methodology.type,
     });
 
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -92,7 +92,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do().select(
@@ -119,7 +119,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -145,7 +145,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -191,7 +191,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -239,7 +239,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -257,7 +257,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should update metodology type as draft", async () => {
+  it("Should update methodology type as draft", async () => {
     const actualData = await tryber.tables.UxCampaignData.do()
       .select("metodology_type", "published", "version")
       .where({ campaign_id: 1 })
@@ -271,7 +271,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology: { ...metodology, type: "quali-quantitative" },
+        methodology: { ...methodology, type: "quali-quantitative" },
       });
 
     const data = await tryber.tables.UxCampaignData.do()
@@ -289,7 +289,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should update metodology description as draft", async () => {
+  it("Should update methodology description as draft", async () => {
     const actualData = await tryber.tables.UxCampaignData.do()
       .select("metodology_description", "published", "version")
       .where({ campaign_id: 1 })
@@ -303,7 +303,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology: { ...metodology, description: "The new description" },
+        methodology: { ...methodology, description: "The new description" },
       });
 
     const data = await tryber.tables.UxCampaignData.do()
@@ -337,7 +337,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do()
@@ -369,7 +369,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         usersNumber: 6,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do()
@@ -406,7 +406,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
-        metodology_description: "Metodology Description",
+        metodology_description: "Methodology Description",
         metodology_type: "qualitative",
       })
     );
@@ -417,7 +417,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
         version: 2,
         published: 0,
-        metodology_description: "Metodology Description",
+        metodology_description: "Methodology Description",
         metodology_type: "qualitative",
       })
     );
@@ -474,7 +474,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
@@ -516,7 +516,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -574,7 +574,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -620,7 +620,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();

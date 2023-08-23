@@ -15,9 +15,9 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
-const metodology = {
+const methodology = {
   type: "qualitative",
-  description: "Metodology Description",
+  description: "Methodology Description",
 };
 
 describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
@@ -53,15 +53,15 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
-        metodology_description: metodology.description,
-        metodology_type: metodology.type,
+        metodology_description: methodology.description,
+        metodology_type: methodology.type,
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
-        metodology_description: metodology.description,
-        metodology_type: metodology.type,
+        metodology_description: methodology.description,
+        metodology_type: methodology.type,
       },
     ]);
 
@@ -121,7 +121,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do().select(
@@ -155,7 +155,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -174,7 +174,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
     );
   });
 
-  it("Should update a metodology description in the draft", async () => {
+  it("Should update a methodology description in the draft", async () => {
     const draftBefore = await tryber.tables.UxCampaignData.do()
       .select("metodology_description")
       .where({ version: 2, published: 0 })
@@ -187,7 +187,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology: { ...metodology, description: "New description" },
+        methodology: { ...methodology, description: "New description" },
       });
 
     const updatedDraft = await tryber.tables.UxCampaignData.do()
@@ -200,7 +200,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
     expect(updatedDraft?.metodology_description).toEqual("New description");
   });
 
-  it("Should update a metodology type in the draft", async () => {
+  it("Should update a methodology type in the draft", async () => {
     const draftBefore = await tryber.tables.UxCampaignData.do()
       .select("metodology_type")
       .where({ version: 2, published: 0 })
@@ -213,7 +213,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology: { ...metodology, type: "quantitative" },
+        methodology: { ...methodology, type: "quantitative" },
       });
 
     const updatedDraft = await tryber.tables.UxCampaignData.do()
@@ -239,7 +239,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         usersNumber: 5,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const updatedDraft = await tryber.tables.UxCampaignData.do()
@@ -263,7 +263,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         usersNumber: 6,
         insights: [],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const updatedDraft = await tryber.tables.UxCampaignData.do()
@@ -301,7 +301,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -385,7 +385,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
           },
         ],
         sentiments: [],
-        metodology,
+        methodology,
       });
 
     const videoPart = await tryber.tables.UxCampaignVideoParts.do().select();

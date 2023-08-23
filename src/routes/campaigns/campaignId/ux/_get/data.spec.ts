@@ -260,35 +260,35 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     );
   });
 
-  it("Should return metodology", async () => {
+  it("Should return methodology", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("metodology");
+    expect(response.body).toHaveProperty("methodology");
   });
 
-  it("Should return metodology name", async () => {
+  it("Should return methodology name", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("name");
-    expect(response.body.metodology.name).toEqual("Usability Test");
+    expect(response.body.methodology).toHaveProperty("name");
+    expect(response.body.methodology.name).toEqual("Usability Test");
   });
 
-  it("Should return metodology description from ux data if exist", async () => {
+  it("Should return methodology description from ux data if exist", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("description");
-    expect(response.body.metodology.description).toEqual("Ux Description");
+    expect(response.body.methodology).toHaveProperty("description");
+    expect(response.body.methodology.description).toEqual("Ux Description");
   });
 
-  it("Should return metodology type", async () => {
+  it("Should return methodology type", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("type");
-    expect(response.body.metodology.type).toEqual("qualitative");
+    expect(response.body.methodology).toHaveProperty("type");
+    expect(response.body.methodology.type).toEqual("qualitative");
   });
   it("Should return research goal", async () => {
     const response = await request(app)
@@ -305,7 +305,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.usersNumber).toEqual(100);
   });
 });
-describe("GET /campaigns/{campaignId}/ux - data - no metodology description", () => {
+describe("GET /campaigns/{campaignId}/ux - data - no methodology description", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, campaign_type_id: 10 },
@@ -390,12 +390,12 @@ describe("GET /campaigns/{campaignId}/ux - data - no metodology description", ()
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
   });
 
-  it("Should return metodology description from campaign type as default", async () => {
+  it("Should return methodology description from campaign type as default", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("description");
-    expect(response.body.metodology.description).toEqual(
+    expect(response.body.methodology).toHaveProperty("description");
+    expect(response.body.methodology.description).toEqual(
       "Campaign Type Description"
     );
   });

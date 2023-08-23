@@ -54,35 +54,35 @@ describe("GET /campaigns/{campaignId}/ux - draft", () => {
     expect(response.body).toHaveProperty("status", "draft");
   });
 
-  it("Should return metodology", async () => {
+  it("Should return methodology", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("metodology");
+    expect(response.body).toHaveProperty("methodology");
   });
 
-  it("Should return metodology name", async () => {
+  it("Should return methodology name", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("name");
-    expect(response.body.metodology.name).toEqual("Usability Test");
+    expect(response.body.methodology).toHaveProperty("name");
+    expect(response.body.methodology.name).toEqual("Usability Test");
   });
-  it("Should return metodology description", async () => {
+  it("Should return methodology description", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("description");
-    expect(response.body.metodology.description).toEqual("Ux Description");
+    expect(response.body.methodology).toHaveProperty("description");
+    expect(response.body.methodology.description).toEqual("Ux Description");
   });
-  it("Should return metodology type", async () => {
+  it("Should return methodology type", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.metodology).toHaveProperty("type");
-    expect(response.body.metodology.type).toEqual("qualitative");
+    expect(response.body.methodology).toHaveProperty("type");
+    expect(response.body.methodology.type).toEqual("qualitative");
   });
-  it("Should return metodology goal", async () => {
+  it("Should return methodology goal", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
@@ -90,7 +90,7 @@ describe("GET /campaigns/{campaignId}/ux - draft", () => {
     expect(response.body.goal).toEqual("This is the goal of the reasearch");
   });
 
-  it("Should return metodology usersNumber", async () => {
+  it("Should return methodology usersNumber", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");

@@ -134,8 +134,8 @@ export default class PatchUx extends UserRoute<{
       campaign_id: this.campaignId,
       version: 1,
       published: 0,
-      metodology_type: body.metodology.type,
-      metodology_description: body.metodology.description,
+      metodology_type: body.methodology.type,
+      metodology_description: body.methodology.description,
     });
     this.version = 1;
   }
@@ -147,8 +147,8 @@ export default class PatchUx extends UserRoute<{
       .update({
         goal: body.goal,
         users: body.usersNumber,
-        metodology_type: body.metodology.type,
-        metodology_description: body.metodology.description,
+        metodology_type: body.methodology.type,
+        metodology_description: body.methodology.description,
       })
       .where({
         version: this.version,
