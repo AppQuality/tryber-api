@@ -54,8 +54,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       campaign_id: 1,
       version: 1,
       published: 0,
-      metodology_description: methodology.description,
-      metodology_type: methodology.type,
+      methodology_description: methodology.description,
+      methodology_type: methodology.type,
     });
 
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -259,7 +259,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
 
   it("Should update methodology type as draft", async () => {
     const actualData = await tryber.tables.UxCampaignData.do()
-      .select("metodology_type", "published", "version")
+      .select("methodology_type", "published", "version")
       .where({ campaign_id: 1 })
       .first();
 
@@ -275,23 +275,23 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       });
 
     const data = await tryber.tables.UxCampaignData.do()
-      .select("metodology_type", "published", "version")
+      .select("methodology_type", "published", "version")
       .where({ campaign_id: 1 })
       .first();
 
-    expect(actualData?.metodology_type).not.toEqual(data?.metodology_type);
+    expect(actualData?.methodology_type).not.toEqual(data?.methodology_type);
     expect(data).toEqual(
       expect.objectContaining({
         published: 0,
         version: 1,
-        metodology_type: "quali-quantitative",
+        methodology_type: "quali-quantitative",
       })
     );
   });
 
   it("Should update methodology description as draft", async () => {
     const actualData = await tryber.tables.UxCampaignData.do()
-      .select("metodology_description", "published", "version")
+      .select("methodology_description", "published", "version")
       .where({ campaign_id: 1 })
       .first();
 
@@ -307,18 +307,18 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       });
 
     const data = await tryber.tables.UxCampaignData.do()
-      .select("metodology_description", "published", "version")
+      .select("methodology_description", "published", "version")
       .where({ campaign_id: 1 })
       .first();
 
-    expect(actualData?.metodology_description).not.toEqual(
-      data?.metodology_description
+    expect(actualData?.methodology_description).not.toEqual(
+      data?.methodology_description
     );
     expect(data).toEqual(
       expect.objectContaining({
         published: 0,
         version: 1,
-        metodology_description: "The new description",
+        methodology_description: "The new description",
       })
     );
   });
@@ -406,8 +406,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
-        metodology_description: "Methodology Description",
-        metodology_type: "qualitative",
+        methodology_description: "Methodology Description",
+        methodology_type: "qualitative",
       })
     );
     expect(data[1]).toEqual(
@@ -417,8 +417,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         campaign_id: 1,
         version: 2,
         published: 0,
-        metodology_description: "Methodology Description",
-        metodology_type: "qualitative",
+        methodology_description: "Methodology Description",
+        methodology_type: "qualitative",
       })
     );
   });

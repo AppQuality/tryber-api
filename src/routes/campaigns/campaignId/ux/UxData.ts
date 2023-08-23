@@ -14,8 +14,8 @@ export default class UxData {
         campaign_id: number;
         users: number;
         goal: string;
-        metodology_type: string;
-        metodology_description: string;
+        methodology_type: string;
+        methodology_description: string;
         version: number;
         published: number;
       }

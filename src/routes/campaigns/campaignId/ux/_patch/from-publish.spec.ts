@@ -53,15 +53,15 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         campaign_id: 1,
         version: 1,
         published: 1,
-        metodology_description: methodology.description,
-        metodology_type: methodology.type,
+        methodology_description: methodology.description,
+        methodology_type: methodology.type,
       },
       {
         campaign_id: 1,
         version: 2,
         published: 0,
-        metodology_description: methodology.description,
-        metodology_type: methodology.type,
+        methodology_description: methodology.description,
+        methodology_type: methodology.type,
       },
     ]);
 
@@ -176,7 +176,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
 
   it("Should update a methodology description in the draft", async () => {
     const draftBefore = await tryber.tables.UxCampaignData.do()
-      .select("metodology_description")
+      .select("methodology_description")
       .where({ version: 2, published: 0 })
       .first();
     await request(app)
@@ -191,18 +191,18 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       });
 
     const updatedDraft = await tryber.tables.UxCampaignData.do()
-      .select("metodology_description")
+      .select("methodology_description")
       .where({ version: 2, published: 0 })
       .first();
-    expect(updatedDraft?.metodology_description).not.toEqual(
-      draftBefore?.metodology_description
+    expect(updatedDraft?.methodology_description).not.toEqual(
+      draftBefore?.methodology_description
     );
-    expect(updatedDraft?.metodology_description).toEqual("New description");
+    expect(updatedDraft?.methodology_description).toEqual("New description");
   });
 
   it("Should update a methodology type in the draft", async () => {
     const draftBefore = await tryber.tables.UxCampaignData.do()
-      .select("metodology_type")
+      .select("methodology_type")
       .where({ version: 2, published: 0 })
       .first();
     await request(app)
@@ -217,13 +217,13 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       });
 
     const updatedDraft = await tryber.tables.UxCampaignData.do()
-      .select("metodology_type")
+      .select("methodology_type")
       .where({ version: 2, published: 0 })
       .first();
-    expect(updatedDraft?.metodology_type).not.toEqual(
-      draftBefore?.metodology_type
+    expect(updatedDraft?.methodology_type).not.toEqual(
+      draftBefore?.methodology_type
     );
-    expect(updatedDraft?.metodology_type).toEqual("quantitative");
+    expect(updatedDraft?.methodology_type).toEqual("quantitative");
   });
 
   it("Should update the goal in the draft", async () => {

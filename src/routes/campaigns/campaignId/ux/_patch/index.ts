@@ -134,8 +134,8 @@ export default class PatchUx extends UserRoute<{
       campaign_id: this.campaignId,
       version: 1,
       published: 0,
-      metodology_type: body.methodology.type,
-      metodology_description: body.methodology.description,
+      methodology_type: body.methodology.type,
+      methodology_description: body.methodology.description,
     });
     this.version = 1;
   }
@@ -147,8 +147,8 @@ export default class PatchUx extends UserRoute<{
       .update({
         goal: body.goal,
         users: body.usersNumber,
-        metodology_type: body.methodology.type,
-        metodology_description: body.methodology.description,
+        methodology_type: body.methodology.type,
+        methodology_description: body.methodology.description,
       })
       .where({
         version: this.version,
@@ -333,8 +333,8 @@ export default class PatchUx extends UserRoute<{
       users: this.lastDraft?.data?.users,
       campaign_id: this.campaignId,
       version: this.version + 1,
-      metodology_description: this.lastDraft?.data?.metodology_description,
-      metodology_type: this.lastDraft?.data?.metodology_type,
+      methodology_description: this.lastDraft?.data?.methodology_description,
+      methodology_type: this.lastDraft?.data?.methodology_type,
       published: 0,
     });
   }

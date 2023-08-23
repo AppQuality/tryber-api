@@ -79,7 +79,7 @@ export default class Route extends UserRoute<{
       usersNumber: this.draft.data?.users || 0,
       methodology: {
         ...(await this.getMethodology()),
-        type: this.draft.data?.metodology_type as
+        type: this.draft.data?.methodology_type as
           | "qualitative"
           | "quantitative"
           | "quali-quantitative",
@@ -120,8 +120,8 @@ export default class Route extends UserRoute<{
     if (!campaignType) throw new Error("Error on finding methodology Name");
     let methodologyDescription: string | undefined;
 
-    methodologyDescription = this.draft.data?.metodology_description
-      ? this.draft.data?.metodology_description
+    methodologyDescription = this.draft.data?.methodology_description
+      ? this.draft.data?.methodology_description
       : campaignType?.fallback_description;
 
     if (!methodologyDescription) {
@@ -131,7 +131,7 @@ export default class Route extends UserRoute<{
     return {
       name: campaignType.name,
       description: methodologyDescription,
-      type: this.draft.data?.metodology_type ?? "qualitative",
+      type: this.draft.data?.methodology_type ?? "qualitative",
     };
   }
 }

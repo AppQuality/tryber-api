@@ -173,10 +173,10 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       });
 
     const data = await tryber.tables.UxCampaignData.do()
-      .select("metodology_type", "version", "published")
+      .select("methodology_type", "version", "published")
       .first();
-    expect(data?.metodology_type).toBeDefined();
-    expect(data?.metodology_type).toEqual(methodology.type);
+    expect(data?.methodology_type).toBeDefined();
+    expect(data?.methodology_type).toEqual(methodology.type);
     expect(data?.published).toEqual(0);
     expect(data?.version).toEqual(1);
   });
@@ -193,10 +193,10 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
         methodology,
       });
     const data = await tryber.tables.UxCampaignData.do()
-      .select("metodology_description", "version", "published")
+      .select("methodology_description", "version", "published")
       .first();
-    expect(data?.metodology_description).toBeDefined();
-    expect(data?.metodology_description).toEqual(methodology.description);
+    expect(data?.methodology_description).toBeDefined();
+    expect(data?.methodology_description).toEqual(methodology.description);
     expect(data?.published).toEqual(0);
     expect(data?.version).toEqual(1);
   });

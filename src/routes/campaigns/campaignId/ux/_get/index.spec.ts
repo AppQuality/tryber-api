@@ -29,8 +29,8 @@ describe("GET /campaigns/{campaignId}/ux", () => {
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 1,
-      metodology_type: "qualitative",
-      metodology_description: "Methodology description",
+      methodology_type: "qualitative",
+      methodology_description: "Methodology description",
       goal: "This is the goal of the reasearch",
       users: 100,
     });
