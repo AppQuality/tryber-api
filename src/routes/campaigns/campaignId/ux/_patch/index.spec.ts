@@ -16,6 +16,8 @@ const campaign = {
 };
 
 const requestBody = {
+  goal: "Test Goal",
+  usersNumber: 5,
   insights: [],
   sentiments: [],
   metodology: {

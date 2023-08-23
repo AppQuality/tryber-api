@@ -47,10 +47,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
   });
 
   it("Should insert data as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             title: "My insight",
@@ -80,10 +82,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
   });
 
   it("Should insert insight as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             title: "My insight",
@@ -111,10 +115,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
   });
 
   it("Should insert insight videopart as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             title: "My insight",
@@ -155,10 +161,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
   });
 
   it("Should insert metodology type as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
         metodology,
@@ -174,10 +182,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
   });
 
   it("Should insert metodology description as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
         metodology,
@@ -191,11 +201,53 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     expect(data?.version).toEqual(1);
   });
 
+  it("Should insert goal as draft", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        metodology,
+      });
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("goal", "version", "published")
+      .first();
+    expect(data?.goal).toBeDefined();
+    expect(data?.goal).toEqual("Test Goal");
+    expect(data?.published).toEqual(0);
+    expect(data?.version).toEqual(1);
+  });
+
+  it("Should insert users number as draft", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 6,
+        insights: [],
+        sentiments: [],
+        metodology,
+      });
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("users", "version", "published")
+      .first();
+    expect(data?.users).toBeDefined();
+    expect(data?.users).toEqual(6);
+    expect(data?.published).toEqual(0);
+    expect(data?.version).toEqual(1);
+  });
+
   it("Should return 400 if inserting video part with invalid media id", async () => {
     const response = await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             title: "My insight",

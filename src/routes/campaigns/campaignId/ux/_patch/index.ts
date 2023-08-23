@@ -129,6 +129,8 @@ export default class PatchUx extends UserRoute<{
     const body = this.getBody();
     if ("status" in body) return;
     await tryber.tables.UxCampaignData.do().insert({
+      goal: body.goal,
+      users: body.usersNumber,
       campaign_id: this.campaignId,
       version: 1,
       published: 0,
@@ -143,6 +145,8 @@ export default class PatchUx extends UserRoute<{
     if ("status" in body) return;
     await tryber.tables.UxCampaignData.do()
       .update({
+        goal: body.goal,
+        users: body.usersNumber,
         metodology_type: body.metodology.type,
         metodology_description: body.metodology.description,
       })
@@ -325,6 +329,8 @@ export default class PatchUx extends UserRoute<{
       });
 
     await tryber.tables.UxCampaignData.do().insert({
+      goal: this.lastDraft?.data?.goal,
+      users: this.lastDraft?.data?.users,
       campaign_id: this.campaignId,
       version: this.version + 1,
       metodology_description: this.lastDraft?.data?.metodology_description,

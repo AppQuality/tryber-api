@@ -113,10 +113,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
   });
 
   it("Should not insert a new draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
         metodology,
@@ -149,6 +151,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
         metodology,
@@ -179,6 +183,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
         metodology: { ...metodology, description: "New description" },
@@ -199,10 +205,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .select("metodology_type")
       .where({ version: 2, published: 0 })
       .first();
-    const re = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
         metodology: { ...metodology, type: "quantitative" },
@@ -218,11 +226,61 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
     expect(updatedDraft?.metodology_type).toEqual("quantitative");
   });
 
-  it("Should insert a insights in the draft", async () => {
-    const response = await request(app)
+  it("Should update the goal in the draft", async () => {
+    const draftBefore = await tryber.tables.UxCampaignData.do()
+      .select("goal")
+      .where({ version: 2, published: 0 })
+      .first();
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "New Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        metodology,
+      });
+
+    const updatedDraft = await tryber.tables.UxCampaignData.do()
+      .select("goal")
+      .where({ version: 2, published: 0 })
+      .first();
+    expect(updatedDraft?.goal).not.toEqual(draftBefore?.goal);
+    expect(updatedDraft?.goal).toEqual("New Test Goal");
+  });
+
+  it("Should update the users number in the draft", async () => {
+    const draftBefore = await tryber.tables.UxCampaignData.do()
+      .select("users")
+      .where({ version: 2, published: 0 })
+      .first();
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 6,
+        insights: [],
+        sentiments: [],
+        metodology,
+      });
+
+    const updatedDraft = await tryber.tables.UxCampaignData.do()
+      .select("users")
+      .where({ version: 2, published: 0 })
+      .first();
+    expect(updatedDraft?.users).not.toEqual(draftBefore?.users);
+    expect(updatedDraft?.users).toEqual(6);
+  });
+
+  it("Should insert a insights in the draft", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 2,
@@ -285,10 +343,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
   });
 
   it("Should insert a insights video part in the draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 2,

@@ -130,6 +130,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
       .patch("/campaigns/123/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 3,
