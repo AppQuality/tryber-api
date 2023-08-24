@@ -3209,7 +3209,6 @@ paths:
                           name:
                             type: string
                         required:
-                          - id
                           - name
                   required:
                     - goal
@@ -3253,8 +3252,7 @@ paths:
                     - clusterId: 0
                       value: 4
                   questions:
-                    - id: 1
-                      name: why?
+                    - name: why?
                     - id: 2
                       name: what?
                     - id: 3
@@ -3295,8 +3293,7 @@ paths:
                       name: when?
                     - id: 4
                       name: how?
-                    - id: 5
-                      name: who?
+                    - name: who?
               publish:
                 value:
                   status: publish

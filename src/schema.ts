@@ -1624,7 +1624,7 @@ export interface operations {
                 description: string;
               };
               questions: {
-                id: number;
+                id?: number;
                 name: string;
               }[];
             }
