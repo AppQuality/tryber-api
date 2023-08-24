@@ -116,6 +116,29 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       })
     );
   });
+  it("Should insert question as draft", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [{ name: "Is there life on Mars?" }],
+        methodology,
+      });
+    const data = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(data).toHaveLength(1);
+    expect(data[0]).toEqual(
+      expect.objectContaining({
+        question: "Is there life on Mars?",
+        version: 1,
+      })
+    );
+  });
 
   it("Should insert insight videopart as draft", async () => {
     await request(app)

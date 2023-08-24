@@ -159,33 +159,78 @@ export default class PatchUx extends UserRoute<{
 
   private async updateInsights() {
     await this.removeFindings();
+
     await this.insertNewFindings();
     await this.updateExistingFindings();
   }
 
   private async updateQuestions() {
-    await this.removeCampaignQuestions();
-    await this.insertCampaignQuestions();
+    await this.removeQuestions();
+    await this.insertNewQuestions();
+    await this.updateExistingQuestion();
   }
 
-  private async removeCampaignQuestions() {
-    await tryber.tables.UxCampaignQuestions.do().delete().where({
-      campaign_id: this.campaignId,
-    });
-  }
-
-  private async insertCampaignQuestions() {
+  private async removeQuestions() {
     const body = this.getBody();
     if ("status" in body) return;
     const { questions } = body;
-    if (questions && questions.length) {
-      await tryber.tables.UxCampaignQuestions.do().insert(
-        questions.map((q) => ({
-          campaign_id: this.campaignId,
-          question: q,
-          version: this.version,
-        }))
-      );
+
+    const toUpdate = questions.filter((i) => i.id);
+    const currentQuestions = this.lastDraft?.questions || [];
+    const currentQuestionsIds = currentQuestions.map((i) => i.id);
+
+    const toRemove = currentQuestionsIds.filter(
+      (id) => !toUpdate.map((i) => i.id).includes(id as number)
+    );
+
+    if (toRemove.length) {
+      await tryber.tables.UxCampaignQuestions.do()
+        .delete()
+        .whereIn(
+          "id",
+          currentQuestionsIds.filter(
+            (id) => !toUpdate.map((i) => i.id).includes(id as number)
+          )
+        );
+    }
+  }
+
+  private async insertNewQuestions() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { questions } = body;
+
+    const toInsert = questions.filter((i) => !i.id);
+    if (toInsert.length) {
+      for (const item of toInsert) {
+        await tryber.tables.UxCampaignQuestions.do()
+          .insert({
+            campaign_id: this.campaignId,
+            question: item.name,
+            version: this.version,
+          })
+          .returning("id");
+      }
+    }
+  }
+
+  private async updateExistingQuestion() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { questions } = body;
+    const updatedQuestions = questions.filter((i) => i.id);
+
+    if (updatedQuestions.length) {
+      for (const item of updatedQuestions) {
+        await tryber.tables.UxCampaignQuestions.do()
+          .update({
+            question: item.name,
+            version: this.version,
+          })
+          .where({
+            id: item.id,
+          });
+      }
     }
   }
 

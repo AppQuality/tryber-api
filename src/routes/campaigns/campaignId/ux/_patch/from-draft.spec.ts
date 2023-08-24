@@ -76,6 +76,14 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       description: "My video",
       media_id: 1,
     });
+    await tryber.tables.UxCampaignQuestions.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        question: "Draft question",
+        version: 1,
+      },
+    ]);
   });
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
@@ -258,6 +266,76 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         order: 1,
         severity_id: 2,
         title: "Updated insight",
+        version: 1,
+      })
+    );
+  });
+
+  it("Should insert a question as draft if an item without id is sent", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [
+          {
+            name: "New question",
+          },
+          {
+            id: 1,
+            name: "Draft question",
+          },
+        ],
+        methodology,
+      });
+    const questions = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        question: "Draft question",
+        version: 1,
+      })
+    );
+    expect(questions[1]).toEqual(
+      expect.objectContaining({
+        id: 2,
+        question: "New question",
+        version: 1,
+      })
+    );
+  });
+
+  it("Should update a questions as draft if an item with id is sent", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [
+          {
+            id: 1,
+            name: "Updated Draft question",
+          },
+        ],
+        methodology,
+      });
+    const questions = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(questions).toHaveLength(1);
+    expect(questions[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        question: "Updated Draft question",
         version: 1,
       })
     );

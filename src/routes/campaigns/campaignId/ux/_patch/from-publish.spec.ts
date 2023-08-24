@@ -104,6 +104,20 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         description: "Draft video part",
       },
     ]);
+    await tryber.tables.UxCampaignQuestions.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        version: 1,
+        question: "Publish question",
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        version: 2,
+        question: "Draft question",
+      },
+    ]);
   });
 
   afterEach(async () => {
@@ -229,6 +243,32 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       draftBefore?.methodology_type
     );
     expect(updatedDraft?.methodology_type).toEqual("quantitative");
+  });
+
+  it("Should update a question in the draft", async () => {
+    const questionsBefore = await tryber.tables.UxCampaignQuestions.do()
+      .select("question")
+      .where({ version: 2 })
+      .where({ campaign_id: 1 })
+      .first();
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [{ name: "Updated Draft Question", id: 2 }],
+        methodology,
+      });
+
+    const updatedQuestion = await tryber.tables.UxCampaignQuestions.do()
+      .select("question")
+      .where({ version: 2 })
+      .first();
+    expect(updatedQuestion?.question).not.toEqual(questionsBefore?.question);
+    expect(updatedQuestion?.question).toEqual("Updated Draft Question");
   });
 
   it("Should update the goal in the draft", async () => {

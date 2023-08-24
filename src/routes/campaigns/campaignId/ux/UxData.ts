@@ -46,6 +46,7 @@ export default class UxData {
     id: number;
     campaign_id: number;
     question: string;
+    version: number;
   }[] = [];
 
   private _sentiments: {
@@ -195,7 +196,10 @@ export default class UxData {
   }
 
   get questions() {
-    return this._questions.map((q) => q.question);
+    return this._questions.map((q) => ({
+      id: q.id,
+      name: q.question,
+    }));
   }
 
   get sentiments() {
