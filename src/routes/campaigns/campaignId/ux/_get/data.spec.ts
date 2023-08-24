@@ -90,7 +90,8 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       id: 1,
       campaign_task_id: 1,
       user_task_id: 1,
-      location: "http://example.com/video.mp4",
+      location:
+        "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4",
       tester_id: 1,
     });
     await tryber.tables.UxCampaignQuestions.do().insert([
@@ -206,8 +207,9 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         end: 10,
         description: "Test Description",
         mediaId: 1,
-        url: "http://example.com/video.mp4",
-        streamUrl: "http://example.com/video-stream.m3u8",
+        url: "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4",
+        streamUrl:
+          "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8",
       })
     );
   });
