@@ -226,8 +226,12 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.questions).toHaveLength(2);
     expect(response.body.questions).toEqual(
       expect.arrayContaining([
-        "Why the world is round?",
-        "How many stars are in the sky?",
+        expect.objectContaining({
+          name: "Why the world is round?",
+        }),
+        expect.objectContaining({
+          name: "How many stars are in the sky?",
+        }),
       ])
     );
   });

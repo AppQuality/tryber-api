@@ -2979,7 +2979,15 @@ paths:
                   questions:
                     type: array
                     items:
-                      type: string
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
                 required:
                   - status
                   - goal
@@ -2994,8 +3002,10 @@ paths:
                     goal: The Research Goal
                     usersNumber: 10
                     questions:
-                      - Why the world exists?
-                      - How the world exists?
+                      - id: 1
+                        name: Why the world exists?
+                      - id: 1
+                        name: How the world exists?
                     methodology:
                       name: Usability Test
                       description: Methodology Description
@@ -3042,8 +3052,10 @@ paths:
                     goal: The Research Goal
                     usersNumber: 10
                     questions:
-                      - Why the world exists?
-                      - How the world exists?
+                      - id: 1
+                        name: Why the world exists?
+                      - id: 1
+                        name: How the world exists?
                     methodology:
                       name: Usability Test
                       description: Methodology Description
