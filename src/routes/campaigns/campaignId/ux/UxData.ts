@@ -1,4 +1,5 @@
 import { tryber } from "@src/features/database";
+import { checkUrl } from "./checkUrl";
 
 export default class UxData {
   private SEVERITIES = {
@@ -40,6 +41,7 @@ export default class UxData {
     end: number;
     description: string;
     location: string;
+    streamUrl: string;
   }[] = [];
 
   private _questions: {
@@ -123,7 +125,7 @@ export default class UxData {
 
     if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
-    if (videoParts) this._videoParts = videoParts;
+    if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
     if (questions) this._questions = questions;
     if (sentiments) this._sentiments = sentiments;
     this._data = data;
@@ -140,7 +142,7 @@ export default class UxData {
 
     if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
-    if (videoParts) this._videoParts = videoParts;
+    if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
     if (questions) this._questions = questions;
     if (sentiments) this._sentiments = sentiments;
   }
@@ -183,7 +185,7 @@ export default class UxData {
           end: v.end,
           description: v.description,
           url: v.location,
-          streamUrl: v.location.replace(".mp4", "-stream.m3u8"),
+          streamUrl: v.streamUrl,
         })),
       };
 
@@ -216,5 +218,28 @@ export default class UxData {
   isEqual(other: UxData) {
     if (JSON.stringify(this.data) !== JSON.stringify(other.data)) return false;
     return true;
+  }
+
+  async verifyUrls(
+    videoParts: {
+      id: number;
+      media_id: number;
+      insight_id: number;
+      start: number;
+      end: number;
+      description: string;
+      location: string;
+    }[]
+  ) {
+    const video = [];
+    for (const v of videoParts) {
+      const stream = v.location.replace(".mp4", "-stream.m3u8");
+      const isValidStream = await checkUrl(stream);
+      video.push({
+        ...v,
+        streamUrl: isValidStream ? stream : "",
+      });
+    }
+    return video;
   }
 }
