@@ -108,11 +108,15 @@ export default class UxData {
 
     const questions = await tryber.tables.UxCampaignQuestions.do()
       .select()
-      .where({ campaign_id: this.campaignId });
+      .where({ campaign_id: this.campaignId })
+      .where({ version: data.version })
+      .orderBy("version", "DESC");
 
     const sentiments = await tryber.tables.UxCampaignSentiments.do()
       .select()
-      .where({ campaign_id: this.campaignId });
+      .where({ campaign_id: this.campaignId })
+      .where({ version: data.version })
+      .orderBy("version", "DESC");
 
     return { data, findings, clusters, videoParts, questions, sentiments };
   }

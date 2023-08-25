@@ -357,3 +357,110 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - methodology no descr
     );
   });
 });
+
+describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 10 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        category_id: 1,
+      },
+      {
+        id: 10,
+        name: "Usability Test",
+        category_id: 1,
+        description: "Campaign Type Description",
+      },
+    ]);
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+        methodology_description: "Test Description OLD",
+        methodology_type: "qualitative",
+        goal: "This is the goal of the reasearch",
+        users: 99,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+        methodology_type: "quantitative",
+        goal: "This is the NEW goal of the reasearch",
+        users: 100,
+      },
+    ]);
+    await tryber.tables.UxCampaignInsights.do().insert({
+      campaign_id: 1,
+      version: 1,
+      title: "Test Insight",
+      description: "Test Description",
+      severity_id: 1,
+      cluster_ids: "1",
+      order: 0,
+    });
+    await tryber.tables.UxCampaignQuestions.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        version: 2,
+        question: "Test Question1 draft-modified",
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        version: 2,
+        question: "Test Question2 draft-modified",
+      },
+      {
+        id: 3,
+        campaign_id: 1,
+        version: 1,
+        question: "Test Question1 published",
+      },
+      {
+        id: 4,
+        campaign_id: 1,
+        version: 1,
+        question: "Test Question2 published",
+      },
+      {
+        id: 5,
+        campaign_id: 12,
+        version: 1,
+        question: "Test Question1 other campaign",
+      },
+    ]);
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.UxCampaignInsights.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
+  });
+  it("Should return questions of last draft version", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.methodology).toHaveProperty("description");
+    expect(response.body.questions.length).toEqual(2);
+    expect(response.body.questions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          name: "Test Question1 draft-modified",
+        }),
+        expect.objectContaining({
+          id: 2,
+          name: "Test Question2 draft-modified",
+        }),
+      ])
+    );
+  });
+});
