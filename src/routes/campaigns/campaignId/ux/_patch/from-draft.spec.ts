@@ -83,6 +83,18 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         question: "Draft question",
         version: 1,
       },
+      {
+        id: 2,
+        campaign_id: 1,
+        question: "Draft question2",
+        version: 1,
+      },
+      {
+        id: 3,
+        campaign_id: 2,
+        question: "Draft question",
+        version: 1,
+      },
     ]);
   });
   afterEach(async () => {
@@ -286,7 +298,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
           {
             id: 1,
-            name: "Draft question",
+            name: "Draft question updated",
           },
         ],
         methodology,
@@ -294,17 +306,18 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     const questions = await tryber.tables.UxCampaignQuestions.do()
       .select()
       .where({ campaign_id: 1 });
+
     expect(questions).toHaveLength(2);
     expect(questions[0]).toEqual(
       expect.objectContaining({
         id: 1,
-        question: "Draft question",
+        question: "Draft question updated",
         version: 1,
       })
     );
     expect(questions[1]).toEqual(
       expect.objectContaining({
-        id: 2,
+        id: 4,
         question: "New question",
         version: 1,
       })
@@ -787,5 +800,55 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
 
     expect(publishVideoParts).toBeDefined();
     expect(draftVideoPart).toBeDefined();
+  });
+
+  it("Should create a new version of questions on publish", async () => {
+    const questionsBeforePatch = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({
+        campaign_id: 1,
+      });
+
+    expect(questionsBeforePatch).toHaveLength(2);
+    expect(questionsBeforePatch[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        campaign_id: 1,
+        question: "Draft question",
+        version: 1,
+      })
+    );
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        status: "publish",
+      });
+
+    const all = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+
+    const publishQuestion = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({
+        version: 1,
+        campaign_id: 1,
+      })
+      .first();
+
+    const draftQuestion = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({
+        version: 2,
+        campaign_id: 1,
+      })
+      .first();
+    expect(publishQuestion).toBeDefined();
+    expect(draftQuestion).toBeDefined();
+
+    if (!publishQuestion || !draftQuestion)
+      throw new Error("Questions not found");
   });
 });

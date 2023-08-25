@@ -115,7 +115,13 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         id: 2,
         campaign_id: 1,
         version: 2,
-        question: "Draft question",
+        question: "Draft Modified question",
+      },
+      {
+        id: 3,
+        campaign_id: 2,
+        version: 1,
+        question: "Draft question CP2",
       },
     ]);
   });

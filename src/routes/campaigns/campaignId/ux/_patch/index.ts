@@ -387,6 +387,7 @@ export default class PatchUx extends UserRoute<{
 
     await this.publishData();
     await this.publishInsight();
+    await this.publishQuestions();
     this.version++;
   }
 
@@ -409,6 +410,27 @@ export default class PatchUx extends UserRoute<{
       methodology_type: this.lastDraft?.data?.methodology_type,
       published: 0,
     });
+  }
+
+  private async publishQuestions() {
+    if (this.lastDraft?.questions.length) {
+      await tryber.tables.UxCampaignQuestions.do()
+        .update({
+          version: this.version + 1,
+        })
+        .where({
+          campaign_id: this.campaignId,
+          version: this.version,
+        });
+
+      for (const question of this.lastDraft?.questions || []) {
+        await tryber.tables.UxCampaignQuestions.do().insert({
+          campaign_id: this.campaignId,
+          question: question.name,
+          version: this.version,
+        });
+      }
+    }
   }
 
   private async publishInsight() {
