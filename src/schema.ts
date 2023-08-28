@@ -1177,6 +1177,7 @@ export interface operations {
           "application/json": {
             id: number;
             title: string;
+            type: string;
           };
         };
       };

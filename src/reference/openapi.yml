@@ -577,9 +577,18 @@ paths:
                     type: integer
                   title:
                     type: string
+                  type:
+                    type: string
                 required:
                   - id
                   - title
+                  - type
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title: Campaign Title
+                    type: Campaign Type
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
