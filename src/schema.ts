@@ -1584,30 +1584,33 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": {
-          /** @enum {string} */
-          status?: "draft" | "publish";
-          insights: {
-            id: number;
-            title: string;
-            description: string;
-            severityId: number;
-            order: number;
-            clusterId: number[] | "all";
-            videoPart: {
-              id: number;
-              start: number;
-              end: number;
-              mediaId: number;
-              description: string;
-              order: number;
-            }[];
-          }[];
-          sentiments: {
-            clusterId: number;
-            value: string;
-          }[];
-        };
+        "application/json":
+          | {
+              insights: {
+                id?: number;
+                title: string;
+                description: string;
+                severityId: number;
+                order: number;
+                clusterIds: number[] | "all";
+                videoPart: {
+                  id?: number;
+                  start: number;
+                  end: number;
+                  mediaId: number;
+                  description: string;
+                  order: number;
+                }[];
+              }[];
+              sentiments: {
+                clusterId: number;
+                value: number;
+              }[];
+            }
+          | {
+              /** @enum {string} */
+              status: "publish";
+            };
       };
     };
   };
@@ -1664,6 +1667,7 @@ export interface operations {
                 name: string;
               };
               media: {
+                id: number;
                 url: string;
                 streamUrl: string;
               };

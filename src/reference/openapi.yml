@@ -3025,97 +3025,97 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - draft
-                    - publish
-                insights:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                      title:
-                        type: string
-                      description:
-                        type: string
-                      severityId:
-                        type: integer
-                      order:
-                        type: integer
-                      clusterId:
-                        oneOf:
-                          - type: array
+              oneOf:
+                - properties:
+                    insights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          title:
+                            type: string
+                          description:
+                            type: string
+                          severityId:
+                            type: integer
+                          order:
+                            type: integer
+                          clusterIds:
+                            oneOf:
+                              - type: array
+                                items:
+                                  type: integer
+                              - type: string
+                                enum:
+                                  - all
+                          videoPart:
+                            type: array
                             items:
-                              type: integer
-                          - type: string
-                            enum:
-                              - all
-                      videoPart:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                            start:
-                              type: integer
-                            end:
-                              type: integer
-                            mediaId:
-                              type: integer
-                            description:
-                              type: string
-                            order:
-                              type: integer
-                          required:
-                            - id
-                            - start
-                            - end
-                            - mediaId
-                            - description
-                            - order
-                    required:
-                      - id
-                      - title
-                      - description
-                      - severityId
-                      - order
-                      - clusterId
-                      - videoPart
-                sentiments:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      clusterId:
-                        type: integer
-                      value:
-                        type: string
-                    required:
-                      - clusterId
-                      - value
-              required:
-                - insights
-                - sentiments
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                start:
+                                  type: integer
+                                end:
+                                  type: integer
+                                mediaId:
+                                  type: integer
+                                description:
+                                  type: string
+                                order:
+                                  type: integer
+                              required:
+                                - start
+                                - end
+                                - mediaId
+                                - description
+                                - order
+                        required:
+                          - title
+                          - description
+                          - severityId
+                          - order
+                          - clusterIds
+                          - videoPart
+                    sentiments:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          clusterId:
+                            type: integer
+                          value:
+                            type: integer
+                        required:
+                          - clusterId
+                          - value
+                  required:
+                    - insights
+                    - sentiments
+                - properties:
+                    status:
+                      type: string
+                      enum:
+                        - publish
+                  required:
+                    - status
+              type: object
             examples:
-              Example 1:
+              edit-insight-and-videopart:
                 value:
-                  status: draft
                   insights:
-                    - id: 0
+                    - id: 5
                       title: string
                       description: string
                       severityId: 0
                       order: 0
-                      clusterId:
+                      clusterIds:
                         - 0
                       videoPart:
-                        - id: 0
+                        - id: 7
                           start: 0
                           end: 0
                           mediaId: 0
@@ -3123,7 +3123,28 @@ paths:
                           order: 0
                   sentiments:
                     - clusterId: 0
-                      value: string
+                      value: 4
+              add-new-insight-and-new-videopart:
+                value:
+                  insights:
+                    - title: string
+                      description: string
+                      severityId: 0
+                      order: 0
+                      clusterIds:
+                        - 0
+                      videoPart:
+                        - start: 0
+                          end: 0
+                          mediaId: 0
+                          description: string
+                          order: 0
+                  sentiments:
+                    - clusterId: 0
+                      value: 0
+              publish:
+                value:
+                  status: publish
   '/campaigns/{campaign}/clusters':
     parameters:
       - name: campaign
@@ -3266,6 +3287,10 @@ paths:
                         cluster:
                           id: 1
                           name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
                       - id: 2
                         name: Observation Name2
                         time: 39
@@ -3275,6 +3300,10 @@ paths:
                         cluster:
                           id: 1
                           name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
                       - id: 3
                         name: Observation Name3
                         time: 19
@@ -3284,6 +3313,10 @@ paths:
                         cluster:
                           id: 2
                           name: Cluster Name2
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
