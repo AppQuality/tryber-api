@@ -22,7 +22,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
     return this.setSuccess(200, {
       id: this.cp_id,
       title: await this.getCampaignTitle(),
-      type: await this.getCampaignType(),
+      ...(await this.getCampaignType()),
     });
   }
 
@@ -37,7 +37,10 @@ export default class SingleCampaignRoute extends CampaignRoute<{
 
   private async getCampaignType() {
     const campaignType = await tryber.tables.WpAppqCampaignType.do()
-      .select(tryber.ref("name").withSchema("wp_appq_campaign_type"))
+      .select(
+        tryber.ref("name").withSchema("wp_appq_campaign_type"),
+        tryber.ref("description").withSchema("wp_appq_campaign_type")
+      )
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.campaign_type_id",
@@ -45,7 +48,12 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       )
       .where("wp_appq_evd_campaign.id", this.cp_id)
       .first();
-    if (campaignType === undefined) return "";
-    return campaignType.name;
+    if (!campaignType?.description)
+      throw new Error("Campaign type description not found");
+    if (!campaignType?.name) throw new Error("Campaign type not found");
+    return {
+      type: campaignType.name,
+      typeDescription: campaignType.description,
+    };
   }
 }

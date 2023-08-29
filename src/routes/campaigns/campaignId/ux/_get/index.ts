@@ -78,7 +78,8 @@ export default class Route extends UserRoute<{
       goal: this.draft.data?.goal || "",
       usersNumber: this.draft.data?.users || 0,
       methodology: {
-        ...(await this.getMethodology()),
+        name: await this.getCampaignType(),
+        description: this.draft.data?.methodology_description as string,
         type: this.draft.data?.methodology_type as
           | "qualitative"
           | "quantitative"
@@ -100,15 +101,9 @@ export default class Route extends UserRoute<{
     return "draft-modified" as const;
   }
 
-  private async getMethodology() {
+  private async getCampaignType() {
     const campaignType = await tryber.tables.WpAppqCampaignType.do()
-      .select(
-        tryber.ref("name").withSchema("wp_appq_campaign_type"),
-        tryber
-          .ref("description")
-          .withSchema("wp_appq_campaign_type")
-          .as("fallback_description")
-      )
+      .select(tryber.ref("name").withSchema("wp_appq_campaign_type"))
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.campaign_type_id",
@@ -118,20 +113,7 @@ export default class Route extends UserRoute<{
       .first();
 
     if (!campaignType) throw new Error("Error on finding methodology Name");
-    let methodologyDescription: string | undefined;
 
-    methodologyDescription = this.draft.data?.methodology_description
-      ? this.draft.data?.methodology_description
-      : campaignType?.fallback_description;
-
-    if (!methodologyDescription) {
-      throw new Error("Error on finding Methodology Description");
-    }
-
-    return {
-      name: campaignType.name,
-      description: methodologyDescription,
-      type: this.draft.data?.methodology_type ?? "qualitative",
-    };
+    return campaignType.name;
   }
 }

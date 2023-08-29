@@ -23,7 +23,6 @@ describe("GET /campaigns/{campaignId}/ux", () => {
     await tryber.tables.WpAppqCampaignType.do().insert({
       id: 10,
       name: "Usability Test",
-      description: "Usability Test Description",
       category_id: 1,
     });
     await tryber.tables.UxCampaignData.do().insert({

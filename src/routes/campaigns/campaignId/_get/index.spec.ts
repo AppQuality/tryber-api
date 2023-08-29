@@ -37,11 +37,13 @@ beforeAll(async () => {
     {
       id: 1,
       name: "functional",
+      description: "functional description",
       category_id: 1,
     },
     {
       id: 9,
       name: "ux",
+      description: "ux description",
       category_id: 1,
     },
   ]);
@@ -92,5 +94,12 @@ describe("GET /campaigns/:campaignId", () => {
       .get("/campaigns/2")
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("type", "ux");
+  });
+
+  it("Should return campaign description Type", async () => {
+    const response = await request(app)
+      .get("/campaigns/1")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("typeDescription", "ux description");
   });
 });
