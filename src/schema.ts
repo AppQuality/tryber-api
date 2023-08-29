@@ -122,6 +122,37 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/ux": {
+    /** Get the data of a UseCase in a Campaign */
+    get: operations["get-campaigns-campaign-ux"];
+    patch: operations["patch-campaigns-campaign-ux"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/clusters": {
+    /** Get all clusters for  a specific campaign */
+    get: operations["get-campaigns-campaign-clusters"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/observations": {
+    /** Get observations for a campaign */
+    get: operations["get-campaigns-campaign-observations"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/forms": {
     get: operations["get-campaigns-forms"];
     post: operations["post-campaigns-forms"];
@@ -1146,6 +1177,7 @@ export interface operations {
           "application/json": {
             id: number;
             title: string;
+            type: string;
           };
         };
       };
@@ -1479,6 +1511,197 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["TaskOptional"];
       };
+    };
+  };
+  /** Get the data of a UseCase in a Campaign */
+  "get-campaigns-campaign-ux": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** A UseCase linked with the Campaign */
+      200: {
+        content: {
+          "application/json": {
+            /** @enum {string} */
+            status: "draft" | "published" | "draft-modified";
+            goal: string;
+            usersNumber: number;
+            insights?: {
+              id: number;
+              title: string;
+              description: string;
+              severity: {
+                id: number;
+                name: string;
+              };
+              clusters:
+                | "all"
+                | {
+                    id: number;
+                    name: string;
+                  }[];
+              videoParts: {
+                id: number;
+                start: number;
+                end: number;
+                mediaId: number;
+                url: string;
+                streamUrl: string;
+                description: string;
+              }[];
+            }[];
+            sentiments: {
+              value: number;
+              comment: string;
+              cluster: {
+                id: number;
+                name: string;
+              };
+            }[];
+            methodology: {
+              name: string;
+              /** @enum {string} */
+              type: "qualitative" | "quantitative" | "quali-quantitative";
+              description: string;
+            };
+            questions: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "patch-campaigns-campaign-ux": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      403: components["responses"]["Authentication"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json":
+          | {
+              goal: string;
+              usersNumber: number;
+              insights: {
+                id?: number;
+                title: string;
+                description: string;
+                severityId: number;
+                order: number;
+                clusterIds: number[] | "all";
+                videoParts: {
+                  id?: number;
+                  start: number;
+                  end: number;
+                  mediaId: number;
+                  description: string;
+                  order: number;
+                }[];
+              }[];
+              sentiments: {
+                clusterId: number;
+                value: number;
+              }[];
+              methodology: {
+                /** @enum {string} */
+                type: "qualitative" | "quantitative" | "quali-quantitative";
+                description: string;
+              };
+              questions: {
+                id?: number;
+                name: string;
+              }[];
+            }
+          | {
+              /** @enum {string} */
+              status: "publish";
+            };
+      };
+    };
+  };
+  /** Get all clusters for  a specific campaign */
+  "get-campaigns-campaign-clusters": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** A UseCase linked with the Campaign */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get observations for a campaign */
+  "get-campaigns-campaign-observations": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+      query: {
+        filterBy?: unknown;
+      };
+    };
+    responses: {
+      /** A UseCase linked with the Campaign */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+              time: number;
+              tester: {
+                id: number;
+                name: string;
+              };
+              cluster: {
+                id: number;
+                name: string;
+              };
+              media: {
+                id: number;
+                url: string;
+                streamUrl: string;
+              };
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-campaigns-forms": {

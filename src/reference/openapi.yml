@@ -577,9 +577,18 @@ paths:
                     type: integer
                   title:
                     type: string
+                  type:
+                    type: string
                 required:
                   - id
                   - title
+                  - type
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title: Campaign Title
+                    type: Campaign Type
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -2834,6 +2843,665 @@ paths:
         description: The data to edit in the UseCase linked to the Campaign
       security:
         - JWT: []
+  '/campaigns/{campaign}/ux':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get all data for  a specific ux-campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                      - draft
+                      - published
+                      - draft-modified
+                  goal:
+                    type: string
+                  usersNumber:
+                    type: integer
+                  insights:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        description:
+                          type: string
+                        severity:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        clusters:
+                          oneOf:
+                            - type: string
+                              enum:
+                                - all
+                            - type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: integer
+                                  name:
+                                    type: string
+                                required:
+                                  - id
+                                  - name
+                        videoParts:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              start:
+                                type: integer
+                              end:
+                                type: integer
+                              mediaId:
+                                type: integer
+                              url:
+                                type: string
+                              streamUrl:
+                                type: string
+                              description:
+                                type: string
+                            required:
+                              - id
+                              - start
+                              - end
+                              - mediaId
+                              - url
+                              - streamUrl
+                              - description
+                      required:
+                        - id
+                        - title
+                        - description
+                        - severity
+                        - clusters
+                        - videoParts
+                  sentiments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: integer
+                        comment:
+                          type: string
+                        cluster:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                      required:
+                        - value
+                        - comment
+                        - cluster
+                  methodology:
+                    type: object
+                    required:
+                      - name
+                      - type
+                      - description
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - qualitative
+                          - quantitative
+                          - quali-quantitative
+                      description:
+                        type: string
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - status
+                  - goal
+                  - usersNumber
+                  - sentiments
+                  - methodology
+                  - questions
+              examples:
+                example-qualitative:
+                  value:
+                    status: draft
+                    goal: The Research Goal
+                    usersNumber: 10
+                    questions:
+                      - id: 1
+                        name: Why the world exists?
+                      - id: 1
+                        name: How the world exists?
+                    methodology:
+                      name: Usability Test
+                      description: Methodology Description
+                      type: qualitative
+                    insights:
+                      - id: 1
+                        title: My insight
+                        description: This is an insight
+                        severity:
+                          id: 1
+                          name: Minor
+                        clusters: all
+                        videoParts:
+                          - id: 1
+                            start: 10
+                            end: 20
+                            mediaId: 1
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                      - id: 2
+                        title: My second insight
+                        description: This is another insight
+                        severity:
+                          id: 2
+                          name: Positive
+                        clusters:
+                          - id: 1
+                            name: 'UC1: Cart'
+                          - id: 2
+                            name: 'UC2: Login'
+                        videoParts:
+                          - id: 2
+                            start: 15
+                            end: 25
+                            mediaId: 2
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                    sentiments: []
+                example-quantitative:
+                  value:
+                    status: draft
+                    goal: The Research Goal
+                    usersNumber: 10
+                    questions:
+                      - id: 1
+                        name: Why the world exists?
+                      - id: 1
+                        name: How the world exists?
+                    methodology:
+                      name: Usability Test
+                      description: Methodology Description
+                      type: quantitative
+                    insights:
+                      - id: 1
+                        title: My insight
+                        description: This is an insight
+                        severity:
+                          id: 1
+                          name: Minor
+                        clusters: all
+                        videoParts:
+                          - id: 1
+                            start: 10
+                            end: 20
+                            mediaId: 1
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                      - id: 2
+                        title: My second insight
+                        description: This is another insight
+                        severity:
+                          id: 2
+                          name: Positive
+                        clusters:
+                          - id: 1
+                            name: 'UC1: Cart'
+                          - id: 2
+                            name: 'UC2: Login'
+                        videoParts:
+                          - id: 2
+                            start: 15
+                            end: 25
+                            mediaId: 2
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                    sentiments: []
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-ux
+      description: Get the data of a UseCase in a Campaign
+      security:
+        - JWT: []
+    patch:
+      summary: PATCH ux-campaign-dashboard
+      operationId: patch-campaigns-campaign-ux
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          $ref: '#/components/responses/Authentication'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: ''
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - properties:
+                    goal:
+                      type: string
+                    usersNumber:
+                      type: integer
+                    insights:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          title:
+                            type: string
+                          description:
+                            type: string
+                          severityId:
+                            type: integer
+                          order:
+                            type: integer
+                          clusterIds:
+                            oneOf:
+                              - type: array
+                                items:
+                                  type: integer
+                              - type: string
+                                enum:
+                                  - all
+                          videoParts:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                start:
+                                  type: integer
+                                end:
+                                  type: integer
+                                mediaId:
+                                  type: integer
+                                description:
+                                  type: string
+                                order:
+                                  type: integer
+                              required:
+                                - start
+                                - end
+                                - mediaId
+                                - description
+                                - order
+                        required:
+                          - title
+                          - description
+                          - severityId
+                          - order
+                          - clusterIds
+                          - videoParts
+                    sentiments:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          clusterId:
+                            type: integer
+                          value:
+                            type: integer
+                        required:
+                          - clusterId
+                          - value
+                    methodology:
+                      type: object
+                      required:
+                        - type
+                        - description
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - qualitative
+                            - quantitative
+                            - quali-quantitative
+                        description:
+                          type: string
+                    questions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                        required:
+                          - name
+                  required:
+                    - goal
+                    - usersNumber
+                    - insights
+                    - sentiments
+                    - methodology
+                    - questions
+                - properties:
+                    status:
+                      type: string
+                      enum:
+                        - publish
+                  required:
+                    - status
+              type: object
+            examples:
+              edit-insight-and-videopart:
+                value:
+                  goal: this is the goal
+                  usersNumber: 5
+                  methodology:
+                    description: Methodology Description
+                    type: quantitative
+                  insights:
+                    - id: 5
+                      title: string
+                      description: string
+                      severityId: 0
+                      order: 0
+                      clusterIds:
+                        - 0
+                      videoParts:
+                        - id: 7
+                          start: 0
+                          end: 0
+                          mediaId: 0
+                          description: string
+                          order: 0
+                  sentiments:
+                    - clusterId: 0
+                      value: 4
+                  questions:
+                    - name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - id: 5
+                      name: who?
+              add-new-insight-and-new-videopart:
+                value:
+                  goal: this is the goal
+                  usersNumber: 5
+                  methodology:
+                    description: Methodology Description
+                    type: qualitative
+                  insights:
+                    - title: string
+                      description: string
+                      severityId: 0
+                      order: 0
+                      clusterIds:
+                        - 0
+                      videoParts:
+                        - start: 0
+                          end: 0
+                          mediaId: 0
+                          description: string
+                          order: 0
+                  sentiments:
+                    - clusterId: 0
+                      value: 0
+                  questions:
+                    - id: 1
+                      name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - name: who?
+              publish:
+                value:
+                  status: publish
+  '/campaigns/{campaign}/clusters':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get use case clusters for a campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - items
+              examples:
+                4-items:
+                  value:
+                    items:
+                      - id: 1
+                        name: 'UC1: Cart'
+                      - id: 2
+                        name: 'UC2: Login'
+                      - id: 3
+                        name: 'UC3: Checkout'
+                      - id: 4
+                        name: 'UC4: Search'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-clusters
+      description: Get all clusters for  a specific campaign
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/observations':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get observations for a campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        time:
+                          type: integer
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        cluster:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        media:
+                          type: object
+                          required:
+                            - id
+                            - url
+                            - streamUrl
+                          properties:
+                            id:
+                              type: integer
+                            url:
+                              type: string
+                            streamUrl:
+                              type: string
+                      required:
+                        - id
+                        - name
+                        - time
+                        - tester
+                        - cluster
+                        - media
+                required:
+                  - items
+              examples:
+                3-observations:
+                  value:
+                    items:
+                      - id: 1
+                        name: Observation Name1
+                        time: 59
+                        tester:
+                          id: 11111
+                          name: Jhon Doe
+                        cluster:
+                          id: 1
+                          name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                      - id: 2
+                        name: Observation Name2
+                        time: 39
+                        tester:
+                          id: 12345
+                          name: Mary Blue
+                        cluster:
+                          id: 1
+                          name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                      - id: 3
+                        name: Observation Name3
+                        time: 19
+                        tester:
+                          id: 11111
+                          name: Jhon Doe
+                        cluster:
+                          id: 2
+                          name: Cluster Name2
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-observations
+      description: Get observations for a campaign
+      security:
+        - JWT: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterBy
   /campaigns/forms:
     post:
       summary: Create a new preselection form

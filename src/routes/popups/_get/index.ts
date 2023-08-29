@@ -31,7 +31,7 @@ export default class Route extends UserRoute<{
   }
 
   protected async filter() {
-    if (!this.hasCapability("appq_message_center") && this.isNotAdmin()) {
+    if (!this.hasAccessToPopups() && this.isNotAdmin()) {
       this.setError(403, new OpenapiError("You cannot list popups"));
       return false;
     }
@@ -55,6 +55,11 @@ export default class Route extends UserRoute<{
   protected isNotAdmin() {
     if (this.configuration.request.user.role !== "administrator") return true;
     return false;
+  }
+
+  protected hasAccessToPopups() {
+    return this.configuration.request.user.permission?.admin
+      ?.appq_message_center;
   }
 
   protected mapPopups(

@@ -16,7 +16,20 @@ beforeAll(async () => {
     project_id: 1,
     customer_title: "",
     campaign_pts: 200,
+    campaign_type_id: 9,
   });
+  await tryber.tables.WpAppqCampaignType.do().insert([
+    {
+      id: 1,
+      name: "functional",
+      category_id: 1,
+    },
+    {
+      id: 9,
+      name: "ux",
+      category_id: 1,
+    },
+  ]);
 });
 describe("GET /campaigns/:campaignId", () => {
   it("Should return 400 if campaign does not exist", async () => {
@@ -46,13 +59,23 @@ describe("GET /campaigns/:campaignId", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should return id and title of campaign", async () => {
+  it("Should return campaign id", async () => {
     const response = await request(app)
       .get("/campaigns/1")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toEqual({
-      id: 1,
-      title: "This is the title",
-    });
+    expect(response.body).toHaveProperty("id", 1);
+  });
+  it("Should return campaign title", async () => {
+    const response = await request(app)
+      .get("/campaigns/1")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("title", "This is the title");
+  });
+
+  it("Should return campaign type", async () => {
+    const response = await request(app)
+      .get("/campaigns/1")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("type", "ux");
   });
 });
