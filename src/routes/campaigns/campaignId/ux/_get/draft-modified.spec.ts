@@ -434,6 +434,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
         version: 2,
         published: 0,
         methodology_type: "quantitative",
+        methodology_description: "Test Description NEW",
         goal: "This is the NEW goal of the reasearch",
         users: 100,
       },
