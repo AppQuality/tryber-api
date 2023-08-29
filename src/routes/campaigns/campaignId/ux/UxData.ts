@@ -1,4 +1,5 @@
 import { tryber } from "@src/features/database";
+import { checkUrl } from "./checkUrl";
 
 export default class UxData {
   private SEVERITIES = {
@@ -12,6 +13,10 @@ export default class UxData {
     | {
         id: number;
         campaign_id: number;
+        users: number;
+        goal: string;
+        methodology_type: string;
+        methodology_description: string;
         version: number;
         published: number;
       }
@@ -36,6 +41,22 @@ export default class UxData {
     end: number;
     description: string;
     location: string;
+    streamUrl: string;
+  }[] = [];
+
+  private _questions: {
+    id: number;
+    campaign_id: number;
+    question: string;
+    version: number;
+  }[] = [];
+
+  private _sentiments: {
+    id: number;
+    campaign_id: number;
+    cluster_id: number;
+    value: number;
+    comment: string;
   }[] = [];
 
   private _clusters: { id: number; name: string }[] = [];
@@ -85,40 +106,65 @@ export default class UxData {
           .orderBy("order", "asc")
       : [];
 
-    return { data, findings, clusters, videoParts };
+    const questions = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: this.campaignId })
+      .where({ version: data.version })
+      .orderBy("version", "DESC");
+
+    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({ campaign_id: this.campaignId })
+      .where({ version: data.version })
+      .orderBy("version", "DESC");
+
+    return { data, findings, clusters, videoParts, questions, sentiments };
   }
 
   public async lastPublished() {
-    const { data, findings, clusters, videoParts } = await this.getOne({
-      published: 1,
-    });
+    const { data, findings, clusters, videoParts, questions, sentiments } =
+      await this.getOne({
+        published: 1,
+      });
 
     if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
-    if (videoParts) this._videoParts = videoParts;
+    if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
+    if (questions) this._questions = questions;
+    if (sentiments) this._sentiments = sentiments;
     this._data = data;
   }
 
   public async lastDraft() {
-    const { data, findings, clusters, videoParts } = await this.getOne({
-      published: 0,
-    });
+    const { data, findings, clusters, videoParts, questions, sentiments } =
+      await this.getOne({
+        published: 0,
+      });
 
     if (!data) return;
     this._data = data;
 
     if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
-    if (videoParts) this._videoParts = videoParts;
+    if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
+    if (questions) this._questions = questions;
+    if (sentiments) this._sentiments = sentiments;
   }
 
   get version() {
     return this._data?.version;
   }
+
   get data() {
     if (!this._data) return null;
     const { id: i, version: v, published: p, ...data } = this._data;
-    return { ...data, findings: this.findings };
+    return {
+      ...data,
+
+      findings: this.findings,
+      questions: this.questions,
+      sentiments: this.sentiments,
+    };
   }
 
   get findings() {
@@ -134,16 +180,16 @@ export default class UxData {
         id: f.id,
         title: f.title,
         description: f.description,
-        cluster: getClusters(this._clusters),
+        clusters: getClusters(this._clusters),
         severity: { id: f.severity_id, name: severityName },
-        videoPart: videoParts.map((v) => ({
+        videoParts: videoParts.map((v) => ({
           id: v.id,
           start: v.start,
           mediaId: v.media_id,
           end: v.end,
           description: v.description,
           url: v.location,
-          streamUrl: v.location.replace(".mp4", "-stream.m3u8"),
+          streamUrl: v.streamUrl,
         })),
       };
 
@@ -155,8 +201,49 @@ export default class UxData {
     });
   }
 
+  get questions() {
+    return this._questions.map((q) => ({
+      id: q.id,
+      name: q.question,
+    }));
+  }
+
+  get sentiments() {
+    return this._sentiments.map((s) => ({
+      value: s.value,
+      comment: s.comment,
+      cluster: {
+        id: s.cluster_id,
+        name: this._clusters.find((c) => c.id === s.cluster_id)?.name || "",
+      },
+    }));
+  }
+
   isEqual(other: UxData) {
     if (JSON.stringify(this.data) !== JSON.stringify(other.data)) return false;
     return true;
+  }
+
+  async verifyUrls(
+    videoParts: {
+      id: number;
+      media_id: number;
+      insight_id: number;
+      start: number;
+      end: number;
+      description: string;
+      location: string;
+    }[]
+  ) {
+    const video = [];
+    for (const v of videoParts) {
+      const stream = v.location.replace(".mp4", "-stream.m3u8");
+      const isValidStream = await checkUrl(stream);
+      video.push({
+        ...v,
+        streamUrl: isValidStream ? stream : "",
+      });
+    }
+    return video;
   }
 }

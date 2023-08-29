@@ -17,12 +17,22 @@ const campaign = {
 describe("GET /campaigns/{campaignId}/ux", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 1 },
-      { ...campaign, id: 2 },
+      { ...campaign, id: 1, campaign_type_id: 10 },
+      { ...campaign, id: 2, campaign_type_id: 10 },
     ]);
+    await tryber.tables.WpAppqCampaignType.do().insert({
+      id: 10,
+      name: "Usability Test",
+      description: "Usability Test Description",
+      category_id: 1,
+    });
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
       version: 1,
+      methodology_type: "qualitative",
+      methodology_description: "Methodology description",
+      goal: "This is the goal of the reasearch",
+      users: 100,
     });
   });
   afterAll(async () => {

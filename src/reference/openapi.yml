@@ -577,9 +577,18 @@ paths:
                     type: integer
                   title:
                     type: string
+                  type:
+                    type: string
                 required:
                   - id
                   - title
+                  - type
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title: Campaign Title
+                    type: Campaign Type
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -2861,7 +2870,11 @@ paths:
                       - draft
                       - published
                       - draft-modified
-                  insight:
+                  goal:
+                    type: string
+                  usersNumber:
+                    type: integer
+                  insights:
                     type: array
                     items:
                       type: object
@@ -2882,7 +2895,7 @@ paths:
                               type: integer
                             name:
                               type: string
-                        cluster:
+                        clusters:
                           oneOf:
                             - type: string
                               enum:
@@ -2898,7 +2911,7 @@ paths:
                                 required:
                                   - id
                                   - name
-                        videoPart:
+                        videoParts:
                           type: array
                           items:
                             type: object
@@ -2930,8 +2943,8 @@ paths:
                         - title
                         - description
                         - severity
-                        - cluster
-                        - videoPart
+                        - clusters
+                        - videoParts
                   sentiments:
                     type: array
                     items:
@@ -2939,6 +2952,8 @@ paths:
                       properties:
                         value:
                           type: integer
+                        comment:
+                          type: string
                         cluster:
                           type: object
                           required:
@@ -2951,23 +2966,68 @@ paths:
                               type: string
                       required:
                         - value
+                        - comment
                         - cluster
+                  methodology:
+                    type: object
+                    required:
+                      - name
+                      - type
+                      - description
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                          - qualitative
+                          - quantitative
+                          - quali-quantitative
+                      description:
+                        type: string
+                  questions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
                 required:
                   - status
+                  - goal
+                  - usersNumber
                   - sentiments
+                  - methodology
+                  - questions
               examples:
-                Draft example:
+                example-qualitative:
                   value:
                     status: draft
-                    insight:
+                    goal: The Research Goal
+                    usersNumber: 10
+                    questions:
+                      - id: 1
+                        name: Why the world exists?
+                      - id: 1
+                        name: How the world exists?
+                    methodology:
+                      name: Usability Test
+                      description: Methodology Description
+                      type: qualitative
+                    insights:
                       - id: 1
                         title: My insight
                         description: This is an insight
                         severity:
                           id: 1
                           name: Minor
-                        cluster: all
-                        videoPart:
+                        clusters: all
+                        videoParts:
                           - id: 1
                             start: 10
                             end: 20
@@ -2981,12 +3041,62 @@ paths:
                         severity:
                           id: 2
                           name: Positive
-                        cluster:
+                        clusters:
                           - id: 1
                             name: 'UC1: Cart'
                           - id: 2
                             name: 'UC2: Login'
-                        videoPart:
+                        videoParts:
+                          - id: 2
+                            start: 15
+                            end: 25
+                            mediaId: 2
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                    sentiments: []
+                example-quantitative:
+                  value:
+                    status: draft
+                    goal: The Research Goal
+                    usersNumber: 10
+                    questions:
+                      - id: 1
+                        name: Why the world exists?
+                      - id: 1
+                        name: How the world exists?
+                    methodology:
+                      name: Usability Test
+                      description: Methodology Description
+                      type: quantitative
+                    insights:
+                      - id: 1
+                        title: My insight
+                        description: This is an insight
+                        severity:
+                          id: 1
+                          name: Minor
+                        clusters: all
+                        videoParts:
+                          - id: 1
+                            start: 10
+                            end: 20
+                            mediaId: 1
+                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
+                            description: This is a video part
+                      - id: 2
+                        title: My second insight
+                        description: This is another insight
+                        severity:
+                          id: 2
+                          name: Positive
+                        clusters:
+                          - id: 1
+                            name: 'UC1: Cart'
+                          - id: 2
+                            name: 'UC2: Login'
+                        videoParts:
                           - id: 2
                             start: 15
                             end: 25
@@ -3027,6 +3137,10 @@ paths:
             schema:
               oneOf:
                 - properties:
+                    goal:
+                      type: string
+                    usersNumber:
+                      type: integer
                     insights:
                       type: array
                       items:
@@ -3050,7 +3164,7 @@ paths:
                               - type: string
                                 enum:
                                   - all
-                          videoPart:
+                          videoParts:
                             type: array
                             items:
                               type: object
@@ -3079,7 +3193,7 @@ paths:
                           - severityId
                           - order
                           - clusterIds
-                          - videoPart
+                          - videoParts
                     sentiments:
                       type: array
                       items:
@@ -3092,9 +3206,38 @@ paths:
                         required:
                           - clusterId
                           - value
+                    methodology:
+                      type: object
+                      required:
+                        - type
+                        - description
+                      properties:
+                        type:
+                          type: string
+                          enum:
+                            - qualitative
+                            - quantitative
+                            - quali-quantitative
+                        description:
+                          type: string
+                    questions:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          name:
+                            type: string
+                        required:
+                          - name
                   required:
+                    - goal
+                    - usersNumber
                     - insights
                     - sentiments
+                    - methodology
+                    - questions
                 - properties:
                     status:
                       type: string
@@ -3106,6 +3249,11 @@ paths:
             examples:
               edit-insight-and-videopart:
                 value:
+                  goal: this is the goal
+                  usersNumber: 5
+                  methodology:
+                    description: Methodology Description
+                    type: quantitative
                   insights:
                     - id: 5
                       title: string
@@ -3114,7 +3262,7 @@ paths:
                       order: 0
                       clusterIds:
                         - 0
-                      videoPart:
+                      videoParts:
                         - id: 7
                           start: 0
                           end: 0
@@ -3124,8 +3272,23 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 4
+                  questions:
+                    - name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - id: 5
+                      name: who?
               add-new-insight-and-new-videopart:
                 value:
+                  goal: this is the goal
+                  usersNumber: 5
+                  methodology:
+                    description: Methodology Description
+                    type: qualitative
                   insights:
                     - title: string
                       description: string
@@ -3133,7 +3296,7 @@ paths:
                       order: 0
                       clusterIds:
                         - 0
-                      videoPart:
+                      videoParts:
                         - start: 0
                           end: 0
                           mediaId: 0
@@ -3142,6 +3305,16 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 0
+                  questions:
+                    - id: 1
+                      name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - name: who?
               publish:
                 value:
                   status: publish

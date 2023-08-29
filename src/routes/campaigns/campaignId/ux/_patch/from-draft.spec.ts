@@ -15,6 +15,11 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
+const methodology = {
+  type: "qualitative",
+  description: "Methodology Description",
+};
+
 describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
@@ -44,9 +49,13 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
   beforeEach(async () => {
     await tryber.tables.UxCampaignData.do().insert({
+      goal: "Test Goal",
+      users: 5,
       campaign_id: 1,
       version: 1,
       published: 0,
+      methodology_description: methodology.description,
+      methodology_type: methodology.type,
     });
 
     await tryber.tables.UxCampaignInsights.do().insert({
@@ -67,21 +76,45 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       description: "My video",
       media_id: 1,
     });
+    await tryber.tables.UxCampaignQuestions.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        question: "Draft question",
+        version: 1,
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        question: "Draft question2",
+        version: 1,
+      },
+      {
+        id: 3,
+        campaign_id: 2,
+        question: "Draft question",
+        version: 1,
+      },
+    ]);
   });
-
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
   it("Should not insert a new draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignData.do().select(
@@ -104,8 +137,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -113,10 +150,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should thrown an error if trying to edit an insight that not exists", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 1000,
@@ -125,10 +164,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 2,
             clusterIds: "all",
             order: 0,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -148,10 +189,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should insert a insights as draft if an item without id is sent", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 1,
@@ -160,7 +203,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             clusterIds: [1],
             order: 0,
-            videoPart: [],
+            videoParts: [],
           },
           {
             title: "New insight",
@@ -168,10 +211,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 2,
             clusterIds: "all",
             order: 1,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -201,10 +246,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should update a insights as draft if an item with id is sent", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 1,
@@ -213,10 +260,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 2,
             clusterIds: "all",
             order: 1,
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
@@ -234,6 +283,211 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
+  it("Should insert a question as draft if an item without id is sent", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [
+          {
+            name: "New question",
+          },
+          {
+            id: 1,
+            name: "Draft question updated",
+          },
+        ],
+        methodology,
+      });
+    const questions = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+
+    expect(questions).toHaveLength(2);
+    expect(questions[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        question: "Draft question updated",
+        version: 1,
+      })
+    );
+    expect(questions[1]).toEqual(
+      expect.objectContaining({
+        id: 4,
+        question: "New question",
+        version: 1,
+      })
+    );
+  });
+
+  it("Should update a questions as draft if an item with id is sent", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [
+          {
+            id: 1,
+            name: "Updated Draft question",
+          },
+        ],
+        methodology,
+      });
+    const questions = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(questions).toHaveLength(1);
+    expect(questions[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        question: "Updated Draft question",
+        version: 1,
+      })
+    );
+  });
+
+  it("Should update methodology type as draft", async () => {
+    const actualData = await tryber.tables.UxCampaignData.do()
+      .select("methodology_type", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [],
+        methodology: { ...methodology, type: "quali-quantitative" },
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("methodology_type", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    expect(actualData?.methodology_type).not.toEqual(data?.methodology_type);
+    expect(data).toEqual(
+      expect.objectContaining({
+        published: 0,
+        version: 1,
+        methodology_type: "quali-quantitative",
+      })
+    );
+  });
+
+  it("Should update methodology description as draft", async () => {
+    const actualData = await tryber.tables.UxCampaignData.do()
+      .select("methodology_description", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [],
+        methodology: { ...methodology, description: "The new description" },
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("methodology_description", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    expect(actualData?.methodology_description).not.toEqual(
+      data?.methodology_description
+    );
+    expect(data).toEqual(
+      expect.objectContaining({
+        published: 0,
+        version: 1,
+        methodology_description: "The new description",
+      })
+    );
+  });
+
+  it("Should update goal as draft", async () => {
+    const actualData = await tryber.tables.UxCampaignData.do()
+      .select("goal", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "New Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [],
+        questions: [],
+        methodology,
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("goal", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    expect(actualData?.goal).not.toEqual(data?.goal);
+    expect(data).toEqual(
+      expect.objectContaining({
+        published: 0,
+        version: 1,
+        goal: "New Test Goal",
+      })
+    );
+  });
+
+  it("Should update users number as draft", async () => {
+    const actualData = await tryber.tables.UxCampaignData.do()
+      .select("users", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 6,
+        insights: [],
+        sentiments: [],
+        questions: [],
+        methodology,
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select("users", "published", "version")
+      .where({ campaign_id: 1 })
+      .first();
+
+    expect(actualData?.users).not.toEqual(data?.users);
+    expect(data).toEqual(
+      expect.objectContaining({
+        published: 0,
+        version: 1,
+        users: 6,
+      })
+    );
+  });
+
   it("Should create a new version on publish", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
@@ -242,20 +496,30 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         status: "publish",
       });
 
-    const data = await tryber.tables.UxCampaignData.do().select();
+    const data = await tryber.tables.UxCampaignData.do()
+      .select()
+      .where({ campaign_id: 1 });
     expect(data).toHaveLength(2);
     expect(data[0]).toEqual(
       expect.objectContaining({
+        goal: "Test Goal",
+        users: 5,
         campaign_id: 1,
         version: 1,
         published: 1,
+        methodology_description: "Methodology Description",
+        methodology_type: "qualitative",
       })
     );
     expect(data[1]).toEqual(
       expect.objectContaining({
+        goal: "Test Goal",
+        users: 5,
         campaign_id: 1,
         version: 2,
         published: 0,
+        methodology_description: "Methodology Description",
+        methodology_type: "qualitative",
       })
     );
   });
@@ -293,10 +557,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should remove insight videopart if empty", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 1,
@@ -305,10 +571,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [],
+            videoParts: [],
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
@@ -316,10 +584,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should add insight videopart as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 1,
@@ -328,7 +598,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 id: 1,
                 start: 0,
@@ -348,6 +618,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -378,10 +650,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should update insight videopart as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             id: 1,
@@ -390,7 +664,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 id: 1,
                 start: 10,
@@ -403,6 +677,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -423,10 +699,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should insert new insight with videopart as draft", async () => {
-    const response = await request(app)
+    await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
+        goal: "Test Goal",
+        usersNumber: 5,
         insights: [
           {
             title: "My new insight",
@@ -434,7 +712,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
             severityId: 1,
             order: 0,
             clusterIds: "all",
-            videoPart: [
+            videoParts: [
               {
                 start: 10,
                 end: 100,
@@ -446,6 +724,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
           },
         ],
         sentiments: [],
+        questions: [],
+        methodology,
       });
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
@@ -520,5 +800,55 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
 
     expect(publishVideoParts).toBeDefined();
     expect(draftVideoPart).toBeDefined();
+  });
+
+  it("Should create a new version of questions on publish", async () => {
+    const questionsBeforePatch = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({
+        campaign_id: 1,
+      });
+
+    expect(questionsBeforePatch).toHaveLength(2);
+    expect(questionsBeforePatch[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        campaign_id: 1,
+        question: "Draft question",
+        version: 1,
+      })
+    );
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        status: "publish",
+      });
+
+    const all = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: 1 });
+
+    const publishQuestion = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({
+        version: 1,
+        campaign_id: 1,
+      })
+      .first();
+
+    const draftQuestion = await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({
+        version: 2,
+        campaign_id: 1,
+      })
+      .first();
+    expect(publishQuestion).toBeDefined();
+    expect(draftQuestion).toBeDefined();
+
+    if (!publishQuestion || !draftQuestion)
+      throw new Error("Questions not found");
   });
 });

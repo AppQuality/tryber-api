@@ -28,6 +28,7 @@ export default class Route extends UserRoute<{
     await item.lastDraft();
     this._draft = item;
   }
+
   protected async filter() {
     if (!(await this.campaignExists())) {
       return this.setNoAccessError();
@@ -74,8 +75,18 @@ export default class Route extends UserRoute<{
   protected async prepare(): Promise<void> {
     this.setSuccess(200, {
       status: await this.getStatus(),
-      insight: this.draft.data?.findings || [],
-      sentiments: [],
+      goal: this.draft.data?.goal || "",
+      usersNumber: this.draft.data?.users || 0,
+      methodology: {
+        ...(await this.getMethodology()),
+        type: this.draft.data?.methodology_type as
+          | "qualitative"
+          | "quantitative"
+          | "quali-quantitative",
+      },
+      insights: this.draft.data?.findings || [],
+      sentiments: this.draft.data?.sentiments || [],
+      questions: this.draft.data?.questions || [],
     });
   }
 
@@ -87,5 +98,40 @@ export default class Route extends UserRoute<{
     if (published.isEqual(this.draft)) return "published" as const;
 
     return "draft-modified" as const;
+  }
+
+  private async getMethodology() {
+    const campaignType = await tryber.tables.WpAppqCampaignType.do()
+      .select(
+        tryber.ref("name").withSchema("wp_appq_campaign_type"),
+        tryber
+          .ref("description")
+          .withSchema("wp_appq_campaign_type")
+          .as("fallback_description")
+      )
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_evd_campaign.campaign_type_id",
+        "wp_appq_campaign_type.id"
+      )
+      .where("wp_appq_evd_campaign.id", this.campaignId)
+      .first();
+
+    if (!campaignType) throw new Error("Error on finding methodology Name");
+    let methodologyDescription: string | undefined;
+
+    methodologyDescription = this.draft.data?.methodology_description
+      ? this.draft.data?.methodology_description
+      : campaignType?.fallback_description;
+
+    if (!methodologyDescription) {
+      throw new Error("Error on finding Methodology Description");
+    }
+
+    return {
+      name: campaignType.name,
+      description: methodologyDescription,
+      type: this.draft.data?.methodology_type ?? "qualitative",
+    };
   }
 }

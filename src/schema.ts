@@ -1177,6 +1177,7 @@ export interface operations {
           "application/json": {
             id: number;
             title: string;
+            type: string;
           };
         };
       };
@@ -1527,7 +1528,9 @@ export interface operations {
           "application/json": {
             /** @enum {string} */
             status: "draft" | "published" | "draft-modified";
-            insight?: {
+            goal: string;
+            usersNumber: number;
+            insights?: {
               id: number;
               title: string;
               description: string;
@@ -1535,13 +1538,13 @@ export interface operations {
                 id: number;
                 name: string;
               };
-              cluster:
+              clusters:
                 | "all"
                 | {
                     id: number;
                     name: string;
                   }[];
-              videoPart: {
+              videoParts: {
                 id: number;
                 start: number;
                 end: number;
@@ -1553,10 +1556,21 @@ export interface operations {
             }[];
             sentiments: {
               value: number;
+              comment: string;
               cluster: {
                 id: number;
                 name: string;
               };
+            }[];
+            methodology: {
+              name: string;
+              /** @enum {string} */
+              type: "qualitative" | "quantitative" | "quali-quantitative";
+              description: string;
+            };
+            questions: {
+              id: number;
+              name: string;
             }[];
           };
         };
@@ -1586,6 +1600,8 @@ export interface operations {
       content: {
         "application/json":
           | {
+              goal: string;
+              usersNumber: number;
               insights: {
                 id?: number;
                 title: string;
@@ -1593,7 +1609,7 @@ export interface operations {
                 severityId: number;
                 order: number;
                 clusterIds: number[] | "all";
-                videoPart: {
+                videoParts: {
                   id?: number;
                   start: number;
                   end: number;
@@ -1605,6 +1621,15 @@ export interface operations {
               sentiments: {
                 clusterId: number;
                 value: number;
+              }[];
+              methodology: {
+                /** @enum {string} */
+                type: "qualitative" | "quantitative" | "quali-quantitative";
+                description: string;
+              };
+              questions: {
+                id?: number;
+                name: string;
               }[];
             }
           | {
