@@ -409,12 +409,13 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
 describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 1, campaign_type_id: 10 },
+      { ...campaign, id: 1, campaign_type_id: 1 },
     ]);
     await tryber.tables.WpAppqCampaignType.do().insert([
       {
         id: 1,
         name: "UX Generic",
+        description: "Campaign Type Description",
         category_id: 1,
       },
     ]);
@@ -515,18 +516,21 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
+    await tryber.tables.UxCampaignSentiments.do().delete();
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
   it("Should return sentiments of last draft version", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.body.methodology).toHaveProperty("description");
+    console.log(response.body);
     expect(response.body.sentiments.length).toEqual(2);
     expect(response.body.sentiments).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           id: 1,
-          name: "Test Question1 draft-modified",
+          comment: "Sentiment1 draft-modified",
+          value: 1,
           cluster: {
             id: 1,
             name: "Test Cluster",
@@ -534,7 +538,8 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
         }),
         expect.objectContaining({
           id: 2,
-          name: "Test Question2 draft-modified",
+          comment: "Sentiment2 draft-modified",
+          value: 5,
           cluster: {
             id: 2,
             name: "Test Cluster 2",
