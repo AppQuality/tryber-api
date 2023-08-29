@@ -36,7 +36,6 @@ export default class SingleCampaignRoute extends CampaignRoute<{
   }
 
   private async getCampaignType() {
-    // get campaign type form table WpAppqCampaignType joining with WpAppqEvdCampaign on campaign_type_id
     const campaignType = await tryber.tables.WpAppqCampaignType.do()
       .select(tryber.ref("name").withSchema("wp_appq_campaign_type"))
       .join(
@@ -44,6 +43,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         "wp_appq_evd_campaign.campaign_type_id",
         "wp_appq_campaign_type.id"
       )
+      .where("wp_appq_evd_campaign.id", this.cp_id)
       .first();
     if (campaignType === undefined) return "";
     return campaignType.name;
