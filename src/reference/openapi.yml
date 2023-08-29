@@ -579,16 +579,20 @@ paths:
                     type: string
                   type:
                     type: string
+                  typeDescription:
+                    type: string
                 required:
                   - id
                   - title
                   - type
+                  - typeDescription
               examples:
                 Example 1:
                   value:
                     id: 1
                     title: Campaign Title
                     type: Campaign Type
+                    typeDescription: Campaign DescriptionType
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

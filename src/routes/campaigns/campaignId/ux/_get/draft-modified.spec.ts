@@ -39,6 +39,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         version: 1,
         published: 1,
         methodology_type: "qualitative",
+        methodology_description: "Test Description",
         goal: "This is the goal of the reasearch",
         users: 99,
       },
@@ -47,6 +48,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         version: 2,
         published: 0,
         methodology_type: "quantitative",
+        methodology_description: "Test Description",
         goal: "This is the NEW goal of the reasearch",
         users: 100,
       },
@@ -109,6 +111,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         version: 1,
         published: 1,
         methodology_type: "qualitative",
+        methodology_description: "Test Description",
         goal: "This is the goal of the reasearch",
         users: 99,
       },
@@ -117,6 +120,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         version: 2,
         published: 0,
         methodology_type: "quantitative",
+        methodology_description: "Test Description",
         goal: "This is the NEW goal of the reasearch",
         users: 100,
       },
@@ -294,70 +298,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
   });
 });
 
-describe("GET /campaigns/{campaignId}/ux - draft modified - methodology no description", () => {
-  beforeAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 1, campaign_type_id: 10 },
-    ]);
-    await tryber.tables.WpAppqCampaignType.do().insert([
-      {
-        id: 1,
-        name: "UX Generic",
-        category_id: 1,
-      },
-      {
-        id: 10,
-        name: "Usability Test",
-        category_id: 1,
-        description: "Campaign Type Description",
-      },
-    ]);
-    await tryber.tables.UxCampaignData.do().insert([
-      {
-        campaign_id: 1,
-        version: 1,
-        published: 1,
-        methodology_description: "Test Description OLD",
-        methodology_type: "qualitative",
-        goal: "This is the goal of the reasearch",
-        users: 99,
-      },
-      {
-        campaign_id: 1,
-        version: 2,
-        published: 0,
-        methodology_type: "quantitative",
-        goal: "This is the NEW goal of the reasearch",
-        users: 100,
-      },
-    ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
-  });
-  afterAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
-  });
-  it("Should return methodology description from ux data if exist", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body.methodology).toHaveProperty("description");
-    expect(response.body.methodology.description).toEqual(
-      "Campaign Type Description"
-    );
-  });
-});
-
 describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
@@ -391,6 +331,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
         version: 2,
         published: 0,
         methodology_type: "quantitative",
+        methodology_description: "Test Description NEW",
         goal: "This is the NEW goal of the reasearch",
         users: 100,
       },

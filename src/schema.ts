@@ -1178,6 +1178,7 @@ export interface operations {
             id: number;
             title: string;
             type: string;
+            typeDescription: string;
           };
         };
       };
