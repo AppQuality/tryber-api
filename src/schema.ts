@@ -1556,6 +1556,7 @@ export interface operations {
               }[];
             }[];
             sentiments: {
+              id: number;
               value: number;
               comment: string;
               cluster: {

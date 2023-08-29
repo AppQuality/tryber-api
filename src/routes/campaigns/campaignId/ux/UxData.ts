@@ -210,6 +210,7 @@ export default class UxData {
 
   get sentiments() {
     return this._sentiments.map((s) => ({
+      id: s.id,
       value: s.value,
       comment: s.comment,
       cluster: {
