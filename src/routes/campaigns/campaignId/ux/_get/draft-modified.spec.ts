@@ -523,7 +523,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.body.sentiments.length).toEqual(2);
     expect(response.body.sentiments).toEqual(
       expect.arrayContaining([
