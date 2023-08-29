@@ -1,167 +1,216 @@
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 
-import getAdditionalData from "../../../_get/getAdditionalData";
+/** OPENAPI-CLASS:put-users-me-additionals-fieldId */
 
-/** OPENAPI-ROUTE:put-users-me-additionals-fieldId */
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    let field;
-    const fieldId =
-      typeof c.request.params.fieldId === "string"
-        ? c.request.params.fieldId
-        : "0";
+export default class Route extends UserRoute<{
+  response: StoplightOperations["put-users-me-additionals-fieldId"]["responses"]["200"]["content"]["application/json"];
+  parameters: StoplightOperations["put-users-me-additionals-fieldId"]["parameters"]["path"];
+  body: StoplightOperations["put-users-me-additionals-fieldId"]["requestBody"]["content"]["application/json"];
+}> {
+  private fieldId: number;
+  private _field:
+    | {
+        id: number;
+        name: string;
+        type: "multiselect" | "select" | "text";
+        allow_other: boolean;
+      }
+    | undefined;
 
+  constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
+    this.fieldId = Number(this.getParameters().fieldId as unknown as string);
+  }
+
+  protected async init() {
+    await super.init();
+    await this.shouldFailIfFieldDoesntExist();
+  }
+
+  private async shouldFailIfFieldDoesntExist() {
     try {
-      field = await db.query(
-        db.format(
-          `SELECT id,name,allow_other,type 
-                  FROM wp_appq_custom_user_field WHERE id = ? 
-          AND enabled = 1`,
-          [fieldId]
-        )
+      const field = await this.getField();
+      if (["multiselect", "select", "text"].includes(field.type) === false) {
+        throw new OpenapiError(`Invalid field type ${field.type}`);
+      }
+      this._field = field;
+    } catch (e) {
+      this.setError(404, e as OpenapiError);
+      throw e;
+    }
+  }
+
+  private async getField() {
+    try {
+      const { ...field } = await tryber.tables.WpAppqCustomUserField.do()
+        .select("id", "name", "allow_other", "type")
+        .where("id", this.fieldId)
+        .andWhere("enabled", 1)
+        .first();
+      if (!field) throw Error(`Can't find field with id ${this.fieldId}`);
+
+      const isValidType = (f: {
+        type: string;
+      }): f is { type: "multiselect" | "select" | "text" } =>
+        ["multiselect", "select", "text"].includes(f.type);
+
+      if (!isValidType(field)) {
+        throw new OpenapiError(`Invalid field type ${field.type}`);
+      }
+      return { ...field, allow_other: Boolean(field.allow_other) };
+    } catch (e) {
+      if (process.env && process.env.DEBUG) console.log(e);
+      throw Error(`Can't retrieve field with id ${this.fieldId}`);
+    }
+  }
+
+  get field() {
+    if (typeof this._field === "undefined") throw new Error("Not initialized");
+    return this._field;
+  }
+
+  protected async prepare(): Promise<void> {
+    if (this.field.type === "multiselect") {
+      await this.addMultiselect();
+      return this.setSuccess(200, []);
+    }
+
+    if (this.field.type === "select") {
+      await this.addSelect();
+      return this.setSuccess(200, []);
+    }
+
+    await this.addText();
+    return this.setSuccess(200, []);
+  }
+
+  private async addMultiselect() {
+    const body = this.getBody();
+    const bodyList = Array.isArray(body) ? body : [body];
+
+    const oldValues = await tryber.tables.WpAppqCustomUserFieldData.do()
+      .select("id", "value", "candidate")
+      .where("custom_user_field_id", this.field.id)
+      .andWhere("profile_id", this.getTesterId());
+    const remainingList = bodyList.filter(
+      (b) => !oldValues.find((o) => o.value === b.value)
+    );
+    const valueToDel = oldValues.filter(
+      (o) => !bodyList.find((b) => b.value === o.value)
+    );
+
+    await tryber.tables.WpAppqCustomUserFieldData.do()
+      .delete()
+      .whereIn(
+        "id",
+        valueToDel.map((v) => v.id)
       );
-      if (!field.length) throw Error(`Can't find field with id ${fieldId}`);
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      throw Error(`Can't retrieve field with id ${fieldId}`);
+
+    for (const f of remainingList) {
+      await this.addCustomUserField(f);
+    }
+  }
+
+  private async addSelect() {
+    const body = this.getBody();
+    if (Array.isArray(body)) {
+      throw new OpenapiError("Can't add multiple values to select field");
     }
 
-    try {
-      await deleteCustomUserField(field[0], req.user.testerId);
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      throw e;
+    if (body.value === "") {
+      await tryber.tables.WpAppqCustomUserFieldData.do()
+        .delete()
+        .where("custom_user_field_id", this.field.id)
+        .andWhere("profile_id", this.getTesterId());
+      return;
     }
+    const oldValue = await tryber.tables.WpAppqCustomUserFieldData.do()
+      .select("id")
+      .where("custom_user_field_id", this.field.id)
+      .andWhere("profile_id", this.getTesterId())
+      .first();
+    if (oldValue) {
+      await tryber.tables.WpAppqCustomUserFieldData.do()
+        .update({ value: body.value })
+        .where("id", oldValue.id);
+    } else {
+      await this.addCustomUserField(body);
+    }
+  }
 
+  private async addText() {
+    const body = this.getBody();
+    if (Array.isArray(body)) {
+      throw new OpenapiError("Can't add multiple values to select field");
+    }
+    // update
+    await this.addCustomUserTextField(body.value);
+  }
+
+  private async addCustomUserTextField(data: string) {
     try {
-      if (Array.isArray(req.body)) {
-        if (field[0].type !== "multiselect")
-          throw Error(`Can't add multiple data to ${field[0].name}`);
-        for (const f of req.body) {
-          await addCustomUserField(field[0], req.user.testerId, f);
-        }
-      } else if (typeof req.body === "object") {
-        if (["select", "multiselect"].includes(field[0].type))
-          await addCustomUserField(field[0], req.user.testerId, req.body);
-        else
-          await addCustomUserTextField(
-            field[0],
-            req.user.testerId,
-            req.body.value
-          );
+      const oldValue = await tryber.tables.WpAppqCustomUserFieldData.do()
+        .select("id")
+        .where("custom_user_field_id", this.field.id)
+        .andWhere("profile_id", this.getTesterId())
+        .first();
+      if (oldValue) {
+        await tryber.tables.WpAppqCustomUserFieldData.do()
+          .update({ value: data })
+          .where("id", oldValue.id);
+        return oldValue.id;
       } else {
-        throw Error(`Invalid custom user field type ${field[0].type}`);
+        const result = await tryber.tables.WpAppqCustomUserFieldData.do()
+          .insert({
+            custom_user_field_id: this.field.id,
+            value: data,
+            profile_id: this.getTesterId(),
+            candidate: 0,
+          })
+          .returning("id");
+        return result[0].id ?? result[0];
       }
     } catch (e) {
-      throw e;
+      if (process.env && process.env.DEBUG) console.log(e);
+      throw Error(`Can't add ${data} to ${this.field.name}`);
     }
-    try {
-      res.status_code = 200;
-      return [];
-    } catch (e) {
-      if ((e as OpenapiError).status_code === 404) {
-        res.status_code = 200;
-        if (field[0].type === "multiselect") {
-          return [];
-        } else {
-          return {
-            field_id: field[0].id,
-            name: field[0].name,
-            value: "",
-            text: "",
-          };
-        }
-      } else {
-        throw e;
+  }
+
+  private async addCustomUserField(data: {
+    value: string;
+    is_candidate?: boolean;
+  }) {
+    if (data.is_candidate && !this.field.allow_other)
+      throw Error(`Can't add candidate to ${this.field.name}`);
+    if (!data.is_candidate) {
+      try {
+        const extra = await tryber.tables.WpAppqCustomUserFieldExtras.do()
+          .select("id")
+          .where("custom_user_field_id", this.field.id)
+          .andWhere("id", data.value);
+        if (!extra.length)
+          throw Error(`Invalid value ${data.value} for ${this.field.name}`);
+      } catch (e) {
+        if (process.env && process.env.DEBUG) console.log(e);
+        throw Error(`Error finding value for ${this.field.name}`);
       }
     }
-  } catch (error) {
-    if (process.env && process.env.DEBUG) console.log(error);
-    res.status_code = 404;
-    return {
-      element: "users",
-      id: parseInt(req.user.ID),
-      message: (error as OpenapiError).message,
-    };
-  }
-};
 
-const addCustomUserTextField = async (
-  field: { id: string; name: string },
-  testerId: number,
-  data: any
-) => {
-  let sql = `INSERT INTO wp_appq_custom_user_field_data 
-        (custom_user_field_id, value, profile_id) 
-        VALUES (? , ? , ?)`;
-  let sqlData = [field.id, data, testerId];
-
-  try {
-    const insertId = await db.query(db.format(sql, sqlData));
-    return Promise.resolve(insertId);
-  } catch (e) {
-    if (process.env && process.env.DEBUG) console.log(e);
-    throw Error(`Can't add ${data} to ${field.name}`);
-  }
-};
-
-const addCustomUserField = async (
-  field: { id: string; name: string; allow_other: boolean },
-  testerId: number,
-  data: any
-) => {
-  if (!data.value) return;
-  if (data.is_candidate && !field.allow_other)
-    throw Error(`Can't add candidate to ${field.name}`);
-  if (!data.is_candidate) {
-    let extraSql = `SELECT id
-        FROM wp_appq_custom_user_field_extras
-        WHERE custom_user_field_id = ? AND id = ?`;
     try {
-      const extra = await db.query(db.format(extraSql, [field.id, data.value]));
-      if (!extra.length)
-        throw Error(`Invalid value ${data.value} for ${field.name}`);
+      const result = await tryber.tables.WpAppqCustomUserFieldData.do()
+        .insert({
+          custom_user_field_id: this.field.id,
+          value: data.value,
+          profile_id: this.getTesterId(),
+          candidate: data.is_candidate ? 1 : 0,
+        })
+        .returning("id");
+      return result[0].id ?? result[0];
     } catch (e) {
       if (process.env && process.env.DEBUG) console.log(e);
-      throw Error(`Error finding value for ${field.name}`);
+      throw Error(`Can't add ${JSON.stringify(data)} to ${this.field.name}`);
     }
   }
-  let sql = `INSERT INTO wp_appq_custom_user_field_data 
-        (custom_user_field_id, value, profile_id, candidate) 
-        VALUES (? , ? , ?, ?)`;
-  let sqlData = [field.id, data.value, testerId, data.is_candidate ? 1 : 0];
-
-  try {
-    const insertId = await db.query(db.format(sql, sqlData));
-    return Promise.resolve(insertId);
-  } catch (e) {
-    if (process.env && process.env.DEBUG) console.log(e);
-    throw Error(`Can't add ${JSON.stringify(data)} to ${field.name}`);
-  }
-};
-
-const deleteCustomUserField = async (
-  field: { id: string; name: string },
-  testerId: number,
-  retries: number = 0
-): Promise<boolean> => {
-  let sql = `DELETE FROM wp_appq_custom_user_field_data
-        WHERE custom_user_field_id = ? AND profile_id = ?`;
-  let sqlData = [field.id, testerId];
-  try {
-    await db.query(db.format(sql, sqlData));
-    return Promise.resolve(true);
-  } catch (e) {
-    if ((e as MySqlError).code === "ER_LOCK_DEADLOCK" && retries < 20) {
-      await new Promise((r) => setTimeout(r, 200));
-      return deleteCustomUserField(field, testerId, retries + 1);
-    }
-    if (process.env && process.env.DEBUG) console.log(e);
-    throw Error(`Can't delete data from ${field.name}`);
-  }
-};
+}
