@@ -30,6 +30,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         subtitle: "Subtitle 1",
         campaign_id: 1,
       },
+      {
+        id: 2,
+        title: "Cluster 2",
+        subtitle: "Subtitle 2",
+        campaign_id: 1,
+      },
     ]);
     await tryber.tables.WpAppqUserTaskMedia.do().insert([
       {
@@ -96,12 +102,39 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         version: 1,
       },
     ]);
+    await tryber.tables.UxCampaignSentiments.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        value: 1,
+        comment: "Draft comment",
+        version: 1,
+        cluster_id: 1,
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        value: 5,
+        comment: "Draft comment",
+        version: 1,
+        cluster_id: 1,
+      },
+      {
+        id: 3,
+        campaign_id: 2,
+        value: 3,
+        comment: "Draft comment",
+        version: 1,
+        cluster_id: 2,
+      },
+    ]);
   });
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
+    await tryber.tables.UxCampaignSentiments.do().delete();
   });
 
   it("Should not insert a new draft", async () => {
@@ -350,6 +383,40 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         id: 1,
         question: "Updated Draft question",
         version: 1,
+      })
+    );
+  });
+
+  it("Should update a sentiment as draft if an item with id is sent", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [
+          {
+            id: 1,
+            comment: "Updated Draft comment",
+            value: 2,
+            clusterId: 1,
+          },
+        ],
+        questions: [],
+        methodology,
+      });
+    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(sentiments).toHaveLength(1);
+    expect(sentiments[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        comment: "Updated Draft comment",
+        version: 1,
+        value: 2,
+        cluster_id: 1,
       })
     );
   });
@@ -826,10 +893,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         status: "publish",
       });
 
-    const all = await tryber.tables.UxCampaignQuestions.do()
-      .select()
-      .where({ campaign_id: 1 });
-
     const publishQuestion = await tryber.tables.UxCampaignQuestions.do()
       .select()
       .where({
@@ -849,6 +912,60 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     expect(draftQuestion).toBeDefined();
 
     if (!publishQuestion || !draftQuestion)
+      throw new Error("Questions not found");
+  });
+
+  it("Should create a new version of sentiments on publish", async () => {
+    const sentimentsBeforePatch = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({
+        campaign_id: 1,
+      });
+
+    expect(sentimentsBeforePatch).toHaveLength(2);
+    expect(sentimentsBeforePatch[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        campaign_id: 1,
+        comment: "Draft comment",
+        version: 1,
+      })
+    );
+    expect(sentimentsBeforePatch[1]).toEqual(
+      expect.objectContaining({
+        id: 2,
+        campaign_id: 1,
+        comment: "Draft comment",
+        version: 1,
+      })
+    );
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        status: "publish",
+      });
+
+    const publishSentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({
+        version: 1,
+        campaign_id: 1,
+      })
+      .first();
+
+    const draftSentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({
+        version: 2,
+        campaign_id: 1,
+      })
+      .first();
+    expect(publishSentiments).toBeDefined();
+    expect(draftSentiments).toBeDefined();
+
+    if (!publishSentiments || !draftSentiments)
       throw new Error("Questions not found");
   });
 });

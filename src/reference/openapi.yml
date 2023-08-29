@@ -3230,13 +3230,18 @@ paths:
                       items:
                         type: object
                         properties:
+                          id:
+                            type: integer
                           clusterId:
                             type: integer
                           value:
                             type: integer
+                          comment:
+                            type: string
                         required:
                           - clusterId
                           - value
+                          - comment
                     methodology:
                       type: object
                       required:
@@ -3303,6 +3308,11 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 4
+                      comment: comment
+                    - id: 1
+                      clusterId: 0
+                      value: 5
+                      comment: comment
                   questions:
                     - name: why?
                     - id: 2
@@ -3335,7 +3345,12 @@ paths:
                           order: 0
                   sentiments:
                     - clusterId: 0
-                      value: 0
+                      value: 4
+                      comment: comment
+                    - id: 1
+                      clusterId: 0
+                      value: 5
+                      comment: comment
                   questions:
                     - id: 1
                       name: why?
@@ -8894,8 +8909,6 @@ components:
             id: 1
             company: Customer Company
           isTokenBased: true
-      x-stoplight:
-        id: a1062dea11dce
       properties:
         title:
           type: string

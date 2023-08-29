@@ -33,6 +33,20 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
           "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
       },
     ]);
+    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+      {
+        id: 1,
+        title: "Cluster 1",
+        subtitle: "Subtitle 1",
+        campaign_id: 1,
+      },
+      {
+        id: 2,
+        title: "Cluster 2",
+        subtitle: "Subtitle 2",
+        campaign_id: 2,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -45,6 +59,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
+    await tryber.tables.UxCampaignSentiments.do().delete();
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
 
   it("Should insert data as draft", async () => {
@@ -116,6 +132,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       })
     );
   });
+
   it("Should insert question as draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
@@ -136,6 +153,33 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       expect.objectContaining({
         question: "Is there life on Mars?",
         version: 1,
+      })
+    );
+  });
+
+  it("Should insert sentiment as draft", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [{ value: 5, clusterId: 1, comment: "My comment" }],
+        questions: [],
+        methodology,
+      });
+    const data = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(data).toHaveLength(1);
+    expect(data[0]).toEqual(
+      expect.objectContaining({
+        cluster_id: 1,
+        version: 1,
+        value: 5,
+        comment: "My comment",
+        campaign_id: 1,
       })
     );
   });
