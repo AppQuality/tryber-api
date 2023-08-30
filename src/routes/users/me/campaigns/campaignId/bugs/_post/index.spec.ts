@@ -245,9 +245,11 @@ describe("Route POST a bug to a specific campaign", () => {
       .set("authorization", "Bearer tester")
       .send(bug);
     expect(response.status).toBe(200);
-    const bugData = await sqlite3.get(
-      `SELECT profile_id FROM wp_appq_evd_bug WHERE id = ${response.body.id}`
-    );
+    const bugData = await tryber.tables.WpAppqEvdBug.do()
+      .select("profile_id")
+      .where("id", response.body.id)
+      .first();
+
     expect(bugData).toHaveProperty("profile_id", 1);
   });
   it("Should serialize device data on the bug on success", async () => {

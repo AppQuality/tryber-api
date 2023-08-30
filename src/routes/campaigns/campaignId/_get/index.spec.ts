@@ -100,6 +100,9 @@ describe("GET /campaigns/:campaignId", () => {
     const response = await request(app)
       .get("/campaigns/2")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("typeDescription", "ux description");
+    expect(response.body).toHaveProperty(
+      "typeDescription",
+      "functional description"
+    );
   });
 });
