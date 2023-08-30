@@ -113,8 +113,19 @@ export default class UxData {
       .orderBy("version", "DESC");
 
     const sentiments = await tryber.tables.UxCampaignSentiments.do()
-      .select()
-      .where({ campaign_id: this.campaignId })
+      .select(
+        tryber.ref("id").withSchema("ux_campaign_sentiments"),
+        tryber.ref("cluster_id").withSchema("ux_campaign_sentiments"),
+        tryber.ref("campaign_id").withSchema("ux_campaign_sentiments"),
+        tryber.ref("value").withSchema("ux_campaign_sentiments"),
+        tryber.ref("comment").withSchema("ux_campaign_sentiments")
+      )
+      .join(
+        "wp_appq_usecase_cluster",
+        "wp_appq_usecase_cluster.id",
+        "ux_campaign_sentiments.cluster_id"
+      )
+      .where("ux_campaign_sentiments.campaign_id", this.campaignId)
       .where({ version: data.version })
       .orderBy("version", "DESC");
 
