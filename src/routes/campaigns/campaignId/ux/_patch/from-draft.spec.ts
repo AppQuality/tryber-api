@@ -1,5 +1,6 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import { response } from "express";
 import request from "supertest";
 
 const campaign = {
@@ -967,5 +968,27 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
 
     if (!publishSentiments || !draftSentiments)
       throw new Error("Questions not found");
+  });
+  it("Should return 500 if send a sentiment value greater than 5 or lower then 1", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [
+          {
+            id: 1,
+            comment: "Updated Draft comment",
+            value: 6,
+            clusterId: 1,
+          },
+        ],
+        questions: [],
+        methodology,
+      });
+    console.log(response.body);
+    expect(response.status).toBe(500);
   });
 });
