@@ -297,6 +297,23 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     });
   });
 
+  it("Should return sentiment value greater than 0 and less than 6", async () => {
+    await tryber.tables.UxCampaignSentiments.do()
+      .update({ value: 6 })
+      .where({ id: 2 });
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    const values: number[] = response.body.sentiments.map(
+      (s: { value: number }) => s.value
+    );
+    expect(values).toHaveLength(1);
+    for (const value of values) {
+      expect(value).toBeGreaterThan(0);
+      expect(value).toBeLessThan(6);
+    }
+  });
+
   it("Should return methodology", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
