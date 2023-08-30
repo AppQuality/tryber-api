@@ -40,9 +40,14 @@ export default class PatchUx extends UserRoute<{
       return false;
     }
 
+    if (this.invalidSentimentsValues()) {
+      this.setError(500, new OpenapiError(`Sentiment values are invalid`));
+      throw new OpenapiError(`Sentiment values are invalid`);
+    }
+
     if (this.thereAreInvalidFindingIds()) {
       this.setError(500, new OpenapiError(`Insight not found`));
-      throw new OpenapiError(`Insights with idnot found`);
+      throw new OpenapiError(`Insights with id not found`);
     }
 
     return true;
@@ -79,6 +84,15 @@ export default class PatchUx extends UserRoute<{
       .filter((id) => !currentInsightIds.includes(id as number));
 
     return notFoundIds.length > 0;
+  }
+
+  private invalidSentimentsValues() {
+    const body = this.getBody();
+    if ("status" in body) return false;
+    const { sentiments } = body;
+    for (const s of sentiments) {
+      if (s.value < 0 || s.value > 5) return true;
+    }
   }
 
   private setNoAccessError() {
