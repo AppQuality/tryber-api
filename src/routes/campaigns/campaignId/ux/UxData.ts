@@ -126,6 +126,8 @@ export default class UxData {
         "ux_campaign_sentiments.cluster_id"
       )
       .where("ux_campaign_sentiments.campaign_id", this.campaignId)
+      .where("ux_campaign_sentiments.value", ">", 0)
+      .where("ux_campaign_sentiments.value", "<", 6)
       .where({ version: data.version })
       .orderBy("version", "DESC");
 
