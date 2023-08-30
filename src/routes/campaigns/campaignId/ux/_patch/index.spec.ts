@@ -28,7 +28,7 @@ const requestBody = {
   },
 };
 
-describe("PATCH /campaigns/{campaignId}/ux - permissions and loggin statuses", () => {
+describe("PATCH /campaigns/{campaignId}/ux - permissions and logging statuses", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
     await tryber.tables.UxCampaignData.do().insert({
