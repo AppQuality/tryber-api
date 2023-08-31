@@ -1,5 +1,5 @@
+import { checkUrl } from "@src/features/checkUrl";
 import { tryber } from "@src/features/database";
-import { checkUrl } from "./checkUrl";
 
 export default class UxData {
   private SEVERITIES = {
