@@ -51,43 +51,11 @@ beforeAll(async () => {
       description: "Observation1 description",
       ux_note: "Observation1 ux_notes",
     },
-    {
-      id: 2,
-      media_id: 2,
-      name: "Observation2 name",
-      video_ts: 59,
-      description: "Observation2 description",
-      ux_note: "Observation2 ux_notes",
-    },
-    {
-      id: 3,
-      media_id: 3,
-      name: "Observation2 name",
-      video_ts: 59,
-      description: "Observation2 description",
-      ux_note: "Observation2 ux_notes",
-    },
   ]);
   await tryber.tables.WpAppqUserTaskMedia.do().insert([
     {
       id: 1,
       campaign_task_id: 10,
-      user_task_id: 1,
-      tester_id: 1,
-      location:
-        "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    },
-    {
-      id: 2,
-      campaign_task_id: 20,
-      user_task_id: 1,
-      tester_id: 1,
-      location:
-        "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    },
-    {
-      id: 3,
-      campaign_task_id: 30,
       user_task_id: 1,
       tester_id: 1,
       location:
@@ -100,17 +68,6 @@ beforeAll(async () => {
       id: 10,
       campaign_id: 1,
     },
-    {
-      ...task,
-      id: 20,
-      campaign_id: 2,
-    },
-    {
-      ...task,
-      id: 30,
-      campaign_id: 1,
-      cluster_id: 30,
-    },
   ]);
   await tryber.tables.WpAppqUsecaseCluster.do().insert([
     {
@@ -119,21 +76,9 @@ beforeAll(async () => {
       title: "Cluster10 title",
       subtitle: "Cluster10 subtitle",
     },
-    {
-      id: 20,
-      campaign_id: 2,
-      title: "Cluster20 title",
-      subtitle: "Cluster20 subtitle",
-    },
-    {
-      id: 30,
-      campaign_id: 1,
-      title: "Cluster title",
-      subtitle: "Cluster subtitle",
-    },
   ]);
 });
-describe("GET /campaigns/:campaignId/observations", () => {
+describe("GET /campaigns/:campaignId/observations - missing stream url", () => {
   it("Should return items with media", async () => {
     const response = await request(app)
       .get("/campaigns/1/observations")
