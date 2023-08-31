@@ -1,7 +1,8 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-observations */
 
-import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
+import { checkUrl } from "@src/features/checkUrl";
+import { tryber } from "@src/features/database";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 export default class SingleCampaignRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-observations"]["responses"]["200"]["content"]["application/json"];
@@ -90,20 +91,27 @@ export default class SingleCampaignRoute extends CampaignRoute<{
     }
 
     const observations = await query;
-    return observations.map((observation) => ({
-      id: observation.id,
-      name: observation.name,
-      time: observation.time,
-      cluster: {
-        id: observation.cluster_id,
-        name: observation.cluster_title,
-      },
-      tester: { id: observation.tester_id, name: observation.tester_name },
-      media: {
-        id: observation.media_id,
-        url: observation.media_url,
-        streamUrl: observation.media_url.replace(".mp4", "-stream.m3u8"),
-      },
-    }));
+    const results = [];
+    for (const observation of observations) {
+      const stream = observation.media_url.replace(".mp4", "-stream.m3u8");
+      const isValidStream = await checkUrl(stream);
+      results.push({
+        id: observation.id,
+        name: observation.name,
+        time: observation.time,
+        cluster: {
+          id: observation.cluster_id,
+          name: observation.cluster_title,
+        },
+        tester: { id: observation.tester_id, name: observation.tester_name },
+        media: {
+          id: observation.media_id,
+          url: observation.media_url,
+          streamUrl: isValidStream ? stream : "",
+        },
+      });
+    }
+
+    return results;
   }
 }

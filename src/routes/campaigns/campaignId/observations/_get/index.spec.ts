@@ -15,6 +15,10 @@ const task = {
   jf_text: "Campaign Task jf_text",
 };
 
+jest.mock("@src/features/checkUrl", () => ({
+  checkUrl: jest.fn().mockImplementation(() => true),
+}));
+
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdCampaign.do().insert({
     id: 1,
