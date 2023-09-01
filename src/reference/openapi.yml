@@ -2954,6 +2954,8 @@ paths:
                     items:
                       type: object
                       properties:
+                        id:
+                          type: integer
                         value:
                           type: integer
                         comment:
@@ -2969,6 +2971,7 @@ paths:
                             name:
                               type: string
                       required:
+                        - id
                         - value
                         - comment
                         - cluster
@@ -3058,7 +3061,19 @@ paths:
                             url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
                             streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
                             description: This is a video part
-                    sentiments: []
+                    sentiments:
+                      - id: 1
+                        value: 5
+                        comment: Top rating
+                        cluster:
+                          id: 1
+                          name: Cluster1
+                      - id: 2
+                        value: 1
+                        comment: Bad rating
+                        cluster:
+                          id: 1
+                          name: Cluster1
                 example-quantitative:
                   value:
                     status: draft
@@ -3108,7 +3123,19 @@ paths:
                             url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
                             streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
                             description: This is a video part
-                    sentiments: []
+                    sentiments:
+                      - id: 1
+                        value: 5
+                        comment: Top rating
+                        cluster:
+                          id: 1
+                          name: Cluster1
+                      - id: 2
+                        value: 1
+                        comment: Bad rating
+                        cluster:
+                          id: 1
+                          name: Cluster1
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3203,13 +3230,18 @@ paths:
                       items:
                         type: object
                         properties:
+                          id:
+                            type: integer
                           clusterId:
                             type: integer
                           value:
                             type: integer
+                          comment:
+                            type: string
                         required:
                           - clusterId
                           - value
+                          - comment
                     methodology:
                       type: object
                       required:
@@ -3276,6 +3308,11 @@ paths:
                   sentiments:
                     - clusterId: 0
                       value: 4
+                      comment: comment
+                    - id: 1
+                      clusterId: 0
+                      value: 5
+                      comment: comment
                   questions:
                     - name: why?
                     - id: 2
@@ -3308,7 +3345,12 @@ paths:
                           order: 0
                   sentiments:
                     - clusterId: 0
-                      value: 0
+                      value: 4
+                      comment: comment
+                    - id: 1
+                      clusterId: 0
+                      value: 5
+                      comment: comment
                   questions:
                     - id: 1
                       name: why?
@@ -8867,8 +8909,6 @@ components:
             id: 1
             company: Customer Company
           isTokenBased: true
-      x-stoplight:
-        id: a1062dea11dce
       properties:
         title:
           type: string

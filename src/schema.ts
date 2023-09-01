@@ -1556,6 +1556,7 @@ export interface operations {
               }[];
             }[];
             sentiments: {
+              id: number;
               value: number;
               comment: string;
               cluster: {
@@ -1620,8 +1621,10 @@ export interface operations {
                 }[];
               }[];
               sentiments: {
+                id?: number;
                 clusterId: number;
                 value: number;
+                comment: string;
               }[];
               methodology: {
                 /** @enum {string} */

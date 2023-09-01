@@ -124,6 +124,7 @@ export default class PatchUx extends UserRoute<{
     await this.updateUxData();
     await this.updateInsights();
     await this.updateQuestions();
+    await this.updateSentiments();
   }
 
   private async insertFirstVersion() {
@@ -167,7 +168,86 @@ export default class PatchUx extends UserRoute<{
   private async updateQuestions() {
     await this.removeQuestions();
     await this.insertNewQuestions();
-    await this.updateExistingQuestion();
+    await this.updateExistingQuestions();
+  }
+
+  private async updateSentiments() {
+    await this.removeSentiments();
+    await this.insertNewSentiments();
+    await this.updateExistingSentiments();
+  }
+
+  private async removeSentiments() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { sentiments } = body;
+    if (sentiments.length) {
+      const toUpdate = sentiments.filter((s) => s.id);
+      const currentSentiments = this.lastDraft?.sentiments || [];
+      const currentSentimentsIds = currentSentiments.map((i) => i.id);
+
+      const toRemove = currentSentimentsIds.filter(
+        (id) => !toUpdate.map((i) => i.id).includes(id as number)
+      );
+
+      if (toRemove.length) {
+        await tryber.tables.UxCampaignSentiments.do()
+          .delete()
+          .whereIn(
+            "id",
+            currentSentimentsIds.filter(
+              (id) => !toUpdate.map((i) => i.id).includes(id as number)
+            )
+          );
+      }
+    }
+  }
+
+  private async insertNewSentiments() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { sentiments } = body;
+
+    if (sentiments.length) {
+      const toInsert = sentiments.filter((i) => !i.id);
+      if (toInsert.length) {
+        for (const item of toInsert) {
+          await tryber.tables.UxCampaignSentiments.do()
+            .insert({
+              campaign_id: this.campaignId,
+              value: item.value,
+              comment: item.comment,
+              cluster_id: item.clusterId,
+              version: this.version,
+            })
+            .returning("id");
+        }
+      }
+    }
+  }
+
+  private async updateExistingSentiments() {
+    const body = this.getBody();
+    if ("status" in body) return;
+    const { sentiments } = body;
+    if (sentiments.length) {
+      const updatedSentiments = sentiments.filter((i) => i.id);
+
+      if (updatedSentiments.length) {
+        for (const item of updatedSentiments) {
+          await tryber.tables.UxCampaignSentiments.do()
+            .update({
+              value: item.value,
+              cluster_id: item.clusterId,
+              comment: item.comment,
+              version: this.version,
+            })
+            .where({
+              id: item.id,
+            });
+        }
+      }
+    }
   }
 
   private async removeQuestions() {
@@ -214,7 +294,7 @@ export default class PatchUx extends UserRoute<{
     }
   }
 
-  private async updateExistingQuestion() {
+  private async updateExistingQuestions() {
     const body = this.getBody();
     if ("status" in body) return;
     const { questions } = body;
@@ -388,6 +468,7 @@ export default class PatchUx extends UserRoute<{
     await this.publishData();
     await this.publishInsight();
     await this.publishQuestions();
+    await this.publishSentiments();
     this.version++;
   }
 
@@ -433,12 +514,31 @@ export default class PatchUx extends UserRoute<{
     }
   }
 
+  private async publishSentiments() {
+    if (this.lastDraft?.sentiments.length) {
+      await tryber.tables.UxCampaignSentiments.do()
+        .update({
+          version: this.version + 1,
+        })
+        .where({
+          campaign_id: this.campaignId,
+          version: this.version,
+        });
+
+      for (const sentiment of this.lastDraft?.sentiments || []) {
+        await tryber.tables.UxCampaignSentiments.do().insert({
+          campaign_id: this.campaignId,
+          value: sentiment.value,
+          cluster_id: sentiment.cluster.id,
+          comment: sentiment.comment,
+          version: this.version,
+        });
+      }
+    }
+  }
+
   private async publishInsight() {
     const draftData = this.lastDraft?.data;
-    console.log(
-      "🚀 ~ file: index.ts:320 ~ PatchUx ~ publishInsight ~ draftData:",
-      draftData
-    );
     if (!draftData) throw new OpenapiError("No draft found");
 
     let findingOrder = 0;
@@ -459,10 +559,6 @@ export default class PatchUx extends UserRoute<{
         .returning("id");
 
       const insertedInsightId = insertedInsight[0].id ?? insertedInsight[0];
-      console.log(
-        "🚀 ~ file: index.ts:340 ~ PatchUx ~ publishInsight ~ insertedInsightId:",
-        insertedInsightId
-      );
 
       let videoPartOrder = 0;
       for (const videoPart of insight.videoParts) {
