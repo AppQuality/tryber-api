@@ -3238,6 +3238,7 @@ paths:
                             type: integer
                           comment:
                             type: string
+                            maxLength: 100
                         required:
                           - clusterId
                           - value
