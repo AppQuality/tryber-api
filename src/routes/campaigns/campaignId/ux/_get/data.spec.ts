@@ -74,6 +74,17 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         order: 0,
         enabled: 0,
       },
+      {
+        id: 4,
+        campaign_id: 2,
+        version: 1,
+        title: "Test Insight Other CP",
+        description: "Test Description Other CP",
+        severity_id: 1,
+        cluster_ids: "0",
+        order: 0,
+        enabled: 1,
+      },
     ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
       {
@@ -204,6 +215,21 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         ],
         videoParts: expect.arrayContaining([]),
       })
+    );
+  });
+
+  it("Should return all findings of a specific Campaign", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("insights");
+    expect(response.body.insights).toHaveLength(2);
+    expect(response.body.insights).toEqual(
+      expect.arrayContaining([
+        expect.not.objectContaining({
+          id: 4,
+        }),
+      ])
     );
   });
 
