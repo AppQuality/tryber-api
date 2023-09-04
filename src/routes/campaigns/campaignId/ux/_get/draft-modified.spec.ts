@@ -53,24 +53,28 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 2,
-      title: "Test Modified",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
+    await tryber.tables.UxCampaignInsights.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        enabled: 1,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        title: "Test Modified",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        enabled: 1,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -125,26 +129,30 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 1,
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 2,
-      campaign_id: 1,
-      version: 2,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
+    await tryber.tables.UxCampaignInsights.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        enabled: 1,
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        version: 2,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        enabled: 1,
+      },
+    ]);
 
     await tryber.tables.UxCampaignVideoParts.do().insert({
       id: 1,
@@ -242,6 +250,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      enabled: 1,
     });
   });
   afterAll(async () => {
@@ -344,6 +353,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      enabled: 1,
     });
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
@@ -447,6 +457,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      enabled: 1,
     });
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
       {

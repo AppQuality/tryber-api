@@ -77,6 +77,7 @@ export default class UxData {
         campaign_id: this.campaignId,
         version: data.version,
       })
+      .where({ enabled: 1 })
       .orderBy("order", "asc");
     const clusters = await tryber.tables.WpAppqUsecaseCluster.do()
       .select("id", tryber.ref("title").as("name"))

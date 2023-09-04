@@ -50,6 +50,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "1,2",
         order: 1,
+        enabled: 1,
       },
       {
         id: 2,
@@ -60,6 +61,18 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "0",
         order: 0,
+        enabled: 1,
+      },
+      {
+        id: 3,
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight Disabled",
+        description: "Test Description Disabled",
+        severity_id: 1,
+        cluster_ids: "0",
+        order: 0,
+        enabled: 0,
       },
     ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
@@ -153,7 +166,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.UxCampaignSentiments.do().delete();
   });
 
-  it("Should return all the findings", async () => {
+  it("Should return all the enabled findings", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
