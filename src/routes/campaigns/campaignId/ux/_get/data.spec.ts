@@ -67,13 +67,19 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         id: 1,
         campaign_id: 1,
         title: "Test Cluster",
-        subtitle: "",
+        subtitle: "Subtitle 1",
       },
       {
         id: 2,
         campaign_id: 1,
         title: "Test Cluster 2",
-        subtitle: "",
+        subtitle: "Subtitle 2",
+      },
+      {
+        id: 3,
+        campaign_id: 2,
+        title: "Test Cluster 3",
+        subtitle: "Subtitle 3",
       },
     ]);
 
@@ -270,6 +276,42 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         }),
       ])
     );
+  });
+
+  it("Should return sentiments associated to a cluster", async () => {
+    await tryber.tables.WpAppqUsecaseCluster.do().delete().where({ id: 2 });
+
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+
+    expect(response.body.sentiments).toHaveLength(1);
+    expect(response.body.sentiments[0]).toEqual({
+      id: 1,
+      value: 1,
+      comment: "Low Comment cluster1",
+      cluster: {
+        id: 1,
+        name: "Test Cluster",
+      },
+    });
+  });
+
+  it("Should return sentiment value greater than 0 and less than 6", async () => {
+    await tryber.tables.UxCampaignSentiments.do()
+      .update({ value: 6 })
+      .where({ id: 2 });
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    const values: number[] = response.body.sentiments.map(
+      (s: { value: number }) => s.value
+    );
+    expect(values).toHaveLength(1);
+    for (const value of values) {
+      expect(value).toBeGreaterThan(0);
+      expect(value).toBeLessThan(6);
+    }
   });
 
   it("Should return methodology", async () => {
