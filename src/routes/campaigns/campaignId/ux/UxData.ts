@@ -24,6 +24,7 @@ export default class UxData {
 
   private _findings: {
     id: number;
+    finding_id: number;
     campaign_id: number;
     version: number;
     title: string;
@@ -191,7 +192,7 @@ export default class UxData {
       const videoParts = this._videoParts.filter((v) => v.insight_id === f.id);
 
       return {
-        id: f.id,
+        id: f.finding_id,
         title: f.title,
         description: f.description,
         clusters: getClusters(this._clusters),

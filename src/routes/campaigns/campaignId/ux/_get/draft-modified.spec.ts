@@ -62,6 +62,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         severity_id: 1,
         cluster_ids: "1",
         order: 0,
+        finding_id: 10,
         enabled: 1,
       },
       {
@@ -72,6 +73,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         severity_id: 1,
         cluster_ids: "1",
         order: 0,
+        finding_id: 20,
         enabled: 1,
       },
     ]);
@@ -139,6 +141,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         severity_id: 1,
         cluster_ids: "1",
         order: 0,
+        finding_id: 10,
         enabled: 1,
       },
       {
@@ -150,6 +153,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         severity_id: 1,
         cluster_ids: "1",
         order: 0,
+        finding_id: 20,
         enabled: 1,
       },
     ]);
@@ -250,6 +254,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      finding_id: 10,
       enabled: 1,
     });
   });
@@ -353,6 +358,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      finding_id: 10,
       enabled: 1,
     });
     await tryber.tables.UxCampaignQuestions.do().insert([
@@ -457,6 +463,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      finding_id: 10,
       enabled: 1,
     });
     await tryber.tables.WpAppqUsecaseCluster.do().insert([

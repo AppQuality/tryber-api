@@ -50,6 +50,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "1,2",
         order: 1,
+        finding_id: 10,
         enabled: 1,
       },
       {
@@ -61,6 +62,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "0",
         order: 0,
+        finding_id: 20,
         enabled: 1,
       },
       {
@@ -72,6 +74,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "0",
         order: 0,
+        finding_id: 30,
         enabled: 0,
       },
       {
@@ -83,6 +86,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "0",
         order: 0,
+        finding_id: 40,
         enabled: 1,
       },
     ]);
@@ -233,6 +237,24 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     );
   });
 
+  it("Should return the correct findings_ids for each finding", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("insights");
+    expect(response.body.insights).toHaveLength(2);
+    expect(response.body.insights).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 10,
+        }),
+        expect.objectContaining({
+          id: 20,
+        }),
+      ])
+    );
+  });
+
   it("Should return all the video part in a finding", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
@@ -241,7 +263,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.insights).toHaveLength(2);
     expect(response.body.insights[1]).toEqual(
       expect.objectContaining({
-        id: 1,
+        id: 10,
         videoParts: expect.arrayContaining([]),
       })
     );
