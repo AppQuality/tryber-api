@@ -3,6 +3,9 @@ import { tryber } from "@src/features/database";
 import { response } from "express";
 import request from "supertest";
 
+jest.mock("@src/features/checkUrl", () => ({
+  checkUrl: jest.fn().mockImplementation(() => true),
+}));
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
