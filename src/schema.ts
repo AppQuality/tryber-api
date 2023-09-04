@@ -1532,6 +1532,7 @@ export interface operations {
             goal: string;
             usersNumber: number;
             insights?: {
+              /** @description This is finding_id not id */
               id: number;
               title: string;
               description: string;
@@ -1605,6 +1606,7 @@ export interface operations {
               goal: string;
               usersNumber: number;
               insights: {
+                /** @description This is finding_id not id */
                 id?: number;
                 title: string;
                 description: string;

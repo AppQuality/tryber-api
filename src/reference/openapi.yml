@@ -2885,6 +2885,7 @@ paths:
                       properties:
                         id:
                           type: integer
+                          description: This is finding_id not id
                         title:
                           type: string
                         description:
@@ -3179,6 +3180,7 @@ paths:
                         properties:
                           id:
                             type: integer
+                            description: This is finding_id not id
                           title:
                             type: string
                           description:
