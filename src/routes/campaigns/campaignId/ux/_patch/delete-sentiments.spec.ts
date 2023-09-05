@@ -75,7 +75,6 @@ describe("PATCH /campaigns/{campaignId}/ux - permissions and logging statuses", 
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.body.sentiments).toHaveLength(0);
   });
 });
