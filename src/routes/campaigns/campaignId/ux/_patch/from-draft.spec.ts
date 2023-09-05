@@ -995,7 +995,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         questions: [],
         methodology,
       });
-    console.log(response.body);
     expect(response.status).toBe(500);
   });
 });
