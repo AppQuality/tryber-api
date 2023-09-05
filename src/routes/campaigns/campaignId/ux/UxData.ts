@@ -192,7 +192,7 @@ export default class UxData {
       const videoParts = this._videoParts.filter((v) => v.insight_id === f.id);
 
       return {
-        id: f.finding_id,
+        id: f.id,
         title: f.title,
         description: f.description,
         clusters: getClusters(this._clusters),

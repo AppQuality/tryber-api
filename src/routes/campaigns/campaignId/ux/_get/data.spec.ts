@@ -237,7 +237,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     );
   });
 
-  it("Should return the correct findings_ids for each finding", async () => {
+  it("Should return the correct ids for each finding", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
@@ -246,10 +246,10 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.insights).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 10,
+          id: 1,
         }),
         expect.objectContaining({
-          id: 20,
+          id: 2,
         }),
       ])
     );
@@ -263,7 +263,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     expect(response.body.insights).toHaveLength(2);
     expect(response.body.insights[1]).toEqual(
       expect.objectContaining({
-        id: 10,
+        id: 1,
         videoParts: expect.arrayContaining([]),
       })
     );
