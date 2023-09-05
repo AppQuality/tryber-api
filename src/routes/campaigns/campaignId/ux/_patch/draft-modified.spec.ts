@@ -66,6 +66,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
         description: "Publish description",
         severity_id: 1,
         cluster_ids: "1",
+        finding_id: 10,
+        enabled: 1,
       },
       {
         id: 2,
@@ -75,6 +77,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
         description: "Publish description 2",
         severity_id: 1,
         cluster_ids: "1",
+        finding_id: 20,
+        enabled: 1,
       },
       // Draft modified insights
       {
@@ -85,6 +89,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
         description: "Publish description",
         severity_id: 1,
         cluster_ids: "1",
+        finding_id: 10,
+        enabled: 1,
       },
       {
         id: 4,
@@ -94,6 +100,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
         description: "Publish description 2",
         severity_id: 1,
         cluster_ids: "1",
+        finding_id: 20,
+        enabled: 1,
       },
     ]);
 
