@@ -195,25 +195,23 @@ export default class PatchUx extends UserRoute<{
     const body = this.getBody();
     if ("status" in body) return;
     const { sentiments } = body;
-    if (sentiments.length) {
-      const toUpdate = sentiments.filter((s) => s.id);
-      const currentSentiments = this.lastDraft?.sentiments || [];
-      const currentSentimentsIds = currentSentiments.map((i) => i.id);
+    const toUpdate = sentiments.filter((s) => s.id);
+    const currentSentiments = this.lastDraft?.sentiments || [];
+    const currentSentimentsIds = currentSentiments.map((i) => i.id);
 
-      const toRemove = currentSentimentsIds.filter(
-        (id) => !toUpdate.map((i) => i.id).includes(id as number)
-      );
+    const toRemove = currentSentimentsIds.filter(
+      (id) => !toUpdate.map((i) => i.id).includes(id as number)
+    );
 
-      if (toRemove.length) {
-        await tryber.tables.UxCampaignSentiments.do()
-          .delete()
-          .whereIn(
-            "id",
-            currentSentimentsIds.filter(
-              (id) => !toUpdate.map((i) => i.id).includes(id as number)
-            )
-          );
-      }
+    if (toRemove.length) {
+      await tryber.tables.UxCampaignSentiments.do()
+        .delete()
+        .whereIn(
+          "id",
+          currentSentimentsIds.filter(
+            (id) => !toUpdate.map((i) => i.id).includes(id as number)
+          )
+        );
     }
   }
 
