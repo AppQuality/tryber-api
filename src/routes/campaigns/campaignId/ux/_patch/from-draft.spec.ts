@@ -188,7 +188,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
   });
 
   it("Should thrown an error if trying to edit an insight that not exists", async () => {
-    await request(app)
+    const response = await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
@@ -209,6 +209,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         questions: [],
         methodology,
       });
+
+    expect(response.status).toBe(500);
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
     expect(insights).toHaveLength(1);
@@ -266,6 +268,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "Draft description",
         order: 0,
         severity_id: 1,
+        finding_id: 10,
         title: "Draft insight",
         version: 1,
       })
@@ -277,6 +280,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "New description",
         order: 1,
         severity_id: 2,
+        finding_id: 11,
         title: "New insight",
         version: 1,
       })
