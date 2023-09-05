@@ -1532,14 +1532,13 @@ export interface operations {
             goal: string;
             usersNumber: number;
             insights?: {
-              /** @description This is finding_id not id */
               id: number;
               title: string;
-              description: string;
               severity: {
                 id: number;
                 name: string;
               };
+              description: string;
               clusters:
                 | "all"
                 | {
@@ -1606,7 +1605,6 @@ export interface operations {
               goal: string;
               usersNumber: number;
               insights: {
-                /** @description This is finding_id not id */
                 id?: number;
                 title: string;
                 description: string;
