@@ -371,7 +371,7 @@ export default class PatchUx extends UserRoute<{
     if (toInsert.length) {
       for (const item of toInsert) {
         const maxFindingId = await tryber.tables.UxCampaignInsights.do()
-          .max("finding_id")
+          .max("finding_id", { as: "max" })
           .first();
 
         const insight = await tryber.tables.UxCampaignInsights.do()
@@ -384,7 +384,7 @@ export default class PatchUx extends UserRoute<{
             severity_id: item.severityId,
             title: item.title,
             version: this.version,
-            finding_id: maxFindingId?.finding_id ?? 1,
+            finding_id: maxFindingId?.max ? maxFindingId?.max + 1 : 1,
           })
           .returning("id");
         if (item.videoParts && item.videoParts.length) {

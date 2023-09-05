@@ -814,6 +814,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         severity_id: 1,
         title: "My new insight",
         version: 1,
+        finding_id: 11,
       })
     );
     const insightId = data[0].id;
