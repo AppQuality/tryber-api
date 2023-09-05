@@ -1534,11 +1534,11 @@ export interface operations {
             insights?: {
               id: number;
               title: string;
-              description: string;
               severity: {
                 id: number;
                 name: string;
               };
+              description: string;
               clusters:
                 | "all"
                 | {

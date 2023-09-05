@@ -2887,8 +2887,6 @@ paths:
                           type: integer
                         title:
                           type: string
-                        description:
-                          type: string
                         severity:
                           type: object
                           required:
@@ -2899,6 +2897,8 @@ paths:
                               type: integer
                             name:
                               type: string
+                        description:
+                          type: string
                         clusters:
                           oneOf:
                             - type: string
@@ -2945,8 +2945,8 @@ paths:
                       required:
                         - id
                         - title
-                        - description
                         - severity
+                        - description
                         - clusters
                         - videoParts
                   sentiments:

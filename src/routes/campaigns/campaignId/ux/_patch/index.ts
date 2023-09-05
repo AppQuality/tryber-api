@@ -343,7 +343,7 @@ export default class PatchUx extends UserRoute<{
 
     if (toRemove.length) {
       await tryber.tables.UxCampaignInsights.do()
-        .delete()
+        .update("enabled", 0)
         .whereIn(
           "id",
           currentInsightIds.filter(
@@ -370,6 +370,10 @@ export default class PatchUx extends UserRoute<{
     const toInsert = insights.filter((i) => !i.id);
     if (toInsert.length) {
       for (const item of toInsert) {
+        const maxFindingId = await tryber.tables.UxCampaignInsights.do()
+          .max("finding_id", { as: "max" })
+          .first();
+
         const insight = await tryber.tables.UxCampaignInsights.do()
           .insert({
             campaign_id: this.campaignId,
@@ -380,6 +384,7 @@ export default class PatchUx extends UserRoute<{
             severity_id: item.severityId,
             title: item.title,
             version: this.version,
+            finding_id: maxFindingId?.max ? maxFindingId?.max + 1 : 1,
           })
           .returning("id");
         if (item.videoParts && item.videoParts.length) {
@@ -569,6 +574,7 @@ export default class PatchUx extends UserRoute<{
           severity_id: insight.severity.id,
           title: insight.title,
           version: this.version + 1,
+          finding_id: insight.findingId,
         })
         .returning("id");
 

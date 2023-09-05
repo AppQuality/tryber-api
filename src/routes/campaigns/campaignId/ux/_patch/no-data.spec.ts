@@ -136,6 +136,37 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     );
   });
 
+  it("Should insert insight as draft with correct finding_id", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [
+          {
+            title: "My insight",
+            description: "My description",
+            severityId: 1,
+            order: 0,
+            clusterIds: "all",
+            videoParts: [],
+          },
+        ],
+        sentiments: [],
+        questions: [],
+        methodology,
+      });
+
+    const data = await tryber.tables.UxCampaignInsights.do().select();
+    expect(data).toHaveLength(1);
+    expect(data[0]).toEqual(
+      expect.objectContaining({
+        finding_id: 1,
+      })
+    );
+  });
+
   it("Should insert question as draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")

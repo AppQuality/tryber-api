@@ -24,6 +24,7 @@ export default class UxData {
 
   private _findings: {
     id: number;
+    finding_id: number;
     campaign_id: number;
     version: number;
     title: string;
@@ -77,6 +78,7 @@ export default class UxData {
         campaign_id: this.campaignId,
         version: data.version,
       })
+      .where({ enabled: 1 })
       .orderBy("order", "asc");
     const clusters = await tryber.tables.WpAppqUsecaseCluster.do()
       .select("id", tryber.ref("title").as("name"))
@@ -204,6 +206,7 @@ export default class UxData {
           url: v.location,
           streamUrl: v.streamUrl,
         })),
+        findingId: f.finding_id,
       };
 
       function getClusters(clusters: { id: number; name: string }[]) {

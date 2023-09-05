@@ -53,6 +53,8 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "1,2",
         order: 1,
+        finding_id: 10,
+        enabled: 1,
       },
       {
         id: 2,
@@ -63,6 +65,32 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         severity_id: 1,
         cluster_ids: "0",
         order: 0,
+        finding_id: 20,
+        enabled: 1,
+      },
+      {
+        id: 3,
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight Disabled",
+        description: "Test Description Disabled",
+        severity_id: 1,
+        cluster_ids: "0",
+        order: 0,
+        finding_id: 30,
+        enabled: 0,
+      },
+      {
+        id: 4,
+        campaign_id: 2,
+        version: 1,
+        title: "Test Insight Other CP",
+        description: "Test Description Other CP",
+        severity_id: 1,
+        cluster_ids: "0",
+        order: 0,
+        finding_id: 40,
+        enabled: 1,
       },
     ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
@@ -156,7 +184,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.UxCampaignSentiments.do().delete();
   });
 
-  it("Should return all the findings", async () => {
+  it("Should return all the enabled findings", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
@@ -194,6 +222,39 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         ],
         videoParts: expect.arrayContaining([]),
       })
+    );
+  });
+
+  it("Should return all findings of a specific Campaign", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("insights");
+    expect(response.body.insights).toHaveLength(2);
+    expect(response.body.insights).toEqual(
+      expect.arrayContaining([
+        expect.not.objectContaining({
+          id: 4,
+        }),
+      ])
+    );
+  });
+
+  it("Should return the correct ids for each finding", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("insights");
+    expect(response.body.insights).toHaveLength(2);
+    expect(response.body.insights).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+        }),
+        expect.objectContaining({
+          id: 2,
+        }),
+      ])
     );
   });
 
