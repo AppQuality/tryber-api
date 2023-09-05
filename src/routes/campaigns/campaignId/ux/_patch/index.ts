@@ -574,6 +574,7 @@ export default class PatchUx extends UserRoute<{
           severity_id: insight.severity.id,
           title: insight.title,
           version: this.version + 1,
+          finding_id: insight.findingId,
         })
         .returning("id");
 

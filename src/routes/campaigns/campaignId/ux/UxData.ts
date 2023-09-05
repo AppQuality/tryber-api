@@ -206,6 +206,7 @@ export default class UxData {
           url: v.location,
           streamUrl: v.streamUrl,
         })),
+        findingId: f.finding_id,
       };
 
       function getClusters(clusters: { id: number; name: string }[]) {

@@ -622,6 +622,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "Draft description",
         severity_id: 1,
         cluster_ids: "1",
+        finding_id: 10,
       })
     );
   });
