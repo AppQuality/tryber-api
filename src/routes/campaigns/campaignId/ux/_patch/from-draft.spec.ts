@@ -168,7 +168,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should remove a insights as draft if the insights are not sent ", async () => {
+  it("Should disable the insights as draft if the insights are not sent ", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -181,7 +181,9 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         methodology,
       });
 
-    const insights = await tryber.tables.UxCampaignInsights.do().select();
+    const insights = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({ enabled: 1 });
     expect(insights).toHaveLength(0);
   });
 
@@ -799,7 +801,9 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         methodology,
       });
 
-    const data = await tryber.tables.UxCampaignInsights.do().select();
+    const data = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({ enabled: 1 });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual(
       expect.objectContaining({

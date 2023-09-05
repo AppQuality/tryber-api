@@ -343,7 +343,7 @@ export default class PatchUx extends UserRoute<{
 
     if (toRemove.length) {
       await tryber.tables.UxCampaignInsights.do()
-        .delete()
+        .update("enabled", 0)
         .whereIn(
           "id",
           currentInsightIds.filter(

@@ -172,7 +172,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
     );
   });
 
-  it("Should remove insights from the draft", async () => {
+  it("Should disable insights from the draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -187,9 +187,10 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
 
     const data = await tryber.tables.UxCampaignInsights.do().select();
 
-    expect(data).toHaveLength(1);
+    expect(data).toHaveLength(2);
     expect(data[0]).toEqual(
       expect.objectContaining({
+        id: 1,
         campaign_id: 1,
         cluster_ids: "1",
         description: "Publish description",
@@ -197,6 +198,22 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
         severity_id: 1,
         title: "Publish insight",
         version: 1,
+        finding_id: 10,
+        enabled: 1,
+      })
+    );
+    expect(data[1]).toEqual(
+      expect.objectContaining({
+        id: 2,
+        campaign_id: 1,
+        cluster_ids: "1",
+        description: "Draft description",
+        order: 0,
+        severity_id: 1,
+        title: "Draft insight",
+        version: 2,
+        finding_id: 20,
+        enabled: 0,
       })
     );
   });
