@@ -1,6 +1,8 @@
 import AWS from "aws-sdk";
 import fileExists from ".";
 
+// Use fake timers to allow mocking s3
+jest.useFakeTimers();
 beforeAll(() => {
   const s3 = new AWS.S3();
 
