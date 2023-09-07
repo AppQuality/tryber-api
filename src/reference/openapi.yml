@@ -88,6 +88,185 @@ paths:
                     limit: 0
                     size: 0
                     total: 0
+                agreement-empty:
+                  value: []
+                agreement-filterBy-customer1:
+                  value:
+                    items:
+                      - id: 70
+                        title: Rocco Iteration 2
+                        tokens: 39
+                        unitPrice: 6.9
+                        startDate: '2023-11-20 00:12:20'
+                        expirationDate: '2023-03-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                      - id: 69
+                        title: Rocco Token
+                        tokens: 169
+                        unitPrice: 6.9
+                        startDate: '2023-10-20 00:12:20'
+                        expirationDate: '2023-01-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                    start: 0
+                    size: 2
+                'agreement-filterBy[customer]=1,3&start=1':
+                  value:
+                    items:
+                      - id: 69
+                        title: Rocco Token
+                        tokens: 169
+                        unitPrice: 6.9
+                        startDate: '2023-10-20 00:12:20'
+                        expirationDate: '2023-01-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                      - id: 42
+                        title: Epic Token
+                        tokens: 103
+                        unitPrice: 166.6
+                        startDate: '2020-10-20 00:12:20'
+                        expirationDate: '2020-01-01 00:12:20'
+                        customer:
+                          id: 3
+                          company: Epical s.p.a.
+                        note: Test con dati veri
+                        isTokenBased: true
+                    start: 1
+                    total: 3
+                    limit: 10
+                    size: 2
+                'filterBy[customer]=1,3&limit=1':
+                  value:
+                    items:
+                      - id: 70
+                        title: Rocco Iteration 2
+                        tokens: 39
+                        unitPrice: 6.9
+                        startDate: '2023-11-20 00:12:20'
+                        expirationDate: '2023-03-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                    start: 0
+                    total: 3
+                    limit: 1
+                    size: 1
+                'response-items-filterBy[customer]=1,3&start=1&limit=1':
+                  value:
+                    items:
+                      - id: 69
+                        title: Rocco Token
+                        tokens: 169
+                        unitPrice: 6.9
+                        startDate: '2023-10-20 00:12:20'
+                        expirationDate: '2023-01-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                    start: 0
+                    total: 3
+                    limit: 3
+                    size: 1
+                items-no-filtered-limit=1:
+                  value:
+                    items:
+                      - id: 241
+                        title: AffidabilData Token
+                        tokens: 100
+                        unitPrice: 165.6
+                        startDate: '2023-10-20 00:12:20'
+                        expirationDate: '2023-01-01 00:12:20'
+                        customer:
+                          id: 2
+                          company: AffidabilData s.p.a.
+                        note: Test con dati veri
+                        isTokenBased: true
+                    start: 0
+                    total: 4
+                    limit: 1
+                    size: 1
+                items-no-filtered-limite=1&start=1:
+                  value:
+                    items:
+                      - id: 70
+                        title: Rocco Iteration 2
+                        tokens: 39
+                        unitPrice: 6.9
+                        startDate: '2023-11-20 00:12:20'
+                        expirationDate: '2023-03-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                    start: 1
+                    total: 4
+                    limit: 1
+                    size: 1
+                items-no-filtered:
+                  value:
+                    items:
+                      - id: 241
+                        title: AffidabilData Token
+                        tokens: 100
+                        unitPrice: 165.6
+                        startDate: '2023-10-20 00:12:20'
+                        expirationDate: '2023-01-01 00:12:20'
+                        customer:
+                          id: 2
+                          company: AffidabilData s.p.a.
+                        note: Test con dati veri
+                        isTokenBased: true
+                      - id: 70
+                        title: Rocco Iteration 2
+                        tokens: 39
+                        unitPrice: 6.9
+                        startDate: '2023-11-20 00:12:20'
+                        expirationDate: '2023-03-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                      - id: 69
+                        title: Rocco Token
+                        tokens: 169
+                        unitPrice: 6.9
+                        startDate: '2023-10-20 00:12:20'
+                        expirationDate: '2023-01-01 00:12:20'
+                        customer:
+                          id: 1
+                          company: Rocco & Friends
+                        note: Test con dati veri
+                        isTokenBased: false
+                      - id: 42
+                        title: Epic Token
+                        tokens: 103
+                        unitPrice: 166.6
+                        startDate: '2020-10-20 00:12:20'
+                        expirationDate: '2020-01-01 00:12:20'
+                        customer:
+                          id: 3
+                          company: Epical s.p.a.
+                        note: Test con dati veri
+                        isTokenBased: true
+                    start: 0
+                    size: 4
         '403':
           $ref: '#/components/responses/NotAuthorized'
       security:
@@ -112,6 +291,30 @@ paths:
                     type: integer
                 required:
                   - agreementId
+              examples:
+                not-token-based:
+                  value:
+                    customerId: 1
+                    expirationDate: '2020-01-01'
+                    startDate: '2020-01-01'
+                    title: Agreement Title
+                    tokens: 10
+                    unitPrice: 1
+                    note: Agreement notes
+                    isTokenBased: false
+                token-based:
+                  value:
+                    customerId: 1
+                    expirationDate: '2020-01-01'
+                    startDate: '2020-01-01'
+                    title: Agreement Title
+                    tokens: 10
+                    unitPrice: 1
+                    note: Agreement notes
+                    isTokenBased: true
+                success-creation:
+                  value:
+                    agreementId: 11111
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '500':
@@ -195,6 +398,27 @@ paths:
                     customer:
                       id: 0
                       company: string
+                request-correct:
+                  value:
+                    customerId: 1
+                    expirationDate: '2020-01-01'
+                    startDate: '2020-01-01'
+                    title: Agreement Title
+                    tokens: 10
+                    unitPrice: 1
+                    note: Agreement notes
+                    isTokenBased: true
+                success:
+                  value:
+                    id: 11111
+                    customerId: 1
+                    expirationDate: '2020-01-01'
+                    startDate: '2020-01-01'
+                    title: Agreement Title
+                    tokens: 10
+                    unitPrice: 1
+                    note: Agreement notes
+                    isTokenBased: true
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '500':
@@ -233,8 +457,16 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                deletion-success:
+                  value: {}
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/NotFound'
         '500':
           description: Internal Server Error
       security:
@@ -285,8 +517,21 @@ paths:
                     customer:
                       id: 1
                       company: string
+                success-found:
+                  value:
+                    id: 69
+                    customer:
+                      id: 4
+                      company: Surgiva
+                    title: Sunset Crowdtesting (Bug Hunting) 2022-2023
+                    tokens: 666
+                    unitPrice: 100
+                    startDate: '2022-02-03 00:00:00'
+                    expirationDate: '2023-10-31 00:00:00'
+                    note: Agreement improved by Sunset
+                    isTokenBased: false
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/Authentication'
         '500':
           description: Internal Server Error
       description: Get a specific Agreement
@@ -3136,6 +3381,102 @@ paths:
                         cluster:
                           id: 1
                           name: Cluster1
+                ux-campaign-draft-NO-insights:
+                  value:
+                    status: draft
+                    sentiments: []
+                ux-campaign-draft-with-insights:
+                  value:
+                    status: draft
+                    goal: this is goal
+                    usersNumber: 10
+                    methodology:
+                      name: UX Challenge
+                      description: UX Challenge
+                      type: qualitative
+                    insights:
+                      - id: 70
+                        title: Malfunzionamento form
+                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst.'
+                        clusters:
+                          - id: 1
+                            name: UC 1 - Carrello
+                        severity:
+                          id: 1
+                          name: Minor
+                        videoParts:
+                          - id: 250
+                            start: 0
+                            mediaId: 73579
+                            end: 97
+                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien'
+                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                          - id: 251
+                            start: 22
+                            mediaId: 73577
+                            end: 101
+                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                          - id: 252
+                            start: 0
+                            mediaId: 73578
+                            end: 152
+                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
+                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
+                      - id: 71
+                        title: Difficoltà di navigazione
+                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+                        clusters:
+                          - id: 2
+                            name: UC 2 - Profilo
+                        severity:
+                          id: 1
+                          name: Minor
+                        videoParts:
+                          - id: 253
+                            start: 0
+                            mediaId: 73580
+                            end: 102
+                            description: Lorem ipsum dolor sit amet
+                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
+                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
+                      - id: 72
+                        title: Criticità Pagina Prodotto
+                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis, at condimentum arcu vehicula eget. Donec sollicitudin dapibus '
+                        clusters:
+                          - id: 1
+                            name: UC 1 - Carrello
+                        severity:
+                          id: 2
+                          name: Major
+                        videoParts:
+                          - id: 254
+                            start: 0
+                            mediaId: 73589
+                            end: 106
+                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis,'
+                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
+                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
+                    sentiments: []
+                    questions:
+                      - id: 1
+                        name: question 1
+                      - id: 2
+                        name: question 2
+                ux-campaign-draft-modified:
+                  value:
+                    status: draft-modified
+                    goal: this is goal
+                    usersNumber: 0
+                    methodology:
+                      name: UX Challenge
+                      description: UX Challenge
+                      type: qualitative
+                    sentiments: []
+                    questions: []
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3155,6 +3496,77 @@ paths:
               schema:
                 type: object
                 properties: {}
+              examples:
+                edit-insight-71:
+                  value:
+                    value:
+                      goal: this is goal
+                      questions:
+                        - id: 1
+                          name: question 1
+                        - id: 2
+                          name: question 2
+                      methodology:
+                        name: UX Challenge
+                        description: UX Challenge
+                        type: qualitative
+                      usersNumber: 10
+                      insights:
+                        - id: 70
+                          title: Malfunzionamento form
+                          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst.'
+                          order: 0
+                          severityId: 1
+                          clusterIds:
+                            - 1
+                          videoParts:
+                            - id: 250
+                              order: 0
+                              start: 0
+                              end: 97
+                              mediaId: 73579
+                              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien'
+                            - id: 251
+                              order: 1
+                              start: 22
+                              end: 101
+                              mediaId: 73577
+                              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+                            - id: 252
+                              order: 2
+                              start: 0
+                              end: 152
+                              mediaId: 73578
+                              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+                        - id: 71
+                          title: Difficoltà di navigazione edited
+                          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. edited'
+                          order: 1
+                          severityId: 1
+                          clusterIds:
+                            - 2
+                          videoParts:
+                            - id: 253
+                              order: 0
+                              start: 0
+                              end: 60
+                              mediaId: 73580
+                              description: Lorem ipsum dolor sit amet
+                        - id: 72
+                          title: Criticità Pagina Prodotto
+                          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis, at condimentum arcu vehicula eget. Donec sollicitudin dapibus '
+                          order: 2
+                          severityId: 2
+                          clusterIds:
+                            - 1
+                          videoParts:
+                            - id: 254
+                              order: 0
+                              start: 0
+                              end: 106
+                              mediaId: 73589
+                              description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis,'
+                      sentiments: []
         '403':
           $ref: '#/components/responses/Authentication'
         '404':
@@ -3412,6 +3824,13 @@ paths:
                         name: 'UC3: Checkout'
                       - id: 4
                         name: 'UC4: Search'
+                ux-campaign-get-clusters:
+                  value:
+                    items:
+                      - id: 1
+                        name: UC 1 - Carrello
+                      - id: 2
+                        name: UC 2 - Profilo
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3537,6 +3956,126 @@ paths:
                           id: 1
                           url: www.example.com
                           streamUrl: www.example.com
+                ux-campaign-get-observations:
+                  value:
+                    items:
+                      - id: 10678
+                        name: ok
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 11291
+                          name: Aurora
+                        media:
+                          id: 73578
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
+                      - id: 10682
+                        name: ''
+                        time: 22
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 8208
+                          name: Eliseo
+                        media:
+                          id: 73577
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                      - id: 10683
+                        name: t58918_xiaomi_mi10_usecase1-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 58918
+                          name: Claudio
+                        media:
+                          id: 73579
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                      - id: 10684
+                        name: t960_apple_iphone12_usecase0-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 960
+                          name: Domenico
+                        media:
+                          id: 73580
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
+                      - id: 10685
+                        name: t17968_pc_desktop-_amd_usecase1-
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 17968
+                          name: Vittorio
+                        media:
+                          id: 73589
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
+                      - id: 10686
+                        name: t29187_huaweihonor_usecase0-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 29187
+                          name: Giada
+                        media:
+                          id: 73590
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8'
+                      - id: 10687
+                        name: interessante
+                        time: 58
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 8208
+                          name: Eliseo
+                        media:
+                          id: 73577
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                      - id: 10688
+                        name: giommiobs
+                        time: 108
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 58918
+                          name: Claudio
+                        media:
+                          id: 73579
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                      - id: 10690
+                        name: ok T32
+                        time: 4
+                        cluster:
+                          id: 782
+                          name: UC 2 - Profilo
+                        tester:
+                          id: 32
+                          name: Luca
+                        media:
+                          id: 74191
+                          url: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8'
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4677,8 +5216,20 @@ paths:
                     - username: Elon71
                       customer_name: Elon71
                       id: 0
+                get-customers-success:
+                  value:
+                    - id: 1
+                      name: Peronsipò
+                    - id: 2
+                      name: AppDefinitions
+                    - id: 3
+                      name: Gurguley
+                    - id: 4
+                      name: Surgiva
+                    - id: 6
+                      name: Sky Line
         '403':
-          $ref: '#/components/responses/NotAuthorized'
+          $ref: '#/components/responses/NotFound'
       operationId: get-customers
       description: Get all the customers you have access to
       security:
@@ -8401,6 +8952,13 @@ paths:
                       - 2
                     appq_prospect: false
                     appq_tester_selection: true
+                appq_campaign_full_access:
+                  value:
+                    appq_campaign: true
+                appq_campaign_not_enough_permissions:
+                  value: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
         '500':
           description: Internal Server Error
       operationId: get-users-me-permissions
@@ -9837,7 +10395,7 @@ components:
               - id
               - message
           examples:
-            example-1:
+            not-found:
               value:
                 element: campaign
                 id: 1
@@ -9869,7 +10427,7 @@ components:
               code:
                 type: string
           examples:
-            example:
+            unauthorized:
               value:
                 message: Not Authorized.
   parameters:
