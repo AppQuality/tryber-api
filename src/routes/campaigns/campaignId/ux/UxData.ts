@@ -72,14 +72,8 @@ export default class UxData {
       .first();
 
     if (!data) return { data: undefined };
-    const findings = await tryber.tables.UxCampaignInsights.do()
-      .select()
-      .where({
-        campaign_id: this.campaignId,
-        version: data.version,
-      })
-      .where({ enabled: 1 })
-      .orderBy("order", "asc");
+
+    const findings = await this.getFindings(data);
     const clusters = await tryber.tables.WpAppqUsecaseCluster.do()
       .select("id", tryber.ref("title").as("name"))
       .where({
@@ -136,13 +130,25 @@ export default class UxData {
     return { data, findings, clusters, videoParts, questions, sentiments };
   }
 
+  private async getFindings({ version }: { version: number }) {
+    const result = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({
+        campaign_id: this.campaignId,
+        version,
+      })
+      .where({ enabled: 1 })
+      .orderBy("order", "asc");
+    return await this.filterDeletedClusters(result);
+  }
+
   public async lastPublished() {
     const { data, findings, clusters, videoParts, questions, sentiments } =
       await this.getOne({
         published: 1,
       });
 
-    if (findings) this._findings = await this.filterDeletedClusters(findings);
+    if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
     if (questions) this._questions = questions;
@@ -159,7 +165,7 @@ export default class UxData {
     if (!data) return;
     this._data = data;
 
-    if (findings) this._findings = await this.filterDeletedClusters(findings);
+    if (findings) this._findings = findings;
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
     if (questions) this._questions = questions;
