@@ -142,7 +142,7 @@ export default class UxData {
         published: 1,
       });
 
-    if (findings) this._findings = findings;
+    if (findings) this._findings = await this.filterDeletedClusters(findings);
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
     if (questions) this._questions = questions;
@@ -159,11 +159,51 @@ export default class UxData {
     if (!data) return;
     this._data = data;
 
-    if (findings) this._findings = findings;
+    if (findings) this._findings = await this.filterDeletedClusters(findings);
     if (clusters) this._clusters = clusters;
     if (videoParts) this._videoParts = await this.verifyUrls(videoParts);
     if (questions) this._questions = questions;
     if (sentiments) this._sentiments = sentiments;
+  }
+
+  private async filterDeletedClusters(
+    findings: {
+      id: number;
+      finding_id: number;
+      campaign_id: number;
+      version: number;
+      title: string;
+      description: string;
+      severity_id: number;
+      cluster_ids: string;
+      order: number;
+    }[]
+  ) {
+    let res = [];
+
+    // Get all cluster ids
+    const clusterIds = await this.getClusterIds();
+    //remove deleted clusters from findings
+    for (const f of findings) {
+      const fClusterIds = f.cluster_ids.split(",").map(Number);
+      const validClusterIds = fClusterIds.filter((c) => clusterIds.includes(c));
+      if (f.cluster_ids === "0") res.push(f);
+      else if (validClusterIds.length) {
+        res.push({ ...f, cluster_ids: validClusterIds.join(",") });
+      }
+    }
+
+    return res;
+  }
+
+  private async getClusterIds() {
+    const results = await tryber.tables.WpAppqUsecaseCluster.do()
+      .where({ campaign_id: this.campaignId })
+      .select("id");
+
+    if (!results.length) return [];
+
+    return results.map((c) => c.id);
   }
 
   get version() {
@@ -195,7 +235,7 @@ export default class UxData {
         id: f.id,
         title: f.title,
         description: f.description,
-        clusters: getClusters(this._clusters),
+        clusters: evaluateClusters(this._clusters),
         severity: { id: f.severity_id, name: severityName },
         videoParts: videoParts.map((v) => ({
           id: v.id,
@@ -209,7 +249,7 @@ export default class UxData {
         findingId: f.finding_id,
       };
 
-      function getClusters(clusters: { id: number; name: string }[]) {
+      function evaluateClusters(clusters: { id: number; name: string }[]) {
         if (f.cluster_ids === "0") return "all" as const;
         const clusterIds = f.cluster_ids.split(",").map(Number);
         return clusters.filter((c) => clusterIds.includes(c.id));

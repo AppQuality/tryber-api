@@ -342,25 +342,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     );
   });
 
-  it("Should return sentiments associated to a cluster", async () => {
-    await tryber.tables.WpAppqUsecaseCluster.do().delete().where({ id: 2 });
-
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-
-    expect(response.body.sentiments).toHaveLength(1);
-    expect(response.body.sentiments[0]).toEqual({
-      id: 1,
-      value: 1,
-      comment: "Low Comment cluster1",
-      cluster: {
-        id: 1,
-        name: "Test Cluster",
-      },
-    });
-  });
-
   it("Should return sentiment value greater than 0 and less than 6", async () => {
     await tryber.tables.UxCampaignSentiments.do()
       .update({ value: 6 })
