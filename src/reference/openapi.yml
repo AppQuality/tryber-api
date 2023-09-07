@@ -2934,6 +2934,8 @@ paths:
                                 type: string
                               description:
                                 type: string
+                              poster:
+                                type: string
                             required:
                               - id
                               - start

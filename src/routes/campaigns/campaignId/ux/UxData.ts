@@ -43,6 +43,7 @@ export default class UxData {
     description: string;
     location: string;
     streamUrl: string;
+    poster?: string;
   }[] = [];
 
   private _questions: {
@@ -271,6 +272,7 @@ export default class UxData {
           description: v.description,
           url: v.location,
           streamUrl: v.streamUrl,
+          poster: v.poster,
         })),
         findingId: f.finding_id,
       };
@@ -322,9 +324,12 @@ export default class UxData {
     for (const v of videoParts) {
       const stream = v.location.replace(".mp4", "-stream.m3u8");
       const isValidStream = await checkUrl(stream);
+      const poster = v.location.replace(".mp4", ".0000000.jpg");
+      const isValidPoster = await checkUrl(poster);
       video.push({
         ...v,
         streamUrl: isValidStream ? stream : "",
+        poster: isValidPoster ? poster : undefined,
       });
     }
     return video;
