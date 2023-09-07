@@ -15,6 +15,10 @@ const task = {
   jf_text: "Campaign Task jf_text",
 };
 
+jest.mock("@src/features/checkUrl", () => ({
+  checkUrl: jest.fn().mockImplementation(() => true),
+}));
+
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdCampaign.do().insert({
     id: 1,
@@ -169,7 +173,6 @@ describe("GET /campaigns/:campaignId/observations", () => {
       .get("/campaigns/1/observations")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
     expect(response.body).toHaveProperty("items");
-    console.log(response.body.items);
     expect(response.body.items).toBeInstanceOf(Array);
   });
 

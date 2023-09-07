@@ -33,9 +33,32 @@ const requestBody = {
 
 describe("PATCH /campaigns/{campaignId}/ux - permissions and logging statuses", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 1 },
+    ]);
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
+      version: 1,
+      methodology_type: "qualitative",
+      methodology_description: "Methodology Description",
+    });
+    await tryber.tables.WpAppqCampaignType.do().insert({
+      id: 1,
+      name: "UX Generic",
+      category_id: 1,
+    });
+    await tryber.tables.WpAppqUsecaseCluster.do().insert({
+      id: 1,
+      campaign_id: 1,
+      title: "Cluster 1",
+      subtitle: "Subtitle 1",
+    });
+    await tryber.tables.UxCampaignSentiments.do().insert({
+      id: 1,
+      cluster_id: 1,
+      campaign_id: 1,
+      value: 1,
+      comment: "test",
       version: 1,
     });
   });
@@ -43,31 +66,15 @@ describe("PATCH /campaigns/{campaignId}/ux - permissions and logging statuses", 
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
   });
-  it("should return 403 if not logged in", async () => {
-    const response = await request(app).patch("/campaigns/1/ux");
-    expect(response.status).toBe(403);
-  });
-  it("Should return 403 if logged in as not admin user", async () => {
-    const response = await request(app)
-      .patch("/campaigns/1/ux")
-      .send(requestBody)
-      .set("Authorization", "Bearer tester");
-    expect(response.status).toBe(403);
-  });
 
-  it("Should return 200 if logged as admin user", async () => {
-    const response = await request(app)
+  it("Should return remove sentiments ", async () => {
+    await request(app)
       .patch("/campaigns/1/ux")
-      .send(requestBody)
+      .send({ ...requestBody, sentiments: [] })
       .set("Authorization", "Bearer admin");
-    expect(response.status).toBe(200);
-  });
-
-  it("Should return 403 if campaign does not exists", async () => {
     const response = await request(app)
-      .patch("/campaigns/999/ux")
-      .send(requestBody)
+      .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
-    expect(response.status).toBe(403);
+    expect(response.body.sentiments).toHaveLength(0);
   });
 });

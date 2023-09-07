@@ -1,7 +1,11 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import { response } from "express";
 import request from "supertest";
 
+jest.mock("@src/features/checkUrl", () => ({
+  checkUrl: jest.fn().mockImplementation(() => true),
+}));
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
@@ -28,6 +32,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         id: 1,
         title: "Cluster 1",
         subtitle: "Subtitle 1",
+        campaign_id: 1,
+      },
+      {
+        id: 2,
+        title: "Cluster 2",
+        subtitle: "Subtitle 2",
         campaign_id: 1,
       },
     ]);
@@ -66,6 +76,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
       description: "Draft description",
       severity_id: 1,
       cluster_ids: "1",
+      finding_id: 10,
+      enabled: 1,
     });
 
     await tryber.tables.UxCampaignVideoParts.do().insert({
@@ -96,12 +108,39 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         version: 1,
       },
     ]);
+    await tryber.tables.UxCampaignSentiments.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        value: 1,
+        comment: "Draft comment",
+        version: 1,
+        cluster_id: 1,
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        value: 5,
+        comment: "Draft comment",
+        version: 1,
+        cluster_id: 1,
+      },
+      {
+        id: 3,
+        campaign_id: 2,
+        value: 3,
+        comment: "Draft comment",
+        version: 1,
+        cluster_id: 2,
+      },
+    ]);
   });
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
+    await tryber.tables.UxCampaignSentiments.do().delete();
   });
 
   it("Should not insert a new draft", async () => {
@@ -132,7 +171,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
     );
   });
 
-  it("Should remove a insights as draft if the insights are not sent ", async () => {
+  it("Should disable the insights as draft if the insights are not sent ", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
@@ -145,12 +184,14 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         methodology,
       });
 
-    const insights = await tryber.tables.UxCampaignInsights.do().select();
+    const insights = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({ enabled: 1 });
     expect(insights).toHaveLength(0);
   });
 
   it("Should thrown an error if trying to edit an insight that not exists", async () => {
-    await request(app)
+    const response = await request(app)
       .patch("/campaigns/1/ux")
       .set("Authorization", "Bearer admin")
       .send({
@@ -171,6 +212,8 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         questions: [],
         methodology,
       });
+
+    expect(response.status).toBe(500);
 
     const insights = await tryber.tables.UxCampaignInsights.do().select();
     expect(insights).toHaveLength(1);
@@ -228,6 +271,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "Draft description",
         order: 0,
         severity_id: 1,
+        finding_id: 10,
         title: "Draft insight",
         version: 1,
       })
@@ -239,6 +283,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "New description",
         order: 1,
         severity_id: 2,
+        finding_id: 11,
         title: "New insight",
         version: 1,
       })
@@ -350,6 +395,40 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         id: 1,
         question: "Updated Draft question",
         version: 1,
+      })
+    );
+  });
+
+  it("Should update a sentiment as draft if an item with id is sent", async () => {
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [
+          {
+            id: 1,
+            comment: "Updated Draft comment",
+            value: 2,
+            clusterId: 1,
+          },
+        ],
+        questions: [],
+        methodology,
+      });
+    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(sentiments).toHaveLength(1);
+    expect(sentiments[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        comment: "Updated Draft comment",
+        version: 1,
+        value: 2,
+        cluster_id: 1,
       })
     );
   });
@@ -552,6 +631,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         description: "Draft description",
         severity_id: 1,
         cluster_ids: "1",
+        finding_id: 10,
       })
     );
   });
@@ -728,7 +808,9 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         methodology,
       });
 
-    const data = await tryber.tables.UxCampaignInsights.do().select();
+    const data = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({ enabled: 1 });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual(
       expect.objectContaining({
@@ -739,6 +821,7 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         severity_id: 1,
         title: "My new insight",
         version: 1,
+        finding_id: 11,
       })
     );
     const insightId = data[0].id;
@@ -826,10 +909,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
         status: "publish",
       });
 
-    const all = await tryber.tables.UxCampaignQuestions.do()
-      .select()
-      .where({ campaign_id: 1 });
-
     const publishQuestion = await tryber.tables.UxCampaignQuestions.do()
       .select()
       .where({
@@ -850,5 +929,80 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft", () => {
 
     if (!publishQuestion || !draftQuestion)
       throw new Error("Questions not found");
+  });
+
+  it("Should create a new version of sentiments on publish", async () => {
+    const sentimentsBeforePatch = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({
+        campaign_id: 1,
+      });
+
+    expect(sentimentsBeforePatch).toHaveLength(2);
+    expect(sentimentsBeforePatch[0]).toEqual(
+      expect.objectContaining({
+        id: 1,
+        campaign_id: 1,
+        comment: "Draft comment",
+        version: 1,
+      })
+    );
+    expect(sentimentsBeforePatch[1]).toEqual(
+      expect.objectContaining({
+        id: 2,
+        campaign_id: 1,
+        comment: "Draft comment",
+        version: 1,
+      })
+    );
+
+    await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        status: "publish",
+      });
+
+    const publishSentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({
+        version: 1,
+        campaign_id: 1,
+      })
+      .first();
+
+    const draftSentiments = await tryber.tables.UxCampaignSentiments.do()
+      .select()
+      .where({
+        version: 2,
+        campaign_id: 1,
+      })
+      .first();
+    expect(publishSentiments).toBeDefined();
+    expect(draftSentiments).toBeDefined();
+
+    if (!publishSentiments || !draftSentiments)
+      throw new Error("Questions not found");
+  });
+  it("Should return 500 if send a sentiment value greater than 5 or lower then 1", async () => {
+    const response = await request(app)
+      .patch("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        insights: [],
+        sentiments: [
+          {
+            id: 1,
+            comment: "Updated Draft comment",
+            value: 6,
+            clusterId: 1,
+          },
+        ],
+        questions: [],
+        methodology,
+      });
+    expect(response.status).toBe(500);
   });
 });

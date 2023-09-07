@@ -1534,11 +1534,11 @@ export interface operations {
             insights?: {
               id: number;
               title: string;
-              description: string;
               severity: {
                 id: number;
                 name: string;
               };
+              description: string;
               clusters:
                 | "all"
                 | {
@@ -1556,6 +1556,7 @@ export interface operations {
               }[];
             }[];
             sentiments: {
+              id: number;
               value: number;
               comment: string;
               cluster: {
@@ -1620,8 +1621,10 @@ export interface operations {
                 }[];
               }[];
               sentiments: {
+                id?: number;
                 clusterId: number;
                 value: number;
+                comment: string;
               }[];
               methodology: {
                 /** @enum {string} */

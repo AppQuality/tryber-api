@@ -2,6 +2,9 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
+jest.mock("@src/features/checkUrl", () => ({
+  checkUrl: jest.fn().mockImplementation(() => true),
+}));
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
@@ -53,24 +56,30 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 2,
-      title: "Test Modified",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
+    await tryber.tables.UxCampaignInsights.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        finding_id: 10,
+        enabled: 1,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        title: "Test Modified",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        finding_id: 20,
+        enabled: 1,
+      },
+    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -125,26 +134,32 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 1,
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
-    await tryber.tables.UxCampaignInsights.do().insert({
-      id: 2,
-      campaign_id: 1,
-      version: 2,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-    });
+    await tryber.tables.UxCampaignInsights.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        version: 1,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        finding_id: 10,
+        enabled: 1,
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        version: 2,
+        title: "Test Insight",
+        description: "Test Description",
+        severity_id: 1,
+        cluster_ids: "1",
+        order: 0,
+        finding_id: 20,
+        enabled: 1,
+      },
+    ]);
 
     await tryber.tables.UxCampaignVideoParts.do().insert({
       id: 1,
@@ -242,6 +257,8 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      finding_id: 10,
+      enabled: 1,
     });
   });
   afterAll(async () => {
@@ -344,6 +361,8 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
       severity_id: 1,
       cluster_ids: "1",
       order: 0,
+      finding_id: 10,
+      enabled: 1,
     });
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
@@ -400,6 +419,152 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
         expect.objectContaining({
           id: 2,
           name: "Test Question2 draft-modified",
+        }),
+      ])
+    );
+  });
+});
+
+describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1, campaign_type_id: 1 },
+    ]);
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "UX Generic",
+        description: "Campaign Type Description",
+        category_id: 1,
+      },
+    ]);
+    await tryber.tables.UxCampaignData.do().insert([
+      {
+        campaign_id: 1,
+        version: 1,
+        published: 1,
+        methodology_description: "Test Description OLD",
+        methodology_type: "qualitative",
+        goal: "This is the goal of the reasearch",
+        users: 99,
+      },
+      {
+        campaign_id: 1,
+        version: 2,
+        published: 0,
+        methodology_type: "quantitative",
+        methodology_description: "Test Description NEW",
+        goal: "This is the NEW goal of the reasearch",
+        users: 100,
+      },
+    ]);
+    await tryber.tables.UxCampaignInsights.do().insert({
+      campaign_id: 1,
+      version: 1,
+      title: "Test Insight",
+      description: "Test Description",
+      severity_id: 1,
+      cluster_ids: "1",
+      order: 0,
+      finding_id: 10,
+      enabled: 1,
+    });
+    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        title: "Test Cluster",
+        subtitle: "",
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        title: "Test Cluster 2",
+        subtitle: "",
+      },
+      {
+        id: 3,
+        campaign_id: 12,
+        title: "Test Cluster CP12",
+        subtitle: "",
+      },
+    ]);
+    await tryber.tables.UxCampaignSentiments.do().insert([
+      {
+        id: 1,
+        campaign_id: 1,
+        cluster_id: 1,
+        version: 2,
+        value: 1,
+        comment: "Sentiment1 draft-modified",
+      },
+      {
+        id: 2,
+        campaign_id: 1,
+        version: 2,
+        cluster_id: 2,
+        value: 5,
+        comment: "Sentiment2 draft-modified",
+      },
+      {
+        id: 3,
+        campaign_id: 1,
+        version: 1,
+        cluster_id: 1,
+        value: 1,
+        comment: "Sentiment1 published",
+      },
+      {
+        id: 4,
+        campaign_id: 1,
+        version: 1,
+        cluster_id: 2,
+        value: 5,
+        comment: "Sentiment2 published",
+      },
+      {
+        id: 5,
+        campaign_id: 12,
+        version: 1,
+        cluster_id: 3,
+        value: 3,
+        comment: "Sentiment1 other campaign",
+      },
+    ]);
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.UxCampaignInsights.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
+    await tryber.tables.UxCampaignSentiments.do().delete();
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+  });
+  it("Should return sentiments of last draft version", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/ux")
+      .set("Authorization", "Bearer admin");
+    expect(response.body.sentiments.length).toEqual(2);
+    expect(response.body.sentiments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          comment: "Sentiment1 draft-modified",
+          value: 1,
+          cluster: {
+            id: 1,
+            name: "Test Cluster",
+          },
+        }),
+        expect.objectContaining({
+          id: 2,
+          comment: "Sentiment2 draft-modified",
+          value: 5,
+          cluster: {
+            id: 2,
+            name: "Test Cluster 2",
+          },
         }),
       ])
     );
