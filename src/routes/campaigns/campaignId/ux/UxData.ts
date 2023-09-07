@@ -65,56 +65,27 @@ export default class UxData {
   constructor(private campaignId: number) {}
 
   private async getOne({ published }: { published: 0 | 1 }) {
-    const data = await tryber.tables.UxCampaignData.do()
-      .select()
-      .where({ published: published, campaign_id: this.campaignId })
-      .orderBy("version", "desc")
-      .first();
+    const data = await this.getUxData({ published });
 
     if (!data) return { data: undefined };
-    const findings = await tryber.tables.UxCampaignInsights.do()
-      .select()
-      .where({
-        campaign_id: this.campaignId,
-        version: data.version,
-      })
-      .where({ enabled: 1 })
-      .orderBy("order", "asc");
-    const clusters = await tryber.tables.WpAppqUsecaseCluster.do()
-      .select("id", tryber.ref("title").as("name"))
-      .where({
-        campaign_id: this.campaignId,
-      });
+
+    const findings = await this.getFindings({ version: data.version });
+    const clusters = await this.getClusters();
 
     const findingsIds = findings.map((f) => f.id);
     const videoParts = findingsIds.length
-      ? await tryber.tables.UxCampaignVideoParts.do()
-          .select(
-            tryber.ref("id").withSchema("ux_campaign_video_parts"),
-            "media_id",
-            "start",
-            "end",
-            "description",
-            "location",
-            "insight_id"
-          )
-          .join(
-            "wp_appq_user_task_media",
-            "wp_appq_user_task_media.id",
-            "ux_campaign_video_parts.media_id"
-          )
-          .whereIn("insight_id", findingsIds)
-          .where("location", "like", "%.mp4")
-          .orderBy("order", "asc")
+      ? await this.getVideoParts(findingsIds)
       : [];
 
-    const questions = await tryber.tables.UxCampaignQuestions.do()
-      .select()
-      .where({ campaign_id: this.campaignId })
-      .where({ version: data.version })
-      .orderBy("version", "DESC");
+    const questions = await this.getQuestions({ version: data.version });
 
-    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+    const sentiments = await this.getSentiments({ version: data.version });
+
+    return { data, findings, clusters, videoParts, questions, sentiments };
+  }
+
+  private async getSentiments({ version }: { version: number }) {
+    return await tryber.tables.UxCampaignSentiments.do()
       .select(
         tryber.ref("id").withSchema("ux_campaign_sentiments"),
         tryber.ref("cluster_id").withSchema("ux_campaign_sentiments"),
@@ -130,10 +101,65 @@ export default class UxData {
       .where("ux_campaign_sentiments.campaign_id", this.campaignId)
       .where("ux_campaign_sentiments.value", ">", 0)
       .where("ux_campaign_sentiments.value", "<", 6)
-      .where({ version: data.version })
+      .where({ version })
       .orderBy("version", "DESC");
+  }
 
-    return { data, findings, clusters, videoParts, questions, sentiments };
+  private async getVideoParts(findingsIds: number[]) {
+    return await tryber.tables.UxCampaignVideoParts.do()
+      .select(
+        tryber.ref("id").withSchema("ux_campaign_video_parts"),
+        "media_id",
+        "start",
+        "end",
+        "description",
+        "location",
+        "insight_id"
+      )
+      .join(
+        "wp_appq_user_task_media",
+        "wp_appq_user_task_media.id",
+        "ux_campaign_video_parts.media_id"
+      )
+      .whereIn("insight_id", findingsIds)
+      .where("location", "like", "%.mp4")
+      .orderBy("order", "asc");
+  }
+
+  private async getUxData({ published }: { published: number }) {
+    return await tryber.tables.UxCampaignData.do()
+      .select()
+      .where({ published: published, campaign_id: this.campaignId })
+      .orderBy("version", "desc")
+      .first();
+  }
+
+  private async getClusters() {
+    return await tryber.tables.WpAppqUsecaseCluster.do()
+      .select("id", tryber.ref("title").as("name"))
+      .where({
+        campaign_id: this.campaignId,
+      });
+  }
+
+  private async getQuestions({ version }: { version: number }) {
+    return await tryber.tables.UxCampaignQuestions.do()
+      .select()
+      .where({ campaign_id: this.campaignId })
+      .where({ version })
+      .orderBy("version", "DESC");
+  }
+
+  private async getFindings({ version }: { version: number }) {
+    const result = await tryber.tables.UxCampaignInsights.do()
+      .select()
+      .where({
+        campaign_id: this.campaignId,
+        version,
+      })
+      .where({ enabled: 1 })
+      .orderBy("order", "asc");
+    return await this.filterDeletedClusters(result);
   }
 
   public async lastPublished() {
@@ -166,6 +192,46 @@ export default class UxData {
     if (sentiments) this._sentiments = sentiments;
   }
 
+  private async filterDeletedClusters(
+    findings: {
+      id: number;
+      finding_id: number;
+      campaign_id: number;
+      version: number;
+      title: string;
+      description: string;
+      severity_id: number;
+      cluster_ids: string;
+      order: number;
+    }[]
+  ) {
+    let res = [];
+
+    // Get all cluster ids
+    const clusterIds = await this.getClusterIds();
+    //remove deleted clusters from findings
+    for (const f of findings) {
+      const fClusterIds = f.cluster_ids.split(",").map(Number);
+      const validClusterIds = fClusterIds.filter((c) => clusterIds.includes(c));
+      if (f.cluster_ids === "0") res.push(f);
+      else if (validClusterIds.length) {
+        res.push({ ...f, cluster_ids: validClusterIds.join(",") });
+      }
+    }
+
+    return res;
+  }
+
+  private async getClusterIds() {
+    const results = await tryber.tables.WpAppqUsecaseCluster.do()
+      .where({ campaign_id: this.campaignId })
+      .select("id");
+
+    if (!results.length) return [];
+
+    return results.map((c) => c.id);
+  }
+
   get version() {
     return this._data?.version;
   }
@@ -195,7 +261,7 @@ export default class UxData {
         id: f.id,
         title: f.title,
         description: f.description,
-        clusters: getClusters(this._clusters),
+        clusters: evaluateClusters(this._clusters),
         severity: { id: f.severity_id, name: severityName },
         videoParts: videoParts.map((v) => ({
           id: v.id,
@@ -209,7 +275,7 @@ export default class UxData {
         findingId: f.finding_id,
       };
 
-      function getClusters(clusters: { id: number; name: string }[]) {
+      function evaluateClusters(clusters: { id: number; name: string }[]) {
         if (f.cluster_ids === "0") return "all" as const;
         const clusterIds = f.cluster_ids.split(",").map(Number);
         return clusters.filter((c) => clusterIds.includes(c.id));
