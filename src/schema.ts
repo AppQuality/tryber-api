@@ -1553,6 +1553,7 @@ export interface operations {
                 url: string;
                 streamUrl: string;
                 description: string;
+                poster?: string;
               }[];
             }[];
             sentiments: {
