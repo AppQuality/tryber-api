@@ -280,6 +280,8 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         url: "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4",
         streamUrl:
           "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8",
+        poster:
+          "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.0000000.jpg",
       })
     );
   });
