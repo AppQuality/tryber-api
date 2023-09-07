@@ -325,8 +325,6 @@ export default class UxData {
       const stream = v.location.replace(".mp4", "-stream.m3u8");
       const isValidStream = await checkUrl(stream);
       const poster = v.location.replace(".mp4", ".0000000.jpg");
-      console.log(poster);
-      console.log(await checkUrl(poster));
       const isValidPoster = await checkUrl(poster);
       video.push({
         ...v,
