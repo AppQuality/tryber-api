@@ -3,36 +3,38 @@ import { tryber } from "@src/features/database";
 import request from "supertest";
 
 beforeAll(async () => {
-  await tryber.tables.WpAppqEvdCampaign.do().insert({
-    id: 1,
-    platform_id: 1,
-    start_date: "2020-01-01",
-    end_date: "2020-01-01",
-    title: "This is the title",
-    page_preview_id: 1,
-    page_manual_id: 1,
-    customer_id: 1,
-    pm_id: 1,
-    project_id: 1,
-    customer_title: "",
-    campaign_pts: 200,
-    campaign_type_id: 1,
-  });
-  await tryber.tables.WpAppqEvdCampaign.do().insert({
-    id: 2,
-    platform_id: 1,
-    start_date: "2020-01-01",
-    end_date: "2020-01-01",
-    title: "This is the title",
-    page_preview_id: 1,
-    page_manual_id: 1,
-    customer_id: 1,
-    pm_id: 1,
-    project_id: 1,
-    customer_title: "",
-    campaign_pts: 200,
-    campaign_type_id: 9,
-  });
+  await tryber.tables.WpAppqEvdCampaign.do().insert([
+    {
+      id: 1,
+      platform_id: 1,
+      start_date: "2020-01-01",
+      end_date: "2020-01-01",
+      title: "This is the title",
+      page_preview_id: 1,
+      page_manual_id: 1,
+      customer_id: 1,
+      pm_id: 1,
+      project_id: 1,
+      customer_title: "",
+      campaign_pts: 200,
+      campaign_type_id: 1,
+    },
+    {
+      id: 2,
+      platform_id: 1,
+      start_date: "2020-01-01",
+      end_date: "2020-01-01",
+      title: "This is the title",
+      page_preview_id: 1,
+      page_manual_id: 1,
+      customer_id: 1,
+      pm_id: 1,
+      project_id: 1,
+      customer_title: "",
+      campaign_pts: 200,
+      campaign_type_id: 9,
+    },
+  ]);
   await tryber.tables.WpAppqCampaignType.do().insert([
     {
       id: 1,
@@ -100,9 +102,6 @@ describe("GET /campaigns/:campaignId", () => {
     const response = await request(app)
       .get("/campaigns/2")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty(
-      "typeDescription",
-      "functional description"
-    );
+    expect(response.body).toHaveProperty("typeDescription", "ux description");
   });
 });
