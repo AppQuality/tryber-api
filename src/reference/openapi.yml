@@ -3212,6 +3212,7 @@ paths:
                                   type: integer
                                 description:
                                   type: string
+                                  maxLength: 150
                                 order:
                                   type: integer
                               required:
@@ -3367,6 +3368,7 @@ paths:
               publish:
                 value:
                   status: publish
+        description: ''
   '/campaigns/{campaign}/clusters':
     parameters:
       - name: campaign
