@@ -10102,7 +10102,7 @@ components:
       type: object
       properties:
         value:
-          type: integer
+          type: number
         currency:
           type: string
     FiscalBirthCity:
