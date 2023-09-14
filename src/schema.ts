@@ -659,8 +659,8 @@ export interface components {
     CustomUserFieldsType: "text" | "select" | "multiselect";
     /** Currency */
     Currency: {
-      value: number;
-      currency: string;
+      value?: number;
+      currency?: string;
     };
     /** FiscalBirthCity */
     FiscalBirthCity:
@@ -2607,12 +2607,9 @@ export interface operations {
             total_exp_pts?: number;
             booty?: {
               net?: components["schemas"]["Currency"];
-              gross: components["schemas"]["Currency"];
+              gross?: components["schemas"]["Currency"];
             };
-            pending_booty?: {
-              net?: components["schemas"]["Currency"];
-              gross: components["schemas"]["Currency"];
-            };
+            pending_booty?: number;
             languages?: {
               id?: number;
               name?: string;

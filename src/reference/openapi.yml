@@ -295,6 +295,28 @@ paths:
                 required:
                   - agreementId
               examples:
+                not-token-based:
+                  value:
+                    agreementId: 11111
+                    customerId: 1
+                    expirationDate: '2020-01-01'
+                    startDate: '2020-01-01'
+                    title: Agreement Title
+                    tokens: 10
+                    unitPrice: 1
+                    note: Agreement notes
+                    isTokenBased: false
+                token-based:
+                  value:
+                    agreementId: 11111
+                    customerId: 1
+                    expirationDate: '2020-01-01'
+                    startDate: '2020-01-01'
+                    title: Agreement Title
+                    tokens: 10
+                    unitPrice: 1
+                    note: Agreement notes
+                    isTokenBased: true
                 success-creation:
                   value:
                     agreementId: 11111
@@ -3376,14 +3398,14 @@ paths:
                 ux-campaign-draft-NO-insights:
                   value:
                     status: draft
-                    sentiments: []
-                    questions: []
                     goal: The Research Goal
                     usersNumber: 10
                     methodology:
-                      name: UX Challenge
-                      description: UX Challenge
+                      name: Usability Test
+                      description: Methodology Description
                       type: qualitative
+                    sentiments: []
+                    questions: []
                 ux-campaign-draft-with-insights:
                   value:
                     status: draft
@@ -6114,8 +6136,6 @@ paths:
                         $ref: '#/components/schemas/Currency'
                       gross:
                         $ref: '#/components/schemas/Currency'
-                    required:
-                      - gross
                   pending_booty:
                     type: object
                     properties:
@@ -10082,12 +10102,9 @@ components:
       type: object
       properties:
         value:
-          type: number
+          type: integer
         currency:
           type: string
-      required:
-        - value
-        - currency
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:
