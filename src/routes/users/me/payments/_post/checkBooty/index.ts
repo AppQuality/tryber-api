@@ -1,23 +1,15 @@
-import * as db from "@src/features/db";
-import getCrowdOption from "@src/features/wp/getCrowdOption";
+import { tryber } from "@src/features/database";
+import getCrowdOption from "@src/features/wp/getCrowdOption/knex";
 
 export default async (testerId: number) => {
-  const attributions = await db.query(
-    db.format(
-      `
-      SELECT sum(amount) as total
-      FROM wp_appq_payment
-      WHERE tester_id = ?
-        AND is_paid = 0
-        AND is_requested = 0`,
-      [testerId]
-    )
-  );
+  const attributions = await tryber.tables.WpAppqPayment.do()
+    .sum("amount", { as: "total" })
+    .where({ tester_id: testerId, is_paid: 0, is_requested: 0 });
   if (!attributions[0].total) {
     throw new Error("You don't have any booty to pay");
   }
   const threshold = await getCrowdOption("minimum_payout");
-  if (threshold && attributions[0].total < threshold) {
+  if (threshold && attributions[0].total < parseFloat(threshold)) {
     throw new Error(`You need to have at least ${threshold} booty to pay`);
   }
   return attributions[0].total;
