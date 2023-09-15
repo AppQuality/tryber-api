@@ -892,7 +892,6 @@ describe("POST /users/me/payments", () => {
             email: "test@example.com",
           },
         });
-      console.log(response.body);
       expect(response.status).toBe(403);
     });
   });
