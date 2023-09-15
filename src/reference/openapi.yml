@@ -6396,12 +6396,10 @@ paths:
                   booty:
                     type: object
                     properties:
-                      gross:
-                        $ref: '#/components/schemas/Currency'
                       net:
                         $ref: '#/components/schemas/Currency'
-                    required:
-                      - gross
+                      gross:
+                        $ref: '#/components/schemas/Currency'
                   pending_booty:
                     type: object
                     properties:
@@ -6476,6 +6474,7 @@ paths:
                     type: number
                 required:
                   - id
+              examples: {}
         '400':
           description: Bad Request
         '403':

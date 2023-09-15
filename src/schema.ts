@@ -2697,13 +2697,10 @@ export interface operations {
             rank?: string;
             total_exp_pts?: number;
             booty?: {
-              gross: components["schemas"]["Currency"];
               net?: components["schemas"]["Currency"];
+              gross?: components["schemas"]["Currency"];
             };
-            pending_booty?: {
-              gross: components["schemas"]["Currency"];
-              net?: components["schemas"]["Currency"];
-            };
+            pending_booty?: number;
             languages?: {
               id?: number;
               name?: string;
