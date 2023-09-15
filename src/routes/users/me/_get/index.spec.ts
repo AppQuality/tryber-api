@@ -6,7 +6,7 @@ import { data as fiscalProfileData } from "@src/__mocks__/mockedDb/fiscalProfile
 import app from "@src/app";
 import request from "supertest";
 
-describe("GET /users/me - fiscal profile and Earnings < 5000", () => {
+describe("GET /users/me", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
       await Profile.insert();
