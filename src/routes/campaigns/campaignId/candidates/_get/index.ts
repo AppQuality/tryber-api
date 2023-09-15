@@ -203,8 +203,6 @@ export default class RouteItem extends UserRoute<{
       return devices.filter((d) => {
         const osString = d.os.toLowerCase() + " " + d.osVersion.toLowerCase();
         for (const os of osListToInclude) {
-          console.log(osString);
-          console.log(osString.includes(os.toLowerCase()));
           if (osString.includes(os.toLowerCase())) {
             return true;
           }
