@@ -7,7 +7,6 @@ import getCertificationsData from "./getCertificationsData";
 import getEducationData from "./getEducationData";
 import getLanguagesData from "./getLanguagesData";
 import getPendingBootyData from "./getPendingBootyData";
-import getBootyData from "./getBootyData";
 import getProfessionData from "./getProfessionData";
 import getProfileData from "./getProfileData";
 
@@ -69,12 +68,6 @@ export default async (
     }
 
     if (validFields.includes("pending_booty")) {
-      try {
-        data = { ...data, ...(await getPendingBootyData(id)) };
-      } catch (e) {}
-    }
-
-    if (validFields.includes("booty")) {
       try {
         data = { ...data, ...(await getBootyData(id)) };
       } catch (e) {}

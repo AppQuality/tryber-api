@@ -6394,12 +6394,7 @@ paths:
                   total_exp_pts:
                     type: number
                   booty:
-                    type: object
-                    properties:
-                      net:
-                        $ref: '#/components/schemas/Currency'
-                      gross:
-                        $ref: '#/components/schemas/Currency'
+                    type: number
                   pending_booty:
                     type: object
                     properties:

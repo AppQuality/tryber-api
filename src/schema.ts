@@ -2696,10 +2696,7 @@ export interface operations {
             is_verified?: boolean;
             rank?: string;
             total_exp_pts?: number;
-            booty?: {
-              net?: components["schemas"]["Currency"];
-              gross?: components["schemas"]["Currency"];
-            };
+            booty?: number;
             pending_booty?: number;
             languages?: {
               id?: number;
