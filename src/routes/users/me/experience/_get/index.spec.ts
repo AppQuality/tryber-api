@@ -1,21 +1,44 @@
+import { insert } from "./../../../../../features/db/index";
 import app from "@src/app";
 import sqlite3 from "@src/features/sqlite";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Experience from "@src/__mocks__/mockedDb/experience";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 const tester1 = {
   id: 1,
   wp_user_id: 1,
+  email: "john.doe@tryber.me",
+  employment_id: 1,
+  education_id: 1,
 };
 const campaign1 = {
   id: 1,
   title: "This is the Campaign title",
+  platform_id: 1,
+  start_date: new Date().toISOString(),
+  end_date: new Date().toISOString(),
+  page_preview_id: 1,
+  page_manual_id: 1,
+  customer_id: 1,
+  pm_id: 1,
+  project_id: 1,
+  customer_title: "Customer Title",
 };
 const campaign2 = {
   id: 2,
   title: "This is the Campaign title",
+  platform_id: 1,
+  start_date: new Date().toISOString(),
+  end_date: new Date().toISOString(),
+  page_preview_id: 1,
+  page_manual_id: 1,
+  customer_id: 1,
+  pm_id: 1,
+  project_id: 1,
+  customer_title: "Customer Title",
 };
 const exp1 = {
   id: 1,
@@ -25,6 +48,7 @@ const exp1 = {
   creation_date: "1970-01-01 00:00:00",
   amount: 20,
   campaign_id: campaign1.id,
+  pm_id: 1,
 };
 const exp2 = {
   id: 2,
@@ -34,28 +58,20 @@ const exp2 = {
   creation_date: "1970-01-01 00:00:00",
   amount: 10,
   campaign_id: campaign2.id,
+  pm_id: 1,
 };
 
 describe("GET /users/me/experience", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_exp_points", exp1);
-      await sqlite3.insert("wp_appq_exp_points", exp2);
-      await Campaigns.insert(campaign1);
-      await Campaigns.insert(campaign2);
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-
-      resolve(null);
-    });
+    await tryber.tables.WpAppqExpPoints.do().insert([exp1, exp2]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([campaign1, campaign2]);
+    await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
   });
-  afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Campaigns.clear();
-      await Experience.clear();
-      await Profile.clear();
 
-      resolve(null);
-    });
+  afterAll(async () => {
+    await tryber.tables.WpAppqExpPoints.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -139,23 +155,15 @@ describe("GET /users/me/experience", () => {
     expect(responseDESC.body.results.map((item: any) => item.id)).toEqual([2]);
   });
 });
-
 describe("GET /users/me/experience - user without experience points", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_campaign", campaign1);
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-      resolve(null);
-    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign1);
+    await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Campaigns.clear();
-      await Experience.clear();
-      await Profile.clear();
-
-      resolve(null);
-    });
+    await tryber.tables.WpAppqExpPoints.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
   it("Should answer 404 if the tryber hasn't experience entries", async () => {
