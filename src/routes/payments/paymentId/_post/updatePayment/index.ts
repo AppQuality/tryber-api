@@ -1,4 +1,4 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (payment: Payment) => {
   if (payment.error) {
@@ -13,53 +13,46 @@ export default async (payment: Payment) => {
       } else {
         errorMessage = JSON.stringify(payment.error);
       }
-      const sql = db.format(
-        `UPDATE wp_appq_payment_request
-                SET error_message = ?
-                WHERE id = ?;     
-                `,
-        [errorMessage, payment.id]
-      );
-      await db.query(sql);
+      await tryber.tables.WpAppqPaymentRequest.do()
+        .update({
+          error_message: errorMessage,
+        })
+        .where("id", payment.id);
       return;
     } catch (error) {
       throw error;
     }
   }
   try {
-    const sql = db.format(
-      `UPDATE wp_appq_payment_request
-              SET is_paid = 1, amount_paypal_fee = ?, paid_date = NOW(), error_message = NULL
-              WHERE id = ?;     
-              `,
-      [payment.fee || "0", payment.id]
-    );
-    await db.query(sql);
+    await tryber.tables.WpAppqPaymentRequest.do()
+      .update({
+        is_paid: 1,
+        amount_paypal_fee: payment.fee || 0,
+        paid_date: tryber.fn.now(),
+        error_message: undefined,
+      })
+      .where("id", payment.id);
   } catch (error) {
     throw error;
   }
   try {
-    const sql = db.format(
-      `UPDATE wp_appq_payment
-              SET is_paid = 1
-              WHERE request_id = ?;     
-              `,
-      [payment.id]
-    );
-    await db.query(sql);
+    await tryber.tables.WpAppqPayment.do()
+      .update({
+        is_paid: 1,
+      })
+      .where("request_id", payment.id);
   } catch (error) {
     throw error;
   }
 
   try {
-    const sql = db.format(
-      `UPDATE wp_appq_evd_profile
-            SET pending_booty = pending_booty - ?, booty = booty + ?,payment_status = 0
-            WHERE id = ?;     
-            `,
-      [payment.amount, payment.amount, payment.tester_id]
-    );
-    await db.query(sql);
+    await tryber.tables.WpAppqEvdProfile.do().update({
+      //@ts-ignore
+      pending_booty: tryber.raw(`pending_booty - ?`, [payment.amount]),
+      //@ts-ignore
+      booty: tryber.raw(`booty + ?`, [payment.amount]),
+      payment_status: 0,
+    });
   } catch (error) {
     throw error;
   }

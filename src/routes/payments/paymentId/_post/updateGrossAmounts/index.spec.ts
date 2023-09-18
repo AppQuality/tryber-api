@@ -1,5 +1,6 @@
-import sqlite3 from "@src/features/sqlite";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { tryber } from "@src/features/database";
+import sqlite3 from "@src/features/sqlite";
 import updateGrossAmounts from ".";
 
 jest.mock("@src/features/db");
@@ -11,6 +12,7 @@ const payment = {
   amount_withholding: 0,
   withholding_tax_percentage: 0,
   stamp_required: 0,
+  under_threshold: 0,
 };
 const paymentNoStampRequired = {
   id: 2,
@@ -19,20 +21,15 @@ const paymentNoStampRequired = {
   amount_withholding: 0,
   withholding_tax_percentage: 0,
   stamp_required: 0,
+  under_threshold: 0,
 };
 describe("Update gross amount", () => {
-  beforeEach(() => {
-    return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_payment_request", payment);
-      await sqlite3.insert("wp_appq_payment_request", paymentNoStampRequired);
-      resolve(null);
-    });
+  beforeEach(async () => {
+    await sqlite3.insert("wp_appq_payment_request", payment);
+    await sqlite3.insert("wp_appq_payment_request", paymentNoStampRequired);
   });
-  afterEach(() => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.drop();
-      resolve(null);
-    });
+  afterEach(async () => {
+    await paymentRequestData.drop();
   });
 
   it("Should update gross amount with 125% of amount if fiscal profile is 1", async () => {
@@ -43,9 +40,12 @@ describe("Update gross amount", () => {
       },
       1
     );
-    const updatedPayment = await sqlite3.get(
-      `SELECT * FROM wp_appq_payment_request WHERE id = ${payment.id}`
-    );
+    const updatedPayment = await tryber.tables.WpAppqPaymentRequest.do()
+      .select()
+      .where("id", payment.id)
+      .first();
+    if (!updatedPayment) throw new Error("Payment not found");
+
     expect(updatedPayment.amount_gross).toBe(125);
   });
 

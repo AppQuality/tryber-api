@@ -1,22 +1,76 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (paymentId: number): Promise<Payment> => {
-  const sql = db.format(
-    `SELECT 
-      req.id, req.amount, req.iban, req.paypal_email, req.is_paid, req.error_message as error_message,
-      COALESCE(req.account_holder_name, CONCAT(p.name," ",p.surname)) as account_name,
-      p.id as tester_id, p.name , p.surname,p.email as tester_email,
-      f.fiscal_category
-    FROM wp_appq_payment_request req
-    JOIN wp_appq_evd_profile p ON (p.id = req.tester_id)
-    JOIN wp_appq_fiscal_profile f ON (f.id = req.fiscal_profile_id)
-    WHERE req.id = ?;
-    `,
-    [paymentId]
-  );
+  const r = tryber.tables.WpAppqPaymentRequest.do()
+    .select(tryber.ref("id").withSchema("wp_appq_payment_request").as("id"))
+    .select(
+      tryber.ref("amount").withSchema("wp_appq_payment_request").as("amount")
+    )
+    .select(tryber.ref("iban").withSchema("wp_appq_payment_request").as("iban"))
+    .select(
+      tryber
+        .ref("paypal_email")
+        .withSchema("wp_appq_payment_request")
+        .as("paypal_email")
+    )
+    .select(
+      tryber.ref("is_paid").withSchema("wp_appq_payment_request").as("is_paid")
+    )
+    .select(
+      tryber
+        .ref("error_message")
+        .withSchema("wp_appq_payment_request")
+        .as("error_message")
+    )
+    .select(
+      tryber
+        .ref("account_holder_name")
+        .withSchema("wp_appq_payment_request")
+        .as("account_holder_name")
+    )
+    .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"))
+    .select(
+      tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name")
+    )
+    .select(
+      tryber
+        .ref("surname")
+        .withSchema("wp_appq_evd_profile")
+        .as("tester_surname")
+    )
+    .select(
+      tryber.ref("email").withSchema("wp_appq_evd_profile").as("tester_email")
+    )
+    .select(
+      tryber
+        .ref("fiscal_category")
+        .withSchema("wp_appq_fiscal_profile")
+        .as("fiscal_category")
+    )
+    .join(
+      "wp_appq_evd_profile",
+      "wp_appq_payment_request.tester_id",
+      "wp_appq_evd_profile.id"
+    )
+    .join(
+      "wp_appq_fiscal_profile",
+      "wp_appq_payment_request.fiscal_profile_id",
+      "wp_appq_fiscal_profile.id"
+    )
+    .select()
+    .where("wp_appq_payment_request.id", paymentId);
+
   let payment;
   try {
-    payment = await db.query(sql);
+    payment = (await r).map((row) => {
+      const { account_holder_name, ...rest } = row;
+      return {
+        ...rest,
+        account_name: account_holder_name
+          ? account_holder_name
+          : `${rest.tester_name} ${rest.tester_surname}`,
+      };
+    });
     if (!payment.length) throw Error("No payment found");
     payment = payment[0];
   } catch (error) {
@@ -53,7 +107,7 @@ export default async (paymentId: number): Promise<Payment> => {
     coordinates,
     testerEmail: payment.tester_email,
     fiscalCategory: payment.fiscal_category,
-    status: payment.is_paid == "1" ? "paid" : "pending",
+    status: payment.is_paid == 1 ? "paid" : "pending",
     currentErrorCode: paymentErrorCode,
   };
 };
