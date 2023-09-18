@@ -46,7 +46,6 @@ class Selector {
     await this.initUserDevices();
     this.applications = this.filterInvalidDevices(this.applications);
     await this.initUserLevels();
-
     await this.initUserQuestions();
 
     this.initialized = true;
@@ -57,6 +56,7 @@ class Selector {
     const questionFields = this.fields.filter(
       (field) => field.type === "question"
     );
+
     if (questionFields.length === 0) return;
 
     const formFieldsItems = await this.getPreselectionFormFields(
@@ -325,7 +325,7 @@ class Selector {
       return application;
     });
     return results.map((r) => {
-      let questions: typeof this.userQuestions[number] = [];
+      let questions: (typeof this.userQuestions)[number] = [];
       if (r.hasOwnProperty("questions")) {
         questions = r.questions;
       }
