@@ -567,7 +567,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     const response = await request(app)
       .get("/campaigns/1/candidates/?fields=question_1,question_2")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("should return 403 if the questions do not belong to a form linked with the campaign", async () => {
