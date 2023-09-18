@@ -1,10 +1,11 @@
 /** OPENAPI-CLASS: post-campaigns-forms */
 
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import Campaigns from "@src/features/db/class/Campaigns";
+import PreselectionForms from "@src/features/db/class/PreselectionForms";
 import UserRoute from "@src/features/routes/UserRoute";
 import FieldCreator from "../FieldCreator";
-import PreselectionForms from "@src/features/db/class/PreselectionForms";
-import Campaigns from "@src/features/db/class/Campaigns";
-import OpenapiError from "@src/features/OpenapiError";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-campaigns-forms"]["responses"]["201"]["content"]["application/json"];
@@ -48,6 +49,11 @@ export default class RouteItem extends UserRoute<{
   protected async prepare() {
     try {
       const form = await this.createForm();
+
+      if (!form) {
+        throw new Error("Something went wrong while creating the form");
+      }
+
       const fields = await this.createFields(form.id);
       this.setSuccess(201, {
         ...form,
@@ -62,29 +68,51 @@ export default class RouteItem extends UserRoute<{
   private async createForm() {
     const body = this.getBody();
 
-    const result = await this.db.forms.insert({
-      name: body.name,
-      author: this.getTesterId(),
-      campaign_id: this.campaignId,
-    });
+    const form = await tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .insert({
+        name: body.name,
+        author: this.getTesterId(),
+        campaign_id: this.campaignId,
+      })
+      .returning("id");
 
-    return await this.getForm(result.insertId);
+    return await this.getForm(form[0].id ?? form[0]);
+  }
+
+  private async getCampaign(cp_id: number) {
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id", "title")
+      .where({
+        id: cp_id,
+      })
+      .first();
+
+    if (!campaign) return undefined;
+
+    return {
+      id: campaign.id,
+      name: campaign.title,
+    };
   }
 
   private async getForm(id: number) {
-    const form = await this.db.forms.get(id);
+    const form = await tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .select()
+      .where({ id })
+      .first();
+
+    if (!form) return false;
+
     const result = {
       id: form.id,
       name: form.name,
     };
+
     if (form.campaign_id) {
-      const campaign = await this.db.campaigns.get(form.campaign_id);
+      const campaign = await this.getCampaign(form.campaign_id);
       return {
         ...result,
-        campaign: {
-          id: campaign.id,
-          name: campaign.title,
-        },
+        campaign: campaign,
       };
     }
     return result;
@@ -92,9 +120,14 @@ export default class RouteItem extends UserRoute<{
 
   private async isCampaignIdAlreadyAssigned(): Promise<boolean> {
     if (!this.campaignId) return false;
-    const formWithCurrentCampaignId = await this.db.forms.query({
-      where: [{ campaign_id: this.campaignId }],
-    });
+
+    const formWithCurrentCampaignId =
+      await tryber.tables.WpAppqCampaignPreselectionForm.do()
+        .select("id")
+        .where({
+          campaign_id: this.campaignId,
+        });
+
     return formWithCurrentCampaignId.length !== 0;
   }
 
