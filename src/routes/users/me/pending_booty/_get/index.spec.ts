@@ -1,9 +1,9 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import Attributions, {
   AttributionParams,
 } from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const campaign1 = {
@@ -12,6 +12,10 @@ const campaign1 = {
 };
 const campaign2 = {
   id: 2,
+  title: "Absolut Best Campaign ever",
+};
+const campaign10 = {
+  id: 10,
   title: "Absolut Best Campaign ever",
 };
 const attribution1: AttributionParams = {
@@ -35,7 +39,7 @@ const attribution2: AttributionParams = {
 const attribution3: AttributionParams = {
   id: 3,
   tester_id: 1,
-  campaign_id: 1,
+  campaign_id: 10,
   amount: 99,
   creation_date: "1960-01-01 00:00:00",
   is_paid: 0,
@@ -70,23 +74,18 @@ const attributionRequested: AttributionParams = {
 
 describe("GET /users/me/pending_booty", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Campaigns.insert(campaign1);
-      Campaigns.insert(campaign2);
-      sqlite3.insert("wp_appq_payment", attribution1);
-      sqlite3.insert("wp_appq_payment", attribution2);
-      sqlite3.insert("wp_appq_payment", attribution3);
-      sqlite3.insert("wp_appq_payment", attributionPaid);
-      sqlite3.insert("wp_appq_payment", attributionRequested);
-      resolve(null);
-    });
+    await Campaigns.insert(campaign1);
+    await Campaigns.insert(campaign2);
+    await Campaigns.insert(campaign10);
+    await sqlite3.insert("wp_appq_payment", attribution1);
+    await sqlite3.insert("wp_appq_payment", attribution2);
+    await sqlite3.insert("wp_appq_payment", attribution3);
+    await sqlite3.insert("wp_appq_payment", attributionPaid);
+    await sqlite3.insert("wp_appq_payment", attributionRequested);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Attributions.clear();
-      await Campaigns.clear();
-      resolve(null);
-    });
+    await Attributions.clear();
+    await Campaigns.clear();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get("/users/me/pending_booty");
@@ -123,7 +122,7 @@ describe("GET /users/me/pending_booty", () => {
       },
       {
         id: attribution3.id,
-        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        name: `[CP-${campaign10.id}] ${campaign10.title}`,
         amount: {
           value: attribution3.amount,
           currency: "EUR",
@@ -237,21 +236,21 @@ describe("GET /users/me/pending_booty", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body.results.map((item: any) => item.id)).toEqual([
-      1, 2, 3,
+      3, 1, 2,
     ]);
     const responseAsc = await request(app)
       .get("/users/me/pending_booty?orderBy=activityName&order=ASC")
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
-      3, 2, 1,
+      2, 1, 3,
     ]);
     const responseDesc = await request(app)
       .get("/users/me/pending_booty?orderBy=activityName&order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
-      1, 2, 3,
+      3, 1, 2,
     ]);
   });
   it("Should return attributions ordered by attributionDate DESC by default", async () => {
