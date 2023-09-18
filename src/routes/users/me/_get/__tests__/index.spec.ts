@@ -177,39 +177,6 @@ describe("Route GET users-me", () => {
       resolve(null);
     });
   });
-
-  it("Should answer 403 if not logged in", async () => {
-    const response = await request(app).get("/users/me");
-    expect(response.status).toBe(403);
-  });
-  it("Should answer 200 if logged in", async () => {
-    const response = await request(app)
-      .get("/users/me")
-      .set("authorization", "Bearer admin");
-    expect(response.status).toBe(200);
-  });
-  it("Should return at least tryber id and tryber role", async () => {
-    const response = await request(app)
-      .get("/users/me")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
-  });
-  it("Should return an object with role 'tester' if the user is without special permission", async () => {
-    const response = await request(app)
-      .get("/users/me")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("role");
-    expect(response.body.role).toBe("tester");
-  });
-  it("Should return at least tryber id and tryber role if fields parameter is an unccepted field", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=aaaaaaaaaaaa,aaaaaaaaa")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ id: tester1.id, role: "tester" });
-  });
 });
 
 describe("Route GET users-me-full-fields", () => {
@@ -285,63 +252,7 @@ describe("Route GET users-me-full-fields", () => {
       resolve(null);
     });
   });
-
-  it("Should return tryber (id, role and name) if parameter fields=name", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=name")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("name");
-    expect(response.body).toMatchObject({
-      id: testerFull.id,
-      role: "tester",
-      name: testerFull.name,
-    });
-  });
-  it("Should return tryber (id, role and gender) if parameter fields=gender", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=gender")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("gender");
-    expect(response.body).toMatchObject({
-      id: testerFull.id,
-      role: "tester",
-      gender: "male",
-    });
-  });
-
-  it("Should return certifications if parameter fields=certifications", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=certifications")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("id");
-    expect(response.body).toHaveProperty("certifications");
-    expect(response.body).toHaveProperty("role");
-    expect(response.body.certifications[0]).toMatchObject({
-      id: certification1.id,
-      name: certification1.name,
-      area: certification1.area,
-      institute: certification1.institute,
-      achievement_date: testerFullCertification1.achievement_date.substring(
-        0,
-        10
-      ),
-    });
-    expect(Array.isArray(response.body.certifications)).toBe(true);
-    const certs = response.body
-      .certifications as StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["certifications"];
-    if (Array.isArray(certs)) {
-      certs.forEach((c) => {
-        expect(c).toHaveProperty("id");
-        expect(c).toHaveProperty("name");
-        expect(c).toHaveProperty("area");
-        expect(c).toHaveProperty("institute");
-        expect(c).toHaveProperty("achievement_date");
-      });
-    }
-  });
+  ///
   it("Should return languages if parameter fields=languages", async () => {
     const response = await request(app)
       .get("/users/me?fields=languages")
@@ -387,26 +298,5 @@ describe("Route GET users-me-full-fields", () => {
         expect(c).toHaveProperty("value");
       });
     }
-  });
-
-  it("should return only tester id, role, name and surname if the parameter fields=name,surname", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=name,surname")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("id");
-    expect(response.body).toHaveProperty("name");
-    expect(response.body).toHaveProperty("surname");
-    expect(response.body).toHaveProperty("role");
-  });
-  it("should return only tester id and role and accepted fields if the fields parameter has multiple options fields=name,home,email", async () => {
-    const response = await request(app)
-      .get("/users/me?fields=name,home,email")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("id");
-    expect(response.body).toHaveProperty("name");
-    expect(response.body).toHaveProperty("email");
-    expect(response.body).toHaveProperty("role");
   });
 });

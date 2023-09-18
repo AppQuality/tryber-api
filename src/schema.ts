@@ -2609,7 +2609,10 @@ export interface operations {
               net?: components["schemas"]["Currency"];
               gross?: components["schemas"]["Currency"];
             };
-            pending_booty?: number;
+            pending_booty?: {
+              net?: components["schemas"]["Currency"];
+              gross?: components["schemas"]["Currency"];
+            };
             languages?: {
               id?: number;
               name?: string;
