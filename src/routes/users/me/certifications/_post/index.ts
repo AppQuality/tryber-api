@@ -1,5 +1,6 @@
 /** OPENAPI-ROUTE: post-users-me-certifications */
 
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 import updateEmptyCerts from "./updateEmptyCerts";
@@ -84,37 +85,37 @@ async function assignCertification(
   certification_id: number,
   achievement_date: string
 ) {
-  let insertData = [tester_id, achievement_date, certification_id];
-  let insertSql = `INSERT INTO wp_appq_profile_certifications (tester_id, achievement_date, cert_id)
-                     VALUES (?, ?, ?);`;
-  let inserted;
+  const alreadyExists = await tryber.tables.WpAppqProfileCertifications.do()
+    .select("id")
+    .where({
+      tester_id: tester_id,
+      cert_id: certification_id,
+    });
+  if (alreadyExists.length) {
+    throw Error(
+      "Failed. Duplication entry. Certification already assigned to the tester."
+    );
+  }
   try {
-    inserted = await db.query(db.format(insertSql, insertData));
-    return inserted;
+    const res = await tryber.tables.WpAppqProfileCertifications.do()
+      .insert({
+        tester_id: tester_id,
+        cert_id: certification_id,
+        achievement_date: achievement_date,
+      })
+      .returning("id");
+    return { insertId: res[0].id ?? res[0] };
   } catch (e) {
     if (process.env && process.env.DEBUG) console.log(e);
-    if (
-      (e as MySqlError).hasOwnProperty("code") &&
-      (e as MySqlError).code == "ER_DUP_ENTRY"
-    ) {
-      throw Error(
-        "Failed. Duplication entry. Certification already assigned to the tester."
-      );
-    }
     throw Error("Failed to add user Certification");
   }
 }
 async function getUserCertification(inserted: { insertId: number }) {
   try {
-    let userCertification;
-    userCertification = await db.query(
-      db.format(
-        `SELECT CAST(achievement_date AS CHAR) AS achievement_date
-                 FROM wp_appq_profile_certifications
-                 WHERE id = ?;`,
-        [inserted.insertId]
-      )
-    );
+    const userCertification =
+      await tryber.tables.WpAppqProfileCertifications.do()
+        .select("achievement_date", "achievement_date")
+        .where("id", inserted.insertId);
     if (!userCertification.length) throw Error("Can't find user Certification");
     return userCertification[0];
   } catch (e) {
