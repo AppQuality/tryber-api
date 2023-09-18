@@ -38,8 +38,6 @@ describe("DELETE /payments/{paymentId}", () => {
     const response = await request(app)
       .delete("/payments/1")
       .set("authorization", "Bearer admin");
-
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("Should remove from database the payment_request if paymentId exists", async () => {

@@ -351,7 +351,6 @@ describe("Route GET users-me-full-fields", () => {
     const response = await request(app)
       .get("/users/me?fields=additional")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("id");
     expect(response.body).toHaveProperty("additional");

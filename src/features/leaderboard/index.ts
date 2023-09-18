@@ -15,7 +15,6 @@ export default class Leaderboard {
       monthly_exp: number;
     }[]
   > {
-    console.log("such");
     const sql = tryber.tables.WpAppqExpPoints.do()
       .select("tester_id")
       .sum("amount", { as: "monthly_exp" })
@@ -37,9 +36,7 @@ export default class Leaderboard {
         )} = ${tryber.fn.year(tryber.fn.now())}`
       )
       .groupBy("tester_id");
-    console.log(sql.toString());
     const res = await sql;
-    console.log(res);
     return await sql;
   }
 

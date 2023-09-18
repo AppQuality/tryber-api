@@ -118,10 +118,6 @@ describe("POST /campaigns/forms/", () => {
     const afterNewFormResult = await PreselectionForm.all(undefined, [
       { campaign_id: 1 },
     ]);
-    console.log(
-      "🚀 ~ file: index.spec.ts:123 ~ it ~ afterNewFormResult:",
-      afterNewFormResult
-    );
     expect(afterNewFormResult.length).toBe(1);
     expect(afterNewFormResult[0]).toHaveProperty("campaign_id", body.campaign);
     expect(responseNewFormSameCamapign.status).toBe(406);

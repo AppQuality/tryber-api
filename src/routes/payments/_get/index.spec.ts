@@ -455,7 +455,6 @@ describe("Route GET payments", () => {
     const response = await request(app)
       .get("/payments?limit=2")
       .set("authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([1, 2]);
     const responseASC = await request(app)
@@ -517,7 +516,6 @@ describe("Route GET payments", () => {
     const responseASC = await request(app)
       .get("/payments?start=1&limit=2&order=ASC")
       .set("authorization", "Bearer admin");
-    console.log(response.body);
     expect(responseASC.status).toBe(200);
     expect(responseASC.body.items.map((item: any) => item.id)).toEqual([2, 3]);
     const responseDESC = await request(app)
