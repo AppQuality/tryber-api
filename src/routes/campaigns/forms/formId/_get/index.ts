@@ -2,6 +2,8 @@
 
 import UserRoute from "@src/features/routes/UserRoute";
 import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
+
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-forms-formId"]["parameters"]["path"];
@@ -85,16 +87,12 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getFormFields() {
-    const sql = `SELECT id, type, question, short_name, options
-        FROM wp_appq_campaign_preselection_form_fields
-        WHERE form_id = ? ORDER BY priority ASC`;
-    const results: {
-      id: number;
-      type: string;
-      question: string;
-      short_name?: string;
-      options?: string;
-    }[] = await db.query(db.format(sql, [this.getId()]));
+    const results =
+      await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
+        .select("id", "type", "question", "short_name", "options")
+        .where("form_id", this.getId())
+        .orderBy("priority", "asc");
+
     return results.map((item) => {
       return {
         ...item,
