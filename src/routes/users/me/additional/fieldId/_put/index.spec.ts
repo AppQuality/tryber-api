@@ -50,7 +50,6 @@ describe("PUT /users/me/additional/fieldId", () => {
       .put("/users/me/additionals/1")
       .set("authorization", "Bearer tester")
       .send({ value: "test" });
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("should answer 200 if logged in for select", async () => {

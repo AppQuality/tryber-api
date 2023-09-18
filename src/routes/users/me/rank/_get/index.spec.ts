@@ -98,7 +98,6 @@ describe("Route GET users-me-rank", () => {
     const response = await request(app)
       .get("/users/me/rank")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("Should return user current level", async () => {

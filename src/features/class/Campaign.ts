@@ -59,7 +59,6 @@ class Campaign {
         .where({ campaign_id: this.id })
     ).map((c) => c.bug_severity_id);
     const severities = await getSeverities();
-    console.log(severities);
     if (!customSeverities.length) {
       return {
         valid: severities.filter(isValidSeverity),
