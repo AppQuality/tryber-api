@@ -3,6 +3,7 @@ import Table from "./table";
 type DevicePlatformParams = {
   id?: number;
   name?: string;
+  architecture?: string;
 };
 
 class DevicePlatform extends Table<DevicePlatformParams> {
@@ -12,6 +13,7 @@ class DevicePlatform extends Table<DevicePlatformParams> {
     super({
       id: 1,
       name: "Platform",
+      architecture: "",
     });
   }
 }
