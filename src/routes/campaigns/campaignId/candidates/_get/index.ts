@@ -121,17 +121,7 @@ export default class RouteItem extends UserRoute<{
   ) {
     let filteredDevices = applications;
     filteredDevices = this.filterByExcludeOs(filteredDevices);
-    console.log(
-      filteredDevices.map(
-        (user, i) => "User" + i + " devices: " + user.devices.length
-      )
-    );
     filteredDevices = this.filterByIncludeOs(filteredDevices);
-    console.log(
-      filteredDevices.map(
-        (user, i) => "User" + i + " devices: " + user.devices.length
-      )
-    );
     return filteredDevices;
   }
 
@@ -203,8 +193,6 @@ export default class RouteItem extends UserRoute<{
       return devices.filter((d) => {
         const osString = d.os.toLowerCase() + " " + d.osVersion.toLowerCase();
         for (const os of osListToInclude) {
-          console.log(osString);
-          console.log(osString.includes(os.toLowerCase()));
           if (osString.includes(os.toLowerCase())) {
             return true;
           }
