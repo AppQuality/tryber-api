@@ -3,32 +3,31 @@ import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 describe("DELETE /payments/{paymentId}", () => {
   beforeEach(async () => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.processingPaypalPayment({ id: 1, amount: 2 });
-      await paymentRequestData.paidPaypalPayment({ id: 2 });
-      await Attributions.insert({
+    await paymentRequestData.processingPaypalPayment({ id: 1, amount: 2 });
+    await paymentRequestData.paidPaypalPayment({ id: 2 });
+    await tryber.tables.WpAppqPayment.do().insert([
+      {
         id: 1,
         request_id: 1,
         is_requested: 1,
-      });
-      await Attributions.insert({
+      },
+      {
         id: 2,
         request_id: 1,
         is_requested: 1,
-      });
-      resolve(null);
-    });
+      },
+    ]);
   });
+
   afterEach(async () => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.drop();
-      await Attributions.clear();
-      resolve(null);
-    });
+    await paymentRequestData.drop();
+    await tryber.tables.WpAppqPayment.do().delete();
   });
+
   it("Should return 403 if user is not admin", async () => {
     const response = await request(app)
       .delete("/payments/1")
@@ -39,30 +38,31 @@ describe("DELETE /payments/{paymentId}", () => {
     const response = await request(app)
       .delete("/payments/1")
       .set("authorization", "Bearer admin");
+
+    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("Should remove from database the payment_request if paymentId exists", async () => {
     const response = await request(app)
       .delete("/payments/1")
       .set("authorization", "Bearer admin");
-    const resAfterDeletion = await sqlite3.get(
-      `SELECT * FROM wp_appq_payment_request WHERE id = 1`
-    );
-    expect(resAfterDeletion).toBe(undefined);
+    const resAfterDeletion = await tryber.tables.WpAppqPaymentRequest.do()
+      .select()
+      .where({ id: 1 });
+    expect(resAfterDeletion).toHaveLength(0);
   });
   it("Should return 403 if payment_request is already paid", async () => {
-    const resBeforeDeletion = await sqlite3.all(
-      `SELECT * FROM wp_appq_payment_request`
-    );
+    const resBeforeDeletion =
+      await tryber.tables.WpAppqPaymentRequest.do().select();
 
     const response = await request(app)
       .delete("/payments/2") //2 is the id of the payment_request that is already paid
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(403);
 
-    const resAfterDeletion = await sqlite3.all(
-      `SELECT * FROM wp_appq_payment_request`
-    );
+    const resAfterDeletion =
+      await tryber.tables.WpAppqPaymentRequest.do().select();
+
     expect(resAfterDeletion.length).toBe(resBeforeDeletion.length);
   });
   it("Should set the attribution of the payments as unrequested", async () => {
