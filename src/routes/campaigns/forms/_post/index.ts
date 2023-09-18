@@ -1,11 +1,11 @@
 /** OPENAPI-CLASS: post-campaigns-forms */
 
-import UserRoute from "@src/features/routes/UserRoute";
-import FieldCreator from "../FieldCreator";
-import PreselectionForms from "@src/features/db/class/PreselectionForms";
-import Campaigns from "@src/features/db/class/Campaigns";
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import Campaigns from "@src/features/db/class/Campaigns";
+import PreselectionForms from "@src/features/db/class/PreselectionForms";
+import UserRoute from "@src/features/routes/UserRoute";
+import FieldCreator from "../FieldCreator";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-campaigns-forms"]["responses"]["201"]["content"]["application/json"];
@@ -67,12 +67,6 @@ export default class RouteItem extends UserRoute<{
 
   private async createForm() {
     const body = this.getBody();
-
-    const result = await this.db.forms.insert({
-      name: body.name,
-      author: this.getTesterId(),
-      campaign_id: this.campaignId,
-    });
 
     const form = await tryber.tables.WpAppqCampaignPreselectionForm.do()
       .insert({
