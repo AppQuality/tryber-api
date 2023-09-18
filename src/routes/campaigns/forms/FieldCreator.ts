@@ -1,4 +1,5 @@
 import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default class FieldCreator {
   private formId: number;
@@ -59,46 +60,30 @@ export default class FieldCreator {
         `{"id": ${this.type.split("_")[1]}, "error": "Invalid cuf field"}`
       );
     }
-    const columns = ["question", "type", "form_id", "priority"];
-    const data = [this.question, this.type, this.formId, this.priority];
-    if (this.options) {
-      columns.push("options");
-      data.push(this.options);
-    }
-    if (this.short_name) {
-      columns.push("short_name");
-      data.push(this.short_name);
-    }
-    if (this.id) {
-      columns.push("id");
-      data.push(this.id);
-    }
-    const sql = db.format(
-      `INSERT INTO wp_appq_campaign_preselection_form_fields 
-          (${columns.join(",")}) VALUES (${Array(data.length)
-        .fill("?")
-        .join(",")})`,
-      data
-    );
-    const { insertId } = await db.query(sql);
-    const result: {
-      id: number;
-      question: string;
-      short_name?: string;
-      options: string;
-    }[] = await db.query(
-      db.format(
-        `SELECT id, question, options, short_name
-            FROM wp_appq_campaign_preselection_form_fields 
-            WHERE id = ? LIMIT 1`,
-        [insertId]
-      )
-    );
-    if (result.length === 0) throw new Error("Failed to create field");
+
+    const fields = await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
+      .insert({
+        question: this.question,
+        type: this.type,
+        form_id: this.formId,
+        priority: this.priority,
+        ...(this.options ? { options: this.options } : {}),
+        ...(this.short_name ? { short_name: this.short_name } : {}),
+        ...(this.id ? { id: this.id } : {}),
+      })
+      .returning("id");
+
+    const insertId = fields[0].id ?? fields[0];
+    const result = await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
+      .select("id", "question", "options", "short_name")
+      .where({ id: insertId })
+      .first();
+
+    if (!result) throw new Error("Failed to create field");
     return {
-      ...result[0],
-      short_name: result[0].short_name ? result[0].short_name : undefined,
-      options: result[0].options ? JSON.parse(result[0].options) : undefined,
+      ...result,
+      short_name: result.short_name ? result.short_name : undefined,
+      options: result.options ? JSON.parse(result.options) : undefined,
       type: this.type,
     };
   }
