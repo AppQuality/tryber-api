@@ -3,10 +3,10 @@ import { unserialize } from "php-unserialize";
 import * as db from "../../db";
 
 export default async (
-  ids: string[]
+  ids: number[]
 ): Promise<{ [key: string]: { [key: string]: string } }> => {
   const permalink_structure = "/%postname%/";
-  const idList = ids.map((id) => parseInt(id)).join(",");
+  const idList = ids.map((id) => Number(id)).join(",");
   if (idList.length == 0) return {};
 
   const query = `

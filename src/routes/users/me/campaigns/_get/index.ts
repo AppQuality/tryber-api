@@ -3,6 +3,7 @@ import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
 
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
+import { tryber } from "@src/features/database";
 
 /** OPENAPI-CLASS: get-users-me-campaigns */
 
@@ -11,8 +12,8 @@ type TranslatablePage = StoplightComponents["schemas"]["TranslatablePage"];
 type CampaignType = {
   id: number;
   title: string;
-  page_preview_id: string;
-  page_manual_id: string;
+  page_preview_id: number;
+  page_manual_id: number;
   start_date: string;
   end_date: string;
   close_date: string;
@@ -94,15 +95,9 @@ class RouteItem extends UserRoute<{
   }
 
   private async getCampaigns() {
-    const results = await this.db.campaigns.query({
-      where: await this.getWhere(),
-      orderBy: [
-        {
-          field: this.orderBy || "id",
-          order: this.orderBy ? this.order || "DESC" : "ASC",
-        },
-      ],
-    });
+    const query = await this.getCampaignsQuery();
+
+    const results = await query;
     if (!results.length) {
       throw Error("no data found");
     }
@@ -135,35 +130,57 @@ class RouteItem extends UserRoute<{
     return enhancedCampaigns;
   }
 
-  private async getWhere() {
-    const where = [];
+  private async getCampaignsQuery() {
+    const query = tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_evd_campaign"),
+        "title",
+        "page_preview_id",
+        "page_manual_id",
+        "start_date",
+        "end_date",
+        "close_date",
+        "campaign_type_id",
+        tryber
+          .ref("name")
+          .withSchema("wp_appq_campaign_type")
+          .as("campaign_type")
+      )
+      .leftJoin(
+        "wp_appq_campaign_type",
+        "wp_appq_campaign_type.id",
+        "wp_appq_evd_campaign.campaign_type_id"
+      );
 
     if (!this.filterByAccepted()) {
-      const campaignStatusWhere: { [key: string]: number | number[] }[] = [
-        { is_public: 1 as 1 },
-        { is_public: 2 as 2 },
-      ];
       const pageAccess = await this.getPageAccess();
-      if (pageAccess.length) {
-        campaignStatusWhere.push({ page_preview_id: pageAccess });
-      }
-      where.push(campaignStatusWhere);
-    }
 
+      query.where((q) => {
+        q.whereIn("is_public", [1, 2]);
+        if (pageAccess.length) {
+          q.orWhereIn("page_preview_id", pageAccess);
+        }
+      });
+    }
     if (this.filterByCompleted()) {
-      where.push({ end_date: "NOW()", isLower: true });
+      query.where("end_date", "<", tryber.fn.now());
     }
     if (this.filterByRunning()) {
-      where.push({ end_date: "NOW()", isGreaterEqual: true });
+      query.where("end_date", ">=", tryber.fn.now());
     }
-
     if (this.filterByClosed()) {
-      where.push({ status_id: 2 as 2 });
+      query.where("status_id", 2);
     }
     if (this.filterByOpen()) {
-      where.push({ status_id: 1 as 1 });
+      query.where("status_id", 1);
     }
-    return where.length ? where : undefined;
+
+    query.orderBy(
+      this.orderBy || "wp_appq_evd_campaign.id",
+      this.orderBy ? this.order || "DESC" : "ASC"
+    );
+
+    return query;
   }
 
   private async enhanceCampaigns(campaigns: CampaignType[]): Promise<
@@ -224,7 +241,7 @@ class RouteItem extends UserRoute<{
 
   private async getLinkedPages(rows: CampaignType[]) {
     const pageIds = rows.reduce(
-      (accumulator: string[], r) =>
+      (accumulator: number[], r) =>
         [r.page_preview_id, r.page_manual_id].concat(accumulator),
       []
     );
