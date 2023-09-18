@@ -67,7 +67,7 @@ class Profile extends Table<ProfileParams> {
     "last_activity TIMESTAMP",
   ];
   constructor() {
-    super(defaultItem);
+    super({ wp_user_id: 1, ...defaultItem });
   }
 }
 const preselectionForm = new Profile();
