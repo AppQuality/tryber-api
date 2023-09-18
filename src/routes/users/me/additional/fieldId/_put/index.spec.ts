@@ -1,5 +1,3 @@
-import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import customUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
@@ -14,6 +12,7 @@ describe("PUT /users/me/additional/fieldId", () => {
         slug: "test",
         placeholder: "",
         extras: "1",
+        type: "text",
         custom_user_field_group_id: 0,
       },
       {
@@ -23,6 +22,7 @@ describe("PUT /users/me/additional/fieldId", () => {
         slug: "test",
         placeholder: "",
         extras: "1",
+        type: "text",
         custom_user_field_group_id: 0,
       },
       {
