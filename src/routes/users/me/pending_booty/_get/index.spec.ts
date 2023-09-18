@@ -1,9 +1,9 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import Attributions, {
   AttributionParams,
 } from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { tryber } from "@src/features/database";
 
@@ -13,6 +13,10 @@ const campaign1 = {
 };
 const campaign2 = {
   id: 2,
+  title: "Absolut Best Campaign ever",
+};
+const campaign10 = {
+  id: 10,
   title: "Absolut Best Campaign ever",
 };
 const attribution1: AttributionParams = {
@@ -36,7 +40,7 @@ const attribution2: AttributionParams = {
 const attribution3: AttributionParams = {
   id: 3,
   tester_id: 1,
-  campaign_id: 1,
+  campaign_id: 10,
   amount: 99,
   creation_date: "1960-01-01 00:00:00",
   is_paid: 0,
@@ -81,36 +85,30 @@ const attributionRequested: AttributionParams = {
 
 describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Campaigns.insert(campaign1);
-      Campaigns.insert(campaign2);
-      sqlite3.insert("wp_appq_payment", attribution1);
-      sqlite3.insert("wp_appq_payment", attribution2);
-      sqlite3.insert("wp_appq_payment", attribution3);
-      sqlite3.insert("wp_appq_payment", attribution4);
-      sqlite3.insert("wp_appq_payment", attributionPaid);
-      sqlite3.insert("wp_appq_payment", attributionRequested);
-      await tryber.tables.WpAppqFiscalProfile.do().insert([
-        {
-          fiscal_category: 1,
-          tester_id: 1,
-          name: "test1",
-          surname: "surname1",
-          sex: "1",
-          birth_date: "1990-01-01",
-        },
-      ]);
-      resolve(null);
-    });
+    await Campaigns.insert(campaign1);
+    await Campaigns.insert(campaign2);
+    await Campaigns.insert(campaign10);
+    await sqlite3.insert("wp_appq_payment", attribution1);
+    await sqlite3.insert("wp_appq_payment", attribution2);
+    await sqlite3.insert("wp_appq_payment", attribution3);
+    await sqlite3.insert("wp_appq_payment", attributionPaid);
+    await sqlite3.insert("wp_appq_payment", attributionRequested);
+    await sqlite3.insert("wp_appq_payment", attribution4);
+    await tryber.tables.WpAppqFiscalProfile.do().insert([
+      {
+        fiscal_category: 1,
+        tester_id: 1,
+        name: "test1",
+        surname: "surname1",
+        sex: "1",
+        birth_date: "1990-01-01",
+      },
+    ]);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Attributions.clear();
-      await Campaigns.clear();
-      await tryber.tables.WpAppqFiscalProfile.do().delete();
-      await tryber.tables.WpAppqPayment.do().delete();
-      resolve(null);
-    });
+    await Attributions.clear();
+    await Campaigns.clear();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
   it("Should return net and gross if fiscal profile category is 1", async () => {
@@ -154,7 +152,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
       },
       {
         id: attribution3.id,
-        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        name: `[CP-${campaign10.id}] ${campaign10.title}`,
         amount: {
           net: {
             value:
@@ -223,7 +221,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
       },
       {
         id: attribution3.id,
-        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        name: `[CP-${campaign10.id}] ${campaign10.title}`,
         amount: {
           net: {
             value:
@@ -368,21 +366,21 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body.results.map((item: any) => item.id)).toEqual([
-      1, 2, 3,
+      3, 1, 2,
     ]);
     const responseAsc = await request(app)
       .get("/users/me/pending_booty?orderBy=activityName&order=ASC")
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
-      3, 2, 1,
+      2, 1, 3,
     ]);
     const responseDesc = await request(app)
       .get("/users/me/pending_booty?orderBy=activityName&order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
-      1, 2, 3,
+      3, 1, 2,
     ]);
   });
   it("Should return attributions ordered by attributionDate DESC by default", async () => {
@@ -511,6 +509,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
   beforeAll(async () => {
     await Campaigns.insert(campaign1);
     await Campaigns.insert(campaign2);
+    await Campaigns.insert(campaign10);
     await sqlite3.insert("wp_appq_payment", attribution1);
     await sqlite3.insert("wp_appq_payment", attribution2);
     await sqlite3.insert("wp_appq_payment", attribution3);
@@ -584,7 +583,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
       },
       {
         id: attribution3.id,
-        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        name: `[CP-${campaign10.id}] ${campaign10.title}`,
         amount: {
           gross: {
             value: attribution3.amount,
