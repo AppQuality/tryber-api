@@ -1,9 +1,7 @@
-import sqlite3 from "@src/features/sqlite";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import sqlite3 from "@src/features/sqlite";
 import getPayment from ".";
-
-jest.mock("@src/features/db");
 
 const tester = {
   id: 1,
@@ -19,6 +17,8 @@ const validBankTransferPayment = {
   is_paid: 0,
   fiscal_profile_id: 1,
   account_holder_name: "John Doe",
+  under_threshold: 0,
+  withholding_tax_percentage: 20,
 };
 const validPaypalPayment = {
   id: 2,
@@ -27,6 +27,8 @@ const validPaypalPayment = {
   paypal_email: "john.doe@example.com",
   is_paid: 0,
   fiscal_profile_id: 1,
+  under_threshold: 0,
+  withholding_tax_percentage: 20,
 };
 
 const invalidTypePayment = {
@@ -35,11 +37,18 @@ const invalidTypePayment = {
   amount: 100,
   is_paid: 0,
   fiscal_profile_id: 1,
+  under_threshold: 0,
+  withholding_tax_percentage: 20,
 };
 
 const fiscalProfile = {
   id: 1,
   fiscal_category: 1,
+  tester_id: 1,
+  name: "",
+  surname: "",
+  sex: 1,
+  birth_date: "",
 };
 
 describe("POST /payments/:paymentId", () => {
