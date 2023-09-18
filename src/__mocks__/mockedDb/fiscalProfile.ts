@@ -38,6 +38,10 @@ data.inactiveFiscalProfile = async (params?: FiscalProfileParams) => {
     is_active: 0,
     is_verified: 1,
     fiscal_category: 1,
+    name: "",
+    surname:"",
+    birth_date:"",
+    sex: -1,
     ...params,
   };
   await sqlite3.insert("wp_appq_fiscal_profile", item);
@@ -51,6 +55,10 @@ data.invalidFiscalProfile = async (params?: FiscalProfileParams) => {
     is_active: 1,
     is_verified: 0,
     fiscal_category: 1,
+    name: "",
+    surname:"",
+    birth_date:"",
+    sex: -1,
     ...params,
   };
   await sqlite3.insert("wp_appq_fiscal_profile", item);
@@ -63,6 +71,10 @@ data.validFiscalProfile = async (params?: FiscalProfileParams) => {
     is_active: 1,
     is_verified: 1,
     fiscal_category: 1,
+    name: "",
+    surname:"",
+    birth_date:"",
+    sex: -1,
     ...params,
   };
   await sqlite3.insert("wp_appq_fiscal_profile", item);

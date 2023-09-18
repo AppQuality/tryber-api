@@ -67,7 +67,7 @@ class Profile extends Table<ProfileParams> {
     "last_activity TIMESTAMP",
   ];
   constructor() {
-    super(defaultItem);
+    super({ wp_user_id: 1, name: "",surname:"", education_id:1, employment_id:1, email:"",...defaultItem });
   }
 }
 const preselectionForm = new Profile();

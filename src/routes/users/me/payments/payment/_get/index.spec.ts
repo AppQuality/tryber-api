@@ -1,11 +1,11 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const campaign1 = {
@@ -35,10 +35,12 @@ describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
 
     await Profile.insert({
       id: 1,
+      wp_user_id: 1,
       pending_booty: 100,
     });
     await Profile.insert({
       id: 2,
+      wp_user_id: 2,
       pending_booty: 100,
     });
     requestData.processingPaypalPayment({
@@ -117,6 +119,7 @@ describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
     const response = await request(app)
       .get("/users/me/payments/1")
       .set("authorization", "Bearer tester");
+    console.log(response.body);
     expect(response.status).toBe(200);
   });
   it("Should answer 404 if the payment is from another tester", async () => {
@@ -243,6 +246,7 @@ describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
     const response = await request(app)
       .get("/users/me/payments/1?orderBy=activity")
       .set("authorization", "Bearer tester");
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(
       response.body.results.map((r: { activity: string }) => r.activity)
@@ -378,10 +382,12 @@ describe("GET /users/me/payments/{payment} fiscal category = 2", () => {
 
     await Profile.insert({
       id: 1,
+      wp_user_id:1,
       pending_booty: 100,
     });
     await Profile.insert({
       id: 2,
+      wp_user_id:2,
       pending_booty: 100,
     });
     requestData.processingPaypalPayment({
