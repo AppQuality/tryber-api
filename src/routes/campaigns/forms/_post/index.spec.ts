@@ -1,10 +1,8 @@
-import app from "@src/app";
-import request from "supertest";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import Campaign from "@src/__mocks__/mockedDb/campaign";
+import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
 const basicCampaign = {
   title: "Test Campaign",
@@ -108,7 +106,6 @@ describe("POST /campaigns/forms/", () => {
         `Bearer tester capability ["manage_preselection_forms"]`
       );
     const result = await PreselectionForm.all(undefined, [{ campaign_id: 1 }]);
-    console.log("🚀 ~ file: index.spec.ts:111 ~ it ~ result:", result);
     expect(result.length).toBe(1);
     expect(result[0]).toHaveProperty("campaign_id", body.campaign);
     const responseNewFormSameCamapign = await request(app)
@@ -298,14 +295,16 @@ describe("POST /campaigns/forms/", () => {
       fields: [],
       campaign: 1,
     };
-    await request(app)
+    const response = await request(app)
       .post("/campaigns/forms/")
       .send(body)
       .set(
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    const result = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
+    const result = await tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .select("campaign_id")
+      .where({ id: response.body.id });
     expect(result.length).toBe(1);
     expect(result[0]).toHaveProperty("campaign_id", body.campaign);
   });
