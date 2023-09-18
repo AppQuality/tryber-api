@@ -3,9 +3,6 @@ import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 import FieldCreator from "../../FieldCreator";
 import { tryber } from "@src/features/database";
-import Campaigns from "@src/features/db/class/Campaigns";
-import PreselectionForms from "@src/features/db/class/PreselectionForms";
-import PreselectionFormFields from "@src/features/db/class/PreselectionFormFields";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["put-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
@@ -14,20 +11,10 @@ export default class RouteItem extends UserRoute<{
 }> {
   private campaignId: number | undefined;
   private newCampaignId: number | undefined;
-  private db: {
-    forms: PreselectionForms;
-    campaigns: Campaigns;
-    fields: PreselectionFormFields;
-  };
 
   constructor(options: RouteItem["configuration"]) {
     super(options);
     const body = this.getBody();
-    this.db = {
-      forms: new PreselectionForms(),
-      campaigns: new Campaigns(),
-      fields: new PreselectionFormFields(),
-    };
     this.newCampaignId = body.campaign;
   }
 
@@ -48,11 +35,6 @@ export default class RouteItem extends UserRoute<{
     const { campaign_id } = form;
     this.campaignId = campaign_id ? campaign_id : undefined;
   }
-
-  // TODO: remove this method
-  // private async formExists() {
-  //   return this.db.forms.exists(this.getId());
-  // }
 
   private async initForm() {
     const form = await tryber.tables.WpAppqCampaignPreselectionForm.do()
