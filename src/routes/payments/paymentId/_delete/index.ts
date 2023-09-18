@@ -1,5 +1,6 @@
 /** OPENAPI-ROUTE: delete-payments-paymentId */
 
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
@@ -18,6 +19,17 @@ export default async (
     paymentId = c.request.params.paymentId;
     if (typeof paymentId !== "string") {
       throw Error("Invalid payment query parameter");
+    }
+    const result = await tryber.tables.WpAppqPaymentRequest.do()
+      .select()
+      .where("id", paymentId);
+    if (result.length === 0) {
+      res.status_code = 404;
+      return {
+        id: 0,
+        message: "request id not found",
+        element: "payment-request",
+      };
     }
     let resCheckIsPaid = await db.query(
       db.format(`SELECT is_paid FROM wp_appq_payment_request WHERE id = ? `, [
@@ -44,18 +56,8 @@ export default async (
       [paymentId]
     );
     const resultUpdate = await db.query(updateAttributions);
-
-    if (resultDelete.affectedRows === 1 && resultUpdate.changedRows > 0) {
-      res.status_code = 200;
-      return {};
-    } else {
-      res.status_code = 404;
-      return {
-        id: 0,
-        message: "request id not found",
-        element: "payment-request",
-      };
-    }
+    res.status_code = 200;
+    return {};
   } catch (err) {
     debugMessage(err);
     res.status_code = 404;
