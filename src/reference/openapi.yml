@@ -89,7 +89,10 @@ paths:
                     size: 0
                     total: 0
                 agreement-empty:
-                  value: []
+                  value:
+                    items: []
+                    start: 0
+                    size: 0
                 agreement-filterBy-customer1:
                   value:
                     items:
@@ -97,8 +100,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -108,8 +111,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -124,8 +127,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -135,8 +138,8 @@ paths:
                         title: Epic Token
                         tokens: 103
                         unitPrice: 166.6
-                        startDate: '2020-10-20 00:12:20'
-                        expirationDate: '2020-01-01 00:12:20'
+                        startDate: '2020-10-20'
+                        expirationDate: '2020-01-01'
                         customer:
                           id: 3
                           company: Epical s.p.a.
@@ -153,8 +156,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -171,8 +174,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -189,8 +192,8 @@ paths:
                         title: AffidabilData Token
                         tokens: 100
                         unitPrice: 165.6
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 2
                           company: AffidabilData s.p.a.
@@ -207,8 +210,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -225,8 +228,8 @@ paths:
                         title: AffidabilData Token
                         tokens: 100
                         unitPrice: 165.6
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 2
                           company: AffidabilData s.p.a.
@@ -236,8 +239,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -247,8 +250,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -258,8 +261,8 @@ paths:
                         title: Epic Token
                         tokens: 103
                         unitPrice: 166.6
-                        startDate: '2020-10-20 00:12:20'
-                        expirationDate: '2020-01-01 00:12:20'
+                        startDate: '2020-10-20'
+                        expirationDate: '2020-01-01'
                         customer:
                           id: 3
                           company: Epical s.p.a.
@@ -292,26 +295,6 @@ paths:
                 required:
                   - agreementId
               examples:
-                not-token-based:
-                  value:
-                    customerId: 1
-                    expirationDate: '2020-01-01'
-                    startDate: '2020-01-01'
-                    title: Agreement Title
-                    tokens: 10
-                    unitPrice: 1
-                    note: Agreement notes
-                    isTokenBased: false
-                token-based:
-                  value:
-                    customerId: 1
-                    expirationDate: '2020-01-01'
-                    startDate: '2020-01-01'
-                    title: Agreement Title
-                    tokens: 10
-                    unitPrice: 1
-                    note: Agreement notes
-                    isTokenBased: true
                 success-creation:
                   value:
                     agreementId: 11111
@@ -400,6 +383,7 @@ paths:
                       company: string
                 request-correct:
                   value:
+                    id: 1
                     customerId: 1
                     expirationDate: '2020-01-01'
                     startDate: '2020-01-01'
@@ -408,6 +392,9 @@ paths:
                     unitPrice: 1
                     note: Agreement notes
                     isTokenBased: true
+                    customer:
+                      id: 0
+                      company: string
                 success:
                   value:
                     id: 11111
@@ -419,6 +406,9 @@ paths:
                     unitPrice: 1
                     note: Agreement notes
                     isTokenBased: true
+                    customer:
+                      id: 0
+                      company: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '500':
@@ -506,6 +496,9 @@ paths:
               examples:
                 Example 1:
                   value:
+                    customer:
+                      id: 1
+                      company: string
                     id: 1
                     title: string
                     tokens: 1
@@ -514,20 +507,17 @@ paths:
                     expirationDate: '2023-07-03'
                     note: string
                     isTokenBased: false
-                    customer:
-                      id: 1
-                      company: string
                 success-found:
                   value:
                     id: 69
                     customer:
-                      id: 4
-                      company: Surgiva
+                      id: 1
+                      company: string
                     title: Sunset Crowdtesting (Bug Hunting) 2022-2023
                     tokens: 666
                     unitPrice: 100
-                    startDate: '2022-02-03 00:00:00'
-                    expirationDate: '2023-10-31 00:00:00'
+                    startDate: '2022-02-03'
+                    expirationDate: '2023-10-31'
                     note: Agreement improved by Sunset
                     isTokenBased: false
         '403':
@@ -3387,6 +3377,13 @@ paths:
                   value:
                     status: draft
                     sentiments: []
+                    questions: []
+                    goal: The Research Goal
+                    usersNumber: 10
+                    methodology:
+                      name: UX Challenge
+                      description: UX Challenge
+                      type: qualitative
                 ux-campaign-draft-with-insights:
                   value:
                     status: draft
