@@ -9135,8 +9135,9 @@ paths:
             enum:
               - id
               - attributionDate
-              - amount
               - activityName
+              - net
+              - gross
           in: query
           description: The field for item order
           name: orderBy
