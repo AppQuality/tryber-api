@@ -8717,13 +8717,12 @@ paths:
                             amount:
                               type: object
                               required:
-                                - value
-                                - currency
+                                - gross
                               properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
+                                net:
+                                  $ref: '#/components/schemas/Currency'
+                                gross:
+                                  $ref: '#/components/schemas/Currency'
                             date:
                               type: string
                               format: date
@@ -8759,8 +8758,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                     limit: 10
                     size: 1
                     total: 1
@@ -8776,8 +8779,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 2
                         campaign:
                           id: 123
@@ -8786,8 +8793,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 3
                         campaign:
                           id: 123
@@ -8796,8 +8807,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 4
                         campaign:
                           id: 123
@@ -8806,8 +8821,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 5
                         campaign:
                           id: 123
@@ -8816,8 +8835,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 6
                         campaign:
                           id: 123
@@ -8826,8 +8849,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 7
                         campaign:
                           id: 12
@@ -8836,8 +8863,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 8
                         campaign:
                           id: 123
@@ -8846,8 +8877,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 9
                         campaign:
                           id: 123
@@ -8856,8 +8891,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 10
                         campaign:
                           id: 12
@@ -8866,8 +8905,9 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 5
-                          currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                     limit: 10
                     size: 1
                     total: 1
