@@ -655,6 +655,11 @@ export interface components {
      * @enum {string}
      */
     CustomUserFieldsType: "text" | "select" | "multiselect";
+    /** Currency */
+    Currency: {
+      value?: number;
+      currency?: string;
+    };
     /** FiscalBirthCity */
     FiscalBirthCity:
       | {
@@ -988,8 +993,7 @@ export interface operations {
             };
         };
       };
-      /** Forbidden */
-      403: unknown;
+      403: components["responses"]["Authentication"];
       /** Internal Server Error */
       500: unknown;
     };
@@ -1036,9 +1040,12 @@ export interface operations {
     };
     responses: {
       /** OK */
-      200: unknown;
-      /** Forbidden */
-      403: unknown;
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      403: components["responses"]["NotFound"];
       /** Internal Server Error */
       500: unknown;
     };
@@ -2123,7 +2130,7 @@ export interface operations {
           }[];
         };
       };
-      403: components["responses"]["NotAuthorized"];
+      403: components["responses"]["NotFound"];
     };
   };
   "get-customUserFields": {
@@ -2596,8 +2603,14 @@ export interface operations {
             is_verified?: boolean;
             rank?: string;
             total_exp_pts?: number;
-            booty?: number;
-            pending_booty?: number;
+            booty?: {
+              net?: components["schemas"]["Currency"];
+              gross?: components["schemas"]["Currency"];
+            };
+            pending_booty?: {
+              net?: components["schemas"]["Currency"];
+              gross?: components["schemas"]["Currency"];
+            };
             languages?: {
               id?: number;
               name?: string;
@@ -2684,8 +2697,14 @@ export interface operations {
             is_verified?: boolean;
             rank?: string;
             total_exp_pts?: number;
-            booty?: number;
-            pending_booty?: number;
+            booty?: {
+              gross?: components["schemas"]["Currency"];
+              net?: components["schemas"]["Currency"];
+            };
+            pending_booty?: {
+              gross?: components["schemas"]["Currency"];
+              net?: components["schemas"]["Currency"];
+            };
             languages?: {
               id?: number;
               name?: string;
@@ -3657,6 +3676,7 @@ export interface operations {
           };
         };
       };
+      403: components["responses"]["NotAuthorized"];
       /** Internal Server Error */
       500: unknown;
     };

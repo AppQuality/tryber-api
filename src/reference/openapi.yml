@@ -6068,7 +6068,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -6112,9 +6111,19 @@ paths:
                   total_exp_pts:
                     type: number
                   booty:
-                    type: number
+                    type: object
+                    properties:
+                      net:
+                        $ref: '#/components/schemas/Currency'
+                      gross:
+                        $ref: '#/components/schemas/Currency'
                   pending_booty:
-                    type: number
+                    type: object
+                    properties:
+                      net:
+                        $ref: '#/components/schemas/Currency'
+                      gross:
+                        $ref: '#/components/schemas/Currency'
                   languages:
                     type: array
                     items:
@@ -6233,7 +6242,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -6304,12 +6312,21 @@ paths:
                   total_exp_pts:
                     type: number
                   booty:
-                    type: number
+                    type: object
+                    properties:
+                      gross:
+                        $ref: '#/components/schemas/Currency'
+                      net:
+                        $ref: '#/components/schemas/Currency'
                   pending_booty:
-                    type: number
+                    type: object
+                    properties:
+                      gross:
+                        $ref: '#/components/schemas/Currency'
+                      net:
+                        $ref: '#/components/schemas/Currency'
                   languages:
                     type: array
-                    uniqueItems: false
                     items:
                       type: object
                       properties:
@@ -6321,7 +6338,6 @@ paths:
                     type: boolean
                   additional:
                     type: array
-                    uniqueItems: false
                     items:
                       $ref: '#/components/schemas/AdditionalField'
                   gender:
@@ -9854,6 +9870,14 @@ components:
         - text
         - select
         - multiselect
+    Currency:
+      title: Currency
+      type: object
+      properties:
+        value:
+          type: number
+        currency:
+          type: string
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:
