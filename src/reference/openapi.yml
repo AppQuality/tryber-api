@@ -6380,6 +6380,8 @@ paths:
                         $ref: '#/components/schemas/Currency'
                       net:
                         $ref: '#/components/schemas/Currency'
+                    required:
+                      - gross
                   pending_booty:
                     type: object
                     properties:
@@ -6387,6 +6389,8 @@ paths:
                         $ref: '#/components/schemas/Currency'
                       net:
                         $ref: '#/components/schemas/Currency'
+                    required:
+                      - gross
                   languages:
                     type: array
                     items:
@@ -8356,6 +8360,7 @@ paths:
                             amount:
                               type: object
                               required:
+                                - net
                                 - gross
                               properties:
                                 net:
@@ -8429,6 +8434,9 @@ paths:
                       - id: 2
                         status: processing
                         amount:
+                          net:
+                            value: 10
+                            currency: EUR
                           gross:
                             value: 13.5
                             currency: EUR
@@ -8587,6 +8595,9 @@ paths:
                       - id: 10
                         status: paid
                         amount:
+                          net:
+                            value: 10
+                            currency: EUR
                           gross:
                             value: 13.5
                             currency: EUR
@@ -8604,7 +8615,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       operationId: get-users-me-payments
-      description: ''
+      description: Return all payment requests
       security:
         - JWT: []
       parameters:
@@ -8933,6 +8944,7 @@ paths:
           in: query
           name: orderBy
           description: The value to order by
+      description: Return all attributions of a specific request
   /users/me/pending_booty:
     get:
       summary: Get all your payments

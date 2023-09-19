@@ -458,11 +458,13 @@ export interface paths {
     };
   };
   "/users/me/payments": {
+    /** Return all payment requests */
     get: operations["get-users-me-payments"];
     post: operations["post-users-me-payments"];
     parameters: {};
   };
   "/users/me/payments/{payment}": {
+    /** Return all attributions of a specific request */
     get: operations["get-users-me-payments-payment"];
     parameters: {
       path: {
@@ -2698,11 +2700,11 @@ export interface operations {
             rank?: string;
             total_exp_pts?: number;
             booty?: {
-              gross?: components["schemas"]["Currency"];
+              gross: components["schemas"]["Currency"];
               net?: components["schemas"]["Currency"];
             };
             pending_booty?: {
-              gross?: components["schemas"]["Currency"];
+              gross: components["schemas"]["Currency"];
               net?: components["schemas"]["Currency"];
             };
             languages?: {
@@ -3494,6 +3496,7 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  /** Return all payment requests */
   "get-users-me-payments": {
     parameters: {
       query: {
@@ -3518,7 +3521,7 @@ export interface operations {
               /** @enum {string} */
               status: "paid" | "processing";
               amount: {
-                net?: components["schemas"]["Currency"];
+                net: components["schemas"]["Currency"];
                 gross: components["schemas"]["Currency"];
               };
               paidDate: string;
@@ -3575,6 +3578,7 @@ export interface operations {
       };
     };
   };
+  /** Return all attributions of a specific request */
   "get-users-me-payments-payment": {
     parameters: {
       path: {
