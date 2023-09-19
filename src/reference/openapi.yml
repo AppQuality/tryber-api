@@ -8355,11 +8355,13 @@ paths:
                                 - processing
                             amount:
                               type: object
+                              required:
+                                - gross
                               properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
+                                net:
+                                  $ref: '#/components/schemas/Currency'
+                                gross:
+                                  $ref: '#/components/schemas/Currency'
                             paidDate:
                               oneOf:
                                 - format: date
@@ -8406,8 +8408,12 @@ paths:
                       - id: 1
                         status: paid
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8423,8 +8429,9 @@ paths:
                       - id: 2
                         status: processing
                         amount:
-                          value: 5
-                          currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '-'
                         method:
                           type: paypal
@@ -8433,8 +8440,12 @@ paths:
                       - id: 1
                         status: paid
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8451,8 +8462,12 @@ paths:
                         status: processing
                         paidDate: '-'
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         method:
                           type: paypal
                           note: me@example.com
@@ -8460,8 +8475,12 @@ paths:
                       - id: 1
                         status: paid
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: iban
@@ -8470,8 +8489,12 @@ paths:
                       - id: 3
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: iban
@@ -8480,8 +8503,12 @@ paths:
                       - id: 4
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8490,8 +8517,12 @@ paths:
                       - id: 5
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8500,8 +8531,12 @@ paths:
                       - id: 6
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8510,8 +8545,12 @@ paths:
                       - id: 7
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8520,8 +8559,12 @@ paths:
                       - id: 8
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8530,8 +8573,12 @@ paths:
                       - id: 9
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8540,8 +8587,9 @@ paths:
                       - id: 10
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: iban
