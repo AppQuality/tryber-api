@@ -13,7 +13,7 @@ export default class RouteItem extends UserRoute<{
   private limit: number = 25;
   private explicitLimitIsRequested: boolean = false;
   private order: "ASC" | "DESC" = "DESC";
-  private orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] =
+  private orderBy: "id" | "attributionDate" | "activityName" | "amount" =
     "attributionDate";
   private fiscalCategory: number = 0;
 
@@ -26,7 +26,12 @@ export default class RouteItem extends UserRoute<{
       this.explicitLimitIsRequested = true;
     }
     if (query.order) this.order = query.order;
-    if (query.orderBy) this.orderBy = query.orderBy;
+    if (query.orderBy) {
+      let orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] = query.orderBy;
+      if (orderBy === "net" || orderBy === "gross") this.orderBy = "amount";
+      else if (query.orderBy !== "net" && query.orderBy !== "gross")
+        this.orderBy = query.orderBy;
+    }
   }
 
   protected async prepare() {

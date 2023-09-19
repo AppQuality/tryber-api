@@ -304,23 +304,46 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
       3, 2, 1,
     ]);
   });
-  it("Should return attributions ordered by amount if orderBy=amount is set", async () => {
+  it("Should return attributions ordered by gross if orderBy=gross is set", async () => {
     const response = await request(app)
-      .get("/users/me/pending_booty?orderBy=amount")
+      .get("/users/me/pending_booty?orderBy=gross")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body.results.map((item: any) => item.id)).toEqual([
       1, 3, 2,
     ]);
     const responseAsc = await request(app)
-      .get("/users/me/pending_booty?orderBy=amount&order=ASC")
+      .get("/users/me/pending_booty?orderBy=gross&order=ASC")
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
       2, 3, 1,
     ]);
     const responseDesc = await request(app)
-      .get("/users/me/pending_booty?orderBy=amount&order=DESC")
+      .get("/users/me/pending_booty?orderBy=gross&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      1, 3, 2,
+    ]);
+  });
+  it("Should return attributions ordered by net if orderBy=net is set", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty?orderBy=net")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      1, 3, 2,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/pending_booty?orderBy=net&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      2, 3, 1,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/pending_booty?orderBy=net&order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
