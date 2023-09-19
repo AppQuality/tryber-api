@@ -5,6 +5,7 @@ import Attributions, {
 } from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 const campaign1 = {
   id: 1,
@@ -41,6 +42,16 @@ const attribution3: AttributionParams = {
   is_paid: 0,
   is_requested: 0,
 };
+
+const attribution4: AttributionParams = {
+  id: 6,
+  tester_id: 2,
+  campaign_id: 1,
+  amount: 9999,
+  creation_date: "1960-01-01 00:00:00",
+  is_paid: 0,
+  is_requested: 0,
+};
 const attributionPaid: AttributionParams = {
   id: 4,
   tester_id: 1,
@@ -68,7 +79,7 @@ const attributionRequested: AttributionParams = {
   is_requested: 1,
 };
 
-describe("GET /users/me/pending_booty", () => {
+describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       Campaigns.insert(campaign1);
@@ -76,8 +87,19 @@ describe("GET /users/me/pending_booty", () => {
       sqlite3.insert("wp_appq_payment", attribution1);
       sqlite3.insert("wp_appq_payment", attribution2);
       sqlite3.insert("wp_appq_payment", attribution3);
+      sqlite3.insert("wp_appq_payment", attribution4);
       sqlite3.insert("wp_appq_payment", attributionPaid);
       sqlite3.insert("wp_appq_payment", attributionRequested);
+      await tryber.tables.WpAppqFiscalProfile.do().insert([
+        {
+          fiscal_category: 1,
+          tester_id: 1,
+          name: "test1",
+          surname: "surname1",
+          sex: "1",
+          birth_date: "1990-01-01",
+        },
+      ]);
       resolve(null);
     });
   });
@@ -85,9 +107,65 @@ describe("GET /users/me/pending_booty", () => {
     return new Promise(async (resolve) => {
       await Attributions.clear();
       await Campaigns.clear();
+      await tryber.tables.WpAppqFiscalProfile.do().delete();
+      await tryber.tables.WpAppqPayment.do().delete();
       resolve(null);
     });
   });
+
+  it("Should return net and gross if fiscal profile category is 1", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty")
+      .set("authorization", "Bearer tester");
+    expect(response.body.results).toEqual([
+      {
+        id: attribution2.id,
+        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        amount: {
+          net: {
+            value: attribution2.amount ? attribution2.amount * 0.8 : 0,
+            currency: "EUR",
+          },
+          gross: {
+            value: attribution2.amount,
+            currency: "EUR",
+          },
+        },
+        attributionDate: attribution2.creation_date?.substring(0, 10),
+      },
+      {
+        id: attribution1.id,
+        name: `[CP-${campaign2.id}] ${campaign2.title}`,
+        amount: {
+          net: {
+            value: attribution1.amount ? attribution1.amount * 0.8 : 0,
+            currency: "EUR",
+          },
+          gross: {
+            value: attribution1.amount,
+            currency: "EUR",
+          },
+        },
+        attributionDate: attribution1.creation_date?.substring(0, 10),
+      },
+      {
+        id: attribution3.id,
+        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        amount: {
+          net: {
+            value: attribution3.amount ? attribution3.amount * 0.8 : 0,
+            currency: "EUR",
+          },
+          gross: {
+            value: attribution3.amount,
+            currency: "EUR",
+          },
+        },
+        attributionDate: attribution3.creation_date?.substring(0, 10),
+      },
+    ]);
+  });
+
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get("/users/me/pending_booty");
     expect(response.status).toBe(403);
@@ -107,8 +185,14 @@ describe("GET /users/me/pending_booty", () => {
         id: attribution2.id,
         name: `[CP-${campaign1.id}] ${campaign1.title}`,
         amount: {
-          value: attribution2.amount,
-          currency: "EUR",
+          net: {
+            value: attribution2.amount ? attribution2.amount * 0.8 : 0,
+            currency: "EUR",
+          },
+          gross: {
+            value: attribution2.amount,
+            currency: "EUR",
+          },
         },
         attributionDate: attribution2.creation_date?.substring(0, 10),
       },
@@ -116,8 +200,14 @@ describe("GET /users/me/pending_booty", () => {
         id: attribution1.id,
         name: `[CP-${campaign2.id}] ${campaign2.title}`,
         amount: {
-          value: attribution1.amount,
-          currency: "EUR",
+          net: {
+            value: attribution1.amount ? attribution1.amount * 0.8 : 0,
+            currency: "EUR",
+          },
+          gross: {
+            value: attribution1.amount,
+            currency: "EUR",
+          },
         },
         attributionDate: attribution1.creation_date?.substring(0, 10),
       },
@@ -125,8 +215,14 @@ describe("GET /users/me/pending_booty", () => {
         id: attribution3.id,
         name: `[CP-${campaign1.id}] ${campaign1.title}`,
         amount: {
-          value: attribution3.amount,
-          currency: "EUR",
+          net: {
+            value: attribution3.amount ? attribution3.amount * 0.8 : 0,
+            currency: "EUR",
+          },
+          gross: {
+            value: attribution3.amount,
+            currency: "EUR",
+          },
         },
         attributionDate: attribution3.creation_date?.substring(0, 10),
       },
@@ -208,23 +304,46 @@ describe("GET /users/me/pending_booty", () => {
       3, 2, 1,
     ]);
   });
-  it("Should return attributions ordered by amount if orderBy=amount is set", async () => {
+  it("Should return attributions ordered by gross if orderBy=gross is set", async () => {
     const response = await request(app)
-      .get("/users/me/pending_booty?orderBy=amount")
+      .get("/users/me/pending_booty?orderBy=gross")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body.results.map((item: any) => item.id)).toEqual([
       1, 3, 2,
     ]);
     const responseAsc = await request(app)
-      .get("/users/me/pending_booty?orderBy=amount&order=ASC")
+      .get("/users/me/pending_booty?orderBy=gross&order=ASC")
       .set("authorization", "Bearer tester");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
       2, 3, 1,
     ]);
     const responseDesc = await request(app)
-      .get("/users/me/pending_booty?orderBy=amount&order=DESC")
+      .get("/users/me/pending_booty?orderBy=gross&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      1, 3, 2,
+    ]);
+  });
+  it("Should return attributions ordered by net if orderBy=net is set", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty?orderBy=net")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      1, 3, 2,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/pending_booty?orderBy=net&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      2, 3, 1,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/pending_booty?orderBy=net&order=DESC")
       .set("authorization", "Bearer tester");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
@@ -373,5 +492,116 @@ describe("Route GET payment-pending-booty when no data", () => {
       id: 1,
       message: "No booty until now",
     });
+  });
+});
+
+describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
+  beforeAll(async () => {
+    await Campaigns.insert(campaign1);
+    await Campaigns.insert(campaign2);
+    await sqlite3.insert("wp_appq_payment", attribution1);
+    await sqlite3.insert("wp_appq_payment", attribution2);
+    await sqlite3.insert("wp_appq_payment", attribution3);
+    await sqlite3.insert("wp_appq_payment", attribution4);
+    await sqlite3.insert("wp_appq_payment", attributionPaid);
+    await sqlite3.insert("wp_appq_payment", attributionRequested);
+    await tryber.tables.WpAppqFiscalProfile.do().insert([
+      {
+        fiscal_category: 1,
+        tester_id: 2,
+        name: "test1",
+        surname: "surname1",
+        sex: "1",
+        birth_date: "1990-01-01",
+      },
+      {
+        fiscal_category: 2,
+        tester_id: 1,
+        name: "test2",
+        surname: "surname2",
+        sex: "0",
+        birth_date: "1990-01-01",
+      },
+    ]);
+  });
+  afterAll(async () => {
+    await Attributions.clear();
+    await Campaigns.clear();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+    await tryber.tables.WpAppqPayment.do().delete();
+  });
+
+  it("Should return only gross if fiscal category id is NOT 1", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty")
+      .set("authorization", "Bearer tester");
+    expect(response.body.results[0].amount).not.toHaveProperty("net");
+    expect(response.body.results[1].amount).not.toHaveProperty("net");
+    expect(response.body.results[2].amount).not.toHaveProperty("net");
+    expect(response.body.results[0].amount).toHaveProperty("gross");
+    expect(response.body.results[1].amount).toHaveProperty("gross");
+    expect(response.body.results[2].amount).toHaveProperty("gross");
+  });
+
+  it("Should return a list of attributions", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty")
+      .set("authorization", "Bearer tester");
+    expect(response.body.results).toEqual([
+      {
+        id: attribution2.id,
+        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        amount: {
+          gross: {
+            value: attribution2.amount,
+            currency: "EUR",
+          },
+        },
+        attributionDate: attribution2.creation_date?.substring(0, 10),
+      },
+      {
+        id: attribution1.id,
+        name: `[CP-${campaign2.id}] ${campaign2.title}`,
+        amount: {
+          gross: {
+            value: attribution1.amount,
+            currency: "EUR",
+          },
+        },
+        attributionDate: attribution1.creation_date?.substring(0, 10),
+      },
+      {
+        id: attribution3.id,
+        name: `[CP-${campaign1.id}] ${campaign1.title}`,
+        amount: {
+          gross: {
+            value: attribution3.amount,
+            currency: "EUR",
+          },
+        },
+        attributionDate: attribution3.creation_date?.substring(0, 10),
+      },
+    ]);
+  });
+  it("Should return attributions not paid and not requested", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((el: { id: number }) => el.id)).toEqual(
+      expect.not.arrayContaining([attributionRequested.id])
+    );
+    expect(response.body.results.map((el: { id: number }) => el.id)).toEqual(
+      expect.not.arrayContaining([attributionPaid.id])
+    );
+  });
+  it("Should return only tryber1 attributions", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((el: { id: number }) => el.id)).toEqual(
+      expect.not.arrayContaining([attributionTryber2.id])
+    );
   });
 });
