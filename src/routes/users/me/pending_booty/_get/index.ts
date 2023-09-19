@@ -36,8 +36,10 @@ export default class RouteItem extends UserRoute<{
             id: row.id,
             name: row.activityName,
             amount: {
-              value: row.amount,
-              currency: "EUR",
+              gross: {
+                value: row.amount,
+                currency: "EUR",
+              },
             },
             attributionDate: row.attributionDate.substring(0, 10),
           };
