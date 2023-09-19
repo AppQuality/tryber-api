@@ -3592,7 +3592,7 @@ export interface operations {
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
         /** The value to order by */
-        orderBy?: "amount" | "type" | "date" | "activity";
+        orderBy?: "type" | "date" | "activity" | "net" | "gross";
       };
     };
     responses: {
@@ -3632,7 +3632,7 @@ export interface operations {
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
         /** The field for item order */
-        orderBy?: "id" | "attributionDate" | "amount" | "activityName";
+        orderBy?: "id" | "attributionDate" | "activityName" | "net" | "gross";
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
       };
