@@ -8871,11 +8871,13 @@ paths:
                               type: string
                             amount:
                               type: object
+                              required:
+                                - gross
                               properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
+                                net:
+                                  $ref: '#/components/schemas/Currency'
+                                gross:
+                                  $ref: '#/components/schemas/Currency'
                             attributionDate:
                               type: string
                               format: date
@@ -8902,8 +8904,12 @@ paths:
                       - id: 1
                         name: ''
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                     limit: 10
                     size: 1
@@ -8915,62 +8921,99 @@ paths:
                       - id: 1
                         name: ''
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 2
                         name: ''
                         amount:
-                          value: 12
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 3
                         name: ''
                         amount:
-                          value: 13
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 4
                         name: ''
                         amount:
-                          value: 14
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 5
                         name: ''
                         amount:
-                          value: 15
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 6
                         name: ''
                         amount:
-                          value: 16
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 7
                         name: ''
                         amount:
-                          value: 17
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 8
                         name: ''
                         amount:
-                          value: 18
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 9
                         name: ''
                         amount:
-                          value: 19
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 10
                         name: ''
                         amount:
-                          value: 20
-                          currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                     limit: 10
                     size: 10
