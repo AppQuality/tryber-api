@@ -2605,11 +2605,11 @@ export interface operations {
             total_exp_pts?: number;
             booty?: {
               net?: components["schemas"]["Currency"];
-              gross?: components["schemas"]["Currency"];
+              gross: components["schemas"]["Currency"];
             };
             pending_booty?: {
               net?: components["schemas"]["Currency"];
-              gross?: components["schemas"]["Currency"];
+              gross: components["schemas"]["Currency"];
             };
             languages?: {
               id?: number;
@@ -3518,8 +3518,8 @@ export interface operations {
               /** @enum {string} */
               status: "paid" | "processing";
               amount: {
-                value?: number;
-                currency?: string;
+                net?: components["schemas"]["Currency"];
+                gross: components["schemas"]["Currency"];
               };
               paidDate: string;
               method: {
@@ -3601,8 +3601,8 @@ export interface operations {
             } & {
               type: string;
               amount: {
-                value: number;
-                currency: string;
+                net?: components["schemas"]["Currency"];
+                gross: components["schemas"]["Currency"];
               };
               /** Format: date */
               date: string;
@@ -3643,8 +3643,8 @@ export interface operations {
             } & {
               name: string;
               amount: {
-                value?: number;
-                currency?: string;
+                net?: components["schemas"]["Currency"];
+                gross: components["schemas"]["Currency"];
               };
               /** Format: date */
               attributionDate: string;
