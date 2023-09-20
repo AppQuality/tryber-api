@@ -7,7 +7,9 @@ export const format = (query: string, data: (string | number)[]) => {
 };
 
 export const query = async (query: string): Promise<any> => {
-  return await tryber.raw(query);
+  const res = await tryber.raw(query);
+
+  return res ? res[0] : [];
 };
 
 export const insert = (table: string, data: any): Promise<any> => {
