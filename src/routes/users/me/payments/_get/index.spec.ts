@@ -8,6 +8,7 @@ const paymentRequestPaypal = {
   id: 1,
   tester_id: 1,
   amount: 269,
+  amount_gross: 300,
   paypal_email: "john.doe@example.com",
   is_paid: 1,
   update_date: "1980-01-01 00:00:00",
@@ -18,6 +19,7 @@ const paymentRequestPaypalNotMine = {
   id: 6,
   tester_id: 2,
   amount: 269,
+  amount_gross: 300,
   paypal_email: "john.doe@example.com",
   is_paid: 1,
   update_date: "1980-01-01 00:00:00",
@@ -27,6 +29,7 @@ const paymentRequestWise = {
   id: 2,
   tester_id: 1,
   amount: 169,
+  amount_gross: 200,
   iban: "DE12345678901234567890",
   is_paid: 1,
   update_date: "1992-05-01 00:00:00",
@@ -37,6 +40,7 @@ const paymentRequestInvalid = {
   id: 3,
   tester_id: 1,
   amount: 69,
+  amount_gross: 100,
   is_paid: 1,
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
@@ -46,6 +50,7 @@ const paymentRequestPaypal2 = {
   id: 4,
   tester_id: 1,
   amount: 170,
+  amount_gross: 200,
   is_paid: 1,
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
@@ -56,6 +61,7 @@ const paymentRequestPaypalProcessing = {
   id: 5,
   tester_id: 1,
   amount: 49000,
+  amount_gross: 50000,
   is_paid: 0,
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
@@ -117,8 +123,14 @@ describe("GET /users/me/payments", () => {
       results: [
         {
           amount: {
-            currency: "EUR",
-            value: 49000,
+            gross: {
+              currency: "EUR",
+              value: 50000,
+            },
+            net: {
+              currency: "EUR",
+              value: 49000,
+            },
           },
           id: 5,
           method: {
@@ -130,8 +142,14 @@ describe("GET /users/me/payments", () => {
         },
         {
           amount: {
-            currency: "EUR",
-            value: 169,
+            gross: {
+              currency: "EUR",
+              value: 200,
+            },
+            net: {
+              currency: "EUR",
+              value: 169,
+            },
           },
           id: 2,
           method: {
@@ -144,8 +162,14 @@ describe("GET /users/me/payments", () => {
         },
         {
           amount: {
-            currency: "EUR",
-            value: 269,
+            gross: {
+              currency: "EUR",
+              value: 300,
+            },
+            net: {
+              currency: "EUR",
+              value: 269,
+            },
           },
           id: 1,
           method: {
@@ -157,8 +181,14 @@ describe("GET /users/me/payments", () => {
         },
         {
           amount: {
-            currency: "EUR",
-            value: 170,
+            gross: {
+              currency: "EUR",
+              value: 200,
+            },
+            net: {
+              currency: "EUR",
+              value: 170,
+            },
           },
           id: 4,
           method: {
@@ -288,7 +318,6 @@ describe("GET /users/me/payments", () => {
       2, 1, 4,
     ]);
   });
-
   it("Should return the size that is equal to number of results", async () => {
     const response = await request(app)
       .get("/users/me/payments")

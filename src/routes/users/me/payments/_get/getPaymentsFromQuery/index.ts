@@ -8,6 +8,7 @@ export default async (
     id: number;
     is_paid: 0 | 1;
     amount: number;
+    amount_gross: number;
     paypal_email?: string;
     iban?: string;
     paidDate: string;
@@ -31,7 +32,7 @@ export default async (
 
   const sql = `
     SELECT 
-        pr.id, pr.is_paid, pr.amount, pr.paypal_email, pr.iban,
+        pr.id, pr.is_paid, pr.amount, pr.amount_gross, pr.paypal_email, pr.iban,
         CASE 
             WHEN pr.is_paid=0 THEN NOW()
             ELSE CAST(pr.paid_date as CHAR) 
