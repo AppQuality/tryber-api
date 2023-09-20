@@ -2,10 +2,6 @@ import fs from "fs";
 
 import signRequest from ".";
 
-jest.mock("fs", () => ({
-  readFileSync: jest.fn(),
-}));
-
 const examplePrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQCqGKukO1De7zhZj6+H0qtjTkVxwTCpvKe4eCZ0FPqri0cb2JZfXJ/DgYSF6vUp
 wmJG8wVQZKjeGcjDOL5UlsuusFncCzWBQ7RKNUSesmQRMSGkVb1/3j+skZ6UtW+5u09lHNsj6tQ5
@@ -27,9 +23,9 @@ const signed =
 describe("Sign request", () => {
   it("Should return a base64 signed string", async () => {
     try {
-      (fs.readFileSync as jest.Mock).mockImplementation(
-        () => examplePrivateKey
-      );
+      jest
+        .spyOn(fs, "readFileSync")
+        .mockImplementation(() => examplePrivateKey);
       const signedStr = await signRequest(string);
       expect(signedStr).toBe(signed);
     } catch (err) {
