@@ -1,9 +1,8 @@
 /** OPENAPI-ROUTE: get-users-me-payments-payment*/
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
-
+import * as db from "@src/features/db";
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
-import { tryber } from "@src/features/database";
 
 export default async (
   c: Context,
@@ -75,13 +74,16 @@ export default async (
   };
 
   async function getFiscalCategory() {
-    const fiscalCategory = await tryber.tables.WpAppqFiscalProfile.do()
-      .select("fiscal_category")
-      .where("is_active", 1)
-      .first();
-
-    return fiscalCategory && fiscalCategory.fiscal_category
-      ? fiscalCategory.fiscal_category
-      : 0;
+    let fiscalCategory = 0;
+    let fiscalSql = `SELECT 
+  fp.fiscal_category from wp_appq_fiscal_profile as fp
+  JOIN wp_appq_evd_profile as p ON (p.id = fp.tester_id)
+  WHERE p.wp_user_id = ? AND fp.is_active = 1
+`;
+    const fiscal = await db.query(db.format(fiscalSql, [req.user.ID]));
+    if (fiscal.length) {
+      fiscalCategory = fiscal[0].fiscal_category;
+    }
+    return fiscalCategory;
   }
 };

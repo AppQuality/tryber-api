@@ -3,10 +3,10 @@ import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
 import request from "supertest";
-import { tryber } from "@src/features/database";
 
 const campaign1 = {
   id: 1,
@@ -84,35 +84,21 @@ describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
       campaign_id: campaign2.id,
     });
 
-    await tryber.tables.WpAppqFiscalProfile.do().insert([
-      {
-        tester_id: 1,
-        fiscal_category: 1,
-        name: "John",
-        surname: "Doe",
-        sex: "1",
-        birth_date: "1972-01-02",
-        is_active: 1,
-      },
-      {
-        tester_id: 1,
-        fiscal_category: 2,
-        name: "Jane",
-        surname: "Doe",
-        sex: "0",
-        birth_date: "1972-01-01",
-        is_active: 0,
-      },
-      {
-        tester_id: 2,
-        fiscal_category: 1,
-        name: "Jane",
-        surname: "Doe",
-        sex: "0",
-        birth_date: "1972-01-01",
-        is_active: 1,
-      },
-    ]);
+    await FiscalProfile.validFiscalProfile({
+      id: 1,
+      tester_id: 1,
+      fiscal_category: 1,
+    });
+    await FiscalProfile.inactiveFiscalProfile({
+      id: 2,
+      tester_id: 1,
+      fiscal_category: 2,
+    });
+    await FiscalProfile.validFiscalProfile({
+      id: 3,
+      tester_id: 2,
+      fiscal_category: 1,
+    });
   });
   afterAll(async () => {
     await Profile.clear();
@@ -120,7 +106,7 @@ describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
     await requestData.drop();
     await Campaigns.clear();
     await workTypeData.drop();
-    await tryber.tables.WpAppqFiscalProfile.do().delete();
+    await FiscalProfile.drop();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -441,24 +427,16 @@ describe("GET /users/me/payments/{payment} fiscal category = 2", () => {
       campaign_id: campaign2.id,
     });
 
-    await tryber.tables.WpAppqFiscalProfile.do().insert([
-      {
-        tester_id: 1,
-        fiscal_category: 2,
-        name: "John",
-        surname: "Doe",
-        sex: "1",
-        birth_date: "1972-01-01",
-      },
-      {
-        tester_id: 2,
-        fiscal_category: 2,
-        name: "Jane",
-        surname: "Doe",
-        sex: "0",
-        birth_date: "1972-01-01",
-      },
-    ]);
+    await FiscalProfile.validFiscalProfile({
+      id: 1,
+      tester_id: 1,
+      fiscal_category: 2,
+    });
+    await FiscalProfile.validFiscalProfile({
+      id: 2,
+      tester_id: 2,
+      fiscal_category: 2,
+    });
   });
   afterAll(async () => {
     await Profile.clear();
@@ -466,7 +444,7 @@ describe("GET /users/me/payments/{payment} fiscal category = 2", () => {
     await requestData.drop();
     await Campaigns.clear();
     await workTypeData.drop();
-    await tryber.tables.WpAppqFiscalProfile.do().delete();
+    await FiscalProfile.drop();
   });
 
   it("Should return amount gross for each activities", async () => {
