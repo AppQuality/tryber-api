@@ -178,7 +178,6 @@ describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
       data.payment3.creation_date.substring(0, 10),
     ]);
   });
-  //
   it("Should return gross and net for each activities", async () => {
     const response = await request(app)
       .get("/users/me/payments/1")
