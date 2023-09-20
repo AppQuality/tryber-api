@@ -8,13 +8,17 @@ export default async (
   req: OpenapiRequest,
   res: OpenapiResponse
 ) => {
+  console.log("🚀 ~ file: jwtSecurityHandler.ts:12 ~ ");
   let authHeader = c.request.headers["authorization"];
+  console.log("🚀 ~ file: jwtSecurityHandler.ts:13 ~ authHeader:", authHeader);
   if (Array.isArray(authHeader)) {
     authHeader = authHeader.join(" ");
   }
 
   if (!authHeader && "apikey" in c.request.headers === false) {
     const user = await checkCookies(req);
+    console.log("🚀 ~ file: jwtSecurityHandler.ts:20 ~ req:", req);
+    console.log("🚀 ~ file: jwtSecurityHandler.ts:22 ~ user:", user);
     if (user instanceof Error) {
       return jwt.verify("", config.jwt.secret);
     }
