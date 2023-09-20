@@ -8,7 +8,7 @@ export const format = (query: string, data: (string | number)[]) => {
 
 export const query = async (query: string): Promise<any> => {
   const res = await tryber.raw(query);
-
+  if (tryber.client === "better-sqlite3") return res;
   return res ? res[0] : [];
 };
 
