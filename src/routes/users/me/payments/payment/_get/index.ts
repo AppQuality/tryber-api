@@ -3,6 +3,7 @@ import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
 
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
+import { tryber } from "@src/features/database";
 
 export default async (
   c: Context,
@@ -51,13 +52,16 @@ export default async (
   }
 
   res.status_code = 200;
+  const fiscalCategory = await getFiscalCategory();
   return {
     results: results.map((attribution) => {
       return {
         id: attribution.id,
         amount: {
-          net: { value: attribution.amount * 0.8, currency: "EUR" },
           gross: { value: attribution.amount, currency: "EUR" },
+          ...(fiscalCategory === 1 && {
+            net: { value: attribution.amount * 0.8, currency: "EUR" },
+          }),
         },
         date: new Date(attribution.date).toISOString().split("T")[0],
         activity: attribution.activity,
@@ -69,4 +73,15 @@ export default async (
     start: query.start ?? 0,
     total,
   };
+
+  async function getFiscalCategory() {
+    const fiscalCategory = await tryber.tables.WpAppqFiscalProfile.do()
+      .select("fiscal_category")
+      .where("is_active", 1)
+      .first();
+
+    return fiscalCategory && fiscalCategory.fiscal_category
+      ? fiscalCategory.fiscal_category
+      : 0;
+  }
 };
