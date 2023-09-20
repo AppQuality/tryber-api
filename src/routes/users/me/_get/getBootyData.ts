@@ -1,12 +1,17 @@
-import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 
 export default async (id: string) => {
-  const fiscal = await tryber.tables.WpAppqFiscalProfile.do()
-    .select("fiscal_category")
-    .where("tester_id", id)
-    .where("is_active", 1)
-    .first();
+  let fiscalCategory = 0;
+
+  let fiscalSql = `SELECT 
+  fp.fiscal_category from wp_appq_fiscal_profile as fp
+  JOIN wp_appq_evd_profile as p ON (p.id = fp.tester_id)
+  WHERE p.wp_user_id = ? AND fp.is_active = 1
+`;
+  const fiscal = await db.query(db.format(fiscalSql, [id]));
+  if (fiscal.length) {
+    fiscalCategory = fiscal[0].fiscal_category;
+  }
 
   let sql = `SELECT 
     SUM(req.amount_gross) as gross,
@@ -25,7 +30,7 @@ export default async (id: string) => {
     booty: {
       gross: { value: Number(res[0].gross) ?? 0, currency: "EUR" },
       ...(fiscal &&
-        fiscal.fiscal_category === 1 && {
+        fiscalCategory === 1 && {
           net: {
             value: Number(res[0].net) ?? 0,
             currency: "EUR",

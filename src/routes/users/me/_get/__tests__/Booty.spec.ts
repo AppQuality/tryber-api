@@ -1,18 +1,12 @@
 import app from "@src/app";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as PaymentRequest } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
-import { tryber } from "@src/features/database";
 
-const fiscalProfile = {
-  name: "tester1",
-  surname: "tester1",
-  sex: "0",
-  birth_date: "1990-01-01",
-};
 describe("GET /users/me - booties data - fiscal_category = 1", () => {
   const data: any = {};
   beforeEach(async () => {
@@ -24,11 +18,22 @@ describe("GET /users/me - booties data - fiscal_category = 1", () => {
     await WpUsers.insert({
       ID: 1,
     });
-    await tryber.tables.WpAppqFiscalProfile.do().insert([
-      { ...fiscalProfile, tester_id: 1, fiscal_category: 1, is_active: 1 },
-      { ...fiscalProfile, tester_id: 1, fiscal_category: 2, is_active: 0 },
-      { ...fiscalProfile, tester_id: 2, fiscal_category: 1, is_active: 1 },
-    ]);
+    await FiscalProfile.validFiscalProfile({
+      id: 1,
+      tester_id: 1,
+      fiscal_category: 1,
+    });
+    await FiscalProfile.inactiveFiscalProfile({
+      id: 2,
+      tester_id: 1,
+      fiscal_category: 2,
+    });
+    await FiscalProfile.validFiscalProfile({
+      id: 3,
+      tester_id: 2,
+      fiscal_category: 1,
+    });
+
     await PaymentRequest.paidPaypalPayment({
       id: 1,
       tester_id: 1,
@@ -98,7 +103,7 @@ describe("GET /users/me - booties data - fiscal_category = 1", () => {
     await Attributions.clear();
     await WpUsers.clear();
     await PaymentRequest.drop();
-    await tryber.tables.WpAppqFiscalProfile.do().delete();
+    await FiscalProfile.drop();
   });
 
   it("Should return total of unrequested attributions if parameter fields=pending_booty", async () => {
@@ -146,11 +151,22 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
     await WpUsers.insert({
       ID: data.tester.wp_user_id,
     });
-    await tryber.tables.WpAppqFiscalProfile.do().insert([
-      { ...fiscalProfile, tester_id: 1, fiscal_category: 2, is_active: 1 },
-      { ...fiscalProfile, tester_id: 1, fiscal_category: 1, is_active: 0 },
-      { ...fiscalProfile, tester_id: 2, fiscal_category: 1, is_active: 1 },
-    ]);
+    await FiscalProfile.validFiscalProfile({
+      id: 1,
+      tester_id: 2,
+      fiscal_category: 2,
+    });
+    await FiscalProfile.inactiveFiscalProfile({
+      id: 2,
+      tester_id: 1,
+      fiscal_category: 1,
+    });
+    await FiscalProfile.validFiscalProfile({
+      id: 3,
+      tester_id: 2,
+      fiscal_category: 1,
+    });
+
     await PaymentRequest.paidPaypalPayment({
       id: 1,
       tester_id: 1,
@@ -220,7 +236,7 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
     await Attributions.clear();
     await WpUsers.clear();
     await PaymentRequest.drop();
-    await tryber.tables.WpAppqFiscalProfile.do().delete();
+    await FiscalProfile.drop();
   });
 
   it("Should return total of unrequested attributions if parameter fields=pending_booty", async () => {

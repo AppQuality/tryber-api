@@ -17,6 +17,7 @@ export const table = {
 };
 
 type FiscalProfileParams = {
+  id?: number;
   tester_id?: number;
   fiscal_category?: number;
 };
