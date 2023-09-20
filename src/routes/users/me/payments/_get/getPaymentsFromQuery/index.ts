@@ -58,12 +58,17 @@ export default async (
       whereFunction(this);
     });
 
-  if (query.orderBy) {
-    q.orderBy(query.orderBy, query.order || "DESC");
+  const orderBy = !query.orderBy ? "paidDate" : query.orderBy;
+  if (orderBy === "updated") {
+    q.orderBy("update_date", query.order || "DESC");
+  } else if (orderBy === "created") {
+    q.orderBy("request_date", query.order || "DESC");
+  } else if (orderBy !== "paidDate") {
+    q.orderBy(orderBy, query.order || "DESC");
   }
 
   let results = await q;
-  if (!query.orderBy || query.orderBy === "paidDate") {
+  if (orderBy === "paidDate") {
     results.sort((a, b) => {
       if (a.is_paid === 0) {
         return -1;
