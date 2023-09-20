@@ -25,6 +25,9 @@ export default async (
     : (pagination += `LIMIT 25`);
   query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
 
+  let orderBy = query.orderBy || "date";
+  if (orderBy === "net" || orderBy === "gross") orderBy = "amount";
+
   const sql = `
     SELECT 
         p.id, p.amount as amount,p.creation_date as date,
@@ -41,7 +44,7 @@ export default async (
     JOIN 
         wp_appq_payment_work_types wt ON p.work_type_id = wt.id
     ${WHERE} 
-    ORDER BY ${query.orderBy || "date"} 
+    ORDER BY ${orderBy || "date"} 
     ${query.order || "DESC"} 
     ${pagination}
 `;
