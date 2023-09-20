@@ -1,9 +1,8 @@
+import { Busboy } from "connect-busboy";
 import { Response } from "express";
 import { FileArray, UploadedFile } from "express-fileupload";
-import { Request } from "openapi-backend";
-import { Busboy } from "connect-busboy";
+import { Context, Request } from "openapi-backend";
 import { components, operations, paths } from "./schema";
-import { Context } from "openapi-backend";
 
 declare global {
   interface OpenapiResponse extends Response {

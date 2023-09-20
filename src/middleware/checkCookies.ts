@@ -28,6 +28,9 @@ export const checkCookies = (req: OpenapiRequest): Promise<UserType> => {
 
         if (authIsValid) {
           const userData = await getUserById(userId);
+          if (userData instanceof Error) {
+            return reject(userData);
+          }
           console.log("🚀 ~ file: checkCookies.ts:28 ~ userData:", userData);
           const user = await authenticate(userData);
           console.log("🚀 ~ file: checkCookies.ts:30 ~ user:", user);
