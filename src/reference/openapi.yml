@@ -10085,6 +10085,9 @@ components:
           type: number
         currency:
           type: string
+      required:
+        - value
+        - currency
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:

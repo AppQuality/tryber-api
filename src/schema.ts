@@ -659,8 +659,8 @@ export interface components {
     CustomUserFieldsType: "text" | "select" | "multiselect";
     /** Currency */
     Currency: {
-      value?: number;
-      currency?: string;
+      value: number;
+      currency: string;
     };
     /** FiscalBirthCity */
     FiscalBirthCity:
