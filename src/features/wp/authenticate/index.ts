@@ -23,6 +23,8 @@ export default async (userData: {
       .first();
     if (!options) throw new Error("No user roles found");
     let roles = PHPUnserialize.unserialize(options.option_value);
+
+    console.log("🚀 ~ file: authenticate/index.ts:30 ~ user:", user);
     const userMeta = await tryber.tables.WpUsermeta.do()
       .select("meta_value")
       .where("user_id", user.ID)
