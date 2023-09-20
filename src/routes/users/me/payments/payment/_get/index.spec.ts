@@ -6,6 +6,7 @@ import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 const campaign1 = {
   id: 1,
@@ -83,6 +84,25 @@ describe("GET /users/me/payments/{payment}", () => {
         request_id: 2,
         campaign_id: campaign2.id,
       });
+
+      await tryber.tables.WpAppqFiscalProfile.do().insert([
+        {
+          tester_id: 1,
+          fiscal_category: 1,
+          name: "John",
+          surname: "Doe",
+          sex: "1",
+          birth_date: "1972-01-01",
+        },
+        {
+          tester_id: 2,
+          fiscal_category: 2,
+          name: "Jane",
+          surname: "Doe",
+          sex: "0",
+          birth_date: "1972-01-01",
+        },
+      ]);
       resolve(null);
     });
   });
@@ -93,6 +113,7 @@ describe("GET /users/me/payments/{payment}", () => {
       await requestData.drop();
       await Campaigns.clear();
       await workTypeData.drop();
+      await tryber.tables.WpAppqFiscalProfile.do().delete();
       resolve(null);
     });
   });
@@ -182,21 +203,35 @@ describe("GET /users/me/payments/{payment}", () => {
       data.payment3.creation_date.substring(0, 10),
     ]);
   });
-
-  it("Should be orderable by amount", async () => {
+  //
+  it("Should be orderable by amount net", async () => {
     const response = await request(app)
-      .get("/users/me/payments/1?orderBy=amount")
+      .get("/users/me/payments/1?orderBy=net")
       .set("authorization", "Bearer tester");
+    console.log(response.body.results, "suca");
     expect(response.status).toBe(200);
     expect(
       response.body.results.map(
-        (r: { amount: { value: number } }) => r.amount.value
+        (r: {
+          amount: {
+            net: {
+              value: number;
+              currency: string;
+            };
+            gross: {
+              value: number;
+              currency: string;
+            };
+          };
+        }) => r.amount.net.value
       )
     ).toEqual([
-      data.payment3.amount,
-      data.payment2.amount,
-      data.payment1.amount,
+      data.payment3.amount.net.value,
+      data.payment2.amount.net.value,
+      data.payment1.amount.net.value,
     ]);
+  });
+  it("Should be orderable by amount net ASC", async () => {
     const responseDesc = await request(app)
       .get("/users/me/payments/1?orderBy=amount&order=DESC")
       .set("authorization", "Bearer tester");
@@ -210,6 +245,9 @@ describe("GET /users/me/payments/{payment}", () => {
       data.payment2.amount,
       data.payment1.amount,
     ]);
+  });
+
+  it("Should be orderable by amount net", async () => {
     const responseAsc = await request(app)
       .get("/users/me/payments/1?orderBy=amount&order=ASC")
       .set("authorization", "Bearer tester");

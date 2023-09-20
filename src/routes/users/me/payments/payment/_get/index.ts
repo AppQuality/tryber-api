@@ -23,7 +23,6 @@ export default async (
 
   let params = c.request
     .params as StoplightOperations["get-users-me-payments-payment"]["parameters"]["path"];
-
   let total, results;
   try {
     const data = await getPaymentsFromQuery(
@@ -56,7 +55,10 @@ export default async (
     results: results.map((attribution) => {
       return {
         id: attribution.id,
-        amount: { value: attribution.amount, currency: "EUR" },
+        amount: {
+          net: { value: attribution.amount * 0.8, currency: "EUR" },
+          gross: { value: attribution.amount, currency: "EUR" },
+        },
         date: new Date(attribution.date).toISOString().split("T")[0],
         activity: attribution.activity,
         type: attribution.type,
