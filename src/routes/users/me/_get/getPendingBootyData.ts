@@ -21,15 +21,17 @@ export default async (id: string) => {
   if (!res.length) {
     Promise.reject(Error("Invalid pending booty data"));
   }
-
   return {
     pending_booty: {
-      gross: { value: Number(res[0].total) ?? 0, currency: "EUR" },
+      gross: {
+        value: res[0].total ? Number(parseFloat(res[0].total).toFixed(2)) : 0,
+        currency: "EUR",
+      },
       ...(fiscal &&
         fiscalCategory === 1 && {
           net: {
             value: res[0].total
-              ? Number((res[0].total * 0.8).toPrecision(4))
+              ? Number(parseFloat(`${res[0].total * 0.8}`).toFixed(2))
               : 0,
             currency: "EUR",
           },

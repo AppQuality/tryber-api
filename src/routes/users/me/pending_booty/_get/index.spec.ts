@@ -123,7 +123,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
         name: `[CP-${campaign1.id}] ${campaign1.title}`,
         amount: {
           net: {
-            value: attribution2.amount ? attribution2.amount * 0.8 : 0,
+            value:
+              attribution2.amount &&
+              Number(parseFloat(`${attribution2.amount * 0.8}`).toFixed(2)),
             currency: "EUR",
           },
           gross: {
@@ -138,7 +140,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
         name: `[CP-${campaign2.id}] ${campaign2.title}`,
         amount: {
           net: {
-            value: attribution1.amount ? attribution1.amount * 0.8 : 0,
+            value:
+              attribution1.amount &&
+              Number(parseFloat(`${attribution1.amount * 0.8}`).toFixed(2)),
             currency: "EUR",
           },
           gross: {
@@ -153,7 +157,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
         name: `[CP-${campaign1.id}] ${campaign1.title}`,
         amount: {
           net: {
-            value: attribution3.amount ? attribution3.amount * 0.8 : 0,
+            value:
+              attribution3.amount &&
+              Number(parseFloat(`${attribution3.amount * 0.8}`).toFixed(2)),
             currency: "EUR",
           },
           gross: {
@@ -186,7 +192,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
         name: `[CP-${campaign1.id}] ${campaign1.title}`,
         amount: {
           net: {
-            value: attribution2.amount ? attribution2.amount * 0.8 : 0,
+            value:
+              attribution2.amount &&
+              Number(parseFloat(`${attribution2.amount * 0.8}`).toFixed(2)),
             currency: "EUR",
           },
           gross: {
@@ -201,7 +209,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
         name: `[CP-${campaign2.id}] ${campaign2.title}`,
         amount: {
           net: {
-            value: attribution1.amount ? attribution1.amount * 0.8 : 0,
+            value:
+              attribution1.amount &&
+              Number(parseFloat(`${attribution1.amount * 0.8}`).toFixed(2)),
             currency: "EUR",
           },
           gross: {
@@ -216,7 +226,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
         name: `[CP-${campaign1.id}] ${campaign1.title}`,
         amount: {
           net: {
-            value: attribution3.amount ? attribution3.amount * 0.8 : 0,
+            value:
+              attribution3.amount &&
+              Number(parseFloat(`${attribution3.amount * 0.8}`).toFixed(2)),
             currency: "EUR",
           },
           gross: {

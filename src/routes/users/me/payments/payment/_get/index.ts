@@ -57,9 +57,17 @@ export default async (
       return {
         id: attribution.id,
         amount: {
-          gross: { value: attribution.amount, currency: "EUR" },
+          gross: {
+            value: Number(parseFloat(`${attribution.amount}`).toFixed(2)),
+            currency: "EUR",
+          },
           ...(fiscalCategory === 1 && {
-            net: { value: attribution.amount * 0.8, currency: "EUR" },
+            net: {
+              value: Number(
+                parseFloat(`${attribution.amount * 0.8}`).toFixed(2)
+              ),
+              currency: "EUR",
+            },
           }),
         },
         date: new Date(attribution.date).toISOString().split("T")[0],

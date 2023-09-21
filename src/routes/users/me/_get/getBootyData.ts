@@ -28,11 +28,14 @@ export default async (id: string) => {
 
   return {
     booty: {
-      gross: { value: Number(res[0].gross) ?? 0, currency: "EUR" },
+      gross: {
+        value: res[0].gross ? Number(parseFloat(res[0].gross).toFixed(2)) : 0,
+        currency: "EUR",
+      },
       ...(fiscal &&
         fiscalCategory === 1 && {
           net: {
-            value: Number(res[0].net) ?? 0,
+            value: res[0].net ? Number(parseFloat(res[0].net).toFixed(2)) : 0,
             currency: "EUR",
           },
         }),

@@ -45,10 +45,13 @@ export default class RouteItem extends UserRoute<{
             name: row.activityName,
             amount: {
               ...(this.fiscalCategory === 1 && {
-                net: { value: row.amount * 0.8, currency: "EUR" },
+                net: {
+                  value: Number(parseFloat(`${row.amount * 0.8}`).toFixed(2)),
+                  currency: "EUR",
+                },
               }),
               gross: {
-                value: row.amount,
+                value: Number(parseFloat(`${row.amount}`).toFixed(2)),
                 currency: "EUR",
               },
             },
