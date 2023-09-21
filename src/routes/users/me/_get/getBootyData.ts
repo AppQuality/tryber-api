@@ -12,27 +12,30 @@ export default async (id: string) => {
   if (fiscal.length) {
     fiscalCategory = fiscal[0].fiscal_category;
   }
-  let sql = `SELECT SUM(pay.amount) as total
-    FROM wp_appq_payment pay
-    JOIN wp_appq_evd_profile p ON (p.id = pay.tester_id)
-    WHERE p.wp_user_id = ? AND is_requested = 0 AND is_paid = 0;
+
+  let sql = `SELECT 
+    SUM(req.amount_gross) as gross,
+    SUM(req.amount) as net
+    FROM wp_appq_payment_request AS req
+    JOIN wp_appq_evd_profile AS p ON (p.id = req.tester_id)
+    WHERE p.wp_user_id = ? AND is_paid = 1;
   `;
+
   const res = await db.query(db.format(sql, [id]));
   if (!res.length) {
     Promise.reject(Error("Invalid pending booty data"));
   }
+
   return {
-    pending_booty: {
+    booty: {
       gross: {
-        value: res[0].total ? Number(parseFloat(res[0].total).toFixed(2)) : 0,
+        value: res[0].gross ? Number(parseFloat(res[0].gross).toFixed(2)) : 0,
         currency: "EUR",
       },
       ...(fiscal &&
         fiscalCategory === 1 && {
           net: {
-            value: res[0].total
-              ? Number(parseFloat(`${res[0].total * 0.8}`).toFixed(2))
-              : 0,
+            value: res[0].net ? Number(parseFloat(res[0].net).toFixed(2)) : 0,
             currency: "EUR",
           },
         }),

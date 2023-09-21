@@ -3,6 +3,7 @@
 import debugMessage from "@src/features/debugMessage";
 import UserRoute from "@src/features/routes/UserRoute";
 import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-users-me-pending-booty"]["responses"]["200"]["content"]["application/json"];
@@ -12,8 +13,9 @@ export default class RouteItem extends UserRoute<{
   private limit: number = 25;
   private explicitLimitIsRequested: boolean = false;
   private order: "ASC" | "DESC" = "DESC";
-  private orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] =
+  private orderBy: "id" | "attributionDate" | "activityName" | "amount" =
     "attributionDate";
+  private fiscalCategory: number = 0;
 
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "pending booty" });
@@ -24,10 +26,16 @@ export default class RouteItem extends UserRoute<{
       this.explicitLimitIsRequested = true;
     }
     if (query.order) this.order = query.order;
-    if (query.orderBy) this.orderBy = query.orderBy;
+    if (query.orderBy) {
+      let orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] = query.orderBy;
+      if (orderBy === "net" || orderBy === "gross") this.orderBy = "amount";
+      else if (query.orderBy !== "net" && query.orderBy !== "gross")
+        this.orderBy = query.orderBy;
+    }
   }
 
   protected async prepare() {
+    this.fiscalCategory = await this.getFiscalProfile();
     try {
       const { results, total } = await this.getPendingBooties();
       this.setSuccess(200, {
@@ -36,8 +44,16 @@ export default class RouteItem extends UserRoute<{
             id: row.id,
             name: row.activityName,
             amount: {
-              value: row.amount,
-              currency: "EUR",
+              ...(this.fiscalCategory === 1 && {
+                net: {
+                  value: Number(parseFloat(`${row.amount * 0.8}`).toFixed(2)),
+                  currency: "EUR",
+                },
+              }),
+              gross: {
+                value: Number(parseFloat(`${row.amount}`).toFixed(2)),
+                currency: "EUR",
+              },
             },
             attributionDate: row.attributionDate.substring(0, 10),
           };
@@ -56,19 +72,30 @@ export default class RouteItem extends UserRoute<{
     }
   }
 
+  private async getFiscalProfile() {
+    const res = await tryber.tables.WpAppqFiscalProfile.do()
+      .select("fiscal_category")
+      .where("tester_id", this.getTesterId())
+      .where("is_active", 1)
+      .first();
+    if (res && res.fiscal_category) {
+      return res.fiscal_category;
+    }
+    return 0;
+  }
+
   private async getPendingBooties() {
     const WHERE = `WHERE 
     p.tester_id = ? and p.is_paid=0 and p.is_requested=0`;
     const data = [this.getTesterId()];
-
     const sql = `
     SELECT 
         p.id as id, p.amount as amount, 
         CAST(p.creation_date as CHAR) as attributionDate, 
         CONCAT('[CP-', cp.id, '] ', cp.title) as activityName
     FROM wp_appq_payment p
-    JOIN wp_appq_evd_campaign cp ON p.campaign_id = cp.id 
-    ${WHERE} 
+    JOIN wp_appq_evd_campaign cp ON p.campaign_id = cp.id
+    ${WHERE}
     ORDER BY ${this.orderBy} 
     ${this.order}, attributionDate ${this.order}
     LIMIT ${this.limit} OFFSET ${this.start}

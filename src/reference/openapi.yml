@@ -89,7 +89,10 @@ paths:
                     size: 0
                     total: 0
                 agreement-empty:
-                  value: []
+                  value:
+                    items: []
+                    start: 0
+                    size: 0
                 agreement-filterBy-customer1:
                   value:
                     items:
@@ -97,8 +100,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -108,8 +111,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -124,8 +127,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -135,8 +138,8 @@ paths:
                         title: Epic Token
                         tokens: 103
                         unitPrice: 166.6
-                        startDate: '2020-10-20 00:12:20'
-                        expirationDate: '2020-01-01 00:12:20'
+                        startDate: '2020-10-20'
+                        expirationDate: '2020-01-01'
                         customer:
                           id: 3
                           company: Epical s.p.a.
@@ -153,8 +156,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -171,8 +174,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -189,8 +192,8 @@ paths:
                         title: AffidabilData Token
                         tokens: 100
                         unitPrice: 165.6
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 2
                           company: AffidabilData s.p.a.
@@ -207,8 +210,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -225,8 +228,8 @@ paths:
                         title: AffidabilData Token
                         tokens: 100
                         unitPrice: 165.6
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 2
                           company: AffidabilData s.p.a.
@@ -236,8 +239,8 @@ paths:
                         title: Rocco Iteration 2
                         tokens: 39
                         unitPrice: 6.9
-                        startDate: '2023-11-20 00:12:20'
-                        expirationDate: '2023-03-01 00:12:20'
+                        startDate: '2023-11-20'
+                        expirationDate: '2023-03-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -247,8 +250,8 @@ paths:
                         title: Rocco Token
                         tokens: 169
                         unitPrice: 6.9
-                        startDate: '2023-10-20 00:12:20'
-                        expirationDate: '2023-01-01 00:12:20'
+                        startDate: '2023-10-20'
+                        expirationDate: '2023-01-01'
                         customer:
                           id: 1
                           company: Rocco & Friends
@@ -258,8 +261,8 @@ paths:
                         title: Epic Token
                         tokens: 103
                         unitPrice: 166.6
-                        startDate: '2020-10-20 00:12:20'
-                        expirationDate: '2020-01-01 00:12:20'
+                        startDate: '2020-10-20'
+                        expirationDate: '2020-01-01'
                         customer:
                           id: 3
                           company: Epical s.p.a.
@@ -292,26 +295,6 @@ paths:
                 required:
                   - agreementId
               examples:
-                not-token-based:
-                  value:
-                    customerId: 1
-                    expirationDate: '2020-01-01'
-                    startDate: '2020-01-01'
-                    title: Agreement Title
-                    tokens: 10
-                    unitPrice: 1
-                    note: Agreement notes
-                    isTokenBased: false
-                token-based:
-                  value:
-                    customerId: 1
-                    expirationDate: '2020-01-01'
-                    startDate: '2020-01-01'
-                    title: Agreement Title
-                    tokens: 10
-                    unitPrice: 1
-                    note: Agreement notes
-                    isTokenBased: true
                 success-creation:
                   value:
                     agreementId: 11111
@@ -400,6 +383,7 @@ paths:
                       company: string
                 request-correct:
                   value:
+                    id: 1
                     customerId: 1
                     expirationDate: '2020-01-01'
                     startDate: '2020-01-01'
@@ -408,6 +392,9 @@ paths:
                     unitPrice: 1
                     note: Agreement notes
                     isTokenBased: true
+                    customer:
+                      id: 0
+                      company: string
                 success:
                   value:
                     id: 11111
@@ -419,6 +406,9 @@ paths:
                     unitPrice: 1
                     note: Agreement notes
                     isTokenBased: true
+                    customer:
+                      id: 0
+                      company: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '500':
@@ -506,6 +496,9 @@ paths:
               examples:
                 Example 1:
                   value:
+                    customer:
+                      id: 1
+                      company: string
                     id: 1
                     title: string
                     tokens: 1
@@ -514,20 +507,17 @@ paths:
                     expirationDate: '2023-07-03'
                     note: string
                     isTokenBased: false
-                    customer:
-                      id: 1
-                      company: string
                 success-found:
                   value:
                     id: 69
                     customer:
-                      id: 4
-                      company: Surgiva
+                      id: 1
+                      company: string
                     title: Sunset Crowdtesting (Bug Hunting) 2022-2023
                     tokens: 666
                     unitPrice: 100
-                    startDate: '2022-02-03 00:00:00'
-                    expirationDate: '2023-10-31 00:00:00'
+                    startDate: '2022-02-03'
+                    expirationDate: '2023-10-31'
                     note: Agreement improved by Sunset
                     isTokenBased: false
         '403':
@@ -3387,6 +3377,13 @@ paths:
                   value:
                     status: draft
                     sentiments: []
+                    questions: []
+                    goal: The Research Goal
+                    usersNumber: 10
+                    methodology:
+                      name: UX Challenge
+                      description: UX Challenge
+                      type: qualitative
                 ux-campaign-draft-with-insights:
                   value:
                     status: draft
@@ -6068,7 +6065,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -6112,9 +6108,23 @@ paths:
                   total_exp_pts:
                     type: number
                   booty:
-                    type: number
+                    type: object
+                    properties:
+                      net:
+                        $ref: '#/components/schemas/Currency'
+                      gross:
+                        $ref: '#/components/schemas/Currency'
+                    required:
+                      - gross
                   pending_booty:
-                    type: number
+                    type: object
+                    properties:
+                      net:
+                        $ref: '#/components/schemas/Currency'
+                      gross:
+                        $ref: '#/components/schemas/Currency'
+                    required:
+                      - gross
                   languages:
                     type: array
                     items:
@@ -6185,6 +6195,67 @@ paths:
                       - isOver
                 required:
                   - id
+              examples:
+                Example 1:
+                  value:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: string
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                    rank: string
+                    total_exp_pts: 0
+                    booty:
+                      net:
+                        value: 10
+                        currency: EUR
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    pending_booty:
+                      net:
+                        value: 10
+                        currency: EUR
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    languages:
+                      - id: 0
+                        name: string
+                    onboarding_completed: true
+                    additional:
+                      - field_id: 0
+                        name: string
+                        value: string
+                        text: string
+                        is_candidate: true
+                    gender: male
+                    birthDate: '2019-08-24'
+                    phone: string
+                    education:
+                      id: 0
+                      name: string
+                    profession:
+                      id: 0
+                      name: string
+                    certifications:
+                      - id: 0
+                        name: string
+                        area: string
+                        institute: string
+                        achievement_date: '2019-08-24'
+                    completionPercent: 0
+                    country: string
+                    city: string
+                    attended_cp: 0
+                    approved_bugs: 0
+                    booty_threshold:
+                      value: 0
+                      isOver: true
       operationId: get-users-me
       description: Get your user data
       security:
@@ -6233,7 +6304,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -6304,12 +6374,25 @@ paths:
                   total_exp_pts:
                     type: number
                   booty:
-                    type: number
+                    type: object
+                    properties:
+                      gross:
+                        $ref: '#/components/schemas/Currency'
+                      net:
+                        $ref: '#/components/schemas/Currency'
+                    required:
+                      - gross
                   pending_booty:
-                    type: number
+                    type: object
+                    properties:
+                      gross:
+                        $ref: '#/components/schemas/Currency'
+                      net:
+                        $ref: '#/components/schemas/Currency'
+                    required:
+                      - gross
                   languages:
                     type: array
-                    uniqueItems: false
                     items:
                       type: object
                       properties:
@@ -6321,7 +6404,6 @@ paths:
                     type: boolean
                   additional:
                     type: array
-                    uniqueItems: false
                     items:
                       $ref: '#/components/schemas/AdditionalField'
                   gender:
@@ -8277,11 +8359,14 @@ paths:
                                 - processing
                             amount:
                               type: object
+                              required:
+                                - net
+                                - gross
                               properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
+                                net:
+                                  $ref: '#/components/schemas/Currency'
+                                gross:
+                                  $ref: '#/components/schemas/Currency'
                             paidDate:
                               oneOf:
                                 - format: date
@@ -8328,8 +8413,12 @@ paths:
                       - id: 1
                         status: paid
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8345,8 +8434,12 @@ paths:
                       - id: 2
                         status: processing
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '-'
                         method:
                           type: paypal
@@ -8355,8 +8448,12 @@ paths:
                       - id: 1
                         status: paid
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8373,8 +8470,12 @@ paths:
                         status: processing
                         paidDate: '-'
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         method:
                           type: paypal
                           note: me@example.com
@@ -8382,8 +8483,12 @@ paths:
                       - id: 1
                         status: paid
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: iban
@@ -8392,8 +8497,12 @@ paths:
                       - id: 3
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: iban
@@ -8402,8 +8511,12 @@ paths:
                       - id: 4
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8412,8 +8525,12 @@ paths:
                       - id: 5
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8422,8 +8539,12 @@ paths:
                       - id: 6
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8432,8 +8553,12 @@ paths:
                       - id: 7
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8442,8 +8567,12 @@ paths:
                       - id: 8
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8452,8 +8581,12 @@ paths:
                       - id: 9
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: paypal
@@ -8462,8 +8595,12 @@ paths:
                       - id: 10
                         status: paid
                         amount:
-                          value: 5
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         paidDate: '2019-08-24'
                         method:
                           type: iban
@@ -8478,7 +8615,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       operationId: get-users-me-payments
-      description: ''
+      description: Return all payment requests
       security:
         - JWT: []
       parameters:
@@ -8591,13 +8728,12 @@ paths:
                             amount:
                               type: object
                               required:
-                                - value
-                                - currency
+                                - gross
                               properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
+                                net:
+                                  $ref: '#/components/schemas/Currency'
+                                gross:
+                                  $ref: '#/components/schemas/Currency'
                             date:
                               type: string
                               format: date
@@ -8633,8 +8769,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                     limit: 10
                     size: 1
                     total: 1
@@ -8650,8 +8790,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 2
                         campaign:
                           id: 123
@@ -8660,8 +8804,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 3
                         campaign:
                           id: 123
@@ -8670,8 +8818,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 4
                         campaign:
                           id: 123
@@ -8680,8 +8832,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 5
                         campaign:
                           id: 123
@@ -8690,8 +8846,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 6
                         campaign:
                           id: 123
@@ -8700,8 +8860,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 7
                         campaign:
                           id: 12
@@ -8710,8 +8874,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 8
                         campaign:
                           id: 123
@@ -8720,8 +8888,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 9
                         campaign:
                           id: 123
@@ -8730,8 +8902,12 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                       - id: 10
                         campaign:
                           id: 12
@@ -8740,8 +8916,9 @@ paths:
                         date: '2019-08-24'
                         activity: Tryber Testing
                         amount:
-                          value: 5
-                          currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                     limit: 10
                     size: 1
                     total: 1
@@ -8760,13 +8937,15 @@ paths:
         - schema:
             type: string
             enum:
-              - amount
               - type
               - date
               - activity
+              - net
+              - gross
           in: query
           name: orderBy
           description: The value to order by
+      description: Return all attributions of a specific request
   /users/me/pending_booty:
     get:
       summary: Get all your payments
@@ -8793,11 +8972,13 @@ paths:
                               type: string
                             amount:
                               type: object
+                              required:
+                                - gross
                               properties:
-                                value:
-                                  type: number
-                                currency:
-                                  type: string
+                                net:
+                                  $ref: '#/components/schemas/Currency'
+                                gross:
+                                  $ref: '#/components/schemas/Currency'
                             attributionDate:
                               type: string
                               format: date
@@ -8824,8 +9005,12 @@ paths:
                       - id: 1
                         name: ''
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                     limit: 10
                     size: 1
@@ -8837,62 +9022,99 @@ paths:
                       - id: 1
                         name: ''
                         amount:
-                          value: 10
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 2
                         name: ''
                         amount:
-                          value: 12
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 3
                         name: ''
                         amount:
-                          value: 13
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 4
                         name: ''
                         amount:
-                          value: 14
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 5
                         name: ''
                         amount:
-                          value: 15
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 6
                         name: ''
                         amount:
-                          value: 16
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 7
                         name: ''
                         amount:
-                          value: 17
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 8
                         name: ''
                         amount:
-                          value: 18
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 9
                         name: ''
                         amount:
-                          value: 19
-                          currency: EUR
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 10
                         name: ''
                         amount:
-                          value: 20
-                          currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
                         attributionDate: '2019-08-24'
                     limit: 10
                     size: 10
@@ -8914,8 +9136,9 @@ paths:
             enum:
               - id
               - attributionDate
-              - amount
               - activityName
+              - net
+              - gross
           in: query
           description: The field for item order
           name: orderBy
@@ -9854,6 +10077,17 @@ components:
         - text
         - select
         - multiselect
+    Currency:
+      title: Currency
+      type: object
+      properties:
+        value:
+          type: number
+        currency:
+          type: string
+      required:
+        - value
+        - currency
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:

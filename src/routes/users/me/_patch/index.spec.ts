@@ -328,7 +328,6 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responseGet2.status).toBe(200);
     expect(responseGet2.body.is_verified).toBe(false);
   });
-
   it("Should return tryber with new NAME if send a new NAME", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me?fields=name`)
@@ -403,7 +402,6 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.phone).toBe("0000-1234567890");
   });
-
   it("Should return tryber GENDER as female if change from male to female", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me?fields=gender`)
@@ -421,7 +419,6 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.gender).toBe("female");
   });
-
   it("Should return tryber GENDER as not-specified if change from male to not-specified", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me?fields=gender`)
@@ -439,7 +436,6 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.gender).toBe("not-specified");
   });
-
   it("Should return tryber with new CITY if send a new CITY", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me?fields=city`)
@@ -457,7 +453,6 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.city).toBe("Ummary");
   });
-
   it("Should return tryber with new COUNTRY if send a new COUNTRY", async () => {
     const responseGet1 = await request(app)
       .get(`/users/me?fields=country`)
@@ -503,7 +498,6 @@ describe("Route PATCH users-me accepted fields", () => {
       .get(`/users/me?fields=education`)
       .set("Authorization", `Bearer tester`);
     expect(responseGet1.body.education).toStrictEqual({ id: 1, name: "Phd" });
-
     const responsePatch = await request(app)
       .patch(`/users/me`)
       .set("Authorization", `Bearer tester`)
@@ -565,5 +559,20 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(CheckPassword("newPassword", olnewHashPassword.user_pass)).toBe(
       true
     );
+  });
+  it("should return the same response of get-users-me-fields-all without role", async () => {
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ name: "new-name" });
+    const responseGet = await request(app)
+      .get(`/users/me?fields=all`)
+      .set("Authorization", `Bearer tester`);
+    expect(responseGet.status).toBe(200);
+    expect(responsePatch.status).toBe(200);
+    expect(responsePatch.body).toEqual({
+      ...responseGet.body,
+      role: undefined,
+    });
   });
 });

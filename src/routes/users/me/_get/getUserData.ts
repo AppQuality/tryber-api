@@ -7,6 +7,7 @@ import getCertificationsData from "./getCertificationsData";
 import getEducationData from "./getEducationData";
 import getLanguagesData from "./getLanguagesData";
 import getPendingBootyData from "./getPendingBootyData";
+import getBootyData from "./getBootyData";
 import getProfessionData from "./getProfessionData";
 import getProfileData from "./getProfileData";
 
@@ -73,6 +74,12 @@ export default async (
       } catch (e) {}
     }
 
+    if (validFields.includes("booty")) {
+      try {
+        data = { ...data, ...(await getBootyData(id)) };
+      } catch (e) {}
+    }
+
     if (validFields.includes("rank")) {
       try {
         data = { ...data, rank: "0" };
@@ -131,7 +138,7 @@ export default async (
         const bootyThresholdVal = await getCrowdOption("minimum_payout");
         if (bootyThresholdVal) {
           bootyThreshold.value = parseFloat(bootyThresholdVal);
-          if (trbPendingBooty >= bootyThreshold.value) {
+          if (trbPendingBooty.gross.value >= bootyThreshold.value) {
             bootyThreshold.isOver = true;
           }
         }
