@@ -1,19 +1,5 @@
-import { data as bugData } from "@src/__mocks__/mockedDb/bug";
-import { data as certificationListData } from "@src/__mocks__/mockedDb/certificationList";
-import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
-import CustomUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
-import { data as educationListData } from "@src/__mocks__/mockedDb/educationList";
-import { data as employmentListData } from "@src/__mocks__/mockedDb/employmentList";
-import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
-import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
-import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
+import { tryber } from "@src/features/database";
 import request from "supertest";
 
 const tester1 = {
@@ -23,6 +9,9 @@ const tester1 = {
   email: "jhon.doe@example.com",
   wp_user_id: 1,
   is_verified: 0,
+  onboarding_complete: 1,
+  employment_id: 1,
+  education_id: 1,
 };
 const wpTester1 = {
   ID: 1,
@@ -38,7 +27,7 @@ const testerFull = {
   booty: 69,
   pending_booty: 10,
   total_exp_pts: 6969,
-  birth_date: "1996-03-21 00:00:00",
+  birth_date: "1996-03-21",
   phone_number: "+39696969696969",
   sex: 1,
   country: "Italy",
@@ -51,11 +40,15 @@ const bug1 = {
   id: 1,
   wp_user_id: testerFull.wp_user_id,
   status_id: 2,
+  campaign_id: 1,
+  reviewer: 1,
+  last_editor_id: 1,
 };
 const testerCandidacy = {
   user_id: testerFull.wp_user_id,
   accepted: 1,
   results: 2,
+  campaign_id: 1,
 };
 const certification1 = {
   id: 1,
@@ -67,11 +60,13 @@ const testerFullCertification1 = {
   id: 1,
   tester_id: testerFull.id,
   cert_id: certification1.id,
-  achievement_date: new Date("01/01/2021").toISOString(),
+  achievement_date: "2022-03-21",
 };
+
 const employment1 = {
   id: 1,
   display_name: "UNGUESS Tester",
+  category: "",
 };
 const education1 = {
   id: 1,
@@ -80,6 +75,7 @@ const education1 = {
 const lang1 = {
   id: 1,
   display_name: "Italian",
+  lang_code: "",
 };
 const testerFullLang1 = {
   profile_id: testerFull.id,
@@ -91,6 +87,10 @@ const cufText = {
   name: "Username Tetris",
   type: "text",
   enabled: 1,
+  slug: "username_tetris",
+  placeholder: "Inserisci il tuo username",
+  extras: "",
+  custom_user_field_group_id: 1,
 };
 const cufTextVal = {
   //cuf_data
@@ -106,19 +106,25 @@ const cufSelect = {
   name: "Tipologia di spezie preferita",
   type: "select",
   enabled: 1,
+  slug: "tipologia_di_spezie_preferita",
+  placeholder: "Seleziona una tipologia",
+  extras: "",
+  custom_user_field_group_id: 1,
 };
 const cufSelectOption1 = {
   //cuf_exstras
   id: 1,
   name: "Habanero Scorpion",
+  custom_user_field_id: cufSelect.id,
 };
 const cufSelectTesterOption1 = {
   //cuf_data
   id: 2,
-  value: cufSelectOption1.id,
+  value: cufSelectOption1.id.toString(),
   custom_user_field_id: cufSelect.id,
   profile_id: testerFull.id,
   candidate: 0,
+  last_update: "1999-03-21 00:00:00",
 };
 const cufMultiselect = {
   //cuf
@@ -126,21 +132,27 @@ const cufMultiselect = {
   name: "Fornitore di cardamomo preferito",
   type: "multiselect",
   enabled: 1,
+  slug: "fornitore_di_cardamomo_preferito",
+  placeholder: "Seleziona un fornitore",
+  extras: "",
+  custom_user_field_group_id: 1,
 };
 const cufMultiSelectVal1 = {
   //cuf_exstras
   id: 2,
   name: "Il cardamomo Siciliano",
+  custom_user_field_id: cufMultiselect.id,
 };
 const cufMultiSelectVal2 = {
   //cuf_exstras
   id: 3,
   name: "Treviso, città del Cardamomo",
+  custom_user_field_id: cufMultiselect.id,
 };
 const cufMultiSelectTesterVal1 = {
   //cuf_data
   id: 3,
-  value: cufMultiSelectVal1.id,
+  value: cufMultiSelectVal1.id.toString(),
   custom_user_field_id: cufMultiselect.id,
   profile_id: testerFull.id,
   candidate: 0,
@@ -148,7 +160,7 @@ const cufMultiSelectTesterVal1 = {
 const cufMultiSelectTesterVal2 = {
   //cuf_data
   id: 4,
-  value: cufMultiSelectVal2.id,
+  value: cufMultiSelectVal2.id.toString(),
   custom_user_field_id: cufMultiselect.id,
   profile_id: testerFull.id,
   candidate: 0,
@@ -163,16 +175,12 @@ const cufTextDisabled = {
 
 describe("Route GET users-me", () => {
   beforeAll(async () => {
-    await Profile.insert(tester1);
-    await WpUsers.insert(wpTester1);
+    await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
+    await tryber.tables.WpUsers.do().insert(wpTester1);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      await WpUsers.clear();
-
-      resolve(null);
-    });
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpUsers.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -211,62 +219,61 @@ describe("Route GET users-me", () => {
 
 describe("Route GET users-me-full-fields", () => {
   beforeAll(async () => {
-    await WpOptions.crowdWpOptions();
-    await Profile.insert(testerFull);
-    await WpUsers.insert(wpTester1);
-    await bugData.basicBug(bug1);
-    await Candidature.insert(testerCandidacy);
-    await sqlite3.insert("wp_appq_certifications_list", certification1);
-    await sqlite3.insert(
-      "wp_appq_profile_certifications",
+    await tryber.tables.WpOptions.do().insert({
+      option_id: 1,
+      option_name: "crowd_options_option_name",
+      option_value:
+        'a:17:{s:11:"facebook_id";s:3:"asd";s:20:"facebook_secret_code";s:3:"asd";s:11:"linkedin_id";s:3:"asd";s:20:"linkedin_secret_code";s:3:"asd";s:15:"paypal_live_env";s:15:"paypal_live_env";s:16:"paypal_client_id";s:3:"asd";s:18:"paypal_secret_code";s:3:"asd";s:22:"transfer_wise_live_env";s:22:"transfer_wise_live_env";s:25:"transfer_wise_secret_code";s:3:"asd";s:14:"analitycs_code";s:0:"";s:14:"minimum_payout";s:1:"2";s:13:"appq_cm_email";s:13:"a@example.com";s:9:"adv_email";s:13:"a@example.com";s:11:"adv_project";s:2:"59";s:21:"italian_payment_check";s:21:"italian_payment_check";s:15:"stamp_threshold";s:5:"77.47";s:15:"release_message";s:2:"[]";}',
+    });
+    await tryber.tables.WpAppqEvdProfile.do().insert(testerFull);
+    await tryber.tables.WpUsers.do().insert(wpTester1);
+    await tryber.tables.WpAppqEvdBug.do().insert(bug1);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert(testerCandidacy);
+    await tryber.tables.WpAppqCertificationsList.do().insert(certification1);
+    await tryber.tables.WpAppqProfileCertifications.do().insert(
       testerFullCertification1
     );
-    await employmentListData.employment1(employment1);
-    await sqlite3.insert("wp_appq_education", education1);
-    await languageListData.lenguage1(lang1);
-    await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+    await tryber.tables.WpAppqEmployment.do().insert(employment1);
+    await tryber.tables.WpAppqEducation.do().insert(education1);
+    await tryber.tables.WpAppqLang.do().insert(lang1);
+    await tryber.tables.WpAppqProfileHasLang.do().insert(testerFullLang1);
     //insert cuf_text
-    await CustomUserFields.insert(cufText);
-    await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+    await tryber.tables.WpAppqCustomUserField.do().insert(cufText);
+    await tryber.tables.WpAppqCustomUserFieldData.do().insert(cufTextVal);
     //insert cuf_select
-    await CustomUserFields.insert(cufSelect);
-    await CustomUserFieldsExtras.insert(cufSelectOption1);
-    await sqlite3.insert(
-      "wp_appq_custom_user_field_data",
+    await tryber.tables.WpAppqCustomUserField.do().insert(cufSelect);
+    await tryber.tables.WpAppqCustomUserFieldExtras.do().insert(
+      cufSelectOption1
+    );
+    await tryber.tables.WpAppqCustomUserFieldData.do().insert(
       cufSelectTesterOption1
     );
     //insert cuf_multiselect
-    await CustomUserFields.insert(cufMultiselect);
-    await CustomUserFieldsExtras.insert(cufMultiSelectVal1);
-    await CustomUserFieldsExtras.insert(cufMultiSelectVal2);
-    await sqlite3.insert(
-      "wp_appq_custom_user_field_data",
-      cufMultiSelectTesterVal1
-    );
-    await sqlite3.insert(
-      "wp_appq_custom_user_field_data",
-      cufMultiSelectTesterVal2
-    );
+    await tryber.tables.WpAppqCustomUserField.do().insert(cufMultiselect);
+    await tryber.tables.WpAppqCustomUserFieldExtras.do().insert([
+      cufMultiSelectVal1,
+      cufMultiSelectVal2,
+    ]);
+    await tryber.tables.WpAppqCustomUserFieldData.do().insert([
+      cufMultiSelectTesterVal1,
+      cufMultiSelectTesterVal2,
+    ]);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      await WpUsers.clear();
-
-      await bugData.drop();
-      await certificationListData.drop();
-      await testerCertificationData.drop();
-      await employmentListData.drop();
-      await educationListData.drop();
-      await languageListData.drop();
-      await testerLanguageData.drop();
-      await CustomUserFields.clear();
-      await CustomUserFieldsData.clear();
-      await CustomUserFieldsExtras.clear();
-      await WpOptions.clear();
-
-      resolve(null);
-    });
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpUsers.do().delete();
+    await tryber.tables.WpOptions.do().delete();
+    await tryber.tables.WpAppqEvdBug.do().delete;
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+    await tryber.tables.WpAppqCertificationsList.do().delete();
+    await tryber.tables.WpAppqProfileCertifications.do().delete();
+    await tryber.tables.WpAppqEmployment.do().delete();
+    await tryber.tables.WpAppqEducation.do().delete();
+    await tryber.tables.WpAppqLang.do().delete();
+    await tryber.tables.WpAppqProfileHasLang.do().delete();
+    await tryber.tables.WpAppqCustomUserField.do().delete();
+    await tryber.tables.WpAppqCustomUserFieldData.do().delete();
+    await tryber.tables.WpAppqCustomUserFieldExtras.do().delete();
   });
 
   it("Should return tryber (id, role and name) if parameter fields=name", async () => {
