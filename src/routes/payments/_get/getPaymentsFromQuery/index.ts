@@ -182,12 +182,6 @@ export default async (
       );
     }
 
-    if (query.orderBy) {
-      q.orderBy(query.orderBy, query.order || "ASC");
-    } else {
-      q.orderBy("wp_appq_payment_request.id", query.order || "ASC");
-    }
-
     if (query.filterBy?.paymentMethod === "paypal") {
       q.whereRaw(`wp_appq_payment_request.paypal_email IS NOT NULL`);
     } else if (query.filterBy?.paymentMethod === "transferwise") {
