@@ -1,8 +1,8 @@
-import Question from ".";
 import CustomUserFieldDatas from "@src/features/db/class/CustomUserFieldData";
 import { CustomUserFieldExtrasObject } from "@src/features/db/class/CustomUserFieldExtras";
 import { CustomUserFieldObject } from "@src/features/db/class/CustomUserFields";
 import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
+import Question from ".";
 
 class CufSelectQuestion extends Question<{
   type: `cuf_${number}`;
@@ -121,6 +121,7 @@ class CufSelectQuestion extends Question<{
         custom_user_field_id: this.customUserField.id,
         profile_id: this.testerId,
         value,
+        candidate: 0,
       });
     }
   }

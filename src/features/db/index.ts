@@ -1,17 +1,15 @@
 import mysql from "mysql";
+import { tryber } from "../database";
 import connectionManager from "./mysql";
 
-export const format = (query: string, data: (string | number)[]) =>
-  mysql.format(query, data);
+export const format = (query: string, data: (string | number)[]) => {
+  return mysql.format(query, data);
+};
 
-export const query = (query: string): Promise<any> => {
-  const connection = connectionManager.getConnection();
-  return new Promise((resolve, reject) => {
-    return connection.query(query, function (error, results) {
-      if (error) return reject(error);
-      return resolve(results);
-    });
-  });
+export const query = async (query: string): Promise<any> => {
+  const res = await tryber.raw(query);
+  if (tryber.client === "better-sqlite3") return res;
+  return res ? res[0] : [];
 };
 
 export const insert = (table: string, data: any): Promise<any> => {

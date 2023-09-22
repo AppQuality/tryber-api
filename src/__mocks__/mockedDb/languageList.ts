@@ -28,6 +28,7 @@ data.lenguage1 = async (params) => {
   const item = {
     id: 1,
     display_name: "Language name",
+    lang_code: "",
     ...params,
   };
   await sqlite3.insert(tableName, item);

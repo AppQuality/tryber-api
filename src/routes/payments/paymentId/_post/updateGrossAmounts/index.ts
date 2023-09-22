@@ -1,4 +1,4 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (
   payment: { id: number; amount: number },
@@ -9,16 +9,12 @@ export default async (
   const amountWitholding = amountGross - payment.amount;
   const stampRequired = amountGross > 77.47 ? 1 : 0;
 
-  await db.query(
-    db.format(
-      "UPDATE wp_appq_payment_request SET amount_gross = ?, amount_withholding = ?, stamp_required = ?, withholding_tax_percentage = ? WHERE id = ?",
-      [
-        amountGross,
-        amountWitholding,
-        stampRequired,
-        witholdingPercentage,
-        payment.id,
-      ]
-    )
-  );
+  await tryber.tables.WpAppqPaymentRequest.do()
+    .update({
+      amount_gross: amountGross,
+      amount_withholding: amountWitholding,
+      stamp_required: stampRequired,
+      withholding_tax_percentage: witholdingPercentage,
+    })
+    .where("id", payment.id);
 };

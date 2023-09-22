@@ -1,32 +1,79 @@
-import app from "@src/app";
-import request from "supertest";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import Campaign from "@src/__mocks__/mockedDb/campaign";
+import app from "@src/app";
+import { tryber } from "@src/features/database";
+import request from "supertest";
+
+const basicCampaign = {
+  title: "Test Campaign",
+  customer_title: "Test Campaign",
+  min_allowed_media: 1,
+  campaign_type: 0,
+  bug_lang: 0,
+  base_bug_internal_id: "I",
+  start_date: "2020-01-01",
+  end_date: "2020-01-01",
+  close_date: "2020-01-01",
+  campaign_type_id: 1,
+  os: "",
+  pm_id: 1,
+  is_public: 0,
+  page_manual_id: 0,
+  page_preview_id: 0,
+  status_id: 1,
+  platform_id: 1,
+  customer_id: 1,
+  project_id: 1,
+};
+
+const basicUserField = {
+  type: "text",
+  name: "A text field",
+  slug: "a-text-field",
+  custom_user_field_group_id: 10,
+  placeholder: "write something",
+  extras: "",
+};
 
 const sampleBody = {
   name: "My form",
   fields: [],
 };
+
 describe("POST /campaigns/forms/", () => {
-  beforeAll(() => {
-    Campaign.insert();
-    CustomUserFields.insert({
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
+      ...basicCampaign,
       id: 1,
     });
-    CustomUserFields.insert({
+
+    await tryber.tables.WpAppqCustomUserFieldGroups.do().insert({
+      id: 10,
+      name: "CUF group",
+      description: "CUF group description",
+    });
+
+    await tryber.tables.WpAppqCustomUserField.do().insert({
+      ...basicUserField,
+      id: 1,
+    });
+
+    await tryber.tables.WpAppqCustomUserField.do().insert({
+      ...basicUserField,
       id: 2,
     });
   });
-  afterAll(() => {
-    CustomUserFields.clear();
-    Campaign.clear();
+
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqCustomUserField.do().delete();
   });
-  afterEach(() => {
-    PreselectionForm.clear();
-    PreselectionFormFields.clear();
+
+  afterEach(async () => {
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().delete();
+    await tryber.tables.WpAppqCampaignPreselectionFormFields.do().delete();
   });
+
   it("Should return 403 if user doesn't have the tester capability manage_preselection_forms", async () => {
     const response = await request(app)
       .post("/campaigns/forms/")
@@ -75,8 +122,6 @@ describe("POST /campaigns/forms/", () => {
     expect(afterNewFormResult[0]).toHaveProperty("campaign_id", body.campaign);
     expect(responseNewFormSameCamapign.status).toBe(406);
     expect(responseNewFormSameCamapign.body).toMatchObject({
-      element: "element",
-      id: 1,
       message: "A form is already assigned to this campaign_id",
     });
   });
@@ -246,14 +291,16 @@ describe("POST /campaigns/forms/", () => {
       fields: [],
       campaign: 1,
     };
-    await request(app)
+    const response = await request(app)
       .post("/campaigns/forms/")
       .send(body)
       .set(
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    const result = await PreselectionForm.all(["campaign_id"], [{ id: 1 }]);
+    const result = await tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .select("campaign_id")
+      .where({ id: response.body.id });
     expect(result.length).toBe(1);
     expect(result[0]).toHaveProperty("campaign_id", body.campaign);
   });

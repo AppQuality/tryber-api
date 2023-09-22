@@ -1,5 +1,4 @@
-import * as db from "@src/features/db";
-
+import { tryber } from "@src/features/database";
 import noLevel from "../noLevel";
 
 export default async function getPreviousLevel(
@@ -11,21 +10,27 @@ export default async function getPreviousLevel(
   const previousMonth = previousMonthDate.getMonth() + 1;
 
   // TODO: replace previous month with sql interval (NOW() - INTERVAL 1 MONTH)
-  let userLevelData = await db.query(
-    db.format(
-      `
-  SELECT lvl.id AS id, lvl.name AS name
-  FROM wp_appq_activity_level_definition AS lvl
-         JOIN wp_appq_activity_level_rev rev on lvl.id = rev.level_id
-  WHERE rev.tester_id = ?
-    AND MONTH(rev.start_date) = ?
-  ORDER BY start_date DESC
-  LIMIT 1;`,
-      [tester_id, previousMonth]
+  const userLevelDataQ = tryber.tables.WpAppqActivityLevelDefinition.do()
+    .select(
+      tryber.ref("id").withSchema("wp_appq_activity_level_definition"),
+      tryber.ref("name").withSchema("wp_appq_activity_level_definition"),
+      tryber.raw(
+        `${tryber.fn.month("wp_appq_activity_level_rev.start_date")} as month`
+      )
     )
-  );
+    .join(
+      "wp_appq_activity_level_rev",
+      "wp_appq_activity_level_rev.level_id",
+      "wp_appq_activity_level_definition.id"
+    )
+    .where("wp_appq_activity_level_rev.tester_id", tester_id);
+
+  const userLevelData = (await userLevelDataQ).filter((data) => {
+    return Number((data as any).month) == previousMonth;
+  });
+
   if (!userLevelData.length) {
     return noLevel;
   }
-  return userLevelData[0];
+  return { id: userLevelData[0].id, name: userLevelData[0].name };
 }

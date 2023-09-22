@@ -1,8 +1,6 @@
-import sqlite3 from "@src/features/sqlite";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import { tryber } from "@src/features/database";
 import updateLastActivity from ".";
-
-jest.mock("@src/features/db");
 
 const tester1 = {
   id: 1,
@@ -10,35 +8,25 @@ const tester1 = {
 };
 
 describe("updateLastActivity", () => {
-  beforeEach(() => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await sqlite3.insert("wp_appq_evd_profile", tester1);
-        resolve(null);
-      } catch (err) {
-        reject(err);
-      }
-    });
+  beforeEach(async () => {
+    await Profile.insert(tester1);
   });
   afterEach(async () => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        await Profile.clear();
-        resolve(null);
-      } catch (err) {
-        reject(err);
-      }
-    });
+    await Profile.clear();
   });
   it("Should update last_activity with NOW()", async () => {
     await updateLastActivity(tester1.id);
     const now = new Date().toISOString().split(".")[0];
-    const res = await sqlite3.get(
-      `SELECT last_activity FROM wp_appq_evd_profile WHERE id = ${tester1.id} `
-    );
-    const lastActivity = new Date(res.last_activity + ".000+00:00")
-      .toISOString()
-      .split(".")[0];
-    expect(lastActivity).toEqual(now);
+    const res = await tryber.tables.WpAppqEvdProfile.do()
+      .select("last_activity")
+      .where({ id: tester1.id })
+      .first();
+    expect(res).toBeDefined();
+    if (res) {
+      const lastActivity = new Date(res.last_activity + ".000+00:00")
+        .toISOString()
+        .split(".")[0];
+      expect(lastActivity).toEqual(now);
+    }
   });
 });

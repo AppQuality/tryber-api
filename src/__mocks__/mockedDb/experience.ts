@@ -9,6 +9,7 @@ type ExperienceParams = {
   activity_id?: number;
   reason?: string;
   campaign_id?: number;
+  pm_id?: number;
 };
 const defaultItem: ExperienceParams = {
   id: 1,
@@ -18,6 +19,7 @@ const defaultItem: ExperienceParams = {
   activity_id: 0,
   reason: "Experience attribution Reason",
   campaign_id: 1,
+  pm_id: 1,
 };
 
 class Experience extends Table<ExperienceParams> {

@@ -30,6 +30,8 @@ const defaultItem: ProfileParams = {
   is_verified: 0,
   last_activity: new Date("01/01/2021").toISOString(),
   total_exp_pts: 1000,
+  employment_id: 1,
+  education_id: 1,
 };
 class Profile extends Table<ProfileParams> {
   protected name = "wp_appq_evd_profile";
@@ -65,7 +67,7 @@ class Profile extends Table<ProfileParams> {
     "last_activity TIMESTAMP",
   ];
   constructor() {
-    super(defaultItem);
+    super({ wp_user_id: 1, name: "",surname:"", education_id:1, employment_id:1, email:"",...defaultItem });
   }
 }
 const preselectionForm = new Profile();

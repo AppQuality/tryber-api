@@ -1,9 +1,9 @@
-import Question from ".";
+import * as db from "@src/features/db";
 import CustomUserFieldDatas from "@src/features/db/class/CustomUserFieldData";
 import { CustomUserFieldExtrasObject } from "@src/features/db/class/CustomUserFieldExtras";
 import { CustomUserFieldObject } from "@src/features/db/class/CustomUserFields";
 import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
-import * as db from "@src/features/db";
+import Question from ".";
 
 class CufMultiselectQuestion extends Question<{
   type: `cuf_${number}`;
@@ -134,6 +134,7 @@ class CufMultiselectQuestion extends Question<{
         custom_user_field_id: this.customUserField.id,
         profile_id: this.testerId,
         value: v,
+        candidate: 0,
       });
     }
   }

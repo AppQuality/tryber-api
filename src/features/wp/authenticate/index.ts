@@ -1,5 +1,5 @@
+import { tryber } from "@src/features/database";
 import PHPUnserialize from "php-unserialize";
-import * as db from "../../db";
 
 export default async (userData: {
   testerId: number;
@@ -15,16 +15,23 @@ export default async (userData: {
   };
 
   try {
-    const userRolesSql =
-      'SELECT option_value from wp_options where option_name = "wp_user_roles"';
-    let results = await db.query(userRolesSql);
-    let roles = PHPUnserialize.unserialize(results[0].option_value);
-    const userMetaSql =
-      'SELECT meta_value from wp_usermeta where meta_key = "wp_capabilities" and user_id = ?';
-    let userMetaResults = await db.query(db.format(userMetaSql, [user.ID]));
+    const options = await tryber.tables.WpOptions.do()
+      .select("option_value")
+      .where({
+        option_name: "wp_user_roles",
+      })
+      .first();
+    if (!options) throw new Error("No user roles found");
+    let roles = PHPUnserialize.unserialize(options.option_value);
+
+    const userMeta = await tryber.tables.WpUsermeta.do()
+      .select("meta_value")
+      .where("user_id", user.ID)
+      .where("meta_key", "wp_capabilities")
+      .first();
     let permissions = [];
-    if (userMetaResults.length) {
-      permissions = PHPUnserialize.unserialize(userMetaResults[0].meta_value);
+    if (userMeta) {
+      permissions = PHPUnserialize.unserialize(userMeta.meta_value);
     }
     user.role = "tester";
     user.capabilities = [];
@@ -47,7 +54,7 @@ export default async (userData: {
     return e as Error;
   }
 
-  const permissions: { [key: string]: boolean | string[] } = {};
+  const permissions: { [key: string]: boolean | number[] } = {};
   user.capabilities.forEach((cap) => {
     if (cap.endsWith("_full_access")) {
       permissions[cap.replace("_full_access", "")] = true;
@@ -55,10 +62,10 @@ export default async (userData: {
   });
 
   try {
-    const sql =
-      "SELECT main_id,type from wp_appq_olp_permissions where wp_user_id = ?";
-    const results = await db.query(db.format(sql, [user.ID]));
-    results.forEach((item: { type: string; main_id: string }) => {
+    const results = await tryber.tables.WpAppqOlpPermissions.do()
+      .select("main_id", "type")
+      .where("wp_user_id", user.ID);
+    results.forEach((item) => {
       if (!permissions.hasOwnProperty(item.type)) {
         const emptyPermission: { [key: string]: boolean | string[] } = {};
         emptyPermission[item.type] = [];

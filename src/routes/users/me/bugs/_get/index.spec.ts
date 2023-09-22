@@ -1,11 +1,11 @@
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
+import Severities from "@src/__mocks__/mockedDb/bugSeverities";
 import { data as bugStatusData } from "@src/__mocks__/mockedDb/bugStatus";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import Severities from "@src/__mocks__/mockedDb/bugSeverities";
 import app from "@src/app";
-import request from "supertest";
 import sqlite3 from "@src/features/sqlite";
+import request from "supertest";
 const campaign1 = {
   id: 1,
   title: "This is the Campaign title",
@@ -43,8 +43,8 @@ const status1 = {
 describe("GET /users/me/bugs", () => {
   beforeEach(async () => {
     return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_bug", bug1);
-      await sqlite3.insert("wp_appq_evd_bug", bug2);
+      await bugData.basicBug(bug1);
+      await bugData.basicBug(bug2);
       await Campaigns.insert(campaign1);
       await Campaigns.insert(campaign2);
       await Severities.insert(severity1);

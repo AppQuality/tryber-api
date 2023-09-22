@@ -67,7 +67,6 @@ describe("Route POST single-certification", () => {
       .post("/users/me/certifications")
       .send({ certification_id: 1, achievement_date: "2020-01-01" })
       .set("authorization", "Bearer tester");
-
     expect(responseTwinCertification.status).toBe(400);
     expect(responseTwinCertification.body).toMatchObject({
       message:

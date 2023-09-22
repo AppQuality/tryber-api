@@ -44,6 +44,7 @@ type RequestParams = {
   stamp_required?: 1 | 0;
   withholding_tax_percentage?: number;
   fiscal_profile_id?: number;
+  under_threshold?: number;
 };
 
 const data: {
@@ -54,6 +55,20 @@ const data: {
   },
 };
 
+data.basicPayment = async (params) => {
+  const item = {
+    id: 1,
+    tester_id: 1,
+    is_paid: 0,
+    update_date: "1979-05-03 00:00:00",
+    under_threshold: 0,
+    withholding_tax_percentage: 0,
+    ...params,
+  };
+  await sqlite3.insert("wp_appq_payment_request", item);
+  return item;
+};
+
 data.processingPaypalPayment = async (params) => {
   const item = {
     id: 1,
@@ -62,6 +77,8 @@ data.processingPaypalPayment = async (params) => {
     is_paid: 0,
     paypal_email: "john.doe@example.com",
     update_date: "1979-05-03 00:00:00",
+    under_threshold: 0,
+    withholding_tax_percentage: 20,
     ...params,
   };
   await sqlite3.insert("wp_appq_payment_request", item);
@@ -75,6 +92,8 @@ data.paidPaypalPayment = async (params) => {
     is_paid: 1,
     paypal_email: "john.doe@example.com",
     update_date: "1980-05-03 00:00:00",
+    under_threshold: 0,
+    withholding_tax_percentage: 20,
     ...params,
   };
   await sqlite3.insert("wp_appq_payment_request", item2);
