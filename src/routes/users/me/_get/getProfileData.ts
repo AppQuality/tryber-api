@@ -35,7 +35,7 @@ export default async (id: string, fields: string[]) => {
     );
 
     if (!data && !data.length) Promise.reject(Error("No user"));
-    const user = data;
+    const user = data[0];
     if (fields.includes("image") && user.name && user.surname) {
       const nameSlug = user.name.toLowerCase().replace(/[\W_ ]+/g, "");
       const surnameSlug = user.surname.toLowerCase().replace(/[\W_ ]+/g, "");
