@@ -1,36 +1,43 @@
 import { tryber } from "@src/features/database";
-import * as db from "@src/features/db";
 
 export default async (id: string) => {
-  let sql = `SELECT c.id, c.name, c.area, c.institute, pc.achievement_date
-    FROM wp_appq_profile_certifications pc
-    JOIN wp_appq_evd_profile p ON (p.id = pc.tester_id)
-    JOIN wp_appq_certifications_list c ON (c.id = pc.cert_id)
-    WHERE p.wp_user_id = ?;`;
-  /* 
-    const data = await tryber.tables.WpAppqProfileCertifications.do()
-    .select("c.id", "c.name", "c.area", "c.institute", "x.achievement_date")
-    .join("wp_appq_evd_profile as p", "p.id", "wp_appq_profile_certifications.tester_id")
-    .join("wp_appq_certifications_list as c", "c.id", "wp_appq_profile_certifications.cert_id")
-    .where("p.wp_user_id", id); */
   try {
-    const data = await db.query(db.format(sql, [id]));
-    console.log(data, "suchissimo");
+    const data = await tryber.tables.WpAppqProfileCertifications.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_certifications_list"),
+        tryber.ref("name").withSchema("wp_appq_certifications_list"),
+        tryber.ref("area").withSchema("wp_appq_certifications_list"),
+        tryber.ref("institute").withSchema("wp_appq_certifications_list"),
+        tryber
+          .ref("achievement_date")
+          .withSchema("wp_appq_profile_certifications")
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_profile_certifications.tester_id"
+      )
+      .join(
+        "wp_appq_certifications_list",
+        "wp_appq_certifications_list.id",
+        "wp_appq_profile_certifications.cert_id"
+      )
+      .where("wp_appq_evd_profile.wp_user_id", id);
+
     if (!data.length) {
-      let emptyCertSql = `SELECT * FROM wp_usermeta 
-          WHERE user_id = ? 
-          AND meta_key = 'emptyCerts' AND meta_value = 'true';`;
-      return db
-        .query(db.format(emptyCertSql, [id]))
-        .then((data) => {
-          if (!data.length)
-            return Promise.reject(Error("Invalid certification data"));
-          return { certifications: false };
-        })
-        .catch((e) => Promise.reject(Error(e)));
+      const emptyCerts = await tryber.tables.WpUsermeta.do()
+        .select()
+        .where("user_id", id)
+        .andWhere("meta_key", "emptyCerts")
+        .andWhere("meta_value", "true");
+
+      if (!emptyCerts.length) {
+        return Promise.reject(Error("Invalid certification data"));
+      }
+      return { certifications: false };
     }
     return {
-      certifications: data.map((d: { achievement_date: Date }) => {
+      certifications: data.map((d) => {
         const item = {
           ...d,
           achievement_date: new Date(d.achievement_date)

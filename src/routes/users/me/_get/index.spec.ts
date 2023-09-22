@@ -323,6 +323,7 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("id");
     expect(response.body).toHaveProperty("certifications");
     expect(response.body).toHaveProperty("role");
+    expect(response.body.certifications.length).toEqual(1);
     expect(response.body.certifications[0]).toMatchObject({
       id: certification1.id,
       name: certification1.name,
@@ -412,5 +413,34 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("name");
     expect(response.body).toHaveProperty("email");
     expect(response.body).toHaveProperty("role");
+  });
+});
+
+describe("Route GET users-me - no certifications", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert(tester1);
+    await tryber.tables.WpUsers.do().insert(wpTester1);
+    await tryber.tables.WpUsermeta.do().insert({
+      user_id: 1,
+      meta_key: "emptyCerts",
+      meta_value: "true",
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpUsers.do().delete();
+    await tryber.tables.WpUsermeta.do().delete();
+  });
+
+  it("Should return certification false if user has no certifications", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=certifications")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: tester1.id,
+      certifications: false,
+      role: "tester",
+    });
   });
 });
