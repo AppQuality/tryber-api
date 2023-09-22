@@ -294,6 +294,20 @@ describe("Route GET users-me-full-fields", () => {
     });
   });
 
+  it("Should return tryber profession if fields=profession", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=profession")
+      .set("authorization", "Bearer tester");
+    console.log("🚀 ~ file: index.spec.ts:301 ~ it ~ response:", response.body);
+    expect(response.status).toBe(200);
+    /*expect(response.body).toHaveProperty("gender");
+    expect(response.body).toMatchObject({
+      id: testerFull.id,
+      role: "tester",
+      gender: "male",
+    });*/
+  });
+
   it("Should return certifications if parameter fields=certifications", async () => {
     const response = await request(app)
       .get("/users/me?fields=certifications")
