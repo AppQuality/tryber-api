@@ -33,7 +33,7 @@ const testerFull = {
   country: "Italy",
   city: "Rome",
   onboarding_complete: 1,
-  employment_id: 1,
+  employment_id: 2,
   education_id: 1,
 };
 const bug1 = {
@@ -64,7 +64,7 @@ const testerFullCertification1 = {
 };
 
 const employment1 = {
-  id: 1,
+  id: 2,
   display_name: "UNGUESS Tester",
   category: "",
 };
@@ -305,14 +305,12 @@ describe("Route GET users-me-full-fields", () => {
     const response = await request(app)
       .get("/users/me?fields=profession")
       .set("authorization", "Bearer tester");
-    console.log("🚀 ~ file: index.spec.ts:301 ~ it ~ response:", response.body);
     expect(response.status).toBe(200);
-    /*expect(response.body).toHaveProperty("gender");
     expect(response.body).toMatchObject({
       id: testerFull.id,
+      profession: { id: employment1.id, name: employment1.display_name },
       role: "tester",
-      gender: "male",
-    });*/
+    });
   });
 
   it("Should return certifications if parameter fields=certifications", async () => {
