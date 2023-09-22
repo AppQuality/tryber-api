@@ -595,11 +595,15 @@ describe("POST /users/me/payments", () => {
       const requestId: number = response.body.id;
 
       const requestData = await tryber.tables.WpAppqPaymentRequest.do()
-        .select("amount_withholding")
+        .select("amount_withholding", "amount_gross", "amount")
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(0);
+      expect(requestData.amount_gross - requestData.amount_gross).toBe(
+        requestData.amount_withholding
+      );
+      expect(requestData.amount_gross - requestData.amount_gross).toBe(0);
     });
 
     it("Should answer 200 if fiscal category is 4 (i.e. foreign)", async () => {
@@ -657,7 +661,7 @@ describe("POST /users/me/payments", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 100,
+        amount: 96.84, //this is the amount NET, of 77,47
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
@@ -677,7 +681,7 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqFiscalProfile.do().delete();
     });
 
-    it("Should create a row with stamp_required = true if the amount gross is over 77,47", async () => {
+    it("Should create a row with stamp_required = true if the amount net is greater or equal 77,47", async () => {
       const response = await request(app)
         .post("/users/me/payments")
         .send({
@@ -704,7 +708,7 @@ describe("POST /users/me/payments", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 61.95,
+        amount: 96.82, //this is the amount NET, of 77,46
       });
       await tryber.tables.WpAppqFiscalProfile.do().insert({
         id: 1,

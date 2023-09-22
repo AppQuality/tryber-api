@@ -82,8 +82,7 @@ export default class Route extends UserRoute<{
       iban = body.method.iban;
       accountHolderName = body.method.accountHolderName;
     }
-
-    const isStampRequired = fiscalData.net > 77.47;
+    const isStampRequired = fiscalData.net >= 77.47;
     const request = await tryber.tables.WpAppqPaymentRequest.do()
       .insert({
         tester_id: this.getTesterId(),
