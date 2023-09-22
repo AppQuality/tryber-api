@@ -1,3 +1,4 @@
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 
 export default async (id: string) => {
@@ -6,9 +7,15 @@ export default async (id: string) => {
     JOIN wp_appq_evd_profile p ON (p.id = pc.tester_id)
     JOIN wp_appq_certifications_list c ON (c.id = pc.cert_id)
     WHERE p.wp_user_id = ?;`;
-
+  /* 
+    const data = await tryber.tables.WpAppqProfileCertifications.do()
+    .select("c.id", "c.name", "c.area", "c.institute", "x.achievement_date")
+    .join("wp_appq_evd_profile as p", "p.id", "wp_appq_profile_certifications.tester_id")
+    .join("wp_appq_certifications_list as c", "c.id", "wp_appq_profile_certifications.cert_id")
+    .where("p.wp_user_id", id); */
   try {
     const data = await db.query(db.format(sql, [id]));
+    console.log(data, "suchissimo");
     if (!data.length) {
       let emptyCertSql = `SELECT * FROM wp_usermeta 
           WHERE user_id = ? 
