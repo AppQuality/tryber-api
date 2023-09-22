@@ -62,14 +62,15 @@ export default class Route extends UserRoute<{
     const body = this.getBody();
     const fiscalData = {
       tax_percent: 0,
-      gross: this.booty,
+      net: this.booty,
       witholding: 0,
     };
     if (this.fiscalProfile.fiscal_category === 1) {
       fiscalData.tax_percent = 20;
-      fiscalData.gross = Math.round((this.booty + Number.EPSILON) * 125) / 100;
+      fiscalData.net = Math.round((this.booty + Number.EPSILON) * 80) / 100;
       fiscalData.witholding =
-        Math.round((this.booty + Number.EPSILON) * 25) / 100;
+        Math.round((this.booty + Number.EPSILON) * fiscalData.tax_percent) /
+        100;
     }
 
     let paypalEmail = null;
@@ -82,14 +83,14 @@ export default class Route extends UserRoute<{
       accountHolderName = body.method.accountHolderName;
     }
 
-    const isStampRequired = fiscalData.gross > 77.47;
+    const isStampRequired = fiscalData.net > 77.47;
     const request = await tryber.tables.WpAppqPaymentRequest.do()
       .insert({
         tester_id: this.getTesterId(),
-        amount: this.booty,
+        amount: fiscalData.net,
         is_paid: 0,
         fiscal_profile_id: this.fiscalProfile.id,
-        amount_gross: fiscalData.gross,
+        amount_gross: this.booty,
         amount_withholding: fiscalData.witholding,
         paypal_email: paypalEmail ? paypalEmail : undefined,
         stamp_required: isStampRequired ? 1 : 0,

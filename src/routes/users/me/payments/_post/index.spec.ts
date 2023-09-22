@@ -88,7 +88,7 @@ describe("POST /users/me/payments", () => {
         expect(response.status).toBe(200);
       });
 
-      it("Should create a row in the requests with the amount equal to current sum of payments not paid and is_paid=0", async () => {
+      it("Should create a row in the requests with the amount_gross equal to current sum of payments not paid and is_paid=0", async () => {
         const payments = await tryber.tables.WpAppqPayment.do()
           .sum("amount", { as: "total" })
           .where({
@@ -112,11 +112,11 @@ describe("POST /users/me/payments", () => {
         const requestId: number = response.body.id;
 
         const requestData = await tryber.tables.WpAppqPaymentRequest.do()
-          .select("amount", "is_paid")
+          .select("amount_gross", "is_paid")
           .where({ id: requestId })
           .first();
         if (!requestData) throw new Error("Request not found");
-        expect(requestData.amount).toBe(payments.total);
+        expect(requestData.amount_gross).toBe(payments.total);
         expect(requestData.is_paid).toBe(0);
       });
 
@@ -246,7 +246,7 @@ describe("POST /users/me/payments", () => {
           expect(attribution.is_requested).toBe(1);
         });
       });
-      it("Should create a row in the requests with the amount equal to sum of current payments not paid and is_paid=0", async () => {
+      it("Should create a row in the requests with the amount_gross equal to sum of current payments not paid and is_paid=0", async () => {
         const payments = await tryber.tables.WpAppqPayment.do()
           .sum("amount", { as: "total" })
           .where({ tester_id: 1, is_paid: 0 })
@@ -268,11 +268,11 @@ describe("POST /users/me/payments", () => {
         const requestId: number = response.body.id;
 
         const requestData = await tryber.tables.WpAppqPaymentRequest.do()
-          .select("amount", "is_paid")
+          .select("amount_gross", "is_paid")
           .where({ id: requestId })
           .first();
         if (!requestData) throw new Error("Request not found");
-        expect(requestData.amount).toBe(payments.total);
+        expect(requestData.amount_gross).toBe(payments.total);
         expect(requestData.is_paid).toBe(0);
       });
       it("Should create a row in the requests with tester_id = current tester id", async () => {
@@ -372,7 +372,7 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqFiscalProfile.do().truncate();
     });
 
-    it("Should create a row in the requests with amount_gross = 125% of the amount if fiscal category is 1", async () => {
+    it("Should create a row in the requests with amount_gross = 100% of the amount if fiscal category is 1", async () => {
       const response = await request(app)
         .post("/users/me/payments")
         .send({
@@ -391,7 +391,7 @@ describe("POST /users/me/payments", () => {
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
-      expect(requestData.amount_gross).toBe(125);
+      expect(requestData.amount_gross).toBe(100);
     });
 
     it("Should create a row in the requests withholding_tax_percentage = 20  if fiscal category is 1", async () => {
@@ -435,7 +435,7 @@ describe("POST /users/me/payments", () => {
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
-      expect(requestData.amount_withholding).toBe(25);
+      expect(requestData.amount_withholding).toBe(20);
     });
   });
 
@@ -657,7 +657,7 @@ describe("POST /users/me/payments", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 61.99,
+        amount: 100,
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
