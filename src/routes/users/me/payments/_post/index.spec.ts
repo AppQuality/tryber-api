@@ -88,38 +88,6 @@ describe("POST /users/me/payments", () => {
         expect(response.status).toBe(200);
       });
 
-      it("Should create a row in the requests with the amount_gross equal to current sum of payments not paid and is_paid=0", async () => {
-        const payments = await tryber.tables.WpAppqPayment.do()
-          .sum("amount", { as: "total" })
-          .where({
-            tester_id: 1,
-            is_paid: 0,
-          })
-          .first();
-
-        if (!payments) throw new Error("Payments not found");
-        const response = await request(app)
-          .post("/users/me/payments")
-          .send({
-            method: {
-              type: "paypal",
-              email: "test@example.com",
-            },
-          })
-          .set("Authorization", "Bearer tester");
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("id");
-        const requestId: number = response.body.id;
-
-        const requestData = await tryber.tables.WpAppqPaymentRequest.do()
-          .select("amount_gross", "is_paid")
-          .where({ id: requestId })
-          .first();
-        if (!requestData) throw new Error("Request not found");
-        expect(requestData.amount_gross).toBe(payments.total);
-        expect(requestData.is_paid).toBe(0);
-      });
-
       it("Should update the attributions with is_requested =1 and request_id = the id of the inserted request ", async () => {
         const response = await request(app)
           .post("/users/me/payments")
@@ -372,6 +340,70 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqFiscalProfile.do().truncate();
     });
 
+    it("Should create a row in the requests with the amount_gross equal to current sum of payments amount not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "paypal",
+            email: "test@example.com",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount_gross", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount_gross).toBe(payments.total);
+      expect(requestData.is_paid).toBe(0);
+    });
+
+    it("Should create a row in the requests with the amount equal to current sum of payments (amount * 0.8) not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "paypal",
+            email: "test@example.com",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount).toBe(payments.total * 0.8);
+      expect(requestData.is_paid).toBe(0);
+    });
+
     it("Should create a row in the requests with amount_gross = 100% of the amount if fiscal category is 1", async () => {
       const response = await request(app)
         .post("/users/me/payments")
@@ -462,6 +494,7 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqPayment.do().truncate();
       await tryber.tables.WpAppqFiscalProfile.do().truncate();
     });
+
     it("Should answer 403 if fiscal category is 2 (i.e. witholding > 5000 )", async () => {
       const response = await request(app)
         .post("/users/me/payments")
@@ -536,6 +569,69 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqFiscalProfile.do().truncate();
     });
 
+    it("Should create a row in the requests with the amount_gross equal to current sum of payments amount not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "paypal",
+            email: "test@example.com",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount_gross", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount_gross).toBe(payments.total);
+      expect(requestData.is_paid).toBe(0);
+    });
+
+    it("Should create a row in the requests with the amount equal to current sum of payments amount not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "paypal",
+            email: "test@example.com",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount).toBe(payments.total);
+      expect(requestData.is_paid).toBe(0);
+    });
     it("Should create a row in the requests withholding_tax_percentage = 0  if fiscal category is 4", async () => {
       const response = await request(app)
         .post("/users/me/payments")
