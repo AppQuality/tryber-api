@@ -1,5 +1,6 @@
 /** OPENAPI-ROUTE: post-popups */
 
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
@@ -17,8 +18,29 @@ export default async (
     };
   }
   try {
-    const query = mapObjectToQuery(req.body);
-    const insertId = await db.insert("wp_appq_popups", query);
+    const data: {
+      content: string;
+      is_once: number;
+      title: string;
+      targets?: string;
+      extras: string;
+    } = {
+      ...(req.body.content && { content: req.body.content }),
+      ...(req.body.once && { is_once: req.body.once }),
+      ...(req.body.title && { title: req.body.title }),
+    };
+    if (req.body.profiles) {
+      if (typeof req.body.profiles == "string") {
+        data.targets = req.body.profiles;
+      } else if (Array.isArray(req.body.profiles)) {
+        data.targets = "list";
+        data.extras = req.body.profiles.join(",");
+      }
+    }
+    const popup = await tryber.tables.WpAppqPopups.do()
+      .insert(data)
+      .returning("id");
+    const insertId = popup[0].id ?? popup[0];
     if (!insertId) throw Error("Error on INSERT");
 
     const sql = `SELECT * FROM wp_appq_popups WHERE id = ${insertId}`;

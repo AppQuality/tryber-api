@@ -1,5 +1,6 @@
 /** OPENAPI-ROUTE: post-users */
 
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 import { send } from "../../../features/mail/send";
@@ -116,7 +117,7 @@ export default async (
         const [referralId, campaignId] = referral;
 
         try {
-          const insertId = await db.insert("wp_appq_referral_data", {
+          await tryber.tables.WpAppqReferralData.do().insert({
             referrer_id: parseInt(referralId),
             tester_id: parseInt(testerId.insertId),
             campaign_id: parseInt(campaignId),
