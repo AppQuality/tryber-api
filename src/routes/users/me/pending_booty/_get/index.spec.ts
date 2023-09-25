@@ -217,6 +217,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution2.creation_date?.substring(0, 10),
+        activity: "Activity2",
       },
       {
         id: attribution1.id,
@@ -234,6 +235,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution1.creation_date?.substring(0, 10),
+        activity: "Activity1",
       },
       {
         id: attribution3.id,
@@ -251,6 +253,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution3.creation_date?.substring(0, 10),
+        activity: "Activity3",
       },
     ]);
   });
@@ -399,6 +402,29 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
       3, 1, 2,
     ]);
   });
+  it("Should return attributions ordered by activity if orderBy=activity is set", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty?orderBy=activity")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.map((item: any) => item.id)).toEqual([
+      3, 1, 2,
+    ]);
+    const responseAsc = await request(app)
+      .get("/users/me/pending_booty?orderBy=activity&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(responseAsc.status).toBe(200);
+    expect(responseAsc.body.results.map((item: any) => item.id)).toEqual([
+      2, 1, 3,
+    ]);
+    const responseDesc = await request(app)
+      .get("/users/me/pending_booty?orderBy=activity&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(responseDesc.status).toBe(200);
+    expect(responseDesc.body.results.map((item: any) => item.id)).toEqual([
+      3, 1, 2,
+    ]);
+  });
   it("Should return attributions ordered by attributionDate DESC by default", async () => {
     const responseDefault = await request(app)
       .get("/users/me/pending_booty")
@@ -532,6 +558,11 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
     await sqlite3.insert("wp_appq_payment", attribution4);
     await sqlite3.insert("wp_appq_payment", attributionPaid);
     await sqlite3.insert("wp_appq_payment", attributionRequested);
+    await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
+      { id: 1, work_type: "Activity1" },
+      { id: 2, work_type: "Activity2" },
+      { id: 3, work_type: "Activity3" },
+    ]);
     await tryber.tables.WpAppqFiscalProfile.do().insert([
       {
         fiscal_category: 1,
@@ -556,6 +587,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
     await Campaigns.clear();
     await tryber.tables.WpAppqFiscalProfile.do().delete();
     await tryber.tables.WpAppqPayment.do().delete();
+    await tryber.tables.WpAppqPaymentWorkTypes.do().delete();
   });
 
   it("Should return only gross if fiscal category id is NOT 1", async () => {
@@ -585,6 +617,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
           },
         },
         attributionDate: attribution2.creation_date?.substring(0, 10),
+        activity: "Activity2",
       },
       {
         id: attribution1.id,
@@ -596,6 +629,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
           },
         },
         attributionDate: attribution1.creation_date?.substring(0, 10),
+        activity: "Activity1",
       },
       {
         id: attribution3.id,
@@ -607,6 +641,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
           },
         },
         attributionDate: attribution3.creation_date?.substring(0, 10),
+        activity: "Activity3",
       },
     ]);
   });
@@ -626,6 +661,8 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
     const response = await request(app)
       .get("/users/me/pending_booty")
       .set("authorization", "Bearer tester");
+    console.log(response.body);
+
     expect(response.status).toBe(200);
     expect(response.body.results.map((el: { id: number }) => el.id)).toEqual(
       expect.not.arrayContaining([attributionTryber2.id])
