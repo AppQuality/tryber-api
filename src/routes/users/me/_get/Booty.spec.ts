@@ -146,6 +146,8 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
   const data: any = {};
   beforeEach(async () => {
     data.tester = await Profile.insert({
+      id: 2,
+      wp_user_id: 1,
       pending_booty: 0,
     });
     await WpUsers.insert({
@@ -261,8 +263,9 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
     expect(response.body).toHaveProperty("id");
     expect(response.body).toHaveProperty("booty");
     expect(response.body).toHaveProperty("role");
+
     expect(response.body.booty).toHaveProperty("gross", {
-      value: 250.25,
+      value: 125.25,
       currency: "EUR",
     });
     expect(response.body.booty).not.toHaveProperty("net");

@@ -1,44 +1,53 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (id: string) => {
-  let fiscalCategory = 0;
+  try {
+    let fiscalCategory = 0;
 
-  let fiscalSql = `SELECT 
-  fp.fiscal_category from wp_appq_fiscal_profile as fp
-  JOIN wp_appq_evd_profile as p ON (p.id = fp.tester_id)
-  WHERE p.wp_user_id = ? AND fp.is_active = 1
-`;
-  const fiscal = await db.query(db.format(fiscalSql, [id]));
-  if (fiscal.length) {
-    fiscalCategory = fiscal[0].fiscal_category;
-  }
+    const fiscalQuery = (await tryber.tables.WpAppqFiscalProfile.do()
+      .select(
+        tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_fiscal_profile.tester_id"
+      )
+      .where("wp_appq_evd_profile.wp_user_id", id)
+      .andWhere("wp_appq_fiscal_profile.is_active", 1)
+      .first()) as unknown as { fiscal_category: string };
 
-  let sql = `SELECT 
-    SUM(req.amount_gross) as gross,
-    SUM(req.amount) as net
-    FROM wp_appq_payment_request AS req
-    JOIN wp_appq_evd_profile AS p ON (p.id = req.tester_id)
-    WHERE p.wp_user_id = ? AND is_paid = 1;
-  `;
+    fiscalCategory = Number(fiscalQuery.fiscal_category);
 
-  const res = await db.query(db.format(sql, [id]));
-  if (!res.length) {
-    Promise.reject(Error("Invalid pending booty data"));
-  }
+    const res = (await tryber.tables.WpAppqPaymentRequest.do()
+      .sum({ gross: "amount_gross", net: "amount" })
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_payment_request.tester_id"
+      )
+      .where("wp_appq_evd_profile.wp_user_id", id)
+      .andWhere("is_paid", 1)
+      .first()) as unknown as { gross: string; net: string };
 
-  return {
-    booty: {
-      gross: {
-        value: res[0].gross ? Number(parseFloat(res[0].gross).toFixed(2)) : 0,
-        currency: "EUR",
+    if (!res) Promise.reject(Error("Invalid pending booty data"));
+
+    return {
+      booty: {
+        gross: {
+          value: res.gross ? Number(parseFloat(res.gross).toFixed(2)) : 0,
+          currency: "EUR",
+        },
+        ...(fiscalQuery &&
+          fiscalCategory === 1 && {
+            net: {
+              value: res.net ? Number(parseFloat(res.net).toFixed(2)) : 0,
+              currency: "EUR",
+            },
+          }),
       },
-      ...(fiscal &&
-        fiscalCategory === 1 && {
-          net: {
-            value: res[0].net ? Number(parseFloat(res[0].net).toFixed(2)) : 0,
-            currency: "EUR",
-          },
-        }),
-    },
-  };
+    };
+  } catch (e) {
+    throw e;
+  }
 };
