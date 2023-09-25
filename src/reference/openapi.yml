@@ -9008,8 +9008,8 @@ paths:
                   value:
                     results:
                       - id: 1
-                        name: ''
-                        activity: ''
+                        name: '[CP-3882] test release'
+                        activity: TEST API CON BUG
                         amount:
                           net:
                             value: 10
@@ -9026,8 +9026,8 @@ paths:
                   value:
                     results:
                       - id: 1
-                        name: ''
-                        activity: ''
+                        name: '[CP-11111] test release'
+                        activity: TEST API WITH BUG
                         amount:
                           net:
                             value: 10
@@ -9037,105 +9037,20 @@ paths:
                             currency: EUR
                         attributionDate: '2019-08-24'
                       - id: 2
-                        name: ''
-                        activity: ''
+                        name: '[CP-22222] test release'
+                        activity: TEST API
                         amount:
                           net:
-                            value: 10
+                            value: 80.08
                             currency: EUR
                           gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 3
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 4
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 5
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 6
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 7
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 8
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 9
-                        name: ''
-                        activity: ''
-                        amount:
-                          net:
-                            value: 10
-                            currency: EUR
-                          gross:
-                            value: 13.5
-                            currency: EUR
-                        attributionDate: '2019-08-24'
-                      - id: 10
-                        name: ''
-                        activity: ''
-                        amount:
-                          gross:
-                            value: 13.5
+                            value: 100.1
                             currency: EUR
                         attributionDate: '2019-08-24'
                     limit: 10
-                    size: 10
+                    size: 1
                     start: 0
-                    total: 20
+                    total: 1
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
