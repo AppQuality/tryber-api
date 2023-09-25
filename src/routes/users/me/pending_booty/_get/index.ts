@@ -130,6 +130,8 @@ export default class RouteItem extends UserRoute<{
       query.orderBy("wp_appq_payment.id", this.order);
     } else if (this.orderBy === "net" || this.orderBy === "gross") {
       query.orderBy("wp_appq_payment.amount", this.order);
+    } else if (this.orderBy === "activity") {
+      query.orderBy("wp_appq_payment_work_types.work_type", this.order);
     } else {
       query.orderBy(this.orderBy, this.order);
     }

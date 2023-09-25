@@ -102,9 +102,9 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
     await sqlite3.insert("wp_appq_payment", attributionRequested);
     await sqlite3.insert("wp_appq_payment", attribution4);
     await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
-      { id: 1, work_type: "Activity1" },
-      { id: 2, work_type: "Activity2" },
-      { id: 3, work_type: "Activity3" },
+      { id: 1, work_type: "B Activity1" },
+      { id: 2, work_type: "A Activity2" },
+      { id: 3, work_type: "C Activity3" },
     ]);
     await tryber.tables.WpAppqFiscalProfile.do().insert([
       {
@@ -145,7 +145,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution2.creation_date?.substring(0, 10),
-        activity: "Activity2",
+        activity: "A Activity2",
       },
       {
         id: attribution1.id,
@@ -163,7 +163,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution1.creation_date?.substring(0, 10),
-        activity: "Activity1",
+        activity: "B Activity1",
       },
       {
         id: attribution3.id,
@@ -181,7 +181,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution3.creation_date?.substring(0, 10),
-        activity: "Activity3",
+        activity: "C Activity3",
       },
     ]);
   });
@@ -217,7 +217,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution2.creation_date?.substring(0, 10),
-        activity: "Activity2",
+        activity: "A Activity2",
       },
       {
         id: attribution1.id,
@@ -235,7 +235,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution1.creation_date?.substring(0, 10),
-        activity: "Activity1",
+        activity: "B Activity1",
       },
       {
         id: attribution3.id,
@@ -253,7 +253,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution3.creation_date?.substring(0, 10),
-        activity: "Activity3",
+        activity: "C Activity3",
       },
     ]);
   });
