@@ -429,6 +429,18 @@ describe("Route GET users-me-full-fields", () => {
       });
     }
   });
+  it("Should return languages if parameter fields=education", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=education")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: testerFull.id,
+      education: { id: education1.id, name: education1.display_name },
+      role: "tester",
+    });
+  });
+
   it("Should return additionals if parameter fields=additional", async () => {
     const response = await request(app)
       .get("/users/me?fields=additional")

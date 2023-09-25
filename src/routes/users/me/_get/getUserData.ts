@@ -135,6 +135,7 @@ export default async (
           { value: 0, isOver: false };
 
         const trbPendingBooty = (await getPendingBootyData(id)).pending_booty;
+        console.log(trbPendingBooty, "trbPendingBooty");
         const bootyThresholdVal = await getCrowdOption("minimum_payout");
         if (bootyThresholdVal) {
           bootyThreshold.value = parseFloat(bootyThresholdVal);
@@ -144,6 +145,7 @@ export default async (
         }
 
         data = { ...data, ...{ booty_threshold: bootyThreshold } };
+        console.log(data, "data - suka");
       } catch (e) {
         console.log(e);
       }
