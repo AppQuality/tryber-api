@@ -3652,6 +3652,7 @@ export interface operations {
               };
               /** Format: date */
               attributionDate: string;
+              activity: string;
             })[];
             limit?: number;
             size: number;

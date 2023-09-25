@@ -8984,10 +8984,13 @@ paths:
                             attributionDate:
                               type: string
                               format: date
+                            activity:
+                              type: string
                           required:
                             - name
                             - amount
                             - attributionDate
+                            - activity
                       type: object
                   limit:
                     type: number
@@ -9006,6 +9009,7 @@ paths:
                     results:
                       - id: 1
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9023,6 +9027,7 @@ paths:
                     results:
                       - id: 1
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9033,6 +9038,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 2
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9043,6 +9049,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 3
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9053,6 +9060,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 4
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9063,6 +9071,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 5
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9073,6 +9082,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 6
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9083,6 +9093,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 7
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9093,6 +9104,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 8
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9103,6 +9115,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 9
                         name: ''
+                        activity: ''
                         amount:
                           net:
                             value: 10
@@ -9113,6 +9126,7 @@ paths:
                         attributionDate: '2019-08-24'
                       - id: 10
                         name: ''
+                        activity: ''
                         amount:
                           gross:
                             value: 13.5
