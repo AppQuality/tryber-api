@@ -27,6 +27,7 @@ const attribution1: AttributionParams = {
   creation_date: "1970-01-01 00:00:00",
   is_paid: 0,
   is_requested: 0,
+  work_type_id: 1,
 };
 const attribution2: AttributionParams = {
   id: 2,
@@ -36,6 +37,7 @@ const attribution2: AttributionParams = {
   creation_date: "1980-01-01 00:00:00",
   is_paid: 0,
   is_requested: 0,
+  work_type_id: 2,
 };
 const attribution3: AttributionParams = {
   id: 3,
@@ -45,6 +47,7 @@ const attribution3: AttributionParams = {
   creation_date: "1960-01-01 00:00:00",
   is_paid: 0,
   is_requested: 0,
+  work_type_id: 3,
 };
 
 const attribution4: AttributionParams = {
@@ -55,6 +58,7 @@ const attribution4: AttributionParams = {
   creation_date: "1960-01-01 00:00:00",
   is_paid: 0,
   is_requested: 0,
+  work_type_id: 3,
 };
 const attributionPaid: AttributionParams = {
   id: 4,
@@ -64,6 +68,7 @@ const attributionPaid: AttributionParams = {
   creation_date: "1980-01-01 00:00:00",
   is_paid: 1,
   is_requested: 0,
+  work_type_id: 3,
 };
 const attributionTryber2: AttributionParams = {
   id: 333,
@@ -72,6 +77,7 @@ const attributionTryber2: AttributionParams = {
   amount: 169,
   creation_date: "1969-06-09 00:00:00",
   is_paid: 1,
+  work_type_id: 3,
 };
 const attributionRequested: AttributionParams = {
   id: 666,
@@ -81,6 +87,7 @@ const attributionRequested: AttributionParams = {
   creation_date: "1980-01-01 00:00:00",
   is_paid: 0,
   is_requested: 1,
+  work_type_id: 3,
 };
 
 describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
@@ -94,6 +101,11 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
     await sqlite3.insert("wp_appq_payment", attributionPaid);
     await sqlite3.insert("wp_appq_payment", attributionRequested);
     await sqlite3.insert("wp_appq_payment", attribution4);
+    await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
+      { id: 1, work_type: "Activity1" },
+      { id: 2, work_type: "Activity2" },
+      { id: 3, work_type: "Activity3" },
+    ]);
     await tryber.tables.WpAppqFiscalProfile.do().insert([
       {
         fiscal_category: 1,
@@ -109,6 +121,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
     await Attributions.clear();
     await Campaigns.clear();
     await tryber.tables.WpAppqFiscalProfile.do().delete();
+    await tryber.tables.WpAppqPaymentWorkTypes.do().delete();
   });
 
   it("Should return net and gross if fiscal profile category is 1", async () => {
@@ -132,6 +145,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution2.creation_date?.substring(0, 10),
+        activity: "Activity2",
       },
       {
         id: attribution1.id,
@@ -149,6 +163,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution1.creation_date?.substring(0, 10),
+        activity: "Activity1",
       },
       {
         id: attribution3.id,
@@ -166,6 +181,7 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
           },
         },
         attributionDate: attribution3.creation_date?.substring(0, 10),
+        activity: "Activity3",
       },
     ]);
   });
