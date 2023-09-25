@@ -44,6 +44,34 @@ const bug1 = {
   reviewer: 1,
   last_editor_id: 1,
 };
+
+const bug2 = {
+  id: 2,
+  wp_user_id: testerFull.wp_user_id,
+  status_id: 2,
+  campaign_id: 1,
+  reviewer: 1,
+  last_editor_id: 1,
+};
+
+const bug3 = {
+  id: 3,
+  wp_user_id: testerFull.wp_user_id,
+  status_id: 1,
+  campaign_id: 1,
+  reviewer: 1,
+  last_editor_id: 1,
+};
+
+const bug4 = {
+  id: 4,
+  wp_user_id: 666,
+  status_id: 2,
+  campaign_id: 1,
+  reviewer: 1,
+  last_editor_id: 1,
+};
+
 const testerCandidacy = {
   user_id: testerFull.wp_user_id,
   accepted: 1,
@@ -61,6 +89,18 @@ const testerFullCertification1 = {
   tester_id: testerFull.id,
   cert_id: certification1.id,
   achievement_date: "2022-03-21",
+};
+
+const expPoints1 = {
+  id: 1,
+  tester_id: testerFull.id,
+  campaign_id: 1,
+  activity_id: 1,
+  reason: "reason",
+  pm_id: 1,
+  creation_date: "1970-02-21 00:00:00",
+  amount: 8,
+  bug_id: 1,
 };
 
 const employment1 = {
@@ -227,7 +267,7 @@ describe("Route GET users-me-full-fields", () => {
     });
     await tryber.tables.WpAppqEvdProfile.do().insert(testerFull);
     await tryber.tables.WpUsers.do().insert(wpTester1);
-    await tryber.tables.WpAppqEvdBug.do().insert(bug1);
+    await tryber.tables.WpAppqEvdBug.do().insert([bug1, bug2, bug3, bug4]);
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert(testerCandidacy);
     await tryber.tables.WpAppqCertificationsList.do().insert(certification1);
     await tryber.tables.WpAppqProfileCertifications.do().insert(
@@ -237,6 +277,7 @@ describe("Route GET users-me-full-fields", () => {
     await tryber.tables.WpAppqEducation.do().insert(education1);
     await tryber.tables.WpAppqLang.do().insert(lang1);
     await tryber.tables.WpAppqProfileHasLang.do().insert(testerFullLang1);
+    await tryber.tables.WpAppqExpPoints.do().insert(expPoints1);
     //insert cuf_text
     await tryber.tables.WpAppqCustomUserField.do().insert(cufText);
     await tryber.tables.WpAppqCustomUserFieldData.do().insert(cufTextVal);
@@ -274,6 +315,7 @@ describe("Route GET users-me-full-fields", () => {
     await tryber.tables.WpAppqCustomUserField.do().delete();
     await tryber.tables.WpAppqCustomUserFieldData.do().delete();
     await tryber.tables.WpAppqCustomUserFieldExtras.do().delete();
+    await tryber.tables.WpAppqExpPoints.do().delete();
   });
 
   it("Should return tryber (id, role and name) if parameter fields=name", async () => {
@@ -310,6 +352,26 @@ describe("Route GET users-me-full-fields", () => {
       id: testerFull.id,
       profession: { id: employment1.id, name: employment1.display_name },
       role: "tester",
+    });
+  });
+
+  it("Should return the count of tryber approved bugs if fields=approved_bugs", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=approved_bugs")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      approved_bugs: 2,
+    });
+  });
+
+  it("Should return the count of tryber attended cps if fields=attended_cp ", async () => {
+    const response = await request(app)
+      .get("/users/me?fields=attended_cp")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      attended_cp: 1,
     });
   });
 
