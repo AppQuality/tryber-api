@@ -319,7 +319,6 @@ describe("GET /users/me - pending_booty threshold", () => {
     const response = await request(app)
       .get("/users/me?fields=booty_threshold")
       .set("authorization", "Bearer tester");
-    console.log(response.body, "suchino");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("booty_threshold");
     expect(response.body.booty_threshold).toEqual({
