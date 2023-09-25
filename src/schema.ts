@@ -3632,7 +3632,13 @@ export interface operations {
         /** Max items to retrieve */
         limit?: components["parameters"]["limit"];
         /** The field for item order */
-        orderBy?: "id" | "attributionDate" | "activityName" | "net" | "gross";
+        orderBy?:
+          | "id"
+          | "attributionDate"
+          | "activityName"
+          | "net"
+          | "gross"
+          | "activity";
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
       };

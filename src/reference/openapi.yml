@@ -9155,6 +9155,7 @@ paths:
               - activityName
               - net
               - gross
+              - activity
           in: query
           description: The field for item order
           name: orderBy
