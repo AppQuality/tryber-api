@@ -42,6 +42,7 @@ export default class RouteItem extends UserRoute<{
           return {
             id: row.id,
             name: row.activityName,
+            activity: row.activity,
             amount: {
               ...(this.fiscalCategory === 1 && {
                 net: {
@@ -99,12 +100,21 @@ export default class RouteItem extends UserRoute<{
         tryber.fn.charDate("creation_date", "attributionDate"),
         tryber.ref("amount").withSchema("wp_appq_payment"),
         tryber.ref("title").withSchema("wp_appq_evd_campaign").as("cp_title"),
-        tryber.ref("id").withSchema("wp_appq_evd_campaign").as("cp_id")
+        tryber.ref("id").withSchema("wp_appq_evd_campaign").as("cp_id"),
+        tryber
+          .ref("work_type")
+          .withSchema("wp_appq_payment_work_types")
+          .as("activity")
       )
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_payment.campaign_id",
         "wp_appq_evd_campaign.id"
+      )
+      .join(
+        "wp_appq_payment_work_types",
+        "wp_appq_payment_work_types.id",
+        "wp_appq_payment.work_type_id"
       )
       .where("wp_appq_payment.tester_id", this.getTesterId())
       .where("wp_appq_payment.is_paid", 0)
@@ -120,6 +130,8 @@ export default class RouteItem extends UserRoute<{
       query.orderBy("wp_appq_payment.id", this.order);
     } else if (this.orderBy === "net" || this.orderBy === "gross") {
       query.orderBy("wp_appq_payment.amount", this.order);
+    } else if (this.orderBy === "activity") {
+      query.orderBy("wp_appq_payment_work_types.work_type", this.order);
     } else {
       query.orderBy(this.orderBy, this.order);
     }
@@ -130,6 +142,7 @@ export default class RouteItem extends UserRoute<{
         attributionDate: row.attributionDate.substring(0, 10),
         amount: row.amount,
         activityName: `[CP-${row.cp_id}] ${row.cp_title}`,
+        activity: row.activity,
       };
     });
 

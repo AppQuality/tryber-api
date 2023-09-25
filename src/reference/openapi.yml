@@ -8984,10 +8984,13 @@ paths:
                             attributionDate:
                               type: string
                               format: date
+                            activity:
+                              type: string
                           required:
                             - name
                             - amount
                             - attributionDate
+                            - activity
                       type: object
                   limit:
                     type: number
@@ -9005,7 +9008,8 @@ paths:
                   value:
                     results:
                       - id: 1
-                        name: ''
+                        name: '[CP-3882] test release'
+                        activity: TEST API CON BUG
                         amount:
                           net:
                             value: 10
@@ -9022,7 +9026,7 @@ paths:
                   value:
                     results:
                       - id: 1
-                        name: ''
+                        name: '[CP-1] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9031,8 +9035,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 2
-                        name: ''
+                        name: '[CP-2] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9041,8 +9046,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 3
-                        name: ''
+                        name: '[CP-3] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9051,8 +9057,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 4
-                        name: ''
+                        name: '[CP-4] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9061,8 +9068,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 5
-                        name: ''
+                        name: '[CP-5] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9071,8 +9079,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 6
-                        name: ''
+                        name: '[CP-6] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9081,8 +9090,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 7
-                        name: ''
+                        name: '[CP-7] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9091,8 +9101,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 8
-                        name: ''
+                        name: '[CP-8] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9101,8 +9112,9 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 9
-                        name: ''
+                        name: '[CP-9] Campagna test bug form'
                         amount:
                           net:
                             value: 10
@@ -9111,13 +9123,15 @@ paths:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                       - id: 10
-                        name: ''
+                        name: '[CP-10] Campagna test bug form'
                         amount:
                           gross:
                             value: 13.5
                             currency: EUR
                         attributionDate: '2019-08-24'
+                        activity: Refund Tryber Test
                     limit: 10
                     size: 10
                     start: 0
@@ -9141,6 +9155,7 @@ paths:
               - activityName
               - net
               - gross
+              - activity
           in: query
           description: The field for item order
           name: orderBy
