@@ -134,7 +134,8 @@ export default async (
         let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
           { value: 0, isOver: false };
 
-        const trbPendingBooty = (await getPendingBootyData(id)).pending_booty;
+        let trbPendingBooty = (await getPendingBootyData(id)).pending_booty;
+
         const bootyThresholdVal = await getCrowdOption("minimum_payout");
         if (bootyThresholdVal) {
           bootyThreshold.value = parseFloat(bootyThresholdVal);

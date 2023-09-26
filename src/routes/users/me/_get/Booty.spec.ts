@@ -6,7 +6,18 @@ import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
+import { tryber } from "@src/features/database";
+import { DynamoDBStreams } from "aws-sdk";
 
+const FiscalProfile1 = {
+  id: 1,
+  name: "Fiscal Profile 1",
+  surname: "Fiscal Profile Surname",
+  sex: "0",
+  birth_date: "1990-01-01",
+  tester_id: 2,
+  fiscal_category: 2,
+};
 describe("GET /users/me - booties data - fiscal_category = 1", () => {
   const data: any = {};
   beforeEach(async () => {
@@ -275,17 +286,23 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
 describe("GET /users/me - pending_booty threshold", () => {
   const data: any = {};
   beforeEach(async () => {
-    data.tester = await Profile.insert();
+    data.tester = await Profile.insert({
+      id: 2,
+      wp_user_id: 1,
+      pending_booty: 0,
+    });
     await WpUsers.insert({
       ID: data.tester.wp_user_id,
     });
     await WpOptions.crowdWpOptions();
+    await tryber.tables.WpAppqFiscalProfile.do().insert(FiscalProfile1);
   });
   afterEach(async () => {
     await Profile.clear();
     await WpUsers.clear();
     await WpOptions.clear();
     await Attributions.clear();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
   it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
     await Attributions.insert({
@@ -316,6 +333,7 @@ describe("GET /users/me - pending_booty threshold", () => {
       amount: 15,
       tester_id: data.tester.id,
     });
+
     const response = await request(app)
       .get("/users/me?fields=booty_threshold")
       .set("authorization", "Bearer tester");
