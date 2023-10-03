@@ -3594,6 +3594,7 @@ paths:
                             type: string
                           description:
                             type: string
+                            maxLength: 350
                           severityId:
                             type: integer
                           order:
