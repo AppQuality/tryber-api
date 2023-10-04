@@ -5888,6 +5888,11 @@ paths:
                         - 0
                       once: true
                       content: string
+                404_no_popups_found.json:
+                  value:
+                    - element: popups
+                      id: 0
+                      message: No popups found
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -6199,63 +6204,17 @@ paths:
                 required:
                   - id
               examples:
-                Example 1:
+                200_booty_net.json:
                   value:
-                    username: string
-                    name: string
-                    surname: string
-                    email: user@example.com
-                    image: string
                     id: 0
-                    wp_user_id: 0
                     role: string
-                    is_verified: true
-                    rank: string
-                    total_exp_pts: 0
-                    booty:
-                      net:
-                        value: 10
-                        currency: EUR
-                      gross:
-                        value: 13.5
-                        currency: EUR
                     pending_booty:
                       net:
-                        value: 10
-                        currency: EUR
-                      gross:
                         value: 13.5
                         currency: EUR
-                    languages:
-                      - id: 0
-                        name: string
-                    onboarding_completed: true
-                    additional:
-                      - field_id: 0
-                        name: string
-                        value: string
-                        text: string
-                        is_candidate: true
-                    gender: male
-                    birthDate: '2019-08-24'
-                    phone: string
-                    education:
-                      id: 0
-                      name: string
-                    profession:
-                      id: 0
-                      name: string
-                    certifications:
-                      - id: 0
-                        name: string
-                        area: string
-                        institute: string
-                        achievement_date: '2019-08-24'
-                    completionPercent: 0
-                    country: string
-                    city: string
-                    attended_cp: 0
-                    approved_bugs: 0
+                      gross:
+                        value: 16
+                        currency: EUR
                     booty_threshold:
                       value: 0
                       isOver: true
@@ -6292,6 +6251,55 @@ paths:
                     booty:
                       gross:
                         value: 3.4
+                        currency: EUR
+                    rank: '0'
+                    approved_bugs: 38
+                    attended_cp: 6
+                    role: administrator
+                200_booty_gross.json:
+                  value:
+                    id: 0
+                    role: string
+                    pending_booty:
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    booty_threshold:
+                      value: 0
+                      isOver: true
+                200_dashboard_fields_gross_only.json:
+                  value:
+                    id: 10951
+                    total_exp_pts: 4165
+                    pending_booty:
+                      gross:
+                        value: 157.5
+                        currency: EUR
+                    booty:
+                      gross:
+                        value: 3.4
+                        currency: EUR
+                    rank: '0'
+                    approved_bugs: 38
+                    attended_cp: 6
+                    role: administrator
+                200_dashboard_fields_net.json:
+                  value:
+                    id: 10951
+                    total_exp_pts: 4165
+                    pending_booty:
+                      gross:
+                        value: 157.5
+                        currency: EUR
+                      net:
+                        value: 126
+                        currency: EUR
+                    booty:
+                      gross:
+                        value: 3.4
+                        currency: EUR
+                      net:
+                        value: 3
                         currency: EUR
                     rank: '0'
                     approved_bugs: 38
@@ -7975,7 +7983,23 @@ paths:
                   - fiscalId
                   - fiscalStatus
                   - gender
-              examples: {}
+              examples:
+                200_non_italian.json:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: non-italian
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
         '401':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -8521,6 +8545,139 @@ paths:
                           type: paypal
                           note: me@example.com
                         receipt: 'http://example.com'
+                      - id: 1
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: iban
+                          note: Iban ********************8020
+                        receipt: 'http://example.com'
+                      - id: 3
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: iban
+                          note: Iban ********************8020
+                        receipt: 'http://example.com'
+                      - id: 4
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 5
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 6
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 7
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 8
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 9
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: paypal
+                          note: me@example.com
+                        receipt: 'http://example.com'
+                      - id: 10
+                        status: paid
+                        amount:
+                          net:
+                            value: 10
+                            currency: EUR
+                          gross:
+                            value: 13.5
+                            currency: EUR
+                        paidDate: '2019-08-24'
+                        method:
+                          type: iban
+                          note: Iban ********************8020
+                        receipt: 'http://example.com'
+                    limit: 10
+                    size: 10
+                    start: 0
+                    total: 20
+                200_multiple-pages-all-paid.json:
+                  value:
+                    results:
                       - id: 1
                         status: paid
                         amount:
