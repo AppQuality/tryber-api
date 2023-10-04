@@ -9272,12 +9272,7 @@ paths:
                       type: string
                     once:
                       type: boolean
-              examples:
-                404_no_popups_found:
-                  value:
-                    element: popups
-                    id: 0
-                    message: No popups found
+              examples: {}
       operationId: get-users-me-popups
       description: Get all popup defined for your user
       security:
