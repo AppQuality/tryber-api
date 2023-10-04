@@ -6259,6 +6259,44 @@ paths:
                     booty_threshold:
                       value: 0
                       isOver: true
+                200_dashboard_fields_net:
+                  value:
+                    id: 10951
+                    total_exp_pts: 4165
+                    pending_booty:
+                      gross:
+                        value: 157.5
+                        currency: EUR
+                      net:
+                        value: 126
+                        currency: EUR
+                    booty:
+                      gross:
+                        value: 3.4
+                        currency: EUR
+                      net:
+                        value: 3
+                        currency: EUR
+                    rank: '0'
+                    approved_bugs: 38
+                    attended_cp: 6
+                    role: administrator
+                200_dashboard_fields_gross_only:
+                  value:
+                    id: 10951
+                    total_exp_pts: 4165
+                    pending_booty:
+                      gross:
+                        value: 157.5
+                        currency: EUR
+                    booty:
+                      gross:
+                        value: 3.4
+                        currency: EUR
+                    rank: '0'
+                    approved_bugs: 38
+                    attended_cp: 6
+                    role: administrator
       operationId: get-users-me
       description: Get your user data
       security:
@@ -9234,6 +9272,12 @@ paths:
                       type: string
                     once:
                       type: boolean
+              examples:
+                404_no_popups_found:
+                  value:
+                    element: popups
+                    id: 0
+                    message: No popups found
       operationId: get-users-me-popups
       description: Get all popup defined for your user
       security:
