@@ -85,7 +85,7 @@ export default class ProspectRoute extends CampaignRoute<{
 
   private getTesterWithPerfectCampaignQuery() {
     return tryber.tables.WpAppqEvdBug.do()
-      .select(tryber.ref("profile_id").withSchema("wp_appq_evd_bug").as("id"))
+      .select(tryber.ref("profile_id").as("id"))
       .where("campaign_id", this.cp_id)
       .whereIn(
         "profile_id",
