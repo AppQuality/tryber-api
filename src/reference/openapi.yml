@@ -5888,11 +5888,6 @@ paths:
                         - 0
                       once: true
                       content: string
-                404_no_popups_found.json:
-                  value:
-                    - element: popups
-                      id: 0
-                      message: No popups found
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -6204,7 +6199,7 @@ paths:
                 required:
                   - id
               examples:
-                200_booty_net.json:
+                booty_net:
                   value:
                     id: 0
                     role: string
@@ -6218,7 +6213,7 @@ paths:
                     booty_threshold:
                       value: 0
                       isOver: true
-                200_dashboard_fields_net:
+                dashboard_fields_net:
                   value:
                     id: 10951
                     total_exp_pts: 4165
@@ -6240,7 +6235,7 @@ paths:
                     approved_bugs: 38
                     attended_cp: 6
                     role: administrator
-                200_dashboard_fields_gross_only:
+                dashboard_fields_gross_only:
                   value:
                     id: 10951
                     total_exp_pts: 4165
@@ -6256,7 +6251,7 @@ paths:
                     approved_bugs: 38
                     attended_cp: 6
                     role: administrator
-                200_booty_gross.json:
+                booty_gross:
                   value:
                     id: 0
                     role: string
@@ -6267,44 +6262,6 @@ paths:
                     booty_threshold:
                       value: 0
                       isOver: true
-                200_dashboard_fields_gross_only.json:
-                  value:
-                    id: 10951
-                    total_exp_pts: 4165
-                    pending_booty:
-                      gross:
-                        value: 157.5
-                        currency: EUR
-                    booty:
-                      gross:
-                        value: 3.4
-                        currency: EUR
-                    rank: '0'
-                    approved_bugs: 38
-                    attended_cp: 6
-                    role: administrator
-                200_dashboard_fields_net.json:
-                  value:
-                    id: 10951
-                    total_exp_pts: 4165
-                    pending_booty:
-                      gross:
-                        value: 157.5
-                        currency: EUR
-                      net:
-                        value: 126
-                        currency: EUR
-                    booty:
-                      gross:
-                        value: 3.4
-                        currency: EUR
-                      net:
-                        value: 3
-                        currency: EUR
-                    rank: '0'
-                    approved_bugs: 38
-                    attended_cp: 6
-                    role: administrator
       operationId: get-users-me
       description: Get your user data
       security:
@@ -9430,6 +9387,8 @@ paths:
                     once:
                       type: boolean
               examples: {}
+        '404':
+          $ref: '#/components/responses/NotFound'
       operationId: get-users-me-popups
       description: Get all popup defined for your user
       security:
