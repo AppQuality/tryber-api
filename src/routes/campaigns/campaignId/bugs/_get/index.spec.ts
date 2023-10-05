@@ -35,6 +35,7 @@ beforeAll(async () => {
       campaign_id: 1,
       status_id: 1,
       wp_user_id: 1,
+      profile_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       severity_id: 1,
@@ -51,6 +52,7 @@ beforeAll(async () => {
       campaign_id: 1,
       status_id: 1,
       wp_user_id: 1,
+      profile_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       severity_id: 1,
@@ -67,6 +69,7 @@ beforeAll(async () => {
       campaign_id: 1,
       status_id: 1,
       wp_user_id: 1,
+      profile_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       severity_id: 1,
@@ -211,5 +214,17 @@ describe("GET /campaigns/campaignId/bugs", () => {
       "updated",
       tomorrow.slice(0, 19).replace("T", " ")
     );
+  });
+
+  it("Should return a bug list with testerId foreach bug", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/bugs")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("items");
+
+    expect(response.body.items).toHaveLength(3);
+    expect(response.body.items[0]).toHaveProperty("tester", { id: 1 });
+    expect(response.body.items[1]).toHaveProperty("tester", { id: 1 });
+    expect(response.body.items[2]).toHaveProperty("tester", { id: 1 });
   });
 });

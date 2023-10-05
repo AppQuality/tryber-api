@@ -144,7 +144,7 @@ export default class BugsRoute extends CampaignRoute<{
           .as("status_name"),
         tryber.ref("name").withSchema("wp_appq_evd_bug_type").as("type"),
         tryber.ref("name").withSchema("wp_appq_evd_severity").as("severity"),
-        tryber.ref("id").withSchema("wp_appq_evd_profile").as("profile_id")
+        "profile_id"
       )
       .join(
         "wp_appq_evd_severity",
@@ -161,17 +161,12 @@ export default class BugsRoute extends CampaignRoute<{
         "wp_appq_evd_bug_status.id",
         "wp_appq_evd_bug.status_id"
       )
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.wp_user_id",
-        "wp_appq_evd_bug.wp_user_id"
-      )
       .where({
         campaign_id: this.cp_id,
       })
       .orderBy(columnMapping[this.orderBy], this.order);
     if (!bugs) return false as const;
-    return bugs as (typeof bugs[number] & {
+    return bugs as ((typeof bugs)[number] & {
       created?: string;
       updated?: string;
     })[];
@@ -181,11 +176,11 @@ export default class BugsRoute extends CampaignRoute<{
     if (!bugs || !bugs.length) return [];
 
     const bugsWithDuplication = await this.enhanceBugsWithDuplication<
-      typeof bugs[number]
+      (typeof bugs)[number]
     >(bugs);
 
     const bugWithTags = await this.enhanceBugsWithTags<
-      typeof bugsWithDuplication[number]
+      (typeof bugsWithDuplication)[number]
     >(bugsWithDuplication);
 
     return bugWithTags.map((bug) => ({
