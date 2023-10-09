@@ -31,10 +31,21 @@ export default async (
   query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
 
   const whereFunction = (q: any) => {
-    q.whereNotNull("wp_appq_payment_request.paypal_email")
-      .andWhere("wp_appq_payment_request.paypal_email", "<>", "")
-      .orWhereNotNull("wp_appq_payment_request.iban")
-      .andWhere("wp_appq_payment_request.iban", "<>", "");
+    q.where((q: any) => {
+      q.where((q: any) => {
+        q.whereNotNull("wp_appq_payment_request.paypal_email").andWhere(
+          "wp_appq_payment_request.paypal_email",
+          "<>",
+          ""
+        );
+      }).orWhere((q: any) => {
+        q.whereNotNull("wp_appq_payment_request.iban").andWhere(
+          "wp_appq_payment_request.iban",
+          "<>",
+          ""
+        );
+      });
+    }).andWhere("wp_appq_payment_request.tester_id", testerId);
   };
 
   const q = tryber.tables.WpAppqPaymentRequest.do()
@@ -42,7 +53,7 @@ export default async (
       "wp_appq_payment_request.id",
       "wp_appq_payment_request.is_paid",
       "wp_appq_payment_request.amount",
-      "wp_appq_payment_request.amount_gross",      
+      "wp_appq_payment_request.amount_gross",
       "wp_appq_payment_request.paypal_email",
       "wp_appq_payment_request.iban",
       tryber.raw("CAST(wp_appq_payment_request.paid_date as CHAR) as paidDate"),
@@ -53,7 +64,6 @@ export default async (
       "wp_appq_payment_request.receipt_id",
       "wp_appq_receipt.id"
     )
-    .where("wp_appq_payment_request.tester_id", testerId)
     .andWhere(function () {
       whereFunction(this);
     });
@@ -101,11 +111,10 @@ export default async (
         whereFunction(this);
       })
       .first();
-    const countSql = `SELECT COUNT(pr.id) as total
-    FROM wp_appq_payment_request pr 
-      ${WHERE}`;
-    const countResults = await countQ;
-    total = countResults ? Number(countResults) : 0;
+    const countResults: any = await countQ;
+    total = countResults.total
+      ? Number(countResults.total)
+      : Number(countResults);
   }
   return { results, total };
 };
