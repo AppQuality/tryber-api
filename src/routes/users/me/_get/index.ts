@@ -1,37 +1,33 @@
-/** OPENAPI-ROUTE: get-users-me */
+/**  OPENAPI-CLASS : get-users-me */
 
-import { Context } from "openapi-backend";
-
-import getUserData from "./getUserData";
+import UserRoute from "@src/features/routes/UserRoute";
 import updateLastActivity from "./updateLastActivity";
+import getUserData from "./getUserData";
+import debugMessage from "@src/features/debugMessage";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  let query =
-    req.query as StoplightOperations["get-users-me"]["parameters"]["query"];
-  let fields = query.fields ? query.fields.split(",") : false;
-  try {
-    await updateLastActivity(req.user.testerId);
-  } catch (e) {}
+export default class UsersMe extends UserRoute<{
+  response: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"];
+  query: StoplightOperations["get-users-me"]["parameters"]["query"];
+}> {
+  protected async prepare() {
+    let query = this.getQuery();
+    let fields = query.fields ? query.fields.split(",") : false;
+    try {
+      await updateLastActivity(this.getTesterId());
+    } catch (e) {}
 
-  try {
-    const user = await getUserData(req.user.ID, fields);
-
-    res.status_code = 200;
-    user.role = req.user ? req.user.role : "tester";
-    return user;
-  } catch (e) {
-    if (process.env && process.env.DEBUG) {
-      console.log(e);
+    try {
+      const user = await getUserData(this.getWordpressId().toString(), fields);
+      this.setSuccess(200, {
+        ...user,
+        role: this.configuration.request.user.role,
+      });
+    } catch (err) {
+      debugMessage(err);
+      this.setError(
+        (err as OpenapiError).status_code || 404,
+        err as OpenapiError
+      );
     }
-    res.status_code = 404;
-    return {
-      element: "users",
-      id: parseInt(req.user.ID),
-      message: (e as OpenapiError).message,
-    };
   }
-};
+}
