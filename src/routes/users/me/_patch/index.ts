@@ -189,7 +189,10 @@ export default async (
       }
     }
     res.status_code = 200;
-    return await getUserData(req.user.ID, ["all"]);
+    return {
+      ...(await getUserData(req.user.ID, ["all"])),
+      role: req.user.role,
+    };
   } catch (err) {
     res.status_code = (err as OpenapiError).status_code || 400;
     return {
