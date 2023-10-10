@@ -572,7 +572,6 @@ describe("Route PATCH users-me accepted fields", () => {
     expect(responsePatch.status).toBe(200);
     expect(responsePatch.body).toEqual({
       ...responseGet.body,
-      role: undefined,
     });
   });
 });
