@@ -180,7 +180,7 @@ export default class Route extends UserRoute<{
     );
     const witholding = this.booty - net;
     return {
-      tax_percent: 100 - Math.round((100 * 0.72) / 1.16),
+      tax_percent: 100 - parseFloat(((100 * 0.72) / 1.16).toFixed(2)),
       net,
       witholding,
     };

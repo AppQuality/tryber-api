@@ -601,7 +601,7 @@ describe("POST /users/me/payments", () => {
       expect(requestData.is_paid).toBe(0);
     });
 
-    it("Should create a row in the requests withholding_tax_percentage = 38  if fiscal category is 2", async () => {
+    it("Should create a row in the requests withholding_tax_percentage = 37.93  if fiscal category is 2", async () => {
       const response = await request(app)
         .post("/users/me/payments")
         .send({
@@ -621,7 +621,7 @@ describe("POST /users/me/payments", () => {
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
-      expect(requestData.withholding_tax_percentage).toBe(38);
+      expect(requestData.withholding_tax_percentage).toBe(37.93);
     });
 
     it("Should create a row in the requests amount_witholding = gross - amount ", async () => {
