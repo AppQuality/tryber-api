@@ -37,6 +37,7 @@ const paymentRequestPaypal = {
   request_date: new Date("01/01/1972").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 
 const paymentRequestPaypalWithError = {
@@ -50,6 +51,7 @@ const paymentRequestPaypalWithError = {
   error_message: "Error message",
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 
 const paymentRequestWise = {
@@ -61,6 +63,7 @@ const paymentRequestWise = {
   request_date: new Date("01/05/1970").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 
 const paymentRequestWiseWithError = {
@@ -74,6 +77,7 @@ const paymentRequestWiseWithError = {
   error_message: "Error message",
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 const paymentRequestWisePaid = {
   id: 5,
@@ -85,6 +89,7 @@ const paymentRequestWisePaid = {
   update_date: new Date("05/10/1975").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 const paymentRequestInvalid = {
   id: 6,
@@ -94,6 +99,7 @@ const paymentRequestInvalid = {
   request_date: new Date("01/06/2000").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 const paymentRequestOldUser = {
   id: 7,
@@ -104,6 +110,7 @@ const paymentRequestOldUser = {
   request_date: new Date("01/06/2000").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 const paymentRequestOldUserWithError = {
   id: 8,
@@ -116,6 +123,52 @@ const paymentRequestOldUserWithError = {
   error_message: "Error message",
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 3,
+};
+const paymentWiseFiscalCat2 = {
+  id: 9,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_category: 2,
+};
+const paymentWiseFiscalCat4 = {
+  id: 10,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_category: 4,
+};
+const paymentWiseFiscalCat5 = {
+  id: 11,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_category: 5,
+};
+
+const paymentWiseFiscalCat6 = {
+  id: 12,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_category: 6,
 };
 
 describe("Route GET payments", () => {
@@ -142,6 +195,10 @@ describe("Route GET payments", () => {
         "wp_appq_payment_request",
         paymentRequestWiseWithError
       );
+      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat2);
+      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat4);
+      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat5);
+      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat6);
 
       resolve(null);
     });
@@ -571,7 +628,7 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("total");
-    expect(response.body.total).toBe(5);
+    expect(response.body.total).toBe(9);
     const responseNoLimit = await request(app)
       .get("/payments")
       .set("authorization", "Bearer admin");
@@ -587,6 +644,12 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(responsePending.status).toBe(200);
     expect(responsePending.body.total).toBe(2);
+  });
+  it("Should return only payments with fiscal category 1 or 3", async () => {
+    const response = await request(app)
+      .get("/payments")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
   });
 });
 
