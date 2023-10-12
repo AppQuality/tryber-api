@@ -16,6 +16,19 @@ async function clearCrowdWpOptions() {
 }
 
 describe("POST /users/me/payments", () => {
+  beforeAll(async () => {
+    await tryber.tables.FiscalCategory.do().insert([
+      { id: 1, name: "withholding" },
+      { id: 2, name: "witholding-extra" },
+      { id: 3, name: "vat" },
+      { id: 4, name: "non-italian" },
+      { id: 5, name: "company" },
+      { id: 6, name: "internal" },
+    ]);
+  });
+  afterAll(async () => {
+    await tryber.tables.FiscalCategory.do().delete();
+  });
   beforeEach(async () => {
     await tryber.tables.WpUsers.do().insert({
       ID: 1,

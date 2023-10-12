@@ -5,7 +5,6 @@ import debugMessage from "@src/features/debugMessage";
 import { sendTemplate } from "@src/features/mail/sendTemplate";
 import UserRoute from "@src/features/routes/UserRoute";
 import checkBooty from "./checkBooty";
-import checkFiscalProfile from "./checkFiscalProfile";
 import checkProcessingPayment from "./checkProcessingPayment";
 
 export default class Route extends UserRoute<{
@@ -26,7 +25,7 @@ export default class Route extends UserRoute<{
     }
 
     try {
-      this._fiscalProfile = await checkFiscalProfile(this.getTesterId());
+      this._fiscalProfile = await this.checkFiscalProfile();
     } catch (err) {
       this.setError(403, err as OpenapiError);
       throw err;
@@ -38,6 +37,45 @@ export default class Route extends UserRoute<{
       this.setError(403, err as OpenapiError);
       throw err;
     }
+  }
+
+  private async checkFiscalProfile() {
+    const fiscalProfile = await this.retrieveFiscalProfile();
+
+    if (!fiscalProfile) {
+      throw new Error("You don't have a fiscal profile");
+    }
+
+    if (
+      ["witholding-extra", "vat", "company"].includes(
+        fiscalProfile.fiscal_category_name
+      )
+    ) {
+      throw new Error("Your fiscal profile doesn't match the requirements");
+    }
+    return fiscalProfile;
+  }
+
+  private async retrieveFiscalProfile() {
+    const result = await tryber.tables.WpAppqFiscalProfile.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile"),
+        tryber
+          .ref("name")
+          .withSchema("fiscal_category")
+          .as("fiscal_category_name")
+      )
+      .join(
+        "fiscal_category",
+        "fiscal_category.id",
+        "wp_appq_fiscal_profile.fiscal_category"
+      )
+      .where("tester_id", this.getTesterId())
+      .where("is_active", 1)
+      .where("is_verified", 1)
+      .first();
+    return result;
   }
 
   get fiscalProfile() {
