@@ -7914,7 +7914,7 @@ paths:
                   type:
                     oneOf:
                       - $ref: '#/components/schemas/FiscalType'
-                        enum:
+                      - enum:
                           - internal
                         type: string
                   birthPlace:
