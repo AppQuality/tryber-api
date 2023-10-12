@@ -76,7 +76,6 @@ describe("GET /users/me/fiscal", () => {
       const response = await request(app)
         .get("/users/me/fiscal")
         .set("Authorization", "Bearer tester");
-      console.log(response.body);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("type", "withholding");
     });
