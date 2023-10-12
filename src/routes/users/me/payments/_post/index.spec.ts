@@ -670,7 +670,7 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqPayment.do().truncate();
       await tryber.tables.WpAppqFiscalProfile.do().truncate();
     });
-    it("Should answer 403 if fiscal category is 3 (i.e. vat )", async () => {
+    it("Should answer 403 if fiscal category is 3 (i.e. vat ) and type is paypal", async () => {
       const response = await request(app)
         .post("/users/me/payments")
         .send({
@@ -681,6 +681,130 @@ describe("POST /users/me/payments", () => {
         })
         .set("Authorization", "Bearer tester");
       expect(response.status).toBe(403);
+    });
+    it("Should answer 200 if fiscal category is 3 (i.e. vat ) and type is iban", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+    });
+    it("Should create a row in the requests with the amount_gross equal to current sum of payments amount not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount_gross", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount_gross).toBe(payments.total);
+      expect(requestData.is_paid).toBe(0);
+    });
+
+    it("Should create a row in the requests with the amount equal to current sum of payments not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount).toBe(100);
+      expect(requestData.is_paid).toBe(0);
+    });
+
+    it("Should create a row in the requests withholding_tax_percentage = 0", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("withholding_tax_percentage")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.withholding_tax_percentage).toBe(0);
+    });
+
+    it("Should create a row in the requests amount_witholding = 0", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount_gross", "amount_withholding")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount_withholding).toBe(0);
     });
   });
 
@@ -878,7 +1002,8 @@ describe("POST /users/me/payments", () => {
       await tryber.tables.WpAppqPayment.do().truncate();
       await tryber.tables.WpAppqFiscalProfile.do().truncate();
     });
-    it("Should answer 403 if fiscal category is 3 (i.e. company )", async () => {
+
+    it("Should answer 403 if requested with paypal", async () => {
       const response = await request(app)
         .post("/users/me/payments")
         .send({
@@ -889,6 +1014,130 @@ describe("POST /users/me/payments", () => {
         })
         .set("Authorization", "Bearer tester");
       expect(response.status).toBe(403);
+    });
+    it("Should answer 200 if requested with iban", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+    });
+    it("Should create a row in the requests with the amount_gross equal to current sum of payments amount not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount_gross", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount_gross).toBe(payments.total);
+      expect(requestData.is_paid).toBe(0);
+    });
+
+    it("Should create a row in the requests with the amount equal to current sum of payments not paid and is_paid=0", async () => {
+      const payments = await tryber.tables.WpAppqPayment.do()
+        .sum("amount", { as: "total" })
+        .where({
+          tester_id: 1,
+          is_paid: 0,
+        })
+        .first();
+
+      if (!payments) throw new Error("Payments not found");
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount", "is_paid")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount).toBe(100);
+      expect(requestData.is_paid).toBe(0);
+    });
+
+    it("Should create a row in the requests withholding_tax_percentage = 0", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("withholding_tax_percentage")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.withholding_tax_percentage).toBe(0);
+    });
+
+    it("Should create a row in the requests amount_witholding = 0", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("amount_gross", "amount_withholding")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.amount_withholding).toBe(0);
     });
   });
 

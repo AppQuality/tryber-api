@@ -48,12 +48,10 @@ export default class Route extends UserRoute<{
       throw new Error("You don't have a fiscal profile");
     }
 
-    if (["vat", "company"].includes(fiscalProfile.fiscal_category_name)) {
-      throw new Error("Your fiscal profile doesn't match the requirements");
-    }
-
     if (
-      ["witholding-extra"].includes(fiscalProfile.fiscal_category_name) &&
+      ["witholding-extra", "vat", "company"].includes(
+        fiscalProfile.fiscal_category_name
+      ) &&
       this.getBody().method.type === "paypal"
     ) {
       throw new Error("Your fiscal profile doesn't match the requirements");
