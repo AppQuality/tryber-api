@@ -93,7 +93,7 @@ export default class Route extends UserRoute<{
 
     await this.updatePayments(requestId);
 
-    await this.sendMail(this.booty);
+    await this.sendMail();
     this.setSuccess(200, {
       id: requestId,
     });
@@ -198,7 +198,23 @@ export default class Route extends UserRoute<{
       });
   }
 
-  private async sendMail(booty: number) {
+  private async sendMail() {
+    if (
+      ["withholding", "non-italian"].includes(
+        this.fiscalProfile.fiscal_category_name
+      )
+    ) {
+      await this.sendConfirmationMail();
+    } else if (
+      ["witholding-extra", "vat", "company", "internal"].includes(
+        this.fiscalProfile.fiscal_category_name
+      )
+    ) {
+      await this.sendInvoiceRecapMail();
+    }
+  }
+
+  private async sendConfirmationMail() {
     const body = this.getBody();
     try {
       if (process.env.PAYMENT_REQUESTED_EMAIL) {
@@ -214,7 +230,43 @@ export default class Route extends UserRoute<{
           template: process.env.PAYMENT_REQUESTED_EMAIL,
           optionalFields: {
             "{Profile.name}": tester[0].name,
-            "{Payment.amount}": booty,
+            "{Payment.amount}": this.booty,
+            "{Payment.requestDate}": now.toLocaleString("it", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            }),
+            "{Payment.methodLabel}":
+              body.method.type === "paypal" ? "PayPal Email" : "IBAN",
+            "{Payment.method}":
+              body.method.type === "paypal"
+                ? body.method.email
+                : body.method.iban,
+          },
+        });
+      }
+    } catch (err) {
+      debugMessage(err);
+    }
+  }
+
+  private async sendInvoiceRecapMail() {
+    const body = this.getBody();
+    try {
+      if (process.env.PAYMENT_INVOICE_RECAP_EMAIL) {
+        const tester = await tryber.tables.WpAppqEvdProfile.do()
+          .select("name", "email")
+          .where({ id: this.getTesterId() });
+
+        const now = new Date();
+
+        await sendTemplate({
+          email: tester[0].email,
+          subject: "[Tryber] Payout Request",
+          template: process.env.PAYMENT_INVOICE_RECAP_EMAIL,
+          optionalFields: {
+            "{Profile.name}": tester[0].name,
+            "{Payment.amount}": this.booty,
             "{Payment.requestDate}": now.toLocaleString("it", {
               year: "numeric",
               month: "2-digit",

@@ -1,6 +1,9 @@
+import sgMail from "@sendgrid/mail";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
+
+const mockedSendgrid = jest.mocked(sgMail, true);
 
 async function crowdWpOptions() {
   await tryber.tables.WpOptions.do().insert({
@@ -16,7 +19,50 @@ async function clearCrowdWpOptions() {
 }
 
 describe("POST /users/me/payments", () => {
+  const oldEnv = {
+    PAYMENT_REQUESTED_EMAIL: process.env.PAYMENT_REQUESTED_EMAIL,
+    PAYMENT_INVOICE_RECAP_EMAIL: process.env.PAYMENT_INVOICE_RECAP_EMAIL,
+  };
   beforeAll(async () => {
+    process.env.PAYMENT_REQUESTED_EMAIL = "PAYMENT_REQUESTED_EMAIL";
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL = "PAYMENT_INVOICE_RECAP_EMAIL";
+
+    await tryber.tables.WpAppqUnlayerMailTemplate.do().insert([
+      {
+        id: 1,
+        html_body: "PAYMENT_REQUESTED_EMAIL_BODY",
+        name: "PAYMENT_REQUESTED_EMAIL_SUBJECT",
+        json_body: "",
+        last_editor_tester_id: 1,
+        lang: "en",
+        category_id: 1,
+      },
+      {
+        id: 2,
+        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+        name: "PAYMENT_INVOICE_RECAP_EMAIL_SUBJECT",
+        json_body: "",
+        last_editor_tester_id: 1,
+        lang: "en",
+        category_id: 1,
+      },
+    ]);
+
+    await tryber.tables.WpAppqEventTransactionalMail.do().insert([
+      {
+        id: 1,
+        event_name: "PAYMENT_REQUESTED_EMAIL",
+        template_id: 1,
+        last_editor_tester_id: 1,
+      },
+      {
+        id: 2,
+        event_name: "PAYMENT_INVOICE_RECAP_EMAIL",
+        template_id: 2,
+        last_editor_tester_id: 1,
+      },
+    ]);
+
     await tryber.tables.FiscalCategory.do().insert([
       { id: 1, name: "withholding" },
       { id: 2, name: "witholding-extra" },
@@ -27,9 +73,15 @@ describe("POST /users/me/payments", () => {
     ]);
   });
   afterAll(async () => {
+    process.env.PAYMENT_REQUESTED_EMAIL = oldEnv.PAYMENT_REQUESTED_EMAIL;
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL =
+      oldEnv.PAYMENT_INVOICE_RECAP_EMAIL;
     await tryber.tables.FiscalCategory.do().delete();
+    await tryber.tables.WpAppqUnlayerMailTemplate.do().delete();
+    await tryber.tables.WpAppqEventTransactionalMail.do().delete();
   });
   beforeEach(async () => {
+    jest.clearAllMocks();
     await tryber.tables.WpUsers.do().insert({
       ID: 1,
     });
@@ -482,6 +534,31 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(20);
     });
+
+    it("Should send an email to PAYMENT_REQUESTED_EMAIL with the correct subject and body", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "paypal",
+            email: "test@example.com",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: {
+            email: "support@tryber.me",
+            name: "Tryber",
+          },
+          html: "PAYMENT_REQUESTED_EMAIL_BODY",
+          subject: "[Tryber] Payout Request",
+          categories: ["ServiceEmail"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 2", () => {
@@ -645,6 +722,32 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(37.93);
+    });
+
+    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: {
+            email: "support@tryber.me",
+            name: "Tryber",
+          },
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          subject: "[Tryber] Payout Request",
+          categories: ["ServiceEmail"],
+        })
+      );
+      expect(response.status).toBe(200);
     });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
@@ -830,6 +933,31 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.net_multiplier).toBe(1.04);
     });
+    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: {
+            email: "support@tryber.me",
+            name: "Tryber",
+          },
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          subject: "[Tryber] Payout Request",
+          categories: ["ServiceEmail"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 4", () => {
@@ -999,6 +1127,31 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+    });
+
+    it("Should send an email to PAYMENT_REQUESTED_EMAIL with the correct subject and body", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "paypal",
+            email: "test@example.com",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: {
+            email: "support@tryber.me",
+            name: "Tryber",
+          },
+          html: "PAYMENT_REQUESTED_EMAIL_BODY",
+          subject: "[Tryber] Payout Request",
+          categories: ["ServiceEmail"],
+        })
+      );
       expect(response.status).toBe(200);
     });
   });
@@ -1187,6 +1340,31 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.net_multiplier).toBe(1.02);
     });
+    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: {
+            email: "support@tryber.me",
+            name: "Tryber",
+          },
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          subject: "[Tryber] Payout Request",
+          categories: ["ServiceEmail"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 6", () => {
@@ -1348,6 +1526,31 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(0);
+    });
+    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          from: {
+            email: "support@tryber.me",
+            name: "Tryber",
+          },
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          subject: "[Tryber] Payout Request",
+          categories: ["ServiceEmail"],
+        })
+      );
+      expect(response.status).toBe(200);
     });
   });
 
