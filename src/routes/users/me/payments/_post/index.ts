@@ -49,7 +49,7 @@ export default class Route extends UserRoute<{
     }
 
     if (
-      ["witholding-extra", "vat", "company"].includes(
+      ["witholding-extra", "vat", "company", "internal"].includes(
         fiscalProfile.fiscal_category_name
       ) &&
       this.getBody().method.type === "paypal"
