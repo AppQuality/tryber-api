@@ -806,6 +806,30 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(0);
     });
+
+    it("Should set net multiplier to 1.04", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      console.log(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("net_multiplier")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.net_multiplier).toBe(1.04);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 4", () => {
@@ -1138,6 +1162,30 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(0);
+    });
+
+    it("Should set net multiplier to 1.02", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      console.log(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("net_multiplier")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.net_multiplier).toBe(1.02);
     });
   });
 

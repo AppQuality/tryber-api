@@ -126,6 +126,9 @@ export default class Route extends UserRoute<{
         withholding_tax_percentage: fiscalData.tax_percent,
         iban: iban ? iban : undefined,
         under_threshold: 0,
+        ...("net_multiplier" in fiscalData
+          ? { net_multiplier: fiscalData.net_multiplier }
+          : {}),
         account_holder_name: accountHolderName ? accountHolderName : undefined,
       })
       .returning("id");
@@ -140,6 +143,20 @@ export default class Route extends UserRoute<{
         return this.calculateFiscalDataWithholding();
       case "witholding-extra":
         return this.calculateFiscalDataWithholdingExtra();
+      case "vat":
+        return {
+          tax_percent: 0,
+          net: this.booty,
+          witholding: 0,
+          net_multiplier: 1.04,
+        };
+      case "company":
+        return {
+          tax_percent: 0,
+          net: this.booty,
+          witholding: 0,
+          net_multiplier: 1.02,
+        };
       default:
         return {
           tax_percent: 0,
@@ -156,6 +173,7 @@ export default class Route extends UserRoute<{
       witholding: Math.round((this.booty + Number.EPSILON) * 20) / 100,
     };
   }
+
   private calculateFiscalDataWithholdingExtra() {
     const net = parseFloat(
       (0.72 * ((this.booty + Number.EPSILON) / 1.16)).toFixed(2)
