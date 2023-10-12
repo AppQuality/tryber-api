@@ -7875,7 +7875,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -7913,7 +7912,12 @@ paths:
                       cityCode:
                         type: string
                   type:
-                    $ref: '#/components/schemas/FiscalType'
+                    oneOf:
+                      - $ref: '#/components/schemas/FiscalType'
+                      - x-stoplight:
+                          id: xf7wftaqw2889
+                        enum:
+                          - internal
                   birthPlace:
                     type: object
                     properties:
@@ -7941,7 +7945,7 @@ paths:
                   - fiscalStatus
                   - gender
               examples:
-                200_non_italian.json:
+                non_italian:
                   value:
                     address:
                       country: IQ
@@ -7951,6 +7955,22 @@ paths:
                       streetNumber: '18'
                       cityCode: '61122'
                     type: non-italian
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                internal_fiscal_profile:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: internal
                     birthPlace:
                       city: Pesaro
                       province: PU
