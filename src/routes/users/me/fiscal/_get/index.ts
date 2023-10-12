@@ -2,7 +2,6 @@
 
 import { Context } from "openapi-backend";
 import { tryber } from "@src/features/database";
-import { fiscalTypes } from "@src/constants";
 
 export default async (
   c: Context,
@@ -27,19 +26,32 @@ export default async (
 };
 async function getFiscalUser(tid: number) {
   const fiscal = await tryber.tables.WpAppqFiscalProfile.do()
-    .select("*")
+    .select(
+      tryber.ref("country").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("province").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("city").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("address").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("address_number").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("postal_code").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("birth_city").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("birth_province").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("id").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("fiscal_id").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("is_verified").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("sex").withSchema("wp_appq_fiscal_profile"),
+      tryber.ref("name").withSchema("fiscal_category").as("fiscal_category")
+    )
+
+    .join(
+      "fiscal_category",
+      "wp_appq_fiscal_profile.fiscal_category",
+      "fiscal_category.id"
+    )
     .where({ tester_id: tid })
     .andWhere({ is_active: 1 })
     .first();
   if (!fiscal) {
     throw { status_code: 404, message: "No fiscal profile" };
-  }
-  const fiscalType =
-    fiscal.fiscal_category > 0
-      ? fiscalTypes[fiscal.fiscal_category]
-      : "invalid";
-  if (fiscalType == "invalid") {
-    throw { status_code: 403, message: "Fiscal type is invalid" };
   }
 
   return {
@@ -54,7 +66,7 @@ async function getFiscalUser(tid: number) {
           : undefined,
       cityCode: fiscal.postal_code || "",
     },
-    type: fiscalType,
+    type: fiscal.fiscal_category,
     birthPlace: {
       city: fiscal.birth_city || "",
       province: fiscal.birth_province || "",
