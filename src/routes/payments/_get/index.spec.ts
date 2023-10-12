@@ -173,42 +173,35 @@ const paymentWiseFiscalCat6 = {
 
 describe("Route GET payments", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.insert(tester1);
-      Profile.insert(tester2);
-      Profile.insert(tester3);
+    await Profile.insert(tester1);
+    await Profile.insert(tester2);
+    await Profile.insert(tester3);
 
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestOldUser);
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestOldUserWithError
-      );
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestPaypalWithError
-      );
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestWiseWithError
-      );
-      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat2);
-      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat4);
-      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat5);
-      await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat6);
-
-      resolve(null);
-    });
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestOldUser);
+    await sqlite3.insert(
+      "wp_appq_payment_request",
+      paymentRequestOldUserWithError
+    );
+    await sqlite3.insert(
+      "wp_appq_payment_request",
+      paymentRequestPaypalWithError
+    );
+    await sqlite3.insert(
+      "wp_appq_payment_request",
+      paymentRequestWiseWithError
+    );
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat2);
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat4);
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat5);
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat6);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      await paymentRequestData.drop();
-      resolve(null);
-    });
+    await Profile.clear();
+    await paymentRequestData.drop();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -655,18 +648,12 @@ describe("Route GET payments", () => {
 
 describe("Route GET payments when no data", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.insert(tester1);
-      Profile.insert(tester2);
-      resolve(null);
-    });
+    await Profile.insert(tester1);
+    await Profile.insert(tester2);
   });
 
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      resolve(null);
-    });
+    await Profile.clear();
   });
   it("Should return 404", async () => {
     const response = await request(app)
