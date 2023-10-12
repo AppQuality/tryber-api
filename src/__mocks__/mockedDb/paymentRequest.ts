@@ -18,6 +18,7 @@ export const table = {
       "is_paid BOOL",
       "stamp_required BOOL",
       "fiscal_profile_id INTEGER",
+      "fiscal_category INTEGER(1)",
       "request_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ",
       "amount_paypal_fee FLOAT(2)",
       "paid_date DATETIME",
@@ -44,6 +45,7 @@ type RequestParams = {
   stamp_required?: 1 | 0;
   withholding_tax_percentage?: number;
   fiscal_profile_id?: number;
+  fiscal_category?: number;
   under_threshold?: number;
 };
 
