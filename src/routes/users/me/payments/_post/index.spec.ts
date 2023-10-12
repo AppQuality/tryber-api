@@ -21,11 +21,21 @@ async function clearCrowdWpOptions() {
 describe("POST /users/me/payments", () => {
   const oldEnv = {
     PAYMENT_REQUESTED_EMAIL: process.env.PAYMENT_REQUESTED_EMAIL,
-    PAYMENT_INVOICE_RECAP_EMAIL: process.env.PAYMENT_INVOICE_RECAP_EMAIL,
+    PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA:
+      process.env.PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA,
+    PAYMENT_INVOICE_RECAP_EMAIL_VAT:
+      process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT,
+    PAYMENT_INVOICE_RECAP_EMAIL_COMPANY:
+      process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY,
   };
   beforeAll(async () => {
     process.env.PAYMENT_REQUESTED_EMAIL = "PAYMENT_REQUESTED_EMAIL";
-    process.env.PAYMENT_INVOICE_RECAP_EMAIL = "PAYMENT_INVOICE_RECAP_EMAIL";
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA =
+      "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA";
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT =
+      "PAYMENT_INVOICE_RECAP_EMAIL_VAT";
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY =
+      "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY";
 
     await tryber.tables.WpAppqUnlayerMailTemplate.do().insert([
       {
@@ -39,8 +49,26 @@ describe("POST /users/me/payments", () => {
       },
       {
         id: 2,
-        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
-        name: "PAYMENT_INVOICE_RECAP_EMAIL_SUBJECT",
+        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY",
+        name: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_SUBJECT",
+        json_body: "",
+        last_editor_tester_id: 1,
+        lang: "en",
+        category_id: 1,
+      },
+      {
+        id: 3,
+        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY",
+        name: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_SUBJECT",
+        json_body: "",
+        last_editor_tester_id: 1,
+        lang: "en",
+        category_id: 1,
+      },
+      {
+        id: 4,
+        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY",
+        name: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
         lang: "en",
@@ -57,8 +85,20 @@ describe("POST /users/me/payments", () => {
       },
       {
         id: 2,
-        event_name: "PAYMENT_INVOICE_RECAP_EMAIL",
+        event_name: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA",
         template_id: 2,
+        last_editor_tester_id: 1,
+      },
+      {
+        id: 3,
+        event_name: "PAYMENT_INVOICE_RECAP_EMAIL_VAT",
+        template_id: 3,
+        last_editor_tester_id: 1,
+      },
+      {
+        id: 4,
+        event_name: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY",
+        template_id: 4,
         last_editor_tester_id: 1,
       },
     ]);
@@ -74,8 +114,12 @@ describe("POST /users/me/payments", () => {
   });
   afterAll(async () => {
     process.env.PAYMENT_REQUESTED_EMAIL = oldEnv.PAYMENT_REQUESTED_EMAIL;
-    process.env.PAYMENT_INVOICE_RECAP_EMAIL =
-      oldEnv.PAYMENT_INVOICE_RECAP_EMAIL;
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA =
+      oldEnv.PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA;
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT =
+      oldEnv.PAYMENT_INVOICE_RECAP_EMAIL_VAT;
+    process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY =
+      oldEnv.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY;
     await tryber.tables.FiscalCategory.do().delete();
     await tryber.tables.WpAppqUnlayerMailTemplate.do().delete();
     await tryber.tables.WpAppqEventTransactionalMail.do().delete();
@@ -742,7 +786,7 @@ describe("POST /users/me/payments", () => {
             email: "support@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY",
           subject: "[Tryber] Payout Request",
           categories: ["ServiceEmail"],
         })
@@ -951,7 +995,7 @@ describe("POST /users/me/payments", () => {
             email: "support@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY",
           subject: "[Tryber] Payout Request",
           categories: ["ServiceEmail"],
         })
@@ -1358,7 +1402,7 @@ describe("POST /users/me/payments", () => {
             email: "support@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
+          html: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY",
           subject: "[Tryber] Payout Request",
           categories: ["ServiceEmail"],
         })
@@ -1527,7 +1571,7 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(0);
     });
-    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
+    it("Should not send an email", async () => {
       const response = await request(app)
         .post("/users/me/payments")
         .send({
@@ -1538,18 +1582,7 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
-      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
-      expect(mockedSendgrid.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: {
-            email: "support@tryber.me",
-            name: "Tryber",
-          },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_BODY",
-          subject: "[Tryber] Payout Request",
-          categories: ["ServiceEmail"],
-        })
-      );
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(0);
       expect(response.status).toBe(200);
     });
   });

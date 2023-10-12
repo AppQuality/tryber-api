@@ -199,88 +199,67 @@ export default class Route extends UserRoute<{
   }
 
   private async sendMail() {
+    const template = this.getTemplate();
+    if (!template) return;
+
+    await this.sendConfirmationMail(template);
+  }
+
+  private getTemplate() {
     if (
       ["withholding", "non-italian"].includes(
         this.fiscalProfile.fiscal_category_name
-      )
+      ) &&
+      process.env.PAYMENT_REQUESTED_EMAIL
+    )
+      return process.env.PAYMENT_REQUESTED_EMAIL;
+    else if (
+      this.fiscalProfile.fiscal_category_name === "witholding-extra" &&
+      process.env.PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA
     ) {
-      await this.sendConfirmationMail();
+      return process.env.PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA;
     } else if (
-      ["witholding-extra", "vat", "company", "internal"].includes(
-        this.fiscalProfile.fiscal_category_name
-      )
+      this.fiscalProfile.fiscal_category_name === "vat" &&
+      process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT
     ) {
-      await this.sendInvoiceRecapMail();
+      return process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT;
+    } else if (
+      this.fiscalProfile.fiscal_category_name === "company" &&
+      process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY
+    ) {
+      return process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY;
     }
   }
 
-  private async sendConfirmationMail() {
+  private async sendConfirmationMail(template: string) {
     const body = this.getBody();
     try {
-      if (process.env.PAYMENT_REQUESTED_EMAIL) {
-        const tester = await tryber.tables.WpAppqEvdProfile.do()
-          .select("name", "email")
-          .where({ id: this.getTesterId() });
+      const tester = await tryber.tables.WpAppqEvdProfile.do()
+        .select("name", "email")
+        .where({ id: this.getTesterId() });
 
-        const now = new Date();
+      const now = new Date();
 
-        await sendTemplate({
-          email: tester[0].email,
-          subject: "[Tryber] Payout Request",
-          template: process.env.PAYMENT_REQUESTED_EMAIL,
-          optionalFields: {
-            "{Profile.name}": tester[0].name,
-            "{Payment.amount}": this.booty,
-            "{Payment.requestDate}": now.toLocaleString("it", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            }),
-            "{Payment.methodLabel}":
-              body.method.type === "paypal" ? "PayPal Email" : "IBAN",
-            "{Payment.method}":
-              body.method.type === "paypal"
-                ? body.method.email
-                : body.method.iban,
-          },
-        });
-      }
-    } catch (err) {
-      debugMessage(err);
-    }
-  }
-
-  private async sendInvoiceRecapMail() {
-    const body = this.getBody();
-    try {
-      if (process.env.PAYMENT_INVOICE_RECAP_EMAIL) {
-        const tester = await tryber.tables.WpAppqEvdProfile.do()
-          .select("name", "email")
-          .where({ id: this.getTesterId() });
-
-        const now = new Date();
-
-        await sendTemplate({
-          email: tester[0].email,
-          subject: "[Tryber] Payout Request",
-          template: process.env.PAYMENT_INVOICE_RECAP_EMAIL,
-          optionalFields: {
-            "{Profile.name}": tester[0].name,
-            "{Payment.amount}": this.booty,
-            "{Payment.requestDate}": now.toLocaleString("it", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-            }),
-            "{Payment.methodLabel}":
-              body.method.type === "paypal" ? "PayPal Email" : "IBAN",
-            "{Payment.method}":
-              body.method.type === "paypal"
-                ? body.method.email
-                : body.method.iban,
-          },
-        });
-      }
+      await sendTemplate({
+        email: tester[0].email,
+        subject: "[Tryber] Payout Request",
+        template: template,
+        optionalFields: {
+          "{Profile.name}": tester[0].name,
+          "{Payment.amount}": this.booty,
+          "{Payment.requestDate}": now.toLocaleString("it", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }),
+          "{Payment.methodLabel}":
+            body.method.type === "paypal" ? "PayPal Email" : "IBAN",
+          "{Payment.method}":
+            body.method.type === "paypal"
+              ? body.method.email
+              : body.method.iban,
+        },
+      });
     } catch (err) {
       debugMessage(err);
     }
