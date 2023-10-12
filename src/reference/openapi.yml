@@ -7914,8 +7914,6 @@ paths:
                   type:
                     oneOf:
                       - $ref: '#/components/schemas/FiscalType'
-                      - x-stoplight:
-                          id: xf7wftaqw2889
                         enum:
                           - internal
                         type: string
