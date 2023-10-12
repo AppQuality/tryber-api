@@ -12,7 +12,9 @@ export default class Route extends UserRoute<{
   body: StoplightOperations["post-users-me-payments"]["requestBody"]["content"]["application/json"];
 }> {
   private booty = 0;
-  private _fiscalProfile: { id: number; fiscal_category: number } | undefined;
+  private _fiscalProfile:
+    | { id: number; fiscal_category_name: string }
+    | undefined;
 
   protected async init() {
     await super.init();
@@ -46,10 +48,13 @@ export default class Route extends UserRoute<{
       throw new Error("You don't have a fiscal profile");
     }
 
+    if (["vat", "company"].includes(fiscalProfile.fiscal_category_name)) {
+      throw new Error("Your fiscal profile doesn't match the requirements");
+    }
+
     if (
-      ["witholding-extra", "vat", "company"].includes(
-        fiscalProfile.fiscal_category_name
-      )
+      ["witholding-extra"].includes(fiscalProfile.fiscal_category_name) &&
+      this.getBody().method.type === "paypal"
     ) {
       throw new Error("Your fiscal profile doesn't match the requirements");
     }
@@ -98,18 +103,7 @@ export default class Route extends UserRoute<{
 
   private async createRequest() {
     const body = this.getBody();
-    const fiscalData = {
-      tax_percent: 0,
-      net: this.booty,
-      witholding: 0,
-    };
-    if (this.fiscalProfile.fiscal_category === 1) {
-      fiscalData.tax_percent = 20;
-      fiscalData.net = Math.round((this.booty + Number.EPSILON) * 80) / 100;
-      fiscalData.witholding =
-        Math.round((this.booty + Number.EPSILON) * fiscalData.tax_percent) /
-        100;
-    }
+    const fiscalData = this.calculateFiscalData();
 
     let paypalEmail = null;
     let iban = null;
@@ -140,6 +134,40 @@ export default class Route extends UserRoute<{
 
     const requestId = request[0].id ?? request[0];
     return { requestId };
+  }
+
+  private calculateFiscalData() {
+    switch (this.fiscalProfile.fiscal_category_name) {
+      case "withholding":
+        return this.calculateFiscalDataWithholding();
+      case "witholding-extra":
+        return this.calculateFiscalDataWithholdingExtra();
+      default:
+        return {
+          tax_percent: 0,
+          net: this.booty,
+          witholding: 0,
+        };
+    }
+  }
+
+  private calculateFiscalDataWithholding() {
+    return {
+      tax_percent: 20,
+      net: Math.round((this.booty + Number.EPSILON) * 80) / 100,
+      witholding: Math.round((this.booty + Number.EPSILON) * 20) / 100,
+    };
+  }
+  private calculateFiscalDataWithholdingExtra() {
+    const net = parseFloat(
+      (0.72 * ((this.booty + Number.EPSILON) / 1.16)).toFixed(2)
+    );
+    const witholding = this.booty - net;
+    return {
+      tax_percent: 100 - Math.round((100 * 0.72) / 1.16),
+      net,
+      witholding,
+    };
   }
 
   private async updatePayments(requestId: number) {
