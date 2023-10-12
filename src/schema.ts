@@ -3316,7 +3316,7 @@ export interface operations {
               streetNumber?: string;
               cityCode: string;
             };
-            type: components["schemas"]["FiscalType"];
+            type: components["schemas"]["FiscalType"] | "internal";
             birthPlace: {
               city?: string;
               province?: string;
@@ -3714,6 +3714,7 @@ export interface operations {
           }[];
         };
       };
+      404: components["responses"]["NotFound"];
     };
   };
   /** Get a single popup. Will set the retrieved popup as expired */
