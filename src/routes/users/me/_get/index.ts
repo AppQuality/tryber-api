@@ -1,33 +1,86 @@
 /**  OPENAPI-CLASS : get-users-me */
 
 import UserRoute from "@src/features/routes/UserRoute";
-import getUserData from "./getUserData";
+import getPendingBootyData from "./getPendingBootyData";
+import getBootyData from "./getBootyData";
+import getApprovedBugsData from "./getApprovedBugsData";
+import getAttendedCpData from "./getAttendedCpData";
+import getCertificationsData from "./getCertificationsData";
+import getProfessionData from "./getProfessionData";
+import getEducationData from "./getEducationData";
+import getLanguagesData from "./getLanguagesData";
+import getAdditionalData from "./getAdditionalData";
+import getCrowdOption from "@src/features/wp/getCrowdOption";
 import debugMessage from "@src/features/debugMessage";
 import { tryber } from "@src/features/database";
+import { gravatarUrl } from "avatar-initials";
+
+const basicFields = [
+  "email" as const,
+  "is_verified" as const,
+  "name" as const,
+  "surname" as const,
+  "username" as const,
+  "wp_user_id" as const,
+];
+const acceptedFields = [
+  ...basicFields,
+  "additional" as const,
+  "all" as const,
+  "approved_bugs" as const,
+  "attended_cp" as const,
+  "birthDate" as const,
+  "booty" as const,
+  "booty_threshold" as const,
+  "certifications" as const,
+  "city" as const,
+  "completionPercent" as const,
+  "country" as const,
+  "education" as const,
+  "gender" as const,
+  "image" as const,
+  "languages" as const,
+  "onboarding_completed" as const,
+  "pending_booty" as const,
+  "phone" as const,
+  "profession" as const,
+  "rank" as const,
+  "role" as const,
+  "total_exp_pts" as const,
+];
+type AcceptableValues = typeof acceptedFields[number];
 
 export default class UsersMe extends UserRoute<{
   response: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"];
   query: StoplightOperations["get-users-me"]["parameters"]["query"];
 }> {
-  protected async prepare() {
-    let query = this.getQuery();
-    let fields = query.fields ? query.fields.split(",") : false;
+  private fields: AcceptableValues[] | undefined = undefined;
+  private isComplete: boolean = false;
 
+  constructor(configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "users-me" });
+    type AcceptedField = typeof acceptedFields[number];
+    const query = this.getQuery();
+
+    if (query && query.fields) {
+      this.fields = query.fields
+        .split(",")
+        .filter((f) =>
+          acceptedFields.includes(f as AcceptedField)
+        ) as AcceptedField[];
+
+      if (!this.fields) this.fields = basicFields;
+      if (this.fields.includes("all")) {
+        this.fields = acceptedFields.filter((f) => f !== "all");
+        this.isComplete = true;
+      }
+    }
+  }
+
+  protected async prepare() {
     await this.updateLastActivity();
 
-    try {
-      const user = await getUserData(this.getWordpressId().toString(), fields);
-      this.setSuccess(200, {
-        ...user,
-        role: this.configuration.request.user.role,
-      });
-    } catch (err) {
-      debugMessage(err);
-      this.setError(
-        (err as OpenapiError).status_code || 404,
-        err as OpenapiError
-      );
-    }
+    this.setSuccess(200, await this.getUserData());
   }
 
   protected async updateLastActivity() {
@@ -41,6 +94,243 @@ export default class UsersMe extends UserRoute<{
         (err as OpenapiError).status_code || 404,
         err as OpenapiError
       );
+    }
+  }
+
+  protected async getUserData() {
+    const wpId = this.getWordpressId().toString();
+
+    try {
+      const validFields = this.fields ? this.fields : basicFields;
+
+      let data: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"] =
+        { id: this.getTesterId() };
+
+      data = { ...data, ...(await this.getProfileData()) };
+
+      if (validFields.includes("pending_booty")) {
+        try {
+          data = { ...data, ...(await getPendingBootyData(wpId)) };
+        } catch (e) {}
+      }
+
+      if (validFields.includes("booty")) {
+        try {
+          data = { ...data, ...(await getBootyData(wpId)) };
+        } catch (e) {}
+      }
+
+      if (validFields.includes("rank")) {
+        try {
+          data = { ...data, rank: "0" };
+        } catch (e) {}
+      }
+
+      if (validFields.includes("approved_bugs")) {
+        try {
+          data = { ...data, ...(await getApprovedBugsData(wpId)) };
+        } catch {}
+      }
+
+      if (validFields.includes("attended_cp")) {
+        try {
+          data = { ...data, ...(await getAttendedCpData(wpId)) };
+        } catch {}
+      }
+
+      if (validFields.includes("certifications")) {
+        try {
+          data = { ...data, ...(await getCertificationsData(wpId)) };
+        } catch {}
+      }
+
+      if (validFields.includes("profession")) {
+        try {
+          data = { ...data, ...(await getProfessionData(wpId)) };
+        } catch {}
+      }
+
+      if (validFields.includes("education")) {
+        try {
+          data = { ...data, ...(await getEducationData(wpId)) };
+        } catch {}
+      }
+
+      if (validFields.includes("languages")) {
+        try {
+          data = { ...data, ...(await getLanguagesData(wpId)) };
+        } catch {}
+      }
+
+      if (validFields.includes("additional")) {
+        try {
+          data = { ...data, ...(await getAdditionalData(wpId)) };
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      if (validFields.includes("booty_threshold")) {
+        try {
+          let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
+            { value: 0, isOver: false };
+
+          let trbPendingBooty = (await getPendingBootyData(wpId)).pending_booty;
+
+          const bootyThresholdVal = await getCrowdOption("minimum_payout");
+          if (bootyThresholdVal) {
+            bootyThreshold.value = parseFloat(bootyThresholdVal);
+            if (trbPendingBooty.gross.value >= bootyThreshold.value) {
+              bootyThreshold.isOver = true;
+            }
+          }
+
+          data = { ...data, ...{ booty_threshold: bootyThreshold } };
+        } catch (e) {
+          console.log(e);
+        }
+      }
+
+      if (!Object.keys(data).length) throw Error("Invalid data");
+
+      Object.keys(data).forEach((k) => {
+        if (data[k as keyof typeof data] === null)
+          delete data[k as keyof typeof data];
+      });
+
+      if (this.isComplete) {
+        data = {
+          ...data,
+          completionPercent:
+            (100 * (Object.keys(data).length + 1)) / validFields.length,
+        };
+      }
+      return { ...data, role: this.configuration.request.user.role };
+    } catch (e) {
+      if (process.env && process.env.NODE_ENV === "development") {
+        console.log(e);
+      }
+      throw e;
+    }
+  }
+
+  protected async getProfileData() {
+    let query = tryber.tables.WpAppqEvdProfile.do();
+    query
+      .select(tryber.ref("id").withSchema("wp_appq_evd_profile"))
+      .where("wp_user_id", this.getWordpressId());
+    if (this.fields) {
+      if (this.fields.includes("name") || this.fields.includes("image"))
+        query.select(tryber.ref("name").withSchema("wp_appq_evd_profile"));
+
+      if (this.fields.includes("surname") || this.fields.includes("image"))
+        query.select(tryber.ref("surname").withSchema("wp_appq_evd_profile"));
+
+      if (this.fields.includes("email") || this.fields.includes("image"))
+        query.select(tryber.ref("email").withSchema("wp_appq_evd_profile"));
+      if (this.fields.includes("wp_user_id"))
+        query.select(
+          tryber.ref("wp_user_id").withSchema("wp_appq_evd_profile")
+        );
+      if (this.fields.includes("is_verified"))
+        query.select(
+          tryber.ref("is_verified").withSchema("wp_appq_evd_profile")
+        );
+      if (this.fields.includes("username"))
+        query.select(
+          tryber.ref("user_login").withSchema("wp_users").as("username")
+        );
+      if (this.fields.includes("total_exp_pts"))
+        query.select(
+          tryber.ref("total_exp_pts").withSchema("wp_appq_evd_profile")
+        );
+      if (this.fields.includes("birthDate"))
+        query.select(tryber.raw("CAST(birth_date as CHAR) as birthDate"));
+      if (this.fields.includes("phone"))
+        query.select(
+          tryber
+            .ref("phone_number")
+            .withSchema("wp_appq_evd_profile")
+            .as("phone")
+        );
+      if (this.fields.includes("gender"))
+        query.select(
+          tryber.ref("sex").withSchema("wp_appq_evd_profile").as("gender")
+        );
+      if (this.fields.includes("country"))
+        query.select(tryber.ref("country").withSchema("wp_appq_evd_profile"));
+      if (this.fields.includes("city"))
+        query.select(tryber.ref("city").withSchema("wp_appq_evd_profile"));
+      if (this.fields.includes("onboarding_completed"))
+        query.select(
+          tryber
+            .ref("onboarding_complete")
+            .withSchema("wp_appq_evd_profile")
+            .as("onboarding_completed")
+        );
+    }
+
+    try {
+      const data = await query.first();
+
+      if (!data) {
+        console.log("No user");
+        throw Error("No user");
+      }
+
+      let user: any = data;
+      if (
+        this.fields &&
+        this.fields.includes("image") &&
+        user.name &&
+        user.surname
+      ) {
+        const nameSlug = user.name.toLowerCase().replace(/[\W_ ]+/g, "");
+        const surnameSlug = user.surname.toLowerCase().replace(/[\W_ ]+/g, "");
+        const initials = `${nameSlug[0] || "?"}+${surnameSlug[0] || "?"}`;
+        user.image = gravatarUrl({
+          fallback: `https://eu.ui-avatars.com/api/${initials}/132`,
+          email: user.email,
+          size: 132,
+        });
+      }
+      if (this.fields && !this.fields.includes("name")) delete user.name;
+      if (this.fields && !this.fields.includes("surname")) delete user.surname;
+      if (this.fields && !this.fields.includes("email")) delete user.email;
+      if (
+        this.fields &&
+        this.fields.includes("is_verified") &&
+        typeof user.is_verified !== "undefined"
+      ) {
+        user.is_verified = user.is_verified !== 0;
+      }
+      if (
+        this.fields &&
+        this.fields.includes("onboarding_completed") &&
+        typeof user.onboarding_completed !== "undefined"
+      ) {
+        user.onboarding_completed = user.onboarding_completed !== 0;
+      }
+
+      if (user.hasOwnProperty("birthDate") && user.birthDate) {
+        let d = new Date(user.birthDate);
+        d = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+        user.birthDate = d.toISOString().substring(0, 10);
+      }
+      if (user.hasOwnProperty("gender"))
+        user.gender =
+          user.gender == 0
+            ? "female"
+            : user.gender == 1
+            ? "male"
+            : user.gender == 2
+            ? "other"
+            : "not-specified";
+      return user;
+    } catch (e) {
+      if (process.env && process.env.NODE_ENV === "development") {
+        console.log(e);
+      }
+      return Promise.reject(e);
     }
   }
 }
