@@ -343,6 +343,105 @@ describe("Route GET users-me-full-fields", () => {
     await tryber.tables.WpAppqExpPoints.do().delete();
   });
 
+  it("Should return basic data if no fields specified", async () => {
+    const response = await request(app)
+      .get(`/users/me`)
+      .set("Authorization", `Bearer tester`);
+    expect(response.status).toBe(200);
+
+    expect(response.body).toHaveProperty("id", 1);
+    expect(response.body).toHaveProperty("name", "Bob");
+    expect(response.body).toHaveProperty("surname", "Alice");
+    expect(response.body).toHaveProperty("email", "bob.alice@example.com");
+    expect(response.body).toHaveProperty("role", "tester");
+    expect(response.body).toHaveProperty("wp_user_id", 1);
+    expect(response.body).toHaveProperty("is_verified", true);
+    expect(response.body).toHaveProperty("username", "john_doe");
+  });
+
+  it("Should return all data if fields = all", async () => {
+    const response = await request(app)
+      .get(`/users/me?fields=all`)
+      .set("Authorization", `Bearer tester`);
+    expect(response.status).toBe(200);
+
+    expect(response.body).toHaveProperty("id", 1);
+    expect(response.body).toHaveProperty("name", "Bob");
+    expect(response.body).toHaveProperty("surname", "Alice");
+    expect(response.body).toHaveProperty("email", "bob.alice@example.com");
+    expect(response.body).toHaveProperty("wp_user_id", 1);
+    expect(response.body).toHaveProperty("is_verified", true);
+    expect(response.body).toHaveProperty("username", "john_doe");
+    expect(response.body).toHaveProperty("total_exp_pts", 6969);
+    expect(response.body).toHaveProperty("birthDate", "1996-03-21");
+    expect(response.body).toHaveProperty("phone", "+39696969696969");
+    expect(response.body).toHaveProperty("gender", "male");
+    expect(response.body).toHaveProperty("country", "Italy");
+    expect(response.body).toHaveProperty("city", "Rome");
+    expect(response.body).toHaveProperty("onboarding_completed", true);
+    expect(response.body).toHaveProperty(
+      "image",
+      "https://secure.gravatar.com/avatar/0a777483b60ba8811262daef8a3e3d62?s=132&d=https%3A%2F%2Feu.ui-avatars.com%2Fapi%2Fb%2Ba%2F132&r=x"
+    );
+    expect(response.body).toHaveProperty("rank", "0");
+    expect(response.body).toHaveProperty("approved_bugs", 2);
+    expect(response.body).toHaveProperty("attended_cp", 1);
+    expect(response.body).toHaveProperty("certifications", [
+      {
+        achievement_date: "2022-03-21",
+        area: "Testing 360",
+        id: 1,
+        institute: "Tryber",
+        name: "Best Tryber Ever",
+      },
+    ]);
+    expect(response.body).toHaveProperty("profession", {
+      id: 2,
+      name: "UNGUESS Tester",
+    });
+    expect(response.body).toHaveProperty("education", { id: 1, name: "Phd" });
+    expect(response.body).toHaveProperty("languages", [
+      { id: 1, name: "Italian" },
+    ]);
+    expect(response.body).toHaveProperty("additional", [
+      {
+        field_id: 2,
+        name: "Tipologia di spezie preferita",
+        text: "Habanero Scorpion",
+        value: "1",
+      },
+      {
+        field_id: 3,
+        name: "Fornitore di cardamomo preferito",
+        text: "Il cardamomo Siciliano",
+        value: "2",
+      },
+      {
+        field_id: 3,
+        name: "Fornitore di cardamomo preferito",
+        text: "Treviso, città del Cardamomo",
+        value: "3",
+      },
+      {
+        field_id: 1,
+        name: "Username Tetris",
+        text: "CiccioGamer89.",
+        value: "CiccioGamer89.",
+      },
+    ]);
+    expect(response.body).toHaveProperty("role", "tester");
+    expect(response.body).toHaveProperty("booty_threshold", {
+      isOver: false,
+      value: 2,
+    });
+    expect(response.body).toHaveProperty("pending_booty", {
+      gross: { currency: "EUR", value: 0 },
+    });
+    expect(response.body).toHaveProperty("booty", {
+      gross: { currency: "EUR", value: 0 },
+    });
+  });
+
   it("Should return tryber (id, role and name) if parameter fields=name", async () => {
     const response = await request(app)
       .get("/users/me?fields=name")
