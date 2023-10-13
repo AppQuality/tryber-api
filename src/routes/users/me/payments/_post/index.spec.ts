@@ -27,8 +27,6 @@ describe("POST /users/me/payments", () => {
       process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT,
     PAYMENT_INVOICE_RECAP_EMAIL_COMPANY:
       process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY,
-    DEFAULT_SENDER_MAIL: process.env.DEFAULT_SENDER_MAIL,
-    DEFAULT_SENDER_NAME: process.env.DEFAULT_SENDER_NAME,
   };
   beforeAll(async () => {
     process.env.PAYMENT_REQUESTED_EMAIL = "PAYMENT_REQUESTED_EMAIL";
@@ -38,9 +36,6 @@ describe("POST /users/me/payments", () => {
       "PAYMENT_INVOICE_RECAP_EMAIL_VAT";
     process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY =
       "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY";
-    process.env.DEFAULT_SENDER_MAIL = "support@tryber.me";
-    process.env.DEFAULT_SENDER_NAME = "Tryber";
-
     await tryber.tables.WpAppqUnlayerMailTemplate.do().insert([
       {
         id: 1,
@@ -597,7 +592,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           from: {
-            email: "support@tryber.me",
+            email: "it@tryber.me",
             name: "Tryber",
           },
           html: "PAYMENT_REQUESTED_EMAIL_BODY",
@@ -787,7 +782,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           from: {
-            email: "support@tryber.me",
+            email: "it@tryber.me",
             name: "Tryber",
           },
           html: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY",
@@ -996,7 +991,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           from: {
-            email: "support@tryber.me",
+            email: "it@tryber.me",
             name: "Tryber",
           },
           html: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY",
@@ -1192,7 +1187,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           from: {
-            email: "support@tryber.me",
+            email: "it@tryber.me",
             name: "Tryber",
           },
           html: "PAYMENT_REQUESTED_EMAIL_BODY",
@@ -1403,7 +1398,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           from: {
-            email: "support@tryber.me",
+            email: "it@tryber.me",
             name: "Tryber",
           },
           html: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY",
