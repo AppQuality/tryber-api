@@ -41,7 +41,6 @@ const acceptedFields = [
   "certifications",
   "country",
   "city",
-  "completionPercent",
 ];
 
 export default async (
@@ -157,13 +156,6 @@ export default async (
         delete data[k as keyof typeof data];
     });
 
-    if (isComplete) {
-      data = {
-        ...data,
-        completionPercent:
-          (100 * (Object.keys(data).length + 1)) / validFields.length,
-      };
-    }
     return data;
   } catch (e) {
     if (process.env && process.env.NODE_ENV === "development") {
