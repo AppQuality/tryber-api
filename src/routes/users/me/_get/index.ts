@@ -1,7 +1,6 @@
 /**  OPENAPI-CLASS : get-users-me */
 
 import UserRoute from "@src/features/routes/UserRoute";
-import getProfessionData from "./getProfessionData";
 import getEducationData from "./getEducationData";
 import getLanguagesData from "./getLanguagesData";
 import getAdditionalData from "./getAdditionalData";
@@ -141,7 +140,7 @@ export default class UsersMe extends UserRoute<{
 
       if (validFields.includes("profession")) {
         try {
-          data = { ...data, ...(await getProfessionData(wpId)) };
+          data = { ...data, ...(await this.getProfessionData()) };
         } catch {}
       }
 
@@ -522,6 +521,27 @@ export default class UsersMe extends UserRoute<{
     } catch (e) {
       if (process.env && process.env.DEBUG) console.log(e);
       return Promise.reject(e);
+    }
+  }
+
+  protected async getProfessionData() {
+    try {
+      const data = await tryber.tables.WpAppqEvdProfile.do()
+        .select(
+          tryber.ref("id").withSchema("wp_appq_employment"),
+          tryber.ref("display_name").withSchema("wp_appq_employment").as("name")
+        )
+        .join(
+          "wp_appq_employment",
+          "wp_appq_employment.id",
+          "wp_appq_evd_profile.employment_id"
+        )
+        .where("wp_appq_evd_profile.id", this.getTesterId());
+
+      if (!data.length) throw Error("Invalid employement data");
+      return { profession: data[0] };
+    } catch (e) {
+      throw e;
     }
   }
 }
