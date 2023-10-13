@@ -1,7 +1,6 @@
 /**  OPENAPI-CLASS : get-users-me */
 
 import UserRoute from "@src/features/routes/UserRoute";
-import getCertificationsData from "./getCertificationsData";
 import getProfessionData from "./getProfessionData";
 import getEducationData from "./getEducationData";
 import getLanguagesData from "./getLanguagesData";
@@ -136,7 +135,7 @@ export default class UsersMe extends UserRoute<{
 
       if (validFields.includes("certifications")) {
         try {
-          data = { ...data, ...(await getCertificationsData(wpId)) };
+          data = { ...data, ...(await this.getCertificationsData()) };
         } catch {}
       }
 
@@ -469,6 +468,59 @@ export default class UsersMe extends UserRoute<{
       if (!data) return Promise.reject(Error("Invalid cp data"));
       return { attended_cp: Number(data.attended_cp) };
     } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  protected async getCertificationsData() {
+    try {
+      const data = await tryber.tables.WpAppqProfileCertifications.do()
+        .select(
+          tryber.ref("id").withSchema("wp_appq_certifications_list"),
+          tryber.ref("name").withSchema("wp_appq_certifications_list"),
+          tryber.ref("area").withSchema("wp_appq_certifications_list"),
+          tryber.ref("institute").withSchema("wp_appq_certifications_list"),
+          tryber
+            .ref("achievement_date")
+            .withSchema("wp_appq_profile_certifications")
+        )
+        .join(
+          "wp_appq_evd_profile",
+          "wp_appq_evd_profile.id",
+          "wp_appq_profile_certifications.tester_id"
+        )
+        .join(
+          "wp_appq_certifications_list",
+          "wp_appq_certifications_list.id",
+          "wp_appq_profile_certifications.cert_id"
+        )
+        .where("wp_appq_evd_profile.id", this.getTesterId());
+
+      if (!data.length) {
+        const emptyCerts = await tryber.tables.WpUsermeta.do()
+          .select()
+          .where("user_id", this.getWordpressId())
+          .andWhere("meta_key", "emptyCerts")
+          .andWhere("meta_value", "true");
+
+        if (!emptyCerts.length) {
+          return Promise.reject(Error("Invalid certification data"));
+        }
+        return { certifications: false };
+      }
+      return {
+        certifications: data.map((d) => {
+          const item = {
+            ...d,
+            achievement_date: new Date(d.achievement_date)
+              .toISOString()
+              .substring(0, 10),
+          };
+          return item;
+        }),
+      };
+    } catch (e) {
+      if (process.env && process.env.DEBUG) console.log(e);
       return Promise.reject(e);
     }
   }
