@@ -1,9 +1,6 @@
 /**  OPENAPI-CLASS : get-users-me */
 
 import UserRoute from "@src/features/routes/UserRoute";
-import getBootyData from "./getBootyData";
-import getApprovedBugsData from "./getApprovedBugsData";
-import getAttendedCpData from "./getAttendedCpData";
 import getCertificationsData from "./getCertificationsData";
 import getProfessionData from "./getProfessionData";
 import getEducationData from "./getEducationData";
@@ -115,7 +112,7 @@ export default class UsersMe extends UserRoute<{
 
       if (validFields.includes("booty")) {
         try {
-          data = { ...data, ...(await getBootyData(wpId)) };
+          data = { ...data, ...(await this.getBootyData()) };
         } catch (e) {}
       }
 
@@ -127,13 +124,13 @@ export default class UsersMe extends UserRoute<{
 
       if (validFields.includes("approved_bugs")) {
         try {
-          data = { ...data, ...(await getApprovedBugsData(wpId)) };
+          data = { ...data, ...(await this.getApprovedBugsData()) };
         } catch {}
       }
 
       if (validFields.includes("attended_cp")) {
         try {
-          data = { ...data, ...(await getAttendedCpData(wpId)) };
+          data = { ...data, ...(await this.getAttendedCpData()) };
         } catch {}
       }
 
@@ -383,5 +380,96 @@ export default class UsersMe extends UserRoute<{
           }),
       },
     };
+  }
+
+  protected async getBootyData() {
+    try {
+      let fiscalCategory = 0;
+
+      const fiscalQuery = (await tryber.tables.WpAppqFiscalProfile.do()
+        .select(
+          tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
+        )
+        .join(
+          "wp_appq_evd_profile",
+          "wp_appq_evd_profile.id",
+          "wp_appq_fiscal_profile.tester_id"
+        )
+        .where("wp_appq_evd_profile.id", this.getTesterId())
+        .andWhere("wp_appq_fiscal_profile.is_active", 1)
+        .first()) as unknown as { fiscal_category: string };
+
+      fiscalCategory = Number(fiscalQuery.fiscal_category);
+
+      const res = (await tryber.tables.WpAppqPaymentRequest.do()
+        .sum({ gross: "amount_gross", net: "amount" })
+        .join(
+          "wp_appq_evd_profile",
+          "wp_appq_evd_profile.id",
+          "wp_appq_payment_request.tester_id"
+        )
+        .where("wp_appq_evd_profile.id", this.getTesterId())
+        .andWhere("is_paid", 1)
+        .first()) as unknown as { gross: string; net: string };
+
+      if (!res) Promise.reject(Error("Invalid pending booty data"));
+
+      return {
+        booty: {
+          gross: {
+            value: res.gross ? Number(parseFloat(res.gross).toFixed(2)) : 0,
+            currency: "EUR",
+          },
+          ...(fiscalQuery &&
+            fiscalCategory === 1 && {
+              net: {
+                value: res.net ? Number(parseFloat(res.net).toFixed(2)) : 0,
+                currency: "EUR",
+              },
+            }),
+        },
+      };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  protected async getApprovedBugsData() {
+    try {
+      const data = await tryber.tables.WpAppqEvdBug.do()
+        .count("id")
+        .where("profile_id", this.getTesterId())
+        .andWhere("status_id", 2)
+        .first();
+
+      if (!data) return Promise.reject(Error("Invalid bugs data"));
+
+      return { approved_bugs: Number(Object.values(data)[0]) };
+    } catch (e) {
+      if (process.env && process.env.NODE_ENV === "development") console.log(e);
+      return Promise.reject(e);
+    }
+  }
+
+  protected async getAttendedCpData() {
+    try {
+      const query = tryber.tables.WpAppqExpPoints.do()
+        .select(tryber.raw("COUNT(DISTINCT campaign_id) AS attended_cp"))
+        .join(
+          "wp_appq_evd_profile",
+          "wp_appq_evd_profile.id",
+          "wp_appq_exp_points.tester_id"
+        )
+        .where("wp_appq_exp_points.activity_id", 1)
+        .andWhere("wp_appq_exp_points.amount", ">", 0)
+        .andWhere("wp_appq_evd_profile.id", this.getTesterId())
+        .first();
+
+      const data = (await query) as unknown as { attended_cp: number };
+      if (!data) return Promise.reject(Error("Invalid cp data"));
+      return { attended_cp: Number(data.attended_cp) };
+    } catch (e) {
+      return Promise.reject(e);
+    }
   }
 }

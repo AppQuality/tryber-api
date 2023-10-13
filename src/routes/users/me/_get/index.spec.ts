@@ -36,6 +36,27 @@ const testerFull = {
   employment_id: 2,
   education_id: 1,
 };
+
+const testerFull2 = {
+  id: 666,
+  name: "Johnny",
+  surname: "Sins",
+  email: "js@example.com",
+  wp_user_id: 666,
+  is_verified: 1,
+  booty: 69,
+  pending_booty: 10,
+  total_exp_pts: 6969,
+  birth_date: "1996-03-21",
+  phone_number: "+39696969696969",
+  sex: 1,
+  country: "Italy",
+  city: "Milan",
+  onboarding_complete: 1,
+  employment_id: 2,
+  education_id: 1,
+};
+
 const bug1 = {
   id: 1,
   wp_user_id: testerFull.wp_user_id,
@@ -43,6 +64,7 @@ const bug1 = {
   campaign_id: 1,
   reviewer: 1,
   last_editor_id: 1,
+  profile_id: testerFull.id,
 };
 
 const bug2 = {
@@ -52,6 +74,7 @@ const bug2 = {
   campaign_id: 1,
   reviewer: 1,
   last_editor_id: 1,
+  profile_id: testerFull.id,
 };
 
 const bug3 = {
@@ -61,6 +84,7 @@ const bug3 = {
   campaign_id: 1,
   reviewer: 1,
   last_editor_id: 1,
+  profile_id: testerFull.id,
 };
 
 const bug4 = {
@@ -70,6 +94,7 @@ const bug4 = {
   campaign_id: 1,
   reviewer: 1,
   last_editor_id: 1,
+  profile_id: 666,
 };
 
 const testerCandidacy = {
@@ -265,7 +290,7 @@ describe("Route GET users-me-full-fields", () => {
       option_value:
         'a:17:{s:11:"facebook_id";s:3:"asd";s:20:"facebook_secret_code";s:3:"asd";s:11:"linkedin_id";s:3:"asd";s:20:"linkedin_secret_code";s:3:"asd";s:15:"paypal_live_env";s:15:"paypal_live_env";s:16:"paypal_client_id";s:3:"asd";s:18:"paypal_secret_code";s:3:"asd";s:22:"transfer_wise_live_env";s:22:"transfer_wise_live_env";s:25:"transfer_wise_secret_code";s:3:"asd";s:14:"analitycs_code";s:0:"";s:14:"minimum_payout";s:1:"2";s:13:"appq_cm_email";s:13:"a@example.com";s:9:"adv_email";s:13:"a@example.com";s:11:"adv_project";s:2:"59";s:21:"italian_payment_check";s:21:"italian_payment_check";s:15:"stamp_threshold";s:5:"77.47";s:15:"release_message";s:2:"[]";}',
     });
-    await tryber.tables.WpAppqEvdProfile.do().insert(testerFull);
+    await tryber.tables.WpAppqEvdProfile.do().insert([testerFull, testerFull2]);
     await tryber.tables.WpUsers.do().insert(wpTester1);
     await tryber.tables.WpAppqEvdBug.do().insert([bug1, bug2, bug3, bug4]);
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert(testerCandidacy);
