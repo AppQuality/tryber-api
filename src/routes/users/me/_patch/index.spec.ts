@@ -20,87 +20,83 @@ import { CheckPassword, HashPassword } from "wordpress-hash-node";
 
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await WpUsers.insert({
-        user_login: "bob_alice",
-        user_email: "bob.alice@example.com",
-      });
-      await Attributions.insert();
-      await WpOptions.crowdWpOptions();
-      await Profile.insert({
-        booty: 69,
-        birth_date: "1996-03-21 00:00:00",
-        phone_number: "+39696969696969",
-        sex: 1,
-        country: "Italy",
-        city: "Rome",
-        onboarding_complete: 1,
-        employment_id: 1,
-        education_id: 1,
-      });
-      await bugs.basicBug({ status_id: 2 });
-      await Candidature.insert({ accepted: 1, results: 2 });
-      await certificationsList.certification1();
-      await testerCertifications.assignCertification({
-        achievement_date: new Date("01/01/2021").toISOString(),
-      });
-      await employmentsList.employment1({ display_name: "UNGUESS Tester" });
-      await educationsList.education1({ display_name: "Phd" });
-      await languagesList.lenguage1({ display_name: "Sicilian" });
-      await testerLanguages.assignLanguage();
-      //insert cuf_text
-      await CustomUserFields.insert({
-        name: "Username Tetris",
-        type: "text",
-      });
-      await CustomUserFieldsData.insert({
-        id: 1,
-        value: "CiccioGamer89.",
-        candidate: 0,
-      });
-      //insert cuf_select
-      await CustomUserFields.insert({
-        id: 2,
-        name: "Tipologia di spezie preferita",
-        type: "select",
-      });
-      await CustomUserFieldExtras.insert({
-        name: "Habanero Scorpion",
-      });
-      await CustomUserFieldsData.insert({
-        id: 2,
-        value: "1",
-        custom_user_field_id: 2,
-        candidate: 0,
-      });
-      //insert cuf_multiselect
-      await CustomUserFields.insert({
-        id: 3,
-        name: "Fornitore di cardamomo preferito",
-        type: "multiselect",
-      });
-      await CustomUserFieldExtras.insert({
-        id: 2,
-        name: "Il cardamomo Siciliano",
-      });
-      await CustomUserFieldExtras.insert({
-        id: 3,
-        name: "Treviso, città del Cardamomo",
-      });
-      await CustomUserFieldsData.insert({
-        id: 3,
-        value: "2",
-        custom_user_field_id: 3,
-        candidate: 0,
-      });
-      await CustomUserFieldsData.insert({
-        id: 4,
-        value: "3",
-        custom_user_field_id: 3,
-        candidate: 0,
-      });
-
-      resolve(null);
+    await WpUsers.insert({
+      user_login: "bob_alice",
+      user_email: "bob.alice@example.com",
+    });
+    await Attributions.insert();
+    await WpOptions.crowdWpOptions();
+    await Profile.insert({
+      booty: 69,
+      birth_date: "1996-03-21 00:00:00",
+      phone_number: "+39696969696969",
+      sex: 1,
+      country: "Italy",
+      city: "Rome",
+      onboarding_complete: 1,
+      employment_id: 1,
+      education_id: 1,
+    });
+    await bugs.basicBug({ status_id: 2 });
+    await Candidature.insert({ accepted: 1, results: 2 });
+    await certificationsList.certification1();
+    await testerCertifications.assignCertification({
+      achievement_date: new Date("01/01/2021").toISOString(),
+    });
+    await employmentsList.employment1({ display_name: "UNGUESS Tester" });
+    await educationsList.education1({ display_name: "Phd" });
+    await languagesList.lenguage1({ display_name: "Sicilian" });
+    await testerLanguages.assignLanguage();
+    //insert cuf_text
+    await CustomUserFields.insert({
+      name: "Username Tetris",
+      type: "text",
+    });
+    await CustomUserFieldsData.insert({
+      id: 1,
+      value: "CiccioGamer89.",
+      candidate: 0,
+    });
+    //insert cuf_select
+    await CustomUserFields.insert({
+      id: 2,
+      name: "Tipologia di spezie preferita",
+      type: "select",
+    });
+    await CustomUserFieldExtras.insert({
+      name: "Habanero Scorpion",
+    });
+    await CustomUserFieldsData.insert({
+      id: 2,
+      value: "1",
+      custom_user_field_id: 2,
+      candidate: 0,
+    });
+    //insert cuf_multiselect
+    await CustomUserFields.insert({
+      id: 3,
+      name: "Fornitore di cardamomo preferito",
+      type: "multiselect",
+    });
+    await CustomUserFieldExtras.insert({
+      id: 2,
+      name: "Il cardamomo Siciliano",
+    });
+    await CustomUserFieldExtras.insert({
+      id: 3,
+      name: "Treviso, città del Cardamomo",
+    });
+    await CustomUserFieldsData.insert({
+      id: 3,
+      value: "2",
+      custom_user_field_id: 3,
+      candidate: 0,
+    });
+    await CustomUserFieldsData.insert({
+      id: 4,
+      value: "3",
+      custom_user_field_id: 3,
+      candidate: 0,
     });
   });
   afterAll(async () => {
