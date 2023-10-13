@@ -4,20 +4,9 @@ import { data as PaymentRequest } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { tryber } from "@src/features/database";
-import { DynamoDBStreams } from "aws-sdk";
 
-const FiscalProfile1 = {
-  id: 1,
-  name: "Fiscal Profile 1",
-  surname: "Fiscal Profile Surname",
-  sex: "0",
-  birth_date: "1990-01-01",
-  tester_id: 2,
-  fiscal_category: 2,
-};
 describe("GET /users/me - booties data - fiscal_category = 1", () => {
   const data: any = {};
   beforeEach(async () => {
@@ -26,8 +15,10 @@ describe("GET /users/me - booties data - fiscal_category = 1", () => {
       wp_user_id: 1,
       pending_booty: 0,
     });
-    await WpUsers.insert({
-      ID: 1,
+    await Profile.insert({
+      id: 2,
+      wp_user_id: 2,
+      pending_booty: 0,
     });
     await FiscalProfile.validFiscalProfile({
       id: 1,
@@ -112,7 +103,6 @@ describe("GET /users/me - booties data - fiscal_category = 1", () => {
   afterEach(async () => {
     await Profile.clear();
     await Attributions.clear();
-    await WpUsers.clear();
     await PaymentRequest.drop();
     await FiscalProfile.drop();
   });
@@ -157,53 +147,55 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
   const data: any = {};
   beforeEach(async () => {
     data.tester = await Profile.insert({
-      id: 2,
+      id: 1,
       wp_user_id: 1,
       pending_booty: 0,
     });
-    await WpUsers.insert({
-      ID: data.tester.wp_user_id,
+    await Profile.insert({
+      id: 2,
+      wp_user_id: 2,
+      pending_booty: 0,
     });
     await FiscalProfile.validFiscalProfile({
       id: 1,
-      tester_id: 2,
+      tester_id: 1,
       fiscal_category: 2,
     });
     await FiscalProfile.inactiveFiscalProfile({
       id: 2,
-      tester_id: 1,
+      tester_id: 2,
       fiscal_category: 1,
     });
     await FiscalProfile.validFiscalProfile({
       id: 3,
-      tester_id: 2,
+      tester_id: 1,
       fiscal_category: 1,
     });
 
     await PaymentRequest.paidPaypalPayment({
       id: 1,
-      tester_id: 1,
+      tester_id: 2,
       amount: 100.2,
       amount_gross: 125.25,
       fiscal_profile_id: 1,
     });
     await PaymentRequest.paidPaypalPayment({
       id: 2,
-      tester_id: 1,
+      tester_id: 2,
       amount: 100,
       amount_gross: 125,
       fiscal_profile_id: 1,
     });
     await PaymentRequest.processingPaypalPayment({
       id: 3,
-      tester_id: 1,
+      tester_id: 2,
       amount: 100.2,
       amount_gross: 125.25,
       fiscal_profile_id: 1,
     });
     await PaymentRequest.paidPaypalPayment({
       id: 4,
-      tester_id: 2,
+      tester_id: 1,
       amount: 100.2,
       amount_gross: 125.25,
       fiscal_profile_id: 1,
@@ -247,7 +239,6 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
   afterEach(async () => {
     await Profile.clear();
     await Attributions.clear();
-    await WpUsers.clear();
     await PaymentRequest.drop();
     await FiscalProfile.drop();
   });
@@ -284,39 +275,59 @@ describe("GET /users/me - booties data - fiscal_category = 2", () => {
 });
 
 describe("GET /users/me - pending_booty threshold", () => {
-  const data: any = {};
-  beforeEach(async () => {
-    data.tester = await Profile.insert({
-      id: 2,
-      wp_user_id: 1,
-      pending_booty: 0,
-    });
-    await WpUsers.insert({
-      ID: data.tester.wp_user_id,
-    });
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 1,
+        wp_user_id: 1,
+        pending_booty: 0,
+        email: "jhon.doe@unguess.io",
+        employment_id: 1,
+        education_id: 1,
+      },
+      {
+        id: 2,
+        wp_user_id: 2,
+        pending_booty: 0,
+        email: "jhon.doe@unguess.io",
+        employment_id: 1,
+        education_id: 1,
+      },
+    ]);
+
     await WpOptions.crowdWpOptions();
-    await tryber.tables.WpAppqFiscalProfile.do().insert(FiscalProfile1);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      id: 1,
+      name: "Fiscal Profile 1",
+      surname: "Fiscal Profile Surname",
+      sex: "0",
+      birth_date: "1990-01-01",
+      tester_id: 1,
+      fiscal_category: 2,
+    });
+    await tryber.tables.WpAppqPayment.do().insert([
+      {
+        id: 1,
+        amount: 15,
+        tester_id: 1,
+        is_requested: 1,
+      },
+      {
+        id: 2,
+        amount: 15,
+        tester_id: 2,
+        is_requested: 0,
+      },
+    ]);
   });
-  afterEach(async () => {
-    await Profile.clear();
-    await WpUsers.clear();
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().delete();
     await WpOptions.clear();
-    await Attributions.clear();
+    await tryber.tables.WpAppqPayment.do().delete();
     await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
-  it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
-    await Attributions.insert({
-      id: 1,
-      amount: 15,
-      tester_id: data.tester.id,
-      is_requested: 1,
-    });
 
-    await Attributions.insert({
-      id: 2,
-      amount: 15,
-      tester_id: data.tester.id + 1,
-    });
+  it("Should return booty threshold.isOver=false if pending booty < threshold", async () => {
     const response = await request(app)
       .get("/users/me?fields=booty_threshold")
       .set("authorization", "Bearer tester");
@@ -328,10 +339,11 @@ describe("GET /users/me - pending_booty threshold", () => {
     });
   });
   it("Should return booty threshold.isOver=true if pending booty > threshold", async () => {
-    await Attributions.insert({
-      id: 1,
+    await tryber.tables.WpAppqPayment.do().insert({
+      id: 3,
       amount: 15,
-      tester_id: data.tester.id,
+      tester_id: 1,
+      is_requested: 0,
     });
 
     const response = await request(app)
