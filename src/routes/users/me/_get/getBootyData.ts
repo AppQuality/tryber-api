@@ -17,7 +17,7 @@ export default async (id: string) => {
       .andWhere("wp_appq_fiscal_profile.is_active", 1)
       .first()) as unknown as { fiscal_category: string };
 
-    fiscalCategory = Number(fiscalQuery.fiscal_category);
+    fiscalCategory = Number(fiscalQuery?.fiscal_category);
 
     const res = (await tryber.tables.WpAppqPaymentRequest.do()
       .sum({ gross: "amount_gross", net: "amount" })

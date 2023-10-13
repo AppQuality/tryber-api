@@ -25,7 +25,6 @@ const acceptedFields = [
   "booty_threshold" as const,
   "certifications" as const,
   "city" as const,
-  "completionPercent" as const,
   "country" as const,
   "education" as const,
   "gender" as const,
@@ -45,27 +44,36 @@ export default class UsersMe extends UserRoute<{
   response: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"];
   query: StoplightOperations["get-users-me"]["parameters"]["query"];
 }> {
-  private fields: AcceptableValues[] | undefined = undefined;
+  private _fields: AcceptableValues[] | undefined = undefined;
   private isComplete: boolean = false;
 
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "users-me" });
     type AcceptedField = typeof acceptedFields[number];
+    this.setValidFields();
+  }
+
+  private setValidFields() {
     const query = this.getQuery();
+    this._fields = basicFields;
 
     if (query && query.fields) {
-      this.fields = query.fields
+      this._fields = query.fields
         .split(",")
         .filter((f) =>
-          acceptedFields.includes(f as AcceptedField)
-        ) as AcceptedField[];
+          acceptedFields.includes(f as AcceptableValues)
+        ) as AcceptableValues[];
 
-      if (!this.fields) this.fields = basicFields;
-      if (this.fields.includes("all")) {
-        this.fields = acceptedFields.filter((f) => f !== "all");
+      if (this._fields.includes("all")) {
+        this._fields = acceptedFields.filter((f) => f !== "all");
         this.isComplete = true;
       }
     }
+  }
+
+  get fields() {
+    if (!this._fields) throw new Error("Fields not initialized");
+    return this._fields;
   }
 
   protected async prepare() {
@@ -92,7 +100,7 @@ export default class UsersMe extends UserRoute<{
     const wpId = this.getWordpressId().toString();
 
     try {
-      const validFields = this.fields ? this.fields : basicFields;
+      const validFields = this.fields;
 
       let data: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"] =
         { id: this.getTesterId(), role: this.configuration.request.user.role };
@@ -102,13 +110,17 @@ export default class UsersMe extends UserRoute<{
       if (validFields.includes("pending_booty")) {
         try {
           data = { ...data, ...(await this.getPendingBootyData()) };
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       if (validFields.includes("booty")) {
         try {
           data = { ...data, ...(await this.getBootyData()) };
-        } catch (e) {}
+        } catch (e) {
+          console.log(e);
+        }
       }
 
       if (validFields.includes("rank")) {
@@ -162,8 +174,7 @@ export default class UsersMe extends UserRoute<{
       }
       if (validFields.includes("booty_threshold")) {
         try {
-          let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
-            { value: 0, isOver: false };
+          let bootyThreshold = { value: 0, isOver: false };
 
           let trbPendingBooty = (await this.getPendingBootyData())
             .pending_booty;
@@ -188,13 +199,6 @@ export default class UsersMe extends UserRoute<{
           delete data[k as keyof typeof data];
       });
 
-      if (this.isComplete) {
-        data = {
-          ...data,
-          completionPercent:
-            (100 * (Object.keys(data).length + 1)) / validFields.length,
-        };
-      }
       return data;
     } catch (e) {
       if (process.env && process.env.NODE_ENV === "development") {
@@ -344,7 +348,7 @@ export default class UsersMe extends UserRoute<{
       .andWhere("wp_appq_fiscal_profile.is_active", 1)
       .first()) as unknown as { fiscal_category: string };
 
-    fiscalCategory = Number(fiscal.fiscal_category);
+    fiscalCategory = Number(fiscal?.fiscal_category);
     const res = (await tryber.tables.WpAppqPayment.do()
       .sum({ total: "amount" })
       .join(
@@ -397,7 +401,7 @@ export default class UsersMe extends UserRoute<{
         .andWhere("wp_appq_fiscal_profile.is_active", 1)
         .first()) as unknown as { fiscal_category: string };
 
-      fiscalCategory = Number(fiscalQuery.fiscal_category);
+      fiscalCategory = Number(fiscalQuery?.fiscal_category);
 
       const res = (await tryber.tables.WpAppqPaymentRequest.do()
         .sum({ gross: "amount_gross", net: "amount" })
