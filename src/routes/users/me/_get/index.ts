@@ -210,6 +210,9 @@ export default class UsersMe extends UserRoute<{
       .select(tryber.ref("id").withSchema("wp_appq_evd_profile"))
       .where("wp_user_id", this.getWordpressId());
     if (this.fields) {
+      if (this.fields.includes("username"))
+        query.join("wp_users", "wp_users.ID", "wp_appq_evd_profile.wp_user_id");
+
       if (this.fields.includes("name") || this.fields.includes("image"))
         query.select(tryber.ref("name").withSchema("wp_appq_evd_profile"));
 
