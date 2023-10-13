@@ -1,7 +1,6 @@
 /**  OPENAPI-CLASS : get-users-me */
 
 import UserRoute from "@src/features/routes/UserRoute";
-import getLanguagesData from "./getLanguagesData";
 import getAdditionalData from "./getAdditionalData";
 import getCrowdOption from "@src/features/wp/getCrowdOption";
 import debugMessage from "@src/features/debugMessage";
@@ -151,7 +150,7 @@ export default class UsersMe extends UserRoute<{
 
       if (validFields.includes("languages")) {
         try {
-          data = { ...data, ...(await getLanguagesData(wpId)) };
+          data = { ...data, ...(await this.getLanguagesData()) };
         } catch {}
       }
 
@@ -560,6 +559,38 @@ export default class UsersMe extends UserRoute<{
 
       if (!data.length) return Promise.reject(Error("Invalid education data"));
       return { education: data[0] };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  protected async getLanguagesData() {
+    const data = await tryber.tables.WpAppqProfileHasLang.do()
+      .select(
+        tryber.ref("display_name").withSchema("wp_appq_lang").as("language"),
+        tryber.ref("id").withSchema("wp_appq_lang")
+      )
+      .as("id")
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_profile_has_lang.profile_id"
+      )
+      .join(
+        "wp_appq_lang",
+        "wp_appq_lang.id",
+        "wp_appq_profile_has_lang.language_id"
+      )
+      .where("wp_appq_evd_profile.id", this.getTesterId());
+
+    try {
+      if (!data.length) return Promise.reject(Error("Invalid language data"));
+      return {
+        languages: data.map((l: { id: number; language: string }) => ({
+          id: l.id,
+          name: l.language,
+        })),
+      };
     } catch (e) {
       return Promise.reject(e);
     }
