@@ -1,7 +1,6 @@
 /**  OPENAPI-CLASS : get-users-me */
 
 import UserRoute from "@src/features/routes/UserRoute";
-import getPendingBootyData from "./getPendingBootyData";
 import getBootyData from "./getBootyData";
 import getApprovedBugsData from "./getApprovedBugsData";
 import getAttendedCpData from "./getAttendedCpData";
@@ -104,13 +103,13 @@ export default class UsersMe extends UserRoute<{
       const validFields = this.fields ? this.fields : basicFields;
 
       let data: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"] =
-        { id: this.getTesterId() };
+        { id: this.getTesterId(), role: this.configuration.request.user.role };
 
       data = { ...data, ...(await this.getProfileData()) };
 
       if (validFields.includes("pending_booty")) {
         try {
-          data = { ...data, ...(await getPendingBootyData(wpId)) };
+          data = { ...data, ...(await this.getPendingBootyData()) };
         } catch (e) {}
       }
 
@@ -174,7 +173,8 @@ export default class UsersMe extends UserRoute<{
           let bootyThreshold: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["booty_threshold"] =
             { value: 0, isOver: false };
 
-          let trbPendingBooty = (await getPendingBootyData(wpId)).pending_booty;
+          let trbPendingBooty = (await this.getPendingBootyData())
+            .pending_booty;
 
           const bootyThresholdVal = await getCrowdOption("minimum_payout");
           if (bootyThresholdVal) {
@@ -204,7 +204,7 @@ export default class UsersMe extends UserRoute<{
             (100 * (Object.keys(data).length + 1)) / validFields.length,
         };
       }
-      return { ...data, role: this.configuration.request.user.role };
+      return data;
     } catch (e) {
       if (process.env && process.env.NODE_ENV === "development") {
         console.log(e);
@@ -332,5 +332,57 @@ export default class UsersMe extends UserRoute<{
       }
       return Promise.reject(e);
     }
+  }
+
+  protected async getPendingBootyData() {
+    let fiscalCategory = 0;
+
+    const fiscal = (await tryber.tables.WpAppqFiscalProfile.do()
+      .select(
+        tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_fiscal_profile.tester_id"
+      )
+      .where("wp_appq_evd_profile.wp_user_id", this.getWordpressId())
+      .andWhere("wp_appq_fiscal_profile.is_active", 1)
+      .first()) as unknown as { fiscal_category: string };
+
+    fiscalCategory = Number(fiscal.fiscal_category);
+    const res = (await tryber.tables.WpAppqPayment.do()
+      .sum({ total: "amount" })
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_payment.tester_id"
+      )
+      .where("wp_appq_evd_profile.wp_user_id", this.getWordpressId())
+      .andWhere("is_paid", 0)
+      .andWhere("is_requested", 0)
+      .first()) as unknown as { total: number };
+
+    if (!res) {
+      Promise.reject(Error("Invalid pending booty data"));
+    }
+
+    return {
+      pending_booty: {
+        gross: {
+          value: res.total ? Number(res.total.toFixed(2)) : 0,
+          currency: "EUR",
+        },
+        ...(fiscal &&
+          fiscalCategory === 1 && {
+            net: {
+              value: res.total
+                ? Number(parseFloat(`${res.total * 0.8}`).toFixed(2))
+                : 0,
+              currency: "EUR",
+            },
+          }),
+      },
+    };
   }
 }
