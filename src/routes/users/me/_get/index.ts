@@ -175,7 +175,6 @@ export default class UsersMe extends UserRoute<{
 
           let trbPendingBooty = (await this.getPendingBootyData())
             .pending_booty;
-
           const bootyThresholdVal = await getCrowdOption("minimum_payout");
           if (bootyThresholdVal) {
             bootyThreshold.value = parseFloat(bootyThresholdVal);
@@ -346,7 +345,7 @@ export default class UsersMe extends UserRoute<{
         "wp_appq_evd_profile.id",
         "wp_appq_fiscal_profile.tester_id"
       )
-      .where("wp_appq_evd_profile.wp_user_id", this.getWordpressId())
+      .where("wp_appq_evd_profile.id", this.getTesterId())
       .andWhere("wp_appq_fiscal_profile.is_active", 1)
       .first()) as unknown as { fiscal_category: string };
 
@@ -358,7 +357,7 @@ export default class UsersMe extends UserRoute<{
         "wp_appq_evd_profile.id",
         "wp_appq_payment.tester_id"
       )
-      .where("wp_appq_evd_profile.wp_user_id", this.getWordpressId())
+      .where("wp_appq_evd_profile.id", this.getTesterId())
       .andWhere("is_paid", 0)
       .andWhere("is_requested", 0)
       .first()) as unknown as { total: number };
