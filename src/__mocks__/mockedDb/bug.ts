@@ -31,6 +31,7 @@ export const table = {
       "os VARCHAR(45)",
       "os_version VARCHAR(45)",
       "is_perfect INTEGER DEFAULT 1",
+      "profile_id INTEGER DEFAULT 0",
     ]);
   },
   drop: async () => {
@@ -65,6 +66,7 @@ type BugParams = {
   os?: string;
   os_version?: string;
   is_perfect?: number;
+  profile_id?: number;
 };
 const data: {
   [key: string]: (params?: BugParams) => Promise<{ [key: string]: any }>;
@@ -78,7 +80,10 @@ data.basicBug = async (params) => {
   const item = {
     id: 1,
     wp_user_id: 1,
+    profile_id: 1,
     campaign_id: 1,
+    reviewer: 1,
+    last_editor_id: 1,
     ...params,
   };
   await sqlite3.insert(tableName, item);

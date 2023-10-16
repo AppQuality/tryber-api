@@ -134,7 +134,7 @@ export default class ProspectRoute extends CampaignRoute<{
     selectedTesters: (T & { tester: { id: number; group: number } })[]
   ) {
     const testerByGroup =
-      this.filterByGroup<typeof selectedTesters[number]>(selectedTesters);
+      this.filterByGroup<(typeof selectedTesters)[number]>(selectedTesters);
     const idsToInclude = this.getIdsToInclude();
     if (idsToInclude.length > 0)
       return testerByGroup.filter((t) => idsToInclude.includes(t.tester.id));
@@ -210,18 +210,15 @@ export default class ProspectRoute extends CampaignRoute<{
   private async getBugsByTesters(testers: { id: number }[]) {
     const testerIds = testers.map((t) => t.id);
     const approvedBugList = await tryber.tables.WpAppqEvdBug.do()
-      .count({ count: "wp_appq_evd_profile.id" })
+      .count({ count: "profile_id" })
       .select(tryber.ref("severity_id").withSchema("wp_appq_evd_bug"))
-      .select(tryber.ref("id").as("testerId").withSchema("wp_appq_evd_profile"))
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.wp_user_id",
-        "wp_appq_evd_bug.wp_user_id"
+      .select(
+        tryber.ref("profile_id").as("testerId").withSchema("wp_appq_evd_bug")
       )
       .where({ campaign_id: this.cp_id })
-      .where("wp_appq_evd_profile.id", "IN", testerIds)
+      .whereIn("profile_id", testerIds)
       .where("wp_appq_evd_bug.status_id", 2)
-      .groupBy("wp_appq_evd_bug.severity_id", "wp_appq_evd_profile.id");
+      .groupBy("wp_appq_evd_bug.severity_id", "profile_id");
 
     const result = testerIds.map((tid) => ({
       testerId: tid,
@@ -474,7 +471,7 @@ export default class ProspectRoute extends CampaignRoute<{
     const topTester = this.getTopTester(items);
     topTester.isTopTester = true;
 
-    const result = this.getFilteredTesters<typeof items[0]>(items);
+    const result = this.getFilteredTesters<(typeof items)[0]>(items);
     return this.setSuccess(200, {
       items: result,
       status: await this.getProspectStatus(),

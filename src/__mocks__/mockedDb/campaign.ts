@@ -18,6 +18,9 @@ type CampaignParams = {
   page_preview_id?: number;
   page_manual_id?: number;
   status_id?: 1 | 2;
+  platform_id?: number;
+  customer_id?: number;
+  project_id?: number;
 };
 class Campaign extends Table<CampaignParams> {
   protected name = "wp_appq_evd_campaign";
@@ -59,6 +62,9 @@ class Campaign extends Table<CampaignParams> {
       page_manual_id: 0,
       page_preview_id: 0,
       status_id: 1,
+      platform_id: 1,
+      customer_id: 1,
+      project_id: 1,
     });
   }
 }

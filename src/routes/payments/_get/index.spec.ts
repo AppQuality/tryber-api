@@ -1,22 +1,31 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const tester1 = {
   id: 1,
+  wp_user_id: 1,
   name: "John",
   surname: "Doe",
+  education_id: 1,
+  employment_id: 1,
 };
 const tester2 = {
   id: 5,
+  wp_user_id: 5,
   name: "Pippo",
   surname: "Franco",
+  education_id: 1,
+  employment_id: 1,
 };
 const tester3 = {
   id: 69,
+  wp_user_id: 69,
   name: "Deleted User",
+  education_id: 1,
+  employment_id: 1,
 };
 
 const paymentRequestPaypal = {
@@ -26,6 +35,8 @@ const paymentRequestPaypal = {
   paypal_email: "john.doe@example.com",
   is_paid: 0,
   request_date: new Date("01/01/1972").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 
 const paymentRequestPaypalWithError = {
@@ -37,6 +48,8 @@ const paymentRequestPaypalWithError = {
   request_date: new Date("05/05/1970").toISOString(),
   update_date: new Date("05/05/1970").toISOString(),
   error_message: "Error message",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 
 const paymentRequestWise = {
@@ -46,6 +59,8 @@ const paymentRequestWise = {
   iban: "DE12345678901234567890",
   is_paid: 0,
   request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 
 const paymentRequestWiseWithError = {
@@ -57,6 +72,8 @@ const paymentRequestWiseWithError = {
   request_date: new Date("01/06/1970").toISOString(),
   update_date: new Date("05/06/1970").toISOString(),
   error_message: "Error message",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 const paymentRequestWisePaid = {
   id: 5,
@@ -66,6 +83,8 @@ const paymentRequestWisePaid = {
   is_paid: 1,
   request_date: new Date("01/06/1975").toISOString(),
   update_date: new Date("05/10/1975").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 const paymentRequestInvalid = {
   id: 6,
@@ -73,6 +92,8 @@ const paymentRequestInvalid = {
   amount: 69,
   is_paid: 0,
   request_date: new Date("01/06/2000").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 const paymentRequestOldUser = {
   id: 7,
@@ -81,6 +102,8 @@ const paymentRequestOldUser = {
   is_paid: 0,
   iban: "DE12345678901234567869",
   request_date: new Date("01/06/2000").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 const paymentRequestOldUserWithError = {
   id: 8,
@@ -91,6 +114,8 @@ const paymentRequestOldUserWithError = {
   request_date: new Date("01/06/2000").toISOString(),
   update_date: new Date("05/06/1970").toISOString(),
   error_message: "Error message",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 
 describe("Route GET payments", () => {
@@ -161,7 +186,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "paypal",
-          tryber: tester1,
+          tryber: {
+            id: tester1.id,
+            name: tester1.name,
+            surname: tester1.surname,
+          },
         },
         {
           created: new Date(paymentRequestPaypalWithError.request_date)
@@ -176,7 +205,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "paypal",
-          tryber: tester1,
+          tryber: {
+            id: tester1.id,
+            name: tester1.name,
+            surname: tester1.surname,
+          },
           error: paymentRequestPaypalWithError.error_message,
         },
         {
@@ -189,7 +222,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "transferwise",
-          tryber: tester2,
+          tryber: {
+            id: tester2.id,
+            name: tester2.name,
+            surname: tester2.surname,
+          },
         },
         {
           created: new Date(paymentRequestWiseWithError.request_date)
@@ -204,7 +241,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "transferwise",
-          tryber: tester2,
+          tryber: {
+            id: tester2.id,
+            name: tester2.name,
+            surname: tester2.surname,
+          },
           error: paymentRequestWiseWithError.error_message,
         },
         {
@@ -220,7 +261,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "transferwise",
-          tryber: tester2,
+          tryber: {
+            id: tester2.id,
+            name: tester2.name,
+            surname: tester2.surname,
+          },
         },
       ],
     });
@@ -317,7 +362,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "paypal",
-          tryber: tester1,
+          tryber: {
+            id: tester1.id,
+            name: tester1.name,
+            surname: tester1.surname,
+          },
           error: paymentRequestPaypalWithError.error_message,
         },
         {
@@ -333,7 +382,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "transferwise",
-          tryber: tester2,
+          tryber: {
+            id: tester2.id,
+            name: tester2.name,
+            surname: tester2.surname,
+          },
           error: paymentRequestWiseWithError.error_message,
         },
       ],
@@ -356,7 +409,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "paypal",
-          tryber: tester1,
+          tryber: {
+            id: tester1.id,
+            name: tester1.name,
+            surname: tester1.surname,
+          },
         },
         {
           created: new Date(paymentRequestWise.request_date)
@@ -368,7 +425,11 @@ describe("Route GET payments", () => {
             currency: "EUR",
           },
           type: "transferwise",
-          tryber: tester2,
+          tryber: {
+            id: tester2.id,
+            name: tester2.name,
+            surname: tester2.surname,
+          },
         },
       ],
     });

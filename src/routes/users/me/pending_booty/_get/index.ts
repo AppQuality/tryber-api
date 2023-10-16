@@ -1,8 +1,9 @@
 /**  OPENAPI-CLASS : get-users-me-pending-booty */
 
+import { tryber } from "@src/features/database";
+import * as db from "@src/features/db";
 import debugMessage from "@src/features/debugMessage";
 import UserRoute from "@src/features/routes/UserRoute";
-import * as db from "@src/features/db";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-users-me-pending-booty"]["responses"]["200"]["content"]["application/json"];
@@ -12,8 +13,9 @@ export default class RouteItem extends UserRoute<{
   private limit: number = 25;
   private explicitLimitIsRequested: boolean = false;
   private order: "ASC" | "DESC" = "DESC";
-  private orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] =
+  private _orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] =
     "attributionDate";
+  private fiscalCategory: number = 0;
 
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "pending booty" });
@@ -24,10 +26,15 @@ export default class RouteItem extends UserRoute<{
       this.explicitLimitIsRequested = true;
     }
     if (query.order) this.order = query.order;
-    if (query.orderBy) this.orderBy = query.orderBy;
+    if (query.orderBy) this._orderBy = query.orderBy;
+  }
+
+  get orderBy() {
+    return this._orderBy ?? "id";
   }
 
   protected async prepare() {
+    this.fiscalCategory = await this.getFiscalProfile();
     try {
       const { results, total } = await this.getPendingBooties();
       this.setSuccess(200, {
@@ -35,9 +42,18 @@ export default class RouteItem extends UserRoute<{
           return {
             id: row.id,
             name: row.activityName,
+            activity: row.activity,
             amount: {
-              value: row.amount,
-              currency: "EUR",
+              ...(this.fiscalCategory === 1 && {
+                net: {
+                  value: Number(parseFloat(`${row.amount * 0.8}`).toFixed(2)),
+                  currency: "EUR",
+                },
+              }),
+              gross: {
+                value: Number(parseFloat(`${row.amount}`).toFixed(2)),
+                currency: "EUR",
+              },
             },
             attributionDate: row.attributionDate.substring(0, 10),
           };
@@ -56,30 +72,79 @@ export default class RouteItem extends UserRoute<{
     }
   }
 
+  private async getFiscalProfile() {
+    const res = await tryber.tables.WpAppqFiscalProfile.do()
+      .select("fiscal_category")
+      .where("tester_id", this.getTesterId())
+      .where("is_active", 1)
+      .first();
+    if (res && res.fiscal_category) {
+      return res.fiscal_category;
+    }
+    return 0;
+  }
+
+  private getPendingBootiesOrderBy() {
+    if (this.orderBy === "activityName") return "wp_appq_evd_campaign.id";
+    if (this.orderBy === "id") return "wp_appq_payment.id";
+    return this.orderBy;
+  }
   private async getPendingBooties() {
     const WHERE = `WHERE 
     p.tester_id = ? and p.is_paid=0 and p.is_requested=0`;
     const data = [this.getTesterId()];
 
-    const sql = `
-    SELECT 
-        p.id as id, p.amount as amount, 
-        CAST(p.creation_date as CHAR) as attributionDate, 
-        CONCAT('[CP-', cp.id, '] ', cp.title) as activityName
-    FROM wp_appq_payment p
-    JOIN wp_appq_evd_campaign cp ON p.campaign_id = cp.id 
-    ${WHERE} 
-    ORDER BY ${this.orderBy} 
-    ${this.order}, attributionDate ${this.order}
-    LIMIT ${this.limit} OFFSET ${this.start}
-`;
-    const results: {
-      id: number;
-      name: string;
-      amount: number;
-      attributionDate: string;
-      activityName: string;
-    }[] = await db.query(db.format(sql, data));
+    const query = tryber.tables.WpAppqPayment.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_payment"),
+        tryber.fn.charDate("creation_date", "attributionDate"),
+        tryber.ref("amount").withSchema("wp_appq_payment"),
+        tryber.ref("title").withSchema("wp_appq_evd_campaign").as("cp_title"),
+        tryber.ref("id").withSchema("wp_appq_evd_campaign").as("cp_id"),
+        tryber
+          .ref("work_type")
+          .withSchema("wp_appq_payment_work_types")
+          .as("activity")
+      )
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_payment.campaign_id",
+        "wp_appq_evd_campaign.id"
+      )
+      .join(
+        "wp_appq_payment_work_types",
+        "wp_appq_payment_work_types.id",
+        "wp_appq_payment.work_type_id"
+      )
+      .where("wp_appq_payment.tester_id", this.getTesterId())
+      .where("wp_appq_payment.is_paid", 0)
+      .where("wp_appq_payment.is_requested", 0)
+      .limit(this.limit)
+      .offset(this.start);
+
+    if (this.orderBy === "activityName") {
+      query
+        .orderBy("wp_appq_evd_campaign.id", this.order)
+        .orderBy("wp_appq_evd_campaign.title", this.order);
+    } else if (this.orderBy === "id") {
+      query.orderBy("wp_appq_payment.id", this.order);
+    } else if (this.orderBy === "net" || this.orderBy === "gross") {
+      query.orderBy("wp_appq_payment.amount", this.order);
+    } else if (this.orderBy === "activity") {
+      query.orderBy("wp_appq_payment_work_types.work_type", this.order);
+    } else {
+      query.orderBy(this.orderBy, this.order);
+    }
+
+    const results = (await query).map((row) => {
+      return {
+        id: row.id,
+        attributionDate: row.attributionDate.substring(0, 10),
+        amount: row.amount,
+        activityName: `[CP-${row.cp_id}] ${row.cp_title}`,
+        activity: row.activity,
+      };
+    });
 
     if (!results.length) {
       throw {

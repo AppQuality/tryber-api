@@ -1,6 +1,6 @@
-import Question from ".";
-import Profile, { ProfileObject } from "@src/features/db/class/Profile";
 import PreselectionFormData from "@src/features/db/class/PreselectionFormData";
+import Profile, { ProfileObject } from "@src/features/db/class/Profile";
+import Question from ".";
 
 class GenderQuestion extends Question<{
   type: `gender`;

@@ -20,10 +20,10 @@ export default async (
              JOIN wp_appq_evd_campaign c ON (c.id = b.campaign_id)
              JOIN wp_appq_evd_severity s ON (s.id = b.severity_id)
              JOIN wp_appq_evd_bug_status st ON (st.id = b.status_id)
- WHERE b.wp_user_id  = ?`;
+ WHERE b.profile_id  = ?`;
 
     let limits = "";
-    const data = [req.user.ID];
+    const data = [req.user.testerId.toString()];
     const accepted = {
       title: ["b.message"],
       campaign: ["c.id", "c.title"],

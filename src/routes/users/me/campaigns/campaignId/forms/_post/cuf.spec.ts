@@ -1,14 +1,14 @@
-import app from "@src/app";
-import request from "supertest";
 import campaign from "@src/__mocks__/mockedDb/campaign";
-import testerDevice from "@src/__mocks__/mockedDb/testerDevice";
+import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
+import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
+import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
+import customUserFieldsExtra from "@src/__mocks__/mockedDb/customUserFieldsExtra";
+import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
 import preselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
-import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import customUserFieldsExtra from "@src/__mocks__/mockedDb/customUserFieldsExtra";
-import customUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
-import campaignApplications from "@src/__mocks__/mockedDb/cpHasCandidates";
+import testerDevice from "@src/__mocks__/mockedDb/testerDevice";
+import app from "@src/app";
+import request from "supertest";
 
 describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
   beforeEach(() => {
@@ -495,13 +495,12 @@ describe("POST users/me/campaigns/:campaignId/forms - cuf fields", () => {
     expect(response.status).toBe(200);
     const data = await preselectionFormData.all(undefined, [{ field_id: 6 }]);
     expect(data).toEqual([
-      {
-        id: 1,
+      expect.objectContaining({
         campaign_id: 1,
         tester_id: 1,
         field_id: 6,
         value: "#",
-      },
+      }),
     ]);
   });
 });

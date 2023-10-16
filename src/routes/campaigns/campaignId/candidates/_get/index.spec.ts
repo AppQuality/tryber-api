@@ -30,7 +30,10 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await Levels.insert({ id: 20, name: "Silver" });
     await Levels.insert({ id: 30, name: "Gold" });
 
-    await Profile.insert({ id: users[1].testerId });
+    await Profile.insert({
+      id: users[1].testerId,
+      wp_user_id: users[1].wpUserId,
+    });
     await WpUsers.insert({ ID: users[1].wpUserId });
 
     await Profile.insert({
@@ -197,7 +200,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       accepted: 1,
     });
 
-    await Profile.insert({ id: users[6].testerId, name: "Deleted User" });
+    await Profile.insert({
+      id: users[6].testerId,
+      wp_user_id: users[6].wpUserId,
+      name: "Deleted User",
+    });
     await WpUsers.insert({ ID: users[6].wpUserId });
     await Candidate.insert({
       user_id: users[6].wpUserId,
@@ -205,7 +212,10 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       accepted: 0,
     });
 
-    await Profile.insert({ id: users[7].testerId });
+    await Profile.insert({
+      id: users[7].testerId,
+      wp_user_id: users[7].wpUserId,
+    });
     await WpUsers.insert({ ID: users[7].wpUserId });
     await Candidate.insert({
       user_id: users[7].wpUserId,
@@ -223,7 +233,10 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       os_version_id: 1,
       enabled: 0,
     });
-    await Profile.insert({ id: users[8].testerId });
+    await Profile.insert({
+      id: users[8].testerId,
+      wp_user_id: users[8].wpUserId,
+    });
     await WpUsers.insert({ ID: users[8].wpUserId });
     await Candidate.insert({
       user_id: users[8].wpUserId,

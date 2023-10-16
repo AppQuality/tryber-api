@@ -1,4 +1,4 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (
   testerId: number,
@@ -8,6 +8,7 @@ export default async (
     id: number;
     is_paid: 0 | 1;
     amount: number;
+    amount_gross: number;
     paypal_email?: string;
     iban?: string;
     paidDate: string;
@@ -29,31 +30,91 @@ export default async (
     : (pagination += `LIMIT 25`);
   query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
 
-  const sql = `
-    SELECT 
-        pr.id, pr.is_paid, pr.amount, pr.paypal_email, pr.iban,
-        CASE 
-            WHEN pr.is_paid=0 THEN NOW()
-            ELSE CAST(pr.paid_date as CHAR) 
-        END as paidDate, 
-        rcpt.url AS receipt
-    FROM wp_appq_payment_request pr
-    LEFT JOIN wp_appq_receipt rcpt ON pr.receipt_id = rcpt.id 
-    ${WHERE} 
-    ORDER BY ${query.orderBy || "paidDate"} 
-    ${query.order || "DESC"} 
-    ${pagination}
-`;
+  const whereFunction = (q: any) => {
+    q.where((q: any) => {
+      q.where((q: any) => {
+        q.whereNotNull("wp_appq_payment_request.paypal_email").andWhere(
+          "wp_appq_payment_request.paypal_email",
+          "<>",
+          ""
+        );
+      }).orWhere((q: any) => {
+        q.whereNotNull("wp_appq_payment_request.iban").andWhere(
+          "wp_appq_payment_request.iban",
+          "<>",
+          ""
+        );
+      });
+    }).andWhere("wp_appq_payment_request.tester_id", testerId);
+  };
 
-  const results = await db.query(db.format(sql, data));
+  const q = tryber.tables.WpAppqPaymentRequest.do()
+    .select(
+      "wp_appq_payment_request.id",
+      "wp_appq_payment_request.is_paid",
+      "wp_appq_payment_request.amount",
+      "wp_appq_payment_request.amount_gross",
+      "wp_appq_payment_request.paypal_email",
+      "wp_appq_payment_request.iban",
+      tryber.raw("CAST(wp_appq_payment_request.paid_date as CHAR) as paidDate"),
+      "wp_appq_receipt.url as receipt"
+    )
+    .leftJoin(
+      "wp_appq_receipt",
+      "wp_appq_payment_request.receipt_id",
+      "wp_appq_receipt.id"
+    )
+    .andWhere(function () {
+      whereFunction(this);
+    });
 
+  const orderBy = !query.orderBy ? "paidDate" : query.orderBy;
+  if (orderBy === "updated") {
+    q.orderBy("update_date", query.order || "DESC");
+  } else if (orderBy === "created") {
+    q.orderBy("request_date", query.order || "DESC");
+  } else if (orderBy !== "paidDate") {
+    q.orderBy(orderBy, query.order || "DESC");
+  }
+
+  let results = await q;
+  if (orderBy === "paidDate") {
+    results.sort((a, b) => {
+      if (a.is_paid === 0) {
+        return -1;
+      }
+      if (b.is_paid === 0) {
+        return 1;
+      }
+      if (new Date(a.paidDate) < new Date(b.paidDate)) {
+        return 1;
+      }
+      if (new Date(a.paidDate) > new Date(b.paidDate)) {
+        return -1;
+      }
+      return b.id - a.id;
+    });
+
+    if (query.order === "ASC") {
+      results.reverse();
+    }
+  }
+
+  const limit = query.limit || 25;
+  const start = query.start || 0;
+  results = results.slice(start, start + limit);
   let total = undefined;
   if (query.limit) {
-    const countSql = `SELECT COUNT(pr.id) as total
-    FROM wp_appq_payment_request pr 
-      ${WHERE}`;
-    const countResults = await db.query(db.format(countSql, data));
-    total = countResults[0].total;
+    const countQ = tryber.tables.WpAppqPaymentRequest.do()
+      .count("wp_appq_payment_request.id as total")
+      .where(function () {
+        whereFunction(this);
+      })
+      .first();
+    const countResults: any = await countQ;
+    total = countResults.total
+      ? Number(countResults.total)
+      : Number(countResults);
   }
   return { results, total };
 };

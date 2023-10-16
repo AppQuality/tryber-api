@@ -1,7 +1,6 @@
 /**  OPENAPI-ROUTE : get-users-me-payments */
 import debugMessage from "@src/features/debugMessage";
 import { Context } from "openapi-backend";
-
 import getPaymentsFromQuery from "./getPaymentsFromQuery";
 
 export default async (
@@ -57,8 +56,18 @@ export default async (
           id: row.id,
           status: row.is_paid === 0 ? "processing" : "paid",
           amount: {
-            value: row.amount,
-            currency: "EUR",
+            gross: {
+              value: row.amount_gross
+                ? Number(parseFloat(`${row.amount_gross}`).toFixed(2))
+                : 0,
+              currency: "EUR",
+            },
+            net: {
+              value: row.amount
+                ? Number(parseFloat(`${row.amount}`).toFixed(2))
+                : 0,
+              currency: "EUR",
+            },
           },
           paidDate: row.is_paid === 0 ? "-" : row.paidDate.substring(0, 10),
           method: {

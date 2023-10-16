@@ -57,6 +57,7 @@ beforeAll(async () => {
     {
       campaign_id: 1, // T1 - bug Approved
       wp_user_id: 1,
+      profile_id: 1,
       reviewer: 1,
       last_editor_id: 1,
       status_id: 2,
@@ -64,6 +65,7 @@ beforeAll(async () => {
     {
       campaign_id: 1, // T2 - bug Approved
       wp_user_id: 2,
+      profile_id: 2,
       reviewer: 1,
       last_editor_id: 1,
       status_id: 2,
@@ -71,6 +73,7 @@ beforeAll(async () => {
     {
       campaign_id: 1, // T2 - bug Refused
       wp_user_id: 2,
+      profile_id: 2,
       reviewer: 1,
       last_editor_id: 1,
       status_id: 1,
@@ -78,6 +81,7 @@ beforeAll(async () => {
     {
       campaign_id: 1, // T3 - bug Approved
       wp_user_id: 3,
+      profile_id: 3,
       reviewer: 1,
       last_editor_id: 1,
       status_id: 2,
@@ -85,6 +89,7 @@ beforeAll(async () => {
     {
       campaign_id: 1, // T3 - bug Need Review
       wp_user_id: 3,
+      profile_id: 3,
       reviewer: 1,
       last_editor_id: 1,
       status_id: 4,

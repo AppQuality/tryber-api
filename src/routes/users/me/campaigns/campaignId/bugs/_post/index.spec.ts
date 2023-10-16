@@ -239,6 +239,19 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("testerId", 1);
   });
+  it("Should insert profile_id on bug if send a valid bug", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send(bug);
+    expect(response.status).toBe(200);
+    const bugData = await tryber.tables.WpAppqEvdBug.do()
+      .select("profile_id")
+      .where("id", response.body.id)
+      .first();
+
+    expect(bugData).toHaveProperty("profile_id", 1);
+  });
   it("Should serialize device data on the bug on success", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")

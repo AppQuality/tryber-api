@@ -1,3 +1,4 @@
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 
@@ -70,7 +71,11 @@ export default async (
       newDeviceData.platform_id = os.platformId;
       // ENDTODO
     }
-    const insertId = await db.insert("wp_crowd_appq_device", newDeviceData);
+    const device = await tryber.tables.WpCrowdAppqDevice.do()
+      .insert(newDeviceData)
+      .returning("id");
+
+    const insertId = device[0].id ?? device[0];
 
     let checkSql = `
 					SELECT dv.id, dv.form_factor as deviceType, dv.manufacturer, dv.model, dv.pc_type, os.display_name as osVersion, plat.name as os,dv.os_version_id  as os_id

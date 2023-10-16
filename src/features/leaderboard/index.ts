@@ -1,4 +1,4 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 import { gravatarUrl } from "avatar-initials";
 
 export default class Leaderboard {
@@ -15,16 +15,29 @@ export default class Leaderboard {
       monthly_exp: number;
     }[]
   > {
-    return await db.query(`
-        SELECT  exp.tester_id, SUM(exp.amount) as monthly_exp
-        FROM wp_appq_exp_points exp
-                JOIN wp_appq_evd_profile t ON (t.id = exp.tester_id)
-        WHERE MONTH(exp.creation_date) = MONTH(NOW())
-            AND YEAR(exp.creation_date) = YEAR(NOW())
-            AND exp.amount != 0
-            AND t.name != "Deleted User"
-        GROUP BY (exp.tester_id);
-  `);
+    const sql = tryber.tables.WpAppqExpPoints.do()
+      .select("tester_id")
+      .sum("amount", { as: "monthly_exp" })
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_exp_points.tester_id"
+      )
+      .whereNot("wp_appq_evd_profile.name", "Deleted User")
+      .whereNot("wp_appq_exp_points.amount", 0)
+      .whereRaw(
+        `${tryber.fn.month(
+          "wp_appq_exp_points.creation_date"
+        )} = ${tryber.fn.month(tryber.fn.now())}`
+      )
+      .whereRaw(
+        `${tryber.fn.year(
+          "wp_appq_exp_points.creation_date"
+        )} = ${tryber.fn.year(tryber.fn.now())}`
+      )
+      .groupBy("tester_id");
+    const res = await sql;
+    return await sql;
   }
 
   private async getTesterCurrentLevels(): Promise<
@@ -37,20 +50,23 @@ export default class Leaderboard {
       total_exp: number;
     }[]
   > {
-    const sql = db.format(
-      `SELECT 
-    t.name as tester_name, t.surname as tester_surname, t.email as tester_email,
-    lvl.tester_id   as tester_id,
-    t.total_exp_pts as total_exp
-  FROM wp_appq_activity_level lvl
-      JOIN wp_appq_evd_profile t ON (t.id = lvl.tester_id)
-  WHERE t.name <> "Deleted User"
-    AND lvl.level_id = ?
-  GROUP BY (lvl.tester_id);
-    `,
-      [this.level]
-    );
-    return await db.query(sql);
+    return await tryber.tables.WpAppqActivityLevel.do()
+      .select(
+        "wp_appq_evd_profile.name as tester_name",
+        "wp_appq_evd_profile.surname as tester_surname",
+        "wp_appq_evd_profile.email as tester_email",
+        "wp_appq_activity_level.tester_id as tester_id",
+        "wp_appq_activity_level.level_id as level",
+        "wp_appq_evd_profile.total_exp_pts as total_exp"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_activity_level.tester_id"
+      )
+      .whereNot("wp_appq_evd_profile.name", "Deleted User")
+      .where("wp_appq_activity_level.level_id", this.level)
+      .groupBy("wp_appq_activity_level.tester_id");
   }
 
   private getTesterName({

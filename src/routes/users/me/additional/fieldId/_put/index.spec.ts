@@ -1,64 +1,47 @@
-import customUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import customUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-beforeAll(async () => {
-  await tryber.tables.WpAppqCustomUserField.do().insert({
-    id: 1,
-    enabled: 1,
-    name: "test",
-    slug: "test",
-    placeholder: "",
-    extras: "",
-    custom_user_field_group_id: 0,
-  });
-  await tryber.tables.WpAppqCustomUserField.do().insert({
-    id: 2,
-    enabled: 0,
-    name: "test",
-    slug: "test",
-    placeholder: "",
-    extras: "",
-    custom_user_field_group_id: 0,
-  });
-  await tryber.tables.WpAppqCustomUserField.do().insert({
-    id: 3,
-    enabled: 1,
-    type: "select",
-    name: "test",
-    slug: "test",
-    placeholder: "",
-    extras: "",
-    custom_user_field_group_id: 0,
-  });
-  await tryber.tables.WpAppqCustomUserFieldExtras.do().insert({
-    id: 1,
-    custom_user_field_id: 3,
-    name: "test",
-  });
-  customUserFields.insert({
-    id: 1,
-    enabled: 1,
-  });
-  customUserFields.insert({
-    id: 2,
-    enabled: 0,
-  });
-  customUserFields.insert({
-    id: 3,
-    enabled: 1,
-    type: "select",
-  });
-  customUserFieldExtras.insert({
-    id: 1,
-    custom_user_field_id: 3,
-  });
-});
 describe("PUT /users/me/additional/fieldId", () => {
-  beforeEach(async () => {});
-  afterEach(async () => {});
+  beforeAll(async () => {
+    await tryber.tables.WpAppqCustomUserField.do().insert([
+      {
+        id: 1,
+        enabled: 1,
+        name: "test",
+        slug: "test",
+        placeholder: "",
+        extras: "1",
+        type: "text",
+        custom_user_field_group_id: 0,
+      },
+      {
+        id: 2,
+        enabled: 0,
+        name: "test",
+        slug: "test",
+        placeholder: "",
+        extras: "1",
+        type: "text",
+        custom_user_field_group_id: 0,
+      },
+      {
+        id: 3,
+        enabled: 1,
+        type: "select",
+        name: "test",
+        slug: "test",
+        placeholder: "",
+        extras: "1",
+        custom_user_field_group_id: 0,
+      },
+    ]);
+    await tryber.tables.WpAppqCustomUserFieldExtras.do().insert({
+      id: 1,
+      custom_user_field_id: 3,
+      name: "test",
+    });
+  });
   it("should answer 403 if not logged in", () => {
     return request(app).put("/users/me/additionals/1").expect(403);
   });

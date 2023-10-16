@@ -1,9 +1,9 @@
-import app from "@src/app";
 import Experience from "@src/__mocks__/mockedDb/experience";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import app from "@src/app";
 import request from "supertest";
 
 const mockedLevelDefinitions = () => {
@@ -60,9 +60,9 @@ const firstDayOfLastMonth = () => {
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
-      Profile.insert({ pending_booty: 100 });
-      Profile.insert({ id: 2 });
-      Profile.insert({ id: 3 });
+      Profile.insert({ pending_booty: 100, wp_user_id: 1 });
+      Profile.insert({ id: 2, wp_user_id: 2 });
+      Profile.insert({ id: 3, wp_user_id: 3 });
       mockedLevelDefinitions();
       UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
       UserLevels.insert({ id: 2, tester_id: 2 });

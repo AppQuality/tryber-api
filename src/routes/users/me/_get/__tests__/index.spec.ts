@@ -1,7 +1,6 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import { data as bugData } from "@src/__mocks__/mockedDb/bug";
 import { data as certificationListData } from "@src/__mocks__/mockedDb/certificationList";
+import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
 import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 import CustomUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
@@ -13,6 +12,8 @@ import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerC
 import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const tester1 = {
@@ -81,7 +82,6 @@ const lang1 = {
   display_name: "Italian",
 };
 const testerFullLang1 = {
-  id: 1,
   profile_id: testerFull.id,
   language_id: lang1.id,
 };
@@ -163,11 +163,8 @@ const cufTextDisabled = {
 
 describe("Route GET users-me", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await sqlite3.insert("wp_appq_evd_profile", tester1);
-      await sqlite3.insert("wp_users", wpTester1);
-      resolve(null);
-    });
+    await Profile.insert(tester1);
+    await WpUsers.insert(wpTester1);
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
@@ -214,55 +211,42 @@ describe("Route GET users-me", () => {
 
 describe("Route GET users-me-full-fields", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      WpOptions.crowdWpOptions();
-      await sqlite3.insert("wp_appq_evd_profile", testerFull);
-      await sqlite3.insert("wp_users", wpTester1);
-      await sqlite3.insert("wp_appq_evd_bug", bug1);
-      await sqlite3.insert("wp_crowd_appq_has_candidate", testerCandidacy);
-      await sqlite3.insert("wp_appq_certifications_list", certification1);
-      await sqlite3.insert(
-        "wp_appq_profile_certifications",
-        testerFullCertification1
-      );
-      await sqlite3.insert("wp_appq_employment", employment1);
-      await sqlite3.insert("wp_appq_education", education1);
-      await sqlite3.insert("wp_appq_lang", lang1);
-      await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
-      //insert cuf_text
-      await sqlite3.insert("wp_appq_custom_user_field", cufText);
-      await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
-      //insert cuf_select
-      await sqlite3.insert("wp_appq_custom_user_field", cufSelect);
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufSelectOption1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufSelectTesterOption1
-      );
-      //insert cuf_multiselect
-      await sqlite3.insert("wp_appq_custom_user_field", cufMultiselect);
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_extras",
-        cufMultiSelectVal2
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal1
-      );
-      await sqlite3.insert(
-        "wp_appq_custom_user_field_data",
-        cufMultiSelectTesterVal2
-      );
-
-      resolve(null);
-    });
+    await WpOptions.crowdWpOptions();
+    await Profile.insert(testerFull);
+    await WpUsers.insert(wpTester1);
+    await bugData.basicBug(bug1);
+    await Candidature.insert(testerCandidacy);
+    await sqlite3.insert("wp_appq_certifications_list", certification1);
+    await sqlite3.insert(
+      "wp_appq_profile_certifications",
+      testerFullCertification1
+    );
+    await employmentListData.employment1(employment1);
+    await sqlite3.insert("wp_appq_education", education1);
+    await languageListData.lenguage1(lang1);
+    await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+    //insert cuf_text
+    await CustomUserFields.insert(cufText);
+    await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
+    //insert cuf_select
+    await CustomUserFields.insert(cufSelect);
+    await CustomUserFieldsExtras.insert(cufSelectOption1);
+    await sqlite3.insert(
+      "wp_appq_custom_user_field_data",
+      cufSelectTesterOption1
+    );
+    //insert cuf_multiselect
+    await CustomUserFields.insert(cufMultiselect);
+    await CustomUserFieldsExtras.insert(cufMultiSelectVal1);
+    await CustomUserFieldsExtras.insert(cufMultiSelectVal2);
+    await sqlite3.insert(
+      "wp_appq_custom_user_field_data",
+      cufMultiSelectTesterVal1
+    );
+    await sqlite3.insert(
+      "wp_appq_custom_user_field_data",
+      cufMultiSelectTesterVal2
+    );
   });
   afterAll(async () => {
     return new Promise(async (resolve) => {
@@ -271,7 +255,6 @@ describe("Route GET users-me-full-fields", () => {
 
       await bugData.drop();
       await certificationListData.drop();
-      await testerCertificationData.drop();
       await testerCertificationData.drop();
       await employmentListData.drop();
       await educationListData.drop();

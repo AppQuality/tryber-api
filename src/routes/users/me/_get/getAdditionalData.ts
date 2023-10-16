@@ -65,7 +65,7 @@ WHERE wp_user_id = ?
         let select = data.find((d) => d.id === s.id);
         if (select) {
           select.text = s.name;
-          select.value = s.value;
+          select.value = s.value.toString();
           if (s.candidate) select.is_candidate = true;
           selects.push(select);
         }

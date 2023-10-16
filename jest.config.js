@@ -15,7 +15,7 @@ module.exports = {
   setupFilesAfterEnv: ["<rootDir>/src/__mocks__/globalSetup.ts"],
   preset: "ts-jest",
   testEnvironment: "node",
-  testTimeout: 15000,
+  testTimeout: 3000,
   transform: {
     "^.+\\.(t|j)sx?$": ["@swc/jest"],
   },

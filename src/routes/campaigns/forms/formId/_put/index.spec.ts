@@ -1,9 +1,30 @@
 import app from "@src/app";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import CustomUserFields from "@src/__mocks__/mockedDb/customUserFields";
-import Campaign from "@src/__mocks__/mockedDb/campaign";
+
+const basicCampaign = {
+  title: "Test Campaign",
+  customer_title: "Test Campaign",
+  min_allowed_media: 1,
+  campaign_type: 0,
+  bug_lang: 0,
+  base_bug_internal_id: "I",
+  start_date: "2020-01-01",
+  end_date: "2020-01-01",
+  close_date: "2020-01-01",
+  campaign_type_id: 1,
+  os: "",
+  pm_id: 1,
+  is_public: 0,
+  page_manual_id: 0,
+  page_preview_id: 0,
+  status_id: 1,
+  platform_id: 1,
+  customer_id: 1,
+  project_id: 1,
+};
 
 const sampleBody = {
   name: "My form",
@@ -38,73 +59,121 @@ const sampleBodyWithFields = {
   ],
 };
 describe("PUT /campaigns/forms/", () => {
-  beforeAll(() => {
-    Campaign.insert({ id: 1 });
-    Campaign.insert({ id: 2 });
-    Campaign.insert({ id: 3 });
-    CustomUserFields.insert({
+  beforeAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
+      ...basicCampaign,
+      id: 1,
+    });
+
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
+      ...basicCampaign,
+      id: 2,
+    });
+
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
+      ...basicCampaign,
+      id: 3,
+    });
+
+    await tryber.tables.WpAppqCustomUserFieldGroups.do().insert({
+      id: 10,
+      name: "CUF group",
+      description: "CUF group description",
+    });
+
+    await tryber.tables.WpAppqCustomUserField.do().insert({
       id: 1,
       type: "text",
+      name: "A text field",
+      slug: "a-text-field",
+      custom_user_field_group_id: 10,
+      placeholder: "write something",
+      extras: "",
     });
-    CustomUserFields.insert({
+
+    await tryber.tables.WpAppqCustomUserField.do().insert({
       id: 2,
       type: "multiselect",
+      name: "A multiselect field",
+      slug: "a-multiselect-field",
+      custom_user_field_group_id: 10,
+      placeholder: "select something",
+      extras: "",
     });
   });
-  afterAll(() => {
-    CustomUserFields.clear();
-    Campaign.clear();
+
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqCustomUserField.do().delete();
   });
-  beforeEach(() => {
-    PreselectionForm.insert({
+
+  beforeEach(async () => {
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
       id: 1,
       name: "My empty form",
     });
-    PreselectionForm.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
       id: 2,
       name: "My empty form linked to campaign",
       campaign_id: 1,
     });
-    PreselectionForm.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
       id: 3,
       name: "My form",
     });
-    PreselectionForm.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
       id: 4,
       name: "My empty form linked to campaign with access granted",
       campaign_id: 2,
     });
-    PreselectionFormFields.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionFormFields.do().insert({
       id: 1,
       form_id: 3,
       type: "text",
+      question: "My text question",
+      short_name: "My short_name question",
       priority: 3,
     });
-    PreselectionFormFields.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionFormFields.do().insert({
       id: 2,
       form_id: 3,
+      question: "My text cuf question",
+      short_name: "My short_name cuf question",
       type: "cuf_1",
       priority: 2,
     });
-    PreselectionFormFields.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionFormFields.do().insert({
       id: 3,
       form_id: 3,
       type: "cuf_2",
+      question: "My cuf_2 cuf question",
+      short_name: "My short_name cuf_2 cuf question",
       options: JSON.stringify([1, 2]),
       priority: 4,
     });
-    PreselectionFormFields.insert({
+
+    await tryber.tables.WpAppqCampaignPreselectionFormFields.do().insert({
       id: 4,
       form_id: 3,
       type: "select",
+      question: "My select question",
+      short_name: "My short_name select question",
       options: JSON.stringify(["option1", "option2"]),
       priority: 1,
     });
   });
-  afterEach(() => {
-    PreselectionForm.clear();
-    PreselectionFormFields.clear();
+
+  afterEach(async () => {
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().delete();
+    await tryber.tables.WpAppqCampaignPreselectionFormFields.do().delete();
   });
+
   it("Should return 403 if user doesn't have the tester capability manage_preselection_forms", async () => {
     const response = await request(app)
       .put("/campaigns/forms/1")

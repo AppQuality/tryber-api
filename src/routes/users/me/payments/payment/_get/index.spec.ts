@@ -1,10 +1,11 @@
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import { data as requestData } from "@src/__mocks__/mockedDb/paymentRequest";
+import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as workTypeData } from "@src/__mocks__/mockedDb/workType";
+import app from "@src/app";
+import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
 const campaign1 = {
@@ -24,77 +25,90 @@ const work_type2 = {
   work_type: "Z - Work type",
 };
 
-describe("GET /users/me/payments/{payment}", () => {
+describe("GET /users/me/payments/{payment} fiscal category = 1", () => {
   const data: any = {};
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await Campaigns.insert(campaign1);
-      await Campaigns.insert(campaign2);
-      await sqlite3.insert("wp_appq_payment_work_types", work_type1);
-      await sqlite3.insert("wp_appq_payment_work_types", work_type2);
+    await Campaigns.insert(campaign1);
+    await Campaigns.insert(campaign2);
+    await sqlite3.insert("wp_appq_payment_work_types", work_type1);
+    await sqlite3.insert("wp_appq_payment_work_types", work_type2);
 
-      await Profile.insert({
-        id: 1,
-        pending_booty: 100,
-      });
-      await Profile.insert({
-        id: 2,
-        pending_booty: 100,
-      });
-      requestData.processingPaypalPayment({
-        id: 1,
-        tester_id: 1,
-      });
-      requestData.processingPaypalPayment({
-        id: 2,
-        tester_id: 2,
-      });
-      data.payment1 = await Attributions.insert({
-        id: 1,
-        amount: 10,
-        creation_date: new Date("01/01/1972").toISOString(),
-        work_type_id: work_type1.id,
-        request_id: 1,
-        campaign_id: campaign1.id,
-      });
+    await Profile.insert({
+      id: 1,
+      wp_user_id: 1,
+      pending_booty: 100,
+    });
+    await Profile.insert({
+      id: 2,
+      wp_user_id: 2,
+      pending_booty: 100,
+    });
+    requestData.processingPaypalPayment({
+      id: 1,
+      tester_id: 1,
+    });
+    requestData.processingPaypalPayment({
+      id: 2,
+      tester_id: 2,
+    });
+    data.payment1 = await Attributions.insert({
+      id: 1,
+      amount: 10,
+      creation_date: new Date("01/01/1972").toISOString(),
+      work_type_id: work_type1.id,
+      request_id: 1,
+      campaign_id: campaign1.id,
+    });
 
-      data.payment2 = await Attributions.insert({
-        id: 2,
-        amount: 20,
-        creation_date: new Date("01/02/1972").toISOString(),
-        work_type_id: work_type2.id,
-        request_id: 1,
-        campaign_id: campaign1.id,
-      });
-      data.payment3 = await Attributions.insert({
-        id: 4,
-        amount: 30,
-        creation_date: new Date("01/03/1972").toISOString(),
-        work_type_id: work_type2.id,
-        request_id: 1,
-        campaign_id: campaign2.id,
-      });
+    data.payment2 = await Attributions.insert({
+      id: 2,
+      amount: 20,
+      creation_date: new Date("01/02/1972").toISOString(),
+      work_type_id: work_type2.id,
+      request_id: 1,
+      campaign_id: campaign1.id,
+    });
+    data.payment3 = await Attributions.insert({
+      id: 4,
+      amount: 30,
+      creation_date: new Date("01/03/1972").toISOString(),
+      work_type_id: work_type2.id,
+      request_id: 1,
+      campaign_id: campaign2.id,
+    });
 
-      await Attributions.insert({
-        id: 3,
-        amount: 40,
-        creation_date: new Date("01/03/1972").toISOString(),
-        work_type_id: work_type1.id,
-        request_id: 2,
-        campaign_id: campaign2.id,
-      });
-      resolve(null);
+    await Attributions.insert({
+      id: 3,
+      amount: 40,
+      creation_date: new Date("01/03/1972").toISOString(),
+      work_type_id: work_type1.id,
+      request_id: 2,
+      campaign_id: campaign2.id,
+    });
+
+    await FiscalProfile.validFiscalProfile({
+      id: 1,
+      tester_id: 1,
+      fiscal_category: 1,
+    });
+    await FiscalProfile.inactiveFiscalProfile({
+      id: 2,
+      tester_id: 1,
+      fiscal_category: 2,
+    });
+    await FiscalProfile.validFiscalProfile({
+      id: 3,
+      tester_id: 2,
+      fiscal_category: 1,
     });
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      await Attributions.clear();
-      await requestData.drop();
-      await Campaigns.clear();
-      await workTypeData.drop();
-      resolve(null);
-    });
+    await Profile.clear();
+    await Attributions.clear();
+    await requestData.drop();
+    await Campaigns.clear();
+    await workTypeData.drop();
+    await FiscalProfile.drop();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -119,36 +133,6 @@ describe("GET /users/me/payments/{payment}", () => {
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(404);
   });
-  it("Should return a list of attributions ordered by date DESC", async () => {
-    const response = await request(app)
-      .get("/users/me/payments/1")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body.results).toEqual([
-      {
-        id: data.payment3.id,
-        activity: `[CP-${campaign2.id}] ${campaign2.title}`,
-        type: work_type2.work_type,
-        amount: { value: data.payment3.amount, currency: "EUR" },
-        date: data.payment3.creation_date.substring(0, 10),
-      },
-      {
-        id: data.payment2.id,
-        activity: `[CP-${campaign1.id}] ${campaign1.title}`,
-        type: work_type2.work_type,
-        amount: { value: data.payment2.amount, currency: "EUR" },
-        date: data.payment2.creation_date.substring(0, 10),
-      },
-      {
-        id: data.payment1.id,
-        activity: `[CP-${campaign1.id}] ${campaign1.title}`,
-        type: work_type1.work_type,
-        amount: { value: data.payment1.amount, currency: "EUR" },
-        date: data.payment1.creation_date.substring(0, 10),
-      },
-    ]);
-  });
-
   it("Should be orderable by date", async () => {
     const response = await request(app)
       .get("/users/me/payments/1?orderBy=date")
@@ -182,47 +166,79 @@ describe("GET /users/me/payments/{payment}", () => {
       data.payment3.creation_date.substring(0, 10),
     ]);
   });
-
-  it("Should be orderable by amount", async () => {
+  it("Should return gross and net for each activities", async () => {
     const response = await request(app)
-      .get("/users/me/payments/1?orderBy=amount")
+      .get("/users/me/payments/1")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(
-      response.body.results.map(
-        (r: { amount: { value: number } }) => r.amount.value
-      )
-    ).toEqual([
-      data.payment3.amount,
-      data.payment2.amount,
-      data.payment1.amount,
-    ]);
-    const responseDesc = await request(app)
-      .get("/users/me/payments/1?orderBy=amount&order=DESC")
+    expect(response.body.results.length).toEqual(3);
+    expect(response.body.results[0]).toHaveProperty("amount", {
+      net: { value: data.payment3.amount * 0.8, currency: "EUR" },
+      gross: { value: data.payment3.amount, currency: "EUR" },
+    });
+    expect(response.body.results[1]).toHaveProperty("amount", {
+      net: { value: data.payment2.amount * 0.8, currency: "EUR" },
+      gross: { value: data.payment2.amount, currency: "EUR" },
+    });
+    expect(response.body.results[2]).toHaveProperty("amount", {
+      net: { value: data.payment1.amount * 0.8, currency: "EUR" },
+      gross: { value: data.payment1.amount, currency: "EUR" },
+    });
+  });
+  it("Should be orderable by amount DESC as default if is set orderBy=net or orderBy=gross", async () => {
+    const orderedByNet = await request(app)
+      .get("/users/me/payments/1?orderBy=net")
       .set("authorization", "Bearer tester");
-    expect(responseDesc.status).toBe(200);
-    expect(
-      responseDesc.body.results.map(
-        (r: { amount: { value: number } }) => r.amount.value
-      )
-    ).toEqual([
-      data.payment3.amount,
-      data.payment2.amount,
-      data.payment1.amount,
+    expect(orderedByNet.status).toBe(200);
+    expect(orderedByNet.body.results.map((r: { id: number }) => r.id)).toEqual([
+      data.payment3.id,
+      data.payment2.id,
+      data.payment1.id,
     ]);
-    const responseAsc = await request(app)
-      .get("/users/me/payments/1?orderBy=amount&order=ASC")
+    const orderedByGross = await request(app)
+      .get("/users/me/payments/1?orderBy=gross")
       .set("authorization", "Bearer tester");
-    expect(responseAsc.status).toBe(200);
+    expect(orderedByGross.status).toBe(200);
     expect(
-      responseAsc.body.results.map(
-        (r: { amount: { value: number } }) => r.amount.value
-      )
-    ).toEqual([
-      data.payment1.amount,
-      data.payment2.amount,
-      data.payment3.amount,
+      orderedByGross.body.results.map((r: { id: number }) => r.id)
+    ).toEqual([data.payment3.id, data.payment2.id, data.payment1.id]);
+  });
+  it("Should be orderable by amount DESC if is set order=desc with orderBy=net or gross", async () => {
+    const orderedByNet = await request(app)
+      .get("/users/me/payments/1?orderBy=net&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(orderedByNet.status).toBe(200);
+    expect(orderedByNet.body.results.map((r: { id: number }) => r.id)).toEqual([
+      data.payment3.id,
+      data.payment2.id,
+      data.payment1.id,
     ]);
+    const orderedByGross = await request(app)
+      .get("/users/me/payments/1?orderBy=gross&order=DESC")
+      .set("authorization", "Bearer tester");
+    expect(orderedByGross.status).toBe(200);
+    expect(
+      orderedByGross.body.results.map((r: { id: number }) => r.id)
+    ).toEqual([data.payment3.id, data.payment2.id, data.payment1.id]);
+  });
+
+  it("Should be orderable by amount ASC if is set order=ASC with orderBy=net or gross", async () => {
+    const orderedByNet = await request(app)
+      .get("/users/me/payments/1?orderBy=net&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(orderedByNet.status).toBe(200);
+    expect(orderedByNet.body.results.map((r: { id: number }) => r.id)).toEqual([
+      data.payment1.id,
+      data.payment2.id,
+      data.payment3.id,
+    ]);
+    const orderedByGross = await request(app)
+      .get("/users/me/payments/1?orderBy=gross&order=ASC")
+      .set("authorization", "Bearer tester");
+    expect(orderedByGross.status).toBe(200);
+    expect(
+      orderedByGross.body.results.map((r: { id: number }) => r.id)
+    ).toEqual([data.payment1.id, data.payment2.id, data.payment3.id]);
   });
 
   it("Should be orderable by activity name", async () => {
@@ -351,5 +367,114 @@ describe("GET /users/me/payments/{payment}", () => {
       .set("authorization", "Bearer tester");
     expect(responseNoLimit.status).toBe(200);
     expect(responseNoLimit.body).not.toHaveProperty("total");
+  });
+});
+
+describe("GET /users/me/payments/{payment} fiscal category = 2", () => {
+  const data: any = {};
+  beforeAll(async () => {
+    await Campaigns.insert(campaign1);
+    await Campaigns.insert(campaign2);
+    await sqlite3.insert("wp_appq_payment_work_types", work_type1);
+    await sqlite3.insert("wp_appq_payment_work_types", work_type2);
+
+    await Profile.insert({
+      id: 1,
+      wp_user_id:1,
+      pending_booty: 100,
+    });
+    await Profile.insert({
+      id: 2,
+      wp_user_id:2,
+      pending_booty: 100,
+    });
+    requestData.processingPaypalPayment({
+      id: 1,
+      tester_id: 1,
+    });
+    requestData.processingPaypalPayment({
+      id: 2,
+      tester_id: 2,
+    });
+    data.payment1 = await Attributions.insert({
+      id: 1,
+      amount: 10,
+      creation_date: new Date("01/01/1972").toISOString(),
+      work_type_id: work_type1.id,
+      request_id: 1,
+      campaign_id: campaign1.id,
+    });
+
+    data.payment2 = await Attributions.insert({
+      id: 2,
+      amount: 20,
+      creation_date: new Date("01/02/1972").toISOString(),
+      work_type_id: work_type2.id,
+      request_id: 1,
+      campaign_id: campaign1.id,
+    });
+    data.payment3 = await Attributions.insert({
+      id: 4,
+      amount: 30,
+      creation_date: new Date("01/03/1972").toISOString(),
+      work_type_id: work_type2.id,
+      request_id: 1,
+      campaign_id: campaign2.id,
+    });
+
+    await Attributions.insert({
+      id: 3,
+      amount: 40,
+      creation_date: new Date("01/03/1972").toISOString(),
+      work_type_id: work_type1.id,
+      request_id: 2,
+      campaign_id: campaign2.id,
+    });
+
+    await FiscalProfile.validFiscalProfile({
+      id: 1,
+      tester_id: 1,
+      fiscal_category: 2,
+    });
+    await FiscalProfile.validFiscalProfile({
+      id: 2,
+      tester_id: 2,
+      fiscal_category: 2,
+    });
+  });
+  afterAll(async () => {
+    await Profile.clear();
+    await Attributions.clear();
+    await requestData.drop();
+    await Campaigns.clear();
+    await workTypeData.drop();
+    await FiscalProfile.drop();
+  });
+
+  it("Should return amount gross for each activities", async () => {
+    const response = await request(app)
+      .get("/users/me/payments/1")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.length).toEqual(3);
+    expect(response.body.results[0]).toHaveProperty("amount", {
+      gross: { value: data.payment3.amount, currency: "EUR" },
+    });
+    expect(response.body.results[1]).toHaveProperty("amount", {
+      gross: { value: data.payment2.amount, currency: "EUR" },
+    });
+    expect(response.body.results[2]).toHaveProperty("amount", {
+      gross: { value: data.payment1.amount, currency: "EUR" },
+    });
+  });
+  it("Should not return amount net for each activities", async () => {
+    const response = await request(app)
+      .get("/users/me/payments/1")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results.length).toEqual(3);
+    expect(response.body.results[0]).not.toHaveProperty("net");
+    expect(response.body.results[1]).not.toHaveProperty("net");
+    expect(response.body.results[2]).not.toHaveProperty("net");
   });
 });

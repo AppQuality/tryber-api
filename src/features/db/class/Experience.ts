@@ -8,6 +8,7 @@ type ExperienceType = {
   activity_id: number;
   reason: string;
   campaign_id: number;
+  pm_id: number;
 };
 
 class Experience extends Database<{
@@ -27,6 +28,7 @@ class Experience extends Database<{
             "activity_id",
             "reason",
             "campaign_id",
+            "pm_id",
           ],
     });
   }
