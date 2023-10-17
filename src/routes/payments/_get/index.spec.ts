@@ -1,6 +1,7 @@
 import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
@@ -27,6 +28,38 @@ const tester3 = {
   education_id: 1,
   employment_id: 1,
 };
+const tester4fiscalCategory2 = {
+  id: 10,
+  wp_user_id: 10,
+  name: "Mary",
+  surname: "White",
+  education_id: 1,
+  employment_id: 1,
+};
+const tester5fiscalCategory4 = {
+  id: 11,
+  wp_user_id: 11,
+  name: "Lana",
+  surname: "Lang",
+  education_id: 1,
+  employment_id: 1,
+};
+const tester6fiscalCategory5 = {
+  id: 12,
+  wp_user_id: 12,
+  name: "Beatrice",
+  surname: "Portinari",
+  education_id: 1,
+  employment_id: 1,
+};
+const tester7fiscalCategory6 = {
+  id: 13,
+  wp_user_id: 13,
+  name: "Luna",
+  surname: "Lovegood",
+  education_id: 1,
+  employment_id: 1,
+};
 
 const paymentRequestPaypal = {
   id: 1,
@@ -37,6 +70,7 @@ const paymentRequestPaypal = {
   request_date: new Date("01/01/1972").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 
 const paymentRequestPaypalWithError = {
@@ -50,6 +84,7 @@ const paymentRequestPaypalWithError = {
   error_message: "Error message",
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 
 const paymentRequestWise = {
@@ -61,6 +96,7 @@ const paymentRequestWise = {
   request_date: new Date("01/05/1970").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 
 const paymentRequestWiseWithError = {
@@ -74,6 +110,7 @@ const paymentRequestWiseWithError = {
   error_message: "Error message",
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestWisePaid = {
   id: 5,
@@ -85,6 +122,7 @@ const paymentRequestWisePaid = {
   update_date: new Date("05/10/1975").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestInvalid = {
   id: 6,
@@ -94,6 +132,7 @@ const paymentRequestInvalid = {
   request_date: new Date("01/06/2000").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestOldUser = {
   id: 7,
@@ -104,6 +143,7 @@ const paymentRequestOldUser = {
   request_date: new Date("01/06/2000").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestOldUserWithError = {
   id: 8,
@@ -116,42 +156,152 @@ const paymentRequestOldUserWithError = {
   error_message: "Error message",
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
+};
+const paymentWiseFiscalCat2 = {
+  id: 9,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 3,
+};
+const paymentWiseFiscalCat4 = {
+  id: 10,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 4,
+};
+const paymentWiseFiscalCat5 = {
+  id: 11,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 5,
+};
+
+const paymentWiseFiscalCat6 = {
+  id: 12,
+  tester_id: tester2.id,
+  amount: 100,
+  iban: "DE12345678901234567890",
+  is_paid: 1,
+  request_date: new Date("01/05/1970").toISOString(),
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 6,
 };
 
 describe("Route GET payments", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.insert(tester1);
-      Profile.insert(tester2);
-      Profile.insert(tester3);
+    await Profile.insert(tester1);
+    await Profile.insert(tester2);
+    await Profile.insert(tester3);
+    await Profile.insert(tester4fiscalCategory2);
+    await Profile.insert(tester5fiscalCategory4);
+    await Profile.insert(tester6fiscalCategory5);
+    await Profile.insert(tester7fiscalCategory6);
+    await tryber.tables.WpAppqFiscalProfile.do().insert([
+      {
+        id: 1,
+        tester_id: tester1.id,
+        name: "John",
+        surname: "Doe",
+        sex: "M",
+        birth_date: "01/01/1972",
+        fiscal_category: 1,
+        is_active: 1,
+      },
+      {
+        id: 2,
+        tester_id: tester2.id,
+        name: "Pippo",
+        surname: "Franco",
+        sex: "M",
+        birth_date: "01/01/1972",
+        fiscal_category: 3,
+        is_active: 1,
+      },
+      {
+        id: 3,
+        tester_id: tester4fiscalCategory2.id,
+        name: tester4fiscalCategory2.name,
+        surname: tester4fiscalCategory2.surname,
+        sex: "F",
+        birth_date: "01/01/1972",
+        fiscal_category: 2,
+        is_active: 1,
+      },
+      {
+        id: 4,
+        tester_id: tester5fiscalCategory4.id,
+        name: tester5fiscalCategory4.name,
+        surname: tester5fiscalCategory4.surname,
+        sex: "F",
+        birth_date: "01/01/1972",
+        fiscal_category: 4,
+        is_active: 0,
+      },
+      {
+        id: 5,
+        tester_id: tester6fiscalCategory5.id,
+        name: tester6fiscalCategory5.name,
+        surname: tester6fiscalCategory5.surname,
+        sex: "F",
+        birth_date: "01/01/1972",
+        fiscal_category: 5,
+        is_active: 1,
+      },
+      {
+        id: 6,
+        tester_id: tester7fiscalCategory6.id,
+        name: tester7fiscalCategory6.name,
+        surname: tester7fiscalCategory6.surname,
+        sex: "F",
+        birth_date: "01/01/1972",
+        fiscal_category: 6,
+        is_active: 1,
+      },
+    ]);
 
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
-      await sqlite3.insert("wp_appq_payment_request", paymentRequestOldUser);
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestOldUserWithError
-      );
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestPaypalWithError
-      );
-      await sqlite3.insert(
-        "wp_appq_payment_request",
-        paymentRequestWiseWithError
-      );
-
-      resolve(null);
-    });
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestPaypal);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestWise);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestWisePaid);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestInvalid);
+    await sqlite3.insert("wp_appq_payment_request", paymentRequestOldUser);
+    await sqlite3.insert(
+      "wp_appq_payment_request",
+      paymentRequestOldUserWithError
+    );
+    await sqlite3.insert(
+      "wp_appq_payment_request",
+      paymentRequestPaypalWithError
+    );
+    await sqlite3.insert(
+      "wp_appq_payment_request",
+      paymentRequestWiseWithError
+    );
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat2);
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat4);
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat5);
+    await sqlite3.insert("wp_appq_payment_request", paymentWiseFiscalCat6);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      await paymentRequestData.drop();
-      resolve(null);
-    });
+    await Profile.clear();
+    await paymentRequestData.drop();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -571,7 +721,7 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("total");
-    expect(response.body.total).toBe(5);
+    expect(response.body.total).toBe(9);
     const responseNoLimit = await request(app)
       .get("/payments")
       .set("authorization", "Bearer admin");
@@ -588,22 +738,25 @@ describe("Route GET payments", () => {
     expect(responsePending.status).toBe(200);
     expect(responsePending.body.total).toBe(2);
   });
+  it("Should return only payments with fiscal category 1 or 3", async () => {
+    const response = await request(app)
+      .get("/payments")
+      .set("authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body.items.map((item: any) => item.id)).toEqual([
+      1, 2, 3, 4, 5,
+    ]);
+  });
 });
 
 describe("Route GET payments when no data", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.insert(tester1);
-      Profile.insert(tester2);
-      resolve(null);
-    });
+    await Profile.insert(tester1);
+    await Profile.insert(tester2);
   });
 
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await Profile.clear();
-      resolve(null);
-    });
+    await Profile.clear();
   });
   it("Should return 404", async () => {
     const response = await request(app)

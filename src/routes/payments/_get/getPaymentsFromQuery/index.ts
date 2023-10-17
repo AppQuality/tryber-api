@@ -17,83 +17,29 @@ export default async (
   }[];
   total?: number;
 }> => {
-  let WHERE = `WHERE ( t.name != 'Deleted User' ) 
-      AND ( 
-        (p.paypal_email IS NOT NULL AND p.paypal_email <> "") 
-        OR (p.iban IS NOT NULL AND p.iban <> "")
-      )`;
-  if (query.status == "failed") {
-    WHERE += ` AND p.error_message IS NOT NULL `;
-  } else if (query.status == "pending") {
-    WHERE += ` AND p.error_message IS NULL AND p.is_paid = 0`;
-  }
-  // filter by payment method
-  if (query.filterBy?.paymentMethod === "paypal") {
-    WHERE += ` AND p.paypal_email IS NOT NULL`;
-  } else if (query.filterBy?.paymentMethod === "transferwise") {
-    WHERE += ` AND p.iban IS NOT NULL`;
-  }
-
-  let pagination = ``;
-  query.limit
-    ? (pagination += `LIMIT ` + query.limit)
-    : (pagination += `LIMIT 25`);
-  query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
-
-  const sql = `SELECT 
-      t.id   as tester_id,
-      t.name as tester_name,
-      t.surname as tester_surname,
-      p.id as id, 
-      p.amount,
-      p.request_date as created,
-      p.iban,
-      p.paypal_email,
-      p.update_date as updated,
-      p.error_message
-    FROM wp_appq_payment_request p
-    JOIN wp_appq_evd_profile t ON (t.id = p.tester_id) 
-    ${WHERE}
-    ORDER BY ${query.orderBy || "p.id"} 
-    ${query.order || "ASC"} 
-    ${pagination}
-    `;
-
   const q = tryber.tables.WpAppqPaymentRequest.do()
-    .select(tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"))
     .select(
-      tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name")
-    )
-    .select(
+      tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
+      tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name"),
       tryber
         .ref("surname")
         .withSchema("wp_appq_evd_profile")
-        .as("tester_surname")
-    )
-    .select(tryber.ref("id").withSchema("wp_appq_payment_request").as("id"))
-    .select(
-      tryber.ref("amount").withSchema("wp_appq_payment_request").as("amount")
-    )
-    .select(
+        .as("tester_surname"),
+      tryber.ref("id").withSchema("wp_appq_payment_request").as("id"),
+      tryber.ref("amount").withSchema("wp_appq_payment_request").as("amount"),
       tryber
         .ref("request_date")
         .withSchema("wp_appq_payment_request")
-        .as("created")
-    )
-    .select(tryber.ref("iban").withSchema("wp_appq_payment_request").as("iban"))
-    .select(
+        .as("created"),
+      tryber.ref("iban").withSchema("wp_appq_payment_request").as("iban"),
       tryber
         .ref("paypal_email")
         .withSchema("wp_appq_payment_request")
-        .as("paypal_email")
-    )
-    .select(
+        .as("paypal_email"),
       tryber
         .ref("update_date")
         .withSchema("wp_appq_payment_request")
-        .as("updated")
-    )
-    .select(
+        .as("updated"),
       tryber
         .ref("error_message")
         .withSchema("wp_appq_payment_request")
@@ -104,6 +50,12 @@ export default async (
       "wp_appq_evd_profile.id",
       "wp_appq_payment_request.tester_id"
     )
+    .join(
+      "wp_appq_fiscal_profile",
+      "wp_appq_fiscal_profile.id",
+      "wp_appq_payment_request.fiscal_profile_id"
+    )
+    .whereIn("wp_appq_fiscal_profile.fiscal_category", [1, 3])
     .where("wp_appq_evd_profile.name", "<>", "Deleted User")
     .where((q) => {
       q.where((q2) => {
