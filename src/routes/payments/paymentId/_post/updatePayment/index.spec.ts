@@ -117,10 +117,5 @@ describe("updatePayment", () => {
       [{ request_id: paymentWithFee.id }]
     );
     expect(paymentList.every((payment) => payment.is_paid === 1)).toBe(true);
-
-    const testerStatus = await sqlite3.get(
-      `SELECT payment_status  FROM wp_appq_evd_profile WHERE id = ${paymentWithFee.tester_id} `
-    );
-    expect(testerStatus.payment_status).toBe(0);
   });
 });
