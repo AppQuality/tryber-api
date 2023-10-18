@@ -8046,6 +8046,54 @@ paths:
                     fiscalId: GMMLSN96C21G479C
                     fiscalStatus: Verified
                     gender: male
+                company:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: company
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                vat:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: vat
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                witholding_extra:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: witholding-extra
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
         '401':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -8887,8 +8935,13 @@ paths:
                     type: number
                   amount:
                     type: number
+              examples:
+                success:
+                  value:
+                    id: 1
+                    amount: 10.5
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/NotAuthorized'
       security:
         - JWT: []
       requestBody:
