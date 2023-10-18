@@ -44,16 +44,4 @@ export default async (payment: Payment) => {
   } catch (error) {
     throw error;
   }
-
-  try {
-    await tryber.tables.WpAppqEvdProfile.do().update({
-      //@ts-ignore
-      pending_booty: tryber.raw(`pending_booty - ?`, [payment.amount]),
-      //@ts-ignore
-      booty: tryber.raw(`booty + ?`, [payment.amount]),
-      payment_status: 0,
-    });
-  } catch (error) {
-    throw error;
-  }
 };
