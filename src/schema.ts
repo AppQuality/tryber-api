@@ -3556,8 +3556,7 @@ export interface operations {
           };
         };
       };
-      /** Forbidden */
-      403: unknown;
+      403: components["responses"]["NotAuthorized"];
     };
     requestBody: {
       content: {
