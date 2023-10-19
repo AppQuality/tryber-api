@@ -1,6 +1,5 @@
-import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as receiptData } from "@src/__mocks__/mockedDb/receipt";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import request from "supertest";
 
 const paymentRequestPaypal = {
@@ -12,8 +11,10 @@ const paymentRequestPaypal = {
   is_paid: 1 as const,
   update_date: "1980-01-01 00:00:00",
   paid_date: "1980-01-01 00:00:00",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  receipt_id: -1,
 };
-
 const paymentRequestPaypalNotMine = {
   id: 6,
   tester_id: 2,
@@ -23,6 +24,9 @@ const paymentRequestPaypalNotMine = {
   is_paid: 1 as const,
   update_date: "1980-01-01 00:00:00",
   paid_date: "1980-01-01 00:00:00",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  receipt_id: -1,
 };
 const paymentRequestWise = {
   id: 2,
@@ -34,6 +38,9 @@ const paymentRequestWise = {
   update_date: "1992-05-01 00:00:00",
   paid_date: "1992-05-01 00:00:00",
   receipt_id: 69,
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_category: 4,
 };
 const paymentRequestInvalid = {
   id: 3,
@@ -44,6 +51,8 @@ const paymentRequestInvalid = {
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
   receipt_id: 69,
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 const paymentRequestPaypal2 = {
   id: 4,
@@ -55,6 +64,8 @@ const paymentRequestPaypal2 = {
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
   receipt_id: 70,
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
 };
 const paymentRequestPaypalProcessing = {
   id: 5,
@@ -65,36 +76,36 @@ const paymentRequestPaypalProcessing = {
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  receipt_id: -1,
+  fiscal_category: 1,
 };
 const receiptWise = {
   id: 69,
   url: "https://example.com/receiptWise",
+  tester_id: 1,
 };
 const receiptPaypal = {
   id: 70,
   url: "https://example.com/receiptPaypal",
+  tester_id: 1,
 };
 describe("GET /users/me/payments", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.basicPayment(paymentRequestPaypal);
-      await paymentRequestData.basicPayment(paymentRequestWise);
-      await paymentRequestData.basicPayment(paymentRequestInvalid);
-      await paymentRequestData.basicPayment(paymentRequestPaypal2);
-      await paymentRequestData.basicPayment(paymentRequestPaypalNotMine);
-      await paymentRequestData.basicPayment(paymentRequestPaypalProcessing);
-      await receiptData.basicReceipt(receiptWise);
-      await receiptData.basicReceipt(receiptPaypal);
-      resolve(null);
-    });
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+      paymentRequestInvalid,
+      paymentRequestPaypal2,
+      paymentRequestPaypalNotMine,
+      paymentRequestPaypalProcessing,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.drop();
-      await receiptData.drop();
-
-      resolve(null);
-    });
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -380,6 +391,32 @@ describe("GET /users/me/payments", () => {
           expect(el.paidDate).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/); //YYYY-MM-DD
         }
       }
+    );
+  });
+  it("Should return payments with fiscal category 1", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 5,
+        }),
+      ])
+    );
+  });
+  it("Should return payments with fiscal category 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 2,
+        }),
+      ])
     );
   });
 });
