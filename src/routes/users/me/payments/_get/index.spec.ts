@@ -1,7 +1,25 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
-
+const fiscalProfile = {
+  id: 1,
+  tester_id: 1,
+  fiscal_id: "JHNDOE90A01H501A",
+  name: "Jhon",
+  surname: "Doe",
+  sex: "1",
+  birth_date: "1990-01-01",
+  city: "Milan",
+  country: "Italy",
+  province: "MI",
+  address: "Dante Alighieri",
+  address_number: "69",
+  postal_code: "20123",
+  birth_city: "Rome",
+  birth_province: "RM",
+  is_verified: 1,
+  is_active: 1,
+};
 const paymentRequestPaypal = {
   id: 1,
   tester_id: 1,
@@ -14,7 +32,7 @@ const paymentRequestPaypal = {
   under_threshold: 0,
   withholding_tax_percentage: 0,
   receipt_id: -1,
-  fiscal_category: 1,
+  fiscal_profile_id: 1,
 };
 const paymentRequestPaypalNotMine = {
   id: 6,
@@ -28,7 +46,7 @@ const paymentRequestPaypalNotMine = {
   under_threshold: 0,
   withholding_tax_percentage: 0,
   receipt_id: -1,
-  fiscal_category: 1,
+  fiscal_profile_id: 1,
 };
 const paymentRequestWise = {
   id: 2,
@@ -42,7 +60,7 @@ const paymentRequestWise = {
   receipt_id: 69,
   under_threshold: 0,
   withholding_tax_percentage: 0,
-  fiscal_category: 4,
+  fiscal_profile_id: 1,
 };
 const paymentRequestInvalid = {
   id: 3,
@@ -55,7 +73,7 @@ const paymentRequestInvalid = {
   receipt_id: 69,
   under_threshold: 0,
   withholding_tax_percentage: 0,
-  fiscal_category: 1,
+  fiscal_profile_id: 1,
 };
 const paymentRequestPaypal2 = {
   id: 4,
@@ -69,7 +87,7 @@ const paymentRequestPaypal2 = {
   receipt_id: 70,
   under_threshold: 0,
   withholding_tax_percentage: 0,
-  fiscal_category: 1,
+  fiscal_profile_id: 1,
 };
 const paymentRequestPaypalProcessing = {
   id: 5,
@@ -83,7 +101,7 @@ const paymentRequestPaypalProcessing = {
   under_threshold: 0,
   withholding_tax_percentage: 0,
   receipt_id: -1,
-  fiscal_category: 1,
+  fiscal_profile_id: 1,
 };
 const receiptWise = {
   id: 69,
@@ -95,7 +113,7 @@ const receiptPaypal = {
   url: "https://example.com/receiptPaypal",
   tester_id: 1,
 };
-describe("GET /users/me/payments", () => {
+describe("GET /users/me/payments fiscalProfileCategory 1", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqPaymentRequest.do().insert([
       paymentRequestPaypal,
@@ -104,16 +122,17 @@ describe("GET /users/me/payments", () => {
       paymentRequestPaypal2,
       paymentRequestPaypalNotMine,
       paymentRequestPaypalProcessing,
-      { ...paymentRequestWise, id: 7, fiscal_category: 2 },
-      { ...paymentRequestWise, id: 8, fiscal_category: 3 },
-      { ...paymentRequestWise, id: 9, fiscal_category: 5 },
-      { ...paymentRequestWise, id: 10, fiscal_category: 6 },
     ]);
     await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 1,
+    });
   });
   afterAll(async () => {
     await tryber.tables.WpAppqPaymentRequest.do().delete();
     await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -411,6 +430,135 @@ describe("GET /users/me/payments", () => {
         [1, 2, 4, 5].includes(r.id)
       )
     ).toBe(true);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 2", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 2,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return only payments with fiscal category 1 and 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 3", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 3,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return only payments with fiscal category 1 and 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 4", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 4,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return only payments with fiscal category 1 and 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 5", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 5,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return only payments with fiscal category 1 and 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
+});
+
+describe("GET /users/me/payments fiscalProfileCategory 6", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 6,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return only payments with fiscal category 1 and 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(404);
   });
 });
 

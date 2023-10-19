@@ -64,7 +64,13 @@ export default async (
       "wp_appq_payment_request.receipt_id",
       "wp_appq_receipt.id"
     )
-    .whereIn("fiscal_category", [1, 4])
+    .join(
+      "wp_appq_fiscal_profile",
+      "wp_appq_payment_request.fiscal_profile_id",
+      "wp_appq_fiscal_profile.id"
+    )
+    .whereIn("wp_appq_fiscal_profile.fiscal_category", [1, 4])
+    .andWhere("wp_appq_fiscal_profile.is_active", 1)
     .andWhere(function () {
       whereFunction(this);
     });
