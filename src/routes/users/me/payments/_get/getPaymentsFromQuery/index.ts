@@ -70,7 +70,6 @@ export default async (
       "wp_appq_fiscal_profile.id"
     )
     .whereIn("wp_appq_fiscal_profile.fiscal_category", [1, 4])
-    .andWhere("wp_appq_fiscal_profile.is_active", 1)
     .andWhere(function () {
       whereFunction(this);
     });
