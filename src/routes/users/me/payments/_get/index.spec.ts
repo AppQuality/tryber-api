@@ -14,6 +14,7 @@ const paymentRequestPaypal = {
   under_threshold: 0,
   withholding_tax_percentage: 0,
   receipt_id: -1,
+  fiscal_category: 1,
 };
 const paymentRequestPaypalNotMine = {
   id: 6,
@@ -27,6 +28,7 @@ const paymentRequestPaypalNotMine = {
   under_threshold: 0,
   withholding_tax_percentage: 0,
   receipt_id: -1,
+  fiscal_category: 1,
 };
 const paymentRequestWise = {
   id: 2,
@@ -53,6 +55,7 @@ const paymentRequestInvalid = {
   receipt_id: 69,
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 const paymentRequestPaypal2 = {
   id: 4,
@@ -66,6 +69,7 @@ const paymentRequestPaypal2 = {
   receipt_id: 70,
   under_threshold: 0,
   withholding_tax_percentage: 0,
+  fiscal_category: 1,
 };
 const paymentRequestPaypalProcessing = {
   id: 5,
@@ -100,6 +104,10 @@ describe("GET /users/me/payments", () => {
       paymentRequestPaypal2,
       paymentRequestPaypalNotMine,
       paymentRequestPaypalProcessing,
+      { ...paymentRequestWise, id: 7, fiscal_category: 2 },
+      { ...paymentRequestWise, id: 8, fiscal_category: 3 },
+      { ...paymentRequestWise, id: 9, fiscal_category: 5 },
+      { ...paymentRequestWise, id: 10, fiscal_category: 6 },
     ]);
     await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
   });
@@ -393,31 +401,16 @@ describe("GET /users/me/payments", () => {
       }
     );
   });
-  it("Should return payments with fiscal category 1", async () => {
+  it("Should return only payments with fiscal category 1 and 4", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body.results).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 5,
-        }),
-      ])
-    );
-  });
-  it("Should return payments with fiscal category 4", async () => {
-    const response = await request(app)
-      .get("/users/me/payments")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(response.body.results).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 2,
-        }),
-      ])
-    );
+    expect(
+      response.body.results.every((r: { id: number }) =>
+        [1, 2, 4, 5].includes(r.id)
+      )
+    ).toBe(true);
   });
 });
 

@@ -64,6 +64,7 @@ export default async (
       "wp_appq_payment_request.receipt_id",
       "wp_appq_receipt.id"
     )
+    .whereIn("fiscal_category", [1, 4])
     .andWhere(function () {
       whereFunction(this);
     });
