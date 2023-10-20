@@ -55,7 +55,7 @@ export default async (
       "wp_appq_fiscal_profile.id",
       "wp_appq_payment_request.fiscal_profile_id"
     )
-    .whereIn("wp_appq_fiscal_profile.fiscal_category", [1, 3])
+    .whereIn("wp_appq_fiscal_profile.fiscal_category", [1, 4])
     .where("wp_appq_evd_profile.name", "<>", "Deleted User")
     .where((q) => {
       q.where((q2) => {
