@@ -176,6 +176,7 @@ const paymentWiseFiscalCat4 = {
   iban: "DE12345678901234567890",
   is_paid: 1,
   request_date: new Date("01/05/1970").toISOString(),
+  update_date: new Date("05/06/1970").toISOString(),
   under_threshold: 0,
   withholding_tax_percentage: 0,
   fiscal_profile_id: 4,
@@ -417,6 +418,25 @@ describe("Route GET payments", () => {
             surname: tester2.surname,
           },
         },
+        {
+          created: new Date(paymentWiseFiscalCat4.request_date)
+            .getTime()
+            .toString(),
+          updated: new Date(paymentWiseFiscalCat4.update_date)
+            .getTime()
+            .toString(),
+          id: paymentWiseFiscalCat4.id,
+          amount: {
+            value: paymentWiseFiscalCat4.amount,
+            currency: "EUR",
+          },
+          type: "transferwise",
+          tryber: {
+            id: tester2.id,
+            name: tester2.name,
+            surname: tester2.surname,
+          },
+        },
       ],
     });
   });
@@ -426,14 +446,14 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4, 5,
+      1, 2, 3, 4, 5, 10,
     ]);
     const responseDesc = await request(app)
       .get("/payments?order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
-      5, 4, 3, 2, 1,
+      10, 5, 4, 3, 2, 1,
     ]);
   });
   it("Should order based on id if orderBy is id", async () => {
@@ -442,21 +462,21 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4, 5,
+      1, 2, 3, 4, 5, 10,
     ]);
     const responseAsc = await request(app)
       .get("/payments?orderBy=id&order=ASC")
       .set("authorization", "Bearer admin");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4, 5,
+      1, 2, 3, 4, 5, 10,
     ]);
     const responseDesc = await request(app)
       .get("/payments?orderBy=id&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
-      5, 4, 3, 2, 1,
+      10, 5, 4, 3, 2, 1,
     ]);
   });
   it("Should order based on creation time if orderBy is created", async () => {
@@ -465,21 +485,21 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([
-      3, 4, 2, 1, 5,
+      3, 10, 4, 2, 1, 5,
     ]);
     const responseAsc = await request(app)
       .get("/payments?orderBy=created&order=ASC")
       .set("authorization", "Bearer admin");
     expect(responseAsc.status).toBe(200);
     expect(responseAsc.body.items.map((item: any) => item.id)).toEqual([
-      3, 4, 2, 1, 5,
+      3, 10, 4, 2, 1, 5,
     ]);
     const responseDesc = await request(app)
       .get("/payments?orderBy=created&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDesc.status).toBe(200);
     expect(responseDesc.body.items.map((item: any) => item.id)).toEqual([
-      5, 1, 2, 4, 3,
+      5, 1, 2, 4, 3, 10,
     ]);
   });
   it("Should return 400 if status is not failed and orderBy is updated", async () => {
@@ -616,7 +636,9 @@ describe("Route GET payments", () => {
       .get("/payments?limit=2&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
-    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([5, 4]);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([
+      10, 5,
+    ]);
   });
   it("Should skip the first result if is set start parameter with start = 1", async () => {
     const response = await request(app)
@@ -624,21 +646,21 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([
-      2, 3, 4, 5,
+      2, 3, 4, 5, 10,
     ]);
     const responseASC = await request(app)
       .get("/payments?start=1&order=ASC")
       .set("authorization", "Bearer admin");
     expect(responseASC.status).toBe(200);
     expect(responseASC.body.items.map((item: any) => item.id)).toEqual([
-      2, 3, 4, 5,
+      2, 3, 4, 5, 10,
     ]);
     const responseDESC = await request(app)
       .get("/payments?start=1&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
     expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([
-      4, 3, 2, 1,
+      5, 4, 3, 2, 1,
     ]);
   });
   it("should return only corresponding requests if filterBy method is set", async () => {
@@ -654,7 +676,7 @@ describe("Route GET payments", () => {
       .set("authorization", "Bearer admin");
     expect(responseTrasferwise.status).toBe(200);
     expect(responseTrasferwise.body.items.map((item: any) => item.id)).toEqual([
-      3, 4, 5,
+      3, 4, 5, 10,
     ]);
   });
   it("Should skip the first result and limit 2 results if are set start and limit parameters with start 1, limit 2", async () => {
@@ -672,7 +694,7 @@ describe("Route GET payments", () => {
       .get("/payments?start=1&limit=2&order=DESC")
       .set("authorization", "Bearer admin");
     expect(responseDESC.status).toBe(200);
-    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([4, 3]);
+    expect(responseDESC.body.items.map((item: any) => item.id)).toEqual([5, 4]);
   });
   it("Should return the size that is equal to number of results", async () => {
     const response = await request(app)
@@ -738,13 +760,13 @@ describe("Route GET payments", () => {
     expect(responsePending.status).toBe(200);
     expect(responsePending.body.total).toBe(2);
   });
-  it("Should return only payments with fiscal category 1 or 3", async () => {
+  it("Should return only payments with fiscal category 1 or 4", async () => {
     const response = await request(app)
       .get("/payments")
       .set("authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body.items.map((item: any) => item.id)).toEqual([
-      1, 2, 3, 4, 5,
+      1, 2, 3, 4, 5, 10,
     ]);
   });
 });
