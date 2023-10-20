@@ -420,7 +420,7 @@ describe("GET /users/me/payments fiscalProfileCategory 1", () => {
       }
     );
   });
-  it("Should return only payments with fiscal category 1 and 4", async () => {
+  it("Should return payments if fiscalProfile category 1", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
@@ -450,11 +450,14 @@ describe("GET /users/me/payments fiscalProfileCategory 2", () => {
     await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
-  it("Should return only payments with fiscal category 1 and 4", async () => {
+  it("Should return payments if fiscalProfile category is 2", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
   });
 });
 describe("GET /users/me/payments fiscalProfileCategory 3", () => {
@@ -475,11 +478,14 @@ describe("GET /users/me/payments fiscalProfileCategory 3", () => {
     await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
-  it("Should return only payments with fiscal category 1 and 4", async () => {
+  it("Should return payments if fiscalProfile category 3", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
   });
 });
 describe("GET /users/me/payments fiscalProfileCategory 4", () => {
@@ -500,7 +506,7 @@ describe("GET /users/me/payments fiscalProfileCategory 4", () => {
     await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
-  it("Should return only payments with fiscal category 1 and 4", async () => {
+  it("Should return payments if fiscalProfile category is 4", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
@@ -528,11 +534,14 @@ describe("GET /users/me/payments fiscalProfileCategory 5", () => {
     await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
-  it("Should return only payments with fiscal category 1 and 4", async () => {
+  it("Should return payments if fiscalProfile category is 5", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
   });
 });
 
@@ -554,11 +563,14 @@ describe("GET /users/me/payments fiscalProfileCategory 6", () => {
     await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
-  it("Should return only payments with fiscal category 1 and 4", async () => {
+  it("Should return payments if fiscalProfile category is 6", async () => {
     const response = await request(app)
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
-    expect(response.status).toBe(404);
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
   });
 });
 
