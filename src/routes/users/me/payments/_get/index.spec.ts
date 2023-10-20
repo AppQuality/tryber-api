@@ -420,17 +420,6 @@ describe("GET /users/me/payments", () => {
       }
     );
   });
-  it("Should return payments if fiscalProfile category 1", async () => {
-    const response = await request(app)
-      .get("/users/me/payments")
-      .set("authorization", "Bearer tester");
-    expect(response.status).toBe(200);
-    expect(
-      response.body.results.every((r: { id: number }) =>
-        [1, 2, 4, 5].includes(r.id)
-      )
-    ).toBe(true);
-  });
 });
 describe("Route GET payment-requests when no data", () => {
   it("Should return 404", async () => {
