@@ -270,6 +270,7 @@ export default class Route extends UserRoute<{
             body.method.type === "paypal"
               ? body.method.email
               : body.method.iban,
+          "{Payment.grossINPS}": parseFloat((this.booty / 1.16).toFixed(2)),
         },
       });
     } catch (err) {

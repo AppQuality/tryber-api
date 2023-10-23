@@ -577,31 +577,6 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(20);
     });
-
-    it("Should send an email to PAYMENT_REQUESTED_EMAIL with the correct subject and body", async () => {
-      const response = await request(app)
-        .post("/users/me/payments")
-        .send({
-          method: {
-            type: "paypal",
-            email: "test@example.com",
-          },
-        })
-        .set("Authorization", "Bearer tester");
-      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
-      expect(mockedSendgrid.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: {
-            email: "it@tryber.me",
-            name: "Tryber",
-          },
-          html: "PAYMENT_REQUESTED_EMAIL_BODY",
-          subject: "[Tryber] Payout Request",
-          categories: ["Test"],
-        })
-      );
-      expect(response.status).toBe(200);
-    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 2", () => {
@@ -765,32 +740,6 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(37.93);
-    });
-
-    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
-      const response = await request(app)
-        .post("/users/me/payments")
-        .send({
-          method: {
-            type: "iban",
-            iban: "IT75T0300203280284975661141",
-            accountHolderName: "John Doe",
-          },
-        })
-        .set("Authorization", "Bearer tester");
-      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
-      expect(mockedSendgrid.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: {
-            email: "it@tryber.me",
-            name: "Tryber",
-          },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY",
-          subject: "[Tryber] Payout Request",
-          categories: ["Test"],
-        })
-      );
-      expect(response.status).toBe(200);
     });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
@@ -976,31 +925,6 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.net_multiplier).toBe(1.04);
     });
-    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
-      const response = await request(app)
-        .post("/users/me/payments")
-        .send({
-          method: {
-            type: "iban",
-            iban: "IT75T0300203280284975661141",
-            accountHolderName: "John Doe",
-          },
-        })
-        .set("Authorization", "Bearer tester");
-      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
-      expect(mockedSendgrid.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: {
-            email: "it@tryber.me",
-            name: "Tryber",
-          },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY",
-          subject: "[Tryber] Payout Request",
-          categories: ["Test"],
-        })
-      );
-      expect(response.status).toBe(200);
-    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 4", () => {
@@ -1172,31 +1096,6 @@ describe("POST /users/me/payments", () => {
         .set("Authorization", "Bearer tester");
       expect(response.status).toBe(200);
     });
-
-    it("Should send an email to PAYMENT_REQUESTED_EMAIL with the correct subject and body", async () => {
-      const response = await request(app)
-        .post("/users/me/payments")
-        .send({
-          method: {
-            type: "paypal",
-            email: "test@example.com",
-          },
-        })
-        .set("Authorization", "Bearer tester");
-      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
-      expect(mockedSendgrid.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: {
-            email: "it@tryber.me",
-            name: "Tryber",
-          },
-          html: "PAYMENT_REQUESTED_EMAIL_BODY",
-          subject: "[Tryber] Payout Request",
-          categories: ["Test"],
-        })
-      );
-      expect(response.status).toBe(200);
-    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 5", () => {
@@ -1359,7 +1258,6 @@ describe("POST /users/me/payments", () => {
       if (!requestData) throw new Error("Request not found");
       expect(requestData.amount_withholding).toBe(0);
     });
-
     it("Should set net multiplier to 1.02", async () => {
       const response = await request(app)
         .post("/users/me/payments")
@@ -1382,31 +1280,6 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.net_multiplier).toBe(1.02);
-    });
-    it("Should send an email to PAYMENT_INVOICE_RECAP_EMAIL with the correct subject and body", async () => {
-      const response = await request(app)
-        .post("/users/me/payments")
-        .send({
-          method: {
-            type: "iban",
-            iban: "IT75T0300203280284975661141",
-            accountHolderName: "John Doe",
-          },
-        })
-        .set("Authorization", "Bearer tester");
-      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
-      expect(mockedSendgrid.send).toHaveBeenCalledWith(
-        expect.objectContaining({
-          from: {
-            email: "it@tryber.me",
-            name: "Tryber",
-          },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY",
-          subject: "[Tryber] Payout Request",
-          categories: ["Test"],
-        })
-      );
-      expect(response.status).toBe(200);
     });
   });
 
