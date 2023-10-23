@@ -103,6 +103,10 @@ export default class Route extends UserRoute<{
     return this._fiscalProfile;
   }
 
+  get isStampRequired() {
+    return this.calculateFiscalData().net >= 77.47;
+  }
+
   protected async prepare() {
     const { requestId } = await this.createRequest();
 
@@ -127,7 +131,6 @@ export default class Route extends UserRoute<{
       iban = body.method.iban;
       accountHolderName = body.method.accountHolderName;
     }
-    const isStampRequired = fiscalData.net >= 77.47;
     const request = await tryber.tables.WpAppqPaymentRequest.do()
       .insert({
         tester_id: this.getTesterId(),
@@ -137,7 +140,7 @@ export default class Route extends UserRoute<{
         amount_gross: this.booty,
         amount_withholding: fiscalData.witholding,
         paypal_email: paypalEmail ? paypalEmail : undefined,
-        stamp_required: isStampRequired ? 1 : 0,
+        stamp_required: this.isStampRequired ? 1 : 0,
         withholding_tax_percentage: fiscalData.tax_percent,
         iban: iban ? iban : undefined,
         under_threshold: 0,
@@ -266,7 +269,6 @@ export default class Route extends UserRoute<{
         .where({ id: this.getTesterId() });
 
       const now = new Date();
-
       await sendTemplate({
         email: tester[0].email,
         subject: this.getSubject(),
@@ -291,6 +293,7 @@ export default class Route extends UserRoute<{
           "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
           "{Profile.bank_account_name}":
             body.method.type === "iban" ? body.method.accountHolderName : "",
+          "{Payment.stamp}": this.isStampRequired ? "2€" : "-",
         },
       });
     } catch (err) {
