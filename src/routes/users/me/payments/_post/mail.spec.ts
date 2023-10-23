@@ -86,6 +86,7 @@ describe("POST /users/me/payments", () => {
           {Payment.amountGross}
           {Payment.amount}
           {Payment.tax8INPS}
+          {Payment.taxWitholdingExtra}
           `,
         name: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_SUBJECT",
         json_body: "",
@@ -583,6 +584,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining(((1000 / 1.16) * 0.08).toFixed(2)),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.taxWitholdingExtra}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining(((1000 / 1.16) * 0.2).toFixed(2)),
         })
       );
       expect(response.status).toBe(200);
