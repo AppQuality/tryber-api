@@ -289,6 +289,8 @@ export default class Route extends UserRoute<{
           "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
           "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
           "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
+          "{Profile.bank_account_name}":
+            body.method.type === "iban" ? body.method.accountHolderName : "",
         },
       });
     } catch (err) {
