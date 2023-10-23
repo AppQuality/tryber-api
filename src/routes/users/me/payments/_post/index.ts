@@ -302,6 +302,9 @@ export default class Route extends UserRoute<{
             ((this.booty / 1.16) * 0.2).toFixed(2)
           ),
           "{Payment.tax4INPS}": parseFloat((this.booty * 0.04).toFixed(2)),
+          "{Payment.taxWitholdingCompany}": parseFloat(
+            (this.booty * 0.2).toFixed(2)
+          ),
         },
       });
     } catch (err) {
