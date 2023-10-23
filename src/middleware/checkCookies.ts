@@ -21,19 +21,12 @@ export const checkCookies = (req: OpenapiRequest): Promise<UserType> => {
     return wpAuth
       .checkAuth(req)
       .on("auth", async function (authIsValid: boolean, userId: number) {
-        console.log(
-          "🚀 ~ file: checkCookies.ts:24 ~ authIsValid:",
-          authIsValid
-        );
-
         if (authIsValid) {
           const userData = await getUserById(userId);
           if (userData instanceof Error) {
             return reject(userData);
           }
-          console.log("🚀 ~ file: checkCookies.ts:28 ~ userData:", userData);
           const user = await authenticate(userData);
-          console.log("🚀 ~ file: checkCookies.ts:30 ~ user:", user);
           if (user instanceof Error) {
             return reject(user);
           }
