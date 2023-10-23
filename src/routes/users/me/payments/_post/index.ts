@@ -285,9 +285,11 @@ export default class Route extends UserRoute<{
               : body.method.iban,
           "{Payment.grossINPS}": parseFloat((this.booty / 1.16).toFixed(2)),
           "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
+          "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
         },
       });
     } catch (err) {
+      console.error((err as Error).message);
       debugMessage(err);
     }
   }
