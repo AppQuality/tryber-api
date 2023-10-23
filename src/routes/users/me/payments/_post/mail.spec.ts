@@ -3,6 +3,23 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
+const fiscalProfile = {
+  id: 1,
+  tester_id: 1,
+  is_active: 1,
+  is_verified: 1,
+  fiscal_category: 1,
+  name: "",
+  surname: "",
+  sex: "",
+  birth_date: "",
+  address: "Via Lancia",
+  address_number: "10",
+  postal_code: "20021",
+  city: "Milano",
+  province: "MI",
+};
+
 const mockedSendgrid = jest.mocked(sgMail, true);
 
 async function crowdWpOptions() {
@@ -39,7 +56,7 @@ describe("POST /users/me/payments", () => {
     await tryber.tables.WpAppqUnlayerMailTemplate.do().insert([
       {
         id: 1,
-        html_body: "PAYMENT_REQUESTED_EMAIL_BODY",
+        html_body: "PAYMENT_REQUESTED_EMAIL_BODY {Payment.address}",
         name: "PAYMENT_REQUESTED_EMAIL_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -49,7 +66,7 @@ describe("POST /users/me/payments", () => {
       {
         id: 2,
         html_body:
-          "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY {Payment.grossINPS}",
+          "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY {Payment.grossINPS} {Payment.address}",
         name: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -58,7 +75,7 @@ describe("POST /users/me/payments", () => {
       },
       {
         id: 3,
-        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY",
+        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY {Payment.address}",
         name: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -67,7 +84,7 @@ describe("POST /users/me/payments", () => {
       },
       {
         id: 4,
-        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY",
+        html_body: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY {Payment.address}",
         name: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -151,18 +168,7 @@ describe("POST /users/me/payments", () => {
         tester_id: 1,
         amount: 100,
       });
-
-      await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
-        fiscal_category: 1,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
-      });
+      await tryber.tables.WpAppqFiscalProfile.do().insert(fiscalProfile);
     });
     afterEach(async () => {
       await tryber.tables.WpAppqPayment.do().truncate();
@@ -186,9 +192,28 @@ describe("POST /users/me/payments", () => {
             email: "it@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_REQUESTED_EMAIL_BODY",
+          html: expect.stringContaining("PAYMENT_REQUESTED_EMAIL_BODY"),
           subject: "[Tryber] Payout Request",
           categories: ["Test"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.address}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("Via Lancia, 10, 20021 Milano (MI)"),
         })
       );
       expect(response.status).toBe(200);
@@ -203,15 +228,8 @@ describe("POST /users/me/payments", () => {
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
+        ...fiscalProfile,
         fiscal_category: 2,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
       });
     });
     afterEach(async () => {
@@ -265,6 +283,25 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with {Payment.address}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("Via Lancia, 10, 20021 Milano (MI)"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
     beforeEach(async () => {
@@ -274,15 +311,8 @@ describe("POST /users/me/payments", () => {
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
+        ...fiscalProfile,
         fiscal_category: 3,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
       });
     });
     afterEach(async () => {
@@ -308,9 +338,28 @@ describe("POST /users/me/payments", () => {
             email: "it@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY",
+          html: expect.stringContaining("PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY"),
           subject: "[Tryber] Payout Request",
           categories: ["Test"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.address}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("Via Lancia, 10, 20021 Milano (MI)"),
         })
       );
       expect(response.status).toBe(200);
@@ -325,15 +374,8 @@ describe("POST /users/me/payments", () => {
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
+        ...fiscalProfile,
         fiscal_category: 4,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
       });
     });
     afterEach(async () => {
@@ -358,9 +400,28 @@ describe("POST /users/me/payments", () => {
             email: "it@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_REQUESTED_EMAIL_BODY",
+          html: expect.stringContaining("PAYMENT_REQUESTED_EMAIL_BODY"),
           subject: "[Tryber] Payout Request",
           categories: ["Test"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.address}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("Via Lancia, 10, 20021 Milano (MI)"),
         })
       );
       expect(response.status).toBe(200);
@@ -375,15 +436,8 @@ describe("POST /users/me/payments", () => {
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
+        ...fiscalProfile,
         fiscal_category: 5,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
       });
     });
     afterEach(async () => {
@@ -409,9 +463,30 @@ describe("POST /users/me/payments", () => {
             email: "it@tryber.me",
             name: "Tryber",
           },
-          html: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY",
+          html: expect.stringContaining(
+            "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY"
+          ),
           subject: "[Tryber] Payout Request",
           categories: ["Test"],
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.address}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("Via Lancia, 10, 20021 Milano (MI)"),
         })
       );
       expect(response.status).toBe(200);
@@ -426,15 +501,8 @@ describe("POST /users/me/payments", () => {
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
+        ...fiscalProfile,
         fiscal_category: 6,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
       });
     });
     afterEach(async () => {
@@ -465,15 +533,8 @@ describe("POST /users/me/payments", () => {
         amount: 69.99,
       });
       await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
+        ...fiscalProfile,
         is_active: 0,
-        is_verified: 1,
-        fiscal_category: 1,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
       });
     });
 
@@ -504,17 +565,7 @@ describe("POST /users/me/payments", () => {
         tester_id: 1,
         amount: 0.01,
       });
-      await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
-        fiscal_category: 1,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
-      });
+      await tryber.tables.WpAppqFiscalProfile.do().insert(fiscalProfile);
     });
 
     afterEach(async () => {
@@ -544,17 +595,7 @@ describe("POST /users/me/payments", () => {
         tester_id: 1,
         amount: 10,
       });
-      await tryber.tables.WpAppqFiscalProfile.do().insert({
-        id: 1,
-        tester_id: 1,
-        is_active: 1,
-        is_verified: 1,
-        fiscal_category: 1,
-        name: "",
-        surname: "",
-        sex: "",
-        birth_date: "",
-      });
+      await tryber.tables.WpAppqFiscalProfile.do().insert(fiscalProfile);
       await tryber.tables.WpAppqPaymentRequest.do().insert({
         id: 1,
         tester_id: 1,

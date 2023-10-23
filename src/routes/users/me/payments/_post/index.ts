@@ -13,7 +13,15 @@ export default class Route extends UserRoute<{
 }> {
   private booty = 0;
   private _fiscalProfile:
-    | { id: number; fiscal_category_name: string }
+    | {
+        id: number;
+        fiscal_category_name: string;
+        address: string;
+        address_number: string;
+        postal_code: string;
+        city: string;
+        province: string;
+      }
     | undefined;
 
   protected async init() {
@@ -67,7 +75,12 @@ export default class Route extends UserRoute<{
         tryber
           .ref("name")
           .withSchema("fiscal_category")
-          .as("fiscal_category_name")
+          .as("fiscal_category_name"),
+        tryber.ref("address").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("address_number").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("postal_code").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("city").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("province").withSchema("wp_appq_fiscal_profile")
       )
       .join(
         "fiscal_category",
@@ -271,6 +284,7 @@ export default class Route extends UserRoute<{
               ? body.method.email
               : body.method.iban,
           "{Payment.grossINPS}": parseFloat((this.booty / 1.16).toFixed(2)),
+          "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
         },
       });
     } catch (err) {
