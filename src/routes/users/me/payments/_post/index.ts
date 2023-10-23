@@ -294,6 +294,7 @@ export default class Route extends UserRoute<{
           "{Profile.bank_account_name}":
             body.method.type === "iban" ? body.method.accountHolderName : "",
           "{Payment.stamp}": this.isStampRequired ? "2€" : "-",
+          "{Payment.amount_gross}": this.booty,
         },
       });
     } catch (err) {
