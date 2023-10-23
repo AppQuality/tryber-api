@@ -62,7 +62,8 @@ describe("POST /users/me/payments", () => {
           {Payment.address} 
           {Payment.fiscalType} 
           {Profile.identificationNumber}
-          {Profile.bank_account_name}`,
+          {Profile.bank_account_name}
+          {Payment.stamp}`,
         name: "PAYMENT_REQUESTED_EMAIL_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -77,7 +78,8 @@ describe("POST /users/me/payments", () => {
           {Payment.address} 
           {Payment.fiscalType} 
           {Profile.identificationNumber} 
-          {Profile.bank_account_name}`,
+          {Profile.bank_account_name}
+          {Payment.stamp}`,
         name: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -91,7 +93,8 @@ describe("POST /users/me/payments", () => {
           {Payment.address} 
           {Payment.fiscalType} 
           {Profile.identificationNumber}
-          {Profile.bank_account_name}`,
+          {Profile.bank_account_name}
+          {Payment.stamp}`,
         name: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -105,7 +108,8 @@ describe("POST /users/me/payments", () => {
           {Payment.address} 
           {Payment.fiscalType} 
           {Profile.identificationNumber}
-          {Profile.bank_account_name}`,
+          {Profile.bank_account_name}
+          {Payment.stamp}`,
         name: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -296,13 +300,32 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with {Payment.stamp}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("2€"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 2", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 100,
+        amount: 1000,
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
@@ -356,7 +379,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("86.21"),
+          html: expect.stringContaining("862.07"),
         })
       );
       expect(response.status).toBe(200);
@@ -433,6 +456,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("Johny Donny"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.stamp}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("2€"),
         })
       );
       expect(response.status).toBe(200);
@@ -552,6 +594,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("Johny Donny"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.stamp}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("2€"),
         })
       );
       expect(response.status).toBe(200);
@@ -793,6 +854,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("Johny Donny"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.stamp}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("2€"),
         })
       );
       expect(response.status).toBe(200);
