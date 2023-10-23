@@ -105,6 +105,7 @@ describe("POST /users/me/payments", () => {
           {Payment.stamp}
           {Payment.amountGross}
           {Payment.amount}
+          {Payment.tax4INPS}
           `,
         name: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_SUBJECT",
         json_body: "",
@@ -779,6 +780,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("100"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Payment.tax4INPS}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("4"),
         })
       );
       expect(response.status).toBe(200);
