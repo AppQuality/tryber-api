@@ -231,6 +231,18 @@ export default class Route extends UserRoute<{
     }
   }
 
+  private getSubject() {
+    if (this.fiscalProfile.fiscal_category_name === "witholding-extra") {
+      return "[Tryber] Crea la tua ritenuta d'acconto con questi dati";
+    } else if (
+      ["vat", "company"].includes(this.fiscalProfile.fiscal_category_name)
+    ) {
+      return "[Tryber] Crea la tua fattura con questi dati";
+    } else {
+      return "[Tryber] Payout Request";
+    }
+  }
+
   private async sendConfirmationMail(template: string) {
     const body = this.getBody();
     try {
@@ -242,7 +254,7 @@ export default class Route extends UserRoute<{
 
       await sendTemplate({
         email: tester[0].email,
-        subject: "[Tryber] Payout Request",
+        subject: this.getSubject(),
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,
