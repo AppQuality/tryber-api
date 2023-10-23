@@ -18,6 +18,7 @@ const fiscalProfile = {
   postal_code: "20021",
   city: "Milano",
   province: "MI",
+  fiscal_id: "BJD3FG7H2JK5JN9PQ",
 };
 
 const mockedSendgrid = jest.mocked(sgMail, true);
@@ -57,7 +58,7 @@ describe("POST /users/me/payments", () => {
       {
         id: 1,
         html_body:
-          "PAYMENT_REQUESTED_EMAIL_BODY {Payment.address} {Payment.fiscalType}",
+          "PAYMENT_REQUESTED_EMAIL_BODY {Payment.address} {Payment.fiscalType} {Profile.identificationNumber}",
         name: "PAYMENT_REQUESTED_EMAIL_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -67,7 +68,7 @@ describe("POST /users/me/payments", () => {
       {
         id: 2,
         html_body:
-          "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY {Payment.grossINPS} {Payment.address} {Payment.fiscalType}",
+          "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY {Payment.grossINPS} {Payment.address} {Payment.fiscalType} {Profile.identificationNumber}",
         name: "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -77,7 +78,7 @@ describe("POST /users/me/payments", () => {
       {
         id: 3,
         html_body:
-          "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY {Payment.address} {Payment.fiscalType}",
+          "PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY {Payment.address} {Payment.fiscalType} {Profile.identificationNumber}",
         name: "PAYMENT_INVOICE_RECAP_EMAIL_VAT_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -87,7 +88,7 @@ describe("POST /users/me/payments", () => {
       {
         id: 4,
         html_body:
-          "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY {Payment.address} {Payment.fiscalType}",
+          "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY {Payment.address} {Payment.fiscalType} {Profile.identificationNumber}",
         name: "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_SUBJECT",
         json_body: "",
         last_editor_tester_id: 1,
@@ -240,6 +241,25 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with {Profile.identificationNumber}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("BJD3FG7H2JK5JN9PQ"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 2", () => {
@@ -343,6 +363,25 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with {Profile.identificationNumber}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("BJD3FG7H2JK5JN9PQ"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
     beforeEach(async () => {
@@ -420,6 +459,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("vat"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Profile.identificationNumber}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("BJD3FG7H2JK5JN9PQ"),
         })
       );
       expect(response.status).toBe(200);
@@ -505,6 +563,25 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with {Profile.identificationNumber}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("BJD3FG7H2JK5JN9PQ"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 5", () => {
@@ -585,6 +662,25 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("company"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with {Profile.identificationNumber}", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("BJD3FG7H2JK5JN9PQ"),
         })
       );
       expect(response.status).toBe(200);

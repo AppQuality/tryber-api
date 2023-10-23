@@ -21,6 +21,7 @@ export default class Route extends UserRoute<{
         postal_code: string;
         city: string;
         province: string;
+        fiscal_id: string;
       }
     | undefined;
 
@@ -80,7 +81,8 @@ export default class Route extends UserRoute<{
         tryber.ref("address_number").withSchema("wp_appq_fiscal_profile"),
         tryber.ref("postal_code").withSchema("wp_appq_fiscal_profile"),
         tryber.ref("city").withSchema("wp_appq_fiscal_profile"),
-        tryber.ref("province").withSchema("wp_appq_fiscal_profile")
+        tryber.ref("province").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("fiscal_id").withSchema("wp_appq_fiscal_profile")
       )
       .join(
         "fiscal_category",
@@ -286,6 +288,7 @@ export default class Route extends UserRoute<{
           "{Payment.grossINPS}": parseFloat((this.booty / 1.16).toFixed(2)),
           "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
           "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
+          "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
         },
       });
     } catch (err) {
