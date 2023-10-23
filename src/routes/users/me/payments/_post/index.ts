@@ -295,6 +295,9 @@ export default class Route extends UserRoute<{
           "{Profile.bankAccountName}":
             body.method.type === "iban" ? body.method.accountHolderName : "",
           "{Payment.stamp}": this.isStampRequired ? "2€" : "-",
+          "{Payment.tax8INPS}": parseFloat(
+            ((this.booty / 1.16) * 0.08).toFixed(2)
+          ),
         },
       });
     } catch (err) {
