@@ -267,7 +267,7 @@ export default class Route extends UserRoute<{
       const tester = await tryber.tables.WpAppqEvdProfile.do()
         .select("name", "email")
         .where({ id: this.getTesterId() });
-
+      const fiscalData = this.calculateFiscalData();
       const now = new Date();
       await sendTemplate({
         email: tester[0].email,
@@ -275,7 +275,8 @@ export default class Route extends UserRoute<{
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,
-          "{Payment.amount}": this.booty,
+          "{Payment.amount}": fiscalData.net,
+          "{Payment.amountGross}": this.booty,
           "{Payment.requestDate}": now.toLocaleString("it", {
             year: "numeric",
             month: "2-digit",
@@ -291,10 +292,9 @@ export default class Route extends UserRoute<{
           "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
           "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
           "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
-          "{Profile.bank_account_name}":
+          "{Profile.bankAccountName}":
             body.method.type === "iban" ? body.method.accountHolderName : "",
           "{Payment.stamp}": this.isStampRequired ? "2€" : "-",
-          "{Payment.amount_gross}": this.booty,
         },
       });
     } catch (err) {
