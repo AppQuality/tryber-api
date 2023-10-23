@@ -9310,7 +9310,7 @@ paths:
                     size: 10
                     start: 0
                     total: 20
-                multiple-pages-all-paid.json:
+                multiple-pages-all-paid:
                   value:
                     results:
                       - id: 1
