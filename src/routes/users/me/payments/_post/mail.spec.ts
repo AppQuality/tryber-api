@@ -414,7 +414,7 @@ describe("POST /users/me/payments", () => {
           html: expect.stringContaining(
             "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY"
           ),
-          subject: "[Tryber] Payout Request",
+          subject: "[Tryber] Crea la tua ritenuta d'acconto con questi dati",
           categories: ["Test"],
         })
       );
@@ -647,7 +647,7 @@ describe("POST /users/me/payments", () => {
             name: "Tryber",
           },
           html: expect.stringContaining("PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY"),
-          subject: "[Tryber] Payout Request",
+          subject: "[Tryber] Crea la tua fattura con questi dati",
           categories: ["Test"],
         })
       );
@@ -1002,7 +1002,7 @@ describe("POST /users/me/payments", () => {
           html: expect.stringContaining(
             "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY"
           ),
-          subject: "[Tryber] Payout Request",
+          subject: "[Tryber] Crea la tua fattura con questi dati",
           categories: ["Test"],
         })
       );
