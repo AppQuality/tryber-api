@@ -45,6 +45,7 @@ describe("POST /users/me/payments", () => {
       process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT,
     PAYMENT_INVOICE_RECAP_EMAIL_COMPANY:
       process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY,
+    PAYMENT_INVOICE_RECAP_CC_EMAIL: process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL,
   };
   beforeAll(async () => {
     process.env.PAYMENT_REQUESTED_EMAIL = "PAYMENT_REQUESTED_EMAIL";
@@ -54,6 +55,7 @@ describe("POST /users/me/payments", () => {
       "PAYMENT_INVOICE_RECAP_EMAIL_VAT";
     process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY =
       "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY";
+    process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL = "it+administration@unguess.io";
     await tryber.tables.WpAppqUnlayerMailTemplate.do().insert([
       {
         id: 1,
@@ -178,7 +180,8 @@ describe("POST /users/me/payments", () => {
     process.env.PAYMENT_INVOICE_RECAP_EMAIL_VAT =
       oldEnv.PAYMENT_INVOICE_RECAP_EMAIL_VAT;
     process.env.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY =
-      oldEnv.PAYMENT_INVOICE_RECAP_EMAIL_COMPANY;
+      process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL =
+        oldEnv.PAYMENT_INVOICE_RECAP_CC_EMAIL;
     await tryber.tables.FiscalCategory.do().delete();
     await tryber.tables.WpAppqUnlayerMailTemplate.do().delete();
     await tryber.tables.WpAppqEventTransactionalMail.do().delete();
@@ -610,6 +613,26 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+
+    it("Should add an email to cc", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cc: "it+administration@unguess.io",
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
     beforeEach(async () => {
@@ -801,6 +824,26 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("4.00"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+
+    it("Should add an email to cc", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cc: "it+administration@unguess.io",
         })
       );
       expect(response.status).toBe(200);
@@ -1175,6 +1218,26 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
           html: expect.stringContaining("22.00"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+
+    it("Should add an email to cc", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cc: "it+administration@unguess.io",
         })
       );
       expect(response.status).toBe(200);

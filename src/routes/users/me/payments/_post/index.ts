@@ -272,6 +272,11 @@ export default class Route extends UserRoute<{
       await sendTemplate({
         email: tester[0].email,
         subject: this.getSubject(),
+        ...(["vat", "witholding-extra", "company"].includes(
+          this.fiscalProfile.fiscal_category_name
+        ) && process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL
+          ? { cc: process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL }
+          : {}),
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,

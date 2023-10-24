@@ -6,12 +6,14 @@ sgMail.setApiKey(config.sendgrid.key);
 
 export const send = async ({
   to,
+  cc,
   from,
   subject,
   html,
   categories,
 }: {
   to: string;
+  cc?: string;
   from?: string | { name: string; email: string };
   subject: string;
   html: string;
@@ -26,6 +28,7 @@ export const send = async ({
   }
   const msg = {
     to,
+    cc,
     from,
     subject,
     html,
