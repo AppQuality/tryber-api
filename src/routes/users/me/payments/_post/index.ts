@@ -310,6 +310,7 @@ export default class Route extends UserRoute<{
       });
     } catch (err) {
       console.error((err as Error).message);
+
       debugMessage(err);
     }
   }
