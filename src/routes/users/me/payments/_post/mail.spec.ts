@@ -331,7 +331,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("2€"),
+          html: expect.stringContaining("2.00€"),
         })
       );
       expect(response.status).toBe(200);
@@ -350,7 +350,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -369,7 +369,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("80"),
+          html: expect.stringContaining("80.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -529,7 +529,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("2€"),
+          html: expect.stringContaining("2.00€"),
         })
       );
       expect(response.status).toBe(200);
@@ -548,7 +548,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("1000"),
+          html: expect.stringContaining("1000.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -586,7 +586,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining(((1000 / 1.16) * 0.08).toFixed(2)),
+          html: expect.stringContaining("68.97"),
         })
       );
       expect(response.status).toBe(200);
@@ -605,7 +605,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining(((1000 / 1.16) * 0.2).toFixed(2)),
+          html: expect.stringContaining("172.41"),
         })
       );
       expect(response.status).toBe(200);
@@ -743,7 +743,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("2€"),
+          html: expect.stringContaining("2.00€"),
         })
       );
       expect(response.status).toBe(200);
@@ -762,7 +762,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -781,7 +781,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -800,7 +800,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("4"),
+          html: expect.stringContaining("4.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -938,7 +938,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -957,7 +957,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -1098,7 +1098,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("2€"),
+          html: expect.stringContaining("2.00€"),
         })
       );
       expect(response.status).toBe(200);
@@ -1117,7 +1117,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -1136,7 +1136,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("100"),
+          html: expect.stringContaining("100.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -1155,7 +1155,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("20"),
+          html: expect.stringContaining("20.00"),
         })
       );
       expect(response.status).toBe(200);
@@ -1174,7 +1174,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("22"),
+          html: expect.stringContaining("22.00"),
         })
       );
       expect(response.status).toBe(200);

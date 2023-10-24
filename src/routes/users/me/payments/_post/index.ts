@@ -275,8 +275,8 @@ export default class Route extends UserRoute<{
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,
-          "{Payment.amount}": fiscalData.net,
-          "{Payment.amountGross}": this.booty,
+          "{Payment.amount}": fiscalData.net.toFixed(2),
+          "{Payment.amountGross}": this.booty.toFixed(2),
           "{Payment.requestDate}": now.toLocaleString("it", {
             year: "numeric",
             month: "2-digit",
@@ -288,24 +288,20 @@ export default class Route extends UserRoute<{
             body.method.type === "paypal"
               ? body.method.email
               : body.method.iban,
-          "{Payment.grossINPS}": parseFloat((this.booty / 1.16).toFixed(2)),
+          "{Payment.grossINPS}": (this.booty / 1.16).toFixed(2),
           "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
           "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
           "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
           "{Profile.bankAccountName}":
             body.method.type === "iban" ? body.method.accountHolderName : "",
-          "{Payment.stamp}": this.isStampRequired ? "2€" : "-",
-          "{Payment.tax8INPS}": parseFloat(
-            ((this.booty / 1.16) * 0.08).toFixed(2)
+          "{Payment.stamp}": this.isStampRequired ? "2.00€" : "-",
+          "{Payment.tax8INPS}": ((this.booty / 1.16) * 0.08).toFixed(2),
+          "{Payment.taxWitholdingExtra}": ((this.booty / 1.16) * 0.2).toFixed(
+            2
           ),
-          "{Payment.taxWitholdingExtra}": parseFloat(
-            ((this.booty / 1.16) * 0.2).toFixed(2)
-          ),
-          "{Payment.tax4INPS}": parseFloat((this.booty * 0.04).toFixed(2)),
-          "{Payment.taxWitholdingCompany}": parseFloat(
-            (this.booty * 0.2).toFixed(2)
-          ),
-          "{Payment.taxCompany}": parseFloat((this.booty * 0.22).toFixed(2)),
+          "{Payment.tax4INPS}": (this.booty * 0.04).toFixed(2),
+          "{Payment.taxWitholdingCompany}": (this.booty * 0.2).toFixed(2),
+          "{Payment.taxCompany}": (this.booty * 0.22).toFixed(2),
         },
       });
     } catch (err) {
