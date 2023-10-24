@@ -3,11 +3,13 @@ import { tryber } from "@src/features/database";
 
 export const sendTemplate = async ({
   email,
+  cc,
   subject,
   template,
   optionalFields,
 }: {
   email: string;
+  cc?: string;
   subject: string;
   template: string;
   optionalFields?: { [key: string]: any };
@@ -38,6 +40,7 @@ export const sendTemplate = async ({
 
   send({
     to: email,
+    cc,
     subject,
     html: templateHtml,
   });

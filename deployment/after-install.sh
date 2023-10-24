@@ -78,6 +78,7 @@ services:
       MAX_FILE_SIZE: ${MAX_FILE_SIZE}
       CONNECTION_COUNT: ${CONNECTION_COUNT}
       GOOGLE_API_KEY: '${GOOGLE_API_KEY}'
+      PAYMENT_INVOICE_RECAP_CC_EMAIL: '${PAYMENT_INVOICE_RECAP_CC_EMAIL}'
     volumes:
       - /var/docker/keys:/app/keys
     logging:

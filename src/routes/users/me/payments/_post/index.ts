@@ -13,7 +13,16 @@ export default class Route extends UserRoute<{
 }> {
   private booty = 0;
   private _fiscalProfile:
-    | { id: number; fiscal_category_name: string }
+    | {
+        id: number;
+        fiscal_category_name: string;
+        address: string;
+        address_number: string;
+        postal_code: string;
+        city: string;
+        province: string;
+        fiscal_id: string;
+      }
     | undefined;
 
   protected async init() {
@@ -67,7 +76,13 @@ export default class Route extends UserRoute<{
         tryber
           .ref("name")
           .withSchema("fiscal_category")
-          .as("fiscal_category_name")
+          .as("fiscal_category_name"),
+        tryber.ref("address").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("address_number").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("postal_code").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("city").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("province").withSchema("wp_appq_fiscal_profile"),
+        tryber.ref("fiscal_id").withSchema("wp_appq_fiscal_profile")
       )
       .join(
         "fiscal_category",
@@ -86,6 +101,10 @@ export default class Route extends UserRoute<{
       throw new Error("You don't have a fiscal profile");
     }
     return this._fiscalProfile;
+  }
+
+  get isStampRequired() {
+    return this.calculateFiscalData().net >= 77.47;
   }
 
   protected async prepare() {
@@ -112,7 +131,6 @@ export default class Route extends UserRoute<{
       iban = body.method.iban;
       accountHolderName = body.method.accountHolderName;
     }
-    const isStampRequired = fiscalData.net >= 77.47;
     const request = await tryber.tables.WpAppqPaymentRequest.do()
       .insert({
         tester_id: this.getTesterId(),
@@ -122,7 +140,7 @@ export default class Route extends UserRoute<{
         amount_gross: this.booty,
         amount_withholding: fiscalData.witholding,
         paypal_email: paypalEmail ? paypalEmail : undefined,
-        stamp_required: isStampRequired ? 1 : 0,
+        stamp_required: this.isStampRequired ? 1 : 0,
         withholding_tax_percentage: fiscalData.tax_percent,
         iban: iban ? iban : undefined,
         under_threshold: 0,
@@ -249,16 +267,21 @@ export default class Route extends UserRoute<{
       const tester = await tryber.tables.WpAppqEvdProfile.do()
         .select("name", "email")
         .where({ id: this.getTesterId() });
-
+      const fiscalData = this.calculateFiscalData();
       const now = new Date();
-
       await sendTemplate({
         email: tester[0].email,
         subject: this.getSubject(),
+        ...(["vat", "witholding-extra", "company"].includes(
+          this.fiscalProfile.fiscal_category_name
+        ) && process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL
+          ? { cc: process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL }
+          : {}),
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,
-          "{Payment.amount}": this.booty,
+          "{Payment.amount}": fiscalData.net.toFixed(2),
+          "{Payment.amountGross}": this.booty.toFixed(2),
           "{Payment.requestDate}": now.toLocaleString("it", {
             year: "numeric",
             month: "2-digit",
@@ -270,6 +293,20 @@ export default class Route extends UserRoute<{
             body.method.type === "paypal"
               ? body.method.email
               : body.method.iban,
+          "{Payment.grossINPS}": (this.booty / 1.16).toFixed(2),
+          "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
+          "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
+          "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
+          "{Profile.bankAccountName}":
+            body.method.type === "iban" ? body.method.accountHolderName : "",
+          "{Payment.stamp}": this.isStampRequired ? "2.00€" : "-",
+          "{Payment.tax8INPS}": ((this.booty / 1.16) * 0.08).toFixed(2),
+          "{Payment.taxWitholdingExtra}": ((this.booty / 1.16) * 0.2).toFixed(
+            2
+          ),
+          "{Payment.tax4INPS}": (this.booty * 0.04).toFixed(2),
+          "{Payment.taxWitholdingCompany}": (this.booty * 0.2).toFixed(2),
+          "{Payment.taxCompany}": (this.booty * 0.22).toFixed(2),
         },
       });
     } catch (err) {
