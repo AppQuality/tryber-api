@@ -463,8 +463,8 @@ describe("GET /users/me/payments fiscalProfileCategory 2", () => {
 describe("GET /users/me/payments fiscalProfileCategory 3", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqPaymentRequest.do().insert([
-      paymentRequestPaypal,
-      paymentRequestWise,
+      { ...paymentRequestPaypal, net_multiplier: 2 },
+      { ...paymentRequestWise, net_multiplier: 2 },
     ]);
     await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
     await tryber.tables.WpAppqFiscalProfile.do().insert({
@@ -483,6 +483,17 @@ describe("GET /users/me/payments fiscalProfileCategory 3", () => {
       .get("/users/me/payments")
       .set("authorization", "Bearer tester");
     expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+  it("Should return payments with net multiplied by net_multiplier", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results[0].amount.net.value).toBe(338);
+    expect(response.body.results[1].amount.net.value).toBe(538);
     expect(
       response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
     ).toBe(true);
