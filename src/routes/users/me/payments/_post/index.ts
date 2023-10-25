@@ -261,6 +261,21 @@ export default class Route extends UserRoute<{
     }
   }
 
+  private adjustedNetAmount() {
+    const fiscalData = this.calculateFiscalData();
+    const stampReimbourse =
+      ["witholding-extra", "vat", "company"].includes(
+        this.fiscalProfile.fiscal_category_name
+      ) && this.isStampRequired
+        ? 2
+        : 0;
+    return (
+      fiscalData.net *
+        ("net_multiplier" in fiscalData ? fiscalData.net_multiplier : 1) +
+      stampReimbourse
+    ).toFixed(2);
+  }
+
   private async sendConfirmationMail(template: string) {
     const body = this.getBody();
     try {
@@ -280,10 +295,7 @@ export default class Route extends UserRoute<{
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,
-          "{Payment.amount}": (
-            fiscalData.net *
-            ("net_multiplier" in fiscalData ? fiscalData.net_multiplier : 1)
-          ).toFixed(2),
+          "{Payment.amount}": this.adjustedNetAmount(),
           "{Payment.amountGross}": this.booty.toFixed(2),
           "{Payment.requestDate}": now.toLocaleString("it", {
             year: "numeric",

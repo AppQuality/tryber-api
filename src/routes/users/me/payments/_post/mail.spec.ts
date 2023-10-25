@@ -570,7 +570,7 @@ describe("POST /users/me/payments", () => {
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
-          html: expect.stringContaining("620.69"),
+          html: expect.stringContaining("622.69"),
         })
       );
       expect(response.status).toBe(200);
