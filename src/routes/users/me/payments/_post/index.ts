@@ -280,7 +280,10 @@ export default class Route extends UserRoute<{
         template: template,
         optionalFields: {
           "{Profile.name}": tester[0].name,
-          "{Payment.amount}": fiscalData.net.toFixed(2),
+          "{Payment.amount}": (
+            fiscalData.net *
+            ("net_multiplier" in fiscalData ? fiscalData.net_multiplier : 1)
+          ).toFixed(2),
           "{Payment.amountGross}": this.booty.toFixed(2),
           "{Payment.requestDate}": now.toLocaleString("it", {
             year: "numeric",
