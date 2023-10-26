@@ -1510,7 +1510,7 @@ describe("POST /users/me/payments", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 96.82, //this is the amount GROSS of 77,46 (NET)
+        amount: 77.46,
       });
       await tryber.tables.WpAppqFiscalProfile.do().insert({
         id: 1,
