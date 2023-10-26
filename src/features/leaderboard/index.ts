@@ -36,7 +36,6 @@ export default class Leaderboard {
         )} = ${tryber.fn.year(tryber.fn.now())}`
       )
       .groupBy("tester_id");
-    const res = await sql;
     return await sql;
   }
 
