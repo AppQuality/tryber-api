@@ -5482,6 +5482,469 @@ paths:
                   required:
                     - id
                     - name
+              examples:
+                All languages:
+                  value:
+                    - name: Afrikaans
+                      id: 1
+                    - name: Afrikaans (South Africa)
+                      id: 2
+                    - name: Arabic
+                      id: 3
+                    - name: Arabic (U.A.E.)
+                      id: 4
+                    - name: Arabic (Bahrain)
+                      id: 5
+                    - name: Arabic (Algeria)
+                      id: 6
+                    - name: Arabic (Egypt)
+                      id: 7
+                    - name: Arabic (Iraq)
+                      id: 8
+                    - name: Arabic (Jordan)
+                      id: 9
+                    - name: Arabic (Kuwait)
+                      id: 10
+                    - name: Arabic (Lebanon)
+                      id: 11
+                    - name: Arabic (Libya)
+                      id: 12
+                    - name: Arabic (Morocco)
+                      id: 13
+                    - name: Arabic (Oman)
+                      id: 14
+                    - name: Arabic (Qatar)
+                      id: 15
+                    - name: Arabic (Saudi Arabia)
+                      id: 16
+                    - name: Arabic (Syria)
+                      id: 17
+                    - name: Arabic (Tunisia)
+                      id: 18
+                    - name: Arabic (Yemen)
+                      id: 19
+                    - name: Azeri (Latin)
+                      id: 20
+                    - name: Azeri (Azerbaijan)
+                      id: 21
+                    - name: Belarusian
+                      id: 23
+                    - name: Belarusian (Belarus)
+                      id: 24
+                    - name: Bulgarian
+                      id: 25
+                    - name: Bulgarian (Bulgaria)
+                      id: 26
+                    - name: Bosnian (Bosnia and Herzegovina)
+                      id: 27
+                    - name: Catalan
+                      id: 28
+                    - name: Catalan (Spain)
+                      id: 29
+                    - name: Czech
+                      id: 30
+                    - name: Czech (Czech Republic)
+                      id: 31
+                    - name: Welsh
+                      id: 32
+                    - name: Welsh (United Kingdom)
+                      id: 33
+                    - name: Danish
+                      id: 34
+                    - name: Danish (Denmark)
+                      id: 35
+                    - name: German
+                      id: 36
+                    - name: German (Austria)
+                      id: 37
+                    - name: German (Switzerland)
+                      id: 38
+                    - name: German (Germany)
+                      id: 39
+                    - name: German (Liechtenstein)
+                      id: 40
+                    - name: German (Luxembourg)
+                      id: 41
+                    - name: Divehi
+                      id: 42
+                    - name: Divehi (Maldives)
+                      id: 43
+                    - name: Greek
+                      id: 44
+                    - name: Greek (Greece)
+                      id: 45
+                    - name: English
+                      id: 46
+                    - name: English (Australia)
+                      id: 47
+                    - name: English (Belize)
+                      id: 48
+                    - name: English (Canada)
+                      id: 49
+                    - name: English (Caribbean)
+                      id: 50
+                    - name: English (United Kingdom)
+                      id: 51
+                    - name: English (Ireland)
+                      id: 52
+                    - name: English (Jamaica)
+                      id: 53
+                    - name: English (New Zealand)
+                      id: 54
+                    - name: English (Republic of the Philippines)
+                      id: 55
+                    - name: English (Trinidad and Tobago)
+                      id: 56
+                    - name: English (United States)
+                      id: 57
+                    - name: English (South Africa)
+                      id: 58
+                    - name: English (Zimbabwe)
+                      id: 59
+                    - name: Esperanto
+                      id: 60
+                    - name: Spanish
+                      id: 61
+                    - name: Spanish (Argentina)
+                      id: 62
+                    - name: Spanish (Bolivia)
+                      id: 63
+                    - name: Spanish (Chile)
+                      id: 64
+                    - name: Spanish (Colombia)
+                      id: 65
+                    - name: Spanish (Costa Rica)
+                      id: 66
+                    - name: Spanish (Dominican Republic)
+                      id: 67
+                    - name: Spanish (Ecuador)
+                      id: 68
+                    - name: Spanish (Spain)
+                      id: 70
+                    - name: Spanish (Guatemala)
+                      id: 71
+                    - name: Spanish (Honduras)
+                      id: 72
+                    - name: Spanish (Mexico)
+                      id: 73
+                    - name: Spanish (Nicaragua)
+                      id: 74
+                    - name: Spanish (Panama)
+                      id: 75
+                    - name: Spanish (Peru)
+                      id: 76
+                    - name: Spanish (Puerto Rico)
+                      id: 77
+                    - name: Spanish (Paraguay)
+                      id: 78
+                    - name: Spanish (El Salvador)
+                      id: 79
+                    - name: Spanish (Uruguay)
+                      id: 80
+                    - name: Spanish (Venezuela)
+                      id: 81
+                    - name: Estonian
+                      id: 82
+                    - name: Estonian (Estonia)
+                      id: 83
+                    - name: Basque
+                      id: 84
+                    - name: Basque (Spain)
+                      id: 85
+                    - name: Farsi
+                      id: 86
+                    - name: Farsi (Iran)
+                      id: 87
+                    - name: Finnish
+                      id: 88
+                    - name: Finnish (Finland)
+                      id: 89
+                    - name: Faroese
+                      id: 90
+                    - name: Faroese (Faroe Islands)
+                      id: 91
+                    - name: French
+                      id: 92
+                    - name: French (Belgium)
+                      id: 93
+                    - name: French (Canada)
+                      id: 94
+                    - name: French (Switzerland)
+                      id: 95
+                    - name: French (France)
+                      id: 96
+                    - name: French (Luxembourg)
+                      id: 97
+                    - name: French (Principality of Monaco)
+                      id: 98
+                    - name: Galician
+                      id: 99
+                    - name: Galician (Spain)
+                      id: 100
+                    - name: Gujarati
+                      id: 101
+                    - name: Gujarati (India)
+                      id: 102
+                    - name: Hebrew
+                      id: 103
+                    - name: Hebrew (Israel)
+                      id: 104
+                    - name: Hindi
+                      id: 105
+                    - name: Hindi (India)
+                      id: 106
+                    - name: Croatian
+                      id: 107
+                    - name: Croatian (Bosnia and Herzegovina)
+                      id: 108
+                    - name: Croatian (Croatia)
+                      id: 109
+                    - name: Hungarian
+                      id: 110
+                    - name: Hungarian (Hungary)
+                      id: 111
+                    - name: Armenian
+                      id: 112
+                    - name: Armenian (Armenia)
+                      id: 113
+                    - name: Indonesian
+                      id: 114
+                    - name: Indonesian (Indonesia)
+                      id: 115
+                    - name: Icelandic
+                      id: 116
+                    - name: Icelandic (Iceland)
+                      id: 117
+                    - name: Italiano
+                      id: 118
+                    - name: Italiano (Svizzera)
+                      id: 119
+                    - name: Italiano (Italia)
+                      id: 120
+                    - name: Japanese
+                      id: 121
+                    - name: Japanese (Japan)
+                      id: 122
+                    - name: Georgian
+                      id: 123
+                    - name: Georgian (Georgia)
+                      id: 124
+                    - name: Kazakh
+                      id: 125
+                    - name: Kazakh (Kazakhstan)
+                      id: 126
+                    - name: Kannada
+                      id: 127
+                    - name: Kannada (India)
+                      id: 128
+                    - name: Korean
+                      id: 129
+                    - name: Korean (Korea)
+                      id: 130
+                    - name: Konkani
+                      id: 131
+                    - name: Konkani (India)
+                      id: 132
+                    - name: Kyrgyz
+                      id: 133
+                    - name: Kyrgyz (Kyrgyzstan)
+                      id: 134
+                    - name: Lithuanian
+                      id: 135
+                    - name: Lithuanian (Lithuania)
+                      id: 136
+                    - name: Latvian
+                      id: 137
+                    - name: Latvian (Latvia)
+                      id: 138
+                    - name: Maori
+                      id: 139
+                    - name: Maori (New Zealand)
+                      id: 140
+                    - name: Macedonian
+                      id: 141
+                    - name: Mongolian
+                      id: 143
+                    - name: Mongolian (Mongolia)
+                      id: 144
+                    - name: Marathi
+                      id: 145
+                    - name: Marathi (India)
+                      id: 146
+                    - name: Malay
+                      id: 147
+                    - name: Malay (Brunei Darussalam)
+                      id: 148
+                    - name: Malay (Malaysia)
+                      id: 149
+                    - name: Maltese
+                      id: 150
+                    - name: Maltese (Malta)
+                      id: 151
+                    - name: Norwegian
+                      id: 152
+                    - name: Norwegian (Bokm?l) (Norway)
+                      id: 153
+                    - name: Dutch
+                      id: 154
+                    - name: Dutch (Belgium)
+                      id: 155
+                    - name: Dutch (Netherlands)
+                      id: 156
+                    - name: Norwegian (Nynorsk) (Norway)
+                      id: 157
+                    - name: Northern Sotho
+                      id: 158
+                    - name: Northern Sotho (South Africa)
+                      id: 159
+                    - name: Punjabi
+                      id: 160
+                    - name: Punjabi (India)
+                      id: 161
+                    - name: Polish
+                      id: 162
+                    - name: Polish (Poland)
+                      id: 163
+                    - name: Pashto
+                      id: 164
+                    - name: Pashto (Afghanistan)
+                      id: 165
+                    - name: Portuguese
+                      id: 166
+                    - name: Portuguese (Brazil)
+                      id: 167
+                    - name: Portuguese (Portugal)
+                      id: 168
+                    - name: Quechua
+                      id: 169
+                    - name: Quechua (Bolivia)
+                      id: 170
+                    - name: Quechua (Ecuador)
+                      id: 171
+                    - name: Quechua (Peru)
+                      id: 172
+                    - name: Romanian
+                      id: 173
+                    - name: Romanian (Romania)
+                      id: 174
+                    - name: Russian
+                      id: 175
+                    - name: Russian (Russia)
+                      id: 176
+                    - name: Sanskrit
+                      id: 177
+                    - name: Sanskrit (India)
+                      id: 178
+                    - name: Sami (Northern)
+                      id: 179
+                    - name: Sami (Finland)
+                      id: 180
+                    - name: Sami (Northern) (Norway)
+                      id: 183
+                    - name: Sami (Northern) (Sweden)
+                      id: 186
+                    - name: Slovak
+                      id: 189
+                    - name: Slovak (Slovakia)
+                      id: 190
+                    - name: Slovenian
+                      id: 191
+                    - name: Slovenian (Slovenia)
+                      id: 192
+                    - name: Albanian
+                      id: 193
+                    - name: Albanian (Albania)
+                      id: 194
+                    - name: Serbian (Bosnia and Herzegovina)
+                      id: 195
+                    - name: Serbian (Serbia and Montenegro)
+                      id: 197
+                    - name: Swedish
+                      id: 199
+                    - name: Swedish (Finland)
+                      id: 200
+                    - name: Swedish (Sweden)
+                      id: 201
+                    - name: Swahili
+                      id: 202
+                    - name: Swahili (Kenya)
+                      id: 203
+                    - name: Syriac
+                      id: 204
+                    - name: Syriac (Syria)
+                      id: 205
+                    - name: Tamil
+                      id: 206
+                    - name: Tamil (India)
+                      id: 207
+                    - name: Telugu
+                      id: 208
+                    - name: Telugu (India)
+                      id: 209
+                    - name: Thai
+                      id: 210
+                    - name: Thai (Thailand)
+                      id: 211
+                    - name: Tagalog
+                      id: 212
+                    - name: Tagalog (Philippines)
+                      id: 213
+                    - name: Tswana
+                      id: 214
+                    - name: Tswana (South Africa)
+                      id: 215
+                    - name: Turkish
+                      id: 216
+                    - name: Turkish (Turkey)
+                      id: 217
+                    - name: Tatar
+                      id: 218
+                    - name: Tatar (Russia)
+                      id: 219
+                    - name: Tsonga
+                      id: 220
+                    - name: Ukrainian
+                      id: 221
+                    - name: Ukrainian (Ukraine)
+                      id: 222
+                    - name: Urdu
+                      id: 223
+                    - name: Urdu (Islamic Republic of Pakistan)
+                      id: 224
+                    - name: Uzbek (Latin)
+                      id: 225
+                    - name: Uzbek (Uzbekistan)
+                      id: 226
+                    - name: Vietnamese
+                      id: 228
+                    - name: Vietnamese (Viet Nam)
+                      id: 229
+                    - name: Xhosa
+                      id: 230
+                    - name: Xhosa (South Africa)
+                      id: 231
+                    - name: Chinese
+                      id: 232
+                    - name: Chinese (S)
+                      id: 233
+                    - name: Chinese (Hong Kong)
+                      id: 234
+                    - name: Chinese (Macau)
+                      id: 235
+                    - name: Chinese (Singapore)
+                      id: 236
+                    - name: Chinese (T)
+                      id: 237
+                    - name: Zulu
+                      id: 238
+                    - name: Zulu (South Africa)
+                      id: 239
+                    - name: Filipino
+                      id: 240
+                    - name: Chinese Mandarin
+                      id: 241
+                    - name: Malayalam
+                      id: 242
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -6262,6 +6725,80 @@ paths:
                     booty_threshold:
                       value: 0
                       isOver: true
+                user subscriber onboarding complete:
+                  value:
+                    id: 11110
+                    name: Name
+                    surname: Surname
+                    email: name.surname@mail.com
+                    wp_user_id: 11111
+                    onboarding_completed: true
+                    image: 'https://secure.gravatar.com/avatar/087ada6e86cf8ec31a49217dd05b7151?s=132&d=https%3A%2F%2Feu.ui-avatars.com%2Fapi%2Fi%2Bl%2F132&r=x'
+                    role: subscriber
+                Example 1:
+                  value:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: string
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                    rank: string
+                    total_exp_pts: 0
+                    booty:
+                      net:
+                        value: 10
+                        currency: EUR
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    pending_booty:
+                      net:
+                        value: 10
+                        currency: EUR
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    languages:
+                      - id: 46
+                        name: English
+                      - id: 61
+                        name: Spanish
+                      - id: 120
+                        name: Italiano (Italia)
+                    onboarding_completed: true
+                    additional:
+                      - field_id: 0
+                        name: string
+                        value: string
+                        text: string
+                        is_candidate: true
+                    gender: male
+                    birthDate: '2019-08-24'
+                    phone: '11000000000'
+                    education:
+                      id: 0
+                      name: string
+                    profession:
+                      id: 0
+                      name: string
+                    certifications:
+                      - id: 0
+                        name: string
+                        area: string
+                        institute: string
+                        achievement_date: '2019-08-24'
+                    completionPercent: 0
+                    country: Italy
+                    city: Cremona
+                    attended_cp: 0
+                    approved_bugs: 0
+                    booty_threshold:
+                      value: 0
+                      isOver: true
       operationId: get-users-me
       description: Get your user data
       security:
@@ -6462,6 +6999,71 @@ paths:
                     type: number
                 required:
                   - id
+              examples:
+                Example 1:
+                  value:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: string
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                    rank: string
+                    total_exp_pts: 0
+                    booty:
+                      net:
+                        value: 10
+                        currency: EUR
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    pending_booty:
+                      net:
+                        value: 10
+                        currency: EUR
+                      gross:
+                        value: 13.5
+                        currency: EUR
+                    languages:
+                      - id: 46
+                        name: English
+                      - id: 61
+                        name: Spanish
+                      - id: 120
+                        name: Italiano (Italia)
+                    onboarding_completed: true
+                    additional:
+                      - field_id: 0
+                        name: string
+                        value: string
+                        text: string
+                        is_candidate: true
+                    gender: male
+                    birthDate: '2019-08-24'
+                    phone: '11000000000'
+                    education:
+                      id: 0
+                      name: string
+                    profession:
+                      id: 0
+                      name: string
+                    certifications:
+                      - id: 0
+                        name: string
+                        area: string
+                        institute: string
+                        achievement_date: '2019-08-24'
+                    completionPercent: 0
+                    country: Italy
+                    city: Cremona
+                    attended_cp: 0
+                    approved_bugs: 0
+                    booty_threshold:
+                      value: 0
+                      isOver: true
         '400':
           description: Bad Request
         '403':
@@ -7875,7 +8477,6 @@ paths:
           content:
             application/json:
               schema:
-                description: ''
                 type: object
                 x-examples:
                   example-1:
@@ -7913,7 +8514,11 @@ paths:
                       cityCode:
                         type: string
                   type:
-                    $ref: '#/components/schemas/FiscalType'
+                    oneOf:
+                      - $ref: '#/components/schemas/FiscalType'
+                      - enum:
+                          - internal
+                        type: string
                   birthPlace:
                     type: object
                     properties:
@@ -7941,7 +8546,7 @@ paths:
                   - fiscalStatus
                   - gender
               examples:
-                200_non_italian.json:
+                non_italian:
                   value:
                     address:
                       country: IQ
@@ -7951,6 +8556,70 @@ paths:
                       streetNumber: '18'
                       cityCode: '61122'
                     type: non-italian
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                internal:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: internal
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                company:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: company
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                vat:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: vat
+                    birthPlace:
+                      city: Pesaro
+                      province: PU
+                    fiscalId: GMMLSN96C21G479C
+                    fiscalStatus: Verified
+                    gender: male
+                witholding-extra:
+                  value:
+                    address:
+                      country: IQ
+                      province: Erbil
+                      city: Arbil
+                      street: Via Zara
+                      streetNumber: '18'
+                      cityCode: '61122'
+                    type: witholding-extra
                     birthPlace:
                       city: Pesaro
                       province: PU
@@ -8317,6 +8986,15 @@ paths:
               type: array
               items:
                 type: integer
+            examples:
+              Example 1:
+                value:
+                  - id: 46
+                    name: English
+                  - id: 61
+                    name: Spanish
+                  - id: 120
+                    name: Italiano (Italia)
       description: Edit your spoken languages
       security:
         - JWT: []
@@ -8632,7 +9310,7 @@ paths:
                     size: 10
                     start: 0
                     total: 20
-                200_multiple-pages-all-paid.json:
+                multiple-pages-all-paid:
                   value:
                     results:
                       - id: 1
@@ -8798,8 +9476,13 @@ paths:
                     type: number
                   amount:
                     type: number
+              examples:
+                success:
+                  value:
+                    id: 1
+                    amount: 10.5
         '403':
-          description: Forbidden
+          $ref: '#/components/responses/NotAuthorized'
       security:
         - JWT: []
       requestBody:

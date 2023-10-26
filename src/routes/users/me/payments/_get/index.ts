@@ -64,7 +64,9 @@ export default async (
             },
             net: {
               value: row.amount
-                ? Number(parseFloat(`${row.amount}`).toFixed(2))
+                ? Number(
+                    parseFloat(`${row.amount * row.net_multiplier}`).toFixed(2)
+                  )
                 : 0,
               currency: "EUR",
             },

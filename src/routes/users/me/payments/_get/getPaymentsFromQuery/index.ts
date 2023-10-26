@@ -9,6 +9,7 @@ export default async (
     is_paid: 0 | 1;
     amount: number;
     amount_gross: number;
+    net_multiplier: number;
     paypal_email?: string;
     iban?: string;
     paidDate: string;
@@ -16,20 +17,6 @@ export default async (
   }[];
   total?: number;
 }> => {
-  const data = [];
-  const WHERE = `WHERE 
-    pr.tester_id = ? AND (
-        (pr.paypal_email IS NOT NULL AND pr.paypal_email <> "") 
-        OR (pr.iban IS NOT NULL AND pr.iban <> "")
-    )`;
-  data.push(testerId);
-
-  let pagination = ``;
-  query.limit
-    ? (pagination += `LIMIT ` + query.limit)
-    : (pagination += `LIMIT 25`);
-  query.start ? (pagination += ` OFFSET ` + query.start) : (pagination += ``);
-
   const whereFunction = (q: any) => {
     q.where((q: any) => {
       q.where((q: any) => {
@@ -54,6 +41,7 @@ export default async (
       "wp_appq_payment_request.is_paid",
       "wp_appq_payment_request.amount",
       "wp_appq_payment_request.amount_gross",
+      "wp_appq_payment_request.net_multiplier",
       "wp_appq_payment_request.paypal_email",
       "wp_appq_payment_request.iban",
       tryber.raw("CAST(wp_appq_payment_request.paid_date as CHAR) as paidDate"),

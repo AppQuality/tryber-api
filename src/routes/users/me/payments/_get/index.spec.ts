@@ -1,8 +1,25 @@
-import { data as paymentRequestData } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as receiptData } from "@src/__mocks__/mockedDb/receipt";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import request from "supertest";
-
+const fiscalProfile = {
+  id: 1,
+  tester_id: 1,
+  fiscal_id: "JHNDOE90A01H501A",
+  name: "Jhon",
+  surname: "Doe",
+  sex: "1",
+  birth_date: "1990-01-01",
+  city: "Milan",
+  country: "Italy",
+  province: "MI",
+  address: "Dante Alighieri",
+  address_number: "69",
+  postal_code: "20123",
+  birth_city: "Rome",
+  birth_province: "RM",
+  is_verified: 1,
+  is_active: 1,
+};
 const paymentRequestPaypal = {
   id: 1,
   tester_id: 1,
@@ -12,8 +29,11 @@ const paymentRequestPaypal = {
   is_paid: 1 as const,
   update_date: "1980-01-01 00:00:00",
   paid_date: "1980-01-01 00:00:00",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  receipt_id: -1,
+  fiscal_profile_id: 1,
 };
-
 const paymentRequestPaypalNotMine = {
   id: 6,
   tester_id: 2,
@@ -23,6 +43,10 @@ const paymentRequestPaypalNotMine = {
   is_paid: 1 as const,
   update_date: "1980-01-01 00:00:00",
   paid_date: "1980-01-01 00:00:00",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  receipt_id: -1,
+  fiscal_profile_id: 1,
 };
 const paymentRequestWise = {
   id: 2,
@@ -34,6 +58,9 @@ const paymentRequestWise = {
   update_date: "1992-05-01 00:00:00",
   paid_date: "1992-05-01 00:00:00",
   receipt_id: 69,
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestInvalid = {
   id: 3,
@@ -44,6 +71,9 @@ const paymentRequestInvalid = {
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
   receipt_id: 69,
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestPaypal2 = {
   id: 4,
@@ -55,6 +85,9 @@ const paymentRequestPaypal2 = {
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
   receipt_id: 70,
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  fiscal_profile_id: 1,
 };
 const paymentRequestPaypalProcessing = {
   id: 5,
@@ -65,36 +98,41 @@ const paymentRequestPaypalProcessing = {
   paypal_email: "john.doe@example.com",
   update_date: "1979-05-03 00:00:00",
   paid_date: "1979-05-03 00:00:00",
+  under_threshold: 0,
+  withholding_tax_percentage: 0,
+  receipt_id: -1,
+  fiscal_profile_id: 1,
 };
 const receiptWise = {
   id: 69,
   url: "https://example.com/receiptWise",
+  tester_id: 1,
 };
 const receiptPaypal = {
   id: 70,
   url: "https://example.com/receiptPaypal",
+  tester_id: 1,
 };
-describe("GET /users/me/payments", () => {
+describe("GET /users/me/payments fiscalProfileCategory 1", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.basicPayment(paymentRequestPaypal);
-      await paymentRequestData.basicPayment(paymentRequestWise);
-      await paymentRequestData.basicPayment(paymentRequestInvalid);
-      await paymentRequestData.basicPayment(paymentRequestPaypal2);
-      await paymentRequestData.basicPayment(paymentRequestPaypalNotMine);
-      await paymentRequestData.basicPayment(paymentRequestPaypalProcessing);
-      await receiptData.basicReceipt(receiptWise);
-      await receiptData.basicReceipt(receiptPaypal);
-      resolve(null);
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+      paymentRequestInvalid,
+      paymentRequestPaypal2,
+      paymentRequestPaypalNotMine,
+      paymentRequestPaypalProcessing,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 1,
     });
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      await paymentRequestData.drop();
-      await receiptData.drop();
-
-      resolve(null);
-    });
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -381,6 +419,169 @@ describe("GET /users/me/payments", () => {
         }
       }
     );
+  });
+  it("Should return payments if fiscalProfile category 1", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) =>
+        [1, 2, 4, 5].includes(r.id)
+      )
+    ).toBe(true);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 2", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 2,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return payments if fiscalProfile category is 2", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 3", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      { ...paymentRequestPaypal, net_multiplier: 2 },
+      { ...paymentRequestWise, net_multiplier: 2 },
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 3,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return payments if fiscalProfile category 3", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+  it("Should return payments with net multiplied by net_multiplier", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results[0].amount.net.value).toBe(338);
+    expect(response.body.results[1].amount.net.value).toBe(538);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 4", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 4,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return payments if fiscalProfile category is 4", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+});
+describe("GET /users/me/payments fiscalProfileCategory 5", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 5,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return payments if fiscalProfile category is 5", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
+  });
+});
+
+describe("GET /users/me/payments fiscalProfileCategory 6", () => {
+  beforeAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().insert([
+      paymentRequestPaypal,
+      paymentRequestWise,
+    ]);
+    await tryber.tables.WpAppqReceipt.do().insert([receiptWise, receiptPaypal]);
+    await tryber.tables.WpAppqFiscalProfile.do().insert({
+      ...fiscalProfile,
+      fiscal_category: 6,
+    });
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqPaymentRequest.do().delete();
+    await tryber.tables.WpAppqReceipt.do().delete();
+    await tryber.tables.WpAppqFiscalProfile.do().delete();
+  });
+
+  it("Should return payments if fiscalProfile category is 6", async () => {
+    const response = await request(app)
+      .get("/users/me/payments")
+      .set("authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(
+      response.body.results.every((r: { id: number }) => [1, 2].includes(r.id))
+    ).toBe(true);
   });
 });
 
