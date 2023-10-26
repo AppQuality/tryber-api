@@ -9,6 +9,21 @@ export default class Leaderboard {
     this.level = level;
   }
 
+  private timePeriod() {
+    const start = new Date(
+      Date.UTC(new Date().getFullYear(), new Date().getMonth(), 1, 0, 0, 0)
+    );
+
+    const end = new Date(
+      Date.UTC(new Date().getFullYear(), new Date().getMonth() + 1, 0, 0, 0, 0)
+    );
+
+    return {
+      start: start.toISOString().slice(0, 19).replace("T", " "),
+      end: end.toISOString().slice(0, 19).replace("T", " "),
+    };
+  }
+
   private async getTesterMonthlyExperience(): Promise<
     {
       tester_id: number;
@@ -25,16 +40,10 @@ export default class Leaderboard {
       )
       .whereNot("wp_appq_evd_profile.name", "Deleted User")
       .whereNot("wp_appq_exp_points.amount", 0)
-      .whereRaw(
-        `${tryber.fn.month(
-          "wp_appq_exp_points.creation_date"
-        )} = ${tryber.fn.month(tryber.fn.now())}`
-      )
-      .whereRaw(
-        `${tryber.fn.year(
-          "wp_appq_exp_points.creation_date"
-        )} = ${tryber.fn.year(tryber.fn.now())}`
-      )
+      .whereBetween("wp_appq_exp_points.creation_date", [
+        this.timePeriod().start,
+        this.timePeriod().end,
+      ])
       .groupBy("tester_id");
     return await sql;
   }
