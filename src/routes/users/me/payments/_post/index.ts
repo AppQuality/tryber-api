@@ -104,7 +104,7 @@ export default class Route extends UserRoute<{
   }
 
   get isStampRequired() {
-    return this.calculateFiscalData().net >= 77.47;
+    return this.booty >= 77.47;
   }
 
   protected async prepare() {
