@@ -28,35 +28,19 @@ export default class PatchUsersMe extends UserRoute<{
   response: StoplightOperations["patch-users-me"]["responses"]["200"]["content"]["application/json"];
   body: StoplightOperations["patch-users-me"]["requestBody"]["content"]["application/json"];
 }> {
-  private _fields: AcceptableValues[] | undefined = undefined;
+  private validFields: StoplightOperations["patch-users-me"]["requestBody"]["content"]["application/json"] =
+    {};
 
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "patch-users-me" });
-    //this.setValidFields();
+    this.setValidFields();
   }
 
-  // private setValidFields() {
-  //   const query = this.getQuery();
-  //   const body = this.getBody();
-  //   this._fields = basicFields;
-
-  //   if (query && query.fields) {
-  //     this._fields = query.fields
-  //       .split(",")
-  //       .filter((f) =>
-  //         acceptedFields.includes(f as AcceptableValues)
-  //       ) as AcceptableValues[];
-
-  //     if (this._fields.includes("all")) {
-  //       this._fields = acceptedFields.filter((f) => f !== "all");
-  //     }
-  //   }
-  // }
-  protected async prepare() {
+  private setValidFields() {
     const body = this.getBody();
     if (!body) throw Error("No body");
 
-    const validData = (Object.keys(body) as AcceptableValues[])
+    this.validFields = (Object.keys(body) as AcceptableValues[])
       .filter((key) => acceptedFields.includes(key))
       .reduce(
         (
@@ -68,24 +52,26 @@ export default class PatchUsersMe extends UserRoute<{
         },
         {}
       );
+  }
+  protected async prepare() {
     const profileSets = [];
     const profileUpdateData = [];
     const wpDataSets = [];
     const wpDataUpdateData = [];
 
-    if (Object.keys(validData).includes("email")) {
+    if (this.validFields.email) {
       try {
         const emailAlreadyExists = await db.query(
           db.format(
             `SELECT user_email FROM wp_users WHERE user_email = ? AND ID != ?`,
-            [validData.email, this.getWordpressId()]
+            [this.validFields.email, this.getWordpressId()]
           )
         );
 
         if (emailAlreadyExists.length) {
           this.setError(
             412,
-            new OpenapiError(`Email ${validData.email} already exists`)
+            new OpenapiError(`Email ${this.validFields.email} already exists`)
           );
           return;
         }
@@ -95,71 +81,71 @@ export default class PatchUsersMe extends UserRoute<{
         throw Error("Error while trying to check email");
       }
       profileSets.push("email = ?");
-      profileUpdateData.push(validData.email);
+      profileUpdateData.push(this.validFields.email);
       profileSets.push("is_verified = 0");
       wpDataSets.push("user_email = ?");
-      wpDataUpdateData.push(validData.email);
+      wpDataUpdateData.push(this.validFields.email);
     }
-    if (Object.keys(validData).includes("name")) {
-      if (this.nameIsValid(validData.name) === false) {
+    if (this.validFields.name) {
+      if (this.nameIsValid(this.validFields.name) === false) {
         this.setError(400, new OpenapiError(`Name is not valid`));
         return;
       }
       profileSets.push("name = ?");
-      profileUpdateData.push(escapeCharacters(validData.name));
+      profileUpdateData.push(escapeCharacters(this.validFields.name));
     }
-    if (Object.keys(validData).includes("surname")) {
-      if (this.nameIsValid(validData.surname) === false) {
+    if (this.validFields.surname) {
+      if (this.nameIsValid(this.validFields.surname) === false) {
         this.setError(400, new OpenapiError(`Surname is not valid`));
         return;
       }
       profileSets.push("surname = ?");
-      profileUpdateData.push(escapeCharacters(validData.surname));
+      profileUpdateData.push(escapeCharacters(this.validFields.surname));
     }
-    if (validData.onboarding_completed) {
+    if (this.validFields.onboarding_completed) {
       profileSets.push("onboarding_complete = ?");
       profileUpdateData.push(1);
     }
-    if (Object.keys(validData).includes("gender")) {
+    if (this.validFields.gender) {
       profileSets.push("sex = ?");
       profileUpdateData.push(
-        validData.gender === "other"
+        this.validFields.gender === "other"
           ? 2
-          : validData.gender === "male"
+          : this.validFields.gender === "male"
           ? 1
-          : validData.gender === "female"
+          : this.validFields.gender === "female"
           ? 0
           : -1
       );
     }
-    if (Object.keys(validData).includes("birthDate")) {
+    if (this.validFields.birthDate) {
       profileSets.push("birth_date = ?");
-      const d = new Date(validData.birthDate);
+      const d = new Date(this.validFields.birthDate);
       profileUpdateData.push(d.toISOString().split(".")[0].replace("T", " "));
     }
-    if (Object.keys(validData).includes("phone")) {
+    if (this.validFields.phone) {
       profileSets.push("phone_number = ?");
-      profileUpdateData.push(validData.phone);
+      profileUpdateData.push(this.validFields.phone);
     }
-    if (Object.keys(validData).includes("education")) {
+    if (this.validFields.education) {
       profileSets.push("education_id = ?");
-      profileUpdateData.push(validData.education);
+      profileUpdateData.push(this.validFields.education);
     }
-    if (Object.keys(validData).includes("profession")) {
+    if (this.validFields.profession) {
       profileSets.push("employment_id = ?");
-      profileUpdateData.push(validData.profession);
+      profileUpdateData.push(this.validFields.profession);
     }
-    if (Object.keys(validData).includes("country")) {
+    if (this.validFields.country) {
       profileSets.push("country = ?");
-      profileUpdateData.push(escapeCharacters(validData.country));
+      profileUpdateData.push(escapeCharacters(this.validFields.country));
     }
-    if (Object.keys(validData).includes("city")) {
+    if (this.validFields.city) {
       profileSets.push("city = ?");
-      profileUpdateData.push(escapeCharacters(validData.city));
+      profileUpdateData.push(escapeCharacters(this.validFields.city));
     }
     try {
-      if (Object.keys(validData).includes("password")) {
-        if (!Object.keys(validData).includes("oldPassword")) {
+      if (this.validFields.password) {
+        if (!this.validFields.oldPassword) {
           throw Error("You need to specify your old password");
         }
         try {
@@ -171,7 +157,7 @@ export default class PatchUsersMe extends UserRoute<{
           if (!oldPassword.length) throw Error("Can't find your password");
           // eslint-disable-next-line new-cap
           const passwordMatches = CheckPassword(
-            validData.oldPassword,
+            this.validFields.oldPassword,
             oldPassword[0].user_pass
           );
           if (!passwordMatches) {
@@ -188,7 +174,7 @@ export default class PatchUsersMe extends UserRoute<{
 
         wpDataSets.push("user_pass = ?");
         // eslint-disable-next-line new-cap
-        const hash = HashPassword(validData.password);
+        const hash = HashPassword(this.validFields.password);
         wpDataUpdateData.push(hash);
       }
 
@@ -218,9 +204,9 @@ export default class PatchUsersMe extends UserRoute<{
         } catch (e) {
           console.log(e);
           throw Error(
-            `Failed to update${
-              Object.keys(validData).includes("password") ? " password" : ""
-            }${Object.keys(validData).includes("email") ? " email" : ""}`
+            `Failed to update${this.validFields.password ? " password" : ""}${
+              this.validFields.email ? " email" : ""
+            }`
           );
         }
       }
