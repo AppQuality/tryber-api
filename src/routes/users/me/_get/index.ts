@@ -39,14 +39,14 @@ const acceptedFields = [
 ];
 type AcceptableValues = typeof acceptedFields[number];
 
-export default class UsersMe extends UserRoute<{
+export default class GetUsersMe extends UserRoute<{
   response: StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"];
   query: StoplightOperations["get-users-me"]["parameters"]["query"];
 }> {
   private _fields: AcceptableValues[] | undefined = undefined;
 
   constructor(configuration: RouteClassConfiguration) {
-    super({ ...configuration, element: "users-me" });
+    super({ ...configuration, element: "get-users-me" });
     this.setValidFields();
   }
 
