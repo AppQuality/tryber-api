@@ -162,20 +162,6 @@ export default class UserData {
     return data;
   }
 
-  protected async getWordpressId() {
-    try {
-      const user = await tryber.tables.WpAppqEvdProfile.do()
-        .select(tryber.ref("wp_user_id"))
-        .where("id", this.profileId)
-        .first();
-      if (!user || !user.wp_user_id) {
-        return Promise.reject(Error("Invalid user"));
-      }
-      return user.wp_user_id as number;
-    } catch (e) {
-      console.log(e);
-    }
-  }
   protected async getProfileData() {
     let query = tryber.tables.WpAppqEvdProfile.do();
     query
@@ -235,71 +221,62 @@ export default class UserData {
         );
     }
 
-    try {
-      const data = await query.first();
+    const data = await query.first();
 
-      if (!data) {
-        console.log("No user");
-        throw Error("No user");
-      }
-
-      let user: any = data;
-      if (
-        this.fields &&
-        this.fields.includes("image") &&
-        user.name &&
-        user.surname
-      ) {
-        const nameSlug = user.name.toLowerCase().replace(/[\W_ ]+/g, "");
-        const surnameSlug = user.surname.toLowerCase().replace(/[\W_ ]+/g, "");
-        const initials = `${nameSlug[0] || "?"}+${surnameSlug[0] || "?"}`;
-        user.image = gravatarUrl({
-          fallback: `https://eu.ui-avatars.com/api/${initials}/132`,
-          email: user.email,
-          size: 132,
-        });
-      }
-      if (this.fields && !this.fields.includes("name")) delete user.name;
-      if (this.fields && !this.fields.includes("surname")) delete user.surname;
-      if (this.fields && !this.fields.includes("email")) delete user.email;
-      if (
-        this.fields &&
-        this.fields.includes("is_verified") &&
-        typeof user.is_verified !== "undefined"
-      ) {
-        user.is_verified = user.is_verified !== 0;
-      }
-      if (
-        this.fields &&
-        this.fields.includes("onboarding_completed") &&
-        typeof user.onboarding_completed !== "undefined"
-      ) {
-        user.onboarding_completed = user.onboarding_completed !== 0;
-      }
-
-      if (user.hasOwnProperty("birthDate") && user.birthDate) {
-        let d = new Date(user.birthDate);
-        d = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-        user.birthDate = d.toISOString().substring(0, 10);
-      }
-      if (user.hasOwnProperty("gender"))
-        user.gender =
-          user.gender == 0
-            ? "female"
-            : user.gender == 1
-            ? "male"
-            : user.gender == 2
-            ? "other"
-            : "not-specified";
-      return user;
-    } catch (e) {
-      console.log("error");
-      console.log(e);
-      if (process.env && process.env.NODE_ENV === "development") {
-        console.log(e);
-      }
-      return Promise.reject(e);
+    if (!data) {
+      console.log("No user");
+      throw Error("No user");
     }
+
+    let user: any = data;
+    if (
+      this.fields &&
+      this.fields.includes("image") &&
+      user.name &&
+      user.surname
+    ) {
+      const nameSlug = user.name.toLowerCase().replace(/[\W_ ]+/g, "");
+      const surnameSlug = user.surname.toLowerCase().replace(/[\W_ ]+/g, "");
+      const initials = `${nameSlug[0] || "?"}+${surnameSlug[0] || "?"}`;
+      user.image = gravatarUrl({
+        fallback: `https://eu.ui-avatars.com/api/${initials}/132`,
+        email: user.email,
+        size: 132,
+      });
+    }
+    if (this.fields && !this.fields.includes("name")) delete user.name;
+    if (this.fields && !this.fields.includes("surname")) delete user.surname;
+    if (this.fields && !this.fields.includes("email")) delete user.email;
+    if (
+      this.fields &&
+      this.fields.includes("is_verified") &&
+      typeof user.is_verified !== "undefined"
+    ) {
+      user.is_verified = user.is_verified !== 0;
+    }
+    if (
+      this.fields &&
+      this.fields.includes("onboarding_completed") &&
+      typeof user.onboarding_completed !== "undefined"
+    ) {
+      user.onboarding_completed = user.onboarding_completed !== 0;
+    }
+
+    if (user.hasOwnProperty("birthDate") && user.birthDate) {
+      let d = new Date(user.birthDate);
+      d = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      user.birthDate = d.toISOString().substring(0, 10);
+    }
+    if (user.hasOwnProperty("gender"))
+      user.gender =
+        user.gender == 0
+          ? "female"
+          : user.gender == 1
+          ? "male"
+          : user.gender == 2
+          ? "other"
+          : "not-specified";
+    return user;
   }
 
   protected async getPendingBootyData() {
@@ -355,195 +332,182 @@ export default class UserData {
   }
 
   protected async getBootyData() {
-    try {
-      let fiscalCategory = 0;
+    let fiscalCategory = 0;
 
-      const fiscalQuery = (await tryber.tables.WpAppqFiscalProfile.do()
-        .select(
-          tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
-        )
-        .join(
-          "wp_appq_evd_profile",
-          "wp_appq_evd_profile.id",
-          "wp_appq_fiscal_profile.tester_id"
-        )
-        .where("wp_appq_evd_profile.id", this.profileId)
-        .andWhere("wp_appq_fiscal_profile.is_active", 1)
-        .first()) as unknown as { fiscal_category: string };
+    const fiscalQuery = (await tryber.tables.WpAppqFiscalProfile.do()
+      .select(
+        tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_fiscal_profile.tester_id"
+      )
+      .where("wp_appq_evd_profile.id", this.profileId)
+      .andWhere("wp_appq_fiscal_profile.is_active", 1)
+      .first()) as unknown as { fiscal_category: string };
 
-      fiscalCategory = Number(fiscalQuery?.fiscal_category);
+    fiscalCategory = Number(fiscalQuery?.fiscal_category);
 
-      const res = (await tryber.tables.WpAppqPaymentRequest.do()
-        .sum({ gross: "amount_gross", net: "amount" })
-        .join(
-          "wp_appq_evd_profile",
-          "wp_appq_evd_profile.id",
-          "wp_appq_payment_request.tester_id"
-        )
-        .where("wp_appq_evd_profile.id", this.profileId)
-        .andWhere("is_paid", 1)
-        .first()) as unknown as { gross: string; net: string };
+    const res = (await tryber.tables.WpAppqPaymentRequest.do()
+      .sum({ gross: "amount_gross", net: "amount" })
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_payment_request.tester_id"
+      )
+      .where("wp_appq_evd_profile.id", this.profileId)
+      .andWhere("is_paid", 1)
+      .first()) as unknown as { gross: string; net: string };
 
-      if (!res) Promise.reject(Error("Invalid pending booty data"));
+    if (!res) Promise.reject(Error("Invalid pending booty data"));
 
-      return {
-        booty: {
-          gross: {
-            value: res.gross ? Number(parseFloat(res.gross).toFixed(2)) : 0,
-            currency: "EUR",
-          },
-          ...(fiscalQuery &&
-            fiscalCategory === 1 && {
-              net: {
-                value: res.net ? Number(parseFloat(res.net).toFixed(2)) : 0,
-                currency: "EUR",
-              },
-            }),
+    return {
+      booty: {
+        gross: {
+          value: res.gross ? Number(parseFloat(res.gross).toFixed(2)) : 0,
+          currency: "EUR",
         },
-      };
-    } catch (e) {
-      throw e;
-    }
+        ...(fiscalQuery &&
+          fiscalCategory === 1 && {
+            net: {
+              value: res.net ? Number(parseFloat(res.net).toFixed(2)) : 0,
+              currency: "EUR",
+            },
+          }),
+      },
+    };
   }
 
   protected async getApprovedBugsData() {
-    try {
-      const data = await tryber.tables.WpAppqEvdBug.do()
-        .count("id")
-        .where("profile_id", this.profileId)
-        .andWhere("status_id", 2)
-        .first();
+    const data = await tryber.tables.WpAppqEvdBug.do()
+      .count({
+        count: "id",
+      })
+      .where("profile_id", this.profileId)
+      .andWhere("status_id", 2)
+      .first();
 
-      if (!data) return Promise.reject(Error("Invalid bugs data"));
+    if (!data) return Promise.reject(Error("Invalid bugs data"));
 
-      return { approved_bugs: Number(Object.values(data)[0]) };
-    } catch (e) {
-      if (process.env && process.env.NODE_ENV === "development") console.log(e);
-      return Promise.reject(e);
-    }
+    return { approved_bugs: typeof data.count === "number" ? data.count : 0 };
   }
 
   protected async getAttendedCpData() {
-    try {
-      const query = tryber.tables.WpAppqExpPoints.do()
-        .select(tryber.raw("COUNT(DISTINCT campaign_id) AS attended_cp"))
-        .join(
-          "wp_appq_evd_profile",
-          "wp_appq_evd_profile.id",
-          "wp_appq_exp_points.tester_id"
-        )
-        .where("wp_appq_exp_points.activity_id", 1)
-        .andWhere("wp_appq_exp_points.amount", ">", 0)
-        .andWhere("wp_appq_evd_profile.id", this.profileId)
-        .first();
+    const data = await tryber.tables.WpAppqExpPoints.do()
+      .count({
+        count: tryber.ref("campaign_id").withSchema("wp_appq_exp_points"),
+      })
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_exp_points.tester_id"
+      )
+      .where("wp_appq_exp_points.activity_id", 1)
+      .andWhere("wp_appq_exp_points.amount", ">", 0)
+      .andWhere("wp_appq_evd_profile.id", this.profileId)
+      .groupBy("wp_appq_exp_points.campaign_id")
+      .first();
 
-      const data = (await query) as unknown as { attended_cp: number };
-      if (!data) return Promise.reject(Error("Invalid cp data"));
-      return { attended_cp: Number(data.attended_cp) };
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    if (!data) return Promise.reject(Error("Invalid cp data"));
+
+    return { attended_cp: typeof data.count === "number" ? data.count : 0 };
   }
 
   protected async getCertificationsData() {
-    try {
-      const data = await tryber.tables.WpAppqProfileCertifications.do()
-        .select(
-          tryber.ref("id").withSchema("wp_appq_certifications_list"),
-          tryber.ref("name").withSchema("wp_appq_certifications_list"),
-          tryber.ref("area").withSchema("wp_appq_certifications_list"),
-          tryber.ref("institute").withSchema("wp_appq_certifications_list"),
-          tryber
-            .ref("achievement_date")
-            .withSchema("wp_appq_profile_certifications")
-        )
+    const data = await tryber.tables.WpAppqProfileCertifications.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_certifications_list"),
+        tryber.ref("name").withSchema("wp_appq_certifications_list"),
+        tryber.ref("area").withSchema("wp_appq_certifications_list"),
+        tryber.ref("institute").withSchema("wp_appq_certifications_list"),
+        tryber
+          .ref("achievement_date")
+          .withSchema("wp_appq_profile_certifications")
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "wp_appq_profile_certifications.tester_id"
+      )
+      .join(
+        "wp_appq_certifications_list",
+        "wp_appq_certifications_list.id",
+        "wp_appq_profile_certifications.cert_id"
+      )
+      .where("wp_appq_evd_profile.id", this.profileId);
+
+    if (!data.length) {
+      const emptyCerts = await tryber.tables.WpUsermeta.do()
+        .select()
         .join(
           "wp_appq_evd_profile",
-          "wp_appq_evd_profile.id",
-          "wp_appq_profile_certifications.tester_id"
+          "wp_appq_evd_profile.wp_user_id",
+          "wp_usermeta.user_id"
         )
-        .join(
-          "wp_appq_certifications_list",
-          "wp_appq_certifications_list.id",
-          "wp_appq_profile_certifications.cert_id"
-        )
-        .where("wp_appq_evd_profile.id", this.profileId);
+        .where("wp_appq_evd_profile.id", this.profileId)
+        .andWhere("meta_key", "emptyCerts")
+        .andWhere("meta_value", "true");
 
-      if (!data.length) {
-        const emptyCerts = await tryber.tables.WpUsermeta.do()
-          .select()
-          .where("user_id", await this.getWordpressId())
-          .andWhere("meta_key", "emptyCerts")
-          .andWhere("meta_value", "true");
-
-        if (!emptyCerts.length) {
-          return Promise.reject(Error("Invalid certification data"));
-        }
-        return { certifications: false };
+      if (!emptyCerts.length) {
+        return Error("Invalid certification data");
       }
-      return {
-        certifications: data.map((d) => {
-          const item = {
-            ...d,
-            achievement_date: new Date(d.achievement_date)
-              .toISOString()
-              .substring(0, 10),
-          };
-          return item;
-        }),
-      };
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      return Promise.reject(e);
+      return { certifications: false };
     }
+
+    return {
+      certifications: data.map((d) => {
+        const item = {
+          ...d,
+          achievement_date: new Date(d.achievement_date)
+            .toISOString()
+            .substring(0, 10),
+        };
+        return item;
+      }),
+    };
   }
 
   protected async getProfessionData() {
-    try {
-      const data = await tryber.tables.WpAppqEvdProfile.do()
-        .select(
-          tryber.ref("id").withSchema("wp_appq_employment"),
-          tryber.ref("display_name").withSchema("wp_appq_employment").as("name")
-        )
-        .join(
-          "wp_appq_employment",
-          "wp_appq_employment.id",
-          "wp_appq_evd_profile.employment_id"
-        )
-        .where("wp_appq_evd_profile.id", this.profileId);
+    const data = await tryber.tables.WpAppqEvdProfile.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_employment"),
+        tryber.ref("display_name").withSchema("wp_appq_employment").as("name")
+      )
+      .join(
+        "wp_appq_employment",
+        "wp_appq_employment.id",
+        "wp_appq_evd_profile.employment_id"
+      )
+      .where("wp_appq_evd_profile.id", this.profileId)
+      .first();
 
-      if (!data.length) throw Error("Invalid employement data");
-      return { profession: data[0] };
-    } catch (e) {
-      throw e;
-    }
+    if (!data) throw Error("Invalid employement data");
+    return { profession: data };
   }
 
   protected async getEducationData() {
-    try {
-      const data = await tryber.tables.WpAppqEvdProfile.do()
-        .select(
-          tryber.ref("id").withSchema("wp_appq_education"),
-          tryber.ref("display_name").withSchema("wp_appq_education").as("name")
-        )
-        .join(
-          "wp_appq_education",
-          "wp_appq_education.id",
-          "wp_appq_evd_profile.education_id"
-        )
-        .where("wp_appq_evd_profile.id", this.profileId);
+    const data = await tryber.tables.WpAppqEvdProfile.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_education"),
+        tryber.ref("display_name").withSchema("wp_appq_education").as("name")
+      )
+      .join(
+        "wp_appq_education",
+        "wp_appq_education.id",
+        "wp_appq_evd_profile.education_id"
+      )
+      .where("wp_appq_evd_profile.id", this.profileId)
+      .first();
 
-      if (!data.length) return Promise.reject(Error("Invalid education data"));
-      return { education: data[0] };
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    if (!data) return Error("Invalid education data");
+    return { education: data };
   }
 
   protected async getLanguagesData() {
     const data = await tryber.tables.WpAppqProfileHasLang.do()
       .select(
-        tryber.ref("display_name").withSchema("wp_appq_lang").as("language"),
+        tryber.ref("display_name").withSchema("wp_appq_lang").as("name"),
         tryber.ref("id").withSchema("wp_appq_lang")
       )
       .as("id")
@@ -559,17 +523,11 @@ export default class UserData {
       )
       .where("wp_appq_evd_profile.id", this.profileId);
 
-    try {
-      if (!data.length) return Promise.reject(Error("Invalid language data"));
-      return {
-        languages: data.map((l: { id: number; language: string }) => ({
-          id: l.id,
-          name: l.language,
-        })),
-      };
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    if (!data.length) return Error("Invalid language data");
+
+    return {
+      languages: data,
+    };
   }
 
   protected async getAdditionalData(fieldId: false | string = false) {
@@ -607,7 +565,7 @@ export default class UserData {
           "wp_appq_evd_profile.id",
           "wp_appq_custom_user_field_data.profile_id"
         )
-        .where("wp_user_id", await this.getWordpressId())
+        .where("wp_appq_evd_profile.id", this.profileId)
         .andWhere("wp_appq_custom_user_field.enabled", 1);
       if (fieldId) {
         newData = newData.andWhere("wp_appq_custom_user_field.id", fieldId);
