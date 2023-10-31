@@ -70,17 +70,9 @@ export default class UserData {
     this.populateRank();
     await this.populateApprovedBugs();
     await this.populateAttendedCp();
+    await this.populateCertifications();
     data = this._data;
     if (this.fields) {
-      if (this.fields.includes("certifications")) {
-        try {
-          data = {
-            ...data,
-            ...(await this.getCertificationsData()),
-          };
-          this._data = data;
-        } catch {}
-      }
       if (this.fields.includes("profession")) {
         try {
           data = { ...data, ...(await this.getProfessionData()) };
@@ -468,58 +460,63 @@ export default class UserData {
     }
   }
 
-  protected async getCertificationsData() {
-    const data = await tryber.tables.WpAppqProfileCertifications.do()
-      .select(
-        tryber.ref("id").withSchema("wp_appq_certifications_list"),
-        tryber.ref("name").withSchema("wp_appq_certifications_list"),
-        tryber.ref("area").withSchema("wp_appq_certifications_list"),
-        tryber.ref("institute").withSchema("wp_appq_certifications_list"),
-        tryber
-          .ref("achievement_date")
-          .withSchema("wp_appq_profile_certifications")
-      )
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.id",
-        "wp_appq_profile_certifications.tester_id"
-      )
-      .join(
-        "wp_appq_certifications_list",
-        "wp_appq_certifications_list.id",
-        "wp_appq_profile_certifications.cert_id"
-      )
-      .where("wp_appq_evd_profile.id", this.profileId);
+  protected async populateCertifications() {
+    if (this.fields && this.fields.includes("certifications")) {
+      try {
+        const data = await tryber.tables.WpAppqProfileCertifications.do()
+          .select(
+            tryber.ref("id").withSchema("wp_appq_certifications_list"),
+            tryber.ref("name").withSchema("wp_appq_certifications_list"),
+            tryber.ref("area").withSchema("wp_appq_certifications_list"),
+            tryber.ref("institute").withSchema("wp_appq_certifications_list"),
+            tryber
+              .ref("achievement_date")
+              .withSchema("wp_appq_profile_certifications")
+          )
+          .join(
+            "wp_appq_evd_profile",
+            "wp_appq_evd_profile.id",
+            "wp_appq_profile_certifications.tester_id"
+          )
+          .join(
+            "wp_appq_certifications_list",
+            "wp_appq_certifications_list.id",
+            "wp_appq_profile_certifications.cert_id"
+          )
+          .where("wp_appq_evd_profile.id", this.profileId);
 
-    if (!data.length) {
-      const emptyCerts = await tryber.tables.WpUsermeta.do()
-        .select()
-        .join(
-          "wp_appq_evd_profile",
-          "wp_appq_evd_profile.wp_user_id",
-          "wp_usermeta.user_id"
-        )
-        .where("wp_appq_evd_profile.id", this.profileId)
-        .andWhere("meta_key", "emptyCerts")
-        .andWhere("meta_value", "true");
+        if (!data.length) {
+          const emptyCerts = await tryber.tables.WpUsermeta.do()
+            .select()
+            .join(
+              "wp_appq_evd_profile",
+              "wp_appq_evd_profile.wp_user_id",
+              "wp_usermeta.user_id"
+            )
+            .where("wp_appq_evd_profile.id", this.profileId)
+            .andWhere("meta_key", "emptyCerts")
+            .andWhere("meta_value", "true");
 
-      if (!emptyCerts.length) {
-        return Error("Invalid certification data");
+          if (!emptyCerts.length) {
+            return Error("Invalid certification data");
+          }
+          this._data.certifications = false;
+          return;
+        }
+
+        this._data.certifications = data.map((d) => {
+          const item = {
+            ...d,
+            achievement_date: new Date(d.achievement_date)
+              .toISOString()
+              .substring(0, 10),
+          };
+          return item;
+        });
+      } catch (e) {
+        console.log(e);
       }
-      return { certifications: false };
     }
-
-    return {
-      certifications: data.map((d) => {
-        const item = {
-          ...d,
-          achievement_date: new Date(d.achievement_date)
-            .toISOString()
-            .substring(0, 10),
-        };
-        return item;
-      }),
-    };
   }
 
   protected async getProfessionData() {
