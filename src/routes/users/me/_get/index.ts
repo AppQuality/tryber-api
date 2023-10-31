@@ -3,7 +3,7 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import debugMessage from "@src/features/debugMessage";
 import { tryber } from "@src/features/database";
-import UserData from "@src/routes/users/UserData";
+import UserData from "@src/features/class/UserData";
 
 const basicFields = [
   "email" as const,
