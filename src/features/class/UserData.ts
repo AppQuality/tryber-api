@@ -69,14 +69,9 @@ export default class UserData {
     await this.populateBooty();
     this.populateRank();
     await this.populateApprovedBugs();
+    await this.populateAttendedCp();
     data = this._data;
     if (this.fields) {
-      if (this.fields.includes("attended_cp")) {
-        try {
-          data = { ...data, ...(await this.getAttendedCpData()) };
-          this._data = data;
-        } catch {}
-      }
       if (this.fields.includes("certifications")) {
         try {
           data = {
@@ -446,25 +441,31 @@ export default class UserData {
     };
   }
 
-  protected async getAttendedCpData() {
-    const data = await tryber.tables.WpAppqExpPoints.do()
-      .count({
-        count: tryber.ref("campaign_id").withSchema("wp_appq_exp_points"),
-      })
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.id",
-        "wp_appq_exp_points.tester_id"
-      )
-      .where("wp_appq_exp_points.activity_id", 1)
-      .andWhere("wp_appq_exp_points.amount", ">", 0)
-      .andWhere("wp_appq_evd_profile.id", this.profileId)
-      .groupBy("wp_appq_exp_points.campaign_id")
-      .first();
+  protected async populateAttendedCp() {
+    if (this.fields && this.fields.includes("attended_cp")) {
+      try {
+        const data = await tryber.tables.WpAppqExpPoints.do()
+          .count({
+            count: tryber.ref("campaign_id").withSchema("wp_appq_exp_points"),
+          })
+          .join(
+            "wp_appq_evd_profile",
+            "wp_appq_evd_profile.id",
+            "wp_appq_exp_points.tester_id"
+          )
+          .where("wp_appq_exp_points.activity_id", 1)
+          .andWhere("wp_appq_exp_points.amount", ">", 0)
+          .andWhere("wp_appq_evd_profile.id", this.profileId)
+          .groupBy("wp_appq_exp_points.campaign_id")
+          .first();
+        if (!data) return Promise.reject(Error("Invalid cp data"));
 
-    if (!data) return Promise.reject(Error("Invalid cp data"));
-
-    return { attended_cp: typeof data.count === "number" ? data.count : 0 };
+        this._data.attended_cp =
+          typeof data.count === "number" ? data.count : 0;
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
 
   protected async getCertificationsData() {

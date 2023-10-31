@@ -17,6 +17,7 @@ import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
+import { tryber } from "@src/features/database";
 
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
@@ -98,6 +99,15 @@ describe("Route PATCH users-me", () => {
       custom_user_field_id: 3,
       candidate: 0,
     });
+    await tryber.tables.WpAppqExpPoints.do().insert({
+      tester_id: 1,
+      campaign_id: 1,
+      activity_id: 1,
+      pm_id: 1,
+      amount: 1,
+      bug_id: 1,
+      reason: "test reason",
+    });
   });
   afterAll(async () => {
     await WpUsers.clear();
@@ -115,6 +125,7 @@ describe("Route PATCH users-me", () => {
     await CustomUserFields.clear();
     await CustomUserFieldsData.clear();
     await CustomUserFieldExtras.clear();
+    await tryber.tables.WpAppqExpPoints.do().delete();
   });
   it("Should not update user when no parameters were given", async () => {
     const responseGetBeforePatch = await request(app)
@@ -255,6 +266,15 @@ describe("Route PATCH users-me accepted fields", () => {
         custom_user_field_id: 3,
         candidate: 0,
       });
+      await tryber.tables.WpAppqExpPoints.do().insert({
+        tester_id: 1,
+        campaign_id: 1,
+        activity_id: 1,
+        pm_id: 1,
+        amount: 1,
+        bug_id: 1,
+        reason: "test reason",
+      });
 
       resolve(null);
     });
@@ -275,6 +295,7 @@ describe("Route PATCH users-me accepted fields", () => {
     await CustomUserFields.clear();
     await CustomUserFieldsData.clear();
     await CustomUserFieldExtras.clear();
+    await tryber.tables.WpAppqExpPoints.do().delete();
   });
   it("Should return 412 if EMAIL already exists for another user", async () => {
     const response = await request(app)
