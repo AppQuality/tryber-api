@@ -3,9 +3,8 @@
 import * as db from "@src/features/db";
 import { Context } from "openapi-backend";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
-
 import escapeCharacters from "../../../../features/escapeCharacters";
-import getUserData from "../_get/getUserData";
+import UserData from "../../UserData";
 
 const acceptedFields = [
   "name",
@@ -188,9 +187,40 @@ export default async (
         );
       }
     }
+
     res.status_code = 200;
+    const userFields = [
+      "email",
+      "is_verified",
+      "name",
+      "surname",
+      "username",
+      "wp_user_id",
+      "additional",
+      "all",
+      "approved_bugs",
+      "attended_cp",
+      "birthDate",
+      "booty",
+      "booty_threshold",
+      "certifications",
+      "city",
+      "country",
+      "education",
+      "gender",
+      "image",
+      "languages",
+      "onboarding_completed",
+      "pending_booty",
+      "phone",
+      "profession",
+      "rank",
+      "role",
+      "total_exp_pts",
+    ];
+    const user = new UserData(parseInt(req.user.ID), userFields);
     return {
-      ...(await getUserData(req.user.ID, ["all"])),
+      ...(await user.getData()),
       role: req.user.role,
     };
   } catch (err) {
