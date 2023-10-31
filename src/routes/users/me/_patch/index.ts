@@ -3,7 +3,7 @@
 import * as db from "@src/features/db";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 import escapeCharacters from "../../../../features/escapeCharacters";
-import UserData from "../../UserData";
+import UserData from "../../../../features/class/UserData";
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 

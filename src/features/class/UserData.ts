@@ -53,9 +53,6 @@ export default class UserData {
     };
   } = { id: this.profileId };
 
-  get data() {
-    return this._data;
-  }
   constructor(
     private profileId: number,
     private fields: string[] | undefined
@@ -66,18 +63,15 @@ export default class UserData {
       ...this._data,
       ...(await this.getProfileData()),
     };
+    this._data = data;
 
+    await this.populatePendingBooty();
+    data = this._data;
     if (this.fields) {
-      if (this.fields.includes("pending_booty")) {
-        try {
-          data = { ...data, ...(await this.getPendingBootyData()) };
-        } catch (e) {
-          console.log(e);
-        }
-      }
       if (this.fields.includes("booty")) {
         try {
           data = { ...data, ...(await this.getBootyData()) };
+          this._data = data;
         } catch (e) {
           console.log(e);
         }
@@ -85,17 +79,20 @@ export default class UserData {
       if (this.fields.includes("rank")) {
         try {
           data = { ...data, rank: "0" };
+          this._data = data;
         } catch (e) {}
       }
 
       if (this.fields.includes("approved_bugs")) {
         try {
           data = { ...data, ...(await this.getApprovedBugsData()) };
+          this._data = data;
         } catch {}
       }
       if (this.fields.includes("attended_cp")) {
         try {
           data = { ...data, ...(await this.getAttendedCpData()) };
+          this._data = data;
         } catch {}
       }
       if (this.fields.includes("certifications")) {
@@ -104,28 +101,33 @@ export default class UserData {
             ...data,
             ...(await this.getCertificationsData()),
           };
+          this._data = data;
         } catch {}
       }
       if (this.fields.includes("profession")) {
         try {
           data = { ...data, ...(await this.getProfessionData()) };
+          this._data = data;
         } catch {}
       }
       if (this.fields.includes("education")) {
         try {
           data = { ...data, ...(await this.getEducationData()) };
+          this._data = data;
         } catch {}
       }
 
       if (this.fields.includes("languages")) {
         try {
           data = { ...data, ...(await this.getLanguagesData()) };
+          this._data = data;
         } catch {}
       }
 
       if (this.fields.includes("additional")) {
         try {
           data = { ...data, ...(await this.getAdditionalData()) };
+          this._data = data;
         } catch (e) {
           console.log(e);
         }
@@ -148,6 +150,7 @@ export default class UserData {
             ...data,
             ...{ booty_threshold: bootyThreshold },
           };
+          this._data = data;
         } catch (e) {
           console.log(e);
         }
@@ -159,7 +162,7 @@ export default class UserData {
       //     delete data[k as keyof typeof data];
       // });
     }
-    return data;
+    return this._data;
   }
 
   protected async getProfileData() {
@@ -279,10 +282,65 @@ export default class UserData {
     return user;
   }
 
+  private async populatePendingBooty() {
+    if (this.fields && this.fields.includes("pending_booty")) {
+      try {
+        let fiscalCategory = 0;
+
+        const fiscal = await tryber.tables.WpAppqFiscalProfile.do()
+          .select(
+            tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
+          )
+          .join(
+            "wp_appq_evd_profile",
+            "wp_appq_evd_profile.id",
+            "wp_appq_fiscal_profile.tester_id"
+          )
+          .where("wp_appq_evd_profile.id", this.profileId)
+          .andWhere("wp_appq_fiscal_profile.is_active", 1)
+          .first();
+
+        fiscalCategory = Number(fiscal?.fiscal_category);
+        const res = await tryber.tables.WpAppqPayment.do()
+          .sum({ total: "amount" })
+          .join(
+            "wp_appq_evd_profile",
+            "wp_appq_evd_profile.id",
+            "wp_appq_payment.tester_id"
+          )
+          .where("wp_appq_evd_profile.id", this.profileId)
+          .andWhere("is_paid", 0)
+          .andWhere("is_requested", 0)
+          .first();
+
+        if (!res) {
+          throw Error("Invalid pending booty data");
+        }
+        this._data.pending_booty = {
+          gross: {
+            value: res.total ? Number(res.total.toFixed(2)) : 0,
+            currency: "EUR",
+          },
+          ...(fiscal &&
+            fiscalCategory === 1 && {
+              net: {
+                value: res.total
+                  ? Number(parseFloat(`${res.total * 0.8}`).toFixed(2))
+                  : 0,
+                currency: "EUR",
+              },
+            }),
+        };
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
   protected async getPendingBootyData() {
     let fiscalCategory = 0;
 
-    const fiscal = (await tryber.tables.WpAppqFiscalProfile.do()
+    const fiscal = await tryber.tables.WpAppqFiscalProfile.do()
       .select(
         tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
       )
@@ -293,10 +351,10 @@ export default class UserData {
       )
       .where("wp_appq_evd_profile.id", this.profileId)
       .andWhere("wp_appq_fiscal_profile.is_active", 1)
-      .first()) as unknown as { fiscal_category: string };
+      .first();
 
     fiscalCategory = Number(fiscal?.fiscal_category);
-    const res = (await tryber.tables.WpAppqPayment.do()
+    const res = await tryber.tables.WpAppqPayment.do()
       .sum({ total: "amount" })
       .join(
         "wp_appq_evd_profile",
@@ -306,10 +364,10 @@ export default class UserData {
       .where("wp_appq_evd_profile.id", this.profileId)
       .andWhere("is_paid", 0)
       .andWhere("is_requested", 0)
-      .first()) as unknown as { total: number };
+      .first();
 
     if (!res) {
-      Promise.reject(Error("Invalid pending booty data"));
+      throw Error("Invalid pending booty data");
     }
 
     return {
@@ -334,7 +392,7 @@ export default class UserData {
   protected async getBootyData() {
     let fiscalCategory = 0;
 
-    const fiscalQuery = (await tryber.tables.WpAppqFiscalProfile.do()
+    const fiscalQuery = await tryber.tables.WpAppqFiscalProfile.do()
       .select(
         tryber.ref("fiscal_category").withSchema("wp_appq_fiscal_profile")
       )
@@ -345,11 +403,11 @@ export default class UserData {
       )
       .where("wp_appq_evd_profile.id", this.profileId)
       .andWhere("wp_appq_fiscal_profile.is_active", 1)
-      .first()) as unknown as { fiscal_category: string };
+      .first();
 
     fiscalCategory = Number(fiscalQuery?.fiscal_category);
 
-    const res = (await tryber.tables.WpAppqPaymentRequest.do()
+    const res = await tryber.tables.WpAppqPaymentRequest.do()
       .sum({ gross: "amount_gross", net: "amount" })
       .join(
         "wp_appq_evd_profile",
@@ -358,9 +416,9 @@ export default class UserData {
       )
       .where("wp_appq_evd_profile.id", this.profileId)
       .andWhere("is_paid", 1)
-      .first()) as unknown as { gross: string; net: string };
+      .first();
 
-    if (!res) Promise.reject(Error("Invalid pending booty data"));
+    if (!res) throw Error("Invalid pending booty data");
 
     return {
       booty: {
