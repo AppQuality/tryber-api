@@ -67,15 +67,9 @@ export default class UserData {
 
     await this.populatePendingBooty();
     await this.populateBooty();
+    await this.populateRank();
     data = this._data;
     if (this.fields) {
-      if (this.fields.includes("rank")) {
-        try {
-          data = { ...data, rank: "0" };
-          this._data = data;
-        } catch (e) {}
-      }
-
       if (this.fields.includes("approved_bugs")) {
         try {
           data = { ...data, ...(await this.getApprovedBugsData()) };
@@ -378,6 +372,11 @@ export default class UserData {
       } catch (e) {
         console.log(e);
       }
+    }
+  }
+  private async populateRank() {
+    if (this.fields && this.fields.includes("rank")) {
+      this._data.rank = "0";
     }
   }
 
