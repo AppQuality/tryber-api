@@ -72,23 +72,11 @@ export default class UserData {
     await this.populateAttendedCp();
     await this.populateCertifications();
     await this.populateProfession();
+    await this.populateEducation();
+    await this.getLanguagesData();
     data = this._data;
 
     if (this.fields) {
-      if (this.fields.includes("education")) {
-        try {
-          data = { ...data, ...(await this.getEducationData()) };
-          this._data = data;
-        } catch {}
-      }
-
-      if (this.fields.includes("languages")) {
-        try {
-          data = { ...data, ...(await this.getLanguagesData()) };
-          this._data = data;
-        } catch {}
-      }
-
       if (this.fields.includes("additional")) {
         try {
           data = { ...data, ...(await this.getAdditionalData()) };
@@ -246,7 +234,6 @@ export default class UserData {
           : "not-specified";
     return user;
   }
-
   private async populatePendingBooty() {
     if (this.fields && this.fields.includes("pending_booty")) {
       try {
@@ -376,7 +363,6 @@ export default class UserData {
       }
     }
   }
-
   protected async getPendingBootyData() {
     let fiscalCategory = 0;
 
@@ -428,7 +414,6 @@ export default class UserData {
       },
     };
   }
-
   protected async populateAttendedCp() {
     if (this.fields && this.fields.includes("attended_cp")) {
       try {
@@ -455,7 +440,6 @@ export default class UserData {
       }
     }
   }
-
   protected async populateCertifications() {
     if (this.fields && this.fields.includes("certifications")) {
       try {
@@ -514,7 +498,6 @@ export default class UserData {
       }
     }
   }
-
   protected async populateProfession() {
     if (this.fields && this.fields.includes("profession")) {
       try {
@@ -541,49 +524,59 @@ export default class UserData {
       }
     }
   }
-
-  protected async getEducationData() {
-    const data = await tryber.tables.WpAppqEvdProfile.do()
-      .select(
-        tryber.ref("id").withSchema("wp_appq_education"),
-        tryber.ref("display_name").withSchema("wp_appq_education").as("name")
-      )
-      .join(
-        "wp_appq_education",
-        "wp_appq_education.id",
-        "wp_appq_evd_profile.education_id"
-      )
-      .where("wp_appq_evd_profile.id", this.profileId)
-      .first();
-
-    if (!data) return Error("Invalid education data");
-    return { education: data };
+  protected async populateEducation() {
+    if (this.fields && this.fields.includes("education")) {
+      try {
+        const data = await tryber.tables.WpAppqEvdProfile.do()
+          .select(
+            tryber.ref("id").withSchema("wp_appq_education"),
+            tryber
+              .ref("display_name")
+              .withSchema("wp_appq_education")
+              .as("name")
+          )
+          .join(
+            "wp_appq_education",
+            "wp_appq_education.id",
+            "wp_appq_evd_profile.education_id"
+          )
+          .where("wp_appq_evd_profile.id", this.profileId)
+          .first();
+        if (!data) return Error("Invalid education data");
+        this._data.education = data;
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
-
   protected async getLanguagesData() {
-    const data = await tryber.tables.WpAppqProfileHasLang.do()
-      .select(
-        tryber.ref("display_name").withSchema("wp_appq_lang").as("name"),
-        tryber.ref("id").withSchema("wp_appq_lang")
-      )
-      .as("id")
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.id",
-        "wp_appq_profile_has_lang.profile_id"
-      )
-      .join(
-        "wp_appq_lang",
-        "wp_appq_lang.id",
-        "wp_appq_profile_has_lang.language_id"
-      )
-      .where("wp_appq_evd_profile.id", this.profileId);
+    if (this.fields && this.fields.includes("languages")) {
+      try {
+        const data = await tryber.tables.WpAppqProfileHasLang.do()
+          .select(
+            tryber.ref("display_name").withSchema("wp_appq_lang").as("name"),
+            tryber.ref("id").withSchema("wp_appq_lang")
+          )
+          .as("id")
+          .join(
+            "wp_appq_evd_profile",
+            "wp_appq_evd_profile.id",
+            "wp_appq_profile_has_lang.profile_id"
+          )
+          .join(
+            "wp_appq_lang",
+            "wp_appq_lang.id",
+            "wp_appq_profile_has_lang.language_id"
+          )
+          .where("wp_appq_evd_profile.id", this.profileId);
 
-    if (!data.length) return Error("Invalid language data");
+        if (!data.length) return Error("Invalid language data");
 
-    return {
-      languages: data,
-    };
+        this._data.languages = data;
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
 
   protected async getAdditionalData(fieldId: false | string = false) {
