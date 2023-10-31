@@ -142,7 +142,7 @@ describe("Route PATCH users-me", () => {
       .send({ name: ">.<" });
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
-      element: "users",
+      element: "patch-users-me",
       id: 1,
       message: "Name is not valid",
     });
@@ -154,7 +154,7 @@ describe("Route PATCH users-me", () => {
       .send({ surname: ">.<" });
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
-      element: "users",
+      element: "patch-users-me",
       id: 1,
       message: "Surname is not valid",
     });
@@ -520,7 +520,7 @@ describe("Route PATCH users-me accepted fields", () => {
       .send({ oldPassword: "wrongOldPassword", password: "newPassword" });
     expect(responsePatch.status).toBe(417);
     expect(responsePatch.body).toStrictEqual({
-      element: "users",
+      element: "patch-users-me",
       id: 1,
       message: "Your old password is not correct",
     });
@@ -531,7 +531,7 @@ describe("Route PATCH users-me accepted fields", () => {
       .set("Authorization", `Bearer tester`)
       .send({ password: "newPassword" });
     expect(responsePatch.body).toStrictEqual({
-      element: "users",
+      element: "patch-users-me",
       id: 1,
       message: "You need to specify your old password",
     });
