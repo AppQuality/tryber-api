@@ -71,14 +71,10 @@ export default class UserData {
     await this.populateApprovedBugs();
     await this.populateAttendedCp();
     await this.populateCertifications();
+    await this.populateProfession();
     data = this._data;
+
     if (this.fields) {
-      if (this.fields.includes("profession")) {
-        try {
-          data = { ...data, ...(await this.getProfessionData()) };
-          this._data = data;
-        } catch {}
-      }
       if (this.fields.includes("education")) {
         try {
           data = { ...data, ...(await this.getEducationData()) };
@@ -519,22 +515,31 @@ export default class UserData {
     }
   }
 
-  protected async getProfessionData() {
-    const data = await tryber.tables.WpAppqEvdProfile.do()
-      .select(
-        tryber.ref("id").withSchema("wp_appq_employment"),
-        tryber.ref("display_name").withSchema("wp_appq_employment").as("name")
-      )
-      .join(
-        "wp_appq_employment",
-        "wp_appq_employment.id",
-        "wp_appq_evd_profile.employment_id"
-      )
-      .where("wp_appq_evd_profile.id", this.profileId)
-      .first();
+  protected async populateProfession() {
+    if (this.fields && this.fields.includes("profession")) {
+      try {
+        const data = await tryber.tables.WpAppqEvdProfile.do()
+          .select(
+            tryber.ref("id").withSchema("wp_appq_employment"),
+            tryber
+              .ref("display_name")
+              .withSchema("wp_appq_employment")
+              .as("name")
+          )
+          .join(
+            "wp_appq_employment",
+            "wp_appq_employment.id",
+            "wp_appq_evd_profile.employment_id"
+          )
+          .where("wp_appq_evd_profile.id", this.profileId)
+          .first();
 
-    if (!data) throw Error("Invalid employement data");
-    return { profession: data };
+        if (!data) throw Error("Invalid employement data");
+        this._data.profession = data;
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
 
   protected async getEducationData() {
