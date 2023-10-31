@@ -67,15 +67,10 @@ export default class UserData {
 
     await this.populatePendingBooty();
     await this.populateBooty();
-    await this.populateRank();
+    this.populateRank();
+    await this.populateApprovedBugs();
     data = this._data;
     if (this.fields) {
-      if (this.fields.includes("approved_bugs")) {
-        try {
-          data = { ...data, ...(await this.getApprovedBugsData()) };
-          this._data = data;
-        } catch {}
-      }
       if (this.fields.includes("attended_cp")) {
         try {
           data = { ...data, ...(await this.getAttendedCpData()) };
@@ -374,9 +369,28 @@ export default class UserData {
       }
     }
   }
-  private async populateRank() {
+  private populateRank() {
     if (this.fields && this.fields.includes("rank")) {
       this._data.rank = "0";
+    }
+  }
+  private async populateApprovedBugs() {
+    if (this.fields && this.fields.includes("approved_bugs")) {
+      try {
+        const data = await tryber.tables.WpAppqEvdBug.do()
+          .count({
+            count: "id",
+          })
+          .where("profile_id", this.profileId)
+          .andWhere("status_id", 2)
+          .first();
+
+        if (!data) return Promise.reject(Error("Invalid bugs data"));
+        this._data.approved_bugs =
+          typeof data.count === "number" ? data.count : 0;
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
@@ -430,22 +444,6 @@ export default class UserData {
           }),
       },
     };
-  }
-
-  protected async getBootyData() {}
-
-  protected async getApprovedBugsData() {
-    const data = await tryber.tables.WpAppqEvdBug.do()
-      .count({
-        count: "id",
-      })
-      .where("profile_id", this.profileId)
-      .andWhere("status_id", 2)
-      .first();
-
-    if (!data) return Promise.reject(Error("Invalid bugs data"));
-
-    return { approved_bugs: typeof data.count === "number" ? data.count : 0 };
   }
 
   protected async getAttendedCpData() {
