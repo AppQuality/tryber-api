@@ -161,7 +161,6 @@ export default class PatchUsersMe extends UserRoute<{
             oldPassword[0].user_pass
           );
           if (!passwordMatches) {
-            console.log("suca");
             this.setError(
               417,
               new OpenapiError("Your old password is not correct")
