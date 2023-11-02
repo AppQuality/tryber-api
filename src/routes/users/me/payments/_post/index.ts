@@ -112,7 +112,7 @@ export default class Route extends UserRoute<{
 
     await this.updatePayments(requestId);
 
-    await this.sendMail();
+    await this.sendMail(requestId);
     this.setSuccess(200, {
       id: requestId,
     });
@@ -216,11 +216,11 @@ export default class Route extends UserRoute<{
       });
   }
 
-  private async sendMail() {
+  private async sendMail(requestId: number) {
     const template = this.getTemplate();
     if (!template) return;
 
-    await this.sendConfirmationMail(template);
+    await this.sendConfirmationMail({ template, requestId });
   }
 
   private getTemplate() {
@@ -249,15 +249,15 @@ export default class Route extends UserRoute<{
     }
   }
 
-  private getSubject() {
+  private getSubject(requestId: number) {
     if (this.fiscalProfile.fiscal_category_name === "witholding-extra") {
-      return "[Tryber] Crea la tua ritenuta d'acconto con questi dati";
+      return `[Tryber] T${this.getTesterId()} - Crea la tua ritenuta d'acconto con questi dati | R${requestId}`;
     } else if (
       ["vat", "company"].includes(this.fiscalProfile.fiscal_category_name)
     ) {
-      return "[Tryber] Crea la tua fattura con questi dati";
+      return `[Tryber] T${this.getTesterId()} - Crea la tua fattura con questi dati | R${requestId}`;
     } else {
-      return "[Tryber] Payout Request";
+      return `[Tryber] T${this.getTesterId()} - Payout Request | R${requestId}`;
     }
   }
 
@@ -276,7 +276,13 @@ export default class Route extends UserRoute<{
     ).toFixed(2);
   }
 
-  private async sendConfirmationMail(template: string) {
+  private async sendConfirmationMail({
+    template,
+    requestId,
+  }: {
+    template: string;
+    requestId: number;
+  }) {
     const body = this.getBody();
     try {
       const tester = await tryber.tables.WpAppqEvdProfile.do()
@@ -286,7 +292,7 @@ export default class Route extends UserRoute<{
       const now = new Date();
       await sendTemplate({
         email: tester[0].email,
-        subject: this.getSubject(),
+        subject: this.getSubject(requestId),
         ...(["vat", "witholding-extra", "company"].includes(
           this.fiscalProfile.fiscal_category_name
         ) && process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL

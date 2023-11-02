@@ -230,6 +230,11 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -238,7 +243,7 @@ describe("POST /users/me/payments", () => {
             name: "Tryber",
           },
           html: expect.stringContaining("PAYMENT_REQUESTED_EMAIL_BODY"),
-          subject: "[Tryber] Payout Request",
+          subject: `[Tryber] T1 - Payout Request | R${requestData?.id}`,
           categories: ["Test"],
         })
       );
@@ -377,6 +382,50 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with TID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("T1"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with RequestID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining(`R${requestData?.id}`),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 2", () => {
@@ -407,6 +456,11 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -417,7 +471,7 @@ describe("POST /users/me/payments", () => {
           html: expect.stringContaining(
             "PAYMENT_INVOICE_RECAP_EMAIL_WITHOLDING_EXTRA_BODY"
           ),
-          subject: "[Tryber] Crea la tua ritenuta d'acconto con questi dati",
+          subject: `[Tryber] T1 - Crea la tua ritenuta d'acconto con questi dati | R${requestData?.id}`,
           categories: ["Test"],
         })
       );
@@ -613,7 +667,6 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
-
     it("Should add an email to cc", async () => {
       const response = await request(app)
         .post("/users/me/payments")
@@ -631,6 +684,51 @@ describe("POST /users/me/payments", () => {
           cc: "it+administration@unguess.io",
         })
       );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with TID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("T1"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with RequestID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      if (requestData)
+        expect(mockedSendgrid.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            subject: expect.stringContaining(`R${requestData.id}`),
+          })
+        );
       expect(response.status).toBe(200);
     });
   });
@@ -662,6 +760,11 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
       expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
       expect(mockedSendgrid.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -670,7 +773,7 @@ describe("POST /users/me/payments", () => {
             name: "Tryber",
           },
           html: expect.stringContaining("PAYMENT_INVOICE_RECAP_EMAIL_VAT_BODY"),
-          subject: "[Tryber] Crea la tua fattura con questi dati",
+          subject: `[Tryber] T1 - Crea la tua fattura con questi dati | R${requestData?.id}`,
           categories: ["Test"],
         })
       );
@@ -828,7 +931,6 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
-
     it("Should add an email to cc", async () => {
       const response = await request(app)
         .post("/users/me/payments")
@@ -846,6 +948,51 @@ describe("POST /users/me/payments", () => {
           cc: "it+administration@unguess.io",
         })
       );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with TID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("T1"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with RequestID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      if (requestData)
+        expect(mockedSendgrid.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            subject: expect.stringContaining(`R${requestData.id}`),
+          })
+        );
       expect(response.status).toBe(200);
     });
   });
@@ -885,7 +1032,7 @@ describe("POST /users/me/payments", () => {
             name: "Tryber",
           },
           html: expect.stringContaining("PAYMENT_REQUESTED_EMAIL_BODY"),
-          subject: "[Tryber] Payout Request",
+          subject: "[Tryber] T1 - Payout Request | R37",
           categories: ["Test"],
         })
       );
@@ -1005,6 +1152,51 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with TID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("T1"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with RequestID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      if (requestData)
+        expect(mockedSendgrid.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            subject: expect.stringContaining(`R${requestData.id}`),
+          })
+        );
+      expect(response.status).toBe(200);
+    });
   });
 
   describe("POST /users/me/payments/ - fiscal profile 5", () => {
@@ -1045,7 +1237,7 @@ describe("POST /users/me/payments", () => {
           html: expect.stringContaining(
             "PAYMENT_INVOICE_RECAP_EMAIL_COMPANY_BODY"
           ),
-          subject: "[Tryber] Crea la tua fattura con questi dati",
+          subject: "[Tryber] T1 - Crea la tua fattura con questi dati | R46",
           categories: ["Test"],
         })
       );
@@ -1222,7 +1414,6 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
-
     it("Should add an email to cc", async () => {
       const response = await request(app)
         .post("/users/me/payments")
@@ -1240,6 +1431,51 @@ describe("POST /users/me/payments", () => {
           cc: "it+administration@unguess.io",
         })
       );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with TID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("T1"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
+    it("Should send an email with RequestID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("id")
+        .where({ tester_id: 1 })
+        .andWhere({ is_paid: 0 })
+        .first();
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      if (requestData)
+        expect(mockedSendgrid.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            subject: expect.stringContaining(`R${requestData.id}`),
+          })
+        );
       expect(response.status).toBe(200);
     });
   });
