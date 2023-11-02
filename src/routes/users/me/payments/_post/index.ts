@@ -255,7 +255,7 @@ export default class Route extends UserRoute<{
     } else if (
       ["vat", "company"].includes(this.fiscalProfile.fiscal_category_name)
     ) {
-      return "[Tryber] Crea la tua fattura con questi dati";
+      return `[Tryber] T${this.getTesterId()} - Crea la tua fattura con questi dati`;
     } else {
       return `[Tryber] T${this.getTesterId()} - Payout Request`;
     }
