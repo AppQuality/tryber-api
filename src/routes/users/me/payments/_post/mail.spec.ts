@@ -652,6 +652,25 @@ describe("POST /users/me/payments", () => {
       );
       expect(response.status).toBe(200);
     });
+    it("Should send an email with TID in Subject", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(mockedSendgrid.send).toHaveBeenCalledTimes(1);
+      expect(mockedSendgrid.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          subject: expect.stringContaining("T1"),
+        })
+      );
+      expect(response.status).toBe(200);
+    });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
     beforeEach(async () => {
