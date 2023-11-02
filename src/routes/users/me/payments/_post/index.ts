@@ -24,6 +24,7 @@ export default class Route extends UserRoute<{
         fiscal_id: string;
       }
     | undefined;
+  private requestId: number = 0;
 
   protected async init() {
     await super.init();
@@ -109,6 +110,7 @@ export default class Route extends UserRoute<{
 
   protected async prepare() {
     const { requestId } = await this.createRequest();
+    this.requestId = requestId;
 
     await this.updatePayments(requestId);
 
@@ -251,13 +253,19 @@ export default class Route extends UserRoute<{
 
   private getSubject() {
     if (this.fiscalProfile.fiscal_category_name === "witholding-extra") {
-      return `[Tryber] T${this.getTesterId()} - Crea la tua ritenuta d'acconto con questi dati`;
+      return `[Tryber] T${this.getTesterId()} - Crea la tua ritenuta d'acconto con questi dati | R${
+        this.requestId
+      }`;
     } else if (
       ["vat", "company"].includes(this.fiscalProfile.fiscal_category_name)
     ) {
-      return `[Tryber] T${this.getTesterId()} - Crea la tua fattura con questi dati`;
+      return `[Tryber] T${this.getTesterId()} - Crea la tua fattura con questi dati | R${
+        this.requestId
+      }`;
     } else {
-      return `[Tryber] T${this.getTesterId()} - Payout Request`;
+      return `[Tryber] T${this.getTesterId()} - Payout Request | R${
+        this.requestId
+      }`;
     }
   }
 
