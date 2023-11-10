@@ -8160,6 +8160,23 @@ paths:
                   example-1:
                     - id: 0
                       name: string
+              examples:
+                Example-1:
+                  value:
+                    - name: First level
+                      id: 1
+                    - name: Second level (High School)
+                      id: 2
+                    - name: College (No Degree)
+                      id: 3
+                    - name: Degree or equivalent
+                      id: 4
+                    - name: Bachelor or equivalent
+                      id: 5
+                    - name: Master or equivalent
+                      id: 6
+                    - name: Phd
+                      id: 7
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -8227,7 +8244,7 @@ paths:
                     - id
                     - name
               examples:
-                All languages:
+                All-languages:
                   value:
                     - name: Afrikaans
                       id: 1
