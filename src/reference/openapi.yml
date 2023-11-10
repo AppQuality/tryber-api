@@ -5269,7 +5269,2751 @@ paths:
                         $ref: '#/components/schemas/CustomUserFieldsData'
                   required:
                     - group
-              examples: {}
+              examples:
+                Example-1:
+                  value:
+                    - group:
+                        id: 0
+                        name:
+                          it: Other
+                        description:
+                          it: Other
+                      fields:
+                        - id: 29
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Documenti Identità / SPID
+                            en: Identity Documents/Digital Identity
+                            es: Documentos de Identidad/Identidad Digital
+                          placeholder:
+                            it: Inserisci i documenti di identità che possiedi
+                            en: Enter the identity documents you have
+                            es: '-'
+                          options:
+                            - id: 475
+                              name: Patente Italiana
+                            - id: 476
+                              name: Carta d'identità elettronica
+                            - id: 477
+                              name: Carta d'identità cartacea
+                            - id: 478
+                              name: Passaporto Italiano
+                            - id: 479
+                              name: SPID (Sistema Pubblico di Identità Digitale)
+                            - id: 480
+                              name: Patente Estera
+                            - id: 481
+                              name: Carta d'identità Italiana emessa all'estero
+                            - id: 482
+                              name: Passaporto Italiano emesso all'estero
+                        - id: 37
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Hacking Skills
+                          placeholder:
+                            it: '-'
+                          options:
+                            - id: 558
+                              name: Web
+                            - id: 575
+                              name: Smart Contracts
+                            - id: 576
+                              name: Blockchain
+                            - id: 577
+                              name: Vulnerability Assessment
+                            - id: 568
+                              name: Red Teaming
+                            - id: 567
+                              name: Secure Code Review
+                            - id: 566
+                              name: Cryptography
+                            - id: 565
+                              name: Automotive
+                            - id: 564
+                              name: IoT
+                            - id: 563
+                              name: Web3.0
+                            - id: 562
+                              name: Forensics
+                            - id: 561
+                              name: Binary
+                            - id: 560
+                              name: Network
+                            - id: 559
+                              name: Mobile
+                            - id: 569
+                              name: Triaging Activities
+                        - id: 39
+                          type: select
+                          allow_other: true
+                          name:
+                            it: Partita Iva
+                          placeholder:
+                            it: Seleziona SI se sei un lavoratore/lavoratrice con Partita Iva
+                          options:
+                            - id: 578
+                              name: 'NO'
+                            - id: 579
+                              name: SI
+                        - id: 81
+                          type: multiselect
+                          allow_other: false
+                          name:
+                            it: Con quali attività vorresti guadagnare qui in TRYBER?
+                            es: ¿Con qué actividades te gustaría ganar dinero aquí en TRYBER?
+                            en: What activities would you like to earn money with here at TRYBER?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 924
+                              name: Bug Finding / test funzionali
+                            - id: 925
+                              name: Survey / questionari
+                            - id: 926
+                              name: Security Bug Bounty come Ethical Hacker
+                            - id: 927
+                              name: 'Attività speciali (test di oggetti fisici, test on site, etc)'
+                            - id: 928
+                              name: Test di usabilità / User Experience
+                    - group:
+                        id: 2
+                        name:
+                          it: Utenze e Fornitori
+                          en: Utilities and Suppliers
+                          es: Utilidades y Proveedores
+                        description:
+                          it: ''
+                          en: Add here your Utilities and Suppliers
+                          es: '-'
+                      fields:
+                        - id: 1
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Fornitore Energia Elettrica
+                            en: Electricity Supplier
+                            es: Proveedor de Electricidad
+                          placeholder:
+                            it: Scegli o inserisci i tuoi fornitori di energia elettrica
+                            en: Choose or enter your electricity suppliers
+                            es: '-'
+                          options:
+                            - id: 381
+                              name: People's Energy
+                            - id: 487
+                              name: Octopus Energy
+                            - id: 501
+                              name: Copel
+                            - id: 502
+                              name: Bulb Energy
+                            - id: 529
+                              name: CPFL
+                            - id: 530
+                              name: CEMIG
+                            - id: 531
+                              name: British Gas
+                            - id: 532
+                              name: CEB Distribuição
+                            - id: 533
+                              name: Neoenergia
+                            - id: 534
+                              name: ČEZ
+                            - id: 535
+                              name: Celesc
+                            - id: 536
+                              name: Pulsee
+                            - id: 537
+                              name: Enemalta
+                            - id: 538
+                              name: Eesti Energia
+                            - id: 539
+                              name: Neoenergia Coelba
+                            - id: 380
+                              name: Simecom
+                            - id: 379
+                              name: Revoluce
+                            - id: 378
+                              name: Endesa
+                            - id: 377
+                              name: EDF
+                            - id: 376
+                              name: Edp Energia
+                            - id: 361
+                              name: Egea
+                            - id: 353
+                              name: NeN
+                            - id: 340
+                              name: ENNE Energia
+                            - id: 338
+                              name: Synergy
+                            - id: 383
+                              name: Alperia
+                            - id: 486
+                              name: Enerxenia
+                            - id: 485
+                              name: Sinergy
+                            - id: 484
+                              name: Facile Energy
+                            - id: 12
+                              name: A2A Energia
+                            - id: 483
+                              name: AsecTrade
+                            - id: 386
+                              name: Sel
+                            - id: 385
+                              name: Tea Energia
+                            - id: 339
+                              name: Vivigas
+                            - id: 384
+                              name: Cogeser Energia
+                            - id: 382
+                              name: Argos
+                            - id: 119
+                              name: Accendi Luce Coop
+                            - id: 2
+                              name: ACEA Energia
+                            - id: 117
+                              name: AEVV Energie
+                            - id: 4
+                              name: AGSM Energia
+                            - id: 143
+                              name: Aim Luce
+                            - id: 120
+                              name: Ascotrade
+                            - id: 115
+                              name: Audax Energia
+                            - id: 133
+                              name: Axopower
+                            - id: 124
+                              name: Axpo
+                            - id: 173
+                              name: Barocco Spa
+                            - id: 123
+                              name: Dolomiti Energia
+                            - id: 114
+                              name: Domoenergia
+                            - id: 118
+                              name: Duferco Energia
+                            - id: 139
+                              name: E.on
+                            - id: 7
+                              name: Edison Energia
+                            - id: 144
+                              name: Enegan Luce
+                            - id: 5
+                              name: Enel Energia
+                            - id: 8
+                              name: ENGIE Italia
+                            - id: 6
+                              name: Eni Energia
+                            - id: 127
+                              name: Estra Energie
+                            - id: 9
+                              name: EVIVA
+                            - id: 135
+                              name: GALA
+                            - id: 136
+                              name: Gas Natural
+                            - id: 137
+                              name: Green Network
+                            - id: 10
+                              name: Gritti Energia
+                            - id: 141
+                              name: Hera Comm
+                            - id: 122
+                              name: Iberdrola
+                            - id: 138
+                              name: Illumia
+                            - id: 140
+                              name: Iren Luce
+                            - id: 131
+                              name: Made in Energy
+                            - id: 132
+                              name: Omnia Energia
+                            - id: 134
+                              name: Onda Energia
+                            - id: 125
+                              name: Optima
+                            - id: 11
+                              name: Optima Italia
+                            - id: 116
+                              name: Piemonte Energy
+                            - id: 130
+                              name: Salerno Energia
+                            - id: 142
+                              name: Servizio Elettrico Nazionale
+                            - id: 129
+                              name: Servizio Elettrico Roma
+                            - id: 3
+                              name: Sorgenia
+                            - id: 174
+                              name: Tate
+                            - id: 121
+                              name: Trenta
+                            - id: 126
+                              name: Unogas
+                            - id: 128
+                              name: Wekiwi
+                        - id: 8
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Fornitore Gas
+                            en: Gas Supplier
+                            es: Proveedor de Gas
+                          placeholder:
+                            it: Scegli o inserisci i tuoi fornitori di Gas domestico
+                            en: Choose or enter your gas suppliers
+                            es: '-'
+                          options:
+                            - id: 175
+                              name: Barocco Spa
+                            - id: 176
+                              name: MetanSud
+                            - id: 177
+                              name: Enegan
+                            - id: 178
+                              name: Repsol Gas
+                            - id: 341
+                              name: AMG GAS
+                            - id: 349
+                              name: Sidigas
+                            - id: 354
+                              name: Tate
+                            - id: 355
+                              name: NeN
+                            - id: 416
+                              name: Edp Gas
+                            - id: 417
+                              name: Enne Energia
+                            - id: 418
+                              name: Liquigas
+                            - id: 419
+                              name: Simecom
+                            - id: 420
+                              name: Amgas
+                            - id: 421
+                              name: Galp
+                            - id: 422
+                              name: Egea
+                            - id: 423
+                              name: Ultragas
+                            - id: 424
+                              name: Enerxenia
+                            - id: 425
+                              name: Cogeser Energia
+                            - id: 426
+                              name: EDF
+                            - id: 427
+                              name: Gases del Caribe
+                            - id: 428
+                              name: Tea Gas
+                            - id: 429
+                              name: Prometeo
+                            - id: 430
+                              name: Argos
+                            - id: 431
+                              name: Gaxa
+                            - id: 432
+                              name: Sinergas
+                            - id: 433
+                              name: People's Energy
+                            - id: 434
+                              name: Somet
+                            - id: 435
+                              name: SGR
+                            - id: 436
+                              name: CCR Energia
+                            - id: 99
+                              name: A2A Energia
+                            - id: 149
+                              name: Accendi Gas Coop
+                            - id: 100
+                              name: Acea Energia
+                            - id: 101
+                              name: Agsm Energia
+                            - id: 152
+                              name: Ascotrade
+                            - id: 146
+                              name: Audax Energia
+                            - id: 151
+                              name: Autogas Nord
+                            - id: 164
+                              name: Axopower
+                            - id: 156
+                              name: Axpo
+                            - id: 155
+                              name: Dolomiti Energia
+                            - id: 145
+                              name: Domoene
+                            - id: 148
+                              name: Duferco Energia
+                            - id: 171
+                              name: E.on
+                            - id: 102
+                              name: Edison Energia
+                            - id: 103
+                              name: Enel Energia
+                            - id: 168
+                              name: Engie
+                            - id: 104
+                              name: ENGIE ITALIA
+                            - id: 105
+                              name: Eni Gas
+                            - id: 159
+                              name: Estra Energie
+                            - id: 106
+                              name: EVIVA
+                            - id: 166
+                              name: GALA
+                            - id: 167
+                              name: Gas Natural
+                            - id: 169
+                              name: Green Network
+                            - id: 107
+                              name: Gritti Energia
+                            - id: 111
+                              name: Hera Comm
+                            - id: 154
+                              name: Iberdrola
+                            - id: 170
+                              name: Illumia
+                            - id: 172
+                              name: Iren Gas
+                            - id: 108
+                              name: Levigas
+                            - id: 162
+                              name: Made in Energy
+                            - id: 163
+                              name: Omnia Energia
+                            - id: 165
+                              name: Onda Energia
+                            - id: 157
+                              name: Optima
+                            - id: 109
+                              name: Optima Italia
+                            - id: 147
+                              name: Piemonte Energy
+                            - id: 161
+                              name: Salerno Energia
+                            - id: 110
+                              name: Sorgenia
+                            - id: 153
+                              name: Trenta
+                            - id: 158
+                              name: Unogas
+                            - id: 150
+                              name: Vivigas
+                            - id: 160
+                              name: Wekiwi
+                        - id: 6
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Operatore Internet Domestico
+                            en: Home Internet Operator
+                            es: Operador de Internet en el hogar
+                          placeholder:
+                            it: Inserisci i tuoi operatori Internet domestici
+                            en: Choose or enter your home internet operators
+                            es: '-'
+                          options:
+                            - id: 346
+                              name: BBBell
+                            - id: 387
+                              name: Movistar
+                            - id: 388
+                              name: Nos
+                            - id: 389
+                              name: Ho
+                            - id: 390
+                              name: Orange
+                            - id: 391
+                              name: Claro
+                            - id: 392
+                              name: o2
+                            - id: 393
+                              name: PepePhone
+                            - id: 394
+                              name: Virgin Media
+                            - id: 395
+                              name: Unidata
+                            - id: 396
+                              name: Vivo
+                            - id: 397
+                              name: Iliad
+                            - id: 398
+                              name: TalkTalk
+                            - id: 179
+                              name: Achanto
+                            - id: 184
+                              name: Clouditalia
+                            - id: 180
+                              name: Ehiweb
+                            - id: 82
+                              name: Eolo
+                            - id: 79
+                              name: Fastweb
+                            - id: 85
+                              name: Infostrada (WIND)
+                            - id: 185
+                              name: Infracom
+                            - id: 84
+                              name: Linkem
+                            - id: 181
+                              name: Noitel Italia
+                            - id: 86
+                              name: PosteMobile Casa
+                            - id: 186
+                              name: Qcom
+                            - id: 183
+                              name: skyDSL
+                            - id: 78
+                              name: TIM
+                            - id: 83
+                              name: Tiscali
+                            - id: 182
+                              name: Tooway
+                            - id: 80
+                              name: Vodafone
+                            - id: 187
+                              name: Welcome Italia
+                            - id: 81
+                              name: Wind/3
+                        - id: 7
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Operatore Mobile
+                            en: Mobile Operator
+                            es: Operador Móvil
+                          placeholder:
+                            it: Inserisci i tuoi operatori Internet mobile
+                            en: Choose or enter your mobile internet operators
+                            es: '-'
+                          options:
+                            - id: 399
+                              name: Claro
+                            - id: 400
+                              name: Movistar
+                            - id: 401
+                              name: O2
+                            - id: 402
+                              name: Vivo
+                            - id: 403
+                              name: Orange
+                            - id: 404
+                              name: Ho
+                            - id: 405
+                              name: Pepephone
+                            - id: 406
+                              name: Swisscom
+                            - id: 407
+                              name: Lebara
+                            - id: 408
+                              name: Amena
+                            - id: 409
+                              name: Nowo
+                            - id: 410
+                              name: Meo
+                            - id: 411
+                              name: Spusu
+                            - id: 412
+                              name: T-mobile
+                            - id: 413
+                              name: Antel
+                            - id: 414
+                              name: STC
+                            - id: 415
+                              name: Tuenti
+                            - id: 189
+                              name: 1Mobile
+                            - id: 190
+                              name: Active Network
+                            - id: 191
+                              name: AlternatYva
+                            - id: 192
+                              name: BluCall Mobile
+                            - id: 193
+                              name: BT Enìa
+                            - id: 194
+                              name: BT Mobile
+                            - id: 95
+                              name: CoopVoce
+                            - id: 195
+                              name: Daily Telecom Mobile
+                            - id: 196
+                              name: DIGI Mobil
+                            - id: 197
+                              name: Elsynet
+                            - id: 90
+                              name: Fastweb Mobile
+                            - id: 198
+                              name: Foll-In
+                            - id: 199
+                              name: Goil Mobile
+                            - id: 200
+                              name: Green Mobile
+                            - id: 93
+                              name: Ho. Mobile
+                            - id: 91
+                              name: Iliad
+                            - id: 92
+                              name: Kena Mobile
+                            - id: 94
+                              name: Lyca Mobile
+                            - id: 201
+                              name: NetoIP Mobile
+                            - id: 202
+                              name: Noitel Mobile
+                            - id: 203
+                              name: NTMobile
+                            - id: 204
+                              name: NV Mobile
+                            - id: 205
+                              name: Optima Mobile
+                            - id: 206
+                              name: PlusCom
+                            - id: 96
+                              name: PosteMobile
+                            - id: 207
+                              name: Rabona Mobile
+                            - id: 208
+                              name: SAMTEL
+                            - id: 209
+                              name: Sija mobile
+                            - id: 210
+                              name: SunMobile
+                            - id: 88
+                              name: TIM
+                            - id: 97
+                              name: Tiscali Mobile
+                            - id: 211
+                              name: UniMobile
+                            - id: 212
+                              name: UniPoste Mobile
+                            - id: 98
+                              name: Uso soltanto il Wi-Fi con il mio cellulare
+                            - id: 213
+                              name: Very Mobile
+                            - id: 214
+                              name: Visitel
+                            - id: 87
+                              name: Vodafone
+                            - id: 215
+                              name: Welcome Italia
+                            - id: 89
+                              name: Wind/3
+                            - id: 216
+                              name: Withu Mobile
+                    - group:
+                        id: 4
+                        name:
+                          it: Servizi Bancari
+                          en: Banking Services
+                          es: Servicios bancarios
+                        description:
+                          it: ''
+                          en: '-'
+                          es: '-'
+                      fields:
+                        - id: 4
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Conto Corrente Privato
+                            en: Private Bank Account
+                            es: Cuenta Bancaria Privada
+                          placeholder:
+                            it: Inserisci le banche con cui hai un conto personale attivo
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 29
+                              name: Banca Etica
+                            - id: 299
+                              name: Banca Sella
+                            - id: 300
+                              name: Oval
+                            - id: 301
+                              name: Allianz Bank
+                            - id: 302
+                              name: Curve
+                            - id: 303
+                              name: Illimity
+                            - id: 304
+                              name: Yap
+                            - id: 350
+                              name: Banca Ifis
+                            - id: 356
+                              name: Flowe
+                            - id: 357
+                              name: Monese
+                            - id: 358
+                              name: Banca di Asti
+                            - id: 359
+                              name: Iccrea
+                            - id: 360
+                              name: Banca di Credito Cooperativo BCC
+                            - id: 437
+                              name: BBVA
+                            - id: 438
+                              name: Lloyds
+                            - id: 439
+                              name: Banca d'alba
+                            - id: 440
+                              name: Royal Bank of Scotland
+                            - id: 441
+                              name: Sparkasse
+                            - id: 442
+                              name: Banca Profilo
+                            - id: 443
+                              name: Banco Sabadell
+                            - id: 488
+                              name: Nubank
+                            - id: 489
+                              name: Swedbank
+                            - id: 490
+                              name: Banco Itaú
+                            - id: 492
+                              name: Banco do Brasil
+                            - id: 493
+                              name: Banco Bradesco
+                            - id: 494
+                              name: Banco Inter
+                            - id: 495
+                              name: Monzo
+                            - id: 496
+                              name: C6 Bank
+                            - id: 497
+                              name: HSBC
+                            - id: 498
+                              name: CaixaBank
+                            - id: 499
+                              name: FCA Bank
+                            - id: 500
+                              name: Banco Desio
+                            - id: 591
+                              name: B.C.C. Roma
+                            - id: 592
+                              name: PostePay Evolution
+                            - id: 593
+                              name: PostePay
+                            - id: 594
+                              name: Nexi
+                            - id: 595
+                              name: Banca Euromobiliare
+                            - id: 596
+                              name: Banca Popolare di Bari
+                            - id: 597
+                              name: Banca Patrimoni Sella
+                            - id: 598
+                              name: Banco di Sardegna
+                            - id: 599
+                              name: Banca Progetto S.p.A.
+                            - id: 600
+                              name: Volksbank (Banca Popolare dell’Alto Adige)
+                            - id: 601
+                              name: Banca Chianti
+                            - id: 602
+                              name: B.C.C. Fiorentino
+                            - id: 603
+                              name: Banca5
+                            - id: 604
+                              name: Banca Valsabbina
+                            - id: 605
+                              name: Mediobanca Banca di Credito Finanziario S.p.A.
+                            - id: 606
+                              name: Cassa di Risparmio di Bolzano (Sparkasse)
+                            - id: 607
+                              name: Banca Popolare Friuladria
+                            - id: 608
+                              name: IBL Banca
+                            - id: 609
+                              name: Banca Popolare di Puglia e Basilicata (BPPB)
+                            - id: 610
+                              name: CSR (Cassa sovvenzioni e risparmio)
+                            - id: 611
+                              name: B.C.C. Carate Brianza
+                            - id: 612
+                              name: Carta Lis
+                            - id: 613
+                              name: Banca del Sud
+                            - id: 614
+                              name: Cassa di risparmio di Orvieto
+                            - id: 615
+                              name: B.C.C. Treviglio
+                            - id: 616
+                              name: B.C.C. Busto Garolfo e Buguggiate
+                            - id: 617
+                              name: CR Fossano
+                            - id: 618
+                              name: B.C.C. Agrobresciano
+                            - id: 619
+                              name: Cassa di Risparmio di Volterra
+                            - id: 50
+                              name: ING
+                            - id: 51
+                              name: Intesa San Paolo
+                            - id: 52
+                              name: Intesa San Paolo Private Banking
+                            - id: 53
+                              name: IWBank
+                            - id: 54
+                              name: Mediolanum
+                            - id: 55
+                              name: Monte dei Paschi di Siena MPS
+                            - id: 56
+                              name: N26
+                            - id: 57
+                              name: Poste Italiane
+                            - id: 58
+                              name: Revolut
+                            - id: 59
+                              name: Santander
+                            - id: 60
+                              name: Tinaba
+                            - id: 61
+                              name: UBI Banca
+                            - id: 62
+                              name: UBS
+                            - id: 63
+                              name: Unicredit
+                            - id: 64
+                              name: Unipol
+                            - id: 65
+                              name: WeBank
+                            - id: 66
+                              name: Widiba
+                            - id: 49
+                              name: Hype
+                            - id: 48
+                              name: Hello Bank!
+                            - id: 47
+                              name: Generali
+                            - id: 30
+                              name: Banca Etruria
+                            - id: 31
+                              name: Banca Popolare di Sondrio
+                            - id: 32
+                              name: Banco BPM
+                            - id: 33
+                              name: Barclays
+                            - id: 34
+                              name: BNL
+                            - id: 35
+                              name: Bper
+                            - id: 36
+                              name: BuddyBank
+                            - id: 37
+                              name: Carige
+                            - id: 38
+                              name: CheBanca!
+                            - id: 39
+                              name: Compass
+                            - id: 40
+                              name: Credem
+                            - id: 41
+                              name: Crédit Agricole
+                            - id: 42
+                              name: Credito Valtellinese
+                            - id: 43
+                              name: Deutsche Bank
+                            - id: 44
+                              name: Fideuram
+                            - id: 45
+                              name: Findomestic
+                            - id: 46
+                              name: Fineco
+                            - id: 67
+                              name: Nessuna
+                        - id: 28
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Conto Corrente Business
+                            en: Business Bank Account
+                            es: Cuenta Bancaria Comercial
+                          placeholder:
+                            it: Inserisci le banche con cui hai un conto aziendale attivo
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 461
+                              name: Banca di Asti
+                            - id: 462
+                              name: Unicredit
+                            - id: 463
+                              name: Mediolanum
+                            - id: 464
+                              name: Generali
+                            - id: 465
+                              name: ING
+                            - id: 466
+                              name: Fideuram
+                            - id: 467
+                              name: Carige
+                            - id: 468
+                              name: Barclays
+                            - id: 469
+                              name: BNL
+                            - id: 470
+                              name: Banco BPM
+                            - id: 471
+                              name: Monte dei Paschi di Siena
+                            - id: 472
+                              name: Credem
+                            - id: 473
+                              name: BPER
+                            - id: 474
+                              name: Intesa SanPaolo
+                        - id: 35
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Servizi Criptovalute
+                            en: Crypto Services
+                            es: Servicios de Criptomonedas
+                          placeholder:
+                            it: ''
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 541
+                              name: crypto.com
+                            - id: 542
+                              name: Conio
+                            - id: 543
+                              name: Bitstamp
+                            - id: 544
+                              name: Gemini
+                            - id: 545
+                              name: uphold
+                            - id: 546
+                              name: Young Platform
+                            - id: 547
+                              name: Binance
+                            - id: 548
+                              name: Kraken
+                            - id: 549
+                              name: Coinbase
+                        - id: 36
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Strumenti di Pagamento
+                            en: Payment Services
+                            es: Servicios de Pago
+                          placeholder:
+                            it: ''
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 550
+                              name: Skrill
+                            - id: 551
+                              name: Google Pay
+                            - id: 552
+                              name: Apple Pay
+                            - id: 553
+                              name: Payoneer
+                            - id: 554
+                              name: Stripe
+                            - id: 555
+                              name: Satispay
+                            - id: 556
+                              name: Wise
+                            - id: 557
+                              name: PayPal
+                        - id: 61
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali carte di credito possiedi?
+                            en: Which credit cards do you have?
+                            es: ¿Qué tarjetas de crédito tiene?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 737
+                              name: Nessuna
+                            - id: 754
+                              name: Raiffeisen
+                            - id: 755
+                              name: Credem
+                            - id: 738
+                              name: ING
+                            - id: 739
+                              name: Unicredit
+                            - id: 740
+                              name: Amex
+                            - id: 741
+                              name: Intesa San Paolo
+                            - id: 753
+                              name: Vanquis
+                        - id: 62
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Hai investimenti in essere?
+                            es: ¿Tiene inversiones en marcha?
+                            en: Do you have any investments in place?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 742
+                              name: Sì
+                            - id: 743
+                              name: 'No'
+                        - id: 63
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Hai dei prestiti in essere?
+                            en: Do you have any outstanding loans?
+                            es: ¿Tiene algún préstamo pendiente?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 744
+                              name: 'No'
+                            - id: 745
+                              name: Sì
+                        - id: 64
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Hai dei mutui in essere?
+                            es: ¿Tiene alguna hipoteca pendiente?
+                            en: Do you have any outstanding mortgages?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 746
+                              name: 'No'
+                            - id: 747
+                              name: Sì
+                        - id: 65
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Quale sarebbe il tuo patrimonio disponibile per investimenti?
+                            en: What would be your assets available for investment?
+                            es: ¿Cuáles serían sus activos disponibles para invertir?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 748
+                              name: Nessuno
+                            - id: 749
+                              name: Meno di 10.000€
+                            - id: 750
+                              name: 10.000€ - 100.000€
+                            - id: 751
+                              name: Più di 100.000€
+                    - group:
+                        id: 9
+                        name:
+                          it: Assicurazioni
+                          en: Insurance
+                          es: Seguros
+                        description:
+                          it: '-'
+                          en: '-'
+                          es: '-'
+                      fields:
+                        - id: 16
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Tipologie di assicurazione
+                            en: Types of Insurance
+                            es: Tipos de Seguros
+                          placeholder:
+                            it: Inserisci le tue tipologie di assicurazioni
+                            en: Enter your types of insurance
+                            es: '-'
+                          options:
+                            - id: 292
+                              name: Auto/Moto
+                            - id: 297
+                              name: 'Altri rischi (viaggi, sport, animali, ecc...)'
+                            - id: 294
+                              name: Casa/Famiglia
+                            - id: 295
+                              name: Malattia
+                            - id: 298
+                              name: Nessuna
+                            - id: 296
+                              name: Previdenza/Risparmio
+                            - id: 293
+                              name: Vita
+                        - id: 15
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Assicurazioni
+                            en: Insurance
+                            es: Seguro
+                          placeholder:
+                            it: Inserisci le tue assicurazioni
+                            en: Enter your insurance
+                            es: '-'
+                          options:
+                            - id: 342
+                              name: MEDIOLANUM Assicurazioni
+                            - id: 444
+                              name: Metasalute
+                            - id: 445
+                              name: Unisalute
+                            - id: 446
+                              name: Poste vita
+                            - id: 947
+                              name: Intesa Sanpaolo RBM Salute
+                            - id: 232
+                              name: Ace European Group
+                            - id: 233
+                              name: ADIR
+                            - id: 234
+                              name: AIG Europe S.A.
+                            - id: 235
+                              name: Ala Assicurazioni
+                            - id: 236
+                              name: Alleanza Toro
+                            - id: 237
+                              name: Allianz
+                            - id: 238
+                              name: Antonveneta Assicurazioni
+                            - id: 239
+                              name: Arca Assicurazioni
+                            - id: 240
+                              name: Assicuratrice Milanese
+                            - id: 241
+                              name: Assicuratrice Val Piave
+                            - id: 242
+                              name: Assimoco
+                            - id: 243
+                              name: Aviva Italia
+                            - id: 244
+                              name: Axa Assicurazioni
+                            - id: 245
+                              name: Bene Assicurazioni
+                            - id: 246
+                              name: Carige Assicurazioni
+                            - id: 247
+                              name: Cattolica Assicurazioni
+                            - id: 248
+                              name: ConTe.it
+                            - id: 249
+                              name: Crédit Agricole Assicurazioni
+                            - id: 250
+                              name: Creditras Assicurazioni
+                            - id: 251
+                              name: Dialogo
+                            - id: 252
+                              name: Direct Assicurazioni
+                            - id: 253
+                              name: Duomo Uni One
+                            - id: 254
+                              name: Ergo
+                            - id: 255
+                              name: Fata Assicurazioni
+                            - id: 256
+                              name: Fondiaria-Sai
+                            - id: 257
+                              name: Generali
+                            - id: 258
+                              name: Genertel
+                            - id: 259
+                              name: Genertellife
+                            - id: 260
+                              name: GenialClick
+                            - id: 261
+                              name: GenialLife
+                            - id: 262
+                              name: Genialloyd
+                            - id: 263
+                              name: Groupama Assicurazioni
+                            - id: 264
+                              name: HDI Assicurazioni
+                            - id: 265
+                              name: Helvetia
+                            - id: 266
+                              name: Helvetia Italia Assicurazioni
+                            - id: 267
+                              name: Ina Assitalia
+                            - id: 268
+                              name: Inchiaro Assicurazioni
+                            - id: 269
+                              name: Intesa Sanpaolo Assicura
+                            - id: 270
+                              name: Italiana Assicurazioni
+                            - id: 271
+                              name: Itas Mutua
+                            - id: 272
+                              name: Liguria Assicurazioni
+                            - id: 273
+                              name: Linear
+                            - id: 274
+                              name: MetLife
+                            - id: 275
+                              name: Milano Assicurazioni
+                            - id: 276
+                              name: Nuova MAA
+                            - id: 277
+                              name: Prima.it
+                            - id: 278
+                              name: Quixa
+                            - id: 279
+                              name: Reale Mutua
+                            - id: 280
+                              name: Sara Assicurazioni
+                            - id: 281
+                              name: Siat
+                            - id: 282
+                              name: Sun Insurance Office
+                            - id: 283
+                              name: Systema Assicurazioni
+                            - id: 284
+                              name: Tua Assicurazioni
+                            - id: 285
+                              name: Ubi Assicurazioni
+                            - id: 286
+                              name: Unipol Assicurazioni
+                            - id: 287
+                              name: Uniqa
+                            - id: 288
+                              name: Verti
+                            - id: 289
+                              name: Vittoria Assicurazioni
+                            - id: 290
+                              name: Zurich
+                            - id: 291
+                              name: Zurich Connect
+                    - group:
+                        id: 3
+                        name:
+                          it: Nucleo Familiare
+                          en: Family
+                          es: Familia
+                        description:
+                          it: ''
+                          en: Add here information about your Family
+                          es: '-'
+                      fields:
+                        - id: 10
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Hai animali domestici?
+                            en: Do you have pets?
+                            es: ¿Tienes mascotas?
+                          placeholder:
+                            it: ''
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 112
+                              name: Si
+                            - id: 113
+                              name: 'No'
+                        - id: 12
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Componenti
+                            en: Members
+                            es: Miembros
+                          placeholder:
+                            it: Indica quanti sono i componenti del tuo nucleo
+                            en: Members
+                            es: '-'
+                          options:
+                            - id: 217
+                              name: '1'
+                            - id: 218
+                              name: '2'
+                            - id: 219
+                              name: '3'
+                            - id: 220
+                              name: '4'
+                            - id: 221
+                              name: '5'
+                            - id: 222
+                              name: Più di 5
+                        - id: 13
+                          type: select
+                          allow_other: false
+                          name:
+                            it: N. di figli
+                            en: N° of Children
+                            es: N° de Hijos
+                          placeholder:
+                            it: Indica il numero dei tuoi figli
+                            en: N° of Children
+                            es: '-'
+                          options:
+                            - id: 223
+                              name: '0'
+                            - id: 224
+                              name: '1'
+                            - id: 225
+                              name: '2'
+                            - id: 226
+                              name: '3'
+                            - id: 227
+                              name: Più di 3
+                        - id: 14
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Fascia di reddito
+                            en: Income Bracket
+                            es: Tramo de Ingresos
+                          placeholder:
+                            it: Scegli la fascia di reddito del nucleo
+                            en: Income Bracket
+                            es: '-'
+                          options:
+                            - id: 228
+                              name: da 0€ a 25.000€ annui
+                            - id: 229
+                              name: da 25.000€ a 50.000€ annui
+                            - id: 230
+                              name: da 50.000€ a 75.000€ annui
+                            - id: 231
+                              name: più di 75.000€ annui
+                        - id: 40
+                          type: select
+                          allow_other: true
+                          name:
+                            it: Ethnicity
+                            en: Ethnicity
+                          placeholder:
+                            it: Select what best describes your ethnicity
+                            en: Select what best describes your ethnicity
+                          options:
+                            - id: 580
+                              name: Caucasian
+                            - id: 581
+                              name: South Asian
+                            - id: 582
+                              name: Asian
+                            - id: 583
+                              name: Native Hawaiian or Other Pacific Islander
+                            - id: 584
+                              name: 'Hispanic, Latino or Spanish'
+                            - id: 585
+                              name: American Indian
+                            - id: 586
+                              name: Alaska Native
+                            - id: 587
+                              name: Black
+                            - id: 588
+                              name: African American
+                            - id: 589
+                              name: Middle Eastern
+                            - id: 590
+                              name: North African
+                        - id: 41
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: 'Indica lo status di possesso delle tue automobili:'
+                            en: 'The cars you usually drive come from:'
+                          placeholder:
+                            it: Puoi selezionare anche più di una risposta in base al numero di automobili che possiedi
+                            en: '-'
+                          options:
+                            - id: 620
+                              name: Acquisto (auto di proprietà)
+                            - id: 621
+                              name: Noleggio
+                            - id: 622
+                              name: Prestito
+                            - id: 623
+                              name: Leasing
+                        - id: 42
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali veicoli possiedi/utilizzi?
+                            en: What vehicles do you own/use?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                          options:
+                            - id: 626
+                              name: Motocicletta
+                            - id: 627
+                              name: Scooter
+                            - id: 628
+                              name: Bicicletta
+                            - id: 629
+                              name: Camper
+                            - id: 625
+                              name: Automobile
+                            - id: 630
+                              name: Nessuno
+                        - id: 66
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Qual è il tipo di alimentazione delle tue automobili?
+                            es: ¿Cuál es el tipo de alimentación de sus coches?
+                            en: What is the type of power supply of your cars?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 829
+                              name: Nessuno
+                            - id: 821
+                              name: Diesel
+                            - id: 822
+                              name: Elettrica
+                            - id: 823
+                              name: Benzina
+                            - id: 824
+                              name: Metano
+                            - id: 825
+                              name: GPL
+                            - id: 826
+                              name: Mild hybrid
+                            - id: 827
+                              name: Full hybrid
+                            - id: 828
+                              name: Plug-in hybrid
+                        - id: 43
+                          type: select
+                          allow_other: true
+                          name:
+                            it: 'Seleziona la tua tipologia abitativa:'
+                            en: 'Insert your housing typology:'
+                          placeholder:
+                            it: Indica la tua tipologia abitativa
+                            en: '-'
+                          options:
+                            - id: 631
+                              name: Appartamento in affitto
+                            - id: 632
+                              name: Appartamento di proprietà
+                            - id: 633
+                              name: Casa indipendente di proprietà
+                            - id: 634
+                              name: Casa indipendente in affitto
+                        - id: 44
+                          type: select
+                          allow_other: true
+                          name:
+                            it: Possiedi un giardino?
+                            en: Do you own a garden?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                          options:
+                            - id: 635
+                              name: Sì
+                            - id: 636
+                              name: 'No'
+                        - id: 68
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: In quale regione italiana risiedi?
+                            es: ¿En qué región italiana reside?
+                            en: In which Italian region do you reside?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 833
+                              name: Abruzzo
+                            - id: 834
+                              name: Basilicata
+                            - id: 835
+                              name: Calabria
+                            - id: 836
+                              name: Campania
+                            - id: 837
+                              name: Emilia-Romagna
+                            - id: 838
+                              name: Friuli-Venezia Giulia
+                            - id: 839
+                              name: Lazio
+                            - id: 840
+                              name: Liguria
+                            - id: 841
+                              name: Lombardia
+                            - id: 842
+                              name: Marche
+                            - id: 843
+                              name: Molise
+                            - id: 844
+                              name: Piemonte
+                            - id: 845
+                              name: Puglia
+                            - id: 846
+                              name: Sardegna
+                            - id: 847
+                              name: Sicilia
+                            - id: 848
+                              name: Toscana
+                            - id: 849
+                              name: Trentino-Alto Adige
+                            - id: 850
+                              name: Umbria
+                            - id: 851
+                              name: Valle d’Aosta
+                            - id: 852
+                              name: Veneto
+                            - id: 853
+                              name: Non vivo in Italia
+                        - id: 69
+                          type: select
+                          allow_other: true
+                          name:
+                            it: 'Attualmente sei:'
+                            en: 'Currently you are:'
+                            es: 'Actualmente estás:'
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 861
+                              name: Single
+                            - id: 854
+                              name: Fidanzato/a
+                            - id: 855
+                              name: Convivo con partner
+                            - id: 856
+                              name: Sposato/a
+                            - id: 857
+                              name: Divorziato/a
+                            - id: 858
+                              name: Separato/a
+                            - id: 859
+                              name: Vedovo/a
+                            - id: 860
+                              name: Altro
+                    - group:
+                        id: 5
+                        name:
+                          it: Servizi
+                          en: Services
+                          es: Servicios
+                        description:
+                          it: ''
+                          en: Add here information about the Services you use
+                          es: '-'
+                      fields:
+                        - id: 3
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Piattaforme di Streaming
+                            en: Streaming Platforms
+                            es: Plataformas de Streaming
+                          placeholder:
+                            it: Inserisci le piattaforme di streaming a cui sei abbonato o iscritto
+                            en: Enter your streaming platforms to which you are subscribed
+                            es: '-'
+                          options:
+                            - id: 18
+                              name: AmazonPrime Video
+                            - id: 343
+                              name: SKY
+                            - id: 347
+                              name: Dazn
+                            - id: 447
+                              name: Hbo
+                            - id: 449
+                              name: Dplay
+                            - id: 309
+                              name: Apple TV+
+                            - id: 20
+                              name: ChiliTV
+                            - id: 308
+                              name: Disney Plus
+                            - id: 25
+                              name: Google Play
+                            - id: 307
+                              name: Hulu
+                            - id: 16
+                              name: Infinity
+                            - id: 23
+                              name: Mediaset Play
+                            - id: 19
+                              name: MYmovieslive!
+                            - id: 28
+                              name: Nessuno
+                            - id: 14
+                              name: Netflix
+                            - id: 15
+                              name: NowTV
+                            - id: 22
+                              name: RaiPlay
+                            - id: 17
+                              name: TimVision
+                            - id: 306
+                              name: Twitch Prime
+                            - id: 27
+                              name: Vimeo
+                            - id: 21
+                              name: VVVVID
+                            - id: 24
+                              name: WuakiTV
+                            - id: 26
+                              name: YouTube Premium
+                        - id: 18
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Piattaforme musicali
+                            en: Music Platforms
+                            es: Plataformas de Música
+                          placeholder:
+                            it: Inserisci le app o piattaforme musicali che usi di più
+                            en: Enter your music apps or platforms that you use the most
+                            es: '-'
+                          options:
+                            - id: 448
+                              name: Soundcloud
+                            - id: 310
+                              name: Amazon Prime Music
+                            - id: 311
+                              name: Apple Music
+                            - id: 312
+                              name: Audible
+                            - id: 313
+                              name: Deezer
+                            - id: 314
+                              name: Google Play Music
+                            - id: 315
+                              name: Kindle Unlimited
+                            - id: 316
+                              name: Napster (Rhapsody)
+                            - id: 317
+                              name: Spotify
+                            - id: 318
+                              name: Tidal
+                            - id: 319
+                              name: TIM MUSIC
+                            - id: 320
+                              name: YouTube Music
+                        - id: 67
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali servizi di telepedaggio utilizzi?
+                            en: Which electronic toll services do you use?
+                            es: ¿Qué servicios de telepeaje utiliza?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 830
+                              name: UnipolMove
+                            - id: 831
+                              name: Telepass
+                            - id: 832
+                              name: Nessuno
+                    - group:
+                        id: 8
+                        name:
+                          it: Scommesse
+                          es: Apuestas
+                          en: Betting
+                        description:
+                          it: '-'
+                          es: '-'
+                          en: '-'
+                      fields:
+                        - id: 32
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Con che frequenza effettui scommesse?
+                            en: How often do you place bets?
+                            es: ¿Con qué frecuencia haces apuestas?
+                          placeholder:
+                            it: ''
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 514
+                              name: N/A
+                            - id: 515
+                              name: Few times per year
+                            - id: 516
+                              name: Monthly
+                            - id: 517
+                              name: Weekly
+                            - id: 518
+                              name: Daily
+                        - id: 33
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Quanto investi ogni mese nelle scommesse?
+                            en: How much do you invest in betting each month?
+                            es: ¿Cuánto inviertes en apuestas cada mes?
+                          placeholder:
+                            it: ''
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 519
+                              name: N/A
+                            - id: 520
+                              name: Less than 15€ per month
+                            - id: 521
+                              name: Between 15€ and 50€ per month
+                            - id: 522
+                              name: Between 50€ and 100€ per month
+                            - id: 523
+                              name: Between 100€ and 500€ per month
+                            - id: 524
+                              name: More than 500€ per month
+                        - id: 34
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali strumenti di scommessa preferisci?
+                            en: Which betting tools do you prefer?
+                            es: ¿Qué herramientas de apuestas prefieres?
+                          placeholder:
+                            it: ''
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 525
+                              name: N/A
+                            - id: 526
+                              name: Physical Places
+                            - id: 527
+                              name: Website
+                            - id: 528
+                              name: App
+                        - id: 19
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Piattaforme di Betting preferite
+                            en: Favorite Betting Platforms
+                            es: Plataformas de Apuestas favoritas
+                          placeholder:
+                            it: Inserisci le app o piattaforme di betting più usate
+                            en: Enter the most used betting apps or platforms
+                            es: '-'
+                          options:
+                            - id: 344
+                              name: BET365
+                            - id: 345
+                              name: Planetwin365
+                            - id: 348
+                              name: Goldbet
+                            - id: 352
+                              name: Matchpoint
+                            - id: 513
+                              name: N/A
+                            - id: 323
+                              name: 888sport
+                            - id: 336
+                              name: Betclic
+                            - id: 327
+                              name: Betfair
+                            - id: 335
+                              name: Betflag
+                            - id: 333
+                              name: Better
+                            - id: 328
+                              name: Betway
+                            - id: 334
+                              name: Bwin
+                            - id: 337
+                              name: Domusbet
+                            - id: 326
+                              name: Eurobet
+                            - id: 325
+                              name: Leovegas
+                            - id: 322
+                              name: Lottomatica
+                            - id: 330
+                              name: Merkur Win Scommesse
+                            - id: 321
+                              name: Sisal
+                            - id: 324
+                              name: Snai
+                            - id: 329
+                              name: StarCasinò Scommesse
+                            - id: 332
+                              name: Unibet
+                            - id: 331
+                              name: William Hill
+                        - id: 76
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: In cosa preferisci scommettere?
+                            es: ¿A qué prefiere apostar?
+                            en: What do you prefer to bet on?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 893
+                              name: Non scommetto
+                            - id: 894
+                              name: Cavalli
+                            - id: 895
+                              name: Calcio
+                            - id: 896
+                              name: Tennis
+                        - id: 77
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali giochi da casinò pratichi?
+                            en: Which casino games do you play?
+                            es: ¿A qué juegos de casino juegas?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 897
+                              name: Nessuno
+                            - id: 898
+                              name: BlackJack
+                            - id: 899
+                              name: Poker
+                            - id: 900
+                              name: Roulette
+                            - id: 901
+                              name: Baccarà
+                    - group:
+                        id: 7
+                        name:
+                          it: Account
+                          en: Accounts
+                          es: Accounts
+                        description:
+                          it: ''
+                          en: '-'
+                          es: '-'
+                      fields:
+                        - id: 22
+                          type: text
+                          allow_other: true
+                          format: '^[@]'
+                          name:
+                            it: Username Telegram
+                          placeholder:
+                            it: '@username'
+                        - id: 20
+                          type: text
+                          allow_other: true
+                          format: '^[a-zA-Z0-9.!#$%&\\\\\\\''*+=?^_{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*[.][a-zA-Z]+$;Inserisci una mail valida'
+                          name:
+                            it: Email Google Play
+                          placeholder:
+                            it: example@example.com
+                        - id: 21
+                          type: text
+                          allow_other: true
+                          format: '^[a-zA-Z0-9.!#$%&\\\\\\\''*+=?^_{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*[.][a-zA-Z]+$;Inserisci una mail valida'
+                          name:
+                            it: Email Apple Id
+                          placeholder:
+                            it: example@example.com
+                        - id: 23
+                          type: text
+                          allow_other: true
+                          format: '^https:(.)(.)www.linkedin.com(.)in(.)[a-z-0-9]{1,}(.)?$'
+                          name:
+                            it: Linkedin Profile
+                          placeholder:
+                            it: 'https://www.linkedin.com/in/williamhgates/'
+                        - id: 24
+                          type: text
+                          allow_other: true
+                          name:
+                            it: Facebook Profile
+                          placeholder:
+                            it: 'https://www.facebook.com/zuck'
+                        - id: 38
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Hacking Platforms
+                          placeholder:
+                            it: '-'
+                          options:
+                            - id: 570
+                              name: SynAck
+                            - id: 571
+                              name: BugCrowd
+                            - id: 572
+                              name: Intigriti
+                            - id: 573
+                              name: Cobalt
+                            - id: 574
+                              name: HackerOne
+                        - id: 78
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Aderisci a qualche programma fedeltà?
+                            es: ¿Participa en algún programa de fidelización?
+                            en: Are you a member of any loyalty programmes?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 902
+                              name: Nessuno
+                            - id: 903
+                              name: Ita Airways
+                            - id: 904
+                              name: Amex
+                            - id: 905
+                              name: Best Western
+                            - id: 906
+                              name: Payback
+                            - id: 907
+                              name: Q8
+                            - id: 908
+                              name: Conad
+                    - group:
+                        id: 10
+                        name:
+                          it: Interessi
+                          en: Interests
+                        description:
+                          it: ''
+                          en: '-'
+                      fields:
+                        - id: 45
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Giochi a qualcuno tra i seguenti videogames online?
+                            en: Do you play any of the following online video games?
+                            es: ¿Juega usted a alguno de los siguientes videojuegos en línea?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 637
+                              name: Nessuno
+                            - id: 638
+                              name: League of Legends
+                            - id: 639
+                              name: Hearthstone
+                            - id: 640
+                              name: Call of Duty
+                            - id: 641
+                              name: World of Warcraft
+                            - id: 642
+                              name: Metin 2
+                            - id: 752
+                              name: Fallout 76
+                            - id: 756
+                              name: Diablo
+                        - id: 46
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Che categorie di serie TV/film i ti piacciono maggiormente?
+                            es: ¿Qué tipo de series/películas le gustan más?
+                            en: What kinds of TV series/movies i do you like the most?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 643
+                              name: Horror
+                            - id: 644
+                              name: Amore
+                            - id: 645
+                              name: Scientifico
+                            - id: 646
+                              name: Fantascienza
+                            - id: 647
+                              name: Drammatico
+                            - id: 648
+                              name: Nessuno
+                        - id: 47
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Che tecnologia sfrutti per vedere la TV?
+                            en: What technology do you take use of to watch TV?
+                            es: ¿Qué tecnología utiliza para ver la televisión?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 649
+                              name: Nessuna
+                            - id: 650
+                              name: Via cavo
+                            - id: 651
+                              name: Via satellite
+                            - id: 652
+                              name: Via Internet
+                        - id: 48
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali sono i tuoi hobby?
+                            es: ¿Cuáles son sus aficiones?
+                            en: What are your hobbies?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 653
+                              name: Giardinaggio
+                            - id: 654
+                              name: Canto
+                            - id: 655
+                              name: Pianoforte
+                            - id: 656
+                              name: Ballo
+                            - id: 657
+                              name: Dipinto
+                            - id: 658
+                              name: Motori
+                            - id: 757
+                              name: Cucina
+                            - id: 758
+                              name: DYI
+                            - id: 759
+                              name: Musica
+                            - id: 760
+                              name: Elettronica
+                            - id: 761
+                              name: Homebrewing
+                            - id: 762
+                              name: Leggere
+                            - id: 763
+                              name: Tecnologia
+                            - id: 764
+                              name: Videogames
+                        - id: 49
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Hai fatto viaggi negli ultimi 12 mesi?
+                            en: Have you taken any travels in the past 12 months?
+                            es: ¿Ha viajado en los últimos 12 meses?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 659
+                              name: Sì
+                            - id: 660
+                              name: 'No'
+                        - id: 50
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Ha viaggi programmati nei prossimi 12 mesi?
+                            en: Do you have any trips planned in the next 12 months?
+                            es: ¿Tiene previsto algún viaje en los próximos 12 meses?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 661
+                              name: 'No'
+                            - id: 662
+                              name: Sì
+                        - id: 51
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali console di gioco possiedi?
+                            es: ¿Qué videoconsolas tienes?
+                            en: Which game consoles do you own?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 663
+                              name: Xbox One S
+                            - id: 664
+                              name: Xbox One X
+                            - id: 665
+                              name: Nvidia Shield
+                            - id: 666
+                              name: PlayStation 4
+                            - id: 667
+                              name: NES
+                            - id: 668
+                              name: Nintendo64
+                            - id: 669
+                              name: Nintendo Switch
+                            - id: 678
+                              name: Nessuna
+                            - id: 765
+                              name: Xbox Series S
+                            - id: 766
+                              name: Nintendo Wii
+                            - id: 767
+                              name: PlayStation 3
+                            - id: 768
+                              name: PlayStation 5
+                            - id: 769
+                              name: Sega Mega Drive 2
+                        - id: 52
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Pratichi qualche attività fisica o sportiva?
+                            en: Do you practise any physical activity or sport?
+                            es: ¿Practicas alguna actividad física o deporte?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 670
+                              name: Nessuna
+                            - id: 772
+                              name: Hiking
+                            - id: 782
+                              name: Gym
+                            - id: 781
+                              name: Pesca
+                            - id: 780
+                              name: Equitazione
+                            - id: 779
+                              name: Nuoto
+                            - id: 778
+                              name: Tennis
+                            - id: 777
+                              name: Ciclismo
+                            - id: 776
+                              name: Aerobica
+                            - id: 775
+                              name: Jogging
+                            - id: 774
+                              name: Yoga
+                            - id: 773
+                              name: Softair
+                            - id: 771
+                              name: Arrampicata
+                            - id: 770
+                              name: Zumba
+                            - id: 677
+                              name: Karate
+                            - id: 676
+                              name: Boxe
+                            - id: 675
+                              name: Pilates
+                            - id: 674
+                              name: Palestra
+                            - id: 673
+                              name: Corsa
+                            - id: 672
+                              name: Basket
+                            - id: 671
+                              name: Calcio
+                    - group:
+                        id: 11
+                        name:
+                          it: Occupazione
+                          es: Empleo
+                          en: Employment
+                        description:
+                          it: '-'
+                          es: '-'
+                          en: '-'
+                      fields:
+                        - id: 53
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Qual è il tuo settore lavorativo?
+                            en: What is your field of work?
+                            es: ¿Cuál es su área de trabajo?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 679
+                              name: Nessuno
+                            - id: 680
+                              name: Economia
+                            - id: 681
+                              name: Medicina
+                            - id: 682
+                              name: Legale
+                            - id: 683
+                              name: Ingegneria
+                            - id: 684
+                              name: Informatica
+                            - id: 685
+                              name: Militare
+                            - id: 783
+                              name: Turismo
+                            - id: 784
+                              name: Assicurazioni
+                            - id: 785
+                              name: Automazione Industriale
+                            - id: 786
+                              name: Cucina
+                            - id: 787
+                              name: Calcistico
+                            - id: 788
+                              name: Amministrazione
+                            - id: 789
+                              name: Logistica
+                            - id: 790
+                              name: Architettura
+                            - id: 791
+                              name: Produzione Audiovisiva
+                        - id: 54
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Qual è la tua funzione lavorativa?
+                            es: ¿Cuál es su función en el trabajo?
+                            en: What is your job function?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 686
+                              name: Non lavoro
+                            - id: 687
+                              name: Marketing
+                            - id: 688
+                              name: Sviluppo
+                            - id: 689
+                              name: Ricerca
+                            - id: 690
+                              name: Operativo
+                            - id: 691
+                              name: Vendite
+                            - id: 692
+                              name: Manager
+                            - id: 792
+                              name: Infermiere/a
+                            - id: 793
+                              name: Analisi dati
+                            - id: 794
+                              name: Contabile
+                        - id: 55
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Qual è il tuo titolo lavorativo?
+                            en: What is your job title?
+                            es: ¿Cuál es su título de trabajo?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 698
+                              name: Nessuno
+                            - id: 939
+                              name: IT Support
+                            - id: 940
+                              name: IT Specialist
+                            - id: 941
+                              name: Webmaster
+                            - id: 942
+                              name: Medico
+                            - id: 943
+                              name: Software Engineer
+                            - id: 944
+                              name: Web Frontend Developer
+                            - id: 945
+                              name: Operaio
+                            - id: 946
+                              name: Insegnante
+                            - id: 805
+                              name: Quality Assurance Tester
+                            - id: 795
+                              name: Direttore Tecnico Agenzia Viaggi
+                            - id: 796
+                              name: Lead Quality Assurance Tester
+                            - id: 797
+                              name: Software Tester
+                            - id: 798
+                              name: Copywriter
+                            - id: 799
+                              name: Perito logistico
+                            - id: 800
+                              name: Customer Care Admin
+                            - id: 801
+                              name: Cameriere/a di sala
+                            - id: 802
+                              name: Sales assistant
+                            - id: 803
+                              name: OSS
+                            - id: 804
+                              name: Videomaker
+                            - id: 693
+                              name: Assistente al Marketing
+                            - id: 694
+                              name: CFO
+                            - id: 695
+                              name: CTO
+                            - id: 696
+                              name: Segretaria/o
+                            - id: 697
+                              name: Project Manager
+                        - id: 56
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Qual è il numero di dipendenti della tua azienda?
+                            es: ¿Cuántos empleados tiene su empresa?
+                            en: How many employees does your company have?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 699
+                              name: Non lavoro
+                            - id: 700
+                              name: 1-10
+                            - id: 701
+                              name: 11- 50
+                            - id: 702
+                              name: 51- 100
+                            - id: 703
+                              name: 101-300
+                            - id: 704
+                              name: Più di 300
+                        - id: 57
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Qual è il fatturato annuo della tua azienda?
+                            en: What is the annual turnover of your company?
+                            es: ¿Cuál es la facturación anual de su empresa?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 709
+                              name: Non lavoro
+                            - id: 705
+                              name: 1.000.000€ - 10.000.000€
+                            - id: 706
+                              name: 500.000€ - 1.000.000€
+                            - id: 707
+                              name: 100.000€ - 500.000€
+                            - id: 708
+                              name: Meno di 100.000 €
+                            - id: 710
+                              name: Più di 10.000.000€
+                        - id: 58
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Qual è la tua condizione lavorativa?
+                            es: ¿Cuál es su situación laboral?
+                            en: What is your employment status?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 711
+                              name: Lavoro Part-time
+                            - id: 712
+                              name: Lavoro full-time
+                            - id: 713
+                              name: Lavoro a progetto
+                            - id: 714
+                              name: Libero professionista
+                            - id: 715
+                              name: Pensione
+                            - id: 716
+                              name: Studente
+                            - id: 717
+                              name: Studente - Lavoratore
+                            - id: 718
+                              name: Disoccupato
+                            - id: 806
+                              name: Freelancer
+                        - id: 59
+                          type: select
+                          allow_other: false
+                          name:
+                            it: Qual è il tuo livello di studi attuale?
+                            en: What is your current level of education?
+                            es: ¿Cuál es su nivel actual de estudios?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 719
+                              name: Scuola primaria
+                            - id: 720
+                              name: Scuola secondaria di primo livello
+                            - id: 721
+                              name: Scuola secondaria di secondo livello
+                            - id: 722
+                              name: Corso di laurea triennale (concluso)
+                            - id: 723
+                              name: Corso di laurea triennale (non concluso / in svolgimento)
+                            - id: 724
+                              name: Corso di laurea magistrale (non concluso / in svolgimento)
+                            - id: 725
+                              name: Corso di laurea magistrale (concluso)
+                            - id: 726
+                              name: Corso laurea magistrale a ciclo unico (concluso)
+                            - id: 727
+                              name: Master I livello
+                            - id: 728
+                              name: Master II livello
+                            - id: 729
+                              name: PHD
+                        - id: 60
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Che software utilizzi abitualmente per lavoro/studio?
+                            es: ¿Qué programas informáticos suele utilizar para trabajar/estudiar?
+                            en: What software do you usually use for work/study?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 730
+                              name: Matlab
+                            - id: 731
+                              name: Photoshop
+                            - id: 732
+                              name: ClickUp
+                            - id: 733
+                              name: Jira
+                            - id: 734
+                              name: Revit
+                            - id: 735
+                              name: Visual Studio Code
+                            - id: 736
+                              name: MailChimp
+                            - id: 807
+                              name: AutoCAD
+                            - id: 808
+                              name: inDesign
+                            - id: 809
+                              name: Illustrator
+                            - id: 810
+                              name: Rhinoceros
+                            - id: 811
+                              name: Adobe Premiere
+                            - id: 812
+                              name: Davinci Resolve
+                            - id: 813
+                              name: Slack
+                            - id: 814
+                              name: Visual Studio
+                            - id: 815
+                              name: Virtualbox
+                            - id: 816
+                              name: Gimp
+                            - id: 817
+                              name: After Effects
+                            - id: 818
+                              name: GTKwave
+                            - id: 819
+                              name: Telegram
+                            - id: 820
+                              name: Excel
+                    - group:
+                        id: 12
+                        name:
+                          it: Abitudini di consumo
+                          en: Consumption habits
+                          es: Hábitos de consumo
+                        description:
+                          it: ''
+                          en: '-'
+                          es: '-'
+                      fields:
+                        - id: 70
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Che tipologie di bevande consumi abitualmente?
+                            es: ¿Qué tipo de bebidas suele consumir?
+                            en: What types of drinks do you usually consume?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 862
+                              name: Nessuna
+                            - id: 863
+                              name: Birra
+                            - id: 864
+                              name: Vino
+                            - id: 865
+                              name: Succhi di frutta
+                            - id: 866
+                              name: Bibite gasate
+                            - id: 867
+                              name: Superalcoolici
+                            - id: 868
+                              name: Thè freddi/caldi
+                            - id: 869
+                              name: Caffé
+                        - id: 71
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Che tipologia di prodotti da fumo e tabacco consumi?
+                            en: What kind of smoking products and tobacco do you consume?
+                            es: ¿Qué tipo de productos para fumar y de tabaco consume?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 870
+                              name: Nessuno
+                            - id: 871
+                              name: Tabacco da fiuto
+                            - id: 872
+                              name: Tabacco da masticare
+                            - id: 873
+                              name: Sigarette
+                            - id: 874
+                              name: Sigarette elettroniche
+                            - id: 875
+                              name: Pipa
+                        - id: 72
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Qual è il tuo status di consumatore di tabacco?
+                          placeholder:
+                            it: '-'
+                          options:
+                            - id: 876
+                              name: Non consumo prodotti da fumo e tabacchi
+                            - id: 877
+                              name: Consumatore abituale ma voglio smettere
+                            - id: 878
+                              name: Consumatore abituale e non voglio smettere
+                            - id: 879
+                              name: Ho smesso meno di 1 anno fa
+                            - id: 880
+                              name: Ho smesso da oltre un anno
+                        - id: 73
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Per quali prodotti effettui shopping online?
+                            es: ¿Qué productos compra en Internet?
+                            en: For which products do you shop online?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 881
+                              name: Non effettuo shopping online
+                            - id: 882
+                              name: Elettronica
+                            - id: 883
+                              name: Alimentari
+                            - id: 884
+                              name: Abbigliamento
+                            - id: 885
+                              name: Tecnologia
+                            - id: 886
+                              name: Libri
+                    - group:
+                        id: 13
+                        name:
+                          it: Salute
+                          en: Health
+                          es: Salud
+                        description:
+                          it: ''
+                          en: '-'
+                          es: '-'
+                      fields:
+                        - id: 74
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Sei soggetto a restrizioni alimentari?
+                            es: ¿Está usted sujeto a restricciones dietéticas?
+                            en: Are you subject to dietary restrictions?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 887
+                              name: Nessuna restrizione
+                            - id: 888
+                              name: Intolleranza al lattosio
+                            - id: 889
+                              name: Intolleranza al glutine (celiachia)
+                            - id: 890
+                              name: Favismo
+                        - id: 75
+                          type: select
+                          allow_other: true
+                          name:
+                            it: Sei in stato di gravidanza?
+                            en: Are you pregnant?
+                            es: ¿Está usted embarazada?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 891
+                              name: 'No'
+                            - id: 892
+                              name: Sì
+                    - group:
+                        id: 14
+                        name:
+                          it: Tecnologia
+                          en: Tech
+                          es: Tecnología
+                        description:
+                          it: ''
+                          en: '-'
+                          es: '-'
+                      fields:
+                        - id: 79
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali dispositivi smart possiedi in casa?
+                            es: ¿Qué dispositivos inteligentes tienes en casa?
+                            en: What smart devices do you own at home?
+                          placeholder:
+                            it: '-'
+                            es: '-'
+                            en: '-'
+                          options:
+                            - id: 909
+                              name: Nessuno
+                            - id: 910
+                              name: Alexa
+                            - id: 911
+                              name: Videocitofoni smart
+                            - id: 912
+                              name: Telecamere
+                            - id: 913
+                              name: Bilance smart
+                            - id: 914
+                              name: Purificatori di aria
+                            - id: 915
+                              name: Google nest
+                            - id: 916
+                              name: Lampadine
+                        - id: 80
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: Quali social media utilizzi?
+                            en: Which social media do you use?
+                            es: ¿Qué medios sociales utiliza?
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 917
+                              name: Nessuno
+                            - id: 918
+                              name: Instagram
+                            - id: 919
+                              name: Snapchat
+                            - id: 920
+                              name: Facebook
+                            - id: 921
+                              name: LinkedIn
+                            - id: 922
+                              name: Pinterest
+                            - id: 923
+                              name: TikTok
+                        - id: 82
+                          type: multiselect
+                          allow_other: true
+                          name:
+                            it: 'Utilizzi internet per:'
+                            en: 'You use the Internet for:'
+                            es: 'Utilizas Internet para:'
+                          placeholder:
+                            it: '-'
+                            en: '-'
+                            es: '-'
+                          options:
+                            - id: 929
+                              name: Lavorare
+                            - id: 930
+                              name: Studiare
+                            - id: 931
+                              name: Ricerche
+                            - id: 932
+                              name: Svago
+                            - id: 933
+                              name: Informarmi
+                            - id: 934
+                              name: Videogames
+                            - id: 935
+                              name: Investimenti
+                            - id: 936
+                              name: Gestione finanze
+                            - id: 937
+                              name: Pagamenti online
+                            - id: 938
+                              name: Fare acquisti
       operationId: get-customUserFields
       description: ''
       security:
