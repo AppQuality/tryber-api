@@ -9650,6 +9650,16 @@ paths:
                         value: 16
                         currency: EUR
                     birthDate: '2019-08-24'
+                user_subscriber_onboarding_complete:
+                  value:
+                    id: 11110
+                    name: Name
+                    surname: Surname
+                    email: name.surname@mail.com
+                    wp_user_id: 11111
+                    onboarding_completed: true
+                    image: 'https://secure.gravatar.com/avatar/087ada6e86cf8ec31a49217dd05b7151?s=132&d=https%3A%2F%2Feu.ui-avatars.com%2Fapi%2Fi%2Bl%2F132&r=x'
+                    role: subscriber
       operationId: get-users-me
       description: Get your user data
       security:
@@ -9851,7 +9861,7 @@ paths:
                 required:
                   - id
               examples:
-                Example 1:
+                Example-1:
                   value:
                     username: string
                     name: string
@@ -12417,10 +12427,8 @@ paths:
                   amount:
                     type: number
               examples:
-                success:
-                  value:
-                    id: 1
-                    amount: 10.5
+                '':
+                  value: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
       security:
