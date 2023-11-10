@@ -8214,6 +8214,59 @@ paths:
                   example-1:
                     - id: 0
                       name: string
+              examples:
+                Example-1:
+                  value:
+                    - id: 1
+                      name: 'Technical field (Engineering, IT,ecc)'
+                    - id: 2
+                      name: 'Science field (Physics, Maths, etc)'
+                    - id: 3
+                      name: Humanistic field
+                    - id: 4
+                      name: Medical field
+                    - id: 5
+                      name: Student in other field
+                    - id: 6
+                      name: Developer/Web-developer
+                    - id: 7
+                      name: Professional Tester
+                    - id: 8
+                      name: Other IT related job
+                    - id: 9
+                      name: 'Agriculture, Food and Natural Resources'
+                    - id: 10
+                      name: Architecture and Construction
+                    - id: 11
+                      name: 'Arts, Audio/Video Technology and Communications'
+                    - id: 12
+                      name: Business Management and Administration
+                    - id: 13
+                      name: Education & Training
+                    - id: 14
+                      name: Finance
+                    - id: 15
+                      name: Government and Public Administration
+                    - id: 16
+                      name: Health Science
+                    - id: 17
+                      name: Hospitality & Tourism
+                    - id: 18
+                      name: Human Services
+                    - id: 19
+                      name: 'Law, Public Safety, Corrections and Security'
+                    - id: 20
+                      name: Manufacturing
+                    - id: 21
+                      name: 'Marketing, Sales and Service'
+                    - id: 22
+                      name: 'Science, Technology, Engineering and Mathematics'
+                    - id: 23
+                      name: 'Transportation, Distribution and Logistics'
+                    - id: 24
+                      name: Other job
+                    - id: 25
+                      name: Unemployed
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -9560,6 +9613,43 @@ paths:
                     booty_threshold:
                       value: 0
                       isOver: true
+                zero-booty-gross:
+                  value:
+                    id: 15550
+                    pending_booty:
+                      gross:
+                        value: 0
+                        currency: EUR
+                    booty_threshold:
+                      value: 2
+                      isOver: false
+                    role: tester
+                zero-booty-net:
+                  value:
+                    id: 15550
+                    pending_booty:
+                      gross:
+                        value: 0
+                        currency: EUR
+                      net:
+                        value: 0
+                        currency: EUR
+                    booty_threshold:
+                      value: 2
+                      isOver: false
+                    role: tester
+                pendingbooty_birthdate:
+                  value:
+                    id: 0
+                    role: string
+                    pending_booty:
+                      net:
+                        value: 13.5
+                        currency: EUR
+                      gross:
+                        value: 16
+                        currency: EUR
+                    birthDate: '2019-08-24'
       operationId: get-users-me
       description: Get your user data
       security:
