@@ -10051,12 +10051,8 @@ paths:
                   gender: male
                   birthDate: '2019-08-24'
                   phone: '11000000000'
-                  education:
-                    id: 0
-                    name: string
-                  profession:
-                    id: 0
-                    name: string
+                  education: 0
+                  profession: 0
                   certifications:
                     - id: 0
                       name: string
@@ -11939,12 +11935,9 @@ paths:
             examples:
               Example-1:
                 value:
-                  - id: 46
-                    name: English
-                  - id: 61
-                    name: Spanish
-                  - id: 120
-                    name: Italiano (Italia)
+                  - 46
+                  - 61
+                  - 120
       description: Edit your spoken languages
       security:
         - JWT: []
@@ -12427,7 +12420,7 @@ paths:
                   amount:
                     type: number
               examples:
-                '':
+                Example 1:
                   value: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
