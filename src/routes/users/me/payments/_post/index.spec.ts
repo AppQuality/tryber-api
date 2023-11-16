@@ -583,7 +583,7 @@ describe("POST /users/me/payments", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 100,
+        amount: 80,
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
@@ -692,7 +692,7 @@ describe("POST /users/me/payments", () => {
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
-      expect(requestData.amount).toBe(62.07);
+      expect(requestData.amount).toBe(49.66);
       expect(requestData.is_paid).toBe(0);
     });
 
@@ -739,14 +739,36 @@ describe("POST /users/me/payments", () => {
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
-      expect(requestData.amount_withholding).toBe(37.93);
+      expect(requestData.amount_withholding).toBe(30.34);
+    });
+    it("Should create a payment request with stamp_required = false if (gross/1.16) < 77.47€", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("stamp_required")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.stamp_required).toBe(0);
     });
   });
   describe("POST /users/me/payments/ - fiscal profile 3", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
-        amount: 100,
+        amount: 75,
       });
 
       await tryber.tables.WpAppqFiscalProfile.do().insert({
@@ -852,7 +874,7 @@ describe("POST /users/me/payments", () => {
         .where({ id: requestId })
         .first();
       if (!requestData) throw new Error("Request not found");
-      expect(requestData.amount).toBe(100);
+      expect(requestData.amount).toBe(75);
       expect(requestData.is_paid).toBe(0);
     });
 
@@ -913,7 +935,6 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
-      console.log(response.body);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("id");
       const requestId: number = response.body.id;
@@ -924,6 +945,28 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.net_multiplier).toBe(1.04);
+    });
+    it("Should create a payment request with stamp_required = true if gross * net_multiplier > 77.47€", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("stamp_required")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.stamp_required).toBe(1);
     });
   });
 
@@ -1269,7 +1312,6 @@ describe("POST /users/me/payments", () => {
           },
         })
         .set("Authorization", "Bearer tester");
-      console.log(response.body);
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("id");
       const requestId: number = response.body.id;
@@ -1280,6 +1322,28 @@ describe("POST /users/me/payments", () => {
         .first();
       if (!requestData) throw new Error("Request not found");
       expect(requestData.net_multiplier).toBe(1.02);
+    });
+    it("Should create a payment request with stamp_required = false", async () => {
+      const response = await request(app)
+        .post("/users/me/payments")
+        .send({
+          method: {
+            type: "iban",
+            iban: "IT75T0300203280284975661141",
+            accountHolderName: "John Doe",
+          },
+        })
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+      const requestId: number = response.body.id;
+
+      const requestData = await tryber.tables.WpAppqPaymentRequest.do()
+        .select("stamp_required")
+        .where({ id: requestId })
+        .first();
+      if (!requestData) throw new Error("Request not found");
+      expect(requestData.stamp_required).toBe(0);
     });
   });
 
