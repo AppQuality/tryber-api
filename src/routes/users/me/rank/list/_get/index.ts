@@ -1,11 +1,13 @@
 /** OPENAPI-ROUTE: get-users-me-rank-list */
 
+import { tryber } from "@src/features/database";
 import * as db from "@src/features/db";
 import Leaderboard from "@src/features/leaderboard";
+import { imageUrl } from "@src/features/leaderboard/imageUrl";
 import { Context } from "openapi-backend";
 
 function getPeers(
-  leaderboard: StoplightComponents["schemas"]["RankingItem"][],
+  leaderboard: { id: number; position: number }[],
   position: number
 ) {
   if ([1, 2, 3, 4].includes(position)) {
@@ -55,9 +57,58 @@ export default async (
     };
   }
 
+  const tops = result.slice(0, 3);
+  const peers = getPeers(result, myRank.position);
+
+  const users = (
+    await tryber.tables.WpAppqEvdProfile.do()
+      .select("id", "name", "surname", "email")
+      .whereIn(
+        "id",
+        [...tops, ...peers].map((user) => user.id)
+      )
+  ).map((user) => {
+    return {
+      ...user,
+      name: user.name
+        .toLowerCase()
+        .replace(/[\W_]+/g, " ")
+        .replace(" ", "-"),
+      surname: user.surname
+        .toLowerCase()
+        .replace(/[\W_]+/g, " ")
+        .replace(" ", "-")
+        .charAt(0),
+    };
+  });
+
   res.status_code = 200;
   return {
-    tops: result.slice(0, 3),
-    peers: getPeers(result, myRank.position),
+    tops: tops.map((user) => {
+      const u = users.find((u) => u.id === user.id);
+      return {
+        ...user,
+        image: u
+          ? imageUrl({
+              name: u.name,
+              surname: u.surname,
+              email: u.email,
+            })
+          : "",
+      };
+    }),
+    peers: peers.map((user) => {
+      const u = users.find((u) => u.id === user.id);
+      return {
+        ...user,
+        image: u
+          ? imageUrl({
+              name: u.name,
+              surname: u.surname,
+              email: u.email,
+            })
+          : "",
+      };
+    }),
   };
 };

@@ -1,8 +1,12 @@
 import { tryber } from "@src/features/database";
-import { imageUrl } from "@src/features/leaderboard/imageUrl";
 
 export default class Leaderboard {
-  private leaderboard: StoplightComponents["schemas"]["RankingItem"][];
+  private leaderboard: {
+    position: number;
+    id: number;
+    name: string;
+    monthly_exp: number;
+  }[];
   private level: number;
   constructor(level: number) {
     this.leaderboard = [];
@@ -60,27 +64,6 @@ export default class Leaderboard {
     return tester_name + " " + tester_surname.charAt(0) + ".";
   }
 
-  private getTesterImage(tester: {
-    tester_name: string;
-    tester_surname: string;
-    tester_email: string;
-  }) {
-    const nameSlug = tester.tester_name
-      .toLowerCase()
-      .replace(/[\W_]+/g, " ")
-      .replace(" ", "-");
-    const surnameSlug = tester.tester_surname
-      .toLowerCase()
-      .replace(/[\W_]+/g, " ")
-      .replace(" ", "-")
-      .charAt(0);
-    return imageUrl({
-      name: nameSlug,
-      surname: surnameSlug,
-      email: tester.tester_email,
-    });
-  }
-
   private async populate() {
     const currentLevels = await this.getTesterCurrentLevels();
 
@@ -93,7 +76,6 @@ export default class Leaderboard {
         position: 0,
         name: this.getTesterName(level),
         id: level.tester_id,
-        image: this.getTesterImage(level),
         monthly_exp: level.monthly_exp ?? 0,
         total_exp: level.total_exp,
       });
@@ -126,9 +108,7 @@ export default class Leaderboard {
     return this.leaderboard.find((item) => item.id === testerId);
   }
 
-  async getLeaderboard(): Promise<
-    StoplightComponents["schemas"]["RankingItem"][]
-  > {
+  async getLeaderboard(): Promise<typeof this.leaderboard> {
     if (this.leaderboard.length === 0) {
       await this.populate();
     }
