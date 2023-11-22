@@ -1,6 +1,7 @@
-import Experience from "@src/__mocks__/mockedDb/experience";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
+
 import Profile from "@src/__mocks__/mockedDb/profile";
+import { tryber } from "@src/features/database";
 
 export default async (params: {
   testerId: number;
@@ -23,8 +24,7 @@ export default async (params: {
     image: `https://eu.ui-avatars.com/api/${params.image_name}/132---${tester.email}---132`,
     exp:
       params.exp > 0
-        ? await Experience.insert({
-            id: params.testerId + 100,
+        ? await tryber.tables.MonthlyTesterExp.do().insert({
             tester_id: tester.id,
             amount: params.exp,
           })
