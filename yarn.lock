@@ -28,10 +28,10 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.23.1":
-  version "0.23.1"
-  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.23.1.tgz#bb0d5343cca196a2916837bc5defc78db966a3de"
-  integrity sha512-fW/3p4E+7LgMu1F1atDqnfH+1mdpRVShqJdKtyvpvyli7U40wUrvej/4wJ9UPwmOjznXHIj2ILvm55raRRC3BA==
+"@appquality/tryber-database@^0.24.3":
+  version "0.24.3"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.24.3.tgz#1cf14f47da8adf9da7d56c90594c7db329e2bb6e"
+  integrity sha512-FX2cGrgK4utFowpwnMgtLddwG2kdUYNcs76BbZQCykaVoMe/hyFNE38D5C8v8kTV421Sfbw0UE+Fwc4rK2JY/Q==
   dependencies:
     better-sqlite3 "^8.1.0"
     knex "^2.5.1"

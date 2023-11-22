@@ -15,27 +15,11 @@ export default class Leaderboard {
       monthly_exp: number;
     }[]
   > {
-    const sql = tryber.tables.WpAppqExpPoints.do()
-      .select("tester_id")
-      .sum("amount", { as: "monthly_exp" })
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.id",
-        "wp_appq_exp_points.tester_id"
-      )
-      .whereNot("wp_appq_evd_profile.name", "Deleted User")
-      .whereNot("wp_appq_exp_points.amount", 0)
-      .whereRaw(
-        `${tryber.fn.month(
-          "wp_appq_exp_points.creation_date"
-        )} = ${tryber.fn.month(tryber.fn.now())}`
-      )
-      .whereRaw(
-        `${tryber.fn.year(
-          "wp_appq_exp_points.creation_date"
-        )} = ${tryber.fn.year(tryber.fn.now())}`
-      )
-      .groupBy("tester_id");
+    const sql = tryber.tables.MonthlyTesterExp.do().select(
+      "tester_id",
+      tryber.ref("amount").as("monthly_exp")
+    );
+
     return await sql;
   }
 
