@@ -18,17 +18,19 @@ export default async (params: {
     name: params.name,
     surname: params.surname,
   });
+  let exp = 0;
+  if (params.exp > 0) {
+    await tryber.tables.MonthlyTesterExp.do().insert({
+      tester_id: tester.id,
+      amount: params.exp,
+    });
+    exp = params.exp;
+  }
   return {
     ...tester,
     short_name: params.shortname,
     image: `https://eu.ui-avatars.com/api/${params.image_name}/132---${tester.email}---132`,
-    exp:
-      params.exp > 0
-        ? await tryber.tables.MonthlyTesterExp.do().insert({
-            tester_id: tester.id,
-            amount: params.exp,
-          })
-        : { amount: 0 },
+    exp: { amount: exp },
     level:
       params.level !== false
         ? await UserLevels.insert({
