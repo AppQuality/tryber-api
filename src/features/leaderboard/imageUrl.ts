@@ -10,7 +10,7 @@ export const imageUrl = ({
   email: string;
 }) => {
   const fallback = `https://eu.ui-avatars.com/api/${name}+${surname}/132`;
-  return `https://gravatar.com/avatar/${hash(
+  return `https://secure.gravatar.com/avatar/${hash(
     email
   )}?size=132&d=${encodeURIComponent(fallback)}`;
 };
