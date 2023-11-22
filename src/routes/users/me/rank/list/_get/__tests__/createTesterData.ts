@@ -29,7 +29,7 @@ export default async (params: {
   return {
     ...tester,
     short_name: params.shortname,
-    image: `https://eu.ui-avatars.com/api/${params.image_name}/132---${tester.email}---132`,
+    image: `${params.image_name}--${tester.email}---`,
     exp: { amount: exp },
     level:
       params.level !== false

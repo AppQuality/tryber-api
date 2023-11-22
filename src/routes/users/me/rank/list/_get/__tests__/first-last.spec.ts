@@ -4,18 +4,18 @@ import { tryber } from "@src/features/database";
 import createTesterData from "./createTesterData";
 import shouldShowFirstNineTesters from "./shouldShowFirstNineTesters";
 
-jest.mock("avatar-initials", () => {
+jest.mock("@src/features/leaderboard/imageUrl", () => {
   return {
-    gravatarUrl: jest.fn(
+    imageUrl: jest.fn(
       ({
-        fallback,
+        name,
+        surname,
         email,
-        size,
       }: {
-        fallback: string;
+        name: string;
+        surname: string;
         email: string;
-        size: number;
-      }) => `${fallback}---${email}---${size}`
+      }) => `${name}+${surname}--${email}---`
     ),
   };
 });

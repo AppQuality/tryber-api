@@ -1,5 +1,5 @@
 import { tryber } from "@src/features/database";
-import { gravatarUrl } from "avatar-initials";
+import { imageUrl } from "@src/features/leaderboard/imageUrl";
 
 export default class Leaderboard {
   private leaderboard: StoplightComponents["schemas"]["RankingItem"][];
@@ -7,20 +7,6 @@ export default class Leaderboard {
   constructor(level: number) {
     this.leaderboard = [];
     this.level = level;
-  }
-
-  private async getTesterMonthlyExperience(): Promise<
-    {
-      tester_id: number;
-      monthly_exp: number;
-    }[]
-  > {
-    const sql = tryber.tables.MonthlyTesterExp.do().select(
-      "tester_id",
-      tryber.ref("amount").as("monthly_exp")
-    );
-
-    return await sql;
   }
 
   private async getTesterCurrentLevels(): Promise<
@@ -31,25 +17,37 @@ export default class Leaderboard {
       tester_id: number;
       level: number;
       total_exp: number;
+      monthly_exp: number;
     }[]
   > {
-    return await tryber.tables.WpAppqActivityLevel.do()
+    const testersInLevel = await tryber.tables.WpAppqActivityLevel.do()
+      .select("tester_id")
+      .where("level_id", this.level)
+      .groupBy("tester_id");
+
+    const result = await tryber.tables.WpAppqEvdProfile.do()
       .select(
         "wp_appq_evd_profile.name as tester_name",
         "wp_appq_evd_profile.surname as tester_surname",
         "wp_appq_evd_profile.email as tester_email",
-        "wp_appq_activity_level.tester_id as tester_id",
-        "wp_appq_activity_level.level_id as level",
-        "wp_appq_evd_profile.total_exp_pts as total_exp"
+        "wp_appq_evd_profile.id as tester_id",
+        "wp_appq_evd_profile.total_exp_pts as total_exp",
+        "monthly_tester_exp.amount as monthly_exp"
       )
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_profile.id",
-        "wp_appq_activity_level.tester_id"
+      .leftJoin(
+        "monthly_tester_exp",
+        "monthly_tester_exp.tester_id",
+        "wp_appq_evd_profile.id"
       )
       .whereNot("wp_appq_evd_profile.name", "Deleted User")
-      .where("wp_appq_activity_level.level_id", this.level)
-      .groupBy("wp_appq_activity_level.tester_id");
+      .whereIn(
+        "wp_appq_evd_profile.id",
+        testersInLevel.map((item) => item.tester_id)
+      );
+    return result.map((item) => ({
+      ...item,
+      level: this.level,
+    }));
   }
 
   private getTesterName({
@@ -76,15 +74,14 @@ export default class Leaderboard {
       .replace(/[\W_]+/g, " ")
       .replace(" ", "-")
       .charAt(0);
-    return gravatarUrl({
-      fallback: `https://eu.ui-avatars.com/api/${nameSlug}+${surnameSlug}/132`,
+    return imageUrl({
+      name: nameSlug,
+      surname: surnameSlug,
       email: tester.tester_email,
-      size: 132,
     });
   }
 
   private async populate() {
-    const exp = await this.getTesterMonthlyExperience();
     const currentLevels = await this.getTesterCurrentLevels();
 
     let tempLeaderboard: (typeof this.leaderboard[0] & {
@@ -92,13 +89,12 @@ export default class Leaderboard {
     })[] = [];
 
     currentLevels.forEach((level) => {
-      const testerExp = exp.find((e) => e.tester_id === level.tester_id);
       tempLeaderboard.push({
         position: 0,
         name: this.getTesterName(level),
         id: level.tester_id,
         image: this.getTesterImage(level),
-        monthly_exp: testerExp ? testerExp.monthly_exp : 0,
+        monthly_exp: level.monthly_exp ?? 0,
         total_exp: level.total_exp,
       });
     });
