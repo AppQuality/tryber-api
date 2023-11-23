@@ -24,11 +24,6 @@ export default class Leaderboard {
       monthly_exp: number;
     }[]
   > {
-    const testersInLevel = await tryber.tables.WpAppqActivityLevel.do()
-      .select("tester_id")
-      .where("level_id", this.level)
-      .groupBy("tester_id");
-
     const result = await tryber.tables.WpAppqEvdProfile.do()
       .select(
         "wp_appq_evd_profile.name as tester_name",
@@ -38,16 +33,18 @@ export default class Leaderboard {
         "wp_appq_evd_profile.total_exp_pts as total_exp",
         "monthly_tester_exp.amount as monthly_exp"
       )
+      .join(
+        "wp_appq_activity_level",
+        "wp_appq_activity_level.tester_id",
+        "wp_appq_evd_profile.id"
+      )
       .leftJoin(
         "monthly_tester_exp",
         "monthly_tester_exp.tester_id",
         "wp_appq_evd_profile.id"
       )
       .whereNot("wp_appq_evd_profile.name", "Deleted User")
-      .whereIn(
-        "wp_appq_evd_profile.id",
-        testersInLevel.map((item) => item.tester_id)
-      );
+      .where("wp_appq_activity_level.level_id", this.level);
     return result.map((item) => ({
       ...item,
       level: this.level,
