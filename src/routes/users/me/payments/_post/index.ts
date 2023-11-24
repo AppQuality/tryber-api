@@ -12,6 +12,7 @@ export default class Route extends UserRoute<{
   body: StoplightOperations["post-users-me-payments"]["requestBody"]["content"]["application/json"];
 }> {
   private booty = 0;
+  private inpsContribution = 1.16;
   private _fiscalProfile:
     | {
         id: number;
@@ -104,7 +105,21 @@ export default class Route extends UserRoute<{
   }
 
   get isStampRequired() {
-    return this.booty >= 77.47;
+    const fiscalData = this.calculateFiscalData();
+    switch (this.fiscalProfile.fiscal_category_name) {
+      case "vat": {
+        const net_multiplier =
+          "net_multiplier" in fiscalData ? fiscalData.net_multiplier : 1;
+        return this.booty * net_multiplier >= 77.47;
+      }
+      case "company":
+        return 0;
+      case "witholding-extra":
+        return this.booty / this.inpsContribution >= 77.47;
+      case "withholding":
+      default:
+        return this.booty >= 77.47;
+    }
   }
 
   protected async prepare() {
@@ -112,7 +127,7 @@ export default class Route extends UserRoute<{
 
     await this.updatePayments(requestId);
 
-    await this.sendMail();
+    await this.sendMail(requestId);
     this.setSuccess(200, {
       id: requestId,
     });
@@ -138,7 +153,7 @@ export default class Route extends UserRoute<{
         is_paid: 0,
         fiscal_profile_id: this.fiscalProfile.id,
         amount_gross: this.booty,
-        amount_withholding: fiscalData.witholding,
+        amount_withholding: parseFloat(fiscalData.witholding.toFixed(2)),
         paypal_email: paypalEmail ? paypalEmail : undefined,
         stamp_required: this.isStampRequired ? 1 : 0,
         withholding_tax_percentage: fiscalData.tax_percent,
@@ -194,11 +209,14 @@ export default class Route extends UserRoute<{
 
   private calculateFiscalDataWithholdingExtra() {
     const net = parseFloat(
-      (0.72 * ((this.booty + Number.EPSILON) / 1.16)).toFixed(2)
+      (0.72 * ((this.booty + Number.EPSILON) / this.inpsContribution)).toFixed(
+        2
+      )
     );
     const witholding = this.booty - net;
     return {
-      tax_percent: 100 - parseFloat(((100 * 0.72) / 1.16).toFixed(2)),
+      tax_percent:
+        100 - parseFloat(((100 * 0.72) / this.inpsContribution).toFixed(2)),
       net,
       witholding,
     };
@@ -216,11 +234,11 @@ export default class Route extends UserRoute<{
       });
   }
 
-  private async sendMail() {
+  private async sendMail(requestId: number) {
     const template = this.getTemplate();
     if (!template) return;
 
-    await this.sendConfirmationMail(template);
+    await this.sendConfirmationMail({ template, requestId });
   }
 
   private getTemplate() {
@@ -249,15 +267,15 @@ export default class Route extends UserRoute<{
     }
   }
 
-  private getSubject() {
+  private getSubject(requestId: number) {
     if (this.fiscalProfile.fiscal_category_name === "witholding-extra") {
-      return "[Tryber] Crea la tua ritenuta d'acconto con questi dati";
+      return `[Tryber] T${this.getTesterId()} - Crea la tua ritenuta d'acconto con questi dati | R${requestId}`;
     } else if (
       ["vat", "company"].includes(this.fiscalProfile.fiscal_category_name)
     ) {
-      return "[Tryber] Crea la tua fattura con questi dati";
+      return `[Tryber] T${this.getTesterId()} - Crea la tua fattura con questi dati | R${requestId}`;
     } else {
-      return "[Tryber] Payout Request";
+      return `[Tryber] T${this.getTesterId()} - Payout Request | R${requestId}`;
     }
   }
 
@@ -276,7 +294,13 @@ export default class Route extends UserRoute<{
     ).toFixed(2);
   }
 
-  private async sendConfirmationMail(template: string) {
+  private async sendConfirmationMail({
+    template,
+    requestId,
+  }: {
+    template: string;
+    requestId: number;
+  }) {
     const body = this.getBody();
     try {
       const tester = await tryber.tables.WpAppqEvdProfile.do()
@@ -286,7 +310,7 @@ export default class Route extends UserRoute<{
       const now = new Date();
       await sendTemplate({
         email: tester[0].email,
-        subject: this.getSubject(),
+        subject: this.getSubject(requestId),
         ...(["vat", "witholding-extra", "company"].includes(
           this.fiscalProfile.fiscal_category_name
         ) && process.env.PAYMENT_INVOICE_RECAP_CC_EMAIL
@@ -308,17 +332,23 @@ export default class Route extends UserRoute<{
             body.method.type === "paypal"
               ? body.method.email
               : body.method.iban,
-          "{Payment.grossINPS}": (this.booty / 1.16).toFixed(2),
+          "{Payment.grossINPS}": (this.booty / this.inpsContribution).toFixed(
+            2
+          ),
           "{Payment.address}": `${this.fiscalProfile.address}, ${this.fiscalProfile.address_number}, ${this.fiscalProfile.postal_code} ${this.fiscalProfile.city} (${this.fiscalProfile.province})`,
           "{Payment.fiscalType}": this.fiscalProfile.fiscal_category_name,
           "{Profile.identificationNumber}": this.fiscalProfile.fiscal_id,
           "{Profile.bankAccountName}":
             body.method.type === "iban" ? body.method.accountHolderName : "",
           "{Payment.stamp}": this.isStampRequired ? "2.00€" : "-",
-          "{Payment.tax8INPS}": ((this.booty / 1.16) * 0.08).toFixed(2),
-          "{Payment.taxWitholdingExtra}": ((this.booty / 1.16) * 0.2).toFixed(
-            2
-          ),
+          "{Payment.tax8INPS}": (
+            (this.booty / this.inpsContribution) *
+            0.08
+          ).toFixed(2),
+          "{Payment.taxWitholdingExtra}": (
+            (this.booty / this.inpsContribution) *
+            0.2
+          ).toFixed(2),
           "{Payment.tax4INPS}": (this.booty * 0.04).toFixed(2),
           "{Payment.taxWitholdingCompany}": (this.booty * 0.2).toFixed(2),
           "{Payment.taxCompany}": (this.booty * 0.22).toFixed(2),

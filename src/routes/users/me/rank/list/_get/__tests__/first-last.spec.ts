@@ -1,21 +1,21 @@
-import Experience from "@src/__mocks__/mockedDb/experience";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import { tryber } from "@src/features/database";
 import createTesterData from "./createTesterData";
 import shouldShowFirstNineTesters from "./shouldShowFirstNineTesters";
 
-jest.mock("avatar-initials", () => {
+jest.mock("@src/features/leaderboard/imageUrl", () => {
   return {
-    gravatarUrl: jest.fn(
+    imageUrl: jest.fn(
       ({
-        fallback,
+        name,
+        surname,
         email,
-        size,
       }: {
-        fallback: string;
+        name: string;
+        surname: string;
         email: string;
-        size: number;
-      }) => `${fallback}---${email}---${size}`
+      }) => `${name}+${surname}--${email}---`
     ),
   };
 });
@@ -99,7 +99,7 @@ describe("GET /users/me/rank/list - Is first", () => {
   });
   afterAll(async () => {
     await Profile.clear();
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await UserLevels.clear();
     return null;
   });
@@ -187,7 +187,7 @@ describe("GET /users/me/rank/list - Is second", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     await UserLevels.clear();
     return null;
@@ -276,7 +276,7 @@ describe("GET /users/me/rank/list - Is third", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     await UserLevels.clear();
     return null;
@@ -365,7 +365,7 @@ describe("GET /users/me/rank/list - Is fourth", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     await UserLevels.clear();
     return null;
@@ -455,7 +455,7 @@ describe("GET /users/me/rank/list - Is last", () => {
   });
   afterAll(async () => {
     await Profile.clear();
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await UserLevels.clear();
     return null;
   });
@@ -543,7 +543,7 @@ describe("GET /users/me/rank/list - Is second from last", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     await UserLevels.clear();
     return null;
@@ -632,7 +632,7 @@ describe("GET /users/me/rank/list - Is third from last", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     await UserLevels.clear();
     return null;
@@ -721,7 +721,7 @@ describe("GET /users/me/rank/list - Is fourth from last", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     await UserLevels.clear();
     return null;

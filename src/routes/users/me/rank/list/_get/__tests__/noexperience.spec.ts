@@ -1,21 +1,21 @@
-import app from "@src/app";
-import Experience from "@src/__mocks__/mockedDb/experience";
 import Profile from "@src/__mocks__/mockedDb/profile";
+import app from "@src/app";
+import { tryber } from "@src/features/database";
 import request from "supertest";
 import createTesterBasicData from "./createTesterData";
 
-jest.mock("avatar-initials", () => {
+jest.mock("@src/features/leaderboard/imageUrl", () => {
   return {
-    gravatarUrl: jest.fn(
+    imageUrl: jest.fn(
       ({
-        fallback,
+        name,
+        surname,
         email,
-        size,
       }: {
-        fallback: string;
+        name: string;
+        surname: string;
         email: string;
-        size: number;
-      }) => `${fallback}---${email}---${size}`
+      }) => `${name}+${surname}--${email}---`
     ),
   };
 });
@@ -61,7 +61,7 @@ describe("GET /users/me/rank/list - No exp", () => {
     return null;
   });
   afterAll(async () => {
-    await Experience.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
     await Profile.clear();
     return null;
   });
