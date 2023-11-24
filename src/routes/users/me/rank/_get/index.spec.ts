@@ -1,9 +1,9 @@
-import Experience from "@src/__mocks__/mockedDb/experience";
 import UserLevels from "@src/__mocks__/mockedDb/levels";
 import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import { data as levelRevData } from "@src/__mocks__/mockedDb/levelsRevisions";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import request from "supertest";
 
 const mockedLevelDefinitions = () => {
@@ -59,36 +59,42 @@ const firstDayOfLastMonth = () => {
 };
 describe("Route GET users-me-rank", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.insert({ pending_booty: 100, wp_user_id: 1 });
-      Profile.insert({ id: 2, wp_user_id: 2 });
-      Profile.insert({ id: 3, wp_user_id: 3 });
-      mockedLevelDefinitions();
-      UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
-      UserLevels.insert({ id: 2, tester_id: 2 });
-      UserLevels.insert({ id: 3, tester_id: 3 });
-      Experience.insert({ amount: 99 });
-      Experience.insert({ id: 2, tester_id: 2, amount: 69 });
-      Experience.insert({ id: 3, tester_id: 3, amount: 169 });
-      levelRevData.basicLevelRev({
-        level_id: 20,
-        start_date: firstDayOfLastMonth()
-          .toISOString()
-          .split(".")[0]
-          .replace("T", " "),
-      });
-      resolve(null);
+    await Profile.insert({ pending_booty: 100, wp_user_id: 1 });
+    await Profile.insert({ id: 2, wp_user_id: 2 });
+    await Profile.insert({ id: 3, wp_user_id: 3 });
+    mockedLevelDefinitions();
+    await UserLevels.insert({ id: 1, tester_id: 1, level_id: 10 });
+    await UserLevels.insert({ id: 2, tester_id: 2 });
+    await UserLevels.insert({ id: 3, tester_id: 3 });
+
+    await tryber.tables.MonthlyTesterExp.do().insert([
+      {
+        tester_id: 1,
+        amount: 99,
+      },
+      {
+        tester_id: 2,
+        amount: 69,
+      },
+      {
+        tester_id: 3,
+        amount: 169,
+      },
+    ]);
+    await levelRevData.basicLevelRev({
+      level_id: 20,
+      start_date: firstDayOfLastMonth()
+        .toISOString()
+        .split(".")[0]
+        .replace("T", " "),
     });
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.clear();
-      Levels.clear();
-      UserLevels.clear();
-      Experience.clear();
-      levelRevData.drop();
-      resolve(null);
-    });
+    await Profile.clear();
+    await Levels.clear();
+    await UserLevels.clear();
+    await tryber.tables.MonthlyTesterExp.do().delete();
+    await levelRevData.drop();
   });
   it("Should return 403 if does not logged in", async () => {
     const response = await request(app).get("/users/me/rank");
@@ -146,23 +152,24 @@ describe("Route GET users-me-rank", () => {
 
 describe("Route GET users-me-rank - Downgrade Bronze to Basic", () => {
   beforeAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.insert();
-      mockedLevelDefinitions();
-      UserLevels.insert({ level_id: 20 });
-      Experience.insert({ amount: 20 });
-      resolve(null);
-    });
+    await Profile.insert();
+    mockedLevelDefinitions();
+    await UserLevels.insert({ level_id: 20 });
+
+    await tryber.tables.MonthlyTesterExp.do().insert([
+      {
+        tester_id: 1,
+        amount: 20,
+      },
+    ]);
   });
   afterAll(async () => {
-    return new Promise(async (resolve) => {
-      Profile.clear();
-      Levels.clear();
-      UserLevels.clear();
-      Experience.clear();
-      levelRevData.drop();
-      resolve(null);
-    });
+    await Profile.clear();
+    await Levels.clear();
+    await UserLevels.clear();
+
+    await tryber.tables.MonthlyTesterExp.do().delete();
+    await levelRevData.drop();
   });
   it("Should return current Level Bronze as prospect level", async () => {
     const response = await request(app)
@@ -190,7 +197,13 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       Profile.insert();
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 30 });
-      Experience.insert({ amount: 50 });
+
+      await tryber.tables.MonthlyTesterExp.do().insert([
+        {
+          tester_id: 1,
+          amount: 50,
+        },
+      ]);
       resolve(null);
     });
   });
@@ -199,7 +212,8 @@ describe("Route GET users-me-rank - Downgrade Silver to Bronze", () => {
       Profile.clear();
       Levels.clear();
       UserLevels.clear();
-      Experience.clear();
+
+      await tryber.tables.MonthlyTesterExp.do().delete();
       levelRevData.drop();
       resolve(null);
     });
@@ -223,7 +237,12 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
       Profile.insert();
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 10 });
-      Experience.insert({ amount: 300 });
+      await tryber.tables.MonthlyTesterExp.do().insert([
+        {
+          tester_id: 1,
+          amount: 300,
+        },
+      ]);
       resolve(null);
     });
   });
@@ -232,7 +251,8 @@ describe("Route GET users-me-rank - Upgrade Basic to Silver", () => {
       Profile.clear();
       Levels.clear();
       UserLevels.clear();
-      Experience.clear();
+
+      await tryber.tables.MonthlyTesterExp.do().delete();
       levelRevData.drop();
       resolve(null);
     });
@@ -417,7 +437,13 @@ describe("Route GET users-me-rank - Diamond that can't reach legendary", () => {
       });
       mockedLevelDefinitions();
       UserLevels.insert({ level_id: 60 });
-      Experience.insert({ amount: 2500 });
+
+      await tryber.tables.MonthlyTesterExp.do().insert([
+        {
+          tester_id: 1,
+          amount: 2500,
+        },
+      ]);
       resolve(null);
     });
   });
