@@ -25,6 +25,7 @@
     "@appquality/wp-auth": "^1.0.7",
     "@googlemaps/google-maps-services-js": "^3.3.7",
     "@sendgrid/mail": "^7.6.0",
+    "@sentry/node": "^7.83.0",
     "avatar-initials": "^5.0.0",
     "aws-sdk": "^2.1087.0",
     "axios": "^0.25.0",
