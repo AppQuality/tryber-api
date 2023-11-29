@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import bodyParser from "body-parser";
 import busboy from "connect-busboy";
 import cors from "cors";
@@ -35,6 +36,20 @@ routes(api);
 api.init();
 
 const app = express();
+Sentry.init({
+  dsn: "https://a66cb6798d184595b240cf8f09d629f5@o1087982.ingest.sentry.io/6102360",
+
+  integrations: [
+    new Sentry.Integrations.Http({ tracing: true }),
+    new Sentry.Integrations.Express({
+      app,
+    }),
+    ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
+  ],
+});
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
+
 app.use(
   busboy({
     highWaterMark: 2 * 1024 * 1024,
