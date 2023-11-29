@@ -36,17 +36,17 @@ routes(api);
 api.init();
 
 const app = express();
+
 Sentry.init({
   dsn: "https://6aef095d5c459856b721c72ae9eae42e@o1087982.ingest.sentry.io/4506310015844352",
-
   integrations: [
     new Sentry.Integrations.Http({ tracing: true }),
-    new Sentry.Integrations.Express({
-      app,
-    }),
+    new Sentry.Integrations.Express({ app }),
     ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
   ],
+  tracesSampleRate: 1.0,
 });
+
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
 
@@ -112,4 +112,5 @@ app.use((req, res) => {
   return api.handleRequest(req as Request, req, res);
 });
 
+app.use(Sentry.Handlers.errorHandler());
 export default app;
