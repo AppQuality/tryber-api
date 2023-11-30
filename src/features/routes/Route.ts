@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import debugMessage from "@src/features/debugMessage";
 import OpenapiError from "../OpenapiError";
 
@@ -88,6 +89,7 @@ export default class Route<T extends RouteClassTypes> {
       try {
         await this.prepare();
       } catch (e) {
+        Sentry.captureException(e as Error);
         if (e instanceof OpenapiError) {
           return this.responseData;
         } else {
