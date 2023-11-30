@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/node";
 import bodyParser from "body-parser";
 import busboy from "connect-busboy";
 import cors from "cors";
@@ -6,6 +5,7 @@ import express from "express";
 import morgan from "morgan";
 import OpenAPIBackend, { Options, Request } from "openapi-backend";
 import config from "./config";
+import Sentry from "./features/sentry";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
 import routes from "./routes";
@@ -36,20 +36,7 @@ routes(api);
 api.init();
 
 const app = express();
-if (process.env.NODE_ENV !== "test") {
-  Sentry.init({
-    dsn: "https://6aef095d5c459856b721c72ae9eae42e@o1087982.ingest.sentry.io/4506310015844352",
-    integrations: [
-      new Sentry.Integrations.Http({ tracing: true }),
-      new Sentry.Integrations.Express({ app }),
-      ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-    ],
-    tracesSampleRate: 1.0,
-  });
-
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
-}
+const sentry = new Sentry(app);
 
 app.use(
   busboy({
@@ -113,7 +100,5 @@ app.use((req, res) => {
   return api.handleRequest(req as Request, req, res);
 });
 
-if (process.env.NODE_ENV !== "test") {
-  app.use(Sentry.Handlers.errorHandler());
-}
+sentry.setErrorHandler();
 export default app;
