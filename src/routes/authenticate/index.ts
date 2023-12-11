@@ -36,6 +36,7 @@ export default async (c: Context, req: Request, res: OpenapiResponse) => {
     const user = {
       ID: data.ID,
       testerId: data.testerId,
+      user_login: data.user_login,
       role: data.role,
       permission: data.permission,
       capabilities: data.capabilities,
