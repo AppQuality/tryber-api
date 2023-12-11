@@ -6,6 +6,7 @@ import escapeCharacters from "../../../../features/escapeCharacters";
 import UserData from "../../../../features/class/UserData";
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
 
 const acceptedFields = [
   "name" as const,
@@ -61,12 +62,10 @@ export default class PatchUsersMe extends UserRoute<{
 
     if (this.validFields.email) {
       try {
-        const emailAlreadyExists = await db.query(
-          db.format(
-            `SELECT user_email FROM wp_users WHERE user_email = ? AND ID != ?`,
-            [this.validFields.email, this.getWordpressId()]
-          )
-        );
+        const emailAlreadyExists = await tryber.tables.WpUsers.do()
+          .select("user_email")
+          .where("user_email", this.validFields.email)
+          .andWhere("ID", "!=", this.getWordpressId());
 
         if (emailAlreadyExists.length) {
           this.setError(
