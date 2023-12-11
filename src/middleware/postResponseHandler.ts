@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/node";
+import { Request } from "express";
 import { Context } from "openapi-backend";
 import process from "process";
 
@@ -13,8 +15,20 @@ export default (c: Context, req: Request, res: OpenapiResponse) => {
       if (process.env && process.env.DEBUG) {
         console.log(c.response);
       }
-      // response validation failed
-      console.log(valid.errors);
+      Sentry.addBreadcrumb({
+        category: "Response Validation Failed",
+        message: `Validation failed for endpoint ${req.baseUrl + req.path}`,
+        level: "warning",
+      });
+      Sentry.addBreadcrumb({
+        category: "Invalid Data",
+        message: JSON.stringify(valid.errors),
+        level: "info",
+      });
+      Sentry.captureMessage(
+        `Response Validation error on ${req.method} ${req.baseUrl + req.path}`,
+        "warning"
+      );
       return res.status(502).json({
         status: 502,
         err: valid.errors,
