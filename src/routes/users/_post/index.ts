@@ -14,11 +14,11 @@ export default async (
   try {
     const query = mapObjectToQuery(req.body);
 
-    query.name = (query.name || "")
+    query.name = (query.name ?? "")
       .replace(/\s\s+/, " ")
       .replace(/[^A-Za-zÀ-ÿ' ]/gm, " ")
       .trim();
-    query.surname = (query.surname || "")
+    query.surname = (query.surname ?? "")
       .replace(/\s\s+/, " ")
       .replace(/[^A-Za-zÀ-ÿ' ]/gm, " ")
       .trim();
