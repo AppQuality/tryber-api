@@ -48,6 +48,8 @@ const createWordpressUser = async (
         ]
       )
     );
+
+    console.log("insertid", results.insertId);
     return results.insertId;
   } catch (e) {
     throw e;

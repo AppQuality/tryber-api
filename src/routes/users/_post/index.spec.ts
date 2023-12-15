@@ -14,12 +14,22 @@ const user1 = {
   ID: 7338,
 };
 
+const newUser = {
+  name: "ciccio",
+  surname: "parenzo",
+  email: "cparenzo@example.com",
+  password: "938393",
+  country: "Italy",
+  birthDate: "1998-01-02",
+  onboarding_complete: false,
+};
+
 const userDuplicatedEmail = {
   name: "bob",
   surname: "doe",
   email: "bob.alice@example.com",
   password: "123456",
-  country: "italy",
+  country: "Italy",
   onboarding_complete: false,
   birthDate: "1996-03-21",
 };
@@ -27,6 +37,7 @@ describe("Route users POST", () => {
   beforeAll(async () => {
     return new Promise(async (resolve) => {
       await tryber.tables.WpUsers.do().insert(user1);
+
       resolve(null);
     });
   });
@@ -38,10 +49,22 @@ describe("Route users POST", () => {
       .post(`/users`)
       .send(userDuplicatedEmail)
       .set("Authorization", `Bearer tester`);
-
-    console.log(response.body);
     expect(response.body).toMatchObject({
       message: `Email ${userDuplicatedEmail.email} already registered`,
     });
+  });
+
+  it("Should check if the user profile was successfully created", async () => {
+    const response = await request(app)
+      .post(`/users`)
+      .send(newUser)
+      .set("Authorization", `Bearer tester`);
+    const email = await tryber.tables.WpAppqEvdProfile.do()
+      .select("wp_appq_evd_profile.email")
+      .where("email", newUser.email)
+      .first();
+    console.log(response.body);
+    expect(response.status).toBe(200);
+    expect(email).toHaveLength(1);
   });
 });

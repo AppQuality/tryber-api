@@ -41,12 +41,13 @@ export default async (
       req.body.email,
       req.body.password
     );
+    console.log("🚀 ~ file: index.ts:44 ~ userId:", userId);
 
     const profileQuery = {
       ...query,
       wp_user_id: userId,
     };
-
+    console.log("profilequery", profileQuery);
     const testerId = await db.query(
       db.format(
         `INSERT INTO wp_appq_evd_profile (name,surname,email,country,birth_date,wp_user_id) VALUES (?,?,?,?,?,?)`,
