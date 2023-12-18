@@ -2577,6 +2577,8 @@ export interface operations {
           };
         };
       };
+      /** Bad Request */
+      400: unknown;
     };
     requestBody: {
       content: {
