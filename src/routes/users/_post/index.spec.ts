@@ -1,9 +1,12 @@
+import sgMail from "@sendgrid/mail";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
+const mockedSendgrid = jest.mocked(sgMail, true);
+
 describe("Route users POST", () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     await tryber.tables.WpUsers.do().insert({
       user_login: "bob_alice",
       user_email: "bob.alice@example.com",
@@ -15,7 +18,14 @@ describe("Route users POST", () => {
       display_name: "Bob",
       ID: 7338,
     });
-
+  });
+  afterEach(async () => {
+    await tryber.tables.WpUsers.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpAppqReferralData.do().delete();
+    jest.resetAllMocks();
+  });
+  beforeAll(async () => {
     await tryber.tables.WpAppqUnlayerMailTemplate.do().insert([
       {
         id: 1,
@@ -51,7 +61,6 @@ describe("Route users POST", () => {
     ]);
   });
   afterAll(async () => {
-    await tryber.tables.WpUsers.do().delete();
     await tryber.tables.WpAppqUnlayerMailTemplate.do().delete();
     await tryber.tables.WpAppqEventTransactionalMail.do().delete();
   });
@@ -69,6 +78,7 @@ describe("Route users POST", () => {
         birthDate: "1996-03-21",
       })
       .set("Authorization", `Bearer tester`);
+    expect(response.status).toBe(412);
     expect(response.body).toMatchObject({
       message: `Email bob.alice@example.com already registered`,
     });
@@ -93,5 +103,91 @@ describe("Route users POST", () => {
       .first();
     expect(response.status).toBe(201);
     expect(result).toHaveProperty("email", "cparenzo@example.com");
+  });
+
+  it("Should send a welcome mail", async () => {
+    const response = await request(app)
+      .post(`/users`)
+      .send({
+        name: "ciccio",
+        surname: "parenzo",
+        email: "cparenzo@example.com",
+        password: "938393",
+        country: "Italy",
+        birthDate: "1998-01-02",
+        onboarding_complete: false,
+      })
+      .set("Authorization", `Bearer tester`);
+
+    expect(sgMail.send).toBeCalledTimes(1);
+    expect(sgMail.send).toBeCalledWith(
+      expect.objectContaining({
+        to: "cparenzo@example.com",
+      })
+    );
+  });
+  it("Should send a welcome mail in italian if country is Italy", async () => {
+    const response = await request(app)
+      .post(`/users`)
+      .send({
+        name: "ciccio",
+        surname: "parenzo",
+        email: "cparenzo@example.com",
+        password: "938393",
+        country: "Italy",
+        birthDate: "1998-01-02",
+        onboarding_complete: false,
+      })
+      .set("Authorization", `Bearer tester`);
+
+    expect(sgMail.send).toBeCalledTimes(1);
+    expect(sgMail.send).toBeCalledWith(
+      expect.objectContaining({
+        html: "welcome mail it",
+      })
+    );
+  });
+  it("Should send a welcome mail in english if country is not Italy", async () => {
+    const response = await request(app)
+      .post(`/users`)
+      .send({
+        name: "ciccio",
+        surname: "parenzo",
+        email: "cparenzo@example.com",
+        password: "938393",
+        country: "Germany",
+        birthDate: "1998-01-02",
+        onboarding_complete: false,
+      })
+      .set("Authorization", `Bearer tester`);
+
+    expect(sgMail.send).toBeCalledTimes(1);
+    expect(sgMail.send).toBeCalledWith(
+      expect.objectContaining({
+        html: "welcome mail en",
+      })
+    );
+  });
+
+  it("Should save referral if is provided", async () => {
+    const response = await request(app)
+      .post(`/users`)
+      .send({
+        name: "ciccio",
+        surname: "parenzo",
+        email: "cparenzo@example.com",
+        password: "938393",
+        country: "Germany",
+        birthDate: "1998-01-02",
+        onboarding_complete: false,
+        referral: "1234-5678",
+      })
+      .set("Authorization", `Bearer tester`);
+
+    const result = await tryber.tables.WpAppqReferralData.do()
+      .select("id")
+      .where("campaign_id", 5678)
+      .where("referrer_id", 1234);
+    expect(result).toHaveLength(1);
   });
 });

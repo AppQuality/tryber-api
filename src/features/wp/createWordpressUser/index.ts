@@ -2,6 +2,8 @@ import { HashPassword } from "wordpress-hash-node";
 
 import { tryber } from "@src/features/database";
 
+export class EmailAlreadyRegisteredError extends Error {}
+
 const createWordpressUser = async (
   username: string,
   email: string,
@@ -21,7 +23,7 @@ const createWordpressUser = async (
     .where("user_email", email);
 
   if (alreadyRegisteredEmail.length) {
-    throw Error(`Email ${email} already registered`);
+    throw new EmailAlreadyRegisteredError(`Email ${email} already registered`);
   }
 
   const hash = HashPassword(password);
