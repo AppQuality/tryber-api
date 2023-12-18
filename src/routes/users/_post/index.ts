@@ -41,31 +41,28 @@ export default async (
       req.body.email,
       req.body.password
     );
-    console.log("🚀 ~ file: index.ts:44 ~ userId:", userId);
 
     const profileQuery = {
       ...query,
       wp_user_id: userId,
     };
-    console.log("profilequery", profileQuery);
-    const testerId = await db.query(
-      db.format(
-        `INSERT INTO wp_appq_evd_profile (name,surname,email,country,birth_date,wp_user_id) VALUES (?,?,?,?,?,?)`,
-        [
-          profileQuery.name || "",
-          profileQuery.surname || "",
-          profileQuery.email || "",
-          profileQuery.country || "",
-          profileQuery.birth_date || "",
-          profileQuery.wp_user_id,
-        ]
-      )
-    );
+
+    const result = await tryber.tables.WpAppqEvdProfile.do()
+      .insert({
+        name: profileQuery.name,
+        surname: profileQuery.surname,
+        email: profileQuery.email,
+        country: profileQuery.country,
+        birth_date: profileQuery.birth_date,
+        wp_user_id: profileQuery.wp_user_id,
+        employment_id: 0,
+        education_id: 0,
+      })
+      .returning("id");
+    const testerId = result[0].id ?? result[0];
 
     let tester = await db.query(
-      db.format(`SELECT * FROM wp_appq_evd_profile WHERE id = ?`, [
-        testerId.insertId,
-      ])
+      db.format(`SELECT * FROM wp_appq_evd_profile WHERE id = ?`, [testerId])
     );
     tester = tester[0];
 
@@ -120,7 +117,7 @@ export default async (
         try {
           await tryber.tables.WpAppqReferralData.do().insert({
             referrer_id: parseInt(referralId),
-            tester_id: parseInt(testerId.insertId),
+            tester_id: testerId,
             campaign_id: parseInt(campaignId),
           });
         } catch (e) {
