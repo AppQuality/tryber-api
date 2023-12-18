@@ -6537,7 +6537,7 @@ paths:
                 - country
                 - birthDate
             examples:
-              example-1:
+              basic-user:
                 value:
                   name: Elon
                   surname: Musk
@@ -6545,6 +6545,16 @@ paths:
                   password: Elon78
                   country: Italy
                   birthDate: '1971-06-28'
+              basic-user-with-referral:
+                value:
+                  name: Elon
+                  surname: Musk
+                  email: elon.musk@tesla.com
+                  password: Elon78
+                  country: Italy
+                  birthDate: '1971-06-28'
+                  referral: 11111-1234
+        description: ''
       tags:
         - User
   '/users/by-email/{email}':
