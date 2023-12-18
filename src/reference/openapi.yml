@@ -6547,6 +6547,22 @@ paths:
                   birthDate: '1971-06-28'
       tags:
         - User
+  '/users/by-email/{email}':
+    parameters:
+      - schema:
+          type: string
+        name: email
+        in: path
+        required: true
+    head:
+      summary: Check user by email
+      operationId: head-users-by-email-email
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+      description: ''
   /users/me:
     get:
       summary: Get your user data
