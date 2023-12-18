@@ -6476,19 +6476,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: x5877le63wjax
+                required:
+                  - id
               examples:
                 Example 1:
                   value:
-                    username: string
-                    name: string
-                    surname: string
-                    email: user@example.com
-                    image: 'http://example.com'
-                    id: 0
-                    wp_user_id: 0
-                    role: string
-                    is_verified: false
+                    id: 1111
         '412':
           description: Precondition Failed
           content:
@@ -6502,7 +6501,7 @@ paths:
                   Example 1:
                     message: Email bob.alice@example.com already registered
               examples:
-                Example 1:
+                email-already-exist:
                   value:
                     message: Email bob.alice@example.com already registered
       description: Create a new user

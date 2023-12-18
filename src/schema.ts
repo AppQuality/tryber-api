@@ -2556,7 +2556,9 @@ export interface operations {
       /** Created */
       201: {
         content: {
-          "application/json": components["schemas"]["User"];
+          "application/json": {
+            id: number;
+          };
         };
       };
       /** Precondition Failed */
