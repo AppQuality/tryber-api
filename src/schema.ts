@@ -2609,6 +2609,8 @@ export interface operations {
     responses: {
       /** OK */
       200: unknown;
+      /** Bad Request */
+      400: unknown;
       /** Not Found */
       404: unknown;
     };
