@@ -8,7 +8,7 @@ import createWordpressUser, {
 } from "@src/features/wp/createWordpressUser";
 
 export default class UserPostRoute extends Route<{
-  response: StoplightOperations["post-users"]["responses"]["200"]["content"]["application/json"];
+  response: StoplightOperations["post-users"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-users"]["requestBody"]["content"]["application/json"];
 }> {
   private userData: {

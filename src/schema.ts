@@ -2553,10 +2553,18 @@ export interface operations {
   /** Create a new user */
   "post-users": {
     responses: {
-      /** OK */
-      200: {
+      /** Created */
+      201: {
         content: {
           "application/json": components["schemas"]["User"];
+        };
+      };
+      /** Precondition Failed */
+      412: {
+        content: {
+          "application/json": {
+            message?: string;
+          };
         };
       };
     };

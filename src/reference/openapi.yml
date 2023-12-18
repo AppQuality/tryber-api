@@ -6471,12 +6471,40 @@ paths:
       summary: Create a new user
       operationId: post-users
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+              examples:
+                Example 1:
+                  value:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: 'http://example.com'
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: false
+        '412':
+          description: Precondition Failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                x-examples:
+                  Example 1:
+                    message: Email bob.alice@example.com already registered
+              examples:
+                Example 1:
+                  value:
+                    message: Email bob.alice@example.com already registered
       description: Create a new user
       requestBody:
         content:
