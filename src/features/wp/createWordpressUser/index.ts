@@ -1,54 +1,46 @@
 import { HashPassword } from "wordpress-hash-node";
 
-import * as db from "../../db";
+import { tryber } from "@src/features/database";
+
+export class EmailAlreadyRegisteredError extends Error {}
 
 const createWordpressUser = async (
   username: string,
   email: string,
   password: string
 ): Promise<number> => {
-  let sql = `SELECT * FROM wp_users WHERE user_login = ?`;
-  let alreadyRegisteredUser;
-  try {
-    alreadyRegisteredUser = await db.query(db.format(sql, [username]));
-  } catch (e) {
-    throw e;
-  }
+  const alreadyRegisteredUser = await tryber.tables.WpUsers.do()
+    .select("ID")
+    .where("user_login", username);
+
   if (alreadyRegisteredUser.length) {
     const random = Math.random().toString(36).substring(7);
     return await createWordpressUser(`${username}-${random}`, email, password);
   }
 
-  sql = `SELECT * FROM wp_users WHERE user_email = ?`;
-  try {
-    const alreadyRegisteredEmail = await db.query(db.format(sql, [email]));
+  const alreadyRegisteredEmail = await tryber.tables.WpUsers.do()
+    .select("ID")
+    .where("user_email", email);
 
-    if (alreadyRegisteredEmail.length) {
-      throw Error(`Email ${email} already registered`);
-    }
-  } catch (e) {
-    throw e;
+  if (alreadyRegisteredEmail.length) {
+    throw new EmailAlreadyRegisteredError(`Email ${email} already registered`);
   }
 
   const hash = HashPassword(password);
 
   try {
-    const results = await db.query(
-      db.format(
-        `INSERT INTO wp_users 
-    (user_email, user_nicename, display_name, user_login, user_pass, user_registered) 
-    VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-          email,
-          username.substr(0, 50),
-          username,
-          username,
-          hash,
-          new Date().toISOString().substring(0, 10),
-        ]
-      )
-    );
-    return results.insertId;
+    const results = await tryber.tables.WpUsers.do()
+      .insert({
+        user_email: email,
+        user_nicename: username.substr(0, 50),
+        display_name: username,
+        user_login: username,
+        user_pass: hash,
+        user_registered: new Date().toISOString().substring(0, 10),
+      })
+      .returning("ID");
+
+    return results[0].ID ?? results[0];
   } catch (e) {
     throw e;
   }

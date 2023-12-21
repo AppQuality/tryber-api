@@ -6471,12 +6471,39 @@ paths:
       summary: Create a new user
       operationId: post-users
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: x5877le63wjax
+                required:
+                  - id
+              examples:
+                Example 1:
+                  value:
+                    id: 1111
+        '412':
+          description: Precondition Failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                x-examples:
+                  Example 1:
+                    message: Email bob.alice@example.com already registered
+              examples:
+                email-already-exist:
+                  value:
+                    message: Email bob.alice@example.com already registered
       description: Create a new user
       requestBody:
         content:
