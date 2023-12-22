@@ -6537,7 +6537,7 @@ paths:
                 - country
                 - birthDate
             examples:
-              example-1:
+              basic-user:
                 value:
                   name: Elon
                   surname: Musk
@@ -6545,8 +6545,36 @@ paths:
                   password: Elon78
                   country: Italy
                   birthDate: '1971-06-28'
+              basic-user-with-referral:
+                value:
+                  name: Elon
+                  surname: Musk
+                  email: elon.musk@tesla.com
+                  password: Elon78
+                  country: Italy
+                  birthDate: '1971-06-28'
+                  referral: 11111-1234
+        description: ''
       tags:
         - User
+  '/users/by-email/{email}':
+    parameters:
+      - schema:
+          type: string
+        name: email
+        in: path
+        required: true
+    head:
+      summary: Check user by email
+      operationId: head-users-by-email-email
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      description: ''
   /users/me:
     get:
       summary: Get your user data

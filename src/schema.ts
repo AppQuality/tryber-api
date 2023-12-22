@@ -318,6 +318,14 @@ export interface paths {
     /** Create a new user */
     post: operations["post-users"];
   };
+  "/users/by-email/{email}": {
+    head: operations["head-users-by-email-email"];
+    parameters: {
+      path: {
+        email: string;
+      };
+    };
+  };
   "/users/me": {
     /** Get your user data */
     get: operations["get-users-me"];
@@ -2569,6 +2577,8 @@ export interface operations {
           };
         };
       };
+      /** Bad Request */
+      400: unknown;
     };
     requestBody: {
       content: {
@@ -2588,6 +2598,21 @@ export interface operations {
           referral?: string;
         };
       };
+    };
+  };
+  "head-users-by-email-email": {
+    parameters: {
+      path: {
+        email: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Bad Request */
+      400: unknown;
+      /** Not Found */
+      404: unknown;
     };
   };
   /** Get your user data */
