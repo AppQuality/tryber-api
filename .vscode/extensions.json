@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "nicoespeon.abracadabra",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+    "firsttris.vscode-jest-runner",
+    "christian-kohler.path-intellisense",
+    "esbenp.prettier-vscode",
+    "britesnow.vscode-toggle-quotes",
+    "chakrounanas.turbo-console-log"
+  ]
+}
