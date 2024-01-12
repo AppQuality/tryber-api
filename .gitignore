@@ -5,3 +5,4 @@ coverage/
 keys/*
 !/**/.gitkeep.idea
 .idea
+.vscode/*.log
