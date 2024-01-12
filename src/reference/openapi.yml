@@ -540,7 +540,10 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  message:
+                    type: string
               examples:
                 example-1:
                   value: string
@@ -11412,6 +11415,10 @@ components:
                 type: string
               username:
                 type: string
+              iat:
+                type: number
+              exp:
+                type: number
           examples:
             example:
               value:
