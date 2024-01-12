@@ -843,6 +843,8 @@ export interface components {
           lastName?: string;
           token?: string;
           username?: string;
+          iat?: number;
+          exp?: number;
         };
       };
     };
@@ -1068,7 +1070,9 @@ export interface operations {
       /** Unauthorized */
       401: {
         content: {
-          "application/json": string;
+          "application/json": {
+            message?: string;
+          };
         };
       };
     };
@@ -2577,8 +2581,6 @@ export interface operations {
           };
         };
       };
-      /** Bad Request */
-      400: unknown;
     };
     requestBody: {
       content: {
