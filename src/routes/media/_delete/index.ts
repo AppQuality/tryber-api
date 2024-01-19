@@ -3,7 +3,7 @@
 import debugMessage from "@src/features/debugMessage";
 import deleteFromS3 from "@src/features/deleteFromS3";
 import { Context } from "openapi-backend";
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
 
 export default async (
   c: Context,
@@ -54,11 +54,9 @@ export default async (
     );
   }
   async function mediaIsAlreadyLinked(): Promise<boolean> {
-    const bugMedia = await db.query(
-      db.format(`SELECT id FROM wp_appq_evd_bug_media WHERE location = ?`, [
-        url,
-      ])
-    );
+    const bugMedia = await tryber.tables.WpAppqEvdBugMedia.do()
+      .select("id")
+      .where({ location: url });
     return bugMedia.length > 0;
   }
 };

@@ -1,7 +1,5 @@
-import bugMedia from "@src/__mocks__/mockedDb/bugMedia";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import deleteFromS3 from "@src/features/deleteFromS3";
 import request from "supertest";
 
@@ -15,13 +13,22 @@ describe("Route DELETE /media", () => {
     (deleteFromS3 as jest.Mock).mockImplementation(
       ({ url }: { url: string }): Promise<any> => Promise.resolve(true)
     );
-    await Profile.insert();
-    await WpUsers.insert();
+    await tryber.tables.WpAppqEvdProfile.do().insert({
+      id: 1,
+      wp_user_id: 1,
+      email: "jhon@doe@example.com",
+      employment_id: 1,
+      education_id: 1,
+    });
+    await tryber.tables.WpUsers.do().insert({
+      ID: 1,
+      user_email: "jhon@doe@example.com",
+    });
   });
 
   afterAll(async () => {
-    await WpUsers.clear();
-    await Profile.clear();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpUsers.do().delete();
   });
   describe("Route DELETE /media", () => {
     beforeAll(async () => {});
@@ -63,12 +70,12 @@ describe("Route DELETE /media", () => {
 
   describe("Route DELETE /media - media already linked", () => {
     beforeAll(async () => {
-      await bugMedia.insert({
+      await tryber.tables.WpAppqEvdBugMedia.do().insert({
+        bug_id: 1,
         location:
           "https://s3.eu-west-1.amazonaws.com/media.bucket/media/T1/image_123456789.png",
       });
     });
-    afterAll(async () => {});
     it("Should answer 403 if trying to delete linked media", async () => {
       const response = await request(app)
         .delete("/media")
