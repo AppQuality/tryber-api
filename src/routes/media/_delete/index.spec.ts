@@ -64,6 +64,7 @@ describe("Route DELETE /media", () => {
         })
         .set("authorization", "Bearer tester");
       expect(response.status).toBe(200);
+      expect(deleteFromS3).toBeCalledTimes(1);
       expect(response.body).toEqual({});
     });
   });

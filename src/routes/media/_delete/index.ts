@@ -3,6 +3,7 @@
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
+import deleteFromS3 from "@src/features/deleteFromS3";
 
 export default class DeleteMediaRoute extends UserRoute<{
   response: StoplightOperations["delete-media"]["responses"]["200"];
@@ -40,6 +41,7 @@ export default class DeleteMediaRoute extends UserRoute<{
   }
 
   protected async prepare() {
+    await deleteFromS3({ url: this.mediaUrl });
     this.setSuccess(200, {});
   }
   private isValidPath() {
