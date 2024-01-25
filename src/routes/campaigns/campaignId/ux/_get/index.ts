@@ -3,8 +3,9 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import AWS from "aws-sdk";
+import fs from "fs";
 import UxData from "../UxData";
-
 export default class Route extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-ux"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-ux"]["parameters"]["path"];
@@ -73,6 +74,28 @@ export default class Route extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const signedCookies = await this.getSignedCookie();
+    this.setCookie("CloudFront-Policy", signedCookies["CloudFront-Policy"], {
+      secure: true,
+      httpOnly: true,
+    });
+    this.setCookie(
+      "CloudFront-Signature",
+      signedCookies["CloudFront-Signature"],
+      {
+        secure: true,
+        httpOnly: true,
+      }
+    );
+    this.setCookie(
+      "CloudFront-Key-Pair-Id",
+      signedCookies["CloudFront-Key-Pair-Id"],
+      {
+        secure: true,
+        httpOnly: true,
+      }
+    );
+
     this.setSuccess(200, {
       status: await this.getStatus(),
       goal: this.draft.data?.goal || "",
@@ -89,6 +112,43 @@ export default class Route extends UserRoute<{
       sentiments: this.draft.data?.sentiments || [],
       questions: this.draft.data?.questions || [],
     });
+  }
+
+  private async getSignedCookie() {
+    const privateKey = fs.readFileSync("./keys/private_tw.pem");
+    let signer = new AWS.CloudFront.Signer(
+      process.env.CLOUDFRONT_KEY_ID || "",
+      privateKey.toString()
+    );
+    let cfUrl = "media.tryber.me";
+    const today = new Date();
+    let tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    let expiry = tomorrow.getTime();
+    var options = {
+      url: "http://" + cfUrl + "/*",
+      policy: JSON.stringify({
+        Statement: [
+          {
+            Resource: "http://" + cfUrl + "/*",
+            Condition: {
+              DateLessThan: { "AWS:EpochTime": expiry },
+            },
+          },
+        ],
+      }),
+    };
+    return new Promise<AWS.CloudFront.Signer.CustomPolicy>(
+      (resolve, reject) => {
+        signer.getSignedCookie(options, function (err, cookie) {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(cookie);
+        });
+      }
+    );
   }
 
   private async getStatus() {
