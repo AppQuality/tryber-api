@@ -121,7 +121,7 @@ export default class Route extends UserRoute<{
   }
 
   private async getSignedCookie() {
-    const privateKey = fs.readFileSync("./keys/private_tw.pem");
+    const privateKey = fs.readFileSync("./keys/cloudfront.pem");
     let signer = new AWS.CloudFront.Signer(
       process.env.CLOUDFRONT_KEY_ID || "",
       privateKey.toString()
