@@ -33,7 +33,8 @@ export default class DeleteMediaRoute extends UserRoute<{
       this.setError(404, new OpenapiError("Bad file path"));
       return false;
     }
-    if ((await this.mediaIsNotAlreadyLinked()) === false) {
+    if ((await this.mediaIsAlreadyLinked()) === true) {
+      console.log("media already linked");
       this.setError(403, new OpenapiError("Bad file path"));
       return false;
     }
@@ -41,6 +42,7 @@ export default class DeleteMediaRoute extends UserRoute<{
   }
 
   protected async prepare() {
+    console.log("prepare");
     await deleteFromS3({ url: this.mediaUrl });
     this.setSuccess(200, {});
   }
@@ -51,10 +53,11 @@ export default class DeleteMediaRoute extends UserRoute<{
       }/T${this.getTesterId()}/`
     );
   }
-  private async mediaIsNotAlreadyLinked() {
+  private async mediaIsAlreadyLinked() {
     const bugMedia = await tryber.tables.WpAppqEvdBugMedia.do()
       .select("id")
       .where({ location: this.mediaUrl });
-    return bugMedia.length <= 0;
+    console.log("bugMedia.length", bugMedia.length);
+    return bugMedia.length > 0;
   }
 }

@@ -35,6 +35,7 @@ describe("Route DELETE /media", () => {
     afterAll(async () => {});
     it("Should answer 403 if not logged in", async () => {
       const response = await request(app).delete("/media");
+      expect(deleteFromS3).toBeCalledTimes(0);
       expect(response.status).toBe(403);
     });
     it("Should answer 404 if try to send bad url", async () => {
@@ -43,6 +44,7 @@ describe("Route DELETE /media", () => {
         .set("authorization", "Bearer tester")
         .send({ url: "https://google.com" })
         .set("authorization", "Bearer tester");
+      expect(deleteFromS3).toBeCalledTimes(0);
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty("message", "Bad file path");
     });
@@ -53,6 +55,7 @@ describe("Route DELETE /media", () => {
           url: "https://s3.eu-west-1.amazonaws.com/media.bucket/media/T169/image_123456789.png",
         })
         .set("authorization", "Bearer tester");
+      expect(deleteFromS3).toBeCalledTimes(0);
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty("message", "Bad file path");
     });
@@ -84,6 +87,7 @@ describe("Route DELETE /media", () => {
           url: "https://s3.eu-west-1.amazonaws.com/media.bucket/media/T1/image_123456789.png",
         })
         .set("authorization", "Bearer tester");
+      expect(deleteFromS3).toBeCalledTimes(0);
       expect(response.status).toBe(403);
     });
   });
