@@ -49,6 +49,7 @@ export default class Route<T extends RouteClassTypes> {
           secure?: boolean;
           httpOnly?: boolean;
           sameSite?: "none" | "lax" | "strict";
+          domain?: string;
         }
       | undefined = {}
   ) {

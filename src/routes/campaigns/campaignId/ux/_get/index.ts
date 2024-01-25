@@ -78,6 +78,8 @@ export default class Route extends UserRoute<{
     this.setCookie("CloudFront-Policy", signedCookies["CloudFront-Policy"], {
       secure: true,
       httpOnly: true,
+      sameSite: "none",
+      domain: ".tryber.me",
     });
     this.setCookie(
       "CloudFront-Signature",
@@ -85,6 +87,8 @@ export default class Route extends UserRoute<{
       {
         secure: true,
         httpOnly: true,
+        sameSite: "none",
+        domain: ".tryber.me",
       }
     );
     this.setCookie(
@@ -93,6 +97,8 @@ export default class Route extends UserRoute<{
       {
         secure: true,
         httpOnly: true,
+        sameSite: "none",
+        domain: ".tryber.me",
       }
     );
 
