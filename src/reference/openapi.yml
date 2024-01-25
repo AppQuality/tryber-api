@@ -540,7 +540,10 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                type: object
+                properties:
+                  message:
+                    type: string
               examples:
                 example-1:
                   value: string
@@ -6471,12 +6474,39 @@ paths:
       summary: Create a new user
       operationId: post-users
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: x5877le63wjax
+                required:
+                  - id
+              examples:
+                Example 1:
+                  value:
+                    id: 1111
+        '412':
+          description: Precondition Failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                x-examples:
+                  Example 1:
+                    message: Email bob.alice@example.com already registered
+              examples:
+                email-already-exist:
+                  value:
+                    message: Email bob.alice@example.com already registered
       description: Create a new user
       requestBody:
         content:
@@ -6510,7 +6540,7 @@ paths:
                 - country
                 - birthDate
             examples:
-              example-1:
+              basic-user:
                 value:
                   name: Elon
                   surname: Musk
@@ -6518,8 +6548,36 @@ paths:
                   password: Elon78
                   country: Italy
                   birthDate: '1971-06-28'
+              basic-user-with-referral:
+                value:
+                  name: Elon
+                  surname: Musk
+                  email: elon.musk@tesla.com
+                  password: Elon78
+                  country: Italy
+                  birthDate: '1971-06-28'
+                  referral: 11111-1234
+        description: ''
       tags:
         - User
+  '/users/by-email/{email}':
+    parameters:
+      - schema:
+          type: string
+        name: email
+        in: path
+        required: true
+    head:
+      summary: Check user by email
+      operationId: head-users-by-email-email
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+      description: ''
   /users/me:
     get:
       summary: Get your user data
@@ -11357,6 +11415,10 @@ components:
                 type: string
               username:
                 type: string
+              iat:
+                type: number
+              exp:
+                type: number
           examples:
             example:
               value:

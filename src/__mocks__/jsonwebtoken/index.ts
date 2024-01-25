@@ -133,4 +133,9 @@ const verify = (token: string, secret: string): any => {
 
 export default {
   verify,
+  sign: (token: string, secret: string): string => "token",
+  decode: (token: string): any => ({
+    iat: new Date().getTime() + 24 * 60 * 60,
+    exp: new Date().getTime() + 24 * 60 * 60,
+  }),
 };

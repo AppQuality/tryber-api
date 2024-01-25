@@ -318,6 +318,14 @@ export interface paths {
     /** Create a new user */
     post: operations["post-users"];
   };
+  "/users/by-email/{email}": {
+    head: operations["head-users-by-email-email"];
+    parameters: {
+      path: {
+        email: string;
+      };
+    };
+  };
   "/users/me": {
     /** Get your user data */
     get: operations["get-users-me"];
@@ -835,6 +843,8 @@ export interface components {
           lastName?: string;
           token?: string;
           username?: string;
+          iat?: number;
+          exp?: number;
         };
       };
     };
@@ -1060,7 +1070,9 @@ export interface operations {
       /** Unauthorized */
       401: {
         content: {
-          "application/json": string;
+          "application/json": {
+            message?: string;
+          };
         };
       };
     };
@@ -2553,10 +2565,20 @@ export interface operations {
   /** Create a new user */
   "post-users": {
     responses: {
-      /** OK */
-      200: {
+      /** Created */
+      201: {
         content: {
-          "application/json": components["schemas"]["User"];
+          "application/json": {
+            id: number;
+          };
+        };
+      };
+      /** Precondition Failed */
+      412: {
+        content: {
+          "application/json": {
+            message?: string;
+          };
         };
       };
     };
@@ -2578,6 +2600,21 @@ export interface operations {
           referral?: string;
         };
       };
+    };
+  };
+  "head-users-by-email-email": {
+    parameters: {
+      path: {
+        email: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Bad Request */
+      400: unknown;
+      /** Not Found */
+      404: unknown;
     };
   };
   /** Get your user data */
