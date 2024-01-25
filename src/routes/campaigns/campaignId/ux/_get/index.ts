@@ -126,17 +126,17 @@ export default class Route extends UserRoute<{
       process.env.CLOUDFRONT_KEY_ID || "",
       privateKey.toString()
     );
-    let cfUrl = "media.tryber.me";
+    let cfUrl = "media.dev.tryber.me";
     const today = new Date();
     let tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
     let expiry = tomorrow.getTime();
     var options = {
-      url: "http://" + cfUrl + "/*",
+      url: "https://" + cfUrl + "/*",
       policy: JSON.stringify({
         Statement: [
           {
-            Resource: "http://" + cfUrl + "/*",
+            Resource: "https://" + cfUrl + "/*",
             Condition: {
               DateLessThan: { "AWS:EpochTime": expiry },
             },
