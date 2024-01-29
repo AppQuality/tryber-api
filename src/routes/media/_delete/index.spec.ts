@@ -10,9 +10,6 @@ process.env.MEDIA_FOLDER = "media";
 
 describe("Route DELETE /media", () => {
   beforeAll(async () => {
-    (deleteFromS3 as jest.Mock).mockImplementation(
-      ({ url }: { url: string }): Promise<any> => Promise.resolve(true)
-    );
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
       wp_user_id: 1,
@@ -30,9 +27,10 @@ describe("Route DELETE /media", () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
     await tryber.tables.WpUsers.do().delete();
   });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   describe("Route DELETE /media", () => {
-    beforeAll(async () => {});
-    afterAll(async () => {});
     it("Should answer 403 if not logged in", async () => {
       const response = await request(app).delete("/media");
       expect(deleteFromS3).toBeCalledTimes(0);
@@ -73,12 +71,15 @@ describe("Route DELETE /media", () => {
   });
 
   describe("Route DELETE /media - media already linked", () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
       await tryber.tables.WpAppqEvdBugMedia.do().insert({
         bug_id: 1,
         location:
           "https://s3.eu-west-1.amazonaws.com/media.bucket/media/T1/image_123456789.png",
       });
+    });
+    afterEach(async () => {
+      await tryber.tables.WpAppqEvdBugMedia.do().delete();
     });
     it("Should answer 403 if trying to delete linked media", async () => {
       const response = await request(app)

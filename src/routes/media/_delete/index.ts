@@ -1,9 +1,9 @@
 /** OPENAPI-CLASS: delete-media */
 
-import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import UserRoute from "@src/features/routes/UserRoute";
+import { tryber } from "@src/features/database";
 import deleteFromS3 from "@src/features/deleteFromS3";
+import UserRoute from "@src/features/routes/UserRoute";
 
 export default class DeleteMediaRoute extends UserRoute<{
   response: StoplightOperations["delete-media"]["responses"]["200"];
@@ -34,7 +34,6 @@ export default class DeleteMediaRoute extends UserRoute<{
       return false;
     }
     if ((await this.mediaIsAlreadyLinked()) === true) {
-      console.log("media already linked");
       this.setError(403, new OpenapiError("Bad file path"));
       return false;
     }
@@ -42,7 +41,6 @@ export default class DeleteMediaRoute extends UserRoute<{
   }
 
   protected async prepare() {
-    console.log("prepare");
     await deleteFromS3({ url: this.mediaUrl });
     this.setSuccess(200, {});
   }
@@ -57,7 +55,6 @@ export default class DeleteMediaRoute extends UserRoute<{
     const bugMedia = await tryber.tables.WpAppqEvdBugMedia.do()
       .select("id")
       .where({ location: this.mediaUrl });
-    console.log("bugMedia.length", bugMedia.length);
     return bugMedia.length > 0;
   }
 }
