@@ -1,91 +1,84 @@
-/** OPENAPI-ROUTE: get-devices-devices-type-model */
+/** OPENAPI-CLASS: get-devices-devices-type-model */
 
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    let device_type = 1;
-    if (typeof c.request.params.device_type == "string") {
-      device_type = parseInt(c.request.params.device_type);
-    }
-    const filter =
-      req.query && req.query.filterBy
-        ? (req.query.filterBy as { [key: string]: string | string[] })
-        : false;
+export default class Route extends UserRoute<{
+  response: StoplightOperations["get-devices-devices-type-model"]["responses"]["200"]["content"]["application/json"];
+  parameters: StoplightOperations["get-devices-devices-type-model"]["parameters"]["path"];
+  query: StoplightOperations["get-devices-devices-type-model"]["parameters"]["query"];
+}> {
+  private device_type: number;
+  private filterBy: { manufacturer?: string; model?: string } | false = false;
 
-    let sql = `SELECT id,
-                      manufacturer,
-                      model
-               FROM wp_dc_appq_devices`;
-    let where = "device_type = ? ";
-    let queryData = [];
-    queryData.push(device_type);
+  constructor(config: RouteClassConfiguration) {
+    super(config);
+    const { device_type } = this.getParameters();
+    this.device_type = Number(device_type);
 
-    let acceptedFilters = ["manufacturer", "model"].filter((f) =>
-      Object.keys(filter).includes(f)
-    );
+    this.filterBy = this.getFilterBy();
+  }
 
-    if (acceptedFilters.length && filter) {
-      filter;
-      acceptedFilters = acceptedFilters.map((k) => {
-        const filterItem = filter[k];
-        if (typeof filterItem === "string") {
-          queryData.push(filter[k]);
-          return `${k}=?`;
-        }
-        const orQuery = filterItem
-          .map((el) => {
-            queryData.push(el);
-            return `${k}=?`;
-          })
-          .join(" OR ");
-        return ` ( ${orQuery} ) `;
-      });
-      where += " AND " + Object.values(acceptedFilters).join(" AND ");
-    }
+  private getFilterBy() {
+    const query = this.getQuery();
+    if (!query.filterBy) return false;
 
-    sql += " WHERE " + where + " ORDER BY  manufacturer ASC, model ASC";
-    sql = db.format(sql, queryData);
-    const results = await db.query(sql);
-
-    if (!results.length) throw Error("Error on finding devices");
-
-    const models: {
-      manufacturer: string;
-      models: { id: string; name: string }[];
-    }[] = [];
-    results.forEach(
-      (r: { manufacturer: string; id: string; model: string }) => {
-        let currentModel = models.findIndex(
-          (m) => m.manufacturer === r.manufacturer
-        );
-        if (currentModel === -1) {
-          models.push({
-            manufacturer: r.manufacturer,
-            models: [],
-          });
-          currentModel = models.length - 1;
-        }
-        models[currentModel].models.push({
-          id: r.id,
-          name: r.model,
-        });
-      }
-    );
-
-    res.status_code = 200;
-    return models;
-  } catch (error) {
-    res.status_code = 404;
     return {
-      element: "devices",
-      id: 0,
-      message: (error as OpenapiError).message,
+      ...(query.filterBy?.manufacturer
+        ? { manufacturer: query.filterBy.manufacturer as string }
+        : {}),
+      ...(query.filterBy?.model
+        ? { model: query.filterBy.model as string }
+        : {}),
     };
   }
-};
+
+  protected async prepare() {
+    const results = await this.getDevices();
+
+    if (!results.length) {
+      this.setError(404, new OpenapiError("Error on finding devices"));
+      return;
+    }
+
+    const modelsByManufacturer = results.reduce((acc, cur) => {
+      if (!(cur.manufacturer in acc)) {
+        acc[cur.manufacturer] = [];
+      }
+      acc[cur.manufacturer].push({
+        id: cur.id,
+        name: cur.model,
+      });
+      return acc;
+    }, {} as { [key: string]: { id: number; name: string }[] });
+
+    const models = Object.entries(modelsByManufacturer).map(
+      ([manufacturer, models]) => ({
+        manufacturer,
+        models,
+      })
+    );
+
+    this.setSuccess(200, models);
+  }
+
+  private async getDevices() {
+    const query = tryber.tables.WpDcAppqDevices.do()
+      .select("id", "manufacturer", "model")
+      .where("device_type", this.device_type)
+      .orderBy("manufacturer", "asc")
+      .orderBy("model", "asc");
+
+    if (this.filterBy) {
+      if (this.filterBy?.manufacturer) {
+        query.where("manufacturer", this.filterBy.manufacturer);
+      }
+      if (this.filterBy.model) {
+        query.where("model", this.filterBy.model);
+      }
+    }
+
+    return await query;
+  }
+}
