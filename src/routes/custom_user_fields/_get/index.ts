@@ -1,182 +1,142 @@
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+/** OPENAPI-CLASS: get-customUserFields */
 
-/** OPENAPI-ROUTE: get-customUserFields */
-type GroupType = {
-  group: {
-    id: number;
-    name: {
-      [key: string]: string;
-    };
-    description: {
-      [key: string]: string;
-    };
-  };
-  fields: {
-    id: number;
-    name: {
-      [key: string]: string;
-    };
-    placeholder: {
-      [key: string]: string;
-    };
-    options?: {
-      id: number;
-      name: string;
-    }[];
-  }[];
-};
+type Translatable = { [key: string]: string };
+type Field = NonNullable<
+  NonNullable<
+    StoplightOperations["get-customUserFields"]["responses"]["200"]["content"]["application/json"][number]["fields"]
+  >[number]
+>;
+export default class Route extends UserRoute<{
+  response: StoplightOperations["get-customUserFields"]["responses"]["200"]["content"]["application/json"];
+}> {
+  protected async prepare() {
+    const byGroups = await this.getFieldsByGroups();
+    const groups = (await this.getGroups()).map((g) => {
+      return {
+        group: g,
+        fields: byGroups[g.id] || [],
+      };
+    });
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    const groups: GroupType[] = [
-      {
-        group: {
-          id: 0,
-          name: {
-            it: "Other",
-          },
-          description: {
-            it: "Other",
-          },
-        },
-        fields: [],
-      },
-    ];
-    try {
-      const sql = `SELECT id,name,description FROM wp_appq_custom_user_field_groups ORDER BY priority DESC`;
-      const results = await db.query(sql);
-      const tSql = `SELECT field_id,name,description,lang FROM wp_appq_custom_user_field_group_translation`;
-      const tResults = await db.query(tSql);
-      results.forEach(
-        (r: { id: number; name: string; description: string }) => {
-          const item = {
-            group: {
-              id: r.id,
-              name: {
-                it: r.name,
-              },
-              description: {
-                it: r.description,
-              },
-            },
-            fields: [],
-          };
-          const translations = tResults.filter(
-            (t: { field_id: number }) => t.field_id === r.id
-          );
-          translations.forEach(
-            (t: { lang: string; name: string; description: string }) => {
-              item.group.name[t.lang as keyof typeof item.group.name] = t.name;
-              item.group.description[
-                t.lang as keyof typeof item.group.description
-              ] = t.description;
-            }
-          );
-          groups.push(item);
-        }
-      );
-    } catch (e) {
-      throw Error("Can't retrieve custom user fields groups");
-    }
-
-    try {
-      const sql = `SELECT id,
-       name,
-       placeholder,
-       type,
-       allow_other,
-       custom_user_field_group_id,
-       options as format
-    FROM wp_appq_custom_user_field 
-    WHERE enabled = 1
-    ORDER BY priority DESC`;
-      const results = await db.query(sql);
-
-      const tSql = `SELECT field_id,name,placeholder,lang
-    FROM wp_appq_custom_user_field_translation`;
-      const tResults = await db.query(tSql);
-      results.forEach(
-        (r: {
-          custom_user_field_group_id: number;
-          id: number;
-          type: string;
-          allow_other: 1 | 0;
-          format?: string;
-          name: string;
-          placeholder: string;
-        }) => {
-          groups.forEach((group, k) => {
-            if (group.group.id == r.custom_user_field_group_id) {
-              const item = {
-                id: r.id,
-                type: r.type,
-                allow_other: r.allow_other == 1,
-                format: r.format || undefined,
-                name: {
-                  it: r.name,
-                },
-                placeholder: {
-                  it: r.placeholder,
-                },
-              };
-              const translations = tResults.filter(
-                (t: { field_id: number }) => t.field_id === r.id
-              );
-              translations.forEach(
-                (t: { lang: string; name: string; placeholder: string }) => {
-                  item.name[t.lang as keyof typeof item.name] = t.name;
-                  item.placeholder[t.lang as keyof typeof item.placeholder] =
-                    t.placeholder;
-                }
-              );
-              groups[k].fields.push(item);
-            }
-          });
-        }
-      );
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      return Promise.reject(Error("Can't retrieve custom user fields"));
-    }
-
-    try {
-      const sql =
-        "SELECT id,custom_user_field_id,name FROM wp_appq_custom_user_field_extras ORDER BY  `order` ASC";
-      const results = await db.query(sql);
-      results.forEach(
-        (r: { custom_user_field_id: number; id: number; name: string }) => {
-          groups.forEach((group, gk) => {
-            group.fields.forEach((field, fk) => {
-              if (groups[gk].fields[fk].id === r.custom_user_field_id) {
-                const options = groups[gk].fields[fk].options || [];
-                options.push({
-                  id: r.id,
-                  name: r.name,
-                });
-                groups[gk].fields[fk].options = options;
-              }
-            });
-          });
-        }
-      );
-    } catch (e) {
-      if (process.env && process.env.DEBUG) console.log(e);
-      return Promise.reject(Error("Can't retrieve custom user fields options"));
-    }
-
-    res.status_code = 200;
-    return groups.filter((g) => g.fields.length);
-  } catch (error) {
-    res.status_code = (error as OpenapiError).status_code || 400;
-    return {
-      element: "users",
-      id: parseInt(req.user.ID),
-      message: (error as OpenapiError).message,
-    };
+    this.setSuccess(
+      200,
+      groups.filter((g) => g.fields.length)
+    );
   }
-};
+
+  private async getFieldsByGroups() {
+    const fields = (
+      await tryber.tables.WpAppqCustomUserField.do()
+        .select(
+          "id",
+          "name",
+          "placeholder",
+          "type",
+          "allow_other",
+          "custom_user_field_group_id",
+          tryber.ref("options").as("format")
+        )
+        .where("enabled", 1)
+        .orderBy("priority", "desc")
+    ).filter((f): f is typeof f & { type: "select" | "multiselect" | "text" } =>
+      ["select", "multiselect", "text"].includes(f.type)
+    );
+    const translationItems =
+      await tryber.tables.WpAppqCustomUserFieldTranslation.do().select(
+        "field_id",
+        "name",
+        "placeholder",
+        "lang"
+      );
+
+    const extras = await tryber.tables.WpAppqCustomUserFieldExtras.do()
+      .select("id", "custom_user_field_id", "name")
+      .orderBy("order", "asc");
+
+    return fields.reduce((acc, r) => {
+      if (!acc[r.custom_user_field_group_id]) {
+        acc[r.custom_user_field_group_id] = [];
+      }
+      const translations = translationItems.filter((t) => t.field_id === r.id);
+      const options = extras.filter((e) => e.custom_user_field_id === r.id);
+      acc[r.custom_user_field_group_id].push({
+        id: r.id,
+        type: r.type,
+        allow_other: r.allow_other == 1,
+        format: r.format || undefined,
+        options: options.length
+          ? options.map((o) => {
+              return {
+                id: o.id,
+                name: o.name,
+              };
+            })
+          : undefined,
+        name: translations.reduce(
+          (acc, t) => {
+            acc[t.lang] = t.name;
+            return acc;
+          },
+          { it: r.name } as Record<string, string>
+        ),
+        placeholder: translations.reduce(
+          (acc, t) => {
+            acc[t.lang] = t.placeholder;
+            return acc;
+          },
+          { it: r.placeholder } as Record<string, string>
+        ),
+      });
+      return acc;
+    }, {} as Record<number, Field[]>);
+  }
+
+  private async getGroups(): Promise<
+    { id: number; name: Translatable; description: Translatable }[]
+  > {
+    const results = await tryber.tables.WpAppqCustomUserFieldGroups.do()
+      .select("id", "name", "description")
+      .orderBy("priority", "desc");
+    const tResults =
+      await tryber.tables.WpAppqCustomUserFieldGroupTranslation.do().select(
+        "field_id",
+        "name",
+        "description",
+        "lang"
+      );
+
+    return [
+      {
+        id: 0,
+        name: {
+          it: "Other",
+        },
+        description: {
+          it: "Other",
+        },
+      },
+      ...results.map((r) => {
+        const translations = tResults.filter((t) => t.field_id === r.id);
+        return {
+          id: r.id,
+          name: translations.reduce(
+            (acc, t) => {
+              acc[t.lang] = t.name;
+              return acc;
+            },
+            { it: r.name } as Record<string, string>
+          ),
+          description: translations.reduce(
+            (acc, t) => {
+              acc[t.lang] = t.description;
+              return acc;
+            },
+            { it: r.description } as Record<string, string>
+          ),
+        };
+      }),
+    ];
+  }
+}
