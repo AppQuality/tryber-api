@@ -122,35 +122,37 @@ export default class Route extends UserRoute<{
 
   private async getSignedCookie() {
     const privateKey = fs.readFileSync("./keys/cloudfront.pem");
-    const signer = new AWS.CloudFront.Signer(
+    let signer = new AWS.CloudFront.Signer(
       process.env.CLOUDFRONT_KEY_ID || "",
       privateKey.toString()
     );
+    let cfUrl = "media*.tryber.me";
     const today = new Date();
-    const tomorrow = new Date();
+    let tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
-    const expiry = tomorrow.getTime();
+    let expiry = tomorrow.getTime();
+    var options = {
+      url: "https://" + cfUrl + "/*",
+      policy: JSON.stringify({
+        Statement: [
+          {
+            Resource: "https://" + cfUrl + "/*",
+            Condition: {
+              DateLessThan: { "AWS:EpochTime": expiry },
+            },
+          },
+        ],
+      }),
+    };
     return new Promise<AWS.CloudFront.Signer.CustomPolicy>(
       (resolve, reject) => {
-        signer.getSignedCookie(
-          {
-            policy: JSON.stringify({
-              Statement: {
-                Resource: `https://media*.tryber.me/*`,
-                Condition: {
-                  DateLessThan: { "AWS:EpochTime": expiry },
-                },
-              },
-            }),
-          },
-          function (err, cookie) {
-            if (err) {
-              reject(err);
-              return;
-            }
-            resolve(cookie);
+        signer.getSignedCookie(options, function (err, cookie) {
+          if (err) {
+            reject(err);
+            return;
           }
-        );
+          resolve(cookie);
+        });
       }
     );
   }
