@@ -122,37 +122,41 @@ export default class Route extends UserRoute<{
 
   private async getSignedCookie() {
     const privateKey = fs.readFileSync("./keys/cloudfront.pem");
-    let signer = new AWS.CloudFront.Signer(
+    const signer = new AWS.CloudFront.Signer(
       process.env.CLOUDFRONT_KEY_ID || "",
       privateKey.toString()
     );
-    let cfUrl = "media.dev.tryber.me";
     const today = new Date();
-    let tomorrow = new Date();
+    const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
-    let expiry = tomorrow.getTime();
-    var options = {
-      url: "https://" + cfUrl + "/*",
-      policy: JSON.stringify({
-        Statement: [
-          {
-            Resource: "https://" + cfUrl + "/*",
-            Condition: {
-              DateLessThan: { "AWS:EpochTime": expiry },
-            },
-          },
-        ],
-      }),
-    };
+    const expiry = tomorrow.getTime();
+    const distributionUrls = [
+      "https://media-origin.tryber.me/",
+      "https://media-origin.dev.tryber.me/",
+      "https://media-processed.tryber.me/",
+      "https://media-processed.dev.tryber.me/",
+    ];
     return new Promise<AWS.CloudFront.Signer.CustomPolicy>(
       (resolve, reject) => {
-        signer.getSignedCookie(options, function (err, cookie) {
-          if (err) {
-            reject(err);
-            return;
+        signer.getSignedCookie(
+          {
+            policy: JSON.stringify({
+              Statement: distributionUrls.map((url) => ({
+                Resource: `${url}*`,
+                Condition: {
+                  DateLessThan: { "AWS:EpochTime": expiry },
+                },
+              })),
+            }),
+          },
+          function (err, cookie) {
+            if (err) {
+              reject(err);
+              return;
+            }
+            resolve(cookie);
           }
-          resolve(cookie);
-        });
+        );
       }
     );
   }
