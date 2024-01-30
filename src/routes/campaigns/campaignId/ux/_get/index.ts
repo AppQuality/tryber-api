@@ -130,23 +130,17 @@ export default class Route extends UserRoute<{
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
     const expiry = tomorrow.getTime();
-    const distributionUrls = [
-      "https://media-origin.tryber.me/",
-      "https://media-origin.dev.tryber.me/",
-      "https://media-processed.tryber.me/",
-      "https://media-processed.dev.tryber.me/",
-    ];
     return new Promise<AWS.CloudFront.Signer.CustomPolicy>(
       (resolve, reject) => {
         signer.getSignedCookie(
           {
             policy: JSON.stringify({
-              Statement: distributionUrls.map((url) => ({
-                Resource: `${url}*`,
+              Statement: {
+                Resource: `https://media*.tryber.me/*`,
                 Condition: {
                   DateLessThan: { "AWS:EpochTime": expiry },
                 },
-              })),
+              },
             }),
           },
           function (err, cookie) {
