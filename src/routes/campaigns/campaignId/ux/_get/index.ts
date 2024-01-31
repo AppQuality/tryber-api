@@ -3,8 +3,7 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
-import AWS from "aws-sdk";
-import fs from "fs";
+import { getSignedCookie } from "@src/features/s3/cookieSign";
 import UxData from "../UxData";
 export default class Route extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-ux"]["responses"]["200"]["content"]["application/json"];
@@ -74,7 +73,30 @@ export default class Route extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const signedCookies = await this.getSignedCookie();
+    await this.addCookieSign();
+
+    this.setSuccess(200, {
+      status: await this.getStatus(),
+      goal: this.draft.data?.goal || "",
+      usersNumber: this.draft.data?.users || 0,
+      methodology: {
+        name: await this.getCampaignType(),
+        description: this.draft.data?.methodology_description as string,
+        type: this.draft.data?.methodology_type as
+          | "qualitative"
+          | "quantitative"
+          | "quali-quantitative",
+      },
+      insights: this.draft.data?.findings || [],
+      sentiments: this.draft.data?.sentiments || [],
+      questions: this.draft.data?.questions || [],
+    });
+  }
+
+  private async addCookieSign() {
+    const signedCookies = await getSignedCookie({
+      url: `https://media*.tryber.me/CP${this.campaignId}/*`,
+    });
     this.setCookie("CloudFront-Policy", signedCookies["CloudFront-Policy"], {
       secure: true,
       httpOnly: true,
@@ -99,60 +121,6 @@ export default class Route extends UserRoute<{
         httpOnly: true,
         sameSite: "none",
         domain: ".tryber.me",
-      }
-    );
-
-    this.setSuccess(200, {
-      status: await this.getStatus(),
-      goal: this.draft.data?.goal || "",
-      usersNumber: this.draft.data?.users || 0,
-      methodology: {
-        name: await this.getCampaignType(),
-        description: this.draft.data?.methodology_description as string,
-        type: this.draft.data?.methodology_type as
-          | "qualitative"
-          | "quantitative"
-          | "quali-quantitative",
-      },
-      insights: this.draft.data?.findings || [],
-      sentiments: this.draft.data?.sentiments || [],
-      questions: this.draft.data?.questions || [],
-    });
-  }
-
-  private async getSignedCookie() {
-    const privateKey = fs.readFileSync("./keys/cloudfront.pem");
-    let signer = new AWS.CloudFront.Signer(
-      process.env.CLOUDFRONT_KEY_ID || "",
-      privateKey.toString()
-    );
-    const cfUrl = `https://media*.tryber.me/CP${this.campaignId}/*`;
-    const today = new Date();
-    let tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
-    let expiry = tomorrow.getTime();
-    var options = {
-      url: cfUrl,
-      policy: JSON.stringify({
-        Statement: [
-          {
-            Resource: cfUrl,
-            Condition: {
-              DateLessThan: { "AWS:EpochTime": expiry },
-            },
-          },
-        ],
-      }),
-    };
-    return new Promise<AWS.CloudFront.Signer.CustomPolicy>(
-      (resolve, reject) => {
-        signer.getSignedCookie(options, function (err, cookie) {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve(cookie);
-        });
       }
     );
   }
