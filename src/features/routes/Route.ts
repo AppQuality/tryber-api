@@ -41,6 +41,21 @@ export default class Route<T extends RouteClassTypes> {
     return true;
   }
 
+  protected setCookie(
+    name: string,
+    value: string,
+    options:
+      | {
+          secure?: boolean;
+          httpOnly?: boolean;
+          sameSite?: "none" | "lax" | "strict";
+          domain?: string;
+        }
+      | undefined = {}
+  ) {
+    this.configuration.response.cookie(name, value, options);
+  }
+
   protected setSuccess(statusCode: number, data: typeof this.responseData) {
     this.configuration.response.status_code = statusCode;
     this.responseData = data;

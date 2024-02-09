@@ -3,8 +3,8 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import { getSignedCookie } from "@src/features/s3/cookieSign";
 import UxData from "../UxData";
-
 export default class Route extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-ux"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-ux"]["parameters"]["path"];
@@ -73,6 +73,8 @@ export default class Route extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    await this.addCookieSign();
+
     this.setSuccess(200, {
       status: await this.getStatus(),
       goal: this.draft.data?.goal || "",
@@ -89,6 +91,38 @@ export default class Route extends UserRoute<{
       sentiments: this.draft.data?.sentiments || [],
       questions: this.draft.data?.questions || [],
     });
+  }
+
+  private async addCookieSign() {
+    const signedCookies = await getSignedCookie({
+      url: `https://media*.tryber.me/CP${this.campaignId}/*`,
+    });
+    this.setCookie("CloudFront-Policy", signedCookies["CloudFront-Policy"], {
+      secure: true,
+      httpOnly: true,
+      sameSite: "none",
+      domain: ".tryber.me",
+    });
+    this.setCookie(
+      "CloudFront-Signature",
+      signedCookies["CloudFront-Signature"],
+      {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+        domain: ".tryber.me",
+      }
+    );
+    this.setCookie(
+      "CloudFront-Key-Pair-Id",
+      signedCookies["CloudFront-Key-Pair-Id"],
+      {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+        domain: ".tryber.me",
+      }
+    );
   }
 
   private async getStatus() {

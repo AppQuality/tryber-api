@@ -4,6 +4,7 @@ import OpenapiError from "@src/features/OpenapiError";
 import { checkUrl } from "@src/features/checkUrl";
 import { tryber } from "@src/features/database";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
+import { mapToDistribution } from "@src/features/s3/mapToDistribution";
 export default class SingleCampaignRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-campaign-observations"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-campaign-observations"]["parameters"]["path"];
@@ -106,8 +107,8 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         tester: { id: observation.tester_id, name: observation.tester_name },
         media: {
           id: observation.media_id,
-          url: observation.media_url,
-          streamUrl: isValidStream ? stream : "",
+          url: mapToDistribution(observation.media_url),
+          streamUrl: isValidStream ? mapToDistribution(stream) : "",
         },
       });
     }
