@@ -4,7 +4,9 @@ import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
 import Campaigns from "@src/features/db/class/Campaigns";
 import Selector, { Field, InvalidQuestionError } from "./Selector";
-type filterBy = { os?: string[] | string } | undefined;
+type filterBy =
+  | { os?: string[] | string; testerIds?: string[] | string }
+  | undefined;
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
   query: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["query"];
@@ -21,6 +23,7 @@ export default class RouteItem extends UserRoute<{
   private fields: Field[] = [];
   private osToExclude: string[] | undefined;
   private osToInclude: string[] | undefined;
+  private idsToExclude: number[] | undefined;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -45,8 +48,26 @@ export default class RouteItem extends UserRoute<{
         }
       });
     }
-
     const filterByExclude = query.filterByExclude as filterBy;
+
+    if (
+      filterByExclude &&
+      "testerIds" in filterByExclude &&
+      filterByExclude.testerIds
+    ) {
+      if (!Array.isArray(filterByExclude.testerIds)) {
+        this.idsToExclude = filterByExclude.testerIds
+          .split(",")
+          .map((id) => parseInt(id));
+      } else {
+        this.idsToExclude = filterByExclude.testerIds
+          .flatMap((ids) => ids.split(","))
+          .map(Number)
+          .filter((num) => !isNaN(num)) // filter out any non-numeric values
+          .filter((num, index, self) => self.indexOf(num) === index); // remove duplicates
+      }
+    }
+
     if (filterByExclude && "os" in filterByExclude && filterByExclude.os) {
       if (!Array.isArray(filterByExclude.os)) {
         this.osToExclude = [filterByExclude.os];
@@ -106,7 +127,6 @@ export default class RouteItem extends UserRoute<{
     const faseDos = this.filterItems(paginatedApplications);
 
     const formattedApplications = await this.formatApplications(faseDos);
-
     this.setSuccess(200, {
       results: formattedApplications,
       size: paginatedApplications.length,
@@ -119,10 +139,24 @@ export default class RouteItem extends UserRoute<{
   private filterItems(
     applications: Awaited<ReturnType<typeof this.selector.getApplications>>
   ) {
-    let filteredDevices = applications;
-    filteredDevices = this.filterByExcludeOs(filteredDevices);
-    filteredDevices = this.filterByIncludeOs(filteredDevices);
-    return filteredDevices;
+    let filtered = applications;
+    filtered = this.filterByExcludeIds(filtered);
+    filtered = this.filterByExcludeOs(filtered);
+    filtered = this.filterByIncludeOs(filtered);
+    //
+    return filtered;
+  }
+  private filterByExcludeIds(
+    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
+  ) {
+    if (!this.idsToExclude) {
+      return applications;
+    }
+    const idsListToExclude = this.idsToExclude;
+
+    return applications.filter((a) => {
+      return !idsListToExclude.includes(a.id);
+    });
   }
 
   private filterByExcludeOs(
