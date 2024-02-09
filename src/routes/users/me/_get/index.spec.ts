@@ -230,13 +230,6 @@ const cufMultiSelectTesterVal2 = {
   profile_id: testerFull.id,
   candidate: 0,
 };
-const cufTextDisabled = {
-  //cuf
-  id: 4,
-  name: "Fornitore di zenzero preferito",
-  type: "multiselect",
-  enabled: 0,
-};
 
 describe("Route GET users-me", () => {
   beforeAll(async () => {
