@@ -24,6 +24,7 @@ export default class RouteItem extends UserRoute<{
   private osToExclude: string[] | undefined;
   private osToInclude: string[] | undefined;
   private idsToExclude: number[] | undefined;
+  private idsToInclude: number[] | undefined;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -77,6 +78,24 @@ export default class RouteItem extends UserRoute<{
     }
 
     const filterByInclude = query.filterByInclude as filterBy;
+    if (
+      filterByInclude &&
+      "testerIds" in filterByInclude &&
+      filterByInclude.testerIds
+    ) {
+      if (!Array.isArray(filterByInclude.testerIds)) {
+        this.idsToInclude = filterByInclude.testerIds
+          .split(",")
+          .map((id) => parseInt(id));
+      } else {
+        this.idsToInclude = filterByInclude.testerIds
+          .flatMap((ids) => ids.split(","))
+          .map(Number)
+          .filter((num) => !isNaN(num)) // filter out any non-numeric values
+          .filter((num, index, self) => self.indexOf(num) === index); // remove duplicates
+      }
+    }
+
     if (filterByInclude && "os" in filterByInclude && filterByInclude.os) {
       if (!Array.isArray(filterByInclude.os)) {
         this.osToInclude = [filterByInclude.os];
@@ -142,8 +161,9 @@ export default class RouteItem extends UserRoute<{
     let filtered = applications;
     filtered = this.filterByExcludeIds(filtered);
     filtered = this.filterByExcludeOs(filtered);
+    filtered = this.filterByIncludeIds(filtered);
     filtered = this.filterByIncludeOs(filtered);
-    //
+
     return filtered;
   }
   private filterByExcludeIds(
@@ -234,6 +254,18 @@ export default class RouteItem extends UserRoute<{
         return false;
       });
     }
+  }
+  private filterByIncludeIds(
+    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
+  ) {
+    if (!this.idsToInclude) {
+      return applications;
+    }
+    const idsListToInclude = this.idsToInclude;
+
+    return applications.filter((a) => {
+      return idsListToInclude.includes(a.id);
+    });
   }
 
   private async formatApplications(

@@ -728,50 +728,42 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     expect(response.body.results).toEqual([
       expect.objectContaining({
         id: users[3].testerId,
-        devices: [
-          { id: 2, os: "Windows", osVersion: "XP" },
-          {
-            id: 3,
-            os: "iOS",
-            osVersion: "13.3.1",
-            model: "iPhone 11",
-            manufacturer: "Apple",
-          },
-        ],
       }),
     ]);
   });
 
-  // it("Should filter by tryber-ids including values", async () => {
-  //   const response = await request(app)
-  //     .get("/campaigns/1/candidates/?filterByInclude[os]=dow")
-  //     .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-  //   expect(response.body).toHaveProperty("results");
-  //   expect(response.body.results.length).toBe(2);
-  //   expect(response.body.results).toEqual([
-  //     expect.objectContaining({
-  //       id: users[4].testerId,
-  //       devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
-  //     }),
-  //     expect.objectContaining({
-  //       id: users[3].testerId,
-  //       devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
-  //     }),
-  //   ]);
-  // });
-  // it("Should filter by tryber-ids including and excluding values", async () => {
-  //   const response = await request(app)
-  //     .get(
-  //       "/campaigns/1/candidates/?filterByInclude[os]=dow&&filterByExclude[os]=vista"
-  //     )
-  //     .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-  //   expect(response.body).toHaveProperty("results");
-  //   expect(response.body.results.length).toBe(1);
-  //   expect(response.body.results).toEqual([
-  //     expect.objectContaining({
-  //       id: users[3].testerId,
-  //       devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
-  //     }),
-  //   ]);
-  // });
+  it("Should filter by tryber-ids including values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByInclude[testerIds]=2&filterByInclude[testerIds]=4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+  it("Should filter by tryber-ids including and excluding values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByExclude[testerIds]=3&filterByInclude[testerIds]=2,4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
 });
