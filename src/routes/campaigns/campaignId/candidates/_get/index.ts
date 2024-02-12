@@ -59,10 +59,12 @@ export default class RouteItem extends UserRoute<{
       if (!Array.isArray(filterByExclude.testerIds)) {
         this.idsToExclude = filterByExclude.testerIds
           .split(",")
+          .map((id) => id.replace(/\D/g, ""))
           .map((id) => parseInt(id));
       } else {
         this.idsToExclude = filterByExclude.testerIds
           .flatMap((ids) => ids.split(","))
+          .map((id) => id.replace(/\D/g, ""))
           .map(Number)
           .filter((num) => !isNaN(num)) // filter out any non-numeric values
           .filter((num, index, self) => self.indexOf(num) === index); // remove duplicates
@@ -86,10 +88,12 @@ export default class RouteItem extends UserRoute<{
       if (!Array.isArray(filterByInclude.testerIds)) {
         this.idsToInclude = filterByInclude.testerIds
           .split(",")
+          .map((id) => id.replace(/\D/g, ""))
           .map((id) => parseInt(id));
       } else {
         this.idsToInclude = filterByInclude.testerIds
           .flatMap((ids) => ids.split(","))
+          .map((id) => id.replace(/\D/g, ""))
           .map(Number)
           .filter((num) => !isNaN(num)) // filter out any non-numeric values
           .filter((num, index, self) => self.indexOf(num) === index); // remove duplicates
