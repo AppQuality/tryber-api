@@ -1,8 +1,4 @@
 import app from "@src/app";
-import Attributions from "@src/__mocks__/mockedDb/attributions";
-import { data as PaymentRequest } from "@src/__mocks__/mockedDb/paymentRequest";
-import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
-import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import request from "supertest";
 import { tryber } from "@src/features/database";
 
@@ -318,38 +314,36 @@ describe("GET /users/me - booties data", () => {
       ]);
 
       data.attributionTotal = 0;
-      data.attributionTotal += 15;
-      data.attributionTotal += (
-        await Attributions.insert({
+      data.attributionTotal += 15 + 14.99 + 7.15;
+      await tryber.tables.WpAppqPayment.do().insert([
+        {
           id: 2,
           amount: 14.99,
           tester_id: data.tester.id,
-        })
-      ).amount;
-      data.attributionTotal += (
-        await Attributions.insert({
+          is_requested: 0,
+        },
+        {
           id: 3,
           amount: 7.15,
           tester_id: data.tester.id,
-        })
-      ).amount;
-
-      await Attributions.insert({
-        id: 4,
-        amount: 50,
-        tester_id: data.tester.id,
-        is_requested: 1,
-      });
-
-      await Attributions.insert({
-        id: 5,
-        amount: 50,
-        tester_id: data.tester.id + 1,
-      });
+          is_requested: 0,
+        },
+        {
+          id: 4,
+          amount: 50,
+          tester_id: data.tester.id,
+          is_requested: 1,
+        },
+        {
+          id: 5,
+          amount: 50,
+          tester_id: data.tester.id + 1,
+          is_requested: 0,
+        },
+      ]);
     });
     afterEach(async () => {
-      await Attributions.clear();
-      await FiscalProfile.drop();
+      await tryber.tables.WpAppqPayment.do().delete();
       await tryber.tables.WpAppqFiscalProfile.do().delete();
       await tryber.tables.WpAppqPaymentRequest.do().delete();
     });
@@ -387,7 +381,12 @@ describe("GET /users/me - booties data", () => {
 
   describe("GET /users/me - pending_booty threshold", () => {
     beforeAll(async () => {
-      await WpOptions.crowdWpOptions();
+      await tryber.tables.WpOptions.do().insert({
+        option_id: 1,
+        option_name: "crowd_options_option_name",
+        option_value:
+          'a:17:{s:11:"facebook_id";s:3:"asd";s:20:"facebook_secret_code";s:3:"asd";s:11:"linkedin_id";s:3:"asd";s:20:"linkedin_secret_code";s:3:"asd";s:15:"paypal_live_env";s:15:"paypal_live_env";s:16:"paypal_client_id";s:3:"asd";s:18:"paypal_secret_code";s:3:"asd";s:22:"transfer_wise_live_env";s:22:"transfer_wise_live_env";s:25:"transfer_wise_secret_code";s:3:"asd";s:14:"analitycs_code";s:0:"";s:14:"minimum_payout";s:1:"2";s:13:"appq_cm_email";s:13:"a@example.com";s:9:"adv_email";s:13:"a@example.com";s:11:"adv_project";s:2:"59";s:21:"italian_payment_check";s:21:"italian_payment_check";s:15:"stamp_threshold";s:5:"77.47";s:15:"release_message";s:2:"[]";}',
+      });
       await tryber.tables.WpAppqFiscalProfile.do().insert({
         id: 1,
         name: "Fiscal Profile 1",
@@ -413,7 +412,7 @@ describe("GET /users/me - booties data", () => {
       ]);
     });
     afterAll(async () => {
-      await WpOptions.clear();
+      await tryber.tables.WpOptions.do().delete();
       await tryber.tables.WpAppqPayment.do().delete();
       await tryber.tables.WpAppqFiscalProfile.do().delete();
     });
