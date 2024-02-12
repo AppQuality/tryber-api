@@ -27,7 +27,7 @@ export default class Route extends UserRoute<{
     super({ ...configuration, element: "bugs" });
     this.setId(0);
     const query = this.getQuery();
-    if (query.start) this.start = query.start;
+    if (query.start) this.start = Number(query.start as unknown as string);
     if (query.limit) this.limit = Number(query.limit as unknown as string);
 
     if (query.orderBy) this.orderBy = query.orderBy;
