@@ -1,11 +1,11 @@
 /** OPENAPI-CLASS: patch-users-me */
 
-import * as db from "@src/features/db";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
 import escapeCharacters from "../../../../features/escapeCharacters";
 import UserData from "../../../../features/class/UserData";
 import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
 
 const acceptedFields = [
   "name" as const,
@@ -54,19 +54,23 @@ export default class PatchUsersMe extends UserRoute<{
       );
   }
   protected async prepare() {
-    const profileSets = [];
-    const profileUpdateData = [];
-    const wpDataSets = [];
-    const wpDataUpdateData = [];
+    let profileDataCounter = 0;
+    let profileUpdate = tryber.tables.WpAppqEvdProfile.do().where({
+      id: this.getTesterId(),
+    });
+    let wpDataCounter = 0;
+    let wpUserUpdate = tryber.tables.WpUsers.do().where({
+      ID: this.getWordpressId(),
+    });
 
     if (this.validFields.email) {
       try {
-        const emailAlreadyExists = await db.query(
-          db.format(
-            `SELECT user_email FROM wp_users WHERE user_email = ? AND ID != ?`,
-            [this.validFields.email, this.getWordpressId()]
-          )
-        );
+        const emailAlreadyExists = await tryber.tables.WpUsers.do()
+          .select("user_email")
+          .where({
+            user_email: this.validFields.email,
+          })
+          .andWhereNot("ID", this.getWordpressId());
 
         if (emailAlreadyExists.length) {
           this.setError(
@@ -80,68 +84,89 @@ export default class PatchUsersMe extends UserRoute<{
         if (err.status_code === 412) throw e;
         throw Error("Error while trying to check email");
       }
-      profileSets.push("email = ?");
-      profileUpdateData.push(this.validFields.email);
-      profileSets.push("is_verified = 0");
-      wpDataSets.push("user_email = ?");
-      wpDataUpdateData.push(this.validFields.email);
+      profileUpdate = profileUpdate
+        .update({ email: this.validFields.email })
+        .update({ is_verified: 0 });
+      profileDataCounter++;
+
+      wpUserUpdate = wpUserUpdate.update({
+        user_email: this.validFields.email,
+      });
+      wpDataCounter++;
     }
     if (this.validFields.name) {
       if (this.nameIsValid(this.validFields.name) === false) {
         this.setError(400, new OpenapiError(`Name is not valid`));
         return;
       }
-      profileSets.push("name = ?");
-      profileUpdateData.push(escapeCharacters(this.validFields.name));
+      profileUpdate = profileUpdate.update({
+        name: escapeCharacters(this.validFields.name),
+      });
+      profileDataCounter++;
     }
     if (this.validFields.surname) {
       if (this.nameIsValid(this.validFields.surname) === false) {
         this.setError(400, new OpenapiError(`Surname is not valid`));
         return;
       }
-      profileSets.push("surname = ?");
-      profileUpdateData.push(escapeCharacters(this.validFields.surname));
+      profileUpdate = profileUpdate.update({
+        surname: escapeCharacters(this.validFields.surname),
+      });
+      profileDataCounter++;
     }
     if (this.validFields.onboarding_completed) {
-      profileSets.push("onboarding_complete = ?");
-      profileUpdateData.push(1);
+      profileUpdate = profileUpdate.update({ onboarding_complete: 1 });
+      profileDataCounter++;
     }
     if (this.validFields.gender) {
-      profileSets.push("sex = ?");
-      profileUpdateData.push(
-        this.validFields.gender === "other"
-          ? 2
-          : this.validFields.gender === "male"
-          ? 1
-          : this.validFields.gender === "female"
-          ? 0
-          : -1
-      );
+      profileUpdate = profileUpdate.update({
+        sex:
+          this.validFields.gender === "other"
+            ? 2
+            : this.validFields.gender === "male"
+            ? 1
+            : this.validFields.gender === "female"
+            ? 0
+            : -1,
+      });
+      profileDataCounter++;
     }
     if (this.validFields.birthDate) {
-      profileSets.push("birth_date = ?");
       const d = new Date(this.validFields.birthDate);
-      profileUpdateData.push(d.toISOString().split(".")[0].replace("T", " "));
+      profileUpdate = profileUpdate.update({
+        birth_date: d.toISOString().split(".")[0].replace("T", " "),
+      });
+      profileDataCounter++;
     }
     if (this.validFields.phone) {
-      profileSets.push("phone_number = ?");
-      profileUpdateData.push(this.validFields.phone);
+      profileUpdate = profileUpdate.update({
+        phone_number: this.validFields.phone,
+      });
+      profileDataCounter++;
     }
     if (this.validFields.education) {
-      profileSets.push("education_id = ?");
-      profileUpdateData.push(this.validFields.education);
+      profileUpdate = profileUpdate.update({
+        education_id: this.validFields.education,
+      });
+      profileDataCounter++;
     }
     if (this.validFields.profession) {
-      profileSets.push("employment_id = ?");
-      profileUpdateData.push(this.validFields.profession);
+      profileUpdate = profileUpdate.update({
+        employment_id: this.validFields.profession,
+      });
+      profileDataCounter++;
     }
     if (this.validFields.country) {
-      profileSets.push("country = ?");
-      profileUpdateData.push(escapeCharacters(this.validFields.country));
+      profileUpdate = profileUpdate.update({
+        country: escapeCharacters(this.validFields.country),
+      });
+      profileDataCounter++;
     }
     if (this.validFields.city) {
-      profileSets.push("city = ?");
-      profileUpdateData.push(escapeCharacters(this.validFields.city));
+      profileUpdate = profileUpdate.update({
+        city: escapeCharacters(this.validFields.city),
+      });
+      profileDataCounter++;
     }
     try {
       if (this.validFields.password) {
@@ -149,16 +174,14 @@ export default class PatchUsersMe extends UserRoute<{
           throw Error("You need to specify your old password");
         }
         try {
-          const oldPassword = await db.query(
-            db.format(`SELECT user_pass FROM wp_users WHERE ID = ?`, [
-              this.getWordpressId(),
-            ])
-          );
-          if (!oldPassword.length) throw Error("Can't find your password");
-          // eslint-disable-next-line new-cap
+          const oldPassword = await tryber.tables.WpUsers.do()
+            .select("user_pass")
+            .where({ ID: this.getWordpressId() })
+            .first();
+          if (!oldPassword) throw Error("Can't find your password");
           const passwordMatches = CheckPassword(
             this.validFields.oldPassword,
-            oldPassword[0].user_pass
+            oldPassword.user_pass
           );
           if (!passwordMatches) {
             this.setError(
@@ -171,35 +194,23 @@ export default class PatchUsersMe extends UserRoute<{
           throw e;
         }
 
-        wpDataSets.push("user_pass = ?");
-        // eslint-disable-next-line new-cap
         const hash = HashPassword(this.validFields.password);
-        wpDataUpdateData.push(hash);
+        wpUserUpdate = wpUserUpdate.update({ user_pass: hash });
+        wpDataCounter++;
       }
 
-      if (profileSets.length) {
+      if (profileDataCounter > 0) {
         try {
-          let profileSql = `UPDATE wp_appq_evd_profile
-                  SET ${profileSets.join(",")}
-                  WHERE id = ${this.getTesterId()};`;
-          const profileData = await db.query(
-            db.format(profileSql, [...profileUpdateData])
-          );
-          const update = await profileData;
+          const update = await profileUpdate;
         } catch (e) {
           console.log(e);
           throw Error("Failed to update profile");
         }
       }
 
-      if (wpDataSets.length) {
+      if (wpDataCounter > 0) {
         try {
-          let wpSql = `UPDATE wp_users
-        SET ${wpDataSets.join(",")}
-        WHERE ID = ?;`;
-          const wpData = await db.query(
-            db.format(wpSql, [...wpDataUpdateData, this.getWordpressId()])
-          );
+          const update = await wpUserUpdate;
         } catch (e) {
           console.log(e);
           throw Error(
