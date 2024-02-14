@@ -424,10 +424,10 @@ export default class UserData {
           .andWhere("wp_appq_evd_profile.id", this.profileId)
           .groupBy("wp_appq_exp_points.campaign_id")
           .first();
-        if (!data) return Promise.reject(Error("Invalid cp data"));
+        //if (!data) return Promise.reject(Error("Invalid cp data"));
 
         this._data.attended_cp =
-          typeof data.count === "number" ? data.count : 0;
+          typeof data?.count === "number" ? data.count : 0;
       } catch (e) {
         console.log(e);
       }
