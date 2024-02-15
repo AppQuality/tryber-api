@@ -17,6 +17,7 @@ mockedGetSignedCookie.mockImplementation(({ url }) => {
     "CloudFront-Key-Pair-Id": "keypairid",
   });
 });
+
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
@@ -33,7 +34,6 @@ describe("GET /campaigns/{campaignId}/ux", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, campaign_type_id: 10 },
-      { ...campaign, id: 2, campaign_type_id: 10 },
     ]);
     await tryber.tables.WpAppqCampaignType.do().insert({
       id: 10,
@@ -53,35 +53,24 @@ describe("GET /campaigns/{campaignId}/ux", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
   });
-  it("should return 403 if not logged in", async () => {
-    const response = await request(app).get("/campaigns/1/ux");
-    expect(response.status).toBe(403);
-  });
-  it("Should return 403 if logged in as not admin user", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer tester");
-    expect(response.status).toBe(403);
-  });
 
   it("Should return 200 if logged as admin user", async () => {
     const response = await request(app)
       .get("/campaigns/1/ux")
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(200);
-  });
 
-  it("Should return 403 if campaign does not exists", async () => {
-    const response = await request(app)
-      .get("/campaigns/999/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.status).toBe(403);
-  });
+    expect(mockedGetSignedCookie).toHaveBeenCalledWith({
+      url: `https://media*.tryber.me/CP1/*`,
+    });
 
-  it("Should return 404 if logged no data are present", async () => {
-    const response = await request(app)
-      .get("/campaigns/2/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.status).toBe(404);
+    expect(response.headers).toHaveProperty("set-cookie");
+    expect(response.headers["set-cookie"]).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("CloudFront-Policy=policy"),
+        expect.stringContaining("CloudFront-Signature=signature"),
+        expect.stringContaining("CloudFront-Key-Pair-Id=keypairid"),
+      ])
+    );
   });
 });

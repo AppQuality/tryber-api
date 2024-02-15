@@ -1,5 +1,6 @@
 import { checkUrl } from "@src/features/checkUrl";
 import { tryber } from "@src/features/database";
+import { mapToDistribution } from "@src/features/s3/mapToDistribution";
 
 export default class UxData {
   private SEVERITIES = {
@@ -328,10 +329,15 @@ export default class UxData {
       const isValidPoster = await checkUrl(poster);
       video.push({
         ...v,
-        streamUrl: isValidStream ? stream : "",
-        poster: isValidPoster ? poster : undefined,
+        location: this.mapToDistribution(v.location),
+        streamUrl: isValidStream ? this.mapToDistribution(stream) : "",
+        poster: isValidPoster ? this.mapToDistribution(poster) : undefined,
       });
     }
     return video;
+  }
+
+  private mapToDistribution(url: string) {
+    return mapToDistribution(url);
   }
 }

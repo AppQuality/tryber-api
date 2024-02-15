@@ -1,64 +1,60 @@
-/** OPENAPI-ROUTE: delete-media */
+/** OPENAPI-CLASS: delete-media */
 
-import debugMessage from "@src/features/debugMessage";
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
 import deleteFromS3 from "@src/features/deleteFromS3";
-import { Context } from "openapi-backend";
-import * as db from "@src/features/db";
+import UserRoute from "@src/features/routes/UserRoute";
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  const { url } =
-    req.body as StoplightOperations["delete-media"]["requestBody"]["content"]["application/json"];
+export default class DeleteMediaRoute extends UserRoute<{
+  response: StoplightOperations["delete-media"]["responses"]["200"];
+  body: StoplightOperations["delete-media"]["requestBody"]["content"]["application/json"];
+}> {
+  private mediaUrl: string;
 
-  const bucket = process.env.MEDIA_BUCKET;
-  if (!bucket) {
-    res.status_code = 500;
-    return {
-      message: "Configuration error, contact your administrator",
-    };
+  constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
+    const body = this.getBody();
+    this.mediaUrl = body.url;
   }
-  try {
-    if (!isValidPath(url, "eu-west-1", bucket)) {
-      throw new Error("Invalid path");
+
+  protected async filter() {
+    if ((await super.filter()) === false) return false;
+
+    if (process.env.MEDIA_BUCKET === undefined) {
+      this.setError(
+        500,
+        new OpenapiError(
+          "Bucket not set. Configuration error, contact your administrator."
+        )
+      );
+      return false;
     }
-  } catch (err) {
-    debugMessage(err);
-    res.status_code = 404;
-    return {
-      element: "delete-media",
-      id: 0,
-      message: "Bad file path",
-    };
+    if (this.isValidPath() === false) {
+      this.setError(404, new OpenapiError("Bad file path"));
+      return false;
+    }
+    if ((await this.mediaIsAlreadyLinked()) === true) {
+      this.setError(403, new OpenapiError("Bad file path"));
+      return false;
+    }
+    return true;
   }
 
-  if (await mediaIsAlreadyLinked()) {
-    res.status_code = 403;
-    return {
-      element: "delete-media",
-      id: 0,
-      message: "Bad file path",
-    };
+  protected async prepare() {
+    await deleteFromS3({ url: this.mediaUrl });
+    this.setSuccess(200, {});
   }
-
-  res.status_code = 200;
-  await deleteFromS3({ url });
-  return {};
-  function isValidPath(path: string, region: string, bucket: string): boolean {
-    return path.startsWith(
-      `https://s3.${region}.amazonaws.com/${bucket}/${
+  private isValidPath() {
+    return this.mediaUrl.startsWith(
+      `https://s3.eu-west-1.amazonaws.com/${process.env.MEDIA_BUCKET}/${
         process.env.MEDIA_FOLDER || "media"
-      }/T${req.user.testerId}/`
+      }/T${this.getTesterId()}/`
     );
   }
-  async function mediaIsAlreadyLinked(): Promise<boolean> {
-    const bugMedia = await db.query(
-      db.format(`SELECT id FROM wp_appq_evd_bug_media WHERE location = ?`, [
-        url,
-      ])
-    );
+  private async mediaIsAlreadyLinked() {
+    const bugMedia = await tryber.tables.WpAppqEvdBugMedia.do()
+      .select("id")
+      .where({ location: this.mediaUrl });
     return bugMedia.length > 0;
   }
-};
+}
