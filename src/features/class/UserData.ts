@@ -615,10 +615,11 @@ export default class UserData {
         }
         data = (await newData) as unknown as typeof data;
         if (!data.length)
-          return Promise.reject({
-            status_code: 404,
-            message: "There are no data for this field",
-          });
+          // return Promise.reject({
+          //   status_code: 404,
+          //   message: "There are no data for this field",
+          // });
+          return [];
       } catch (e) {
         return Promise.reject(e);
       }
