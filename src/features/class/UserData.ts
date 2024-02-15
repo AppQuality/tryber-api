@@ -101,12 +101,12 @@ export default class UserData {
           console.log(e);
         }
       }
-      // if (!Object.keys(data).length) throw Error("Invalid data");
+      if (!Object.keys(data).length) throw Error("Invalid data");
 
-      // Object.keys(data).forEach((k) => {
-      //   if (data[k as keyof typeof data] === null)
-      //     delete data[k as keyof typeof data];
-      // });
+      Object.keys(data).forEach((k) => {
+        if (data[k as keyof typeof data] === null)
+          delete data[k as keyof typeof data];
+      });
     }
     return this._data;
   }
@@ -424,7 +424,7 @@ export default class UserData {
           .andWhere("wp_appq_evd_profile.id", this.profileId)
           .groupBy("wp_appq_exp_points.campaign_id")
           .first();
-        //if (!data) return Promise.reject(Error("Invalid cp data"));
+        if (!data) return Promise.reject(Error("Invalid cp data"));
 
         this._data.attended_cp =
           typeof data?.count === "number" ? data.count : 0;
@@ -615,11 +615,10 @@ export default class UserData {
         }
         data = (await newData) as unknown as typeof data;
         if (!data.length)
-          // return Promise.reject({
-          //   status_code: 404,
-          //   message: "There are no data for this field",
-          // });
-          return [];
+          return Promise.reject({
+            status_code: 404,
+            message: "There are no data for this field",
+          });
       } catch (e) {
         return Promise.reject(e);
       }
