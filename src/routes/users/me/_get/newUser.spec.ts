@@ -105,7 +105,7 @@ describe("Route GET users-me - New User", () => {
       is_verified: false,
     });
   });
-  //additional fields
+  //all additional fieldss
   it("Should return id, role if use ?fields=role parameter", async () => {
     const response = await request(app)
       .get(`/users/me?fields=role`)
@@ -314,7 +314,6 @@ describe("Route GET users-me - New User", () => {
       attended_cp: 0,
     });
   });
-  //approved_bugs
   it("Should return id, role and approved_bugs if use ?fields=approved_bugs parameter", async () => {
     const response = await request(app)
       .get(`/users/me?fields=approved_bugs`)
