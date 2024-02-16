@@ -424,7 +424,6 @@ export default class UserData {
           .andWhere("wp_appq_evd_profile.id", this.profileId)
           .groupBy("wp_appq_exp_points.campaign_id")
           .first();
-        if (!data) return Promise.reject(Error("Invalid cp data"));
 
         this._data.attended_cp =
           typeof data?.count === "number" ? data.count : 0;
@@ -614,11 +613,10 @@ export default class UserData {
           newData = newData.andWhere("wp_appq_custom_user_field.id", fieldId);
         }
         data = (await newData) as unknown as typeof data;
-        if (!data.length)
-          return Promise.reject({
-            status_code: 404,
-            message: "There are no data for this field",
-          });
+        if (!data.length) {
+          this._data.additional = [];
+          return;
+        }
       } catch (e) {
         return Promise.reject(e);
       }
