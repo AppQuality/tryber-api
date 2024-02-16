@@ -337,4 +337,52 @@ describe("Route GET users-me - New User", () => {
       additional: [],
     });
   });
+
+  it("Should return all userData if use ?fields=all parameter", async () => {
+    const response = await request(app)
+      .get(`/users/me?fields=all`)
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      id: 1,
+      wp_user_id: 1,
+      role: "tester",
+      email: "cparenzo@example.com",
+      is_verified: false,
+      onboarding_completed: false,
+      name: "ciccio",
+      surname: "parenzo",
+      username: "ciccio-parenzo",
+      birthDate: "1998-01-02",
+      country: "Italy",
+      gender: "not-specified",
+      approved_bugs: 0,
+      attended_cp: 0,
+      total_exp_pts: 0,
+      rank: "0",
+      additional: [],
+      booty: {
+        gross: {
+          currency: "EUR",
+          value: 0,
+        },
+      },
+      pending_booty: {
+        gross: {
+          currency: "EUR",
+          value: 0,
+        },
+      },
+      booty_threshold: undefined,
+      city: undefined,
+      phone: undefined,
+      profession: undefined,
+      education: undefined,
+      certifications: undefined,
+      languages: undefined,
+
+      image:
+        "https://secure.gravatar.com/avatar/f59dea796f4d36b890e7af05749f4baf?s=132&d=https%3A%2F%2Feu.ui-avatars.com%2Fapi%2Fc%2Bp%2F132&r=x",
+    });
+  });
 });
