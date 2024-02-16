@@ -10626,6 +10626,115 @@ paths:
       security:
         - JWT: []
       description: ''
+  '/jotforms/{campaign}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: Import a jotform to a campaign
+      operationId: post-jotforms-campaignId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formId:
+                  type: string
+                  x-stoplight:
+                    id: feahua3fcs84k
+                testerIdColumn:
+                  type: string
+                  x-stoplight:
+                    id: tq0u140b932qh
+              required:
+                - formId
+                - testerIdColumn
+      description: ''
+      security:
+        - JWT: []
+  /jotforms/forms:
+    get:
+      summary: Get Jotforms
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  x-stoplight:
+                    id: 21lv1h4sm1h8g
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      x-stoplight:
+                        id: kqv4dhtf2w1lr
+                    name:
+                      type: string
+                      x-stoplight:
+                        id: 24tq23evi43d2
+                  required:
+                    - id
+                    - name
+      operationId: get-jotforms
+      description: ''
+      requestBody:
+        content: {}
+      security:
+        - JWT: []
+    parameters: []
+  '/jotforms/forms/{formId}/questions':
+    parameters:
+      - schema:
+          type: string
+        name: formId
+        in: path
+        required: true
+    get:
+      summary: Get quesitions from a jotform
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  x-stoplight:
+                    id: g5ep5nd5ek9ls
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      x-stoplight:
+                        id: ff0lhhgee2eqx
+                    name:
+                      type: string
+                      x-stoplight:
+                        id: udqwdln90i8xm
+                  required:
+                    - id
+                    - name
+      operationId: get-jotforms-forms-formId-questions
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:

@@ -85,6 +85,7 @@ services:
       SENTRY_DSN: ${SENTRY_DSN}
       SENTRY_SAMPLE_RATE: ${SENTRY_SAMPLE_RATE:-1}
       CLOUDFRONT_KEY_ID: ${CLOUDFRONT_KEY_ID}
+      JOTFORM_APIKEY: ${JOTFORM_APIKEY}
     volumes:
       - /var/docker/keys:/app/keys
     logging:

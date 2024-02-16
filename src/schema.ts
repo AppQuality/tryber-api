@@ -519,6 +519,27 @@ export interface paths {
       };
     };
   };
+  "/jotforms/{campaign}": {
+    post: operations["post-jotforms-campaignId"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/jotforms/forms": {
+    get: operations["get-jotforms"];
+    parameters: {};
+  };
+  "/jotforms/forms/{formId}/questions": {
+    get: operations["get-jotforms-forms-formId-questions"];
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -3871,6 +3892,65 @@ export interface operations {
             question: number;
           }[];
           device?: number[];
+        };
+      };
+    };
+  };
+  "post-jotforms-campaignId": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          formId: string;
+          testerIdColumn: string;
+        };
+      };
+    };
+  };
+  "get-jotforms": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: string;
+            name: string;
+          }[];
+        };
+      };
+    };
+    requestBody: {
+      unknown;
+    };
+  };
+  "get-jotforms-forms-formId-questions": {
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: string;
+            name: string;
+          }[];
         };
       };
     };
