@@ -2,6 +2,31 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
+jest.mock("@src/features/jotform", () => {
+  return jest.fn().mockImplementation(() => {
+    return {
+      getForm: async () => {
+        return {
+          questions: [
+            {
+              id: "1",
+              text: "Question 1",
+            },
+          ],
+          submissions: [
+            {
+              id: "1",
+              answers: {
+                "1": "Answer 1",
+              },
+            },
+          ],
+        };
+      },
+    };
+  });
+});
+
 describe("POST /jotforms/{campaignId}", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert({
@@ -58,7 +83,6 @@ describe("POST /jotforms/{campaignId}", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 });
