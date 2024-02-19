@@ -1,6 +1,8 @@
 import AWS from "aws-sdk";
 import fileExists from ".";
-
+Object.defineProperty(global, "performance", {
+  writable: true,
+});
 // Use fake timers to allow mocking s3
 jest.useFakeTimers();
 beforeAll(() => {
