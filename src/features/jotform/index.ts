@@ -1,18 +1,29 @@
+const globalFetch = fetch;
+type FetchType = typeof globalFetch;
+
 export default class Jotform {
   private apikey: string;
   private baseUrl: string = "https://eu-api.jotform.com";
+  private fetch: (
+    input: RequestInfo | URL,
+    init?: RequestInit | undefined
+  ) => Promise<Response>;
 
-  constructor() {
+  constructor({
+    fetch = globalFetch,
+  }:
+    | {
+        fetch?: FetchType;
+      }
+    | undefined = {}) {
     const apikey = process.env.JOTFORM_APIKEY;
     if (!apikey) throw new Error("Jotform apikey not found");
     this.apikey = apikey;
+    this.fetch = fetch;
   }
 
-  async getForms(
-    acc = [] as { name: string; id: string }[],
-    offset: number = 0
-  ): Promise<{ name: string; id: string }[]> {
-    const forms = await fetch(
+  private async retrieveForms(offset: number = 0) {
+    return await this.fetch(
       `${this.baseUrl}/user/forms?limit=1000&offset=${offset}`,
       {
         method: "GET",
@@ -21,6 +32,31 @@ export default class Jotform {
         },
       }
     ).then((response) => response.json());
+  }
+
+  private async retrieveSubmissions(formId: string) {
+    return await this.fetch(`${this.baseUrl}/form/${formId}/submissions`, {
+      method: "GET",
+      headers: {
+        APIKEY: this.apikey,
+      },
+    }).then((response) => response.json());
+  }
+
+  private async retrieveQuestions(formId: string) {
+    return await this.fetch(`${this.baseUrl}/form/${formId}/questions`, {
+      method: "GET",
+      headers: {
+        APIKEY: this.apikey,
+      },
+    }).then((response) => response.json());
+  }
+
+  async getForms(
+    acc = [] as { name: string; id: string }[],
+    offset: number = 0
+  ): Promise<{ name: string; id: string }[]> {
+    const forms = await this.retrieveForms(offset);
 
     if (forms.content.length < 1000) {
       return [
@@ -46,15 +82,7 @@ export default class Jotform {
 
   async getForm(formId: string) {
     const questions = await this.getFormQuestions(formId);
-    const submissions = await fetch(
-      `${this.baseUrl}/form/${formId}/submissions`,
-      {
-        method: "GET",
-        headers: {
-          APIKEY: this.apikey,
-        },
-      }
-    ).then((response) => response.json());
+    const submissions = await this.retrieveSubmissions(formId);
     const results = submissions.content
       .map((submission: any) => {
         return {
@@ -90,12 +118,7 @@ export default class Jotform {
       options?: string[];
     }[]
   > {
-    const results = await fetch(`${this.baseUrl}/form/${formId}/questions`, {
-      method: "GET",
-      headers: {
-        APIKEY: this.apikey,
-      },
-    }).then((response) => response.json());
+    const results = await this.retrieveQuestions(formId);
     return Object.entries(results.content).map(
       ([key, value]: [string, any]) => {
         const options =
