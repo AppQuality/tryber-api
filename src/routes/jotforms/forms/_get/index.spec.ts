@@ -4,6 +4,14 @@ import request from "supertest";
 jest.mock("@src/features/jotform", () => {
   return jest.fn().mockImplementation(() => {
     return {
+      getForms: async () => {
+        return [
+          {
+            id: "1",
+            name: "Form 1",
+          },
+        ];
+      },
       getForm: async () => {
         return {
           questions: [
