@@ -4,6 +4,17 @@ import request from "supertest";
 jest.mock("@src/features/jotform", () => {
   return jest.fn().mockImplementation(() => {
     return {
+      getFormQuestions: async () => {
+        return [
+          {
+            id: "1",
+            type: "control_textbox",
+            title: "Question 1",
+            description: "Description",
+            name: "question1",
+          },
+        ];
+      },
       getForm: async () => {
         return {
           questions: [
