@@ -10694,8 +10694,6 @@ paths:
                     - name
       operationId: get-jotforms
       description: ''
-      requestBody:
-        content: {}
       security:
         - JWT: []
     parameters: []

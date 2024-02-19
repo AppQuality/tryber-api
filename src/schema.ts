@@ -3933,9 +3933,6 @@ export interface operations {
         };
       };
     };
-    requestBody: {
-      unknown;
-    };
   };
   "get-jotforms-forms-formId-questions": {
     parameters: {

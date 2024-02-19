@@ -4,10 +4,7 @@ type FetchType = typeof globalFetch;
 export default class Jotform {
   private apikey: string;
   private baseUrl: string = "https://eu-api.jotform.com";
-  private fetch: (
-    input: RequestInfo | URL,
-    init?: RequestInit | undefined
-  ) => Promise<Response>;
+  private fetch: typeof globalFetch;
 
   constructor({
     fetch = globalFetch,
