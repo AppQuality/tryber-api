@@ -1,78 +1,84 @@
-import { tryber } from "@src/features/database";
-import UserRoute from "@src/features/routes/UserRoute";
+import * as db from "@src/features/db";
+import { Context } from "openapi-backend";
 
-/** OPENAPI-CLASS: get-devices-operating-systems */
+/** OPENAPI-ROUTE: get-devices-operating-systems */
+export default async (
+  c: Context,
+  req: OpenapiRequest,
+  res: OpenapiResponse
+) => {
+  try {
+    let device_type = 1;
+    if (typeof c.request.params.device_type == "string") {
+      device_type = parseInt(c.request.params.device_type);
+    }
+    const filter =
+      req.query && req.query.filterBy
+        ? (req.query.filterBy as { [key: string]: string | string[] })
+        : false;
 
-export default class Route extends UserRoute<{
-  response: StoplightOperations["get-devices-operating-systems"]["responses"]["200"]["content"]["application/json"];
-  parameters: StoplightOperations["get-devices-operating-systems"]["parameters"]["path"];
-  query: StoplightOperations["get-devices-operating-systems"]["parameters"]["query"];
-}> {
-  private device_type: number;
-  private filterBy: { manufacturer?: string; model?: string } | false = false;
+    let fallbackSql = `SELECT DISTINCT id, name FROM wp_appq_evd_platform WHERE form_factor = ?`;
+    fallbackSql = db.format(fallbackSql, [device_type]);
+    let sql = `SELECT DISTINCT id, name FROM wp_appq_evd_platform `;
+    let subQuery = `SELECT DISTINCT platform_id 
+      FROM wp_dc_appq_devices
+      `;
+    let subWhere = ` device_type=? `;
+    let subQueryData: (string | number)[] = [device_type];
 
-  constructor(config: RouteClassConfiguration) {
-    super(config);
-    const { device_type } = this.getParameters();
-    this.device_type = Number(device_type);
+    let acceptedFilters = ["manufacturer", "model"].filter((f) =>
+      Object.keys(filter).includes(f)
+    );
 
-    this.filterBy = this.getFilterBy();
-  }
-  private getFilterBy() {
-    const query = this.getQuery();
-    if (!query.filterBy) return false;
+    if (acceptedFilters.length && filter) {
+      acceptedFilters = acceptedFilters.map((k) => {
+        const filterItem = filter[k];
+        if (typeof filterItem === "string") {
+          subQueryData.push(filterItem);
+          return `${k}=?`;
+        }
+        const orQuery = filterItem
+          .map((el) => {
+            subQueryData.push(el);
+            return `${k}=?`;
+          })
+          .join(" OR ");
+        return ` ( ${orQuery} ) `;
+      });
+      subWhere += " AND " + Object.values(acceptedFilters).join(" AND ");
+    }
 
-    return {
-      ...(query.filterBy?.manufacturer
-        ? { manufacturer: query.filterBy.manufacturer as string }
-        : {}),
-      ...(query.filterBy?.model
-        ? { model: query.filterBy.model as string }
-        : {}),
-    };
-  }
+    subQuery += ` WHERE ${subWhere}`;
+    sql += ` WHERE id IN (${subQuery})`;
+    sql = db.format(sql, subQueryData);
 
-  protected async prepare() {
-    const results = await this.getOperativeSystems();
+    const results = await db.query(sql);
 
     if (!results.length) {
-      this.setError(404, Error("Error on finding devices") as OpenapiError);
-      return;
+      const fallbackResults = await db.query(fallbackSql);
+      if (!fallbackResults.length) throw Error("Error on finding devices");
+      res.status_code = 200;
+      return fallbackResults.map((row: { id: string; name: string }) => {
+        return {
+          id: row.id,
+          name: row.name,
+        };
+      });
     }
 
-    this.setSuccess(200, results);
+    res.status_code = 200;
+    return results.map((row: { id: string; name: string }) => {
+      return {
+        id: row.id,
+        name: row.name,
+      };
+    });
+  } catch (error) {
+    res.status_code = 404;
+    return {
+      element: "devices",
+      id: 0,
+      message: (error as OpenapiError).message,
+    };
   }
-
-  private async getOperativeSystems() {
-    const platformIds = await this.getDevicesPlatformIds();
-    const query = tryber.tables.WpAppqEvdPlatform.do().select("id", "name");
-
-    if (platformIds.length) {
-      query.whereIn(
-        "id",
-        platformIds.map((row) => row.platform_id)
-      );
-    }
-
-    return await query;
-  }
-
-  private async getDevicesPlatformIds() {
-    const query = tryber.tables.WpDcAppqDevices.do()
-      .select("platform_id")
-      .where("device_type", this.device_type)
-      .orderBy("manufacturer", "asc")
-      .orderBy("model", "asc");
-
-    if (this.filterBy) {
-      if (this.filterBy?.manufacturer) {
-        query.where("manufacturer", this.filterBy.manufacturer);
-      }
-      if (this.filterBy.model) {
-        query.where("model", this.filterBy.model);
-      }
-    }
-
-    return await query;
-  }
-}
+};
