@@ -45,7 +45,9 @@ export default class Route extends UserRoute<{
 
   private async getOperativeSystems() {
     const platformIds = await this.getDevicesPlatformIds();
-    const query = tryber.tables.WpAppqEvdPlatform.do().select("id", "name");
+    const query = tryber.tables.WpAppqEvdPlatform.do()
+      .select("id", "name")
+      .where("form_factor", this.device_type);
 
     if (platformIds.length) {
       query.whereIn(

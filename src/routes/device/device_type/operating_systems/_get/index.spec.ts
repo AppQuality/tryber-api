@@ -88,6 +88,12 @@ describe("GET /devices/{type}/operating_systems", () => {
         .set("Authorization", "Bearer tester");
       expect(response.status).toBe(200);
     });
+    it("Should answer 404 if device type does not exists", async () => {
+      const response = await request(app)
+        .get("/devices/5/operating_systems")
+        .set("Authorization", "Bearer tester");
+      expect(response.status).toBe(404);
+    });
 
     it("Should answer with a list of os", async () => {
       const response = await request(app)
