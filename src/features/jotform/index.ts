@@ -111,6 +111,7 @@ export default class Jotform {
             },
             {} as any
           ),
+          date: submission.created_at,
         };
       })
       .filter((submission: any) => submission.answers);
