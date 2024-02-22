@@ -1,7 +1,7 @@
 import Jotform from "./index";
 
 const empty = (url: string) => [];
-const mockedForm = { id: 1, title: "Form 1" };
+const mockedForm = { id: 1, title: "Form 1", created_at: "2024-01-01" };
 const mockedQuestion = {
   text: "Question 1",
   description: "Description",
@@ -65,6 +65,7 @@ describe("Jotform", () => {
           {
             id: 1,
             name: "Form 1",
+            createdAt: "2024-01-01",
           },
         ]);
       });
