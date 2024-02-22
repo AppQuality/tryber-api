@@ -121,7 +121,12 @@ describe("Jotform", () => {
               return [
                 {
                   id: "1",
-                  answers: { "1": { answer: "Answer 1" } },
+                  answers: {
+                    "1": {
+                      answer: "Answer 1",
+                    },
+                  },
+                  created_at: "2024-01-01",
                 },
               ];
             }
@@ -147,6 +152,7 @@ describe("Jotform", () => {
                   answer: "Answer 1",
                 },
               },
+              date: "2024-01-01",
             },
           ],
         });
