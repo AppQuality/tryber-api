@@ -30,6 +30,17 @@ export default class Jotform {
       }
     ).then((response) => response.json());
   }
+  // private async retrieveForm(formId: string) {
+  //   return await this.fetch(
+  //     `${this.baseUrl}/form/${formId}`,
+  //     {
+  //       method: "GET",
+  //       headers: {
+  //         APIKEY: this.apikey,
+  //       },
+  //     }
+  //   ).then((response) => response.json());
+  // }
 
   private async retrieveSubmissions(formId: string) {
     return await this.fetch(`${this.baseUrl}/form/${formId}/submissions`, {
@@ -61,6 +72,7 @@ export default class Jotform {
         ...forms.content.map((form: any) => ({
           id: form.id,
           name: form.title,
+          createdAt: form.created_at,
         })),
       ];
     }
