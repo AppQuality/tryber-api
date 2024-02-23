@@ -9,26 +9,9 @@ jest.mock("@src/features/jotform", () => {
           {
             id: "1",
             name: "Form 1",
+            createdAt: "2021-01-01 00:00:00",
           },
         ];
-      },
-      getForm: async () => {
-        return {
-          questions: [
-            {
-              id: "1",
-              text: "Question 1",
-            },
-          ],
-          submissions: [
-            {
-              id: "1",
-              answers: {
-                "1": "Answer 1",
-              },
-            },
-          ],
-        };
       },
     };
   });
@@ -52,8 +35,6 @@ describe("GET /jotforms/forms", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-
-    console.log(response.body);
 
     expect(response.status).toBe(200);
   });
