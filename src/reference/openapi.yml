@@ -545,8 +545,9 @@ paths:
                   message:
                     type: string
               examples:
-                example-1:
-                  value: string
+                Example 1:
+                  value:
+                    message: Error 401
       tags:
         - Authentication
       requestBody:
@@ -4261,8 +4262,6 @@ paths:
                           type: integer
                         '':
                           type: string
-                          x-stoplight:
-                            id: pq80g7jt8t3h7
                       required:
                         - id
                         - name
@@ -6500,8 +6499,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: x5877le63wjax
                 required:
                   - id
               examples:
@@ -9124,12 +9121,9 @@ paths:
             examples:
               Example 1:
                 value:
-                  - id: 46
-                    name: English
-                  - id: 61
-                    name: Spanish
-                  - id: 120
-                    name: Italiano (Italia)
+                  - 46
+                  - 61
+                  - 120
       description: Edit your spoken languages
       security:
         - JWT: []
@@ -10670,12 +10664,8 @@ paths:
               properties:
                 formId:
                   type: string
-                  x-stoplight:
-                    id: feahua3fcs84k
                 testerIdColumn:
                   type: string
-                  x-stoplight:
-                    id: tq0u140b932qh
               required:
                 - formId
                 - testerIdColumn
@@ -10694,18 +10684,12 @@ paths:
               schema:
                 type: array
                 items:
-                  x-stoplight:
-                    id: 21lv1h4sm1h8g
                   type: object
                   properties:
                     id:
                       type: string
-                      x-stoplight:
-                        id: kqv4dhtf2w1lr
                     name:
                       type: string
-                      x-stoplight:
-                        id: 24tq23evi43d2
                   required:
                     - id
                     - name
@@ -10732,18 +10716,12 @@ paths:
               schema:
                 type: array
                 items:
-                  x-stoplight:
-                    id: g5ep5nd5ek9ls
                   type: object
                   properties:
                     id:
                       type: string
-                      x-stoplight:
-                        id: ff0lhhgee2eqx
                     name:
                       type: string
-                      x-stoplight:
-                        id: udqwdln90i8xm
                   required:
                     - id
                     - name
