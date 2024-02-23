@@ -23,6 +23,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       id: this.cp_id,
       title: await this.getCampaignTitle(),
       ...(await this.getCampaignType()),
+      preselectionFormId: await this.getCampaignFormId(),
     });
   }
 
@@ -33,6 +34,16 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       .first();
     if (campaignTitle === undefined) return "";
     return campaignTitle.title;
+  }
+
+  private async getCampaignFormId() {
+    const campaignFormId =
+      await tryber.tables.WpAppqCampaignPreselectionForm.do()
+        .select("id")
+        .where({ campaign_id: this.cp_id })
+        .first();
+    if (campaignFormId === undefined) return undefined;
+    return campaignFormId.id;
   }
 
   private async getCampaignType() {
