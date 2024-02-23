@@ -1,7 +1,11 @@
 import Jotform from "./index";
 
 const empty = (url: string) => [];
-const mockedForm = { id: 1, title: "Form 1", created_at: "2024-01-01" };
+const mockedForm = {
+  id: 1,
+  title: "Form 1",
+  created_at: "2023-02-22 05:23:32",
+};
 const mockedQuestion = {
   text: "Question 1",
   description: "Description",
@@ -65,7 +69,7 @@ describe("Jotform", () => {
           {
             id: 1,
             name: "Form 1",
-            createdAt: "2024-01-01",
+            createdAt: "2023-02-22 05:23:32",
           },
         ]);
       });
@@ -101,11 +105,16 @@ describe("Jotform", () => {
     describe("getForm", () => {
       it("If there are no questions should return an empty array", async () => {
         const jotform = new Jotform({
-          fetch: mockedFetch(empty),
+          fetch: mockedFetch((url) => {
+            if (url.includes("questions")) return [];
+            if (url.includes("submissions")) return [];
+            return mockedForm;
+          }),
         });
         expect(await jotform.getForm("1")).toEqual({
           questions: [],
           submissions: [],
+          createdAt: "2023-02-22 05:23:32",
         });
       });
 
@@ -126,10 +135,11 @@ describe("Jotform", () => {
                       answer: "Answer 1",
                     },
                   },
-                  created_at: "2024-01-01",
+                  created_at: "2024-02-22 11:34:04",
                 },
               ];
             }
+            if (url.includes("form")) return mockedForm;
           }),
         });
         expect(await jotform.getForm("1")).toEqual({
@@ -152,9 +162,10 @@ describe("Jotform", () => {
                   answer: "Answer 1",
                 },
               },
-              date: "2024-01-01",
+              date: "2024-02-22 11:34:04",
             },
           ],
+          createdAt: "2023-02-22 05:23:32",
         });
       });
     });
