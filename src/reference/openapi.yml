@@ -6857,6 +6857,66 @@ paths:
                     booty_threshold:
                       value: 0
                       isOver: true
+                role admin:
+                  value:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: string
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                    rank: string
+                    total_exp_pts: 0
+                    booty:
+                      net:
+                        value: 0
+                        currency: string
+                      gross:
+                        value: 0
+                        currency: string
+                    pending_booty:
+                      net:
+                        value: 0
+                        currency: string
+                      gross:
+                        value: 0
+                        currency: string
+                    languages:
+                      - id: 0
+                        name: string
+                    onboarding_completed: true
+                    additional:
+                      - field_id: 0
+                        name: string
+                        value: string
+                        text: string
+                        is_candidate: true
+                    gender: male
+                    birthDate: '2019-08-24'
+                    phone: string
+                    education:
+                      id: 0
+                      name: string
+                    profession:
+                      id: 0
+                      name: string
+                    certifications:
+                      - id: 0
+                        name: string
+                        area: string
+                        institute: string
+                        achievement_date: '2019-08-24'
+                    completionPercent: 0
+                    country: string
+                    city: string
+                    attended_cp: 0
+                    approved_bugs: 0
+                    booty_threshold:
+                      value: 0
+                      isOver: true
       operationId: get-users-me
       description: Get your user data
       security:
