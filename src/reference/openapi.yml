@@ -820,6 +820,8 @@ paths:
                     type: string
                   typeDescription:
                     type: string
+                  preselectionFormId:
+                    type: integer
                 required:
                   - id
                   - title
@@ -832,6 +834,13 @@ paths:
                     title: Campaign Title
                     type: Campaign Type
                     typeDescription: Campaign DescriptionType
+                Example 2:
+                  value:
+                    id: 1
+                    title: Campaign Title
+                    type: Campaign Type
+                    typeDescription: Campaign DescriptionType
+                    preselectionFormId: 69
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4365,6 +4374,12 @@ paths:
                         options:
                           - Option1
                           - Option2
+                      - id: 12234
+                        question: 'What''s your [radio question]?'
+                        type: radio
+                        options:
+                          - 'Yes'
+                          - 'No'
                       - id: 9
                         question: 'What''s your [custom selectable question]?'
                         type: select
@@ -10596,6 +10611,8 @@ paths:
               schema:
                 type: object
                 properties: {}
+        '403':
+          description: Forbidden
       requestBody:
         content:
           application/json:
@@ -10609,6 +10626,11 @@ paths:
               required:
                 - formId
                 - testerIdColumn
+            examples:
+              Example 1:
+                value:
+                  formId: '123456'
+                  testerIdColumn: ltstronggttryberIdltstronggt
       description: ''
       security:
         - JWT: []
@@ -10633,6 +10655,19 @@ paths:
                   required:
                     - id
                     - name
+              examples:
+                3 forms:
+                  value:
+                    - id: '3'
+                      name: Form new
+                    - id: '2'
+                      name: Form old
+                    - id: '1'
+                      name: Form oldest
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
       operationId: get-jotforms
       description: ''
       security:
@@ -10665,6 +10700,19 @@ paths:
                   required:
                     - id
                     - name
+              examples:
+                3 questions:
+                  value:
+                    - id: '1'
+                      name: question 1
+                    - id: '2'
+                      name: question 2
+                    - id: '3'
+                      name: question 3
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
       operationId: get-jotforms-forms-formId-questions
       security:
         - JWT: []

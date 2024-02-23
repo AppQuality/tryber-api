@@ -1221,6 +1221,7 @@ export interface operations {
             title: string;
             type: string;
             typeDescription: string;
+            preselectionFormId?: number;
           };
         };
       };
@@ -3912,6 +3913,8 @@ export interface operations {
           "application/json": { [key: string]: unknown };
         };
       };
+      /** Forbidden */
+      403: unknown;
     };
     requestBody: {
       content: {
@@ -3934,6 +3937,8 @@ export interface operations {
           }[];
         };
       };
+      /** Forbidden */
+      403: unknown;
     };
   };
   "get-jotforms-forms-formId-questions": {
@@ -3952,6 +3957,8 @@ export interface operations {
           }[];
         };
       };
+      /** Forbidden */
+      403: unknown;
     };
   };
 }
