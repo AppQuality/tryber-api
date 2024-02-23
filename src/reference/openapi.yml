@@ -4213,9 +4213,22 @@ paths:
                     $ref: '#/components/schemas/PreselectionFormQuestion'
                 campaign:
                   type: integer
+                creationDate:
+                  type: string
               required:
                 - name
                 - fields
+                - creationDate
+            examples:
+              Example 1:
+                value:
+                  name: Form1
+                  fields:
+                    - question: Write your name?
+                      short_name: name
+                      type: text
+                  campaign: 1
+                  creationDate: '2024-02-23 12:15:12'
       description: ''
     parameters: []
     get:
@@ -4246,6 +4259,10 @@ paths:
                           type: string
                         campaign:
                           type: integer
+                        '':
+                          type: string
+                          x-stoplight:
+                            id: pq80g7jt8t3h7
                       required:
                         - id
                         - name

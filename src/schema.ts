@@ -1773,6 +1773,7 @@ export interface operations {
               id: number;
               name: string;
               campaign?: number;
+              ""?: string;
             }[];
             limit?: number;
             start: number;
@@ -1813,6 +1814,7 @@ export interface operations {
           name: string;
           fields: components["schemas"]["PreselectionFormQuestion"][];
           campaign?: number;
+          creationDate: string;
         };
       };
     };
