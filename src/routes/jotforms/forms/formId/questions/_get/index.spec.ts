@@ -29,6 +29,7 @@ jest.mock("@src/features/jotform", () => {
               answers: {
                 "1": "Answer 1",
               },
+              date: "2023-02-22 05:23:32",
             },
           ],
         };
