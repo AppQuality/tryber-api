@@ -58,7 +58,6 @@ describe("GET /jotforms/forms/{formId}/questions", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 });
