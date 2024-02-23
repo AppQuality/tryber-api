@@ -30,17 +30,14 @@ export default class Jotform {
       }
     ).then((response) => response.json());
   }
-  // private async retrieveForm(formId: string) {
-  //   return await this.fetch(
-  //     `${this.baseUrl}/form/${formId}`,
-  //     {
-  //       method: "GET",
-  //       headers: {
-  //         APIKEY: this.apikey,
-  //       },
-  //     }
-  //   ).then((response) => response.json());
-  // }
+  private async retrieveForm(formId: string) {
+    return await this.fetch(`${this.baseUrl}/form/${formId}`, {
+      method: "GET",
+      headers: {
+        APIKEY: this.apikey,
+      },
+    }).then((response) => response.json());
+  }
 
   private async retrieveSubmissions(formId: string) {
     return await this.fetch(`${this.baseUrl}/form/${formId}/submissions`, {
@@ -92,6 +89,9 @@ export default class Jotform {
   async getForm(formId: string) {
     const questions = await this.getFormQuestions(formId);
     const submissions = await this.retrieveSubmissions(formId);
+    const form = await this.retrieveForm(formId);
+    const createdAt = form.content.created_at;
+
     const results = submissions.content
       .map((submission: any) => {
         return {
@@ -115,7 +115,7 @@ export default class Jotform {
         };
       })
       .filter((submission: any) => submission.answers);
-    return { questions, submissions: results };
+    return { questions, submissions: results, createdAt };
   }
 
   async getFormQuestions(formId: string): Promise<
