@@ -1,9 +1,12 @@
 /** OPENAPI-CLASS: get-campaigns-campaign-candidates */
 
-import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
-import Campaigns from "@src/features/db/class/Campaigns";
-import Selector, { Field, InvalidQuestionError } from "./Selector";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+import { CandidateDevices } from "./CandidateDevices";
+import { CandidateLevels } from "./CandidateLevels";
+import { CandidateQuestions } from "./CandidateQuestions";
+import { Candidates } from "./Candidates";
 type filterBy = { os?: string[] | string } | undefined;
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
@@ -11,24 +14,20 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["path"];
 }> {
   private campaign_id: number;
-  private db: {
-    campaigns: Campaigns;
-  };
   private start: number;
   private limit: number;
   private hasLimit: boolean = false;
-  private selector: Selector;
-  private fields: Field[] = [];
-  private osToExclude: string[] | undefined;
-  private osToInclude: string[] | undefined;
+  private fields: { type: "question"; id: number }[] = [];
+  private filters:
+    | {
+        os?: string[];
+      }
+    | undefined;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
     const parameters = this.getParameters();
     this.campaign_id = parseInt(parameters.campaign);
-    this.db = {
-      campaigns: new Campaigns(),
-    };
     const query = this.getQuery();
     this.start = parseInt(query.start as unknown as string) || 0;
     this.limit = 10;
@@ -46,39 +45,19 @@ export default class RouteItem extends UserRoute<{
       });
     }
 
-    const filterByExclude = query.filterByExclude as filterBy;
-    if (filterByExclude && "os" in filterByExclude && filterByExclude.os) {
-      if (!Array.isArray(filterByExclude.os)) {
-        this.osToExclude = [filterByExclude.os];
-      } else {
-        this.osToExclude = filterByExclude.os;
-      }
-    }
-
-    const filterByInclude = query.filterByInclude as filterBy;
-    if (filterByInclude && "os" in filterByInclude && filterByInclude.os) {
-      if (!Array.isArray(filterByInclude.os)) {
-        this.osToInclude = [filterByInclude.os];
-      } else {
-        this.osToInclude = filterByInclude.os;
-      }
-    }
-    this.selector = new Selector(
-      this.campaign_id,
-      this.fields.length ? this.fields : undefined
-    );
+    this.initFilters();
   }
 
-  protected async init(): Promise<void> {
-    try {
-      await this.selector.init();
-    } catch (e) {
-      if (e instanceof InvalidQuestionError) {
-        const error = new OpenapiError("Invalid question");
-        this.setError(403, error);
-        throw error;
+  private initFilters() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (filterByInclude && "os" in filterByInclude && filterByInclude.os) {
+      if (!Array.isArray(filterByInclude.os)) {
+        this.filters = { ...this.filters, os: [filterByInclude.os] };
+      } else {
+        this.filters = { ...this.filters, os: filterByInclude.os };
       }
-      throw e;
     }
   }
 
@@ -91,157 +70,116 @@ export default class RouteItem extends UserRoute<{
       this.setError(404, new OpenapiError("Campaign does not exists."));
       return false;
     }
+    if (await this.invalidQuestions()) {
+      this.setError(403, new OpenapiError("Invalid question."));
+      return false;
+    }
     return true;
   }
 
   private async campaignExists() {
-    return await this.db.campaigns.exists(this.campaign_id);
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id")
+      .where({ id: this.campaign_id })
+      .first();
+    return !!campaign;
+  }
+
+  private async invalidQuestions() {
+    if (this.fields.length === 0) return false;
+
+    const questions =
+      await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
+        .join(
+          "wp_appq_campaign_preselection_form",
+          "wp_appq_campaign_preselection_form_fields.form_id",
+          "wp_appq_campaign_preselection_form.id"
+        )
+        .select(
+          tryber
+            .ref("id")
+            .withSchema("wp_appq_campaign_preselection_form_fields")
+            .as("id"),
+          "campaign_id"
+        )
+        .whereIn(
+          "wp_appq_campaign_preselection_form_fields.id",
+          this.fields.map((field) => field.id)
+        );
+
+    if (
+      questions.some((question) => question.campaign_id !== this.campaign_id)
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   protected async prepare() {
-    const applications = await this.selector.getApplications();
-    const sortedApplications = this.sortApplications(applications);
-    const paginatedApplications = this.paginateApplications(sortedApplications);
-
-    const faseDos = this.filterItems(paginatedApplications);
-
-    const formattedApplications = await this.formatApplications(faseDos);
+    const { candidates, total } = await this.getCandidates();
 
     this.setSuccess(200, {
-      results: formattedApplications,
-      size: paginatedApplications.length,
+      results: candidates.map((candidate) => {
+        return {
+          id: candidate.id,
+          name: candidate.name,
+          surname: candidate.surname,
+          experience: candidate.total_exp_pts,
+          level: candidate.level,
+          devices: candidate.devices,
+          questions: candidate.questions,
+        };
+      }),
+      size: candidates.length,
       start: this.start,
       limit: this.hasLimit ? this.limit : undefined,
-      total: this.hasLimit ? applications.length : undefined,
+      total: this.hasLimit ? total : undefined,
     });
   }
 
-  private filterItems(
-    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
-  ) {
-    let filteredDevices = applications;
-    filteredDevices = this.filterByExcludeOs(filteredDevices);
-    filteredDevices = this.filterByIncludeOs(filteredDevices);
-    return filteredDevices;
-  }
-
-  private filterByExcludeOs(
-    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
-  ) {
-    if (!this.osToExclude) {
-      return applications;
-    }
-    const osListToExclude = this.osToExclude;
-    const removeDevicesToExclude = applications.map((a) => {
-      return {
-        ...a,
-        devices: filterDevicesToExclude(a.devices),
-      };
+  private async getCandidates() {
+    const candidatesRetriever = new Candidates({
+      campaign_id: this.campaign_id,
     });
+    const candidates = await candidatesRetriever.get();
 
-    return removeDevicesToExclude.filter((a) => {
-      return a.devices.length > 0;
+    const deviceGetter = new CandidateDevices({
+      candidateIds: candidates.map((candidate) => candidate.id),
+      ...(this.filters?.os && { filters: { os: this.filters?.os } }),
     });
+    await deviceGetter.init();
 
-    function filterDevicesToExclude(
-      devices: {
-        manufacturer?: string | undefined;
-        model?: string | undefined;
-        os: string;
-        osVersion: string;
-        id: number;
-      }[]
-    ) {
-      return devices.filter((d) => {
-        const osString = d.os.toLowerCase() + " " + d.osVersion.toLowerCase();
-        for (const os of osListToExclude) {
-          if (osString.includes(os.toLowerCase())) {
-            return false;
-          }
-        }
-        return true;
-      });
-    }
-  }
-  private filterByIncludeOs(
-    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
-  ) {
-    if (!this.osToInclude) {
-      return applications;
-    }
-    const osListToInclude = this.osToInclude;
-    const leaveDevicesToInclude = applications.map((a) => {
-      return {
-        ...a,
-        devices: filterDevicesToInclude(a.devices),
-      };
+    const levelGetter = new CandidateLevels({
+      candidateIds: candidates.map((candidate) => candidate.id),
     });
+    await levelGetter.init();
 
-    return leaveDevicesToInclude.filter((a) => {
-      return a.devices.length > 0;
+    const questionGetter = new CandidateQuestions({
+      candidateIds: candidates.map((candidate) => candidate.id),
+      questionIds: this.fields.map((field) => field.id),
     });
+    await questionGetter.init();
 
-    function filterDevicesToInclude(
-      devices: {
-        manufacturer?: string | undefined;
-        model?: string | undefined;
-        os: string;
-        osVersion: string;
-        id: number;
-      }[]
-    ) {
-      return devices.filter((d) => {
-        const osString = d.os.toLowerCase() + " " + d.osVersion.toLowerCase();
-        for (const os of osListToInclude) {
-          if (osString.includes(os.toLowerCase())) {
-            return true;
-          }
-        }
-        return false;
-      });
-    }
-  }
+    const result = candidates
+      .map((candidate) => {
+        return {
+          ...candidate,
+          level: levelGetter.getCandidateData(candidate),
+          devices: deviceGetter.getCandidateData(candidate),
+          questions: questionGetter.getCandidateData(candidate),
+        };
+      })
+      .filter(
+        (candidate) =>
+          deviceGetter.isCandidateFiltered(candidate) &&
+          questionGetter.isCandidateFiltered(candidate) &&
+          levelGetter.isCandidateFiltered(candidate)
+      );
 
-  private async formatApplications(
-    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
-  ) {
-    let results = [];
-    for (const application of applications) {
-      results.push({
-        id: application.id,
-        name: application.name,
-        surname: application.surname,
-        experience: application.experience,
-        level: this.getLevel(application.id),
-        devices: application.devices,
-        questions:
-          "questions" in application ? application.questions : undefined,
-      });
-    }
-
-    return results;
-  }
-
-  private paginateApplications(
-    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
-  ) {
-    return applications.slice(this.start, this.start + this.limit);
-  }
-
-  private sortApplications(
-    applications: Awaited<ReturnType<typeof this.selector.getApplications>>
-  ) {
-    return applications.sort((a, b) => {
-      const aId = a.id;
-      const bId = b.id;
-      const aLevelId = this.selector.getUserLevel(aId).id;
-      const bLevelId = this.selector.getUserLevel(bId).id;
-      return bLevelId - aLevelId;
-    });
-  }
-
-  private getLevel(testerId: number) {
-    const userLevel = this.selector.getUserLevel(testerId);
-    return userLevel.name;
+    return {
+      candidates: result.slice(this.start, this.start + this.limit),
+      total: result.length,
+    };
   }
 }

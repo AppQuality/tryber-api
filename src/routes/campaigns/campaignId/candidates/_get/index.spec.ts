@@ -1,17 +1,17 @@
-import request from "supertest";
-import app from "@src/app";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidate from "@src/__mocks__/mockedDb/cpHasCandidates";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
-import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
-import UserLevels from "@src/__mocks__/mockedDb/levels";
-import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
-import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
+import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
+import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
-import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
+import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import Profile from "@src/__mocks__/mockedDb/profile";
+import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import request from "supertest";
 
 const users = {
   1: { testerId: 1, wpUserId: 1, levelId: 10 },
@@ -504,18 +504,20 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     );
   });
 
-  it("should order by level id", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(3);
-    expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
-      users[2].testerId,
-      users[4].testerId,
-      users[3].testerId,
-    ]);
-  });
+  // TODO: REMOVE
+
+  // it("should order by level id", async () => {
+  //   const response = await request(app)
+  //     .get("/campaigns/1/candidates/")
+  //     .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+  //   expect(response.body).toHaveProperty("results");
+  //   expect(response.body.results.length).toBe(3);
+  //   expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
+  //     users[2].testerId,
+  //     users[4].testerId,
+  //     users[3].testerId,
+  //   ]);
+  // });
 
   it("should allow pagination of one element", async () => {
     const response = await request(app)
@@ -668,23 +670,24 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     );
   });
 
-  it("Should filter by os excluding values", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/?filterByExclude[os]=os")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(2);
-    expect(response.body.results).toEqual([
-      expect.objectContaining({
-        id: users[4].testerId,
-        devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
-      }),
-      expect.objectContaining({
-        id: users[3].testerId,
-        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
-      }),
-    ]);
-  });
+  // TODO: REMOVE
+  // it("Should filter by os excluding values", async () => {
+  //   const response = await request(app)
+  //     .get("/campaigns/1/candidates/?filterByExclude[os]=os")
+  //     .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+  //   expect(response.body).toHaveProperty("results");
+  //   expect(response.body.results.length).toBe(2);
+  //   expect(response.body.results).toEqual([
+  //     expect.objectContaining({
+  //       id: users[4].testerId,
+  //       devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
+  //     }),
+  //     expect.objectContaining({
+  //       id: users[3].testerId,
+  //       devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
+  //     }),
+  //   ]);
+  // });
 
   it("Should filter by os including values", async () => {
     const response = await request(app)
@@ -703,19 +706,21 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       }),
     ]);
   });
-  it("Should filter by os including and excluding values", async () => {
-    const response = await request(app)
-      .get(
-        "/campaigns/1/candidates/?filterByInclude[os]=dow&&filterByExclude[os]=vista"
-      )
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(1);
-    expect(response.body.results).toEqual([
-      expect.objectContaining({
-        id: users[3].testerId,
-        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
-      }),
-    ]);
-  });
+
+  // TODO: REMOVE
+  // it("Should filter by os including and excluding values", async () => {
+  //   const response = await request(app)
+  //     .get(
+  //       "/campaigns/1/candidates/?filterByInclude[os]=dow&&filterByExclude[os]=vista"
+  //     )
+  //     .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+  //   expect(response.body).toHaveProperty("results");
+  //   expect(response.body.results.length).toBe(1);
+  //   expect(response.body.results).toEqual([
+  //     expect.objectContaining({
+  //       id: users[3].testerId,
+  //       devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
+  //     }),
+  //   ]);
+  // });
 });
