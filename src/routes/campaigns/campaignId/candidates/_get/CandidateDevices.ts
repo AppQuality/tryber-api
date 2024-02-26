@@ -137,7 +137,7 @@ class CandidateDevices implements CandidateData {
         return this.filters.os.reduce((acc, os) => {
           if (device.os.toLowerCase().includes(os.toLowerCase())) return true;
           return acc;
-        }, false);
+        }, false as boolean);
       }
 
       return true;
