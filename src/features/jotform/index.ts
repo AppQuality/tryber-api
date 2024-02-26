@@ -60,30 +60,46 @@ export default class Jotform {
   async getForms(
     acc = [] as { name: string; id: string }[],
     offset: number = 0
-  ): Promise<{ name: string; id: string }[]> {
-    const forms = await this.retrieveForms(offset);
+  ): Promise<{ name: string; id: string; createdAt: string }[]> {
+    const data = await this.retrieveForms(offset);
 
-    if (forms.content.length < 1000) {
-      return [
+    if (data.content.length < 1000) {
+      const forms = [
         ...acc,
-        ...forms.content.map((form: any) => ({
+        ...data.content.map((form: any) => ({
           id: form.id,
           name: form.title,
           createdAt: form.created_at,
         })),
       ];
+      return this.sortByCreatedAtDescending({ forms });
     }
 
-    return await this.getForms(
+    const forms = await this.getForms(
       [
         ...acc,
-        ...forms.content.map((form: any) => ({
+        ...data.content.map((form: any) => ({
           id: form.id,
           name: form.title,
+          createdAt: form.created_at,
         })),
       ],
       offset + 1000
     );
+    return this.sortByCreatedAtDescending({ forms });
+  }
+
+  sortByCreatedAtDescending({
+    forms,
+  }: {
+    forms: { id: string; name: string; createdAt: string }[];
+  }) {
+    return forms.sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+
+      return dateB - dateA;
+    });
   }
 
   async getForm(formId: string) {
