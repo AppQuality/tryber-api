@@ -7,6 +7,11 @@ jest.mock("@src/features/jotform", () => {
       getForms: async () => {
         return [
           {
+            id: "2",
+            name: "Form 2",
+            createdAt: "2024-01-01 00:00:00",
+          },
+          {
             id: "1",
             name: "Form 1",
             createdAt: "2021-01-01 00:00:00",
@@ -37,5 +42,28 @@ describe("GET /jotforms/forms", () => {
       );
 
     expect(response.status).toBe(200);
+  });
+
+  //
+  it("should return forms oreder by creation_date DESC", async () => {
+    const response = await request(app)
+      .get("/jotforms/forms/")
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        id: "2",
+        name: "Form 2",
+        createdAt: "2024-01-01 00:00:00",
+      },
+      {
+        id: "1",
+        name: "Form 1",
+        createdAt: "2021-01-01 00:00:00",
+      },
+    ]);
   });
 });
