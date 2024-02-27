@@ -108,27 +108,30 @@ describe("PUT /campaigns/forms/", () => {
   });
 
   beforeEach(async () => {
-    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
-      id: 1,
-      name: "My empty form",
-    });
-
-    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
-      id: 2,
-      name: "My empty form linked to campaign",
-      campaign_id: 1,
-    });
-
-    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
-      id: 3,
-      name: "My form",
-    });
-
-    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert({
-      id: 4,
-      name: "My empty form linked to campaign with access granted",
-      campaign_id: 2,
-    });
+    await tryber.tables.WpAppqCampaignPreselectionForm.do().insert([
+      {
+        id: 1,
+        name: "My empty form",
+        creation_date: "2020-01-01 23:59:59",
+      },
+      {
+        id: 2,
+        name: "My empty form linked to campaign",
+        campaign_id: 1,
+        creation_date: "2020-01-01 23:59:59",
+      },
+      {
+        id: 3,
+        name: "My form",
+        creation_date: "2020-01-01 23:59:59",
+      },
+      {
+        id: 4,
+        name: "My empty form linked to campaign with access granted",
+        campaign_id: 2,
+        creation_date: "2020-01-01 23:59:59",
+      },
+    ]);
 
     await tryber.tables.WpAppqCampaignPreselectionFormFields.do().insert({
       id: 1,

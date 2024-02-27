@@ -3,22 +3,33 @@ import app from "@src/app";
 import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 describe("GET /campaigns/forms ", () => {
   beforeAll(async () => {
-    await preselectionForm.insert({ id: 1, name: "Form Name1" });
-    await preselectionForm.insert({ id: 2, name: "Form Name2" });
+    await preselectionForm.insert({
+      id: 1,
+      name: "Form Name1",
+      creation_date: "2023-02-02 00:00:00",
+    });
+    await preselectionForm.insert({
+      id: 2,
+      name: "Form Name2",
+      creation_date: "2024-02-02 00:00:00",
+    });
     await preselectionForm.insert({
       id: 3,
       name: "Form Name3 with campaign Id",
       campaign_id: 1,
+      creation_date: "2021-02-02 00:00:00",
     });
     await preselectionForm.insert({
       id: 4,
       name: "Form Name4 with campaign Id",
       campaign_id: 1,
+      creation_date: "2022-02-02 00:00:00",
     });
     await preselectionForm.insert({
       id: 5,
       name: "Form Name5 with campaign Id",
       campaign_id: 1,
+      creation_date: "2020-02-02 00:00:00",
     });
   });
   afterAll(async () => {
@@ -53,6 +64,7 @@ describe("GET /campaigns/forms ", () => {
     expect(response.body).toHaveProperty("results");
     expect(Array.isArray(response.body.results)).toBe(true);
     expect(response.body.results.length).toBe(5);
+    console.log(response.body.results);
     expect(response.body.results[0]).toMatchObject({
       id: 5,
       name: "Form Name5 with campaign Id",
