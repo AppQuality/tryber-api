@@ -3,6 +3,7 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import { CandidatBhLevel } from "./CandidateBhLevel";
 import { CandidateDevices } from "./CandidateDevices";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
@@ -235,6 +236,7 @@ export default class RouteItem extends UserRoute<{
           gender: candidate.gender,
           age: candidate.age,
           questions: candidate.questions,
+          levels: candidate.levels,
         };
       }),
       size: candidates.length,
@@ -277,6 +279,11 @@ export default class RouteItem extends UserRoute<{
     });
     await profileGetter.init();
 
+    const bhLevelGetter = new CandidatBhLevel({
+      candidateIds: candidates.map((candidate) => candidate.id),
+    });
+    await bhLevelGetter.init();
+
     const result = candidates
       .map((candidate) => {
         return {
@@ -284,6 +291,9 @@ export default class RouteItem extends UserRoute<{
           devices: deviceGetter.getCandidateData(candidate),
           questions: questionGetter.getCandidateData(candidate),
           ...profileGetter.getCandidateData(candidate),
+          levels: {
+            bugHunting: bhLevelGetter.getCandidateData(candidate),
+          },
         };
       })
       .filter(

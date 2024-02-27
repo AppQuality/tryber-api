@@ -1226,6 +1226,17 @@ paths:
                               type: number
                               x-stoplight:
                                 id: 435m5469ngl4b
+                            levels:
+                              type: object
+                              x-stoplight:
+                                id: 2djwp6agmx80i
+                              required:
+                                - bugHunting
+                              properties:
+                                bugHunting:
+                                  type: string
+                                  x-stoplight:
+                                    id: kjyr3hu082enj
                             devices:
                               type: array
                               items:
@@ -1262,6 +1273,7 @@ paths:
                             - surname
                             - gender
                             - age
+                            - levels
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
               examples:

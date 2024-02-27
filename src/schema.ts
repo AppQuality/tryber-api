@@ -1342,6 +1342,9 @@ export interface operations {
               surname: string;
               gender: components["schemas"]["Gender"];
               age: number;
+              levels: {
+                bugHunting: string;
+              };
               devices: {
                 manufacturer?: string;
                 model?: string;
