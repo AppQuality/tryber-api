@@ -1,17 +1,17 @@
-import request from "supertest";
-import app from "@src/app";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidate from "@src/__mocks__/mockedDb/cpHasCandidates";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
-import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
-import UserLevels from "@src/__mocks__/mockedDb/levels";
-import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
-import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
+import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
+import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
-import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
+import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import Profile from "@src/__mocks__/mockedDb/profile";
+import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import request from "supertest";
 
 const users = {
   1: { testerId: 1, wpUserId: 1, levelId: 10 },
@@ -259,7 +259,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       id: 1,
       campaign_id: 1,
       name: "Form 1",
-      creation_date: "2024-01-01 00:00:00",
     });
     await PreselectionFormFields.insert({
       id: 1,
@@ -281,7 +280,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       id: 2,
       campaign_id: 5,
       name: "Form 2",
-      creation_date: "2021-01-01 00:00:00",
     });
     await PreselectionFormFields.insert({
       id: 3,

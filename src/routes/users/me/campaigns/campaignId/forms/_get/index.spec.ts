@@ -27,7 +27,6 @@ describe("GET users/me/campaigns/:campaignId/forms", () => {
     preselectionForms.insert({
       id: 1,
       campaign_id: 1,
-      creation_date: "2024-01-01 00:00:00",
     });
     preselectionFormFields.insert({
       id: 1,
