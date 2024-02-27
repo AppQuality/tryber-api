@@ -53,75 +53,64 @@ export default class RouteItem extends UserRoute<{
       });
     }
 
-    this.filters = { ...this.filters, ...this.initOsFilter() };
-    this.filters = { ...this.filters, ...this.initExcludeIds() };
-    this.filters = { ...this.filters, ...this.initIncludeIds() };
+    this.filters = { ...this.filters, ...this.getOsFilter() };
+    this.filters = {
+      ...this.filters,
+      ids: { ...this?.filters.ids, exclude: this.getExcludeIds() },
+    };
+    this.filters = {
+      ...this.filters,
+      ids: { ...this?.filters.ids, include: this.getIncludeIds() },
+    };
   }
 
-  private initIncludeIds() {
+  private getIncludeIds() {
     const query = this.getQuery();
     const filterByInclude = query.filterByInclude as filterBy;
+    if (!filterByInclude) return undefined;
+    if ("testerIds" in filterByInclude === false) return undefined;
+    if (filterByInclude.testerIds === undefined) return undefined;
 
-    if (
-      filterByInclude &&
-      "testerIds" in filterByInclude &&
-      filterByInclude.testerIds
-    ) {
-      const ids = Array.isArray(filterByInclude.testerIds)
-        ? filterByInclude.testerIds.flatMap((ids) => ids.split(","))
-        : filterByInclude.testerIds.split(",");
+    const ids = Array.isArray(filterByInclude.testerIds)
+      ? filterByInclude.testerIds.flatMap((ids) => ids.split(","))
+      : filterByInclude.testerIds.split(",");
 
-      return {
-        ids: {
-          ...this.filters?.ids,
-          include: ids
-            .map((id) => id.replace(/\D/g, ""))
-            .map(Number)
-            .filter((num) => !isNaN(num)),
-        },
-      };
-    }
-    return {};
+    return ids
+      .map((id) => id.replace(/\D/g, ""))
+      .map(Number)
+      .filter((num) => !isNaN(num));
   }
 
-  private initExcludeIds() {
+  private getExcludeIds() {
     const query = this.getQuery();
     const filterByExclude = query.filterByExclude as filterBy;
-    if (
-      filterByExclude &&
-      "testerIds" in filterByExclude &&
-      filterByExclude.testerIds
-    ) {
-      const ids = Array.isArray(filterByExclude.testerIds)
-        ? filterByExclude.testerIds.flatMap((ids) => ids.split(","))
-        : filterByExclude.testerIds.split(",");
+    if (!filterByExclude) return undefined;
+    if ("testerIds" in filterByExclude === false) return undefined;
+    if (filterByExclude.testerIds === undefined) return undefined;
 
-      return {
-        ids: {
-          ...this.filters?.ids,
-          exclude: ids
-            .map((id) => id.replace(/\D/g, ""))
-            .map(Number)
-            .filter((num) => !isNaN(num)),
-        },
-      };
-    }
+    const ids = Array.isArray(filterByExclude.testerIds)
+      ? filterByExclude.testerIds.flatMap((ids) => ids.split(","))
+      : filterByExclude.testerIds.split(",");
 
-    return {};
+    return ids
+      .map((id) => id.replace(/\D/g, ""))
+      .map(Number)
+      .filter((num) => !isNaN(num));
   }
 
-  private initOsFilter() {
+  private getOsFilter() {
     const query = this.getQuery();
     const filterByInclude = query.filterByInclude as filterBy;
 
-    if (filterByInclude && "os" in filterByInclude && filterByInclude.os) {
-      const os = Array.isArray(filterByInclude.os)
-        ? filterByInclude.os
-        : [filterByInclude.os];
+    if (!filterByInclude) return {};
+    if ("os" in filterByInclude === false) return {};
+    if (filterByInclude.os === undefined) return {};
 
-      return { os };
-    }
-    return {};
+    return {
+      os: Array.isArray(filterByInclude.os)
+        ? filterByInclude.os
+        : [filterByInclude.os],
+    };
   }
 
   protected async filter() {
