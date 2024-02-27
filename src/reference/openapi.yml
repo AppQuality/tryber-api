@@ -10714,8 +10714,6 @@ paths:
                       type: string
                     createdAt:
                       type: string
-                      x-stoplight:
-                        id: it7y27ftenqvo
                   required:
                     - id
                     - name
