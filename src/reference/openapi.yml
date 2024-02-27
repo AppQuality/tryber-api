@@ -10712,18 +10712,26 @@ paths:
                       type: string
                     name:
                       type: string
+                    createdAt:
+                      type: string
+                      x-stoplight:
+                        id: it7y27ftenqvo
                   required:
                     - id
                     - name
+                    - createdAt
               examples:
                 3 forms:
                   value:
                     - id: '3'
                       name: Form new
+                      createdAt: '2024-02-24 16:00:00'
                     - id: '2'
                       name: Form old
+                      createdAt: '2024-02-25 16:00:00'
                     - id: '1'
                       name: Form oldest
+                      createdAt: '2024-02-26 16:00:00'
                 empty:
                   value: []
         '403':
