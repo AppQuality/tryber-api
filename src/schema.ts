@@ -3934,6 +3934,7 @@ export interface operations {
           "application/json": {
             id: string;
             name: string;
+            createdAt: string;
           }[];
         };
       };
