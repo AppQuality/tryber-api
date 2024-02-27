@@ -39,7 +39,20 @@ export default class Jotform {
     }).then((response) => response.json());
   }
 
-  private async retrieveSubmissions(formId: string) {
+  private async retrieveSubmissions(formId: string): Promise<{
+    content: {
+      id: string;
+      form_id: string;
+      created_at: string;
+      answers: {
+        [key: string]: {
+          answer: string;
+          type: string;
+          text: string;
+        };
+      }[];
+    }[];
+  }> {
     return await this.fetch(`${this.baseUrl}/form/${formId}/submissions`, {
       method: "GET",
       headers: {
@@ -72,7 +85,7 @@ export default class Jotform {
           createdAt: form.created_at,
         })),
       ];
-      return this.sortByCreatedAtDescending({ forms });
+      return this.sortByCreationDateDescending({ forms });
     }
 
     const forms = await this.getForms(
@@ -86,10 +99,10 @@ export default class Jotform {
       ],
       offset + 1000
     );
-    return this.sortByCreatedAtDescending({ forms });
+    return this.sortByCreationDateDescending({ forms });
   }
 
-  sortByCreatedAtDescending({
+  sortByCreationDateDescending({
     forms,
   }: {
     forms: { id: string; name: string; createdAt: string }[];
@@ -105,11 +118,13 @@ export default class Jotform {
   async getForm(formId: string) {
     const questions = await this.getFormQuestions(formId);
     const submissions = await this.retrieveSubmissions(formId);
-    const form = await this.retrieveForm(formId);
+    const form: { content: { created_at: string } } = await this.retrieveForm(
+      formId
+    );
     const createdAt = form.content.created_at;
 
     const results = submissions.content
-      .map((submission: any) => {
+      .map((submission: { id: string; answers: any; created_at: string }) => {
         return {
           id: submission.id,
           answers: Object.entries(submission.answers).reduce(
