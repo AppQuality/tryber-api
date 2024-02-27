@@ -4,7 +4,6 @@ import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import { CandidateDevices } from "./CandidateDevices";
-import { CandidateLevels } from "./CandidateLevels";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
@@ -177,7 +176,6 @@ export default class RouteItem extends UserRoute<{
           id: candidate.id,
           name: candidate.name,
           surname: candidate.surname,
-          level: candidate.level,
           devices: candidate.devices,
           questions: candidate.questions,
         };
@@ -201,11 +199,6 @@ export default class RouteItem extends UserRoute<{
     });
     await deviceGetter.init();
 
-    const levelGetter = new CandidateLevels({
-      candidateIds: candidates.map((candidate) => candidate.id),
-    });
-    await levelGetter.init();
-
     const questionGetter = new CandidateQuestions({
       candidateIds: candidates.map((candidate) => candidate.id),
       questionIds: this.fields.map((field) => field.id),
@@ -227,7 +220,6 @@ export default class RouteItem extends UserRoute<{
       .map((candidate) => {
         return {
           ...candidate,
-          level: levelGetter.getCandidateData(candidate),
           devices: deviceGetter.getCandidateData(candidate),
           questions: questionGetter.getCandidateData(candidate),
         };
@@ -236,7 +228,6 @@ export default class RouteItem extends UserRoute<{
         (candidate) =>
           deviceGetter.isCandidateFiltered(candidate) &&
           questionGetter.isCandidateFiltered(candidate) &&
-          levelGetter.isCandidateFiltered(candidate) &&
           profileGetter.isCandidateFiltered(candidate)
       );
 

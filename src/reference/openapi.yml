@@ -1220,8 +1220,6 @@ paths:
                               type: string
                             surname:
                               type: string
-                            level:
-                              type: string
                             devices:
                               type: array
                               items:
@@ -1256,7 +1254,6 @@ paths:
                             - id
                             - name
                             - surname
-                            - level
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
               examples:
