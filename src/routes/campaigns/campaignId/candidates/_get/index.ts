@@ -5,9 +5,13 @@ import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import { CandidateDevices } from "./CandidateDevices";
 import { CandidateLevels } from "./CandidateLevels";
+import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
-type filterBy = { os?: string[] | string } | undefined;
+
+type filterBy =
+  | { os?: string[] | string; testerIds?: string[] | string }
+  | undefined;
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
   query: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["query"];
@@ -21,6 +25,10 @@ export default class RouteItem extends UserRoute<{
   private filters:
     | {
         os?: string[];
+        ids?: {
+          include?: number[];
+          exclude?: number[];
+        };
       }
     | undefined;
 
@@ -45,20 +53,75 @@ export default class RouteItem extends UserRoute<{
       });
     }
 
-    this.initFilters();
+    this.filters = { ...this.filters, ...this.initOsFilter() };
+    this.filters = { ...this.filters, ...this.initExcludeIds() };
+    this.filters = { ...this.filters, ...this.initIncludeIds() };
   }
 
-  private initFilters() {
+  private initIncludeIds() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (
+      filterByInclude &&
+      "testerIds" in filterByInclude &&
+      filterByInclude.testerIds
+    ) {
+      const ids = Array.isArray(filterByInclude.testerIds)
+        ? filterByInclude.testerIds.flatMap((ids) => ids.split(","))
+        : filterByInclude.testerIds.split(",");
+
+      return {
+        ids: {
+          ...this.filters?.ids,
+          include: ids
+            .map((id) => id.replace(/\D/g, ""))
+            .map(Number)
+            .filter((num) => !isNaN(num)),
+        },
+      };
+    }
+    return {};
+  }
+
+  private initExcludeIds() {
+    const query = this.getQuery();
+    const filterByExclude = query.filterByExclude as filterBy;
+    if (
+      filterByExclude &&
+      "testerIds" in filterByExclude &&
+      filterByExclude.testerIds
+    ) {
+      const ids = Array.isArray(filterByExclude.testerIds)
+        ? filterByExclude.testerIds.flatMap((ids) => ids.split(","))
+        : filterByExclude.testerIds.split(",");
+
+      return {
+        ids: {
+          ...this.filters?.ids,
+          exclude: ids
+            .map((id) => id.replace(/\D/g, ""))
+            .map(Number)
+            .filter((num) => !isNaN(num)),
+        },
+      };
+    }
+
+    return {};
+  }
+
+  private initOsFilter() {
     const query = this.getQuery();
     const filterByInclude = query.filterByInclude as filterBy;
 
     if (filterByInclude && "os" in filterByInclude && filterByInclude.os) {
-      if (!Array.isArray(filterByInclude.os)) {
-        this.filters = { ...this.filters, os: [filterByInclude.os] };
-      } else {
-        this.filters = { ...this.filters, os: filterByInclude.os };
-      }
+      const os = Array.isArray(filterByInclude.os)
+        ? filterByInclude.os
+        : [filterByInclude.os];
+
+      return { os };
     }
+    return {};
   }
 
   protected async filter() {
@@ -161,6 +224,17 @@ export default class RouteItem extends UserRoute<{
     });
     await questionGetter.init();
 
+    const profileGetter = new CandidateProfile({
+      candidateIds: candidates.map((candidate) => candidate.id),
+      filters: {
+        id: {
+          include: this.filters?.ids?.include?.map((id) => id.toString()),
+          exclude: this.filters?.ids?.exclude?.map((id) => id.toString()),
+        },
+      },
+    });
+    await profileGetter.init();
+
     const result = candidates
       .map((candidate) => {
         return {
@@ -174,7 +248,8 @@ export default class RouteItem extends UserRoute<{
         (candidate) =>
           deviceGetter.isCandidateFiltered(candidate) &&
           questionGetter.isCandidateFiltered(candidate) &&
-          levelGetter.isCandidateFiltered(candidate)
+          levelGetter.isCandidateFiltered(candidate) &&
+          profileGetter.isCandidateFiltered(candidate)
       );
 
     return {
