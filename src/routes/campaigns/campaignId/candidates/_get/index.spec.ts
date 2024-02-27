@@ -407,26 +407,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       ])
     );
   });
-  it("should answer a list of experience points ", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(3);
-    expect(response.body.results).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          experience: 100,
-        }),
-        expect.objectContaining({
-          experience: 1000,
-        }),
-        expect.objectContaining({
-          experience: 2,
-        }),
-      ])
-    );
-  });
 
   it("should answer a list of levels ", async () => {
     const response = await request(app)

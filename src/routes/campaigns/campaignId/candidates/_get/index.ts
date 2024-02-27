@@ -177,7 +177,6 @@ export default class RouteItem extends UserRoute<{
           id: candidate.id,
           name: candidate.name,
           surname: candidate.surname,
-          experience: candidate.total_exp_pts,
           level: candidate.level,
           devices: candidate.devices,
           questions: candidate.questions,

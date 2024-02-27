@@ -1220,8 +1220,6 @@ paths:
                               type: string
                             surname:
                               type: string
-                            experience:
-                              type: integer
                             level:
                               type: string
                             devices:
@@ -1258,7 +1256,6 @@ paths:
                             - id
                             - name
                             - surname
-                            - experience
                             - level
                             - devices
                   - $ref: '#/components/schemas/PaginationData'

@@ -1338,7 +1338,6 @@ export interface operations {
               id: number;
               name: string;
               surname: string;
-              experience: number;
               level: string;
               devices: {
                 manufacturer?: string;
