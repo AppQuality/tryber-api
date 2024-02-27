@@ -45,7 +45,7 @@ export default class Route extends UserRoute<{
   protected async prepare(): Promise<void> {
     const JF = new Jotform();
 
-    const { questions, submissions } = await JF.getForm(this.formId);
+    const { questions, submissions, createdAt } = await JF.getForm(this.formId);
 
     const existingForm = await tryber.tables.WpAppqCampaignPreselectionForm.do()
       .select("id")
@@ -70,6 +70,7 @@ export default class Route extends UserRoute<{
       .insert({
         campaign_id: this.campaignId,
         name: `[Imported from jotform] CP${this.campaignId} - ${this.formId}`,
+        creation_date: createdAt,
       })
       .returning("id");
 
@@ -126,6 +127,7 @@ export default class Route extends UserRoute<{
                   field_id: questionIds[question],
                   value: a,
                   tester_id: testerId,
+                  submission_date: submission.date,
                 }
               );
             }
