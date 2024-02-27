@@ -2,8 +2,9 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-describe("GET /campaigns/:campaignId/candidates ", () => {
+describe("GET /campaigns/:campaignId/candidates - profile ", () => {
   beforeAll(async () => {
+    jest.useFakeTimers().setSystemTime(new Date("2020-01-01"));
     await tryber.tables.WpAppqEvdCampaign.do().insert({
       id: 1,
       platform_id: 1,
@@ -30,24 +31,28 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         ...profile,
         id: 1,
         wp_user_id: 1,
+        birth_date: "2000-01-01",
         sex: 1,
       },
       {
         ...profile,
         id: 2,
         wp_user_id: 2,
+        birth_date: "1999-01-01",
         sex: 0,
       },
       {
         ...profile,
         id: 3,
         wp_user_id: 3,
+        birth_date: "1998-01-01",
         sex: -1,
       },
       {
         ...profile,
         id: 4,
         wp_user_id: 4,
+        birth_date: "1997-01-01",
         sex: 2,
       },
     ]);
@@ -122,6 +127,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     });
   });
   afterAll(async () => {
+    jest.useRealTimers();
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqEvdProfile.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
@@ -194,5 +200,58 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     expect(responseMale.body.results).toHaveLength(2);
     expect(responseMale.body.results[0]).toHaveProperty("id", 2);
     expect(responseMale.body.results[1]).toHaveProperty("id", 1);
+  });
+
+  it("Should answer with the ages", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          age: 20,
+        }),
+        expect.objectContaining({
+          id: 2,
+          age: 21,
+        }),
+        expect.objectContaining({
+          id: 3,
+          age: 22,
+        }),
+        expect.objectContaining({
+          id: 4,
+          age: 23,
+        }),
+      ])
+    );
+  });
+
+  it("Should allow filtering by minimum age", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?filterByAge[min]=23")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(1);
+    expect(response.body.results[0]).toHaveProperty("id", 4);
+  });
+  it("Should allow filtering by maximum age", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?filterByAge[max]=20")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(1);
+    expect(response.body.results[0]).toHaveProperty("id", 1);
+  });
+  it("Should allow filtering by age range", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?filterByAge[max]=22&filterByAge[min]=21")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(2);
+    expect(response.body.results[0]).toHaveProperty("id", 3);
+    expect(response.body.results[1]).toHaveProperty("id", 2);
   });
 });

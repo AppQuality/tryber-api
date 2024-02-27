@@ -4,6 +4,7 @@ import { CandidateData } from "./iCandidateData";
 type Filters = {
   id?: { include?: string[]; exclude?: string[] };
   gender?: StoplightComponents["schemas"]["Gender"][];
+  age?: { min?: number; max?: number };
 };
 
 class CandidateProfile implements CandidateData {
@@ -11,7 +12,11 @@ class CandidateProfile implements CandidateData {
   private filters?: Filters;
 
   private _candidateData:
-    | { id: number; gender: StoplightComponents["schemas"]["Gender"] }[]
+    | {
+        id: number;
+        gender: StoplightComponents["schemas"]["Gender"];
+        age: number;
+      }[]
     | undefined;
 
   get candidateData() {
@@ -33,7 +38,7 @@ class CandidateProfile implements CandidateData {
 
   async init() {
     const result = await tryber.tables.WpAppqEvdProfile.do()
-      .select("id", "sex")
+      .select("id", "sex", tryber.fn.charDate("birth_date"))
       .whereIn("id", this.candidateIds);
     this._candidateData = result.map((candidate) => {
       const gender =
@@ -44,9 +49,13 @@ class CandidateProfile implements CandidateData {
           : candidate.sex === 1
           ? "male"
           : "not-specified";
+
       return {
         id: candidate.id,
         gender,
+        age:
+          new Date().getFullYear() -
+          new Date(candidate.birth_date).getFullYear(),
       };
     });
     return;
@@ -56,10 +65,11 @@ class CandidateProfile implements CandidateData {
     const data = this.candidateData.find(
       (candidateData) => candidateData.id === candidate.id
     );
+    if (!data) throw new Error("Candidate not found");
     return {
-      gender: data?.gender,
+      gender: data.gender,
+      age: data.age,
     };
-    return {};
   }
 
   isCandidateFiltered(candidate: { id: number }): boolean {
@@ -73,6 +83,14 @@ class CandidateProfile implements CandidateData {
       const data = this.getCandidateData(candidate);
       if (!data.gender) return false;
       return this.filters.gender.includes(data.gender);
+    }
+    if (this.filters?.age) {
+      const data = this.getCandidateData(candidate);
+      if (!data) return false;
+      return (
+        (!this.filters.age.min || data.age >= this.filters.age.min) &&
+        (!this.filters.age.max || data.age <= this.filters.age.max)
+      );
     }
     return true;
   }

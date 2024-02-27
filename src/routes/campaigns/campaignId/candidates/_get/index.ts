@@ -29,6 +29,7 @@ export default class RouteItem extends UserRoute<{
           exclude?: number[];
         };
         gender?: StoplightComponents["schemas"]["Gender"][];
+        age?: { min?: number; max?: number };
       }
     | undefined;
 
@@ -55,6 +56,7 @@ export default class RouteItem extends UserRoute<{
 
     this.filters = { ...this.filters, ...this.getOsFilter() };
     this.filters = { ...this.filters, ...this.getGenderFilter() };
+    this.filters = { ...this.filters, ...this.getAgeFilters() };
     this.filters = {
       ...this.filters,
       ids: { ...this?.filters.ids, exclude: this.getExcludeIds() },
@@ -111,6 +113,22 @@ export default class RouteItem extends UserRoute<{
       os: Array.isArray(filterByInclude.os)
         ? filterByInclude.os
         : [filterByInclude.os],
+    };
+  }
+
+  private getAgeFilters() {
+    const query = this.getQuery();
+    const filterByAge = query.filterByAge as { min?: string; max?: string };
+
+    if (!filterByAge) return {};
+    if (filterByAge.min === undefined && filterByAge.max === undefined)
+      return {};
+
+    return {
+      age: {
+        min: filterByAge.min ? parseInt(filterByAge.min) : undefined,
+        max: filterByAge.max ? parseInt(filterByAge.max) : undefined,
+      },
     };
   }
 
@@ -195,6 +213,7 @@ export default class RouteItem extends UserRoute<{
           surname: candidate.surname,
           devices: candidate.devices,
           gender: candidate.gender,
+          age: candidate.age,
           questions: candidate.questions,
         };
       }),
@@ -231,6 +250,7 @@ export default class RouteItem extends UserRoute<{
           exclude: this.filters?.ids?.exclude?.map((id) => id.toString()),
         },
         gender: this.filters?.gender,
+        age: this.filters?.age,
       },
     });
     await profileGetter.init();

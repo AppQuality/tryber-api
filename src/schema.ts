@@ -1327,6 +1327,8 @@ export interface operations {
         filterByInclude?: unknown;
         /** Key-value Array for item filtering */
         filterByExclude?: unknown;
+        /** Array with min and max */
+        filterByAge?: unknown;
       };
     };
     responses: {
@@ -1338,6 +1340,8 @@ export interface operations {
               id: number;
               name: string;
               surname: string;
+              gender: components["schemas"]["Gender"];
+              age: number;
               devices: {
                 manufacturer?: string;
                 model?: string;

@@ -1222,6 +1222,10 @@ paths:
                               type: string
                             gender:
                               $ref: '#/components/schemas/Gender'
+                            age:
+                              type: number
+                              x-stoplight:
+                                id: 435m5469ngl4b
                             devices:
                               type: array
                               items:
@@ -1257,6 +1261,7 @@ paths:
                             - name
                             - surname
                             - gender
+                            - age
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
               examples:
@@ -2856,6 +2861,10 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByAge
+          description: Array with min and max
   '/campaigns/{campaign}/payouts':
     parameters:
       - $ref: '#/components/parameters/campaign'
