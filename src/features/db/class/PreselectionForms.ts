@@ -1,11 +1,6 @@
 import Database from "./Database";
 class Table extends Database<{
-  fields: {
-    id: number;
-    name: string;
-    campaign_id: number;
-    author: number;
-  };
+  fields: { id: number; name: string; campaign_id: number; author: number };
 }> {
   constructor(fields?: Table["fields"][number][] | ["*"]) {
     super({
