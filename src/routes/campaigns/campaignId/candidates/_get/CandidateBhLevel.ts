@@ -1,8 +1,9 @@
 import { tryber } from "@src/features/database";
 import { CandidateData } from "./iCandidateData";
 
-class CandidatBhLevel implements CandidateData {
+class CandidateBhLevel implements CandidateData {
   private candidateIds: number[];
+  private filters?: { bughunting?: string[] };
 
   private _candidateData:
     | {
@@ -16,8 +17,15 @@ class CandidatBhLevel implements CandidateData {
       }[]
     | undefined;
 
-  constructor({ candidateIds }: { candidateIds: number[] }) {
+  constructor({
+    candidateIds,
+    filters,
+  }: {
+    candidateIds: number[];
+    filters?: { bughunting?: string[] };
+  }) {
     this.candidateIds = candidateIds;
+    this.filters = filters;
   }
 
   get candidateData() {
@@ -172,8 +180,12 @@ class CandidatBhLevel implements CandidateData {
   }
 
   isCandidateFiltered(candidate: { id: number }): boolean {
-    return true;
+    if (!this.filters?.bughunting) return true;
+
+    const data = this.getCandidateData(candidate);
+
+    return this.filters.bughunting.includes(data);
   }
 }
 
-export { CandidatBhLevel };
+export { CandidateBhLevel };

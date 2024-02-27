@@ -365,4 +365,24 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       ])
     );
   });
+
+  it("Should allow filtering by bug hunting level", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?filterByInclude[bughunting]=Newbie")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(1);
+    expect(response.body.results[0].id).toBe(1);
+  });
+  it("Should allow filtering by multiple bug hunting level", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates?filterByInclude[bughunting][]=Newbie&filterByInclude[bughunting][]=Rookie"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(2);
+    expect(response.body.results[0].id).toBe(2);
+    expect(response.body.results[1].id).toBe(1);
+  });
 });
