@@ -6,7 +6,6 @@ type PreselectionFormDataType = {
   tester_id: number;
   field_id: number;
   value: string;
-  submission_date: string;
 };
 
 class PreselectionFormData extends Database<{
@@ -18,14 +17,7 @@ class PreselectionFormData extends Database<{
       primaryKey: "id",
       fields: fields
         ? fields
-        : [
-            "id",
-            "campaign_id",
-            "field_id",
-            "value",
-            "tester_id",
-            "submission_date",
-          ],
+        : ["id", "campaign_id", "field_id", "value", "tester_id"],
     });
   }
 }
