@@ -4269,8 +4269,6 @@ paths:
                           type: string
                         campaign:
                           type: integer
-                        '':
-                          type: string
                       required:
                         - id
                         - name

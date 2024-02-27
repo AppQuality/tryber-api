@@ -1774,7 +1774,6 @@ export interface operations {
               id: number;
               name: string;
               campaign?: number;
-              ""?: string;
             }[];
             limit?: number;
             start: number;
