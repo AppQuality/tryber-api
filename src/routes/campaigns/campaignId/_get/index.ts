@@ -42,8 +42,8 @@ export default class SingleCampaignRoute extends CampaignRoute<{
         .select("id")
         .where({ campaign_id: this.cp_id })
         .first();
-    if (campaignFormId === undefined) return undefined;
-    return campaignFormId.id;
+
+    return campaignFormId?.id;
   }
 
   private async getCampaignType() {
