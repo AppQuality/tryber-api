@@ -30,6 +30,7 @@ export default class RouteItem extends UserRoute<{
         };
         gender?: StoplightComponents["schemas"]["Gender"][];
         age?: { min?: number; max?: number };
+        questions?: Record<number, string[]>;
       }
     | undefined;
 
@@ -55,6 +56,7 @@ export default class RouteItem extends UserRoute<{
     }
 
     this.filters = { ...this.filters, ...this.getOsFilter() };
+    this.filters = { ...this.filters, ...this.getQuestionsFilter() };
     this.filters = { ...this.filters, ...this.getGenderFilter() };
     this.filters = { ...this.filters, ...this.getAgeFilters() };
     this.filters = {
@@ -114,6 +116,24 @@ export default class RouteItem extends UserRoute<{
         ? filterByInclude.os
         : [filterByInclude.os],
     };
+  }
+  private getQuestionsFilter() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (!filterByInclude) return {};
+
+    const questionFilters = Object.entries(filterByInclude).filter(([key]) =>
+      key.startsWith("question_")
+    );
+    if (questionFilters.length === 0) return {};
+
+    const filters = questionFilters.reduce((acc, [key, value]) => {
+      const questionId = parseInt(key.replace("question_", ""));
+      return { ...acc, [questionId]: value };
+    }, {});
+
+    return { questions: filters };
   }
 
   private getAgeFilters() {
@@ -237,8 +257,10 @@ export default class RouteItem extends UserRoute<{
     await deviceGetter.init();
 
     const questionGetter = new CandidateQuestions({
+      campaignId: this.campaign_id,
       candidateIds: candidates.map((candidate) => candidate.id),
       questionIds: this.fields.map((field) => field.id),
+      ...(this.filters?.questions && { filters: this.filters?.questions }),
     });
     await questionGetter.init();
 

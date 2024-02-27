@@ -284,42 +284,49 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       tester_id: users[2].testerId,
       field_id: 1,
       value: "Value 1",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 2,
       tester_id: users[3].testerId,
       field_id: 1,
       value: "Value 2",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 3,
       tester_id: users[4].testerId,
       field_id: 1,
       value: "Value 3",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 4,
       tester_id: users[2].testerId,
       field_id: 2,
       value: "Value 4",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 5,
       tester_id: users[3].testerId,
       field_id: 2,
       value: "Value 5",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 6,
       tester_id: users[4].testerId,
       field_id: 2,
       value: "Value 6",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 7,
       tester_id: users[4].testerId,
       field_id: 3,
       value: "Value Invalid",
+      campaign_id: 5,
     });
 
     await preselectionFormData.insert({
@@ -327,6 +334,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       tester_id: users[2].testerId,
       field_id: 1,
       value: "Value 8",
+      campaign_id: 1,
     });
   });
   afterAll(async () => {
