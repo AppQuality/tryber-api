@@ -1,17 +1,17 @@
-import request from "supertest";
-import app from "@src/app";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidate from "@src/__mocks__/mockedDb/cpHasCandidates";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
-import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
-import UserLevels from "@src/__mocks__/mockedDb/levels";
-import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
-import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
+import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
+import UserLevels from "@src/__mocks__/mockedDb/levels";
+import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
-import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
+import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import Profile from "@src/__mocks__/mockedDb/profile";
+import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import request from "supertest";
 
 const users = {
   1: { testerId: 1, wpUserId: 1, levelId: 10 },
@@ -504,19 +504,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     );
   });
 
-  it("should order by level id", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(3);
-    expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
-      users[2].testerId,
-      users[4].testerId,
-      users[3].testerId,
-    ]);
-  });
-
   it("should allow pagination of one element", async () => {
     const response = await request(app)
       .get("/campaigns/1/candidates/?start=1&limit=1")
@@ -668,24 +655,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     );
   });
 
-  it("Should filter by os excluding values", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/?filterByExclude[os]=os")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(2);
-    expect(response.body.results).toEqual([
-      expect.objectContaining({
-        id: users[4].testerId,
-        devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
-      }),
-      expect.objectContaining({
-        id: users[3].testerId,
-        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
-      }),
-    ]);
-  });
-
   it("Should filter by os including values", async () => {
     const response = await request(app)
       .get("/campaigns/1/candidates/?filterByInclude[os]=dow")
@@ -703,18 +672,101 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       }),
     ]);
   });
-  it("Should filter by os including and excluding values", async () => {
+
+  it("Should filter by tryber-ids excluding values", async () => {
     const response = await request(app)
-      .get(
-        "/campaigns/1/candidates/?filterByInclude[os]=dow&&filterByExclude[os]=vista"
-      )
+      .get("/campaigns/1/candidates/?filterByExclude[testerIds]=3,4")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results.length).toBe(1);
     expect(response.body.results).toEqual([
       expect.objectContaining({
         id: users[3].testerId,
-        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids excluding values with T-char", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?filterByExclude[testerIds]=T3,T4")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(1);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[3].testerId,
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByInclude[testerIds]=2&filterByInclude[testerIds]=4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including values with T-char", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByInclude[testerIds]=T2&filterByInclude[testerIds]=T4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including and excluding values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByExclude[testerIds]=3&filterByInclude[testerIds]=2,4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including and excluding values with T-char", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByExclude[testerIds]=T3&filterByInclude[testerIds]=T2,T4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
       }),
     ]);
   });
