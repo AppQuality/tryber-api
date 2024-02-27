@@ -1220,6 +1220,8 @@ paths:
                               type: string
                             surname:
                               type: string
+                            gender:
+                              $ref: '#/components/schemas/Gender'
                             devices:
                               type: array
                               items:
@@ -1254,6 +1256,7 @@ paths:
                             - id
                             - name
                             - surname
+                            - gender
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
               examples:

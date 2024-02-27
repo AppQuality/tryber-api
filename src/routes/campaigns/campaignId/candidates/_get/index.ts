@@ -28,6 +28,7 @@ export default class RouteItem extends UserRoute<{
           include?: number[];
           exclude?: number[];
         };
+        gender?: StoplightComponents["schemas"]["Gender"][];
       }
     | undefined;
 
@@ -53,6 +54,7 @@ export default class RouteItem extends UserRoute<{
     }
 
     this.filters = { ...this.filters, ...this.getOsFilter() };
+    this.filters = { ...this.filters, ...this.getGenderFilter() };
     this.filters = {
       ...this.filters,
       ids: { ...this?.filters.ids, exclude: this.getExcludeIds() },
@@ -109,6 +111,21 @@ export default class RouteItem extends UserRoute<{
       os: Array.isArray(filterByInclude.os)
         ? filterByInclude.os
         : [filterByInclude.os],
+    };
+  }
+
+  private getGenderFilter() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (!filterByInclude) return {};
+    if ("gender" in filterByInclude === false) return {};
+    if (filterByInclude.gender === undefined) return {};
+
+    return {
+      gender: Array.isArray(filterByInclude.gender)
+        ? filterByInclude.gender
+        : [filterByInclude.gender],
     };
   }
 
@@ -177,6 +194,7 @@ export default class RouteItem extends UserRoute<{
           name: candidate.name,
           surname: candidate.surname,
           devices: candidate.devices,
+          gender: candidate.gender,
           questions: candidate.questions,
         };
       }),
@@ -212,6 +230,7 @@ export default class RouteItem extends UserRoute<{
           include: this.filters?.ids?.include?.map((id) => id.toString()),
           exclude: this.filters?.ids?.exclude?.map((id) => id.toString()),
         },
+        gender: this.filters?.gender,
       },
     });
     await profileGetter.init();
@@ -222,6 +241,7 @@ export default class RouteItem extends UserRoute<{
           ...candidate,
           devices: deviceGetter.getCandidateData(candidate),
           questions: questionGetter.getCandidateData(candidate),
+          ...profileGetter.getCandidateData(candidate),
         };
       })
       .filter(
