@@ -259,7 +259,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       id: 1,
       campaign_id: 1,
       name: "Form 1",
-      creation_date: "2024-01-01 00:00:00",
     });
     await PreselectionFormFields.insert({
       id: 1,
@@ -281,7 +280,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       id: 2,
       campaign_id: 5,
       name: "Form 2",
-      creation_date: "2021-01-01 00:00:00",
     });
     await PreselectionFormFields.insert({
       id: 3,
