@@ -9,9 +9,12 @@ import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
 
-type filterBy =
-  | { os?: string[] | string; testerIds?: string[] | string }
-  | undefined;
+type filterByItem = string | string[];
+type filterBy = Record<
+  "os" | "testerIds" | "gender" | "bughunting",
+  filterByItem | undefined
+>;
+
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
   query: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["query"];
@@ -179,10 +182,12 @@ export default class RouteItem extends UserRoute<{
     if ("gender" in filterByInclude === false) return {};
     if (filterByInclude.gender === undefined) return {};
 
+    const gender = Array.isArray(filterByInclude.gender)
+      ? filterByInclude.gender
+      : [filterByInclude.gender];
+
     return {
-      gender: Array.isArray(filterByInclude.gender)
-        ? filterByInclude.gender
-        : [filterByInclude.gender],
+      gender: gender as StoplightComponents["schemas"]["Gender"][],
     };
   }
 
