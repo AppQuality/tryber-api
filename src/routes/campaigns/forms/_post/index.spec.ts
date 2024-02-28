@@ -38,6 +38,7 @@ const basicUserField = {
 const sampleBody = {
   name: "My form",
   fields: [],
+  creationDate: "2024-02-23 00:00:00",
 };
 
 describe("POST /campaigns/forms/", () => {
@@ -177,6 +178,21 @@ describe("POST /campaigns/forms/", () => {
     );
     expect(newForm.length).toBe(1);
     expect(newForm[0]).toHaveProperty("author", 1);
+  });
+
+  it("Should save the creation date on posting a new form", async () => {
+    const response = await request(app)
+      .post("/campaigns/forms/")
+      .send(sampleBody)
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const newForm = await tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .select("creation_date")
+      .where("id", response.body.id);
+    expect(newForm.length).toBe(1);
+    expect(newForm[0]).toHaveProperty("creation_date", "2024-02-23 00:00:00");
   });
 
   it("Should create a field for each field passed as body", async () => {

@@ -545,8 +545,9 @@ paths:
                   message:
                     type: string
               examples:
-                example-1:
-                  value: string
+                Example 1:
+                  value:
+                    message: Error 401
       tags:
         - Authentication
       requestBody:
@@ -819,6 +820,8 @@ paths:
                     type: string
                   typeDescription:
                     type: string
+                  preselectionFormId:
+                    type: integer
                 required:
                   - id
                   - title
@@ -831,6 +834,13 @@ paths:
                     title: Campaign Title
                     type: Campaign Type
                     typeDescription: Campaign DescriptionType
+                Example 2:
+                  value:
+                    id: 1
+                    title: Campaign Title
+                    type: Campaign Type
+                    typeDescription: Campaign DescriptionType
+                    preselectionFormId: 69
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4213,9 +4223,22 @@ paths:
                     $ref: '#/components/schemas/PreselectionFormQuestion'
                 campaign:
                   type: integer
+                creationDate:
+                  type: string
               required:
                 - name
                 - fields
+                - creationDate
+            examples:
+              Example 1:
+                value:
+                  name: Form1
+                  fields:
+                    - question: Write your name?
+                      short_name: name
+                      type: text
+                  campaign: 1
+                  creationDate: '2024-02-23 12:15:12'
       description: ''
     parameters: []
     get:
@@ -4349,6 +4372,12 @@ paths:
                         options:
                           - Option1
                           - Option2
+                      - id: 12234
+                        question: 'What''s your [radio question]?'
+                        type: radio
+                        options:
+                          - 'Yes'
+                          - 'No'
                       - id: 9
                         question: 'What''s your [custom selectable question]?'
                         type: select
@@ -6483,8 +6512,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: x5877le63wjax
                 required:
                   - id
               examples:
@@ -9107,12 +9134,9 @@ paths:
             examples:
               Example 1:
                 value:
-                  - id: 46
-                    name: English
-                  - id: 61
-                    name: Spanish
-                  - id: 120
-                    name: Italiano (Italia)
+                  - 46
+                  - 61
+                  - 120
       description: Edit your spoken languages
       security:
         - JWT: []
@@ -10626,6 +10650,136 @@ paths:
       security:
         - JWT: []
       description: ''
+  '/jotforms/{campaign}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: Import a jotform to a campaign
+      operationId: post-jotforms-campaignId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formId:
+                  type: string
+                testerIdColumn:
+                  type: string
+              required:
+                - formId
+                - testerIdColumn
+            examples:
+              Example 1:
+                value:
+                  formId: '123456'
+                  testerIdColumn: ltstronggttryberIdltstronggt
+      description: ''
+      security:
+        - JWT: []
+  /jotforms/forms:
+    get:
+      summary: Get Jotforms
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    createdAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - createdAt
+              examples:
+                3 forms:
+                  value:
+                    - id: '3'
+                      name: Form new
+                      createdAt: '2024-02-24 16:00:00'
+                    - id: '2'
+                      name: Form old
+                      createdAt: '2024-02-25 16:00:00'
+                    - id: '1'
+                      name: Form oldest
+                      createdAt: '2024-02-26 16:00:00'
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
+      operationId: get-jotforms
+      description: ''
+      security:
+        - JWT: []
+    parameters: []
+  '/jotforms/forms/{formId}/questions':
+    parameters:
+      - schema:
+          type: string
+        name: formId
+        in: path
+        required: true
+    get:
+      summary: Get quesitions from a jotform
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples:
+                3 questions:
+                  value:
+                    - id: '1'
+                      name: question 1
+                    - id: '2'
+                      name: question 2
+                    - id: '3'
+                      name: question 3
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
+      operationId: get-jotforms-forms-formId-questions
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:

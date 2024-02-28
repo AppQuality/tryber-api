@@ -519,6 +519,27 @@ export interface paths {
       };
     };
   };
+  "/jotforms/{campaign}": {
+    post: operations["post-jotforms-campaignId"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/jotforms/forms": {
+    get: operations["get-jotforms"];
+    parameters: {};
+  };
+  "/jotforms/forms/{formId}/questions": {
+    get: operations["get-jotforms-forms-formId-questions"];
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -1200,6 +1221,7 @@ export interface operations {
             title: string;
             type: string;
             typeDescription: string;
+            preselectionFormId?: number;
           };
         };
       };
@@ -1792,6 +1814,7 @@ export interface operations {
           name: string;
           fields: components["schemas"]["PreselectionFormQuestion"][];
           campaign?: number;
+          creationDate: string;
         };
       };
     };
@@ -3873,6 +3896,69 @@ export interface operations {
           device?: number[];
         };
       };
+    };
+  };
+  "post-jotforms-campaignId": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          formId: string;
+          testerIdColumn: string;
+        };
+      };
+    };
+  };
+  "get-jotforms": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: string;
+            name: string;
+            createdAt: string;
+          }[];
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+    };
+  };
+  "get-jotforms-forms-formId-questions": {
+    parameters: {
+      path: {
+        formId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: string;
+            name: string;
+          }[];
+        };
+      };
+      /** Forbidden */
+      403: unknown;
     };
   };
 }

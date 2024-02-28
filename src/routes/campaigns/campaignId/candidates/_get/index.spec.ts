@@ -255,7 +255,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       enabled: 0,
     });
 
-    await PreselectionForm.insert({ id: 1, campaign_id: 1, name: "Form 1" });
+    await PreselectionForm.insert({
+      id: 1,
+      campaign_id: 1,
+      name: "Form 1",
+    });
     await PreselectionFormFields.insert({
       id: 1,
       form_id: 1,
@@ -272,7 +276,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       form_id: 1,
       question: "Field 4",
     });
-    await PreselectionForm.insert({ id: 2, campaign_id: 5, name: "Form 2" });
+    await PreselectionForm.insert({
+      id: 2,
+      campaign_id: 5,
+      name: "Form 2",
+    });
     await PreselectionFormFields.insert({
       id: 3,
       form_id: 2,
