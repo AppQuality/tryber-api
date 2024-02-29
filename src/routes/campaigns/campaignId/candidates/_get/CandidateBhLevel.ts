@@ -5,6 +5,14 @@ class CandidateBhLevel implements CandidateData {
   private candidateIds: number[];
   private filters?: { bughunting?: string[] };
 
+  private courses: Record<
+    "levelone" | "leveltwo",
+    { career: string; level: string }
+  > = {
+    levelone: { career: "Functional", level: "1" },
+    leveltwo: { career: "General", level: "2" },
+  };
+
   private _candidateData:
     | {
         id: number;
@@ -60,8 +68,8 @@ class CandidateBhLevel implements CandidateData {
         "wp_appq_course.id"
       )
       .where("wp_appq_course_tester_status.is_completed", 1)
-      .where("wp_appq_course.course_level", "1")
-      .where("wp_appq_course.career", "Functional")
+      .where("wp_appq_course.course_level", this.courses.levelone.level)
+      .where("wp_appq_course.career", this.courses.levelone.career)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
     const hasLevelTwoCourse = await tryber.tables.WpAppqEvdProfile.do()
@@ -76,8 +84,8 @@ class CandidateBhLevel implements CandidateData {
         "wp_appq_course.id"
       )
       .where("wp_appq_course_tester_status.is_completed", 1)
-      .where("wp_appq_course.course_level", "2")
-      .where("wp_appq_course.career", "General")
+      .where("wp_appq_course.course_level", this.courses.leveltwo.level)
+      .where("wp_appq_course.career", this.courses.leveltwo.career)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
     const criticalBugs = await tryber.tables.WpAppqEvdBug.do()
