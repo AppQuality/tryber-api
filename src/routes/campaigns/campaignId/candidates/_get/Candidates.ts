@@ -16,8 +16,7 @@ class Candidates {
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         "name",
-        "surname",
-        "total_exp_pts"
+        "surname"
       )
       .where("campaign_id", this.campaign_id)
       .where("accepted", 0)

@@ -1230,10 +1230,23 @@ paths:
                               type: string
                             surname:
                               type: string
-                            experience:
-                              type: integer
-                            level:
-                              type: string
+                            gender:
+                              $ref: '#/components/schemas/Gender'
+                            age:
+                              type: number
+                              x-stoplight:
+                                id: 435m5469ngl4b
+                            levels:
+                              type: object
+                              x-stoplight:
+                                id: 2djwp6agmx80i
+                              required:
+                                - bugHunting
+                              properties:
+                                bugHunting:
+                                  type: string
+                                  x-stoplight:
+                                    id: kjyr3hu082enj
                             devices:
                               type: array
                               items:
@@ -1268,8 +1281,9 @@ paths:
                             - id
                             - name
                             - surname
-                            - experience
-                            - level
+                            - gender
+                            - age
+                            - levels
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
               examples:
@@ -2869,6 +2883,10 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByAge
+          description: Array with min and max
   '/campaigns/{campaign}/payouts':
     parameters:
       - $ref: '#/components/parameters/campaign'

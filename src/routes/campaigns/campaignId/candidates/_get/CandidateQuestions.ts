@@ -1,9 +1,12 @@
 import { tryber } from "@src/features/database";
 import { CandidateData } from "./iCandidateData";
 
+type Filters = Record<number, string[]>;
+
 class CandidateQuestions implements CandidateData {
   private candidateIds: number[];
   private questionIds: number[];
+  private campaignId: number;
 
   private _questions: {
     id: number;
@@ -21,15 +24,23 @@ class CandidateQuestions implements CandidateData {
       }[]
     | undefined = [];
 
+  private filters: Filters | undefined;
+
   constructor({
+    campaignId,
     candidateIds,
     questionIds,
+    filters,
   }: {
+    campaignId: number;
     candidateIds: number[];
     questionIds: number[];
+    filters?: Filters;
   }) {
     this.candidateIds = candidateIds;
     this.questionIds = questionIds;
+    this.campaignId = campaignId;
+    this.filters = filters;
   }
 
   get candidateQuestions() {
@@ -43,8 +54,6 @@ class CandidateQuestions implements CandidateData {
   }
 
   async init() {
-    if (this.questionIds.length === 0) return;
-
     this._candidateQuestions =
       await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
         .join(
@@ -61,14 +70,16 @@ class CandidateQuestions implements CandidateData {
           "short_name",
           "value"
         )
-        .whereIn("tester_id", this.candidateIds)
-        .whereIn(
-          "wp_appq_campaign_preselection_form_fields.id",
-          this.questionIds
-        );
+        .where("campaign_id", this.campaignId)
+        .whereIn("tester_id", this.candidateIds);
 
     this._questions =
       await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
+        .join(
+          "wp_appq_campaign_preselection_form",
+          "wp_appq_campaign_preselection_form.id",
+          "wp_appq_campaign_preselection_form_fields.form_id"
+        )
         .select(
           tryber
             .ref("id")
@@ -76,28 +87,48 @@ class CandidateQuestions implements CandidateData {
           "question",
           "short_name"
         )
-        .whereIn("id", this.questionIds);
+        .where("campaign_id", this.campaignId);
     return;
   }
 
-  getCandidateData(candidate: { id: number }) {
-    return this.questions.map((question) => {
-      const candidateQuestion = this.candidateQuestions.filter(
-        (candidateQuestion) =>
-          candidateQuestion.tester_id === candidate.id &&
-          candidateQuestion.id === question.id
-      );
-      return {
-        id: question.id,
-        title: question.short_name ? question.short_name : question.question,
-        value: candidateQuestion.length
-          ? candidateQuestion.map((q) => q.value).join(", ")
-          : "-",
-      };
-    });
+  getCandidateData(
+    candidate: { id: number },
+    options: { showAllQuestions: boolean } = { showAllQuestions: false }
+  ) {
+    return this.questions
+      .filter(
+        (question) =>
+          options.showAllQuestions || this.questionIds.includes(question.id)
+      )
+      .map((question) => {
+        const candidateQuestion = this.candidateQuestions.filter(
+          (candidateQuestion) =>
+            candidateQuestion.tester_id === candidate.id &&
+            candidateQuestion.id === question.id
+        );
+        return {
+          id: question.id,
+          title: question.short_name ? question.short_name : question.question,
+          value: candidateQuestion.length
+            ? candidateQuestion.map((q) => q.value).join(", ")
+            : "-",
+        };
+      });
   }
 
   isCandidateFiltered(candidate: { id: number }): boolean {
+    if (!this.filters) return true;
+    const data = this.getCandidateData(candidate, { showAllQuestions: true });
+
+    for (const [questionId, value] of Object.entries(this.filters)) {
+      const question = data.find(
+        (question) => question.id === Number(questionId)
+      );
+      if (!question) return false;
+
+      if (!value.includes(question.value)) return false;
+    }
+
     return true;
   }
 }

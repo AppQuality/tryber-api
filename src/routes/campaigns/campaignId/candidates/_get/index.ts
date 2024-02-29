@@ -3,15 +3,18 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import { CandidateBhLevel } from "./CandidateBhLevel";
 import { CandidateDevices } from "./CandidateDevices";
-import { CandidateLevels } from "./CandidateLevels";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
 
-type filterBy =
-  | { os?: string[] | string; testerIds?: string[] | string }
-  | undefined;
+type filterByItem = string | string[];
+type filterBy = Record<
+  "os" | "testerIds" | "gender" | "bughunting",
+  filterByItem | undefined
+>;
+
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-campaign-candidates"]["responses"][200]["content"]["application/json"];
   query: StoplightOperations["get-campaigns-campaign-candidates"]["parameters"]["query"];
@@ -29,6 +32,10 @@ export default class RouteItem extends UserRoute<{
           include?: number[];
           exclude?: number[];
         };
+        gender?: StoplightComponents["schemas"]["Gender"][];
+        age?: { min?: number; max?: number };
+        questions?: Record<number, string[]>;
+        bughunting?: string[];
       }
     | undefined;
 
@@ -54,6 +61,10 @@ export default class RouteItem extends UserRoute<{
     }
 
     this.filters = { ...this.filters, ...this.getOsFilter() };
+    this.filters = { ...this.filters, ...this.getBughuntingFilter() };
+    this.filters = { ...this.filters, ...this.getQuestionsFilter() };
+    this.filters = { ...this.filters, ...this.getGenderFilter() };
+    this.filters = { ...this.filters, ...this.getAgeFilters() };
     this.filters = {
       ...this.filters,
       ids: { ...this?.filters.ids, exclude: this.getExcludeIds() },
@@ -110,6 +121,73 @@ export default class RouteItem extends UserRoute<{
       os: Array.isArray(filterByInclude.os)
         ? filterByInclude.os
         : [filterByInclude.os],
+    };
+  }
+
+  private getBughuntingFilter() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (!filterByInclude) return {};
+    if ("bughunting" in filterByInclude === false) return {};
+    if (filterByInclude.bughunting === undefined) return {};
+
+    return {
+      bughunting: Array.isArray(filterByInclude.bughunting)
+        ? filterByInclude.bughunting
+        : [filterByInclude.bughunting],
+    };
+  }
+
+  private getQuestionsFilter() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (!filterByInclude) return {};
+
+    const questionFilters = Object.entries(filterByInclude).filter(([key]) =>
+      key.startsWith("question_")
+    );
+    if (questionFilters.length === 0) return {};
+
+    const filters = questionFilters.reduce((acc, [key, value]) => {
+      const questionId = parseInt(key.replace("question_", ""));
+      return { ...acc, [questionId]: value };
+    }, {});
+
+    return { questions: filters };
+  }
+
+  private getAgeFilters() {
+    const query = this.getQuery();
+    const filterByAge = query.filterByAge as { min?: string; max?: string };
+
+    if (!filterByAge) return {};
+    if (filterByAge.min === undefined && filterByAge.max === undefined)
+      return {};
+
+    return {
+      age: {
+        min: filterByAge.min ? parseInt(filterByAge.min) : undefined,
+        max: filterByAge.max ? parseInt(filterByAge.max) : undefined,
+      },
+    };
+  }
+
+  private getGenderFilter() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (!filterByInclude) return {};
+    if ("gender" in filterByInclude === false) return {};
+    if (filterByInclude.gender === undefined) return {};
+
+    const gender = Array.isArray(filterByInclude.gender)
+      ? filterByInclude.gender
+      : [filterByInclude.gender];
+
+    return {
+      gender: gender as StoplightComponents["schemas"]["Gender"][],
     };
   }
 
@@ -177,10 +255,11 @@ export default class RouteItem extends UserRoute<{
           id: candidate.id,
           name: candidate.name,
           surname: candidate.surname,
-          experience: candidate.total_exp_pts,
-          level: candidate.level,
           devices: candidate.devices,
+          gender: candidate.gender,
+          age: candidate.age,
           questions: candidate.questions,
+          levels: candidate.levels,
         };
       }),
       size: candidates.length,
@@ -202,14 +281,11 @@ export default class RouteItem extends UserRoute<{
     });
     await deviceGetter.init();
 
-    const levelGetter = new CandidateLevels({
-      candidateIds: candidates.map((candidate) => candidate.id),
-    });
-    await levelGetter.init();
-
     const questionGetter = new CandidateQuestions({
+      campaignId: this.campaign_id,
       candidateIds: candidates.map((candidate) => candidate.id),
       questionIds: this.fields.map((field) => field.id),
+      ...(this.filters?.questions && { filters: this.filters?.questions }),
     });
     await questionGetter.init();
 
@@ -220,25 +296,38 @@ export default class RouteItem extends UserRoute<{
           include: this.filters?.ids?.include?.map((id) => id.toString()),
           exclude: this.filters?.ids?.exclude?.map((id) => id.toString()),
         },
+        gender: this.filters?.gender,
+        age: this.filters?.age,
       },
     });
     await profileGetter.init();
+
+    const bhLevelGetter = new CandidateBhLevel({
+      candidateIds: candidates.map((candidate) => candidate.id),
+      ...(this.filters?.bughunting && {
+        filters: { bughunting: this.filters?.bughunting },
+      }),
+    });
+    await bhLevelGetter.init();
 
     const result = candidates
       .map((candidate) => {
         return {
           ...candidate,
-          level: levelGetter.getCandidateData(candidate),
           devices: deviceGetter.getCandidateData(candidate),
           questions: questionGetter.getCandidateData(candidate),
+          ...profileGetter.getCandidateData(candidate),
+          levels: {
+            bugHunting: bhLevelGetter.getCandidateData(candidate),
+          },
         };
       })
       .filter(
         (candidate) =>
           deviceGetter.isCandidateFiltered(candidate) &&
           questionGetter.isCandidateFiltered(candidate) &&
-          levelGetter.isCandidateFiltered(candidate) &&
-          profileGetter.isCandidateFiltered(candidate)
+          profileGetter.isCandidateFiltered(candidate) &&
+          bhLevelGetter.isCandidateFiltered(candidate)
       );
 
     return {
