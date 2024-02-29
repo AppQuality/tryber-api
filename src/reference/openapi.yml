@@ -4246,7 +4246,6 @@ paths:
               required:
                 - name
                 - fields
-                - creationDate
             examples:
               Example 1:
                 value:

@@ -195,6 +195,27 @@ describe("POST /campaigns/forms/", () => {
     expect(newForm[0]).toHaveProperty("creation_date", "2024-02-23 00:00:00");
   });
 
+  it("Should save the creation date on posting a new form - default", async () => {
+    const response = await request(app)
+      .post("/campaigns/forms/")
+      .send({
+        name: "My form",
+        fields: [],
+      })
+      .set(
+        "authorization",
+        `Bearer tester capability ["manage_preselection_forms"]`
+      );
+    const newForm = await tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .select("creation_date")
+      .where("id", response.body.id);
+    expect(newForm.length).toBe(1);
+    expect(newForm[0]).toHaveProperty(
+      "creation_date",
+      new Date().toISOString().replace("T", " ").split(".")[0]
+    );
+  });
+
   it("Should create a field for each field passed as body", async () => {
     const textField = {
       question: "My text question",
