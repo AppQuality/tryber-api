@@ -126,7 +126,12 @@ class CandidateQuestions implements CandidateData {
       );
       if (!question) return false;
 
-      if (!filterValue.some((v) => question.value.includes(v))) return false;
+      if (
+        !filterValue.some((v) =>
+          question.value.toLowerCase().includes(v.toLowerCase())
+        )
+      )
+        return false;
     }
 
     return true;
