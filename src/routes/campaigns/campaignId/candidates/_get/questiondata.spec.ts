@@ -163,6 +163,15 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       id: 1,
     });
   });
+  it("Should allow filtering by partial question", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?filterByInclude[question_1]=value")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(2);
+    expect(response.body.results[0].id).toBe(2);
+    expect(response.body.results[1].id).toBe(1);
+  });
   it("Should allow filtering by multiple question", async () => {
     const response = await request(app)
       .get(

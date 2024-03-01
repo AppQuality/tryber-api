@@ -152,7 +152,7 @@ export default class RouteItem extends UserRoute<{
 
     const filters = questionFilters.reduce((acc, [key, value]) => {
       const questionId = parseInt(key.replace("question_", ""));
-      return { ...acc, [questionId]: value };
+      return { ...acc, [questionId]: Array.isArray(value) ? value : [value] };
     }, {});
 
     return { questions: filters };

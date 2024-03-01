@@ -120,13 +120,13 @@ class CandidateQuestions implements CandidateData {
     if (!this.filters) return true;
     const data = this.getCandidateData(candidate, { showAllQuestions: true });
 
-    for (const [questionId, value] of Object.entries(this.filters)) {
+    for (const [questionId, filterValue] of Object.entries(this.filters)) {
       const question = data.find(
         (question) => question.id === Number(questionId)
       );
       if (!question) return false;
 
-      if (!value.includes(question.value)) return false;
+      if (!filterValue.some((v) => question.value.includes(v))) return false;
     }
 
     return true;
