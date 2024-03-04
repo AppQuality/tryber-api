@@ -9565,7 +9565,6 @@ paths:
                     - id
                     - name
                     - title
-                    - description
                     - type
               examples:
                 3 questions:

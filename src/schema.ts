@@ -3960,7 +3960,7 @@ export interface operations {
             id: string;
             name: string;
             title: string;
-            description: string;
+            description?: string;
             type: string;
           }[];
         };
