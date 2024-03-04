@@ -1819,7 +1819,7 @@ export interface operations {
           name: string;
           fields: components["schemas"]["PreselectionFormQuestion"][];
           campaign?: number;
-          creationDate: string;
+          creationDate?: string;
         };
       };
     };
@@ -3959,6 +3959,9 @@ export interface operations {
           "application/json": {
             id: string;
             name: string;
+            title: string;
+            description: string;
+            type: string;
           }[];
         };
       };

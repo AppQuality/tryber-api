@@ -9549,18 +9549,41 @@ paths:
                       type: string
                     name:
                       type: string
+                    title:
+                      type: string
+                      x-stoplight:
+                        id: ya9c3xu5kg0jg
+                    description:
+                      type: string
+                      x-stoplight:
+                        id: foun0hgj7zb0k
+                    type:
+                      type: string
+                      x-stoplight:
+                        id: k7xomd4d1omon
                   required:
                     - id
                     - name
+                    - title
+                    - description
+                    - type
               examples:
                 3 questions:
                   value:
                     - id: '1'
-                      name: question 1
+                      type: control_textbox
+                      title: Tester ID
+                      description: Inserisci il tuo tester ID nel formato T1234
+                      name: testerId
                     - id: '2'
-                      name: question 2
-                    - id: '3'
-                      name: question 3
+                      type: control_email
+                      title: Email
+                      description: ''
+                      name: email
+                    - id: '43'
+                      type: control_text
+                      title: "<p>Ciao!<br />Stiamo cercando utenti con fatture insolute dei seguenti operatori:</p>\r\n<ul>\r\n<li>Wind3</li>\r\n<li>Fastweb</li>\r\n<li>Iliad</li>\r\n</ul>\r\n<p>\_</p>\r\n<p>Se rientri nel target, compila la survey, abbiamo un'opportunità di <strong>guadagno</strong> per te!</p>"
+                      name: input43
                 empty:
                   value: []
         '403':
