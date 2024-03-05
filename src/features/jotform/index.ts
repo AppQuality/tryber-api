@@ -53,12 +53,15 @@ export default class Jotform {
       }[];
     }[];
   }> {
-    return await this.fetch(`${this.baseUrl}/form/${formId}/submissions`, {
-      method: "GET",
-      headers: {
-        APIKEY: this.apikey,
-      },
-    }).then((response) => response.json());
+    return await this.fetch(
+      `${this.baseUrl}/form/${formId}/submissions?limit=1000`,
+      {
+        method: "GET",
+        headers: {
+          APIKEY: this.apikey,
+        },
+      }
+    ).then((response) => response.json());
   }
 
   private async retrieveQuestions(formId: string) {
