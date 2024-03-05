@@ -7,6 +7,7 @@ import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
 import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
 import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
+import { tryber } from "@src/features/database";
 
 beforeEach(async () => {
   await Campaigns.insert();
@@ -155,6 +156,19 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
         device: "any",
       },
     ]);
+  });
+  it("Should save candidature acceptation-date", async () => {
+    const response = await authorizedPostMultiCandidate([
+      { tester: 1 },
+      { tester: 2 },
+    ]);
+    expect(response.status).toBe(200);
+    const candidatures = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(candidatures.length).toBe(2);
+    expect(candidatures[0].accepted_date).not.toBeNull();
+    expect(candidatures[1].accepted_date).not.toBeNull();
   });
 });
 
