@@ -2,6 +2,7 @@ import { tryber } from "@src/features/database";
 import { CandidateData } from "./iCandidateData";
 
 class CandidateDevices implements CandidateData {
+  private campaignId: number;
   private candidateIds: number[];
   private filters?: { os?: string[] };
 
@@ -25,14 +26,17 @@ class CandidateDevices implements CandidateData {
     | undefined;
 
   constructor({
+    campaignId,
     candidateIds,
     filters,
   }: {
+    campaignId: number;
     candidateIds: number[];
     filters?: { os?: string[] };
   }) {
     this.candidateIds = candidateIds;
     this.filters = filters;
+    this.campaignId = campaignId;
   }
 
   get devices() {
@@ -85,6 +89,7 @@ class CandidateDevices implements CandidateData {
         tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"),
         "devices"
       )
+      .where("campaign_id", this.campaignId)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
     return;
