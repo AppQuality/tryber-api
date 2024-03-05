@@ -762,41 +762,6 @@ paths:
         - schema: {}
           in: query
           name: filterBy
-  /campaigns/owners:
-    get:
-      summary: Get owners of Campaigns
-      operationId: get-campaigns-owners
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    surname:
-                      type: string
-                  required:
-                    - id
-                    - name
-                    - surname
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      description: Get all the owners of campaigns you have access to
-      tags:
-        - Campaign
-      parameters: []
-    parameters: []
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -1055,45 +1020,6 @@ paths:
           name: orderBy
           description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
         - $ref: '#/components/parameters/filterBy'
-  '/campaigns/{campaign}/groups':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get all Campaign Groups
-      tags:
-        - Campaign
-      operationId: get-campaigns-cid-groups
-      description: 'Get all groups used in a Campaign if you have access to it '
-      security:
-        - JWT: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                    name:
-                      type: string
-                  required:
-                    - id
-                    - name
-              examples: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      parameters: []
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
@@ -1652,6 +1578,401 @@ paths:
           in: query
           name: filterByAge
           description: Array with min and max
+  '/campaigns/{campaign}/clusters':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get use case clusters for a campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - items
+              examples:
+                4-items:
+                  value:
+                    items:
+                      - id: 1
+                        name: 'UC1: Cart'
+                      - id: 2
+                        name: 'UC2: Login'
+                      - id: 3
+                        name: 'UC3: Checkout'
+                      - id: 4
+                        name: 'UC4: Search'
+                ux-campaign-get-clusters:
+                  value:
+                    items:
+                      - id: 1
+                        name: UC 1 - Carrello
+                      - id: 2
+                        name: UC 2 - Profilo
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-clusters
+      description: Get all clusters for  a specific campaign
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a preselection form by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    question:
+                      type: string
+                    shortName:
+                      type: string
+                  required:
+                    - id
+                    - question
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: My question 1
+                      shortName: Q1
+                    - id: 2
+                      question: My question 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-forms
+      description: ''
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/groups':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get all Campaign Groups
+      tags:
+        - Campaign
+      operationId: get-campaigns-cid-groups
+      description: 'Get all groups used in a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters: []
+  '/campaigns/{campaign}/observations':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get observations for a campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        time:
+                          type: integer
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        cluster:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        media:
+                          type: object
+                          required:
+                            - id
+                            - url
+                            - streamUrl
+                          properties:
+                            id:
+                              type: integer
+                            url:
+                              type: string
+                            streamUrl:
+                              type: string
+                      required:
+                        - id
+                        - name
+                        - time
+                        - tester
+                        - cluster
+                        - media
+                required:
+                  - items
+              examples:
+                3-observations:
+                  value:
+                    items:
+                      - id: 1
+                        name: Observation Name1
+                        time: 59
+                        tester:
+                          id: 11111
+                          name: Jhon Doe
+                        cluster:
+                          id: 1
+                          name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                      - id: 2
+                        name: Observation Name2
+                        time: 39
+                        tester:
+                          id: 12345
+                          name: Mary Blue
+                        cluster:
+                          id: 1
+                          name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                      - id: 3
+                        name: Observation Name3
+                        time: 19
+                        tester:
+                          id: 11111
+                          name: Jhon Doe
+                        cluster:
+                          id: 2
+                          name: Cluster Name2
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                ux-campaign-get-observations:
+                  value:
+                    items:
+                      - id: 10678
+                        name: ok
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 11291
+                          name: Aurora
+                        media:
+                          id: 73578
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
+                      - id: 10682
+                        name: ''
+                        time: 22
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 8208
+                          name: Eliseo
+                        media:
+                          id: 73577
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                      - id: 10683
+                        name: t58918_xiaomi_mi10_usecase1-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 58918
+                          name: Claudio
+                        media:
+                          id: 73579
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                      - id: 10684
+                        name: t960_apple_iphone12_usecase0-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 960
+                          name: Domenico
+                        media:
+                          id: 73580
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
+                      - id: 10685
+                        name: t17968_pc_desktop-_amd_usecase1-
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 17968
+                          name: Vittorio
+                        media:
+                          id: 73589
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
+                      - id: 10686
+                        name: t29187_huaweihonor_usecase0-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 29187
+                          name: Giada
+                        media:
+                          id: 73590
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8'
+                      - id: 10687
+                        name: interessante
+                        time: 58
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 8208
+                          name: Eliseo
+                        media:
+                          id: 73577
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                      - id: 10688
+                        name: giommiobs
+                        time: 108
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 58918
+                          name: Claudio
+                        media:
+                          id: 73579
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                      - id: 10690
+                        name: ok T32
+                        time: 4
+                        cluster:
+                          id: 782
+                          name: UC 2 - Profilo
+                        tester:
+                          id: 32
+                          name: Luca
+                        media:
+                          id: 74191
+                          url: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-observations
+      description: Get observations for a campaign
+      security:
+        - JWT: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterBy
   '/campaigns/{campaign}/payouts':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -1732,6 +2053,469 @@ paths:
       security:
         - JWT: []
       parameters: []
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a prospect by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - usecases:
+                          completed: 0
+                          required: 0
+                        tester:
+                          id: 0
+                          name: string
+                          surname: string
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                            - group
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                            group:
+                              type: number
+                        usecases:
+                          type: object
+                          required:
+                            - completed
+                            - required
+                          properties:
+                            completed:
+                              type: integer
+                            required:
+                              type: integer
+                        bugs:
+                          type: object
+                          required:
+                            - critical
+                            - high
+                            - medium
+                            - low
+                          properties:
+                            critical:
+                              type: integer
+                            high:
+                              type: integer
+                            medium:
+                              type: integer
+                            low:
+                              type: integer
+                        payout:
+                          type: object
+                          required:
+                            - completion
+                            - bug
+                            - refund
+                            - extra
+                          properties:
+                            completion:
+                              type: number
+                            bug:
+                              type: number
+                            refund:
+                              type: number
+                            extra:
+                              type: number
+                        experience:
+                          type: object
+                          required:
+                            - completion
+                            - extra
+                          properties:
+                            completion:
+                              type: integer
+                            extra:
+                              type: integer
+                        note:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - pending
+                            - done
+                        weightedBugs:
+                          type: number
+                        isCompleted:
+                          type: boolean
+                        isTopTester:
+                          type: boolean
+                      required:
+                        - tester
+                        - usecases
+                        - bugs
+                        - payout
+                        - experience
+                        - note
+                        - status
+                        - weightedBugs
+                        - isCompleted
+                        - isTopTester
+                  status:
+                    $ref: '#/components/schemas/ProspectStatus'
+                required:
+                  - items
+                  - status
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - tester:
+                          id: 0
+                          name: string
+                          surname: string
+                          group: 0
+                        usecases:
+                          completed: 0
+                          required: 0
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                        weightedBugs: 0
+                        isCompleted: true
+                        isTopTester: true
+                    status: draft
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          description: Precondition Failed
+      operationId: get-campaigns-campaign-prospect
+      description: ''
+      security:
+        - JWT: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterByInclude
+          description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByExclude
+          description: Key-value Array for item filtering
+    put:
+      summary: Edit a campaign prospect
+      operationId: put-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tester:
+                        type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: integer
+                      experience:
+                        type: object
+                        required:
+                          - completion
+                          - extra
+                        properties:
+                          completion:
+                            type: integer
+                          extra:
+                            type: integer
+                      payout:
+                        type: object
+                        required:
+                          - completion
+                          - bug
+                          - extra
+                          - refund
+                        properties:
+                          completion:
+                            type: number
+                          bug:
+                            type: number
+                          extra:
+                            type: number
+                          refund:
+                            type: number
+                      note:
+                        type: string
+                      completed:
+                        type: boolean
+                    required:
+                      - tester
+                      - experience
+                      - payout
+                      - completed
+              required:
+                - status
+                - items
+            examples:
+              Example 1:
+                value:
+                  status: done
+                  items:
+                    - tester:
+                        id: 0
+                      experience:
+                        completion: 0
+                        extra: 0
+                      payout:
+                        completion: 0
+                        bug: 0
+                        extra: 0
+                        refund: 0
+                      note: string
+                      completed: true
+    patch:
+      summary: ''
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+        '304':
+          description: Not Modified
+        '403':
+          description: Forbidden
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
+  '/campaigns/{campaign}/prospect/{testerId}':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+      - $ref: '#/components/parameters/testerId'
+    put:
+      summary: ''
+      operationId: put-campaigns-campaign-prospect-testerId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    payout:
+                      completion: 0.2
+                      bugs: 0.2
+                      refund: 0.2
+                      extra: 0.2
+                    experience:
+                      completion: 0
+                      extra: 0
+                    note: string
+                    completed: true
+                properties:
+                  payout:
+                    type: object
+                    required:
+                      - completion
+                      - bugs
+                      - refund
+                      - extra
+                    properties:
+                      completion:
+                        type: number
+                      bugs:
+                        type: number
+                      refund:
+                        type: number
+                      extra:
+                        type: number
+                  experience:
+                    type: object
+                    required:
+                      - completion
+                      - extra
+                    properties:
+                      completion:
+                        type: integer
+                      extra:
+                        type: integer
+                  note:
+                    type: string
+                  completed:
+                    type: boolean
+                required:
+                  - payout
+                  - experience
+                  - note
+                  - completed
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  payout:
+                    completion: 10
+                    bugs: 10
+                    refund: 10
+                    extra: 10
+                  experience:
+                    completion: 10
+                    extra: 10
+                  note: string
+                  completed: true
+              properties:
+                payout:
+                  type: object
+                  required:
+                    - completion
+                    - bugs
+                    - refund
+                    - extra
+                  properties:
+                    completion:
+                      type: number
+                    bugs:
+                      type: number
+                    refund:
+                      type: number
+                    extra:
+                      type: number
+                experience:
+                  type: object
+                  required:
+                    - completion
+                    - extra
+                  properties:
+                    completion:
+                      type: integer
+                    extra:
+                      type: integer
+                note:
+                  type: string
+                completed:
+                  type: boolean
+              required:
+                - payout
+                - experience
+                - note
+                - completed
+            examples:
+              Example 1:
+                value:
+                  payout:
+                    completion: 0
+                    bugs: 0
+                    refund: 0
+                    extra: 0
+                  experience:
+                    completion: 0
+                    extra: 0
+                  note: string
+                  completed: true
+  '/campaigns/{campaign}/stats':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get stats for a specific campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  selected:
+                    type: integer
+                required:
+                  - selected
+              examples: {}
+      operationId: get-campaigns-campaign-stats
+      description: ''
+      security:
+        - JWT: []
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -2575,317 +3359,6 @@ paths:
                 value:
                   status: publish
         description: ''
-  '/campaigns/{campaign}/clusters':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get use case clusters for a campaign
-      tags:
-        - Campaign
-        - Task
-      responses:
-        '200':
-          description: A UseCase linked with the Campaign
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                required:
-                  - items
-              examples:
-                4-items:
-                  value:
-                    items:
-                      - id: 1
-                        name: 'UC1: Cart'
-                      - id: 2
-                        name: 'UC2: Login'
-                      - id: 3
-                        name: 'UC3: Checkout'
-                      - id: 4
-                        name: 'UC4: Search'
-                ux-campaign-get-clusters:
-                  value:
-                    items:
-                      - id: 1
-                        name: UC 1 - Carrello
-                      - id: 2
-                        name: UC 2 - Profilo
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaign-clusters
-      description: Get all clusters for  a specific campaign
-      security:
-        - JWT: []
-  '/campaigns/{campaign}/observations':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get observations for a campaign
-      tags:
-        - Campaign
-        - Task
-      responses:
-        '200':
-          description: A UseCase linked with the Campaign
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                        time:
-                          type: integer
-                        tester:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                        cluster:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                        media:
-                          type: object
-                          required:
-                            - id
-                            - url
-                            - streamUrl
-                          properties:
-                            id:
-                              type: integer
-                            url:
-                              type: string
-                            streamUrl:
-                              type: string
-                      required:
-                        - id
-                        - name
-                        - time
-                        - tester
-                        - cluster
-                        - media
-                required:
-                  - items
-              examples:
-                3-observations:
-                  value:
-                    items:
-                      - id: 1
-                        name: Observation Name1
-                        time: 59
-                        tester:
-                          id: 11111
-                          name: Jhon Doe
-                        cluster:
-                          id: 1
-                          name: Cluster Name1
-                        media:
-                          id: 1
-                          url: www.example.com
-                          streamUrl: www.example.com
-                      - id: 2
-                        name: Observation Name2
-                        time: 39
-                        tester:
-                          id: 12345
-                          name: Mary Blue
-                        cluster:
-                          id: 1
-                          name: Cluster Name1
-                        media:
-                          id: 1
-                          url: www.example.com
-                          streamUrl: www.example.com
-                      - id: 3
-                        name: Observation Name3
-                        time: 19
-                        tester:
-                          id: 11111
-                          name: Jhon Doe
-                        cluster:
-                          id: 2
-                          name: Cluster Name2
-                        media:
-                          id: 1
-                          url: www.example.com
-                          streamUrl: www.example.com
-                ux-campaign-get-observations:
-                  value:
-                    items:
-                      - id: 10678
-                        name: ok
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 11291
-                          name: Aurora
-                        media:
-                          id: 73578
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
-                      - id: 10682
-                        name: ''
-                        time: 22
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 8208
-                          name: Eliseo
-                        media:
-                          id: 73577
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
-                      - id: 10683
-                        name: t58918_xiaomi_mi10_usecase1-mp4
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 58918
-                          name: Claudio
-                        media:
-                          id: 73579
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
-                      - id: 10684
-                        name: t960_apple_iphone12_usecase0-mp4
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 960
-                          name: Domenico
-                        media:
-                          id: 73580
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
-                      - id: 10685
-                        name: t17968_pc_desktop-_amd_usecase1-
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 17968
-                          name: Vittorio
-                        media:
-                          id: 73589
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
-                      - id: 10686
-                        name: t29187_huaweihonor_usecase0-mp4
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 29187
-                          name: Giada
-                        media:
-                          id: 73590
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8'
-                      - id: 10687
-                        name: interessante
-                        time: 58
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 8208
-                          name: Eliseo
-                        media:
-                          id: 73577
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
-                      - id: 10688
-                        name: giommiobs
-                        time: 108
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 58918
-                          name: Claudio
-                        media:
-                          id: 73579
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
-                      - id: 10690
-                        name: ok T32
-                        time: 4
-                        cluster:
-                          id: 782
-                          name: UC 2 - Profilo
-                        tester:
-                          id: 32
-                          name: Luca
-                        media:
-                          id: 74191
-                          url: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaign-observations
-      description: Get observations for a campaign
-      security:
-        - JWT: []
-      parameters:
-        - schema: {}
-          in: query
-          name: filterBy
   /campaigns/forms:
     post:
       summary: Create a new preselection form
@@ -3392,16 +3865,10 @@ paths:
                     - question: 'What''s your [profile question]?'
                       type: gender
       description: ''
-  '/campaigns/{campaign}/forms':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
+  /campaigns/owners:
     get:
-      summary: Get a preselection form by campaign id
-      tags: []
+      summary: Get owners of Campaigns
+      operationId: get-campaigns-owners
       responses:
         '200':
           description: OK
@@ -3414,492 +3881,25 @@ paths:
                   properties:
                     id:
                       type: integer
-                    question:
+                    name:
                       type: string
-                    shortName:
+                    surname:
                       type: string
                   required:
                     - id
-                    - question
-              examples:
-                example-1:
-                  value:
-                    - id: 1
-                      question: My question 1
-                      shortName: Q1
-                    - id: 2
-                      question: My question 2
+                    - name
+                    - surname
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaign-forms
-      description: ''
       security:
         - JWT: []
-  '/campaigns/{campaign}/prospect/{testerId}':
-    parameters:
-      - $ref: '#/components/parameters/campaign'
-      - $ref: '#/components/parameters/testerId'
-    put:
-      summary: ''
-      operationId: put-campaigns-campaign-prospect-testerId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  Example 1:
-                    payout:
-                      completion: 0.2
-                      bugs: 0.2
-                      refund: 0.2
-                      extra: 0.2
-                    experience:
-                      completion: 0
-                      extra: 0
-                    note: string
-                    completed: true
-                properties:
-                  payout:
-                    type: object
-                    required:
-                      - completion
-                      - bugs
-                      - refund
-                      - extra
-                    properties:
-                      completion:
-                        type: number
-                      bugs:
-                        type: number
-                      refund:
-                        type: number
-                      extra:
-                        type: number
-                  experience:
-                    type: object
-                    required:
-                      - completion
-                      - extra
-                    properties:
-                      completion:
-                        type: integer
-                      extra:
-                        type: integer
-                  note:
-                    type: string
-                  completed:
-                    type: boolean
-                required:
-                  - payout
-                  - experience
-                  - note
-                  - completed
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              x-examples:
-                Example 1:
-                  payout:
-                    completion: 10
-                    bugs: 10
-                    refund: 10
-                    extra: 10
-                  experience:
-                    completion: 10
-                    extra: 10
-                  note: string
-                  completed: true
-              properties:
-                payout:
-                  type: object
-                  required:
-                    - completion
-                    - bugs
-                    - refund
-                    - extra
-                  properties:
-                    completion:
-                      type: number
-                    bugs:
-                      type: number
-                    refund:
-                      type: number
-                    extra:
-                      type: number
-                experience:
-                  type: object
-                  required:
-                    - completion
-                    - extra
-                  properties:
-                    completion:
-                      type: integer
-                    extra:
-                      type: integer
-                note:
-                  type: string
-                completed:
-                  type: boolean
-              required:
-                - payout
-                - experience
-                - note
-                - completed
-            examples:
-              Example 1:
-                value:
-                  payout:
-                    completion: 0
-                    bugs: 0
-                    refund: 0
-                    extra: 0
-                  experience:
-                    completion: 0
-                    extra: 0
-                  note: string
-                  completed: true
-  '/campaigns/{campaign}/prospect':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    get:
-      summary: Get a prospect by campaign id
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  Example 1:
-                    items:
-                      - usecases:
-                          completed: 0
-                          required: 0
-                        tester:
-                          id: 0
-                          name: string
-                          surname: string
-                        bugs:
-                          critical: 0
-                          high: 0
-                          medium: 0
-                          low: 0
-                        payout:
-                          completion: 0
-                          bug: 0
-                          refund: 0
-                          extra: 0
-                        experience:
-                          completion: 0
-                          extra: 0
-                        note: string
-                        status: pending
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        tester:
-                          type: object
-                          required:
-                            - id
-                            - name
-                            - surname
-                            - group
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                            surname:
-                              type: string
-                            group:
-                              type: number
-                        usecases:
-                          type: object
-                          required:
-                            - completed
-                            - required
-                          properties:
-                            completed:
-                              type: integer
-                            required:
-                              type: integer
-                        bugs:
-                          type: object
-                          required:
-                            - critical
-                            - high
-                            - medium
-                            - low
-                          properties:
-                            critical:
-                              type: integer
-                            high:
-                              type: integer
-                            medium:
-                              type: integer
-                            low:
-                              type: integer
-                        payout:
-                          type: object
-                          required:
-                            - completion
-                            - bug
-                            - refund
-                            - extra
-                          properties:
-                            completion:
-                              type: number
-                            bug:
-                              type: number
-                            refund:
-                              type: number
-                            extra:
-                              type: number
-                        experience:
-                          type: object
-                          required:
-                            - completion
-                            - extra
-                          properties:
-                            completion:
-                              type: integer
-                            extra:
-                              type: integer
-                        note:
-                          type: string
-                        status:
-                          type: string
-                          enum:
-                            - pending
-                            - done
-                        weightedBugs:
-                          type: number
-                        isCompleted:
-                          type: boolean
-                        isTopTester:
-                          type: boolean
-                      required:
-                        - tester
-                        - usecases
-                        - bugs
-                        - payout
-                        - experience
-                        - note
-                        - status
-                        - weightedBugs
-                        - isCompleted
-                        - isTopTester
-                  status:
-                    $ref: '#/components/schemas/ProspectStatus'
-                required:
-                  - items
-                  - status
-              examples:
-                Example 1:
-                  value:
-                    items:
-                      - tester:
-                          id: 0
-                          name: string
-                          surname: string
-                          group: 0
-                        usecases:
-                          completed: 0
-                          required: 0
-                        bugs:
-                          critical: 0
-                          high: 0
-                          medium: 0
-                          low: 0
-                        payout:
-                          completion: 0
-                          bug: 0
-                          refund: 0
-                          extra: 0
-                        experience:
-                          completion: 0
-                          extra: 0
-                        note: string
-                        status: pending
-                        weightedBugs: 0
-                        isCompleted: true
-                        isTopTester: true
-                    status: draft
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '412':
-          description: Precondition Failed
-      operationId: get-campaigns-campaign-prospect
-      description: ''
-      security:
-        - JWT: []
-      parameters:
-        - schema: {}
-          in: query
-          name: filterByInclude
-          description: Key-value Array for item filtering
-        - schema: {}
-          in: query
-          name: filterByExclude
-          description: Key-value Array for item filtering
-    put:
-      summary: Edit a campaign prospect
-      operationId: put-campaigns-campaign-prospect
-      responses:
-        '200':
-          description: OK
-          content: {}
-        '304':
-          description: Not Modified
-        '501':
-          description: Not Implemented
-      security:
-        - JWT: []
-      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  $ref: '#/components/schemas/ProspectStatus'
-                items:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      tester:
-                        type: object
-                        required:
-                          - id
-                        properties:
-                          id:
-                            type: integer
-                      experience:
-                        type: object
-                        required:
-                          - completion
-                          - extra
-                        properties:
-                          completion:
-                            type: integer
-                          extra:
-                            type: integer
-                      payout:
-                        type: object
-                        required:
-                          - completion
-                          - bug
-                          - extra
-                          - refund
-                        properties:
-                          completion:
-                            type: number
-                          bug:
-                            type: number
-                          extra:
-                            type: number
-                          refund:
-                            type: number
-                      note:
-                        type: string
-                      completed:
-                        type: boolean
-                    required:
-                      - tester
-                      - experience
-                      - payout
-                      - completed
-              required:
-                - status
-                - items
-            examples:
-              Example 1:
-                value:
-                  status: done
-                  items:
-                    - tester:
-                        id: 0
-                      experience:
-                        completion: 0
-                        extra: 0
-                      payout:
-                        completion: 0
-                        bug: 0
-                        extra: 0
-                        refund: 0
-                      note: string
-                      completed: true
-    patch:
-      summary: ''
-      operationId: patch-campaigns-campaign-prospect
-      responses:
-        '200':
-          description: OK
-        '304':
-          description: Not Modified
-        '403':
-          description: Forbidden
-        '501':
-          description: Not Implemented
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  $ref: '#/components/schemas/ProspectStatus'
-  '/campaigns/{campaign}/stats':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    get:
-      summary: Get stats for a specific campaign
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  selected:
-                    type: integer
-                required:
-                  - selected
-              examples: {}
-      operationId: get-campaigns-campaign-stats
-      description: ''
-      security:
-        - JWT: []
+      description: Get all the owners of campaigns you have access to
+      tags:
+        - Campaign
+      parameters: []
+    parameters: []
   /campaignTypes:
     parameters: []
     get:
@@ -4275,6 +4275,152 @@ paths:
       security:
         - JWT: []
       description: Get all employments
+  '/jotforms/{campaign}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: Import a jotform to a campaign
+      operationId: post-jotforms-campaignId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formId:
+                  type: string
+                testerIdColumn:
+                  type: string
+              required:
+                - formId
+                - testerIdColumn
+            examples:
+              Example 1:
+                value:
+                  formId: '123456'
+                  testerIdColumn: ltstronggttryberIdltstronggt
+      description: ''
+      security:
+        - JWT: []
+  /jotforms/forms:
+    get:
+      summary: Get Jotforms
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    createdAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - createdAt
+              examples:
+                3 forms:
+                  value:
+                    - id: '3'
+                      name: Form new
+                      createdAt: '2024-02-24 16:00:00'
+                    - id: '2'
+                      name: Form old
+                      createdAt: '2024-02-25 16:00:00'
+                    - id: '1'
+                      name: Form oldest
+                      createdAt: '2024-02-26 16:00:00'
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
+      operationId: get-jotforms
+      description: ''
+      security:
+        - JWT: []
+    parameters: []
+  '/jotforms/forms/{formId}/questions':
+    parameters:
+      - schema:
+          type: string
+        name: formId
+        in: path
+        required: true
+    get:
+      summary: Get quesitions from a jotform
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - title
+                    - type
+              examples:
+                3 questions:
+                  value:
+                    - id: '1'
+                      type: control_textbox
+                      title: Tester ID
+                      description: Inserisci il tuo tester ID nel formato T1234
+                      name: testerId
+                    - id: '2'
+                      type: control_email
+                      title: Email
+                      description: ''
+                      name: email
+                    - id: '43'
+                      type: control_text
+                      title: "<p>Ciao!<br />Stiamo cercando utenti con fatture insolute dei seguenti operatori:</p>\r\n<ul>\r\n<li>Wind3</li>\r\n<li>Fastweb</li>\r\n<li>Iliad</li>\r\n</ul>\r\n<p>\_</p>\r\n<p>Se rientri nel target, compila la survey, abbiamo un'opportunità di <strong>guadagno</strong> per te!</p>"
+                      name: input43
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
+      operationId: get-jotforms-forms-formId-questions
+      security:
+        - JWT: []
   /languages:
     get:
       summary: Get All Languages
@@ -6961,6 +7107,221 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the preselection form for your campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/PreselectionFormQuestion'
+                    - type: object
+                      properties:
+                        value:
+                          oneOf:
+                            - type: integer
+                            - type: object
+                              properties:
+                                city:
+                                  type: string
+                                country:
+                                  type: string
+                            - type: array
+                              items:
+                                type: integer
+                            - type: string
+                        validation:
+                          type: object
+                          properties:
+                            regex:
+                              type: string
+                            error:
+                              type: string
+                          required:
+                            - regex
+                        id:
+                          type: number
+                      required:
+                        - id
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: Come si chiama il tuo cane?
+                      type: text
+                    - id: 2
+                      question: Il tuo cane si chiama pippo?
+                      type: radio
+                      options:
+                        - Sì
+                        - 'No'
+                    - id: 3
+                      question: Di che razza è il tuo cane?
+                      type: select
+                      options:
+                        - ALANO TIGRATO
+                        - ALASKAN MALAMUTE
+                        - ALPENLAENDISCHE DACHSBRACKE
+                        - AMSTAFF
+                    - id: 4
+                      question: Che vaccinazioni ha fatto il tuo cane?
+                      type: multiselect
+                      options:
+                        - Cimurro
+                        - Parvovirus
+                        - Adenovirus
+                    - id: 5
+                      question: Con quali banche hai un conto?
+                      type: cuf_22
+                      options:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                      value:
+                        - 3
+                        - 4
+                    - id: 6
+                      question: Scrivi il tuo username telegram
+                      type: cuf_15
+                      value: '@pippo'
+                      validation:
+                        regex: '^@[a-zA-Z]*$'
+                        error: 'Inserire l''utente telegram in questo formato: @pippo'
+                    - id: 7
+                      question: Con che genere ti identifichi?
+                      type: gender
+                      value: male
+                    - id: 8
+                      question: Qual è il tuo numero di telefono
+                      type: phone_number
+                      value: '+33123456789'
+                      validation:
+                        regex: '^\+?[0-9]{12,14}$'
+                    - id: 9
+                      question: Dove abiti?
+                      type: address
+                      value:
+                        city: Pesaro
+                        country: Italy
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaign-campaignId-forms
+      security:
+        - JWT: []
+    post:
+      summary: ''
+      operationId: post-users-me-campaigns-campaignId-forms
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                form:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: object
+                        properties:
+                          id:
+                            oneOf:
+                              - type: integer
+                              - type: array
+                                items:
+                                  type: integer
+                          serialized:
+                            oneOf:
+                              - type: string
+                              - type: array
+                                items:
+                                  type: string
+                              - type: object
+                                properties:
+                                  city:
+                                    type: string
+                                  country:
+                                    type: string
+                                required:
+                                  - city
+                                  - country
+                      question:
+                        type: number
+                    required:
+                      - value
+                      - question
+                device:
+                  type: array
+                  items:
+                    type: integer
+            examples:
+              example-1:
+                value:
+                  form:
+                    - question: 1
+                      value:
+                        serialized: Pippo
+                    - question: 2
+                      value:
+                        serialized: Sì
+                    - question: 3
+                      value:
+                        serialized: ALANO TIGRATO
+                    - question: 4
+                      value:
+                        serialized:
+                          - Cimurro
+                          - Parvovirus
+                    - question: 5
+                      value:
+                        id:
+                          - 1
+                          - 3
+                        serialized:
+                          - Banca 1
+                          - Banca 3
+                    - question: 6
+                      value:
+                        serialized: '@franco'
+                    - question: 7
+                      value:
+                        serialized: female
+                    - question: 8
+                      value:
+                        serialized: '+33233456789'
+                    - question: 9
+                      value:
+                        serialized:
+                          city: Roma
+                          country: Italy
+                  device:
+                    - 123
+      security:
+        - JWT: []
+      description: ''
   '/users/me/campaigns/{campaignId}/media':
     parameters:
       - schema:
@@ -9215,367 +9576,6 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
       operationId: get-users-me-rank-list
-      security:
-        - JWT: []
-  '/users/me/campaigns/{campaignId}/forms':
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-    get:
-      summary: Get the preselection form for your campaign
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/PreselectionFormQuestion'
-                    - type: object
-                      properties:
-                        value:
-                          oneOf:
-                            - type: integer
-                            - type: object
-                              properties:
-                                city:
-                                  type: string
-                                country:
-                                  type: string
-                            - type: array
-                              items:
-                                type: integer
-                            - type: string
-                        validation:
-                          type: object
-                          properties:
-                            regex:
-                              type: string
-                            error:
-                              type: string
-                          required:
-                            - regex
-                        id:
-                          type: number
-                      required:
-                        - id
-              examples:
-                example-1:
-                  value:
-                    - id: 1
-                      question: Come si chiama il tuo cane?
-                      type: text
-                    - id: 2
-                      question: Il tuo cane si chiama pippo?
-                      type: radio
-                      options:
-                        - Sì
-                        - 'No'
-                    - id: 3
-                      question: Di che razza è il tuo cane?
-                      type: select
-                      options:
-                        - ALANO TIGRATO
-                        - ALASKAN MALAMUTE
-                        - ALPENLAENDISCHE DACHSBRACKE
-                        - AMSTAFF
-                    - id: 4
-                      question: Che vaccinazioni ha fatto il tuo cane?
-                      type: multiselect
-                      options:
-                        - Cimurro
-                        - Parvovirus
-                        - Adenovirus
-                    - id: 5
-                      question: Con quali banche hai un conto?
-                      type: cuf_22
-                      options:
-                        - 1
-                        - 2
-                        - 3
-                        - 4
-                      value:
-                        - 3
-                        - 4
-                    - id: 6
-                      question: Scrivi il tuo username telegram
-                      type: cuf_15
-                      value: '@pippo'
-                      validation:
-                        regex: '^@[a-zA-Z]*$'
-                        error: 'Inserire l''utente telegram in questo formato: @pippo'
-                    - id: 7
-                      question: Con che genere ti identifichi?
-                      type: gender
-                      value: male
-                    - id: 8
-                      question: Qual è il tuo numero di telefono
-                      type: phone_number
-                      value: '+33123456789'
-                      validation:
-                        regex: '^\+?[0-9]{12,14}$'
-                    - id: 9
-                      question: Dove abiti?
-                      type: address
-                      value:
-                        city: Pesaro
-                        country: Italy
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-campaign-campaignId-forms
-      security:
-        - JWT: []
-    post:
-      summary: ''
-      operationId: post-users-me-campaigns-campaignId-forms
-      responses:
-        '200':
-          description: OK
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                form:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      value:
-                        type: object
-                        properties:
-                          id:
-                            oneOf:
-                              - type: integer
-                              - type: array
-                                items:
-                                  type: integer
-                          serialized:
-                            oneOf:
-                              - type: string
-                              - type: array
-                                items:
-                                  type: string
-                              - type: object
-                                properties:
-                                  city:
-                                    type: string
-                                  country:
-                                    type: string
-                                required:
-                                  - city
-                                  - country
-                      question:
-                        type: number
-                    required:
-                      - value
-                      - question
-                device:
-                  type: array
-                  items:
-                    type: integer
-            examples:
-              example-1:
-                value:
-                  form:
-                    - question: 1
-                      value:
-                        serialized: Pippo
-                    - question: 2
-                      value:
-                        serialized: Sì
-                    - question: 3
-                      value:
-                        serialized: ALANO TIGRATO
-                    - question: 4
-                      value:
-                        serialized:
-                          - Cimurro
-                          - Parvovirus
-                    - question: 5
-                      value:
-                        id:
-                          - 1
-                          - 3
-                        serialized:
-                          - Banca 1
-                          - Banca 3
-                    - question: 6
-                      value:
-                        serialized: '@franco'
-                    - question: 7
-                      value:
-                        serialized: female
-                    - question: 8
-                      value:
-                        serialized: '+33233456789'
-                    - question: 9
-                      value:
-                        serialized:
-                          city: Roma
-                          country: Italy
-                  device:
-                    - 123
-      security:
-        - JWT: []
-      description: ''
-  '/jotforms/{campaign}':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    post:
-      summary: Import a jotform to a campaign
-      operationId: post-jotforms-campaignId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties: {}
-        '403':
-          description: Forbidden
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                formId:
-                  type: string
-                testerIdColumn:
-                  type: string
-              required:
-                - formId
-                - testerIdColumn
-            examples:
-              Example 1:
-                value:
-                  formId: '123456'
-                  testerIdColumn: ltstronggttryberIdltstronggt
-      description: ''
-      security:
-        - JWT: []
-  /jotforms/forms:
-    get:
-      summary: Get Jotforms
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    createdAt:
-                      type: string
-                  required:
-                    - id
-                    - name
-                    - createdAt
-              examples:
-                3 forms:
-                  value:
-                    - id: '3'
-                      name: Form new
-                      createdAt: '2024-02-24 16:00:00'
-                    - id: '2'
-                      name: Form old
-                      createdAt: '2024-02-25 16:00:00'
-                    - id: '1'
-                      name: Form oldest
-                      createdAt: '2024-02-26 16:00:00'
-                empty:
-                  value: []
-        '403':
-          description: Forbidden
-      operationId: get-jotforms
-      description: ''
-      security:
-        - JWT: []
-    parameters: []
-  '/jotforms/forms/{formId}/questions':
-    parameters:
-      - schema:
-          type: string
-        name: formId
-        in: path
-        required: true
-    get:
-      summary: Get quesitions from a jotform
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    title:
-                      type: string
-                    description:
-                      type: string
-                    type:
-                      type: string
-                  required:
-                    - id
-                    - name
-                    - title
-                    - type
-              examples:
-                3 questions:
-                  value:
-                    - id: '1'
-                      type: control_textbox
-                      title: Tester ID
-                      description: Inserisci il tuo tester ID nel formato T1234
-                      name: testerId
-                    - id: '2'
-                      type: control_email
-                      title: Email
-                      description: ''
-                      name: email
-                    - id: '43'
-                      type: control_text
-                      title: "<p>Ciao!<br />Stiamo cercando utenti con fatture insolute dei seguenti operatori:</p>\r\n<ul>\r\n<li>Wind3</li>\r\n<li>Fastweb</li>\r\n<li>Iliad</li>\r\n</ul>\r\n<p>\_</p>\r\n<p>Se rientri nel target, compila la survey, abbiamo un'opportunità di <strong>guadagno</strong> per te!</p>"
-                      name: input43
-                empty:
-                  value: []
-        '403':
-          description: Forbidden
-      operationId: get-jotforms-forms-formId-questions
       security:
         - JWT: []
 components:
