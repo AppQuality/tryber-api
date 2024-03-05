@@ -1234,19 +1234,13 @@ paths:
                               $ref: '#/components/schemas/Gender'
                             age:
                               type: number
-                              x-stoplight:
-                                id: 435m5469ngl4b
                             levels:
                               type: object
-                              x-stoplight:
-                                id: 2djwp6agmx80i
                               required:
                                 - bugHunting
                               properties:
                                 bugHunting:
                                   type: string
-                                  x-stoplight:
-                                    id: kjyr3hu082enj
                             devices:
                               type: array
                               items:
@@ -9551,16 +9545,10 @@ paths:
                       type: string
                     title:
                       type: string
-                      x-stoplight:
-                        id: ya9c3xu5kg0jg
                     description:
                       type: string
-                      x-stoplight:
-                        id: foun0hgj7zb0k
                     type:
                       type: string
-                      x-stoplight:
-                        id: k7xomd4d1omon
                   required:
                     - id
                     - name
