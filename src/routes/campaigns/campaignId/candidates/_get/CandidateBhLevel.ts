@@ -68,7 +68,7 @@ class CandidateBhLevel implements CandidateData {
         "wp_appq_course.id"
       )
       .where("wp_appq_course_tester_status.is_completed", 1)
-      .where("wp_appq_course.course_level", this.courses.levelone.level)
+      .where("wp_appq_course.level", this.courses.levelone.level)
       .where("wp_appq_course.career", this.courses.levelone.career)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
@@ -84,7 +84,7 @@ class CandidateBhLevel implements CandidateData {
         "wp_appq_course.id"
       )
       .where("wp_appq_course_tester_status.is_completed", 1)
-      .where("wp_appq_course.course_level", this.courses.leveltwo.level)
+      .where("wp_appq_course.level", this.courses.leveltwo.level)
       .where("wp_appq_course.career", this.courses.leveltwo.career)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
