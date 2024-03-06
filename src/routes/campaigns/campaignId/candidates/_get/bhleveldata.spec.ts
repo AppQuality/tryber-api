@@ -276,12 +276,14 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       {
         ...course,
         id: 1,
+        level: 1,
         course_level: "1",
         career: "Functional",
       },
       {
         ...course,
         id: 2,
+        level: 2,
         course_level: "2",
         career: "General",
       },
