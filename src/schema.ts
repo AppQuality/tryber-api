@@ -1364,8 +1364,10 @@ export interface operations {
               surname: string;
               gender: components["schemas"]["Gender"];
               age: number;
+              experience: number;
               levels: {
                 bugHunting: string;
+                metal: string;
               };
               devices: {
                 manufacturer?: string;

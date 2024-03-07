@@ -16,6 +16,7 @@ class CandidateProfile implements CandidateData {
         id: number;
         gender: StoplightComponents["schemas"]["Gender"];
         age: number;
+        experience: number;
       }[]
     | undefined;
 
@@ -38,7 +39,7 @@ class CandidateProfile implements CandidateData {
 
   async init() {
     const result = await tryber.tables.WpAppqEvdProfile.do()
-      .select("id", "sex", tryber.fn.charDate("birth_date"))
+      .select("id", "sex", tryber.fn.charDate("birth_date"), "total_exp_pts")
       .whereIn("id", this.candidateIds);
     this._candidateData = result.map((candidate) => {
       const gender =
@@ -52,6 +53,7 @@ class CandidateProfile implements CandidateData {
 
       return {
         id: candidate.id,
+        experience: candidate.total_exp_pts,
         gender,
         age:
           new Date().getFullYear() -
@@ -69,6 +71,7 @@ class CandidateProfile implements CandidateData {
     return {
       gender: data.gender,
       age: data.age,
+      experience: data.experience,
     };
   }
 

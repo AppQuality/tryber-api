@@ -5,6 +5,7 @@ import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import { CandidateBhLevel } from "./CandidateBhLevel";
 import { CandidateDevices } from "./CandidateDevices";
+import { CandidateLevels } from "./CandidateLevel";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
@@ -36,6 +37,7 @@ export default class RouteItem extends UserRoute<{
         age?: { min?: number; max?: number };
         questions?: Record<number, string[]>;
         bughunting?: string[];
+        metal?: string[];
       }
     | undefined;
 
@@ -62,6 +64,7 @@ export default class RouteItem extends UserRoute<{
 
     this.filters = { ...this.filters, ...this.getOsFilter() };
     this.filters = { ...this.filters, ...this.getBughuntingFilter() };
+    this.filters = { ...this.filters, ...this.getMetalLevelFilter() };
     this.filters = { ...this.filters, ...this.getQuestionsFilter() };
     this.filters = { ...this.filters, ...this.getGenderFilter() };
     this.filters = { ...this.filters, ...this.getAgeFilters() };
@@ -136,6 +139,21 @@ export default class RouteItem extends UserRoute<{
       bughunting: Array.isArray(filterByInclude.bughunting)
         ? filterByInclude.bughunting
         : [filterByInclude.bughunting],
+    };
+  }
+
+  private getMetalLevelFilter() {
+    const query = this.getQuery();
+    const filterByInclude = query.filterByInclude as filterBy;
+
+    if (!filterByInclude) return {};
+    if ("metal" in filterByInclude === false) return {};
+    if (filterByInclude.metal === undefined) return {};
+
+    return {
+      metal: Array.isArray(filterByInclude.metal)
+        ? filterByInclude.metal
+        : [filterByInclude.metal],
     };
   }
 
@@ -254,6 +272,7 @@ export default class RouteItem extends UserRoute<{
         return {
           id: candidate.id,
           name: candidate.name,
+          experience: candidate.experience,
           surname: candidate.surname,
           devices: candidate.devices,
           gender: candidate.gender,
@@ -311,6 +330,14 @@ export default class RouteItem extends UserRoute<{
     });
     await bhLevelGetter.init();
 
+    const metalLevelGetter = new CandidateLevels({
+      candidateIds: candidates.map((candidate) => candidate.id),
+      ...(this.filters?.metal && {
+        filters: { metal: this.filters?.metal },
+      }),
+    });
+    await metalLevelGetter.init();
+
     const result = candidates
       .map((candidate) => {
         return {
@@ -320,6 +347,7 @@ export default class RouteItem extends UserRoute<{
           ...profileGetter.getCandidateData(candidate),
           levels: {
             bugHunting: bhLevelGetter.getCandidateData(candidate),
+            metal: metalLevelGetter.getCandidateData(candidate),
           },
         };
       })
@@ -328,7 +356,8 @@ export default class RouteItem extends UserRoute<{
           deviceGetter.isCandidateFiltered(candidate) &&
           questionGetter.isCandidateFiltered(candidate) &&
           profileGetter.isCandidateFiltered(candidate) &&
-          bhLevelGetter.isCandidateFiltered(candidate)
+          bhLevelGetter.isCandidateFiltered(candidate) &&
+          metalLevelGetter.isCandidateFiltered(candidate)
       );
 
     return {

@@ -330,39 +330,39 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 1,
-          levels: {
+          levels: expect.objectContaining({
             bugHunting: "Newbie",
-          },
+          }),
         }),
         expect.objectContaining({
           id: 2,
-          levels: {
+          levels: expect.objectContaining({
             bugHunting: "Rookie",
-          },
+          }),
         }),
         expect.objectContaining({
           id: 3,
-          levels: {
+          levels: expect.objectContaining({
             bugHunting: "Advanced",
-          },
+          }),
         }),
         expect.objectContaining({
           id: 4,
-          levels: {
+          levels: expect.objectContaining({
             bugHunting: "Veteran",
-          },
+          }),
         }),
         expect.objectContaining({
           id: 5,
-          levels: {
+          levels: expect.objectContaining({
             bugHunting: "Expert",
-          },
+          }),
         }),
         expect.objectContaining({
           id: 6,
-          levels: {
+          levels: expect.objectContaining({
             bugHunting: "Champion",
-          },
+          }),
         }),
       ])
     );
