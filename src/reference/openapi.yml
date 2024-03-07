@@ -1234,13 +1234,22 @@ paths:
                               $ref: '#/components/schemas/Gender'
                             age:
                               type: number
+                            experience:
+                              type: number
+                              x-stoplight:
+                                id: shsi2frbuycyj
                             levels:
                               type: object
                               required:
                                 - bugHunting
+                                - metal
                               properties:
                                 bugHunting:
                                   type: string
+                                metal:
+                                  type: string
+                                  x-stoplight:
+                                    id: 9afe0zlf0hr2b
                             devices:
                               type: array
                               items:
@@ -1277,6 +1286,7 @@ paths:
                             - surname
                             - gender
                             - age
+                            - experience
                             - levels
                             - devices
                   - $ref: '#/components/schemas/PaginationData'

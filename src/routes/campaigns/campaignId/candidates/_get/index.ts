@@ -254,6 +254,7 @@ export default class RouteItem extends UserRoute<{
         return {
           id: candidate.id,
           name: candidate.name,
+          experience: candidate.experience,
           surname: candidate.surname,
           devices: candidate.devices,
           gender: candidate.gender,
@@ -320,6 +321,7 @@ export default class RouteItem extends UserRoute<{
           ...profileGetter.getCandidateData(candidate),
           levels: {
             bugHunting: bhLevelGetter.getCandidateData(candidate),
+            metal: "No level",
           },
         };
       })

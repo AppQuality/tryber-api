@@ -32,6 +32,7 @@ describe("GET /campaigns/:campaignId/candidates - profile ", () => {
         id: 1,
         wp_user_id: 1,
         birth_date: "2000-01-01",
+        total_exp_pts: 100,
         sex: 1,
       },
       {
@@ -39,6 +40,7 @@ describe("GET /campaigns/:campaignId/candidates - profile ", () => {
         id: 2,
         wp_user_id: 2,
         birth_date: "1999-01-01",
+        total_exp_pts: 90,
         sex: 0,
       },
       {
@@ -46,6 +48,7 @@ describe("GET /campaigns/:campaignId/candidates - profile ", () => {
         id: 3,
         wp_user_id: 3,
         birth_date: "1998-01-01",
+        total_exp_pts: 80,
         sex: -1,
       },
       {
@@ -53,6 +56,7 @@ describe("GET /campaigns/:campaignId/candidates - profile ", () => {
         id: 4,
         wp_user_id: 4,
         birth_date: "1997-01-01",
+        total_exp_pts: 70,
         sex: 2,
       },
     ]);
@@ -158,6 +162,32 @@ describe("GET /campaigns/:campaignId/candidates - profile ", () => {
         expect.objectContaining({
           id: 4,
           gender: "other",
+        }),
+      ])
+    );
+  });
+  it("Should aswer with the experience points", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          experience: 100,
+        }),
+        expect.objectContaining({
+          id: 2,
+          experience: 90,
+        }),
+        expect.objectContaining({
+          id: 3,
+          experience: 80,
+        }),
+        expect.objectContaining({
+          id: 4,
+          experience: 70,
         }),
       ])
     );
