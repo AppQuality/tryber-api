@@ -5,6 +5,7 @@ import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import { CandidateBhLevel } from "./CandidateBhLevel";
 import { CandidateDevices } from "./CandidateDevices";
+import { CandidateLevels } from "./CandidateLevel";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
@@ -312,6 +313,11 @@ export default class RouteItem extends UserRoute<{
     });
     await bhLevelGetter.init();
 
+    const metalLevelGetter = new CandidateLevels({
+      candidateIds: candidates.map((candidate) => candidate.id),
+    });
+    await metalLevelGetter.init();
+
     const result = candidates
       .map((candidate) => {
         return {
@@ -321,7 +327,7 @@ export default class RouteItem extends UserRoute<{
           ...profileGetter.getCandidateData(candidate),
           levels: {
             bugHunting: bhLevelGetter.getCandidateData(candidate),
-            metal: "No level",
+            metal: metalLevelGetter.getCandidateData(candidate),
           },
         };
       })

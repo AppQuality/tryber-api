@@ -2,8 +2,6 @@ import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidate from "@src/__mocks__/mockedDb/cpHasCandidates";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
 import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
-import UserLevels from "@src/__mocks__/mockedDb/levels";
-import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
@@ -14,22 +12,18 @@ import app from "@src/app";
 import request from "supertest";
 
 const users = {
-  1: { testerId: 1, wpUserId: 1, levelId: 10 },
-  2: { testerId: 4, wpUserId: 5, levelId: 30 },
-  3: { testerId: 2, wpUserId: 6, levelId: 10 },
-  4: { testerId: 3, wpUserId: 7, levelId: 20 },
-  5: { testerId: 10, wpUserId: 9, levelId: 10 },
-  6: { testerId: 5, wpUserId: 4, levelId: 10 },
-  7: { testerId: 8, wpUserId: 8, levelId: 10 },
-  8: { testerId: 9, wpUserId: 2, levelId: 10 },
+  1: { testerId: 1, wpUserId: 1 },
+  2: { testerId: 4, wpUserId: 5 },
+  3: { testerId: 2, wpUserId: 6 },
+  4: { testerId: 3, wpUserId: 7 },
+  5: { testerId: 10, wpUserId: 9 },
+  6: { testerId: 5, wpUserId: 4 },
+  7: { testerId: 8, wpUserId: 8 },
+  8: { testerId: 9, wpUserId: 2 },
 };
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
     await Campaigns.insert({ id: 1 });
-    await Levels.insert({ id: 10, name: "Bronze" });
-    await Levels.insert({ id: 20, name: "Silver" });
-    await Levels.insert({ id: 30, name: "Gold" });
-
     await Profile.insert({
       id: users[1].testerId,
       wp_user_id: users[1].wpUserId,
@@ -42,11 +36,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       name: "John",
       surname: "Doe",
       total_exp_pts: 100,
-    });
-    await UserLevels.insert({
-      id: 1,
-      tester_id: users[2].testerId,
-      level_id: users[2].levelId,
     });
     await WpUsers.insert({ ID: users[2].wpUserId });
     await Candidate.insert({
@@ -91,11 +80,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       name: "Walter",
       surname: "White",
       total_exp_pts: 1000,
-    });
-    await UserLevels.insert({
-      id: 2,
-      tester_id: users[3].testerId,
-      level_id: users[3].levelId,
     });
     await WpUsers.insert({ ID: users[3].wpUserId });
     await Candidate.insert({
@@ -144,11 +128,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       name: "Jesse",
       surname: "Pinkman",
       total_exp_pts: 2,
-    });
-    await UserLevels.insert({
-      id: 3,
-      tester_id: users[4].testerId,
-      level_id: users[4].levelId,
     });
     await WpUsers.insert({ ID: users[4].wpUserId });
     await Candidate.insert({
@@ -352,8 +331,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await Candidate.clear();
     await WpUsers.clear();
     await Profile.clear();
-    await UserLevels.clear();
-    await Levels.clear();
     await PreselectionForm.clear();
     await PreselectionFormFields.clear();
   });
