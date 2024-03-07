@@ -1298,9 +1298,11 @@ paths:
                         name: Giulia
                         surname: Baldini
                         age: 20
+                        experience: 100
                         gender: female
                         levels:
                           bugHunting: Newbie
+                          metal: Bronze
                         devices:
                           - id: 0
                             os: Windows
@@ -1331,9 +1333,11 @@ paths:
                       - id: 1235
                         name: Cesare
                         surname: Alagna
+                        experience: 100
                         age: 21
                         levels:
                           bugHunting: No level
+                          metal: No level
                         gender: male
                         devices:
                           - id: 6
@@ -1347,10 +1351,12 @@ paths:
                       - id: 12346
                         name: Carlo
                         surname: Paolini
+                        experience: 100
                         age: 22
                         gender: not-specified
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - manufacturer: Huawei
                             model: Mate 20 Pro
@@ -1360,9 +1366,11 @@ paths:
                       - id: 1239
                         name: Chiara
                         surname: Mancini
+                        experience: 100
                         age: 23
                         levels:
                           bugHunting: Rookie
+                          metal: Silver
                         gender: other
                         devices:
                           - id: 9
@@ -1376,10 +1384,12 @@ paths:
                       - id: 1236
                         name: Rosa
                         surname: Contralto
+                        experience: 100
                         age: 25
                         gender: female
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - id: 11
                             os: Windows
@@ -1392,10 +1402,12 @@ paths:
                       - id: 12356
                         name: Beppe
                         surname: Gianduiotto
+                        experience: 100
                         age: 26
                         gender: male
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - manufacturer: Apple
                             model: iPad Pro 12.9
@@ -1410,9 +1422,11 @@ paths:
                       - id: 12369
                         name: Monica
                         surname: Lorenzini
+                        experience: 100
                         age: 27
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         gender: female
                         devices:
                           - id: 15
@@ -1426,9 +1440,11 @@ paths:
                       - id: 12389
                         name: Tullio
                         surname: De Sica
+                        experience: 100
                         age: 30
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         gender: male
                         devices:
                           - manufacturer: Apple
@@ -1444,10 +1460,12 @@ paths:
                       - id: 1234
                         name: Giulia
                         surname: Baldini
+                        experience: 100
                         age: 20
                         gender: female
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - id: 0
                             os: Windows
@@ -1485,9 +1503,11 @@ paths:
                       - id: 1235
                         name: Cesare
                         surname: Alagna
+                        experience: 100
                         age: 21
                         levels:
                           bugHunting: No level
+                          metal: No level
                         gender: male
                         devices:
                           - id: 6
@@ -1501,10 +1521,12 @@ paths:
                       - id: 12346
                         name: Carlo
                         surname: Paolini
+                        experience: 100
                         age: 22
                         gender: not-specified
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - manufacturer: Huawei
                             model: Mate 20 Pro
@@ -1521,9 +1543,11 @@ paths:
                       - id: 1239
                         name: Chiara
                         surname: Mancini
+                        experience: 100
                         age: 23
                         levels:
                           bugHunting: Rookie
+                          metal: No level
                         gender: other
                         devices:
                           - id: 9
@@ -1544,10 +1568,12 @@ paths:
                       - id: 1236
                         name: Rosa
                         surname: Contralto
+                        experience: 100
                         age: 25
                         gender: female
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - id: 11
                             os: Windows
@@ -1567,10 +1593,12 @@ paths:
                       - id: 12356
                         name: Beppe
                         surname: Gianduiotto
+                        experience: 100
                         age: 26
                         gender: male
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         devices:
                           - manufacturer: Apple
                             model: iPad Pro 12.9
@@ -1592,9 +1620,11 @@ paths:
                       - id: 12369
                         name: Monica
                         surname: Lorenzini
+                        experience: 100
                         age: 27
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         gender: female
                         devices:
                           - id: 15
@@ -1615,9 +1645,11 @@ paths:
                       - id: 12389
                         name: Tullio
                         surname: De Sica
+                        experience: 100
                         age: 30
                         levels:
                           bugHunting: Newbie
+                          metal: No level
                         gender: male
                         devices:
                           - manufacturer: Apple
