@@ -3,6 +3,7 @@ import { CandidateData } from "./iCandidateData";
 
 class CandidateLevels implements CandidateData {
   private candidateIds: number[];
+  private filters?: { metal?: string[] };
   private levelDefinitions:
     | {
         id: number;
@@ -16,8 +17,15 @@ class CandidateLevels implements CandidateData {
       }[]
     | undefined;
 
-  constructor({ candidateIds }: { candidateIds: number[] }) {
+  constructor({
+    candidateIds,
+    filters,
+  }: {
+    candidateIds: number[];
+    filters?: { metal?: string[] };
+  }) {
     this.candidateIds = candidateIds;
+    this.filters = filters;
   }
 
   get candidateLevels() {
@@ -52,7 +60,11 @@ class CandidateLevels implements CandidateData {
   }
 
   isCandidateFiltered(candidate: { id: number }): boolean {
-    return true;
+    if (!this.filters?.metal) return true;
+
+    const data = this.getCandidateData(candidate);
+
+    return this.filters.metal.includes(data);
   }
 }
 
