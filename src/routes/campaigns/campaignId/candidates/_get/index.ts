@@ -12,7 +12,7 @@ import { Candidates } from "./Candidates";
 
 type filterByItem = string | string[];
 type filterBy = Record<
-  "os" | "testerIds" | "gender" | "bughunting",
+  "os" | "testerIds" | "gender" | "bughunting" | "metal",
   filterByItem | undefined
 >;
 
