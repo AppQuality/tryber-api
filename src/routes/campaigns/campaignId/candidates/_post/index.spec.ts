@@ -1,26 +1,49 @@
 import app from "@src/app";
-import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
-import DeviceOs from "@src/__mocks__/mockedDb/deviceOs";
-import DevicePlatform from "@src/__mocks__/mockedDb/devicePlatform";
-import TesterDevice from "@src/__mocks__/mockedDb/testerDevice";
 import request from "supertest";
-
+import { tryber } from "@src/features/database";
+const profile = {
+  id: 1,
+  wp_user_id: 1,
+  email: "tester@example.com",
+  employment_id: 1,
+  education_id: 1,
+};
+const wpUser = {
+  ID: 1,
+  user_login: "tester",
+  user_email: "tester@example.com",
+  user_pass: "pass",
+};
 beforeEach(async () => {
-  await Campaigns.insert();
-  await Profile.insert();
-  await Profile.insert({ id: 2, wp_user_id: 2 });
-  await Candidature.insert({ user_id: 2, campaign_id: 1, accepted: 0 });
-  await WpUsers.insert();
-  await WpUsers.insert({ ID: 2 });
+  await tryber.tables.WpAppqEvdCampaign.do().insert({
+    id: 1,
+    title: "Test Campaign",
+    customer_title: "Test Campaign",
+    start_date: "2020-01-01",
+    end_date: "2020-01-01",
+    pm_id: 1,
+    page_manual_id: 0,
+    page_preview_id: 0,
+    platform_id: 1,
+    customer_id: 1,
+    project_id: 1,
+  });
+  await tryber.tables.WpAppqEvdProfile.do().insert([
+    profile,
+    { ...profile, id: 2, wp_user_id: 2 },
+  ]);
+  await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+    user_id: 2,
+    campaign_id: 1,
+    accepted: 0,
+  });
+  await tryber.tables.WpUsers.do().insert([wpUser, { ...wpUser, ID: 2 }]);
 });
 afterEach(async () => {
-  await Campaigns.clear();
-  await Profile.clear();
-  await WpUsers.clear();
-  await Candidature.clear();
+  await tryber.tables.WpAppqEvdCampaign.do().delete();
+  await tryber.tables.WpAppqEvdProfile.do().delete();
+  await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+  await tryber.tables.WpUsers.do().delete();
 });
 
 const authorizedPostCandidate = async ({
@@ -54,19 +77,18 @@ const getCandidature = async ({
   tester?: number;
   campaign: number;
 }) => {
-  let where: Parameters<typeof Candidature.all>[1] = [
-    { campaign_id: campaign },
-    { accepted: 1 },
-  ];
+  let candidatures = tryber.tables.WpCrowdAppqHasCandidate.do()
+    .select("accepted", "results", "selected_device", "user_id")
+    .where("campaign_id", campaign)
+    .andWhere("accepted", 1);
   if (tester) {
-    const profiles = await Profile.all(["wp_user_id"], [{ id: tester }]);
-    where.push({ user_id: profiles[0].wp_user_id as number });
+    const profiles = await tryber.tables.WpAppqEvdProfile.do()
+      .select(["wp_user_id"])
+      .where({ id: tester });
+    candidatures = candidatures.andWhere({ user_id: profiles[0].wp_user_id });
     if (!profiles.length) return [];
   }
-  return await Candidature.all(
-    ["accepted", "results", "selected_device", "user_id"],
-    where
-  );
+  return await candidatures;
 };
 describe("POST /campaigns/{campaignId}/candidates", () => {
   it("Should return 403 if user has not olp appq_tester_selection on a specific campaign", async () => {
@@ -93,7 +115,11 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
   });
 
   it("Should return 403 if tester is already candidate on campaign", async () => {
-    await Candidature.insert({ user_id: 1, campaign_id: 1, accepted: 1 });
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+      user_id: 1,
+      campaign_id: 1,
+      accepted: 1,
+    });
     const response = await authorizedPostCandidate({ tester: 1 });
     expect(response.status).toBe(403);
   });
@@ -156,6 +182,19 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       },
     ]);
   });
+  it("Should save candidature acceptation-date", async () => {
+    const response = await authorizedPostMultiCandidate([
+      { tester: 1 },
+      { tester: 2 },
+    ]);
+    expect(response.status).toBe(200);
+    const candidatures = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select()
+      .where({ campaign_id: 1 });
+    expect(candidatures.length).toBe(2);
+    expect(candidatures[0].accepted_date).not.toBeNull();
+    expect(candidatures[1].accepted_date).not.toBeNull();
+  });
 });
 
 describe("POST /campaigns/{campaignId}/candidates?device=random when user has not devices", () => {
@@ -208,31 +247,44 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has no
 
 describe("POST /campaigns/{campaignId}/candidates?device=random when user has two devices", () => {
   beforeEach(async () => {
-    await DeviceOs.insert({ id: 1, display_name: "Linux" });
-    await DevicePlatform.insert({ id: 1, name: "Platform 1" });
-    await TesterDevice.insert({
+    await tryber.tables.WpAppqOs.do().insert({
       id: 1,
-      id_profile: 1,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Laptop",
-      os_version_id: 1,
+      display_name: "Linux",
       platform_id: 1,
+      main_release: 1,
+      version_family: 1,
+      version_number: "1.0",
     });
-    await TesterDevice.insert({
-      id: 2,
-      id_profile: 1,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Server",
-      os_version_id: 1,
-      platform_id: 1,
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Platform 1",
+      architecture: 86,
     });
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      {
+        id: 1,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Laptop",
+        os_version_id: 1,
+        platform_id: 1,
+      },
+      {
+        id: 2,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Server",
+        os_version_id: 1,
+        platform_id: 1,
+      },
+    ]);
   });
   afterEach(async () => {
-    await TesterDevice.clear();
-    await DeviceOs.clear();
-    await DevicePlatform.clear();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
   });
   it("Should candidate the user on success with selected_device one of user devices", async () => {
     const beforeCandidature = await getCandidature({ tester: 1, campaign: 1 });
@@ -259,41 +311,53 @@ describe("POST /campaigns/{campaignId}/candidates?device=random when user has tw
 
 describe("POST /campaigns/{campaignId}/candidates?device=2 specific user device", () => {
   beforeEach(async () => {
-    await DeviceOs.insert({ id: 1, display_name: "Linux" });
-    await DevicePlatform.insert({ id: 1, name: "Platform 1" });
-    await TesterDevice.insert({
+    await tryber.tables.WpAppqOs.do().insert({
       id: 1,
-      id_profile: 1,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Laptop",
-      os_version_id: 1,
+      display_name: "Linux",
       platform_id: 1,
+      main_release: 1,
+      version_family: 1,
+      version_number: "1.0",
     });
-    await TesterDevice.insert({
-      id: 2,
-      id_profile: 1,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Server",
-      os_version_id: 1,
-      platform_id: 1,
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 1,
+      name: "Platform 1",
+      architecture: 86,
     });
-
-    await TesterDevice.insert({
-      id: 3,
-      id_profile: 1,
-      enabled: 1,
-      form_factor: "PC",
-      pc_type: "Server",
-      os_version_id: 1,
-      platform_id: 1,
-    });
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      {
+        id: 1,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Laptop",
+        os_version_id: 1,
+        platform_id: 1,
+      },
+      {
+        id: 2,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Server",
+        os_version_id: 1,
+        platform_id: 1,
+      },
+      {
+        id: 3,
+        id_profile: 1,
+        enabled: 1,
+        form_factor: "PC",
+        pc_type: "Server",
+        os_version_id: 1,
+        platform_id: 1,
+      },
+    ]);
   });
   afterEach(async () => {
-    await TesterDevice.clear();
-    await DeviceOs.clear();
-    await DevicePlatform.clear();
+    await tryber.tables.WpCrowdAppqDevice.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqOs.do().delete();
   });
   it("Should candidate the user on success and seleceted_device id as choosen in query param", async () => {
     const beforeCandidature = await getCandidature({ tester: 1, campaign: 1 });
