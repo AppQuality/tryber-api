@@ -21,7 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@appquality/tryber-database": "^0.26.20",
+    "@appquality/tryber-database": "^0.27.0",
     "@appquality/wp-auth": "^1.0.7",
     "@googlemaps/google-maps-services-js": "^3.3.7",
     "@sendgrid/mail": "^7.6.0",
