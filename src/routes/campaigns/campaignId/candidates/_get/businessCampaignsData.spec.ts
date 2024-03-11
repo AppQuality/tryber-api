@@ -73,23 +73,49 @@ describe("GET /campaigns/:campaignId/candidates - business Campaigns ", () => {
     const candidate = {
       accepted: 0,
       devices: "0",
-      campaign_id: 2,
     };
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
       {
         ...candidate,
         user_id: 1,
-        accepted_date: "2019-12-31",
+        campaign_id: 1,
+        subscription_date: "2019-11-15T00:00:00.000Z",
+      },
+      {
+        ...candidate,
+        user_id: 1,
+        campaign_id: 2,
+        subscription_date: "2019-12-15T00:00:00.000Z",
+      },
+      {
+        ...candidate,
+        user_id: 1,
+        campaign_id: 4,
+        subscription_date: "2019-11-15T00:00:00.000Z",
       },
       {
         ...candidate,
         user_id: 2,
-        accepted_date: "2020-01-01",
+        campaign_id: 1,
+        subscription_date: "2020-01-01T00:00:00.000Z",
+      },
+      {
+        ...candidate,
+        user_id: 2,
+        campaign_id: 2,
+        subscription_date: "2019-11-15T00:00:00.000Z",
+      },
+      {
+        ...candidate,
+        user_id: 2,
+        campaign_id: 4,
+        subscription_date: "2020-01-01T00:00:00.000Z",
       },
       {
         ...candidate,
         user_id: 3,
-        accepted_date: "2020-01-02",
+        campaign_id: 2,
+        subscription_date: "2019-12-17T00:00:00.000Z",
       },
     ]);
 
@@ -190,7 +216,7 @@ describe("GET /campaigns/:campaignId/candidates - business Campaigns ", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 1,
-          businessCpsLastMonth: 2,
+          businessCpsLastMonth: 1,
         }),
         expect.objectContaining({
           id: 2,

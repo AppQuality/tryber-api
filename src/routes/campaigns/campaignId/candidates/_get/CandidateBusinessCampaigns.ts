@@ -2,30 +2,24 @@ import { tryber } from "@src/features/database";
 
 class CandidateBusinessCampaigns {
   private candidateIds: number[];
-  public allTimeCps:
-    | {
-        id: number;
-        counter: number;
-      }[] = [];
 
-  public lastMonthCps:
+  public candidateData:
     | {
         id: number;
-        counter: number;
+        businessCps: number;
+        businessCpsLastMonth: number;
       }[] = [];
 
   constructor({ candidateIds }: { candidateIds: number[] }) {
     this.candidateIds = candidateIds;
   }
   async init() {
-    await this.initAllTimeCps();
-    await this.initLastMonthCps();
-  }
-
-  private async initAllTimeCps() {
-    this.allTimeCps = await tryber.tables.WpAppqEvdBug.do()
+    const data = await tryber.tables.WpAppqEvdBug.do()
       .select(tryber.ref("id").withSchema("wp_appq_evd_profile"))
-      .countDistinct({ counter: "wp_appq_evd_campaign.id" })
+      .select(
+        tryber.ref("id").withSchema("wp_appq_evd_campaign").as("campaign_id")
+      )
+      .select("subscription_date")
       .join(
         "wp_appq_evd_profile",
         "wp_appq_evd_bug.wp_user_id",
@@ -36,48 +30,51 @@ class CandidateBusinessCampaigns {
         "wp_appq_evd_campaign.id",
         "wp_appq_evd_bug.campaign_id"
       )
+      .join("wp_crowd_appq_has_candidate", function () {
+        this.on(
+          "wp_crowd_appq_has_candidate.user_id",
+          "=",
+          "wp_appq_evd_profile.wp_user_id"
+        ).andOn(
+          "wp_appq_evd_campaign.id",
+          "=",
+          "wp_crowd_appq_has_candidate.campaign_id"
+        );
+      })
       .where("wp_appq_evd_campaign.is_business", 1)
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds)
-      .groupBy("wp_appq_evd_profile.id");
-  }
+      .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
-  private async initLastMonthCps() {
-    const last30Days = new Date();
-    last30Days.setMonth(last30Days.getMonth() - 1);
-    this.lastMonthCps = await tryber.tables.WpAppqEvdBug.do()
-      .select(tryber.ref("id").withSchema("wp_appq_evd_profile"))
-      .countDistinct({ counter: "wp_appq_evd_campaign.id" })
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_bug.wp_user_id",
-        "wp_appq_evd_profile.wp_user_id"
-      )
-      .join(
-        "wp_crowd_appq_has_candidate",
-        "wp_crowd_appq_has_candidate.user_id",
-        "wp_appq_evd_profile.wp_user_id"
-      )
-      .join(
-        "wp_appq_evd_campaign",
-        "wp_appq_evd_campaign.id",
-        "wp_appq_evd_bug.campaign_id"
-      )
-      .where("wp_appq_evd_campaign.is_business", 1)
-      .where("subscription_date", ">=", last30Days.toISOString())
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds)
-      .groupBy("wp_appq_evd_profile.id");
+    this.candidateData = this.candidateIds.map((candidate) => {
+      const candidateData = data.filter((d) => d.id === candidate);
+      const businessCps = [...new Set(candidateData.map((d) => d.campaign_id))]
+        .length;
+      const businessCpsLastMonth = [
+        ...new Set(
+          candidateData
+            .filter(
+              (d) =>
+                new Date(d.subscription_date) >
+                new Date(new Date().setMonth(new Date().getMonth() - 1))
+            )
+            .map((d) => d.campaign_id)
+        ),
+      ].length;
+
+      return {
+        id: candidate,
+        businessCps,
+        businessCpsLastMonth,
+      };
+    });
   }
 
   getCandidateData(candidate: { id: number }) {
-    const allTimeCps = this.allTimeCps.find(
-      (candidateData) => candidateData.id === candidate.id
-    );
-    const lastMonthCps = this.lastMonthCps.find(
+    const data = this.candidateData.find(
       (candidateData) => candidateData.id === candidate.id
     );
     return {
-      businessCps: allTimeCps ? allTimeCps.counter : 0,
-      businessCpsLastMonth: lastMonthCps ? lastMonthCps.counter : 0,
+      businessCps: data?.businessCps || 0,
+      businessCpsLastMonth: data?.businessCpsLastMonth || 0,
     };
   }
 }
