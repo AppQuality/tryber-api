@@ -1,5 +1,5 @@
-import { S3 } from 'aws-sdk';
-import stream from 'stream';
+import { S3 } from "aws-sdk";
+import stream from "stream";
 
 type UploadParams = {
   bucket: string;
@@ -20,7 +20,6 @@ export default async ({ bucket, key, file }: UploadParams): Promise<string> => {
       Bucket: bucket,
       Key: key,
       Body: pass,
-      ACL: "public-read",
       ContentType: file.mimeType,
     })
     .promise();
