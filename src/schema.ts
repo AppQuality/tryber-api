@@ -1326,6 +1326,7 @@ export interface operations {
               age: number;
               experience: number;
               businessCps: number;
+              businessCpsLastMonth: number;
               levels: {
                 bugHunting: string;
                 metal: string;

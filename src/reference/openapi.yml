@@ -1162,9 +1162,9 @@ paths:
                               type: number
                             experience:
                               type: number
-                              x-stoplight:
-                                id: shsi2frbuycyj
                             businessCps:
+                              type: integer
+                            businessCpsLastMonth:
                               type: integer
                             levels:
                               type: object
@@ -1216,6 +1216,7 @@ paths:
                             - age
                             - experience
                             - businessCps
+                            - businessCpsLastMonth
                             - levels
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
@@ -1233,6 +1234,7 @@ paths:
                           bugHunting: Newbie
                           metal: Bronze
                         businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 0
                             os: Windows
@@ -1270,6 +1272,7 @@ paths:
                           metal: No level
                         gender: male
                         businessCps: 10
+                        businessCpsLastMonth: 5
                         devices:
                           - id: 6
                             os: Windows
@@ -1289,6 +1292,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 69
+                        businessCpsLastMonth: 9
                         devices:
                           - manufacturer: Huawei
                             model: Mate 20 Pro
@@ -1305,6 +1309,7 @@ paths:
                           metal: Silver
                         gender: other
                         businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 9
                             os: MacOS
@@ -1324,6 +1329,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 31
+                        businessCpsLastMonth: 1
                         devices:
                           - id: 11
                             os: Windows
@@ -1343,6 +1349,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 50
+                        businessCpsLastMonth: 10
                         devices:
                           - manufacturer: Apple
                             model: iPad Pro 12.9
@@ -1364,6 +1371,7 @@ paths:
                           metal: No level
                         gender: female
                         businessCps: 22
+                        businessCpsLastMonth: 2
                         devices:
                           - id: 15
                             os: Windows
@@ -1383,6 +1391,7 @@ paths:
                           metal: No level
                         gender: male
                         businessCps: 21
+                        businessCpsLastMonth: 1
                         devices:
                           - manufacturer: Apple
                             model: iPhone 14 Pro Max
@@ -1404,6 +1413,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 0
                             os: Windows
@@ -1448,6 +1458,7 @@ paths:
                           metal: No level
                         gender: male
                         businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 6
                             os: Windows
@@ -1467,6 +1478,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 10
+                        businessCpsLastMonth: 5
                         devices:
                           - manufacturer: Huawei
                             model: Mate 20 Pro
@@ -1490,6 +1502,7 @@ paths:
                           metal: No level
                         gender: other
                         businessCps: 70
+                        businessCpsLastMonth: 13
                         devices:
                           - id: 9
                             os: MacOS
@@ -1516,6 +1529,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 60
+                        businessCpsLastMonth: 1
                         devices:
                           - id: 11
                             os: Windows
@@ -1542,6 +1556,7 @@ paths:
                           bugHunting: Newbie
                           metal: No level
                         businessCps: 69
+                        businessCpsLastMonth: 9
                         devices:
                           - manufacturer: Apple
                             model: iPad Pro 12.9
@@ -1570,6 +1585,7 @@ paths:
                           metal: No level
                         gender: female
                         businessCps: 20
+                        businessCpsLastMonth: 5
                         devices:
                           - id: 15
                             os: Windows
@@ -1596,6 +1612,7 @@ paths:
                           metal: No level
                         gender: male
                         businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - manufacturer: Apple
                             model: iPhone 14 Pro Max
