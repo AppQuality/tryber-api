@@ -1,7 +1,7 @@
-import AWS from 'aws-sdk';
-import stream from 'stream';
+import AWS from "aws-sdk";
+import stream from "stream";
 
-import upload from '.';
+import upload from ".";
 
 jest.mock("aws-sdk", () => {
   let instance = {
@@ -35,7 +35,6 @@ describe("Upload to S3", () => {
       file: file,
     });
     expect(mockedS3.upload).toBeCalledWith({
-      ACL: "public-read",
       Body: expect.anything(),
       Bucket: "",
       Key: "",
