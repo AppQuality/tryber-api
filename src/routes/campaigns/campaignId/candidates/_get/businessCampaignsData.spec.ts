@@ -162,7 +162,6 @@ describe("GET /campaigns/:campaignId/candidates - business Campaigns ", () => {
     const response = await request(app)
       .get("/campaigns/2/candidates")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    console.log(response.body);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toEqual(
       expect.arrayContaining([
@@ -186,7 +185,6 @@ describe("GET /campaigns/:campaignId/candidates - business Campaigns ", () => {
     const response = await request(app)
       .get("/campaigns/2/candidates")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    console.log(response.body);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toEqual(
       expect.arrayContaining([
