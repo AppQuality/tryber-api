@@ -1325,6 +1325,8 @@ export interface operations {
               gender: components["schemas"]["Gender"];
               age: number;
               experience: number;
+              businessCps: number;
+              businessCpsLastMonth: number;
               levels: {
                 bugHunting: string;
                 metal: string;

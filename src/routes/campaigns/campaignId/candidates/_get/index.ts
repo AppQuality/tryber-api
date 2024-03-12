@@ -9,6 +9,7 @@ import { CandidateLevels } from "./CandidateLevel";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
+import { CandidateBusinessCampaigns } from "./CandidateBusinessCampaigns";
 
 type filterByItem = string | string[];
 type filterBy = Record<
@@ -274,6 +275,8 @@ export default class RouteItem extends UserRoute<{
           name: candidate.name,
           experience: candidate.experience,
           surname: candidate.surname,
+          businessCps: candidate.businessCps,
+          businessCpsLastMonth: candidate.businessCpsLastMonth,
           devices: candidate.devices,
           gender: candidate.gender,
           age: candidate.age,
@@ -338,11 +341,17 @@ export default class RouteItem extends UserRoute<{
     });
     await metalLevelGetter.init();
 
+    const businessCpsGetter = new CandidateBusinessCampaigns({
+      candidateIds: candidates.map((candidate) => candidate.id),
+    });
+    await businessCpsGetter.init();
+
     const result = candidates
       .map((candidate) => {
         return {
           ...candidate,
           devices: deviceGetter.getCandidateData(candidate),
+          ...businessCpsGetter.getCandidateData(candidate),
           questions: questionGetter.getCandidateData(candidate),
           ...profileGetter.getCandidateData(candidate),
           levels: {
