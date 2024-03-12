@@ -5730,8 +5730,6 @@ paths:
                         items:
                           $ref: '#/components/schemas/Certification'
                       - type: boolean
-                  completionPercent:
-                    type: number
                   country:
                     type: string
                   city:
@@ -6039,7 +6037,6 @@ paths:
                         area: string
                         institute: string
                         achievement_date: '2019-08-24'
-                    completionPercent: 0
                     country: string
                     city: string
                     attended_cp: 0
@@ -6138,8 +6135,6 @@ paths:
                         items:
                           $ref: '#/components/schemas/Certification'
                       - type: boolean
-                  completionPercent:
-                    type: number
                   country:
                     type: string
                   city:
@@ -6257,7 +6252,6 @@ paths:
                       area: string
                       institute: string
                       achievement_date: '2019-08-24'
-                  completionPercent: 0
                   country: string
                   city: string
               properties:

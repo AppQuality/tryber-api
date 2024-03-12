@@ -1,204 +1,270 @@
-/** OPENAPI-ROUTE: patch-users-me */
+/** OPENAPI-CLASS: patch-users-me */
 
-import * as db from "@src/features/db";
-import { Context } from "openapi-backend";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
-
 import escapeCharacters from "../../../../features/escapeCharacters";
-import getUserData from "../_get/getUserData";
+import UserData from "../../../../features/class/UserData";
+import UserRoute from "@src/features/routes/UserRoute";
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
 
 const acceptedFields = [
-  "name",
-  "surname",
-  "onboarding_completed",
-  "email",
-  "gender",
-  "birthDate",
-  "phone",
-  "education",
-  "profession",
-  "country",
-  "city",
-  "password",
+  "name" as const,
+  "surname" as const,
+  "onboarding_completed" as const,
+  "email" as const,
+  "gender" as const,
+  "birthDate" as const,
+  "phone" as const,
+  "education" as const,
+  "profession" as const,
+  "country" as const,
+  "city" as const,
+  "password" as const,
+  "oldPassword" as const,
 ];
+type AcceptableValues = typeof acceptedFields[number];
 
-export default async (
-  c: Context,
-  req: OpenapiRequest,
-  res: OpenapiResponse
-) => {
-  try {
-    const validData = Object.keys(req.body)
+export default class PatchUsersMe extends UserRoute<{
+  response: StoplightOperations["patch-users-me"]["responses"]["200"]["content"]["application/json"];
+  body: StoplightOperations["patch-users-me"]["requestBody"]["content"]["application/json"];
+}> {
+  private validFields: StoplightOperations["patch-users-me"]["requestBody"]["content"]["application/json"] =
+    {};
+
+  constructor(configuration: RouteClassConfiguration) {
+    super({ ...configuration, element: "patch-users-me" });
+    this.setValidFields();
+  }
+
+  private setValidFields() {
+    const body = this.getBody();
+    if (!body) throw Error("No body");
+
+    this.validFields = (Object.keys(body) as AcceptableValues[])
       .filter((key) => acceptedFields.includes(key))
-      .reduce((obj: { [key: string]: string }, key) => {
-        obj[key] = req.body[key];
-        return obj;
-      }, {});
+      .reduce(
+        (
+          obj: { [key: AcceptableValues[number]]: string },
+          key: AcceptableValues
+        ) => {
+          obj[key] = body[key] as string;
+          return obj as { [key: AcceptableValues[number]]: string };
+        },
+        {}
+      );
+  }
+  protected async prepare() {
+    let profileDataCounter = 0;
+    let profileUpdate = tryber.tables.WpAppqEvdProfile.do().where({
+      id: this.getTesterId(),
+    });
+    let wpDataCounter = 0;
+    let wpUserUpdate = tryber.tables.WpUsers.do().where({
+      ID: this.getWordpressId(),
+    });
 
-    const profileSets = [];
-    const profileUpdateData = [];
-    const wpDataSets = [];
-    const wpDataUpdateData = [];
-
-    if (Object.keys(req.body).includes("email")) {
+    if (this.validFields.email) {
       try {
-        const emailAlreadyExists = await db.query(
-          db.format(
-            `SELECT user_email FROM wp_users WHERE user_email = ? AND ID != ?`,
-            [req.body.email, req.user.ID]
-          )
-        );
+        const emailAlreadyExists = await tryber.tables.WpUsers.do()
+          .select("user_email")
+          .where({
+            user_email: this.validFields.email,
+          })
+          .andWhereNot("ID", this.getWordpressId());
 
-        if (emailAlreadyExists.length)
-          throw {
-            status_code: 412,
-            message: `Email ${req.body.email} already exists`,
-          };
+        if (emailAlreadyExists.length) {
+          this.setError(
+            412,
+            new OpenapiError(`Email ${this.validFields.email} already exists`)
+          );
+          return;
+        }
       } catch (e) {
         const err = e as OpenapiError;
         if (err.status_code === 412) throw e;
         throw Error("Error while trying to check email");
       }
-      profileSets.push("email = ?");
-      profileUpdateData.push(req.body.email);
-      profileSets.push("is_verified = 0");
-      wpDataSets.push("user_email = ?");
-      wpDataUpdateData.push(req.body.email);
+      profileUpdate = profileUpdate
+        .update({ email: this.validFields.email })
+        .update({ is_verified: 0 });
+      profileDataCounter++;
+
+      wpUserUpdate = wpUserUpdate.update({
+        user_email: this.validFields.email,
+      });
+      wpDataCounter++;
     }
-    if (Object.keys(req.body).includes("name")) {
-      if (nameIsValid(req.body.name) === false) {
-        throw {
-          status_code: 400,
-          message: `Name is not valid`,
-        };
+    if (this.validFields.name) {
+      if (this.nameIsValid(this.validFields.name) === false) {
+        this.setError(400, new OpenapiError(`Name is not valid`));
+        return;
       }
-      profileSets.push("name = ?");
-      profileUpdateData.push(escapeCharacters(req.body.name));
+      profileUpdate = profileUpdate.update({
+        name: escapeCharacters(this.validFields.name),
+      });
+      profileDataCounter++;
     }
-    if (Object.keys(req.body).includes("surname")) {
-      if (nameIsValid(req.body.surname) === false) {
-        throw {
-          status_code: 400,
-          message: `Surname is not valid`,
-        };
+    if (this.validFields.surname) {
+      if (this.nameIsValid(this.validFields.surname) === false) {
+        this.setError(400, new OpenapiError(`Surname is not valid`));
+        return;
       }
-      profileSets.push("surname = ?");
-      profileUpdateData.push(escapeCharacters(req.body.surname));
+      profileUpdate = profileUpdate.update({
+        surname: escapeCharacters(this.validFields.surname),
+      });
+      profileDataCounter++;
     }
-    if (req.body.onboarding_completed) {
-      profileSets.push("onboarding_complete = ?");
-      profileUpdateData.push(1);
+    if (this.validFields.onboarding_completed) {
+      profileUpdate = profileUpdate.update({ onboarding_complete: 1 });
+      profileDataCounter++;
     }
-    if (Object.keys(req.body).includes("gender")) {
-      profileSets.push("sex = ?");
-      profileUpdateData.push(
-        req.body.gender === "other"
-          ? 2
-          : req.body.gender === "male"
-          ? 1
-          : req.body.gender === "female"
-          ? 0
-          : -1
+    if (this.validFields.gender) {
+      profileUpdate = profileUpdate.update({
+        sex:
+          this.validFields.gender === "other"
+            ? 2
+            : this.validFields.gender === "male"
+            ? 1
+            : this.validFields.gender === "female"
+            ? 0
+            : -1,
+      });
+      profileDataCounter++;
+    }
+    if (this.validFields.birthDate) {
+      const d = new Date(this.validFields.birthDate);
+      profileUpdate = profileUpdate.update({
+        birth_date: d.toISOString().split(".")[0].replace("T", " "),
+      });
+      profileDataCounter++;
+    }
+    if (this.validFields.phone) {
+      profileUpdate = profileUpdate.update({
+        phone_number: this.validFields.phone,
+      });
+      profileDataCounter++;
+    }
+    if (this.validFields.education) {
+      profileUpdate = profileUpdate.update({
+        education_id: this.validFields.education,
+      });
+      profileDataCounter++;
+    }
+    if (this.validFields.profession) {
+      profileUpdate = profileUpdate.update({
+        employment_id: this.validFields.profession,
+      });
+      profileDataCounter++;
+    }
+    if (this.validFields.country) {
+      profileUpdate = profileUpdate.update({
+        country: escapeCharacters(this.validFields.country),
+      });
+      profileDataCounter++;
+    }
+    if (this.validFields.city) {
+      profileUpdate = profileUpdate.update({
+        city: escapeCharacters(this.validFields.city),
+      });
+      profileDataCounter++;
+    }
+    try {
+      if (this.validFields.password) {
+        if (!this.validFields.oldPassword) {
+          throw Error("You need to specify your old password");
+        }
+        try {
+          const oldPassword = await tryber.tables.WpUsers.do()
+            .select("user_pass")
+            .where({ ID: this.getWordpressId() })
+            .first();
+          if (!oldPassword) throw Error("Can't find your password");
+          const passwordMatches = CheckPassword(
+            this.validFields.oldPassword,
+            oldPassword.user_pass
+          );
+          if (!passwordMatches) {
+            this.setError(
+              417,
+              new OpenapiError("Your old password is not correct")
+            );
+            return;
+          }
+        } catch (e) {
+          throw e;
+        }
+
+        const hash = HashPassword(this.validFields.password);
+        wpUserUpdate = wpUserUpdate.update({ user_pass: hash });
+        wpDataCounter++;
+      }
+
+      if (profileDataCounter > 0) {
+        try {
+          const update = await profileUpdate;
+        } catch (e) {
+          console.log(e);
+          throw Error("Failed to update profile");
+        }
+      }
+
+      if (wpDataCounter > 0) {
+        try {
+          const update = await wpUserUpdate;
+        } catch (e) {
+          console.log(e);
+          throw Error(
+            `Failed to update${this.validFields.password ? " password" : ""}${
+              this.validFields.email ? " email" : ""
+            }`
+          );
+        }
+      }
+
+      const userFields = [
+        "email",
+        "is_verified",
+        "name",
+        "surname",
+        "username",
+        "wp_user_id",
+        "additional",
+        "all",
+        "approved_bugs",
+        "attended_cp",
+        "birthDate",
+        "booty",
+        "booty_threshold",
+        "certifications",
+        "city",
+        "country",
+        "education",
+        "gender",
+        "image",
+        "languages",
+        "onboarding_completed",
+        "pending_booty",
+        "phone",
+        "profession",
+        "rank",
+        "role",
+        "total_exp_pts",
+      ];
+      const user = new UserData(this.getTesterId(), userFields);
+
+      this.setSuccess(200, {
+        ...(await user.getData()),
+        role: this.configuration.request.user.role,
+      });
+    } catch (err) {
+      console.log(this.configuration.response.status_code);
+      this.setError(
+        400,
+        new OpenapiError((err as { message: string }).message)
       );
     }
-    if (Object.keys(req.body).includes("birthDate")) {
-      profileSets.push("birth_date = ?");
-      const d = new Date(req.body.birthDate);
-      profileUpdateData.push(d.toISOString().split(".")[0].replace("T", " "));
-    }
-    if (Object.keys(req.body).includes("phone")) {
-      profileSets.push("phone_number = ?");
-      profileUpdateData.push(req.body.phone);
-    }
-    if (Object.keys(req.body).includes("education")) {
-      profileSets.push("education_id = ?");
-      profileUpdateData.push(req.body.education);
-    }
-    if (Object.keys(req.body).includes("profession")) {
-      profileSets.push("employment_id = ?");
-      profileUpdateData.push(req.body.profession);
-    }
-    if (Object.keys(req.body).includes("country")) {
-      profileSets.push("country = ?");
-      profileUpdateData.push(escapeCharacters(req.body.country));
-    }
-    if (Object.keys(req.body).includes("city")) {
-      profileSets.push("city = ?");
-      profileUpdateData.push(escapeCharacters(req.body.city));
-    }
-    if (Object.keys(req.body).includes("password")) {
-      if (!Object.keys(req.body).includes("oldPassword")) {
-        throw Error("You need to specify your old password");
-      }
-      try {
-        const oldPassword = await db.query(
-          db.format(`SELECT user_pass FROM wp_users WHERE ID = ?`, [
-            req.user.ID,
-          ])
-        );
-        if (!oldPassword.length) throw Error("Can't find your password");
-        // eslint-disable-next-line new-cap
-        const passwordMatches = CheckPassword(
-          req.body.oldPassword,
-          oldPassword[0].user_pass
-        );
-        if (!passwordMatches)
-          throw {
-            status_code: 417,
-            message: "Your old password is not correct",
-          };
-      } catch (e) {
-        throw e;
-      }
-
-      wpDataSets.push("user_pass = ?");
-      // eslint-disable-next-line new-cap
-      const hash = HashPassword(req.body.password);
-      wpDataUpdateData.push(hash);
-    }
-
-    if (profileSets.length) {
-      try {
-        let profileSql = `UPDATE wp_appq_evd_profile
-                SET ${profileSets.join(",")}
-                WHERE wp_user_id = ?;`;
-        const profileData = await db.query(
-          db.format(profileSql, [...profileUpdateData, req.user.ID])
-        );
-      } catch (e) {
-        console.log(e);
-        throw Error("Failed to update profile");
-      }
-    }
-
-    if (wpDataSets.length) {
-      try {
-        let wpSql = `UPDATE wp_users
-			SET ${wpDataSets.join(",")}
-			WHERE ID = ?;`;
-        const wpData = await db.query(
-          db.format(wpSql, [...wpDataUpdateData, req.user.ID])
-        );
-      } catch (e) {
-        console.log(e);
-        throw Error(
-          `Failed to update${
-            Object.keys(req.body).includes("password") ? " password" : ""
-          }${Object.keys(req.body).includes("email") ? " email" : ""}`
-        );
-      }
-    }
-    res.status_code = 200;
-    return await getUserData(req.user.ID, ["all"]);
-  } catch (err) {
-    res.status_code = (err as OpenapiError).status_code || 400;
-    return {
-      element: "users",
-      id: parseInt(req.user.ID),
-      message: (err as OpenapiError).message,
-    };
   }
-  function nameIsValid(name: string) {
+  protected nameIsValid(name: string) {
     return escapeCharacters(name) !== "";
   }
-};
+}
