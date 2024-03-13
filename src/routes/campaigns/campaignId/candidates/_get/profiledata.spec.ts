@@ -284,4 +284,14 @@ describe("GET /campaigns/:campaignId/candidates - profile ", () => {
     expect(response.body.results[0]).toHaveProperty("id", 3);
     expect(response.body.results[1]).toHaveProperty("id", 2);
   });
+  it("Should allow filtering by multiple profile filters", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates?filterByAge[max]=22&filterByAge[min]=21&filterByInclude[gender][0]=female&filterByInclude[gender][1]=male"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(1);
+    expect(response.body.results[0]).toHaveProperty("id", 2);
+  });
 });

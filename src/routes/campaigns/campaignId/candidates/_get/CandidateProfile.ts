@@ -76,26 +76,36 @@ class CandidateProfile implements CandidateData {
   }
 
   isCandidateFiltered(candidate: { id: number }): boolean {
-    if (this.filters?.id?.include) {
-      return this.filters.id.include.includes(candidate.id.toString());
-    }
-    if (this.filters?.id?.exclude) {
-      return !this.filters.id.exclude.includes(candidate.id.toString());
-    }
-    if (this.filters?.gender) {
-      const data = this.getCandidateData(candidate);
-      if (!data.gender) return false;
-      return this.filters.gender.includes(data.gender);
-    }
-    if (this.filters?.age) {
-      const data = this.getCandidateData(candidate);
-      if (!data) return false;
-      return (
-        (!this.filters.age.min || data.age >= this.filters.age.min) &&
-        (!this.filters.age.max || data.age <= this.filters.age.max)
-      );
-    }
+    if (this.isCandidateFilteredByIncludeId(candidate)) return false;
+    if (this.isCandidateFilteredByExcludeId(candidate)) return false;
+    if (this.isCandidateFilteredByGender(candidate)) return false;
+    if (this.isCandidateFilteredByAge(candidate)) return false;
     return true;
+  }
+
+  private isCandidateFilteredByGender(candidate: { id: number }): boolean {
+    if (!this.filters?.gender) return false;
+    const data = this.getCandidateData(candidate);
+    if (!data.gender) return false;
+    return this.filters.gender.includes(data.gender) === false;
+  }
+
+  private isCandidateFilteredByExcludeId(candidate: { id: number }): boolean {
+    if (!this.filters?.id?.exclude) return false;
+    return this.filters.id.exclude.includes(candidate.id.toString());
+  }
+  private isCandidateFilteredByIncludeId(candidate: { id: number }): boolean {
+    if (!this.filters?.id?.include) return false;
+    return this.filters.id.include.includes(candidate.id.toString()) === false;
+  }
+
+  private isCandidateFilteredByAge(candidate: { id: number }): boolean {
+    if (!this.filters?.age) return false;
+    const data = this.getCandidateData(candidate);
+    if (!data) return true;
+    if (this.filters.age.min && data.age < this.filters.age.min) return true;
+    if (this.filters.age.max && data.age > this.filters.age.max) return true;
+    return false;
   }
 }
 
