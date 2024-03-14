@@ -62,8 +62,8 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       { id: 2, name: "Bronze" },
     ]);
     await tryber.tables.WpAppqActivityLevel.do().insert([
-      { tester_id: 2, level_id: 1 },
-      { tester_id: 3, level_id: 2 },
+      { tester_id: 2, level_id: 2 },
+      { tester_id: 3, level_id: 1 },
     ]);
 
     await tryber.tables.WpAppqEvdPlatform.do().insert({
@@ -107,13 +107,13 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
           }),
         }),
         expect.objectContaining({
-          id: 2,
+          id: 3,
           levels: expect.objectContaining({
             metal: "Basic",
           }),
         }),
         expect.objectContaining({
-          id: 3,
+          id: 2,
           levels: expect.objectContaining({
             metal: "Bronze",
           }),
@@ -122,13 +122,24 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
     );
   });
 
+  it("Should order by metal level", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(3);
+    expect(response.body.results[0].id).toBe(2);
+    expect(response.body.results[1].id).toBe(3);
+    expect(response.body.results[2].id).toBe(1);
+  });
+
   it("Should allow filtering by bug metal level", async () => {
     const response = await request(app)
       .get("/campaigns/1/candidates?filterByInclude[metal]=Bronze")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toHaveLength(1);
-    expect(response.body.results[0].id).toBe(3);
+    expect(response.body.results[0].id).toBe(2);
   });
   it("Should allow filtering by multiple metal level", async () => {
     const response = await request(app)
@@ -138,7 +149,7 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toHaveLength(2);
-    expect(response.body.results[0].id).toBe(3);
-    expect(response.body.results[1].id).toBe(2);
+    expect(response.body.results[0].id).toBe(2);
+    expect(response.body.results[1].id).toBe(3);
   });
 });

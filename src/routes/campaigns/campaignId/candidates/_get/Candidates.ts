@@ -13,6 +13,11 @@ class Candidates {
         "wp_crowd_appq_has_candidate.user_id",
         "wp_appq_evd_profile.wp_user_id"
       )
+      .leftJoin(
+        "wp_appq_activity_level",
+        "wp_appq_activity_level.tester_id",
+        "wp_appq_evd_profile.id"
+      )
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         "name",
@@ -21,7 +26,7 @@ class Candidates {
       .where("campaign_id", this.campaign_id)
       .where("accepted", 0)
       .where("name", "<>", "Deleted User")
-      .orderBy("wp_appq_evd_profile.id", "desc");
+      .orderBy("wp_appq_activity_level.level_id", "desc");
   }
 }
 
