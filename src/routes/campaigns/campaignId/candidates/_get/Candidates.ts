@@ -26,7 +26,8 @@ class Candidates {
       .where("campaign_id", this.campaign_id)
       .where("accepted", 0)
       .where("name", "<>", "Deleted User")
-      .orderBy("wp_appq_activity_level.level_id", "desc");
+      .orderBy("wp_appq_activity_level.level_id", "desc")
+      .orderBy("wp_appq_evd_profile.id", "desc");
   }
 }
 
