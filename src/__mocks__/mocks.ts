@@ -4,4 +4,9 @@ jest.mock("@sendgrid/mail", () => ({
   setApiKey: jest.fn(),
   send: jest.fn(),
 }));
+
+// Allow to use jest.useFakeTimers() in tests
+Object.defineProperty(global, "performance", {
+  writable: true,
+});
 export {};

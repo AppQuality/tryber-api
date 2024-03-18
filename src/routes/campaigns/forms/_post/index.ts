@@ -73,6 +73,7 @@ export default class RouteItem extends UserRoute<{
         name: body.name,
         author: this.getTesterId(),
         campaign_id: this.campaignId,
+        ...(body.creationDate && { creation_date: body.creationDate }),
       })
       .returning("id");
 

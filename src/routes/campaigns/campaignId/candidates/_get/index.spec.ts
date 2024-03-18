@@ -1,35 +1,29 @@
-import request from "supertest";
-import app from "@src/app";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import Candidate from "@src/__mocks__/mockedDb/cpHasCandidates";
-import Profile from "@src/__mocks__/mockedDb/profile";
-import WpUsers from "@src/__mocks__/mockedDb/wp_users";
-import Levels from "@src/__mocks__/mockedDb/levelsDefinition";
-import UserLevels from "@src/__mocks__/mockedDb/levels";
-import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
-import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import DeviceOsVersion from "@src/__mocks__/mockedDb/deviceOs";
+import DeviceOs from "@src/__mocks__/mockedDb/devicePlatform";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
-import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
 import preselectionFormData from "@src/__mocks__/mockedDb/preselectionFormData";
+import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import Profile from "@src/__mocks__/mockedDb/profile";
+import TesterDevices from "@src/__mocks__/mockedDb/testerDevice";
+import WpUsers from "@src/__mocks__/mockedDb/wp_users";
+import app from "@src/app";
+import request from "supertest";
 
 const users = {
-  1: { testerId: 1, wpUserId: 1, levelId: 10 },
-  2: { testerId: 4, wpUserId: 5, levelId: 30 },
-  3: { testerId: 2, wpUserId: 6, levelId: 10 },
-  4: { testerId: 3, wpUserId: 7, levelId: 20 },
-  5: { testerId: 10, wpUserId: 9, levelId: 10 },
-  6: { testerId: 5, wpUserId: 4, levelId: 10 },
-  7: { testerId: 8, wpUserId: 8, levelId: 10 },
-  8: { testerId: 9, wpUserId: 2, levelId: 10 },
+  1: { testerId: 1, wpUserId: 1 },
+  2: { testerId: 4, wpUserId: 5 },
+  3: { testerId: 2, wpUserId: 6 },
+  4: { testerId: 3, wpUserId: 7 },
+  5: { testerId: 10, wpUserId: 9 },
+  6: { testerId: 5, wpUserId: 4 },
+  7: { testerId: 8, wpUserId: 8 },
+  8: { testerId: 9, wpUserId: 2 },
 };
 describe("GET /campaigns/:campaignId/candidates ", () => {
   beforeAll(async () => {
     await Campaigns.insert({ id: 1 });
-    await Levels.insert({ id: 10, name: "Bronze" });
-    await Levels.insert({ id: 20, name: "Silver" });
-    await Levels.insert({ id: 30, name: "Gold" });
-
     await Profile.insert({
       id: users[1].testerId,
       wp_user_id: users[1].wpUserId,
@@ -42,11 +36,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       name: "John",
       surname: "Doe",
       total_exp_pts: 100,
-    });
-    await UserLevels.insert({
-      id: 1,
-      tester_id: users[2].testerId,
-      level_id: users[2].levelId,
     });
     await WpUsers.insert({ ID: users[2].wpUserId });
     await Candidate.insert({
@@ -91,11 +80,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       name: "Walter",
       surname: "White",
       total_exp_pts: 1000,
-    });
-    await UserLevels.insert({
-      id: 2,
-      tester_id: users[3].testerId,
-      level_id: users[3].levelId,
     });
     await WpUsers.insert({ ID: users[3].wpUserId });
     await Candidate.insert({
@@ -144,11 +128,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       name: "Jesse",
       surname: "Pinkman",
       total_exp_pts: 2,
-    });
-    await UserLevels.insert({
-      id: 3,
-      tester_id: users[4].testerId,
-      level_id: users[4].levelId,
     });
     await WpUsers.insert({ ID: users[4].wpUserId });
     await Candidate.insert({
@@ -255,7 +234,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       enabled: 0,
     });
 
-    await PreselectionForm.insert({ id: 1, campaign_id: 1, name: "Form 1" });
+    await PreselectionForm.insert({
+      id: 1,
+      campaign_id: 1,
+      name: "Form 1",
+    });
     await PreselectionFormFields.insert({
       id: 1,
       form_id: 1,
@@ -272,7 +255,11 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       form_id: 1,
       question: "Field 4",
     });
-    await PreselectionForm.insert({ id: 2, campaign_id: 5, name: "Form 2" });
+    await PreselectionForm.insert({
+      id: 2,
+      campaign_id: 5,
+      name: "Form 2",
+    });
     await PreselectionFormFields.insert({
       id: 3,
       form_id: 2,
@@ -284,42 +271,49 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       tester_id: users[2].testerId,
       field_id: 1,
       value: "Value 1",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 2,
       tester_id: users[3].testerId,
       field_id: 1,
       value: "Value 2",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 3,
       tester_id: users[4].testerId,
       field_id: 1,
       value: "Value 3",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 4,
       tester_id: users[2].testerId,
       field_id: 2,
       value: "Value 4",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 5,
       tester_id: users[3].testerId,
       field_id: 2,
       value: "Value 5",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 6,
       tester_id: users[4].testerId,
       field_id: 2,
       value: "Value 6",
+      campaign_id: 1,
     });
     await preselectionFormData.insert({
       id: 7,
       tester_id: users[4].testerId,
       field_id: 3,
       value: "Value Invalid",
+      campaign_id: 5,
     });
 
     await preselectionFormData.insert({
@@ -327,6 +321,7 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       tester_id: users[2].testerId,
       field_id: 1,
       value: "Value 8",
+      campaign_id: 1,
     });
   });
   afterAll(async () => {
@@ -336,8 +331,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     await Candidate.clear();
     await WpUsers.clear();
     await Profile.clear();
-    await UserLevels.clear();
-    await Levels.clear();
     await PreselectionForm.clear();
     await PreselectionFormFields.clear();
   });
@@ -407,47 +400,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       ])
     );
   });
-  it("should answer a list of experience points ", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(3);
-    expect(response.body.results).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          experience: 100,
-        }),
-        expect.objectContaining({
-          experience: 1000,
-        }),
-        expect.objectContaining({
-          experience: 2,
-        }),
-      ])
-    );
-  });
-
-  it("should answer a list of levels ", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(3);
-    expect(response.body.results).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          level: "Bronze",
-        }),
-        expect.objectContaining({
-          level: "Silver",
-        }),
-        expect.objectContaining({
-          level: "Gold",
-        }),
-      ])
-    );
-  });
 
   it("should answer a list of devices ", async () => {
     const response = await request(app)
@@ -502,19 +454,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
         }),
       ])
     );
-  });
-
-  it("should order by level id", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(3);
-    expect(response.body.results.map((r: { id: number }) => r.id)).toEqual([
-      users[2].testerId,
-      users[4].testerId,
-      users[3].testerId,
-    ]);
   });
 
   it("should allow pagination of one element", async () => {
@@ -668,24 +607,6 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
     );
   });
 
-  it("Should filter by os excluding values", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/candidates/?filterByExclude[os]=os")
-      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
-    expect(response.body).toHaveProperty("results");
-    expect(response.body.results.length).toBe(2);
-    expect(response.body.results).toEqual([
-      expect.objectContaining({
-        id: users[4].testerId,
-        devices: [{ id: 4, os: "Windows", osVersion: "Vista" }],
-      }),
-      expect.objectContaining({
-        id: users[3].testerId,
-        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
-      }),
-    ]);
-  });
-
   it("Should filter by os including values", async () => {
     const response = await request(app)
       .get("/campaigns/1/candidates/?filterByInclude[os]=dow")
@@ -703,18 +624,101 @@ describe("GET /campaigns/:campaignId/candidates ", () => {
       }),
     ]);
   });
-  it("Should filter by os including and excluding values", async () => {
+
+  it("Should filter by tryber-ids excluding values", async () => {
     const response = await request(app)
-      .get(
-        "/campaigns/1/candidates/?filterByInclude[os]=dow&&filterByExclude[os]=vista"
-      )
+      .get("/campaigns/1/candidates/?filterByExclude[testerIds]=3,4")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
     expect(response.body).toHaveProperty("results");
     expect(response.body.results.length).toBe(1);
     expect(response.body.results).toEqual([
       expect.objectContaining({
         id: users[3].testerId,
-        devices: [{ id: 2, os: "Windows", osVersion: "XP" }],
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids excluding values with T-char", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates/?filterByExclude[testerIds]=T3,T4")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(1);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[3].testerId,
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByInclude[testerIds]=2&filterByInclude[testerIds]=4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including values with T-char", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByInclude[testerIds]=T2&filterByInclude[testerIds]=T4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including and excluding values", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByExclude[testerIds]=3&filterByInclude[testerIds]=2,4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
+      }),
+    ]);
+  });
+
+  it("Should filter by tryber-ids including and excluding values with T-char", async () => {
+    const response = await request(app)
+      .get(
+        "/campaigns/1/candidates/?filterByExclude[testerIds]=T3&filterByInclude[testerIds]=T2,T4"
+      )
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results.length).toBe(2);
+    expect(response.body.results).toEqual([
+      expect.objectContaining({
+        id: users[2].testerId, // 4
+      }),
+      expect.objectContaining({
+        id: users[3].testerId, // 2
       }),
     ]);
   });

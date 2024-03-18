@@ -545,8 +545,9 @@ paths:
                   message:
                     type: string
               examples:
-                example-1:
-                  value: string
+                Example 1:
+                  value:
+                    message: Error 401
       tags:
         - Authentication
       requestBody:
@@ -761,41 +762,6 @@ paths:
         - schema: {}
           in: query
           name: filterBy
-  /campaigns/owners:
-    get:
-      summary: Get owners of Campaigns
-      operationId: get-campaigns-owners
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    surname:
-                      type: string
-                  required:
-                    - id
-                    - name
-                    - surname
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      description: Get all the owners of campaigns you have access to
-      tags:
-        - Campaign
-      parameters: []
-    parameters: []
   '/campaigns/{campaign}':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -819,6 +785,8 @@ paths:
                     type: string
                   typeDescription:
                     type: string
+                  preselectionFormId:
+                    type: integer
                 required:
                   - id
                   - title
@@ -831,6 +799,13 @@ paths:
                     title: Campaign Title
                     type: Campaign Type
                     typeDescription: Campaign DescriptionType
+                Example 2:
+                  value:
+                    id: 1
+                    title: Campaign Title
+                    type: Campaign Type
+                    typeDescription: Campaign DescriptionType
+                    preselectionFormId: 69
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -1045,45 +1020,6 @@ paths:
           name: orderBy
           description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
         - $ref: '#/components/parameters/filterBy'
-  '/campaigns/{campaign}/groups':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get all Campaign Groups
-      tags:
-        - Campaign
-      operationId: get-campaigns-cid-groups
-      description: 'Get all groups used in a Campaign if you have access to it '
-      security:
-        - JWT: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                    name:
-                      type: string
-                  required:
-                    - id
-                    - name
-              examples: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      parameters: []
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
@@ -1220,10 +1156,28 @@ paths:
                               type: string
                             surname:
                               type: string
+                            gender:
+                              $ref: '#/components/schemas/Gender'
+                            age:
+                              type: number
                             experience:
+                              type: number
+                            businessCps:
                               type: integer
-                            level:
-                              type: string
+                            businessCpsLastMonth:
+                              type: integer
+                            levels:
+                              type: object
+                              required:
+                                - bugHunting
+                                - metal
+                              properties:
+                                bugHunting:
+                                  type: string
+                                metal:
+                                  type: string
+                                  x-stoplight:
+                                    id: 9afe0zlf0hr2b
                             devices:
                               type: array
                               items:
@@ -1258,8 +1212,12 @@ paths:
                             - id
                             - name
                             - surname
+                            - gender
+                            - age
                             - experience
-                            - level
+                            - businessCps
+                            - businessCpsLastMonth
+                            - levels
                             - devices
                   - $ref: '#/components/schemas/PaginationData'
               examples:
@@ -1269,8 +1227,14 @@ paths:
                       - id: 1234
                         name: Giulia
                         surname: Baldini
-                        experience: 21541
-                        level: Diamond
+                        age: 20
+                        experience: 100
+                        gender: female
+                        levels:
+                          bugHunting: Newbie
+                          metal: Bronze
+                        businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 0
                             os: Windows
@@ -1301,8 +1265,14 @@ paths:
                       - id: 1235
                         name: Cesare
                         surname: Alagna
-                        experience: 4390
-                        level: Platinum
+                        experience: 100
+                        age: 21
+                        levels:
+                          bugHunting: No level
+                          metal: No level
+                        gender: male
+                        businessCps: 10
+                        businessCpsLastMonth: 5
                         devices:
                           - id: 6
                             os: Windows
@@ -1315,8 +1285,14 @@ paths:
                       - id: 12346
                         name: Carlo
                         surname: Paolini
-                        experience: 33745
-                        level: Diamond
+                        experience: 100
+                        age: 22
+                        gender: not-specified
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 69
+                        businessCpsLastMonth: 9
                         devices:
                           - manufacturer: Huawei
                             model: Mate 20 Pro
@@ -1326,8 +1302,14 @@ paths:
                       - id: 1239
                         name: Chiara
                         surname: Mancini
-                        experience: 28310
-                        level: Platinum
+                        experience: 100
+                        age: 23
+                        levels:
+                          bugHunting: Rookie
+                          metal: Silver
+                        gender: other
+                        businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 9
                             os: MacOS
@@ -1340,8 +1322,14 @@ paths:
                       - id: 1236
                         name: Rosa
                         surname: Contralto
-                        experience: 3035
-                        level: Platinum
+                        experience: 100
+                        age: 25
+                        gender: female
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 31
+                        businessCpsLastMonth: 1
                         devices:
                           - id: 11
                             os: Windows
@@ -1354,8 +1342,14 @@ paths:
                       - id: 12356
                         name: Beppe
                         surname: Gianduiotto
-                        experience: 38619
-                        level: Diamond
+                        experience: 100
+                        age: 26
+                        gender: male
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 50
+                        businessCpsLastMonth: 10
                         devices:
                           - manufacturer: Apple
                             model: iPad Pro 12.9
@@ -1370,8 +1364,14 @@ paths:
                       - id: 12369
                         name: Monica
                         surname: Lorenzini
-                        experience: 7672
-                        level: Platinum
+                        experience: 100
+                        age: 27
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        gender: female
+                        businessCps: 22
+                        businessCpsLastMonth: 2
                         devices:
                           - id: 15
                             os: Windows
@@ -1384,1421 +1384,36 @@ paths:
                       - id: 12389
                         name: Tullio
                         surname: De Sica
-                        experience: 2081
-                        level: Platinum
+                        experience: 100
+                        age: 30
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        gender: male
+                        businessCps: 21
+                        businessCpsLastMonth: 1
                         devices:
                           - manufacturer: Apple
                             model: iPhone 14 Pro Max
                             id: 17
                             os: iOS
                             osVersion: iOS 16(beta) (16(beta))
-                      - id: 12340
-                        name: Persio
-                        surname: Panfalone
-                        experience: 8577
-                        level: Platinum
-                        devices:
-                          - manufacturer: Xiaomi
-                            model: Mi 10T
-                            id: 18
-                            os: Android
-                            osVersion: 11 (11)
-                          - id: 19
-                            os: MacOS
-                            osVersion: Mac OS X 10.15 (Catalina)
-                          - manufacturer: Apple
-                            model: iPad
-                            id: 20
-                            os: iOS
-                            osVersion: iOS 12.4.9 (12.4.9)
-                      - id: 12349
-                        name: Bernardo
-                        surname: Tognazzi
-                        experience: 16471
-                        level: Diamond
-                        devices:
-                          - id: 21
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Honor
-                            model: 20 Lite
-                            id: 22
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Huawei
-                            model: P smart S
-                            id: 23
-                            os: Android
-                            osVersion: 10 (10.0)
-                      - id: 12379
-                        name: Vincenza
-                        surname: Giacomazzi
-                        experience: 7703
-                        level: Platinum
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy A52s
-                            id: 24
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12394
-                        name: Serena
-                        surname: Gementi
-                        experience: 14671
-                        level: Diamond
-                        devices:
-                          - id: 25
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey) (12.0)
-                          - manufacturer: Apple
-                            model: iPad 6 (2018)
-                            id: 26
-                            os: iOS
-                            osVersion: iOS 15.7 (15.7)
-                      - id: 12344
-                        name: Chiara
-                        surname: Veronesi
-                        experience: 6927
-                        level: Platinum
-                        devices:
-                          - manufacturer: Huawei
-                            model: P30 Lite
-                            id: 27
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - id: 28
-                            os: Windows
-                            osVersion: Windows 8.1 (8.1)
-                      - id: 12398
-                        name: Fabrizio
-                        surname: Familiari
-                        experience: 6240
-                        level: Platinum
-                        devices:
-                          - id: 29
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 12355
-                        name: Andrea
-                        surname: Vigoni
-                        experience: 9551
-                        level: Platinum
-                        devices:
-                          - manufacturer: OPPO
-                            model: Reno4 Pro
-                            id: 30
-                            os: Android
-                            osVersion: 11 (11)
-                          - id: 31
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                      - id: 12377
-                        name: Federico
-                        surname: Faenza
-                        experience: 6900
-                        level: Platinum
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy S8
-                            id: 32
-                            os: Android
-                            osVersion: Pie (9.0)
-                          - manufacturer: Samsung
-                            model: Galaxy Tab S6
-                            id: 33
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - id: 34
-                            os: Windows
-                            osVersion: Windows 10 November 2019 Update (18363.778)
-                          - manufacturer: Samsung
-                            model: Galaxy S20 FE
-                            id: 35
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12391
-                        name: Leonardo
-                        surname: Di Stefano
-                        experience: 4657
-                        level: Gold
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone X
-                            id: 36
-                            os: iOS
-                            osVersion: iOS 15.0.2 (15.0.2)
-                      - id: 12374
-                        name: Tatiana
-                        surname: Bongiorno
-                        experience: 24180
-                        level: Diamond
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy A52s
-                            id: 37
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12350
-                        name: Zaira
-                        surname: Amato
-                        experience: 32403
-                        level: Diamond
-                        devices:
-                          - id: 38
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - id: 39
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 12321
-                        name: Lele
-                        surname: Miccione
-                        experience: 7715
-                        level: Platinum
-                        devices:
-                          - manufacturer: Xiaomi
-                            model: Mi 9T
-                            id: 40
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Xiaomi
-                            model: Mi 9T
-                            id: 41
-                            os: Android
-                            osVersion: 10 (10.0)
-                      - id: 12387
-                        name: Marzia
-                        surname: Kostner
-                        experience: 3083
-                        level: Platinum
-                        devices:
-                          - id: 42
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                      - id: 12342
-                        name: Daniel
-                        surname: Cilenti
-                        experience: 20757
-                        level: Diamond
-                        devices:
-                          - id: 43
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Google
-                            model: Pixel 6
-                            id: 44
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12311
-                        name: David
-                        surname: Surace
-                        experience: 5994
-                        level: Platinum
-                        devices:
-                          - id: 45
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 12329
-                        name: Daniela
-                        surname: Mogliacci
-                        experience: 4033
-                        level: Silver
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone 11
-                            id: 46
-                            os: iOS
-                            osVersion: iOS 14.3 (14.3)
-                          - id: 47
-                            os: Windows
-                            osVersion: Windows 10 November 2019 Update (18363.778)
-                      - id: 12392
-                        name: Gesualdo
-                        surname: Savona
-                        experience: 5794
-                        level: Platinum
-                        devices:
-                          - id: 48
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Samsung
-                            model: Galaxy A70
-                            id: 49
-                            os: Android
-                            osVersion: 11 (11)
-                          - id: 50
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 12344
-                        name: Neil
-                        surname: De Luca
-                        experience: 6215
-                        level: Platinum
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone 12 Pro Max
-                            id: 51
-                            os: iOS
-                            osVersion: iOS 15.0.2 (15.0.2)
-                      - id: 123509
-                        name: Melania
-                        surname: Vignati
-                        experience: 19669
-                        level: Diamond
-                        devices:
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 7
-                            id: 52
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - id: 53
-                            os: Windows
-                            osVersion: Windows 11
-                          - manufacturer: realme
-                            model: GT 5G
-                            id: 54
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 123495
-                        name: Fabio
-                        surname: Barbato
-                        experience: 14727
-                        level: Diamond
-                        devices:
-                          - manufacturer: LG
-                            model: G8 ThinQ
-                            id: 55
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 123409
-                        name: Daniele
-                        surname: Minelli
-                        experience: 21490
-                        level: Diamond
-                        devices:
-                          - id: 56
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: realme
-                            model: 7 Pro
-                            id: 57
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 123098
-                        name: Davide
-                        surname: Bracconi
-                        experience: 7654
-                        level: Platinum
-                        devices:
-                          - id: 58
-                            os: MacOS
-                            osVersion: Mac OS X 10.9 (Mavericks) (10.9)
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 8T
-                            id: 59
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - id: 60
-                            os: Windows
-                            osVersion: Windows 10 October 2020 Update (19042)
-                      - id: 123702
-                        name: Cecilia
-                        surname: Modica
-                        experience: 6457
-                        level: Platinum
-                        devices:
-                          - manufacturer: OPPO
-                            model: Find X3 Lite
-                            id: 61
-                            os: Android
-                            osVersion: 12 (12)
-                          - id: 62
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 123967
-                        name: Germanno
-                        surname: Gelsomini
-                        experience: 11688
-                        level: Platinum
-                        devices:
-                          - id: 63
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey) (12.1)
-                      - id: 123987
-                        name: Giuliano
-                        surname: Panzerotti
-                        experience: 29336
-                        level: Gold
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy Tab S6
-                            id: 64
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 1234509
-                        name: Giovanna
-                        surname: Romani
-                        experience: 9291
-                        level: Platinum
-                        devices:
-                          - id: 65
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Huawei
-                            model: P20 Lite
-                            id: 66
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 12367809
-                        name: Carmelo
-                        surname: Oreto
-                        experience: 31122
-                        level: Platinum
-                        devices:
-                          - manufacturer: OnePlus
-                            model: 6T
-                            id: 67
-                            os: Android
-                            osVersion: 11 (11)
-                          - manufacturer: Apple
-                            model: iPhone 11 Pro Max
-                            id: 68
-                            os: iOS
-                            osVersion: iOS 16(beta) (16(beta))
-                          - id: 69
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey) (12.1)
-                          - id: 70
-                            os: Windows
-                            osVersion: Windows 11 (22471)
-                          - manufacturer: Google
-                            model: Pixel 4a 5G
-                            id: 71
-                            os: Android
-                            osVersion: 13(beta) (13(beta))
-                          - manufacturer: Samsung
-                            model: Galaxy A52s
-                            id: 72
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12321245
-                        name: Antonia
-                        surname: Mione
-                        experience: 18209
-                        level: Diamond
-                        devices:
-                          - id: 73
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 8 Pro
-                            id: 74
-                            os: Android
-                            osVersion: 11 (11)
-                          - manufacturer: Lenovo
-                            model: Miix 10
-                            id: 75
-                            os: Android
-                            osVersion: 10 (10.0)
-                      - id: 123012
-                        name: Nicoletta
-                        surname: Scarlatti
-                        experience: 9360
-                        level: Platinum
-                        devices:
-                          - manufacturer: Xiaomi
-                            model: Pocophone F1
-                            id: 76
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - id: 77
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Samsung
-                            model: Galaxy A52s
-                            id: 78
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 1230343
-                        name: Pio
-                        surname: Margiotta
-                        experience: 1253
-                        level: Silver
-                        devices:
-                          - id: 79
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                          - id: 80
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 10 Pro
-                            id: 81
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 1239485
-                        name: Giosuè
-                        surname: Taddei
-                        experience: 15164
-                        level: Platinum
-                        devices:
-                          - id: 82
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Samsung
-                            model: Galaxy S6
-                            id: 83
-                            os: Android
-                            osVersion: Nougat (7.0)
-                          - manufacturer: Apple
-                            model: iPad
-                            id: 84
-                            os: iOS
-                            osVersion: iOS 15.6.1 (15.6.1)
-                      - id: 1237968
-                        name: Vittoria
-                        surname: Amitrani
-                        experience: 17744
-                        level: Diamond
-                        devices:
-                          - id: 85
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Samsung
-                            model: Galaxy A52s
-                            id: 86
-                            os: Android
-                            osVersion: 12 (12)
-                          - id: 87
-                            os: Windows
-                            osVersion: Windows 11
-                      - id: 12356673
-                        name: Valeria
-                        surname: Mazzancolle
-                        experience: 12162
-                        level: Diamond
-                        devices:
-                          - id: 88
-                            os: Windows
-                            osVersion: Windows 11
-                      - id: 12349120
-                        name: Vera
-                        surname: Amedei
-                        experience: 8428
-                        level: Platinum
-                        devices:
-                          - manufacturer: OnePlus
-                            model: Nord
-                            id: 89
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 1238299
-                        name: Germanno
-                        surname: Domini
-                        experience: 54373
-                        level: Diamond
-                        devices:
-                          - id: 90
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - id: 91
-                            os: Windows
-                            osVersion: Windows XP (5.1)
-                          - id: 92
-                            os: Windows
-                            osVersion: Windows 8.1 (8.1)
-                          - manufacturer: Honor
-                            model: View 10
-                            id: 93
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - id: 94
-                            os: MacOS
-                            osVersion: Mac OS X 11 (Big Sur) (11.0.1)
-                          - id: 95
-                            os: Windows
-                            osVersion: Windows 7
-                          - manufacturer: Lenovo
-                            model: Tab10 TB-X103F
-                            id: 96
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Apple
-                            model: iPhone 8
-                            id: 97
-                            os: iOS
-                            osVersion: iOS 15.6 (15.6)
-                      - id: 123525
-                        name: Melania
-                        surname: Giorgi
-                        experience: 38073
-                        level: Platinum
-                        devices:
-                          - id: 98
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Samsung
-                            model: Galaxy S20
-                            id: 99
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 1230729
-                        name: Barbara
-                        surname: Neri
-                        experience: 9264
-                        level: Gold
-                        devices:
-                          - id: 100
-                            os: Windows
-                            osVersion: Windows 10 November 2019 Update (18363.778)
-                          - manufacturer: Samsung
-                            model: Galaxy J7 (2017)
-                            id: 101
-                            os: Android
-                            osVersion: Pie (9.0)
-                          - manufacturer: Samsung
-                            model: Galaxy A32
-                            id: 102
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12348134
-                        name: Emanuele
-                        surname: Romanini
-                        experience: 16756
-                        level: Diamond
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy A52
-                            id: 103
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 123457948
-                        name: Roberta
-                        surname: Vergnano
-                        experience: 1466
-                        level: Gold
-                        devices:
-                          - id: 104
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 12347681
-                        name: Luisa
-                        surname: Contecelli
-                        experience: 10800
-                        level: Platinum
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone 11 Pro
-                            id: 105
-                            os: iOS
-                            osVersion: iOS 15.6 (15.6)
-                      - id: 125042
-                        name: Quirino
-                        surname: Agnellini
-                        experience: 12481
-                        level: Diamond
-                        devices:
-                          - id: 106
-                            os: MacOS
-                            osVersion: Mac OS X 10.11 (El Capitan) (10.11)
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 7
-                            id: 107
-                            os: Android
-                            osVersion: Pie (9.0)
-                      - id: 123628
-                        name: Santo
-                        surname: Mosca
-                        experience: 5309
-                        level: Platinum
-                        devices:
-                          - id: 108
-                            os: Windows
-                            osVersion: Windows 11 (22471)
-                          - manufacturer: Apple
-                            model: iPhone 13
-                            id: 109
-                            os: iOS
-                            osVersion: iOS 16 (16)
-                      - id: 1236562
-                        name: Annalisa
-                        surname: De Luca
-                        experience: 4357
-                        level: Silver
-                        devices:
-                          - id: 110
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey) (12.1)
-                      - id: 123451742
-                        name: Edigildo
-                        surname: Mazzanti
-                        experience: 4846
-                        level: Platinum
-                        devices:
-                          - id: 111
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Apple
-                            model: iPhone 12
-                            id: 112
-                            os: iOS
-                            osVersion: iOS 16 (16)
-                          - manufacturer: Apple
-                            model: iPad Air 2
-                            id: 113
-                            os: iOS
-                            osVersion: iOS 15.4 (15.4)
-                      - id: 125731
-                        name: Zamir
-                        surname: Xhafaj
-                        experience: 18249
-                        level: Diamond
-                        devices:
-                          - manufacturer: Huawei
-                            model: Mate 20 lite
-                            id: 114
-                            os: Android
-                            osVersion: 12 (12)
-                          - id: 115
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                      - id: 12436261
-                        name: Giorgia
-                        surname: Zanta
-                        experience: 7117
-                        level: Platinum
-                        devices:
-                          - manufacturer: realme
-                            model: 7 Pro
-                            id: 116
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12358545
-                        name: Stefano
-                        surname: Modica
-                        experience: 3538
-                        level: Platinum
-                        devices:
-                          - id: 117
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Samsung
-                            model: Galaxy A70
-                            id: 118
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 12352648
-                        name: Silvia
-                        surname: Padani
-                        experience: 11088
-                        level: Diamond
-                        devices:
-                          - id: 119
-                            os: Windows
-                            osVersion: Windows 11 (22471)
-                          - manufacturer: Xiaomi
-                            model: 11T Pro
-                            id: 120
-                            os: Android
-                            osVersion: 12beta (12beta)
-                      - id: 12773
-                        name: Natalia
-                        surname: Franceschini
-                        experience: 48175
-                        level: Diamond
-                        devices:
-                          - id: 121
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey) (12.0)
-                          - manufacturer: Huawei
-                            model: Mate 20 Pro
-                            id: 122
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Apple
-                            model: iPhone 13 Pro Max
-                            id: 123
-                            os: iOS
-                            osVersion: iOS 16(beta) (16(beta))
-                      - id: 125108
-                        name: Luciano
-                        surname: Ricciardi
-                        experience: 13689
-                        level: Diamond
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy A20e
-                            id: 124
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 12450861
-                        name: Andrea
-                        surname: Rimini
-                        experience: 6648
-                        level: Platinum
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone XS
-                            id: 125
-                            os: iOS
-                            osVersion: iOS 16 (16)
-                      - id: 12358201
-                        name: Domenico
-                        surname: Gatti
-                        experience: 4190
-                        level: Platinum
-                        devices:
-                          - id: 126
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - id: 127
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 1230678
-                        name: Sergio
-                        surname: Hoxha
-                        experience: 4213
-                        level: Bronze
-                        devices:
-                          - id: 128
-                            os: Windows
-                            osVersion: Windows 10 (10240.16405)
-                          - manufacturer: Apple
-                            model: iPhone 13
-                            id: 129
-                            os: iOS
-                            osVersion: iOS 16(beta) (16(beta))
-                      - id: 1239040
-                        name: Galileo
-                        surname: Albertini
-                        experience: 10181
-                        level: Diamond
-                        devices:
-                          - id: 130
-                            os: Windows
-                            osVersion: Windows 11
-                          - id: 131
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey)
-                          - manufacturer: Samsung
-                            model: Galaxy S9+
-                            id: 132
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Apple
-                            model: iPhone 13
-                            id: 133
-                            os: iOS
-                            osVersion: iOS 15.6 (15.6)
-                      - id: 1239705
-                        name: Maria
-                        surname: Cangemi
-                        experience: 16753
-                        level: Diamond
-                        devices:
-                          - id: 134
-                            os: Windows
-                            osVersion: Windows 8 (8.0)
-                      - id: 12356997
-                        name: Luciana
-                        surname: Sgattani
-                        experience: 4481
-                        level: Platinum
-                        devices:
-                          - id: 135
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - id: 136
-                            os: Windows
-                            osVersion: Windows 11
-                          - id: 137
-                            os: Windows
-                            osVersion: Windows 8.1
-                          - id: 138
-                            os: Windows
-                            osVersion: Windows 8
-                          - id: 139
-                            os: Windows
-                            osVersion: Windows 7
-                          - id: 140
-                            os: Windows
-                            osVersion: Windows Vista
-                          - id: 141
-                            os: Windows
-                            osVersion: Windows Vista
-                          - id: 142
-                            os: Windows
-                            osVersion: Windows XP
-                          - id: 143
-                            os: MacOS
-                            osVersion: Mac OS X 10.15 (Catalina)
-                          - id: 144
-                            os: MacOS
-                            osVersion: Mac OS X 10.14 (Mojave)
-                          - id: 145
-                            os: MacOS
-                            osVersion: Mac OS X 10.13 (High Sierra)
-                          - id: 146
-                            os: MacOS
-                            osVersion: Mac OS X 10.12 (Sierra)
-                          - id: 147
-                            os: MacOS
-                            osVersion: Mac OS X 10.11 (El Capitan)
-                          - id: 148
-                            os: MacOS
-                            osVersion: Mac OS X 10.10 (Yosemite)
-                          - id: 149
-                            os: MacOS
-                            osVersion: Mac OS X 10.8 (Mountain Lion)
-                          - id: 150
-                            os: MacOS
-                            osVersion: Mac OS X 11 (Big Sur)
-                          - id: 151
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey)
-                          - manufacturer: Samsung
-                            model: Galaxy A32
-                            id: 152
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Samsung
-                            model: Galaxy J6
-                            id: 153
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Apple
-                            model: iPhone 11
-                            id: 154
-                            os: iOS
-                            osVersion: iOS 15.5 (15.5)
-                          - manufacturer: Apple
-                            model: iPhone 7 Plus
-                            id: 155
-                            os: iOS
-                            osVersion: iOS 15.5 (15.5)
-                          - manufacturer: Chuwi
-                            model: Hi10
-                            id: 156
-                            os: Android
-                            osVersion: Oreo (8.1)
-                          - manufacturer: Apple
-                            model: iPad Pro 9.7
-                            id: 157
-                            os: iOS
-                            osVersion: iOS 15.5 (15.5)
-                      - id: 1225012
-                        name: Alessia
-                        surname: Costantino
-                        experience: 31814
-                        level: Platinum
-                        devices:
-                          - id: 158
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                          - manufacturer: Apple
-                            model: iPad 6 (2018)
-                            id: 159
-                            os: iOS
-                            osVersion: iOS 15.3 (15.3)
-                          - manufacturer: Samsung
-                            model: Galaxy Tab A 10.1 LTE (2019)
-                            id: 160
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Apple
-                            model: iPhone 12
-                            id: 161
-                            os: iOS
-                            osVersion: iOS 15.4 (15.4)
-                      - id: 127273
-                        name: Laura
-                        surname: Colli
-                        experience: 10774
-                        level: Gold
-                        devices:
-                          - id: 162
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                          - manufacturer: Apple
-                            model: iPhone 8
-                            id: 163
-                            os: iOS
-                            osVersion: iOS 15.4 (15.4)
-                          - manufacturer: Apple
-                            model: iPad (2017)
-                            id: 164
-                            os: iOS
-                            osVersion: iOS 14.4.2 (14.4.2)
-                          - manufacturer: Samsung
-                            model: Galaxy Tab A 10.1 LTE (2019)
-                            id: 165
-                            os: Android
-                            osVersion: 11 (11)
-                          - manufacturer: Apple
-                            model: iPhone 12
-                            id: 166
-                            os: iOS
-                            osVersion: iOS 15.4 (15.4)
-                      - id: 12349917
-                        name: Santocino
-                        surname: Pavetti
-                        experience: 5880
-                        level: Platinum
-                        devices:
-                          - id: 167
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - id: 168
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 8T
-                            id: 169
-                            os: Android
-                            osVersion: 11 (11)
-                          - manufacturer: Xiaomi
-                            model: Redmi 9
-                            id: 170
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Wiko
-                            model: Y60 (Wiko)
-                            id: 171
-                            os: Android
-                            osVersion: 11 (11)
-                          - manufacturer: Samsung
-                            model: Galaxy J3 (2016)
-                            id: 172
-                            os: Android
-                            osVersion: Oreo (8.0)
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 10 Pro
-                            id: 173
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Mediacom
-                            model: SmartPad 9.7 Mobile
-                            id: 174
-                            os: Android
-                            osVersion: Pie (9.0)
-                          - manufacturer: Samsung
-                            model: Galaxy A32
-                            id: 175
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 129132
-                        name: Nera
-                        surname: Raimondi
-                        experience: 5491
-                        level: Gold
-                        devices:
-                          - id: 176
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                      - id: 1231098
-                        name: Gigliola
-                        surname: Serio
-                        experience: 14834
-                        level: Platinum
-                        devices:
-                          - id: 177
-                            os: Windows
-                            osVersion: Windows 11
-                      - id: 123456707
-                        name: Emmanuel
-                        surname: Tucicano
-                        experience: 3661
-                        level: Platinum
-                        devices:
-                          - id: 178
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 12345248
-                        name: Renato
-                        surname: Pimenti
-                        experience: 59051
-                        level: Diamond
-                        devices:
-                          - manufacturer: Lg
-                            model: G5
-                            id: 179
-                            os: Android
-                            osVersion: Oreo (8.0)
-                          - id: 180
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - id: 181
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Samsung
-                            model: Galaxy J3 (2016)
-                            id: 182
-                            os: Android
-                            osVersion: Lollipop (5.1.1)
-                          - manufacturer: Samsung
-                            model: Galaxy S5
-                            id: 183
-                            os: Android
-                            osVersion: Lollipop (5.0)
-                          - manufacturer: Wiko
-                            model: Jimmy
-                            id: 184
-                            os: Android
-                            osVersion: Jelly Bean (4.2.2)
-                          - manufacturer: Samsung
-                            model: Galaxy A40
-                            id: 185
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Samsung
-                            model: Galaxy S20 5G
-                            id: 186
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Samsung
-                            model: Galaxy Tab 7.0 wifi
-                            id: 187
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 12048
-                        name: Giacoma
-                        surname: Santamaria
-                        experience: 81698
-                        level: Diamond
-                        devices:
-                          - manufacturer: Lg
-                            model: G5
-                            id: 188
-                            os: Android
-                            osVersion: Oreo (8.0)
-                          - manufacturer: Samsung
-                            model: Galaxy S5
-                            id: 189
-                            os: Android
-                            osVersion: Marshmallow (6.0.1)
-                          - id: 190
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - id: 191
-                            os: Windows
-                            osVersion: Windows 10 May 2020 Update (19041)
-                          - manufacturer: Lenovo
-                            model: Yoga Tab 3 10.0
-                            id: 192
-                            os: Android
-                            osVersion: Nougat (7.1.1)
-                          - manufacturer: Samsung
-                            model: Galaxy A52s
-                            id: 193
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: Samsung
-                            model: Galaxy S20 FE
-                            id: 194
-                            os: Android
-                            osVersion: 12 (12)
-                          - manufacturer: HTC
-                            model: Desire S
-                            id: 195
-                            os: Android
-                            osVersion: KitKat (4.4.1)
-                      - id: 12348053
-                        name: Patrizio
-                        surname: Alessandrini
-                        experience: 5496
-                        level: Platinum
-                        devices:
-                          - id: 196
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 1228135
-                        name: Dario
-                        surname: Moccia
-                        experience: 11215
-                        level: Platinum
-                        devices:
-                          - id: 197
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: realme
-                            model: GT 5G
-                            id: 198
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 125082
-                        name: Iacono
-                        surname: Biondi
-                        experience: 37039
-                        level: Diamond
-                        devices:
-                          - id: 199
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update (19043)
-                          - manufacturer: Apple
-                            model: iPhone 11
-                            id: 200
-                            os: iOS
-                            osVersion: iOS 15.6 (15.6)
-                          - manufacturer: Apple
-                            model: iPad Air 2
-                            id: 201
-                            os: iOS
-                            osVersion: iOS 14.4 (14.4)
-                      - id: 1231558
-                        name: Nicoletta
-                        surname: Messina
-                        experience: 22816
-                        level: Platinum
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy M21
-                            id: 202
-                            os: Android
-                            osVersion: 12 (12)
-                          - id: 203
-                            os: MacOS
-                            osVersion: Mac OS X 10.15 (Catalina) (10.15.7)
-                          - manufacturer: Apple
-                            model: iPhone SE (2020)
-                            id: 204
-                            os: iOS
-                            osVersion: iOS 15.6.1 (15.6.1)
-                      - id: 123455033
-                        name: Lilla
-                        surname: Pepe
-                        experience: 1295
-                        level: Gold
-                        devices:
-                          - id: 205
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - id: 206
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Xiaomi
-                            model: Poco M3
-                            id: 207
-                            os: Android
-                            osVersion: 10 (10.0)
-                          - manufacturer: Apple
-                            model: iPad
-                            id: 208
-                            os: iOS
-                            osVersion: iOS 15.6 (15.6)
-                      - id: 123453001
-                        name: Silvio
-                        surname: Banfi
-                        experience: 13924
-                        level: Diamond
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy Tab A 10.1 (2019)
-                            id: 209
-                            os: Android
-                            osVersion: 11 (11)
-                          - id: 210
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: Samsung
-                            model: Galaxy A52
-                            id: 211
-                            os: Android
-                            osVersion: 12beta (12beta)
-                      - id: 12345211
-                        name: Angelo
-                        surname: Bologna
-                        experience: 5106
-                        level: Platinum
-                        devices:
-                          - id: 212
-                            os: Windows
-                            osVersion: Windows 11 (22471)
-                      - id: 12357352
-                        name: Paolini
-                        surname: Tapia
-                        experience: 4413
-                        level: Platinum
-                        devices:
-                          - id: 213
-                            os: MacOS
-                            osVersion: Mac OS X 12 (Monterey) (12.1)
-                          - manufacturer: Xiaomi
-                            model: Poco X3 Pro
-                            id: 214
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12357938
-                        name: Matt765
-                        surname: Pisani
-                        experience: 3249
-                        level: Platinum
-                        devices:
-                          - id: 215
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                          - manufacturer: OnePlus
-                            model: '8'
-                            id: 216
-                            os: Android
-                            osVersion: 12 (12)
-                      - id: 12346015
-                        name: Ilaria
-                        surname: Crocetta
-                        experience: 13496
-                        level: Diamond
-                        devices:
-                          - manufacturer: LG
-                            model: G7 ThinQ
-                            id: 217
-                            os: Android
-                            osVersion: 10 (10.0)
-                      - id: 12351135
-                        name: Adele
-                        surname: Segreti
-                        experience: 7550
-                        level: Platinum
-                        devices:
-                          - id: 218
-                            os: Windows
-                            osVersion: Windows 11 (22471)
-                          - manufacturer: Samsung
-                            model: Galaxy S6
-                            id: 219
-                            os: Android
-                            osVersion: Nougat (7.0)
-                          - manufacturer: OnePlus
-                            model: 6T
-                            id: 220
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 1234599
-                        name: Amato
-                        surname: Arona
-                        experience: 4436
-                        level: Platinum
-                        devices:
-                          - id: 221
-                            os: Windows
-                            osVersion: Windows 11
-                          - manufacturer: Xiaomi
-                            model: Redmi Note 8 Pro
-                            id: 222
-                            os: Android
-                            osVersion: 11 (11)
-                          - id: 223
-                            os: MacOS
-                            osVersion: Mac OS X 10.15 (Catalina)
-                          - manufacturer: Microsoft
-                            model: Surface Pro 4
-                            id: 224
-                            os: Windows
-                            osVersion: Windows 11 (22471)
-                      - id: 1677951
-                        name: Liliana
-                        surname: Severini
-                        experience: 3045
-                        level: Bronze
-                        devices:
-                          - manufacturer: Samsung
-                            model: Galaxy A22 5G
-                            id: 225
-                            os: Android
-                            osVersion: 11 (11)
-                      - id: 123458189
-                        name: Andromeda
-                        surname: De Santis
-                        experience: 2157
-                        level: Gold
-                        devices:
-                          - id: 226
-                            os: Windows
-                            osVersion: Windows 11
-                      - id: 123796
-                        name: Felice
-                        surname: Schiavo
-                        experience: 4972
-                        level: Platinum
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone 12 mini
-                            id: 227
-                            os: iOS
-                            osVersion: iOS 15.5 (15.5)
-                          - id: 228
-                            os: MacOS
-                            osVersion: Mac OS X 11 (Big Sur)
-                      - id: 12354259
-                        name: Mariano
-                        surname: Pellegrini
-                        experience: 4116
-                        level: Platinum
-                        devices:
-                          - id: 229
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 122275
-                        name: Elia
-                        surname: Alessi
-                        experience: 7846
-                        level: Platinum
-                        devices:
-                          - id: 230
-                            os: Windows
-                            osVersion: Windows 10 May 2021 Update
-                      - id: 1231454
-                        name: Romina
-                        surname: Power
-                        experience: 7855
-                        level: Platinum
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone 12
-                            id: 231
-                            os: iOS
-                            osVersion: iOS 16 (16)
-                      - id: 12348229
-                        name: Aleandro
-                        surname: Serio
-                        experience: 1055
-                        level: Bronze
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone 13 Pro Max
-                            id: 232
-                            os: iOS
-                            osVersion: iOS 15.3 (15.3)
-                      - id: 12357647
-                        name: Fabrizio
-                        surname: Cecchi
-                        experience: 3407
-                        level: Platinum
-                        devices:
-                          - id: 233
-                            os: MacOS
-                            osVersion: Mac OS X 10.15 (Catalina)
-                      - id: 12352064
-                        name: Mariano
-                        surname: Arabelli
-                        experience: 6669
-                        level: Platinum
-                        devices:
-                          - manufacturer: Apple
-                            model: iPhone XR
-                            id: 234
-                            os: iOS
-                            osVersion: iOS 15.6 (15.6)
                     start: 0
-                    limit: 0
-                    size: 0
-                    total: 93
+                    size: 8
                 example-with-questions:
                   value:
                     results:
-                      - id: 1344163
-                        name: Sandro
-                        surname: Gentilini
-                        experience: 21541
-                        level: Diamond
+                      - id: 1234
+                        name: Giulia
+                        surname: Baldini
+                        experience: 100
+                        age: 20
+                        gender: female
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 0
+                        businessCpsLastMonth: 0
                         devices:
                           - id: 0
                             os: Windows
@@ -2833,8 +1448,186 @@ paths:
                           - id: 2
                             title: Pagamento
                             value: 'No'
+                      - id: 1235
+                        name: Cesare
+                        surname: Alagna
+                        experience: 100
+                        age: 21
+                        levels:
+                          bugHunting: No level
+                          metal: No level
+                        gender: male
+                        businessCps: 0
+                        businessCpsLastMonth: 0
+                        devices:
+                          - id: 6
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Xiaomi
+                            model: Redmi 8
+                            id: 7
+                            os: Android
+                            osVersion: 11 (11)
+                      - id: 12346
+                        name: Carlo
+                        surname: Paolini
+                        experience: 100
+                        age: 22
+                        gender: not-specified
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 10
+                        businessCpsLastMonth: 5
+                        devices:
+                          - manufacturer: Huawei
+                            model: Mate 20 Pro
+                            id: 8
+                            os: Android
+                            osVersion: 10 (10.0)
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: Sì
+                          - id: 2
+                            title: Pagamento
+                            value: 'No'
+                      - id: 1239
+                        name: Chiara
+                        surname: Mancini
+                        experience: 100
+                        age: 23
+                        levels:
+                          bugHunting: Rookie
+                          metal: No level
+                        gender: other
+                        businessCps: 70
+                        businessCpsLastMonth: 13
+                        devices:
+                          - id: 9
+                            os: MacOS
+                            osVersion: Mac OS X 12 (Monterey) (12.1)
+                          - manufacturer: Xiaomi
+                            model: Mi 11 Lite
+                            id: 10
+                            os: Android
+                            osVersion: 12 (12)
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: 'No'
+                          - id: 2
+                            title: Pagamento
+                            value: 'No'
+                      - id: 1236
+                        name: Rosa
+                        surname: Contralto
+                        experience: 100
+                        age: 25
+                        gender: female
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 60
+                        businessCpsLastMonth: 1
+                        devices:
+                          - id: 11
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Samsung
+                            model: Galaxy S20 FE
+                            id: 12
+                            os: Android
+                            osVersion: 12 (12)
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: Sì
+                          - id: 2
+                            title: Pagamento
+                            value: 'No'
+                      - id: 12356
+                        name: Beppe
+                        surname: Gianduiotto
+                        experience: 100
+                        age: 26
+                        gender: male
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        businessCps: 69
+                        businessCpsLastMonth: 9
+                        devices:
+                          - manufacturer: Apple
+                            model: iPad Pro 12.9
+                            id: 13
+                            os: iOS
+                            osVersion: iOS 15.7 (15.7)
+                          - manufacturer: Samsung
+                            model: Galaxy A20e
+                            id: 14
+                            os: Android
+                            osVersion: 11 (11)
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: Sì
+                          - id: 2
+                            title: Pagamento
+                            value: 'No'
+                      - id: 12369
+                        name: Monica
+                        surname: Lorenzini
+                        experience: 100
+                        age: 27
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        gender: female
+                        businessCps: 20
+                        businessCpsLastMonth: 5
+                        devices:
+                          - id: 15
+                            os: Windows
+                            osVersion: Windows 10 May 2021 Update
+                          - manufacturer: Asus
+                            model: ZenFone 5 (ZE620KL)
+                            id: 16
+                            os: Android
+                            osVersion: Pie (9.0)
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: 'No'
+                          - id: 2
+                            title: Pagamento
+                            value: Sì
+                      - id: 12389
+                        name: Tullio
+                        surname: De Sica
+                        experience: 100
+                        age: 30
+                        levels:
+                          bugHunting: Newbie
+                          metal: No level
+                        gender: male
+                        businessCps: 0
+                        businessCpsLastMonth: 0
+                        devices:
+                          - manufacturer: Apple
+                            model: iPhone 14 Pro Max
+                            id: 17
+                            os: iOS
+                            osVersion: iOS 16(beta) (16(beta))
+                        questions:
+                          - id: 1
+                            title: Cane
+                            value: Sì
+                          - id: 2
+                            title: Pagamento
+                            value: 'No'
                     start: 0
-                    size: 1
+                    size: 8
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -2859,6 +1652,405 @@ paths:
           in: query
           name: filterByExclude
           description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByAge
+          description: Array with min and max
+  '/campaigns/{campaign}/clusters':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get use case clusters for a campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - items
+              examples:
+                4-items:
+                  value:
+                    items:
+                      - id: 1
+                        name: 'UC1: Cart'
+                      - id: 2
+                        name: 'UC2: Login'
+                      - id: 3
+                        name: 'UC3: Checkout'
+                      - id: 4
+                        name: 'UC4: Search'
+                ux-campaign-get-clusters:
+                  value:
+                    items:
+                      - id: 1
+                        name: UC 1 - Carrello
+                      - id: 2
+                        name: UC 2 - Profilo
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-clusters
+      description: Get all clusters for  a specific campaign
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a preselection form by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    question:
+                      type: string
+                    shortName:
+                      type: string
+                  required:
+                    - id
+                    - question
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: My question 1
+                      shortName: Q1
+                    - id: 2
+                      question: My question 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-forms
+      description: ''
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/groups':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get all Campaign Groups
+      tags:
+        - Campaign
+      operationId: get-campaigns-cid-groups
+      description: 'Get all groups used in a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    name:
+                      type: string
+                  required:
+                    - id
+                    - name
+              examples: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters: []
+  '/campaigns/{campaign}/observations':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get observations for a campaign
+      tags:
+        - Campaign
+        - Task
+      responses:
+        '200':
+          description: A UseCase linked with the Campaign
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        time:
+                          type: integer
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        cluster:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        media:
+                          type: object
+                          required:
+                            - id
+                            - url
+                            - streamUrl
+                          properties:
+                            id:
+                              type: integer
+                            url:
+                              type: string
+                            streamUrl:
+                              type: string
+                      required:
+                        - id
+                        - name
+                        - time
+                        - tester
+                        - cluster
+                        - media
+                required:
+                  - items
+              examples:
+                3-observations:
+                  value:
+                    items:
+                      - id: 1
+                        name: Observation Name1
+                        time: 59
+                        tester:
+                          id: 11111
+                          name: Jhon Doe
+                        cluster:
+                          id: 1
+                          name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                      - id: 2
+                        name: Observation Name2
+                        time: 39
+                        tester:
+                          id: 12345
+                          name: Mary Blue
+                        cluster:
+                          id: 1
+                          name: Cluster Name1
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                      - id: 3
+                        name: Observation Name3
+                        time: 19
+                        tester:
+                          id: 11111
+                          name: Jhon Doe
+                        cluster:
+                          id: 2
+                          name: Cluster Name2
+                        media:
+                          id: 1
+                          url: www.example.com
+                          streamUrl: www.example.com
+                ux-campaign-get-observations:
+                  value:
+                    items:
+                      - id: 10678
+                        name: ok
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 11291
+                          name: Aurora
+                        media:
+                          id: 73578
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
+                      - id: 10682
+                        name: ''
+                        time: 22
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 8208
+                          name: Eliseo
+                        media:
+                          id: 73577
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                      - id: 10683
+                        name: t58918_xiaomi_mi10_usecase1-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 58918
+                          name: Claudio
+                        media:
+                          id: 73579
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                      - id: 10684
+                        name: t960_apple_iphone12_usecase0-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 960
+                          name: Domenico
+                        media:
+                          id: 73580
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
+                      - id: 10685
+                        name: t17968_pc_desktop-_amd_usecase1-
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 17968
+                          name: Vittorio
+                        media:
+                          id: 73589
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
+                      - id: 10686
+                        name: t29187_huaweihonor_usecase0-mp4
+                        time: 0
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 29187
+                          name: Giada
+                        media:
+                          id: 73590
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8'
+                      - id: 10687
+                        name: interessante
+                        time: 58
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 8208
+                          name: Eliseo
+                        media:
+                          id: 73577
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                      - id: 10688
+                        name: giommiobs
+                        time: 108
+                        cluster:
+                          id: 781
+                          name: UC 1 - Carrello
+                        tester:
+                          id: 58918
+                          name: Claudio
+                        media:
+                          id: 73579
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                      - id: 10690
+                        name: ok T32
+                        time: 4
+                        cluster:
+                          id: 782
+                          name: UC 2 - Profilo
+                        tester:
+                          id: 32
+                          name: Luca
+                        media:
+                          id: 74191
+                          url: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4'
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-campaigns-campaign-observations
+      description: Get observations for a campaign
+      security:
+        - JWT: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterBy
   '/campaigns/{campaign}/payouts':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -2939,6 +2131,469 @@ paths:
       security:
         - JWT: []
       parameters: []
+  '/campaigns/{campaign}/prospect':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get a prospect by campaign id
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - usecases:
+                          completed: 0
+                          required: 0
+                        tester:
+                          id: 0
+                          name: string
+                          surname: string
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tester:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                            - group
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                            group:
+                              type: number
+                        usecases:
+                          type: object
+                          required:
+                            - completed
+                            - required
+                          properties:
+                            completed:
+                              type: integer
+                            required:
+                              type: integer
+                        bugs:
+                          type: object
+                          required:
+                            - critical
+                            - high
+                            - medium
+                            - low
+                          properties:
+                            critical:
+                              type: integer
+                            high:
+                              type: integer
+                            medium:
+                              type: integer
+                            low:
+                              type: integer
+                        payout:
+                          type: object
+                          required:
+                            - completion
+                            - bug
+                            - refund
+                            - extra
+                          properties:
+                            completion:
+                              type: number
+                            bug:
+                              type: number
+                            refund:
+                              type: number
+                            extra:
+                              type: number
+                        experience:
+                          type: object
+                          required:
+                            - completion
+                            - extra
+                          properties:
+                            completion:
+                              type: integer
+                            extra:
+                              type: integer
+                        note:
+                          type: string
+                        status:
+                          type: string
+                          enum:
+                            - pending
+                            - done
+                        weightedBugs:
+                          type: number
+                        isCompleted:
+                          type: boolean
+                        isTopTester:
+                          type: boolean
+                      required:
+                        - tester
+                        - usecases
+                        - bugs
+                        - payout
+                        - experience
+                        - note
+                        - status
+                        - weightedBugs
+                        - isCompleted
+                        - isTopTester
+                  status:
+                    $ref: '#/components/schemas/ProspectStatus'
+                required:
+                  - items
+                  - status
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - tester:
+                          id: 0
+                          name: string
+                          surname: string
+                          group: 0
+                        usecases:
+                          completed: 0
+                          required: 0
+                        bugs:
+                          critical: 0
+                          high: 0
+                          medium: 0
+                          low: 0
+                        payout:
+                          completion: 0
+                          bug: 0
+                          refund: 0
+                          extra: 0
+                        experience:
+                          completion: 0
+                          extra: 0
+                        note: string
+                        status: pending
+                        weightedBugs: 0
+                        isCompleted: true
+                        isTopTester: true
+                    status: draft
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          description: Precondition Failed
+      operationId: get-campaigns-campaign-prospect
+      description: ''
+      security:
+        - JWT: []
+      parameters:
+        - schema: {}
+          in: query
+          name: filterByInclude
+          description: Key-value Array for item filtering
+        - schema: {}
+          in: query
+          name: filterByExclude
+          description: Key-value Array for item filtering
+    put:
+      summary: Edit a campaign prospect
+      operationId: put-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '304':
+          description: Not Modified
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      tester:
+                        type: object
+                        required:
+                          - id
+                        properties:
+                          id:
+                            type: integer
+                      experience:
+                        type: object
+                        required:
+                          - completion
+                          - extra
+                        properties:
+                          completion:
+                            type: integer
+                          extra:
+                            type: integer
+                      payout:
+                        type: object
+                        required:
+                          - completion
+                          - bug
+                          - extra
+                          - refund
+                        properties:
+                          completion:
+                            type: number
+                          bug:
+                            type: number
+                          extra:
+                            type: number
+                          refund:
+                            type: number
+                      note:
+                        type: string
+                      completed:
+                        type: boolean
+                    required:
+                      - tester
+                      - experience
+                      - payout
+                      - completed
+              required:
+                - status
+                - items
+            examples:
+              Example 1:
+                value:
+                  status: done
+                  items:
+                    - tester:
+                        id: 0
+                      experience:
+                        completion: 0
+                        extra: 0
+                      payout:
+                        completion: 0
+                        bug: 0
+                        extra: 0
+                        refund: 0
+                      note: string
+                      completed: true
+    patch:
+      summary: ''
+      operationId: patch-campaigns-campaign-prospect
+      responses:
+        '200':
+          description: OK
+        '304':
+          description: Not Modified
+        '403':
+          description: Forbidden
+        '501':
+          description: Not Implemented
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  $ref: '#/components/schemas/ProspectStatus'
+  '/campaigns/{campaign}/prospect/{testerId}':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+      - $ref: '#/components/parameters/testerId'
+    put:
+      summary: ''
+      operationId: put-campaigns-campaign-prospect-testerId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    payout:
+                      completion: 0.2
+                      bugs: 0.2
+                      refund: 0.2
+                      extra: 0.2
+                    experience:
+                      completion: 0
+                      extra: 0
+                    note: string
+                    completed: true
+                properties:
+                  payout:
+                    type: object
+                    required:
+                      - completion
+                      - bugs
+                      - refund
+                      - extra
+                    properties:
+                      completion:
+                        type: number
+                      bugs:
+                        type: number
+                      refund:
+                        type: number
+                      extra:
+                        type: number
+                  experience:
+                    type: object
+                    required:
+                      - completion
+                      - extra
+                    properties:
+                      completion:
+                        type: integer
+                      extra:
+                        type: integer
+                  note:
+                    type: string
+                  completed:
+                    type: boolean
+                required:
+                  - payout
+                  - experience
+                  - note
+                  - completed
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  payout:
+                    completion: 10
+                    bugs: 10
+                    refund: 10
+                    extra: 10
+                  experience:
+                    completion: 10
+                    extra: 10
+                  note: string
+                  completed: true
+              properties:
+                payout:
+                  type: object
+                  required:
+                    - completion
+                    - bugs
+                    - refund
+                    - extra
+                  properties:
+                    completion:
+                      type: number
+                    bugs:
+                      type: number
+                    refund:
+                      type: number
+                    extra:
+                      type: number
+                experience:
+                  type: object
+                  required:
+                    - completion
+                    - extra
+                  properties:
+                    completion:
+                      type: integer
+                    extra:
+                      type: integer
+                note:
+                  type: string
+                completed:
+                  type: boolean
+              required:
+                - payout
+                - experience
+                - note
+                - completed
+            examples:
+              Example 1:
+                value:
+                  payout:
+                    completion: 0
+                    bugs: 0
+                    refund: 0
+                    extra: 0
+                  experience:
+                    completion: 0
+                    extra: 0
+                  note: string
+                  completed: true
+  '/campaigns/{campaign}/stats':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get stats for a specific campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  selected:
+                    type: integer
+                required:
+                  - selected
+              examples: {}
+      operationId: get-campaigns-campaign-stats
+      description: ''
+      security:
+        - JWT: []
   '/campaigns/{campaign}/tasks':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -3782,317 +3437,6 @@ paths:
                 value:
                   status: publish
         description: ''
-  '/campaigns/{campaign}/clusters':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get use case clusters for a campaign
-      tags:
-        - Campaign
-        - Task
-      responses:
-        '200':
-          description: A UseCase linked with the Campaign
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                required:
-                  - items
-              examples:
-                4-items:
-                  value:
-                    items:
-                      - id: 1
-                        name: 'UC1: Cart'
-                      - id: 2
-                        name: 'UC2: Login'
-                      - id: 3
-                        name: 'UC3: Checkout'
-                      - id: 4
-                        name: 'UC4: Search'
-                ux-campaign-get-clusters:
-                  value:
-                    items:
-                      - id: 1
-                        name: UC 1 - Carrello
-                      - id: 2
-                        name: UC 2 - Profilo
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaign-clusters
-      description: Get all clusters for  a specific campaign
-      security:
-        - JWT: []
-  '/campaigns/{campaign}/observations':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get observations for a campaign
-      tags:
-        - Campaign
-        - Task
-      responses:
-        '200':
-          description: A UseCase linked with the Campaign
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                        time:
-                          type: integer
-                        tester:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                        cluster:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                        media:
-                          type: object
-                          required:
-                            - id
-                            - url
-                            - streamUrl
-                          properties:
-                            id:
-                              type: integer
-                            url:
-                              type: string
-                            streamUrl:
-                              type: string
-                      required:
-                        - id
-                        - name
-                        - time
-                        - tester
-                        - cluster
-                        - media
-                required:
-                  - items
-              examples:
-                3-observations:
-                  value:
-                    items:
-                      - id: 1
-                        name: Observation Name1
-                        time: 59
-                        tester:
-                          id: 11111
-                          name: Jhon Doe
-                        cluster:
-                          id: 1
-                          name: Cluster Name1
-                        media:
-                          id: 1
-                          url: www.example.com
-                          streamUrl: www.example.com
-                      - id: 2
-                        name: Observation Name2
-                        time: 39
-                        tester:
-                          id: 12345
-                          name: Mary Blue
-                        cluster:
-                          id: 1
-                          name: Cluster Name1
-                        media:
-                          id: 1
-                          url: www.example.com
-                          streamUrl: www.example.com
-                      - id: 3
-                        name: Observation Name3
-                        time: 19
-                        tester:
-                          id: 11111
-                          name: Jhon Doe
-                        cluster:
-                          id: 2
-                          name: Cluster Name2
-                        media:
-                          id: 1
-                          url: www.example.com
-                          streamUrl: www.example.com
-                ux-campaign-get-observations:
-                  value:
-                    items:
-                      - id: 10678
-                        name: ok
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 11291
-                          name: Aurora
-                        media:
-                          id: 73578
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
-                      - id: 10682
-                        name: ''
-                        time: 22
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 8208
-                          name: Eliseo
-                        media:
-                          id: 73577
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
-                      - id: 10683
-                        name: t58918_xiaomi_mi10_usecase1-mp4
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 58918
-                          name: Claudio
-                        media:
-                          id: 73579
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
-                      - id: 10684
-                        name: t960_apple_iphone12_usecase0-mp4
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 960
-                          name: Domenico
-                        media:
-                          id: 73580
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
-                      - id: 10685
-                        name: t17968_pc_desktop-_amd_usecase1-
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 17968
-                          name: Vittorio
-                        media:
-                          id: 73589
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
-                      - id: 10686
-                        name: t29187_huaweihonor_usecase0-mp4
-                        time: 0
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 29187
-                          name: Giada
-                        media:
-                          id: 73590
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8'
-                      - id: 10687
-                        name: interessante
-                        time: 58
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 8208
-                          name: Eliseo
-                        media:
-                          id: 73577
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
-                      - id: 10688
-                        name: giommiobs
-                        time: 108
-                        cluster:
-                          id: 781
-                          name: UC 1 - Carrello
-                        tester:
-                          id: 58918
-                          name: Claudio
-                        media:
-                          id: 73579
-                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
-                      - id: 10690
-                        name: ok T32
-                        time: 4
-                        cluster:
-                          id: 782
-                          name: UC 2 - Profilo
-                        tester:
-                          id: 32
-                          name: Luca
-                        media:
-                          id: 74191
-                          url: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4'
-                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8'
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaign-observations
-      description: Get observations for a campaign
-      security:
-        - JWT: []
-      parameters:
-        - schema: {}
-          in: query
-          name: filterBy
   /campaigns/forms:
     post:
       summary: Create a new preselection form
@@ -4213,9 +3557,21 @@ paths:
                     $ref: '#/components/schemas/PreselectionFormQuestion'
                 campaign:
                   type: integer
+                creationDate:
+                  type: string
               required:
                 - name
                 - fields
+            examples:
+              Example 1:
+                value:
+                  name: Form1
+                  fields:
+                    - question: Write your name?
+                      short_name: name
+                      type: text
+                  campaign: 1
+                  creationDate: '2024-02-23 12:15:12'
       description: ''
     parameters: []
     get:
@@ -4349,6 +3705,12 @@ paths:
                         options:
                           - Option1
                           - Option2
+                      - id: 12234
+                        question: 'What''s your [radio question]?'
+                        type: radio
+                        options:
+                          - 'Yes'
+                          - 'No'
                       - id: 9
                         question: 'What''s your [custom selectable question]?'
                         type: select
@@ -4581,16 +3943,10 @@ paths:
                     - question: 'What''s your [profile question]?'
                       type: gender
       description: ''
-  '/campaigns/{campaign}/forms':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
+  /campaigns/owners:
     get:
-      summary: Get a preselection form by campaign id
-      tags: []
+      summary: Get owners of Campaigns
+      operationId: get-campaigns-owners
       responses:
         '200':
           description: OK
@@ -4603,492 +3959,25 @@ paths:
                   properties:
                     id:
                       type: integer
-                    question:
+                    name:
                       type: string
-                    shortName:
+                    surname:
                       type: string
                   required:
                     - id
-                    - question
-              examples:
-                example-1:
-                  value:
-                    - id: 1
-                      question: My question 1
-                      shortName: Q1
-                    - id: 2
-                      question: My question 2
+                    - name
+                    - surname
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      operationId: get-campaigns-campaign-forms
-      description: ''
       security:
         - JWT: []
-  '/campaigns/{campaign}/prospect/{testerId}':
-    parameters:
-      - $ref: '#/components/parameters/campaign'
-      - $ref: '#/components/parameters/testerId'
-    put:
-      summary: ''
-      operationId: put-campaigns-campaign-prospect-testerId
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  Example 1:
-                    payout:
-                      completion: 0.2
-                      bugs: 0.2
-                      refund: 0.2
-                      extra: 0.2
-                    experience:
-                      completion: 0
-                      extra: 0
-                    note: string
-                    completed: true
-                properties:
-                  payout:
-                    type: object
-                    required:
-                      - completion
-                      - bugs
-                      - refund
-                      - extra
-                    properties:
-                      completion:
-                        type: number
-                      bugs:
-                        type: number
-                      refund:
-                        type: number
-                      extra:
-                        type: number
-                  experience:
-                    type: object
-                    required:
-                      - completion
-                      - extra
-                    properties:
-                      completion:
-                        type: integer
-                      extra:
-                        type: integer
-                  note:
-                    type: string
-                  completed:
-                    type: boolean
-                required:
-                  - payout
-                  - experience
-                  - note
-                  - completed
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              x-examples:
-                Example 1:
-                  payout:
-                    completion: 10
-                    bugs: 10
-                    refund: 10
-                    extra: 10
-                  experience:
-                    completion: 10
-                    extra: 10
-                  note: string
-                  completed: true
-              properties:
-                payout:
-                  type: object
-                  required:
-                    - completion
-                    - bugs
-                    - refund
-                    - extra
-                  properties:
-                    completion:
-                      type: number
-                    bugs:
-                      type: number
-                    refund:
-                      type: number
-                    extra:
-                      type: number
-                experience:
-                  type: object
-                  required:
-                    - completion
-                    - extra
-                  properties:
-                    completion:
-                      type: integer
-                    extra:
-                      type: integer
-                note:
-                  type: string
-                completed:
-                  type: boolean
-              required:
-                - payout
-                - experience
-                - note
-                - completed
-            examples:
-              Example 1:
-                value:
-                  payout:
-                    completion: 0
-                    bugs: 0
-                    refund: 0
-                    extra: 0
-                  experience:
-                    completion: 0
-                    extra: 0
-                  note: string
-                  completed: true
-  '/campaigns/{campaign}/prospect':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    get:
-      summary: Get a prospect by campaign id
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  Example 1:
-                    items:
-                      - usecases:
-                          completed: 0
-                          required: 0
-                        tester:
-                          id: 0
-                          name: string
-                          surname: string
-                        bugs:
-                          critical: 0
-                          high: 0
-                          medium: 0
-                          low: 0
-                        payout:
-                          completion: 0
-                          bug: 0
-                          refund: 0
-                          extra: 0
-                        experience:
-                          completion: 0
-                          extra: 0
-                        note: string
-                        status: pending
-                properties:
-                  items:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        tester:
-                          type: object
-                          required:
-                            - id
-                            - name
-                            - surname
-                            - group
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                            surname:
-                              type: string
-                            group:
-                              type: number
-                        usecases:
-                          type: object
-                          required:
-                            - completed
-                            - required
-                          properties:
-                            completed:
-                              type: integer
-                            required:
-                              type: integer
-                        bugs:
-                          type: object
-                          required:
-                            - critical
-                            - high
-                            - medium
-                            - low
-                          properties:
-                            critical:
-                              type: integer
-                            high:
-                              type: integer
-                            medium:
-                              type: integer
-                            low:
-                              type: integer
-                        payout:
-                          type: object
-                          required:
-                            - completion
-                            - bug
-                            - refund
-                            - extra
-                          properties:
-                            completion:
-                              type: number
-                            bug:
-                              type: number
-                            refund:
-                              type: number
-                            extra:
-                              type: number
-                        experience:
-                          type: object
-                          required:
-                            - completion
-                            - extra
-                          properties:
-                            completion:
-                              type: integer
-                            extra:
-                              type: integer
-                        note:
-                          type: string
-                        status:
-                          type: string
-                          enum:
-                            - pending
-                            - done
-                        weightedBugs:
-                          type: number
-                        isCompleted:
-                          type: boolean
-                        isTopTester:
-                          type: boolean
-                      required:
-                        - tester
-                        - usecases
-                        - bugs
-                        - payout
-                        - experience
-                        - note
-                        - status
-                        - weightedBugs
-                        - isCompleted
-                        - isTopTester
-                  status:
-                    $ref: '#/components/schemas/ProspectStatus'
-                required:
-                  - items
-                  - status
-              examples:
-                Example 1:
-                  value:
-                    items:
-                      - tester:
-                          id: 0
-                          name: string
-                          surname: string
-                          group: 0
-                        usecases:
-                          completed: 0
-                          required: 0
-                        bugs:
-                          critical: 0
-                          high: 0
-                          medium: 0
-                          low: 0
-                        payout:
-                          completion: 0
-                          bug: 0
-                          refund: 0
-                          extra: 0
-                        experience:
-                          completion: 0
-                          extra: 0
-                        note: string
-                        status: pending
-                        weightedBugs: 0
-                        isCompleted: true
-                        isTopTester: true
-                    status: draft
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '412':
-          description: Precondition Failed
-      operationId: get-campaigns-campaign-prospect
-      description: ''
-      security:
-        - JWT: []
-      parameters:
-        - schema: {}
-          in: query
-          name: filterByInclude
-          description: Key-value Array for item filtering
-        - schema: {}
-          in: query
-          name: filterByExclude
-          description: Key-value Array for item filtering
-    put:
-      summary: Edit a campaign prospect
-      operationId: put-campaigns-campaign-prospect
-      responses:
-        '200':
-          description: OK
-          content: {}
-        '304':
-          description: Not Modified
-        '501':
-          description: Not Implemented
-      security:
-        - JWT: []
-      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  $ref: '#/components/schemas/ProspectStatus'
-                items:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      tester:
-                        type: object
-                        required:
-                          - id
-                        properties:
-                          id:
-                            type: integer
-                      experience:
-                        type: object
-                        required:
-                          - completion
-                          - extra
-                        properties:
-                          completion:
-                            type: integer
-                          extra:
-                            type: integer
-                      payout:
-                        type: object
-                        required:
-                          - completion
-                          - bug
-                          - extra
-                          - refund
-                        properties:
-                          completion:
-                            type: number
-                          bug:
-                            type: number
-                          extra:
-                            type: number
-                          refund:
-                            type: number
-                      note:
-                        type: string
-                      completed:
-                        type: boolean
-                    required:
-                      - tester
-                      - experience
-                      - payout
-                      - completed
-              required:
-                - status
-                - items
-            examples:
-              Example 1:
-                value:
-                  status: done
-                  items:
-                    - tester:
-                        id: 0
-                      experience:
-                        completion: 0
-                        extra: 0
-                      payout:
-                        completion: 0
-                        bug: 0
-                        extra: 0
-                        refund: 0
-                      note: string
-                      completed: true
-    patch:
-      summary: ''
-      operationId: patch-campaigns-campaign-prospect
-      responses:
-        '200':
-          description: OK
-        '304':
-          description: Not Modified
-        '403':
-          description: Forbidden
-        '501':
-          description: Not Implemented
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                status:
-                  $ref: '#/components/schemas/ProspectStatus'
-  '/campaigns/{campaign}/stats':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    get:
-      summary: Get stats for a specific campaign
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  selected:
-                    type: integer
-                required:
-                  - selected
-              examples: {}
-      operationId: get-campaigns-campaign-stats
-      description: ''
-      security:
-        - JWT: []
+      description: Get all the owners of campaigns you have access to
+      tags:
+        - Campaign
+      parameters: []
+    parameters: []
   /campaignTypes:
     parameters: []
     get:
@@ -5464,6 +4353,152 @@ paths:
       security:
         - JWT: []
       description: Get all employments
+  '/jotforms/{campaign}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: Import a jotform to a campaign
+      operationId: post-jotforms-campaignId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                formId:
+                  type: string
+                testerIdColumn:
+                  type: string
+              required:
+                - formId
+                - testerIdColumn
+            examples:
+              Example 1:
+                value:
+                  formId: '123456'
+                  testerIdColumn: ltstronggttryberIdltstronggt
+      description: ''
+      security:
+        - JWT: []
+  /jotforms/forms:
+    get:
+      summary: Get Jotforms
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    createdAt:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - createdAt
+              examples:
+                3 forms:
+                  value:
+                    - id: '3'
+                      name: Form new
+                      createdAt: '2024-02-24 16:00:00'
+                    - id: '2'
+                      name: Form old
+                      createdAt: '2024-02-25 16:00:00'
+                    - id: '1'
+                      name: Form oldest
+                      createdAt: '2024-02-26 16:00:00'
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
+      operationId: get-jotforms
+      description: ''
+      security:
+        - JWT: []
+    parameters: []
+  '/jotforms/forms/{formId}/questions':
+    parameters:
+      - schema:
+          type: string
+        name: formId
+        in: path
+        required: true
+    get:
+      summary: Get quesitions from a jotform
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                    - id
+                    - name
+                    - title
+                    - type
+              examples:
+                3 questions:
+                  value:
+                    - id: '1'
+                      type: control_textbox
+                      title: Tester ID
+                      description: Inserisci il tuo tester ID nel formato T1234
+                      name: testerId
+                    - id: '2'
+                      type: control_email
+                      title: Email
+                      description: ''
+                      name: email
+                    - id: '43'
+                      type: control_text
+                      title: "<p>Ciao!<br />Stiamo cercando utenti con fatture insolute dei seguenti operatori:</p>\r\n<ul>\r\n<li>Wind3</li>\r\n<li>Fastweb</li>\r\n<li>Iliad</li>\r\n</ul>\r\n<p>\_</p>\r\n<p>Se rientri nel target, compila la survey, abbiamo un'opportunità di <strong>guadagno</strong> per te!</p>"
+                      name: input43
+                empty:
+                  value: []
+        '403':
+          description: Forbidden
+      operationId: get-jotforms-forms-formId-questions
+      security:
+        - JWT: []
   /languages:
     get:
       summary: Get All Languages
@@ -6483,8 +5518,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: x5877le63wjax
                 required:
                   - id
               examples:
@@ -6852,6 +5885,66 @@ paths:
                     completionPercent: 0
                     country: Italy
                     city: Cremona
+                    attended_cp: 0
+                    approved_bugs: 0
+                    booty_threshold:
+                      value: 0
+                      isOver: true
+                role admin:
+                  value:
+                    username: string
+                    name: string
+                    surname: string
+                    email: user@example.com
+                    image: string
+                    id: 0
+                    wp_user_id: 0
+                    role: string
+                    is_verified: true
+                    rank: string
+                    total_exp_pts: 0
+                    booty:
+                      net:
+                        value: 0
+                        currency: string
+                      gross:
+                        value: 0
+                        currency: string
+                    pending_booty:
+                      net:
+                        value: 0
+                        currency: string
+                      gross:
+                        value: 0
+                        currency: string
+                    languages:
+                      - id: 0
+                        name: string
+                    onboarding_completed: true
+                    additional:
+                      - field_id: 0
+                        name: string
+                        value: string
+                        text: string
+                        is_candidate: true
+                    gender: male
+                    birthDate: '2019-08-24'
+                    phone: string
+                    education:
+                      id: 0
+                      name: string
+                    profession:
+                      id: 0
+                      name: string
+                    certifications:
+                      - id: 0
+                        name: string
+                        area: string
+                        institute: string
+                        achievement_date: '2019-08-24'
+                    completionPercent: 0
+                    country: string
+                    city: string
                     attended_cp: 0
                     approved_bugs: 0
                     booty_threshold:
@@ -8092,6 +7185,221 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/forms':
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
+    get:
+      summary: Get the preselection form for your campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/PreselectionFormQuestion'
+                    - type: object
+                      properties:
+                        value:
+                          oneOf:
+                            - type: integer
+                            - type: object
+                              properties:
+                                city:
+                                  type: string
+                                country:
+                                  type: string
+                            - type: array
+                              items:
+                                type: integer
+                            - type: string
+                        validation:
+                          type: object
+                          properties:
+                            regex:
+                              type: string
+                            error:
+                              type: string
+                          required:
+                            - regex
+                        id:
+                          type: number
+                      required:
+                        - id
+              examples:
+                example-1:
+                  value:
+                    - id: 1
+                      question: Come si chiama il tuo cane?
+                      type: text
+                    - id: 2
+                      question: Il tuo cane si chiama pippo?
+                      type: radio
+                      options:
+                        - Sì
+                        - 'No'
+                    - id: 3
+                      question: Di che razza è il tuo cane?
+                      type: select
+                      options:
+                        - ALANO TIGRATO
+                        - ALASKAN MALAMUTE
+                        - ALPENLAENDISCHE DACHSBRACKE
+                        - AMSTAFF
+                    - id: 4
+                      question: Che vaccinazioni ha fatto il tuo cane?
+                      type: multiselect
+                      options:
+                        - Cimurro
+                        - Parvovirus
+                        - Adenovirus
+                    - id: 5
+                      question: Con quali banche hai un conto?
+                      type: cuf_22
+                      options:
+                        - 1
+                        - 2
+                        - 3
+                        - 4
+                      value:
+                        - 3
+                        - 4
+                    - id: 6
+                      question: Scrivi il tuo username telegram
+                      type: cuf_15
+                      value: '@pippo'
+                      validation:
+                        regex: '^@[a-zA-Z]*$'
+                        error: 'Inserire l''utente telegram in questo formato: @pippo'
+                    - id: 7
+                      question: Con che genere ti identifichi?
+                      type: gender
+                      value: male
+                    - id: 8
+                      question: Qual è il tuo numero di telefono
+                      type: phone_number
+                      value: '+33123456789'
+                      validation:
+                        regex: '^\+?[0-9]{12,14}$'
+                    - id: 9
+                      question: Dove abiti?
+                      type: address
+                      value:
+                        city: Pesaro
+                        country: Italy
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: get-users-me-campaign-campaignId-forms
+      security:
+        - JWT: []
+    post:
+      summary: ''
+      operationId: post-users-me-campaigns-campaignId-forms
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                form:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      value:
+                        type: object
+                        properties:
+                          id:
+                            oneOf:
+                              - type: integer
+                              - type: array
+                                items:
+                                  type: integer
+                          serialized:
+                            oneOf:
+                              - type: string
+                              - type: array
+                                items:
+                                  type: string
+                              - type: object
+                                properties:
+                                  city:
+                                    type: string
+                                  country:
+                                    type: string
+                                required:
+                                  - city
+                                  - country
+                      question:
+                        type: number
+                    required:
+                      - value
+                      - question
+                device:
+                  type: array
+                  items:
+                    type: integer
+            examples:
+              example-1:
+                value:
+                  form:
+                    - question: 1
+                      value:
+                        serialized: Pippo
+                    - question: 2
+                      value:
+                        serialized: Sì
+                    - question: 3
+                      value:
+                        serialized: ALANO TIGRATO
+                    - question: 4
+                      value:
+                        serialized:
+                          - Cimurro
+                          - Parvovirus
+                    - question: 5
+                      value:
+                        id:
+                          - 1
+                          - 3
+                        serialized:
+                          - Banca 1
+                          - Banca 3
+                    - question: 6
+                      value:
+                        serialized: '@franco'
+                    - question: 7
+                      value:
+                        serialized: female
+                    - question: 8
+                      value:
+                        serialized: '+33233456789'
+                    - question: 9
+                      value:
+                        serialized:
+                          city: Roma
+                          country: Italy
+                  device:
+                    - 123
+      security:
+        - JWT: []
+      description: ''
   '/users/me/campaigns/{campaignId}/media':
     parameters:
       - schema:
@@ -9047,12 +8355,9 @@ paths:
             examples:
               Example 1:
                 value:
-                  - id: 46
-                    name: English
-                  - id: 61
-                    name: Spanish
-                  - id: 120
-                    name: Italiano (Italia)
+                  - 46
+                  - 61
+                  - 120
       description: Edit your spoken languages
       security:
         - JWT: []
@@ -10351,221 +9656,6 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
-  '/users/me/campaigns/{campaignId}/forms':
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-    get:
-      summary: Get the preselection form for your campaign
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/PreselectionFormQuestion'
-                    - type: object
-                      properties:
-                        value:
-                          oneOf:
-                            - type: integer
-                            - type: object
-                              properties:
-                                city:
-                                  type: string
-                                country:
-                                  type: string
-                            - type: array
-                              items:
-                                type: integer
-                            - type: string
-                        validation:
-                          type: object
-                          properties:
-                            regex:
-                              type: string
-                            error:
-                              type: string
-                          required:
-                            - regex
-                        id:
-                          type: number
-                      required:
-                        - id
-              examples:
-                example-1:
-                  value:
-                    - id: 1
-                      question: Come si chiama il tuo cane?
-                      type: text
-                    - id: 2
-                      question: Il tuo cane si chiama pippo?
-                      type: radio
-                      options:
-                        - Sì
-                        - 'No'
-                    - id: 3
-                      question: Di che razza è il tuo cane?
-                      type: select
-                      options:
-                        - ALANO TIGRATO
-                        - ALASKAN MALAMUTE
-                        - ALPENLAENDISCHE DACHSBRACKE
-                        - AMSTAFF
-                    - id: 4
-                      question: Che vaccinazioni ha fatto il tuo cane?
-                      type: multiselect
-                      options:
-                        - Cimurro
-                        - Parvovirus
-                        - Adenovirus
-                    - id: 5
-                      question: Con quali banche hai un conto?
-                      type: cuf_22
-                      options:
-                        - 1
-                        - 2
-                        - 3
-                        - 4
-                      value:
-                        - 3
-                        - 4
-                    - id: 6
-                      question: Scrivi il tuo username telegram
-                      type: cuf_15
-                      value: '@pippo'
-                      validation:
-                        regex: '^@[a-zA-Z]*$'
-                        error: 'Inserire l''utente telegram in questo formato: @pippo'
-                    - id: 7
-                      question: Con che genere ti identifichi?
-                      type: gender
-                      value: male
-                    - id: 8
-                      question: Qual è il tuo numero di telefono
-                      type: phone_number
-                      value: '+33123456789'
-                      validation:
-                        regex: '^\+?[0-9]{12,14}$'
-                    - id: 9
-                      question: Dove abiti?
-                      type: address
-                      value:
-                        city: Pesaro
-                        country: Italy
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: get-users-me-campaign-campaignId-forms
-      security:
-        - JWT: []
-    post:
-      summary: ''
-      operationId: post-users-me-campaigns-campaignId-forms
-      responses:
-        '200':
-          description: OK
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                form:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      value:
-                        type: object
-                        properties:
-                          id:
-                            oneOf:
-                              - type: integer
-                              - type: array
-                                items:
-                                  type: integer
-                          serialized:
-                            oneOf:
-                              - type: string
-                              - type: array
-                                items:
-                                  type: string
-                              - type: object
-                                properties:
-                                  city:
-                                    type: string
-                                  country:
-                                    type: string
-                                required:
-                                  - city
-                                  - country
-                      question:
-                        type: number
-                    required:
-                      - value
-                      - question
-                device:
-                  type: array
-                  items:
-                    type: integer
-            examples:
-              example-1:
-                value:
-                  form:
-                    - question: 1
-                      value:
-                        serialized: Pippo
-                    - question: 2
-                      value:
-                        serialized: Sì
-                    - question: 3
-                      value:
-                        serialized: ALANO TIGRATO
-                    - question: 4
-                      value:
-                        serialized:
-                          - Cimurro
-                          - Parvovirus
-                    - question: 5
-                      value:
-                        id:
-                          - 1
-                          - 3
-                        serialized:
-                          - Banca 1
-                          - Banca 3
-                    - question: 6
-                      value:
-                        serialized: '@franco'
-                    - question: 7
-                      value:
-                        serialized: female
-                    - question: 8
-                      value:
-                        serialized: '+33233456789'
-                    - question: 9
-                      value:
-                        serialized:
-                          city: Roma
-                          country: Italy
-                  device:
-                    - 123
-      security:
-        - JWT: []
-      description: ''
 components:
   schemas:
     AdditionalField:
