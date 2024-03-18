@@ -187,12 +187,10 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
       { tester: 1 },
       { tester: 2 },
     ]);
-    //console.log(response.body);
     expect(response.status).toBe(200);
     const candidatures = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select()
       .where({ campaign_id: 1 });
-    //console.log(candidatures);
     expect(candidatures.length).toBe(2);
     expect(candidatures[0].accepted_date).not.toBeNull();
     expect(candidatures[1].accepted_date).not.toBeNull();
