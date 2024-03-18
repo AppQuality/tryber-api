@@ -166,11 +166,7 @@ export default class Jotform {
     return Object.entries(results.content).map(
       ([key, value]: [string, any]) => {
         const options =
-          value.type === "control_yesno"
-            ? ["SÌ", "NO"]
-            : "options" in value
-            ? value.options.split("|")
-            : undefined;
+          "options" in value ? value.options.split("|") : undefined;
         return {
           id: key,
           type: value.type,

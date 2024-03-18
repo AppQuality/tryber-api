@@ -74,13 +74,11 @@ export default class Route extends UserRoute<{
                 : answer;
 
             for (const a of answerList) {
-              const value = questionType === "control_yesno" ? mapYesNo(a) : a;
-
               await tryber.tables.WpAppqCampaignPreselectionFormData.do().insert(
                 {
                   campaign_id: this.campaignId,
                   field_id: questionIds[question],
-                  value,
+                  value: a,
                   tester_id: testerId,
                   submission_date: submission.date,
                 }
@@ -92,12 +90,6 @@ export default class Route extends UserRoute<{
     }
 
     this.setSuccess(200, {});
-
-    function mapYesNo(value: string) {
-      if (["YES", "SI", "SÌ"].includes(value)) return "SÌ";
-      if (["NO"].includes(value)) return "NO";
-      return value;
-    }
   }
 
   private getTesterIdValue(submission: {
