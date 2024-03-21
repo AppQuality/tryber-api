@@ -74,14 +74,11 @@ export default class Route extends UserRoute<{
                 : answer;
 
             for (const a of answerList) {
-              const value =
-                questionType === "control_yesno" ? a.replace("YES", "SÌ") : a;
-
               await tryber.tables.WpAppqCampaignPreselectionFormData.do().insert(
                 {
                   campaign_id: this.campaignId,
                   field_id: questionIds[question],
-                  value,
+                  value: a,
                   tester_id: testerId,
                   submission_date: submission.date,
                 }
