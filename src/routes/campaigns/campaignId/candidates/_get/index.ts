@@ -4,12 +4,12 @@ import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 import { CandidateBhLevel } from "./CandidateBhLevel";
+import { CandidateBusinessCampaigns } from "./CandidateBusinessCampaigns";
 import { CandidateDevices } from "./CandidateDevices";
 import { CandidateLevels } from "./CandidateLevel";
 import { CandidateProfile } from "./CandidateProfile";
 import { CandidateQuestions } from "./CandidateQuestions";
 import { Candidates } from "./Candidates";
-import { CandidateBusinessCampaigns } from "./CandidateBusinessCampaigns";
 
 type filterByItem = string | string[];
 type filterBy = Record<
@@ -27,6 +27,8 @@ export default class RouteItem extends UserRoute<{
   private limit: number;
   private hasLimit: boolean = false;
   private fields: { type: "question"; id: number }[] = [];
+  private show: NonNullable<NonNullable<RouteItem["query"]>["show"]> =
+    "onlyCandidates";
   private filters:
     | {
         os?: string[];
@@ -53,6 +55,8 @@ export default class RouteItem extends UserRoute<{
       this.limit = parseInt(query.limit as unknown as string);
       this.hasLimit = true;
     }
+
+    if (query.show) this.show = query.show;
 
     if (query.fields) {
       query.fields.split(",").map((field) => {
@@ -294,6 +298,7 @@ export default class RouteItem extends UserRoute<{
   private async getCandidates() {
     const candidatesRetriever = new Candidates({
       campaign_id: this.campaign_id,
+      show: this.show,
     });
     const candidates = await candidatesRetriever.get();
 
