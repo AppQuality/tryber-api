@@ -49,7 +49,7 @@ class CandidateDevices implements CandidateData {
   }
 
   async init() {
-    const query = tryber.tables.WpCrowdAppqDevice.do()
+    const deviceQuery = tryber.tables.WpCrowdAppqDevice.do()
       .select(
         tryber.ref("id").withSchema("wp_crowd_appq_device"),
         "manufacturer",
@@ -71,15 +71,14 @@ class CandidateDevices implements CandidateData {
 
     if (this.filters?.os) {
       const operativeSystems = this.filters.os;
-      query.where((query) => {
+      deviceQuery.where((query) => {
         for (const os of operativeSystems) {
           query.orWhereLike("wp_appq_evd_platform.name", `%${os}%`);
         }
       });
     }
 
-    this._devices = await query;
-    this._candidateDevices = await tryber.tables.WpCrowdAppqHasCandidate.do()
+    const candidateDevicesQuery = tryber.tables.WpCrowdAppqHasCandidate.do()
       .join(
         "wp_appq_evd_profile",
         "wp_crowd_appq_has_candidate.user_id",
@@ -91,6 +90,13 @@ class CandidateDevices implements CandidateData {
       )
       .where("campaign_id", this.campaignId)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
+
+    const [devices, candidateDevices] = await Promise.all([
+      deviceQuery,
+      candidateDevicesQuery,
+    ]);
+    this._devices = devices;
+    this._candidateDevices = candidateDevices;
 
     return;
   }
