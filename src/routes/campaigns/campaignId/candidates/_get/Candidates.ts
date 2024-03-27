@@ -5,11 +5,13 @@ class Candidates {
   private show: "onlyAccepted" | "onlyCandidates" | "all" = "all";
   constructor({
     campaign_id,
+    show,
   }: {
     campaign_id: number;
     show: "onlyAccepted" | "onlyCandidates" | "all";
   }) {
     this.campaign_id = campaign_id;
+    this.show = show;
   }
 
   async get() {
