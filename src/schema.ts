@@ -3992,7 +3992,6 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          customer: number;
           project: number;
           testType: number;
           title: {

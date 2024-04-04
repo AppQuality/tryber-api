@@ -1176,6 +1176,8 @@ paths:
                                   type: string
                                 metal:
                                   type: string
+                                  x-stoplight:
+                                    id: 9afe0zlf0hr2b
                             devices:
                               type: array
                               items:
@@ -9669,6 +9671,8 @@ paths:
                 properties:
                   id:
                     type: integer
+                    x-stoplight:
+                      id: 965rh7aagxj8x
               examples:
                 Example 1:
                   value:
@@ -9679,31 +9683,44 @@ paths:
             schema:
               type: object
               properties:
-                customer:
-                  type: integer
                 project:
                   type: integer
+                  x-stoplight:
+                    id: jwhl73kxdvqsm
                 testType:
                   type: integer
+                  x-stoplight:
+                    id: n9kg2qus4zne4
                 title:
                   type: object
+                  x-stoplight:
+                    id: ht0jrwyzqhalk
                   required:
                     - customer
                   properties:
                     customer:
                       type: string
+                      x-stoplight:
+                        id: pggesn9cg9umj
                     tester:
                       type: string
+                      x-stoplight:
+                        id: dc5k2qou60m5x
                 startDate:
                   type: string
+                  x-stoplight:
+                    id: 7ky5jnvbcef4y
                   format: date-time
                 deviceList:
                   type: array
+                  x-stoplight:
+                    id: vugukyp4r5i2i
                   minItems: 1
                   items:
+                    x-stoplight:
+                      id: no4pciwqz472b
                     type: integer
               required:
-                - customer
                 - project
                 - testType
                 - title
@@ -9712,7 +9729,6 @@ paths:
             examples:
               Basic campaign:
                 value:
-                  customer: 1
                   project: 1
                   testType: 1
                   title:

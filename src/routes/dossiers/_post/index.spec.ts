@@ -3,7 +3,6 @@ import { tryber } from "@src/features/database";
 import request from "supertest";
 
 const baseRequest = {
-  customer: 1,
   project: 1,
   testType: 1,
   title: {
@@ -15,9 +14,26 @@ const baseRequest = {
 };
 
 describe("Route POST /dossiers", () => {
-  beforeAll(async () => {});
+  beforeAll(async () => {
+    await tryber.tables.WpAppqProject.do().insert({
+      id: 1,
+      display_name: "Test Project",
+      customer_id: 1,
+      edited_by: 1,
+    });
 
-  afterAll(async () => {});
+    await tryber.tables.WpAppqCampaignType.do().insert({
+      id: 1,
+      name: "Test Type",
+      description: "Test Description",
+      category_id: 1,
+    });
+  });
+
+  afterAll(async () => {
+    await tryber.tables.WpAppqProject.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+  });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
@@ -34,5 +50,29 @@ describe("Route POST /dossiers", () => {
       .send(baseRequest);
     console.log(response.body);
     expect(response.status).toBe(403);
+  });
+
+  it("Should answer 400 if project does not exists", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, project: 10 });
+    expect(response.status).toBe(400);
+  });
+
+  it("Should answer 400 if test type does not exists", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, testType: 10 });
+    expect(response.status).toBe(400);
+  });
+
+  it("Should answer 201 if admin", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send(baseRequest);
+    expect(response.status).toBe(201);
   });
 });
