@@ -4000,6 +4000,8 @@ export interface operations {
           };
           /** Format: date-time */
           startDate: string;
+          /** Format: date-time */
+          endDate?: string;
           deviceList: number[];
         };
       };

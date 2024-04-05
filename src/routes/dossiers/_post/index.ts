@@ -58,40 +58,54 @@ export default class RouteItem extends AdminRoute<{
 
   protected async prepare(): Promise<void> {
     try {
-      const endDate = new Date(this.getBody().startDate);
-      endDate.setDate(endDate.getDate() + 7);
-
-      const devices = await tryber.tables.WpAppqEvdPlatform.do()
-        .select("id", "form_factor")
-        .whereIn("id", this.getBody().deviceList);
-
-      const os = devices.map((device) => device.id);
-      const form_factor = devices.map((device) => device.form_factor);
-
-      const results = await tryber.tables.WpAppqEvdCampaign.do()
-        .insert({
-          title: this.getBody().title.tester,
-          platform_id: 0,
-          start_date: this.getBody().startDate,
-          end_date: endDate.toISOString().replace(/\.\d+/, ""),
-          page_preview_id: 0,
-          page_manual_id: 0,
-          customer_id: 0,
-          pm_id: this.getTesterId(),
-          project_id: this.getBody().project,
-          campaign_type_id: this.getBody().testType,
-          customer_title: this.getBody().title.customer,
-          os: os.join(","),
-          form_factor: form_factor.join(","),
-        })
-        .returning("id");
-
       this.setSuccess(201, {
-        id: results[0].id ?? results[0],
+        id: await this.createCampaign(),
       });
     } catch (e) {
-      console.log(e);
-      this.setError(500, new OpenapiError("PROBLEMI!"));
+      this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async createCampaign() {
+    const { os, form_factor } = await this.getDevices();
+
+    const results = await tryber.tables.WpAppqEvdCampaign.do()
+      .insert({
+        title: this.getBody().title.tester,
+        platform_id: 0,
+        start_date: this.getBody().startDate,
+        end_date: this.getEndDate(),
+        page_preview_id: 0,
+        page_manual_id: 0,
+        customer_id: 0,
+        pm_id: this.getTesterId(),
+        project_id: this.getBody().project,
+        campaign_type_id: this.getBody().testType,
+        customer_title: this.getBody().title.customer,
+        os: os.join(","),
+        form_factor: form_factor.join(","),
+      })
+      .returning("id");
+
+    return results[0].id ?? results[0];
+  }
+
+  private getEndDate() {
+    if (this.getBody().endDate) return this.getBody().endDate;
+
+    const startDate = new Date(this.getBody().startDate);
+    startDate.setDate(startDate.getDate() + 7);
+    return startDate.toISOString().replace(/\.\d+/, "");
+  }
+
+  private async getDevices() {
+    const devices = await tryber.tables.WpAppqEvdPlatform.do()
+      .select("id", "form_factor")
+      .whereIn("id", this.getBody().deviceList);
+
+    const os = devices.map((device) => device.id);
+    const form_factor = devices.map((device) => device.form_factor);
+
+    return { os, form_factor };
   }
 }

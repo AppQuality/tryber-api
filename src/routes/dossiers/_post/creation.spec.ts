@@ -174,7 +174,28 @@ describe("Route POST /dossiers", () => {
     expect(campaign).toHaveProperty("start_date", "2021-08-24T14:15:22Z");
   });
 
-  it("Should create a campaign with the specified end date as start date + 7", async () => {
+  it("Should create a campaign with the specified end date ", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        endDate: "2021-08-20T14:15:22Z",
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("end_date", "2021-08-20T14:15:22Z");
+  });
+
+  it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {
     const response = await request(app)
       .post("/dossiers")
       .set("authorization", "Bearer admin")
