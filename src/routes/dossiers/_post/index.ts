@@ -18,6 +18,10 @@ export default class RouteItem extends AdminRoute<{
       this.setError(400, new OpenapiError("Test type does not exist"));
       return false;
     }
+    if (!(await this.deviceExists())) {
+      this.setError(400, new OpenapiError("Invalid devices"));
+      return false;
+    }
 
     return true;
   }
@@ -44,15 +48,30 @@ export default class RouteItem extends AdminRoute<{
     return !!testType;
   }
 
+  private async deviceExists(): Promise<boolean> {
+    const { deviceList } = this.getBody();
+    const devices = await tryber.tables.WpAppqEvdPlatform.do()
+      .select()
+      .whereIn("id", deviceList);
+    return devices.length === deviceList.length;
+  }
+
   protected async prepare(): Promise<void> {
     try {
       const endDate = new Date(this.getBody().startDate);
       endDate.setDate(endDate.getDate() + 7);
 
+      const devices = await tryber.tables.WpAppqEvdPlatform.do()
+        .select("id", "form_factor")
+        .whereIn("id", this.getBody().deviceList);
+
+      const os = devices.map((device) => device.id);
+      const form_factor = devices.map((device) => device.form_factor);
+
       const results = await tryber.tables.WpAppqEvdCampaign.do()
         .insert({
           title: this.getBody().title.tester,
-          platform_id: 1,
+          platform_id: 0,
           start_date: this.getBody().startDate,
           end_date: endDate.toISOString().replace(/\.\d+/, ""),
           page_preview_id: 0,
@@ -62,6 +81,8 @@ export default class RouteItem extends AdminRoute<{
           project_id: this.getBody().project,
           campaign_type_id: this.getBody().testType,
           customer_title: this.getBody().title.customer,
+          os: os.join(","),
+          form_factor: form_factor.join(","),
         })
         .returning("id");
 

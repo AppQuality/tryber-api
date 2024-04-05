@@ -10,7 +10,7 @@ const baseRequest = {
     tester: "Campaign Title for Tester",
   },
   startDate: "2019-08-24T14:15:22Z",
-  deviceList: [1, 5, 10, 36],
+  deviceList: [1],
 };
 
 describe("Route POST /dossiers", () => {
@@ -28,11 +28,21 @@ describe("Route POST /dossiers", () => {
       description: "Test Description",
       category_id: 1,
     });
+
+    await tryber.tables.WpAppqEvdPlatform.do().insert([
+      {
+        id: 1,
+        name: "Test Type",
+        form_factor: 0,
+        architecture: 1,
+      },
+    ]);
   });
 
   afterAll(async () => {
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -65,6 +75,14 @@ describe("Route POST /dossiers", () => {
       .post("/dossiers")
       .set("authorization", "Bearer admin")
       .send({ ...baseRequest, testType: 10 });
+    expect(response.status).toBe(400);
+  });
+
+  it("Should answer 400 if device type does not exists", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, deviceList: [10] });
     expect(response.status).toBe(400);
   });
 

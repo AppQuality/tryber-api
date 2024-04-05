@@ -10,7 +10,7 @@ const baseRequest = {
     tester: "Campaign Title for Tester",
   },
   startDate: "2019-08-24T14:15:22Z",
-  deviceList: [1, 5, 10, 36],
+  deviceList: [1],
 };
 
 describe("Route POST /dossiers", () => {
@@ -33,32 +33,48 @@ describe("Route POST /dossiers", () => {
       description: "Test Description",
       category_id: 1,
     });
+
+    await tryber.tables.WpAppqEvdPlatform.do().insert([
+      {
+        id: 1,
+        name: "Test Type",
+        form_factor: 0,
+        architecture: 1,
+      },
+      {
+        id: 2,
+        name: "Test Type",
+        form_factor: 1,
+        architecture: 1,
+      },
+    ]);
   });
 
   afterAll(async () => {
     await tryber.tables.WpAppqCustomer.do().delete();
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
-  //   it("Should create a campaign", async () => {
-  //     const postResponse = await request(app)
-  //       .post("/dossiers")
-  //       .set("authorization", "Bearer admin")
-  //       .send(baseRequest);
+  it("Should create a campaign", async () => {
+    const postResponse = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send(baseRequest);
 
-  //     expect(postResponse.status).toBe(201);
-  //     expect(postResponse.body).toHaveProperty("id");
+    expect(postResponse.status).toBe(201);
+    expect(postResponse.body).toHaveProperty("id");
 
-  //     const getResponse = await request(app)
-  //       .get(`/campaigns/${postResponse.body.id}`)
-  //       .set("authorization", "Bearer admin");
+    const getResponse = await request(app)
+      .get(`/campaigns/${postResponse.body.id}`)
+      .set("authorization", "Bearer admin");
 
-  //     expect(getResponse.status).toBe(200);
-  //   });
+    expect(getResponse.status).toBe(200);
+  });
 
   it("Should create a campaign linked to the specified project", async () => {
     const response = await request(app)
@@ -198,6 +214,21 @@ describe("Route POST /dossiers", () => {
   });
 
   it("Should create a campaign with the specified device list", async () => {
-    throw new Error("Not implemented");
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, deviceList: [1, 2] });
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("os", "1,2");
+    expect(campaign).toHaveProperty("form_factor", "0,1");
   });
 });
