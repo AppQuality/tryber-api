@@ -540,6 +540,9 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/projects": {
+    get: operations["get-projects"];
+  };
 }
 
 export interface components {
@@ -3971,6 +3974,21 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-projects": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
     };
   };
 }
