@@ -9656,6 +9656,51 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
+  /projects:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - results
+                properties:
+                  results:
+                    type: array
+                    x-stoplight:
+                      id: mx59ss8q9xcv9
+                    items:
+                      x-stoplight:
+                        id: egx3lz8wm5oo3
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: 7sh59y056qwfc
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: byg0hh8swnw7o
+              examples:
+                Example 1:
+                  value:
+                    results:
+                      - id: 0
+                        name: string
+      operationId: get-projects
+      x-stoplight:
+        id: dxswz23gwfl7j
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:
