@@ -554,6 +554,15 @@ export interface paths {
       };
     };
   };
+  "/customers/{customer}/projects": {
+    get: operations["get-customers-customer-projects"];
+    parameters: {
+      path: {
+        /** A customer id */
+        customer: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -4076,6 +4085,27 @@ export interface operations {
       };
     };
     requestBody: components["requestBodies"]["DossierData"];
+  };
+  "get-customers-customer-projects": {
+    parameters: {
+      path: {
+        /** A customer id */
+        customer: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
   };
 }
 
