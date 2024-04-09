@@ -544,6 +544,15 @@ export interface paths {
     post: operations["post-dossiers"];
     parameters: {};
   };
+  "/dossiers/{campaign}": {
+    put: operations["put-dossiers-campaign"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -938,6 +947,23 @@ export interface components {
     /** @description The value to search for */
     search: string;
     testerId: string;
+  };
+  requestBodies: {
+    DossierData: {
+      content: {
+        "application/json": {
+          project: number;
+          testType: number;
+          title: {
+            customer: string;
+            tester?: string;
+          };
+          startDate: string;
+          endDate?: string;
+          deviceList: number[];
+        };
+      };
+    };
   };
 }
 
@@ -3989,23 +4015,24 @@ export interface operations {
         };
       };
     };
-    requestBody: {
-      content: {
-        "application/json": {
-          project: number;
-          testType: number;
-          title: {
-            customer: string;
-            tester?: string;
-          };
-          /** Format: date-time */
-          startDate: string;
-          /** Format: date-time */
-          endDate?: string;
-          deviceList: number[];
+    requestBody: components["requestBodies"]["DossierData"];
+  };
+  "put-dossiers-campaign": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
         };
       };
     };
+    requestBody: components["requestBodies"]["DossierData"];
   };
 }
 

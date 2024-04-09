@@ -9678,73 +9678,31 @@ paths:
                   value:
                     id: 1
       requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                project:
-                  type: integer
-                  x-stoplight:
-                    id: jwhl73kxdvqsm
-                testType:
-                  type: integer
-                  x-stoplight:
-                    id: n9kg2qus4zne4
-                title:
-                  type: object
-                  x-stoplight:
-                    id: ht0jrwyzqhalk
-                  required:
-                    - customer
-                  properties:
-                    customer:
-                      type: string
-                      x-stoplight:
-                        id: pggesn9cg9umj
-                    tester:
-                      type: string
-                      x-stoplight:
-                        id: dc5k2qou60m5x
-                startDate:
-                  type: string
-                  x-stoplight:
-                    id: 7ky5jnvbcef4y
-                  format: date-time
-                endDate:
-                  type: string
-                  x-stoplight:
-                    id: mxul84ae7gyyy
-                  format: date-time
-                deviceList:
-                  type: array
-                  x-stoplight:
-                    id: vugukyp4r5i2i
-                  minItems: 1
-                  items:
-                    x-stoplight:
-                      id: no4pciwqz472b
-                    type: integer
-              required:
-                - project
-                - testType
-                - title
-                - startDate
-                - deviceList
-            examples:
-              Basic campaign:
-                value:
-                  project: 1
-                  testType: 1
-                  title:
-                    customer: Campaign Title for Customer
-                    tester: Campaign Title for Tester
-                  startDate: '2019-08-24T14:15:22Z'
-                  deviceList:
-                    - 1
-                    - 5
-                    - 10
-                    - 36
+        $ref: '#/components/requestBodies/DossierData'
+      security:
+        - JWT: []
+  '/dossiers/{campaign}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    put:
+      summary: ''
+      operationId: put-dossiers-campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      description: ''
+      requestBody:
+        $ref: '#/components/requestBodies/DossierData'
       security:
         - JWT: []
 components:
@@ -10857,6 +10815,54 @@ components:
       schema:
         type: string
   examples: {}
+  requestBodies:
+    DossierData:
+      content:
+        application/json:
+          schema:
+            type: object
+            x-examples:
+              Example 1:
+                project: 1
+                testType: 1
+                title:
+                  customer: Campaign Title for Customer
+                  tester: Campaign Title for Tester
+                startDate: '2019-08-24T14:15:22Z'
+                endDate: '2019-08-24T14:15:22Z'
+                deviceList:
+                  - 1
+                  - 5
+                  - 10
+                  - 36
+            required:
+              - project
+              - testType
+              - title
+              - startDate
+              - deviceList
+            properties:
+              project:
+                type: integer
+              testType:
+                type: integer
+              title:
+                type: object
+                required:
+                  - customer
+                properties:
+                  customer:
+                    type: string
+                  tester:
+                    type: string
+              startDate:
+                type: string
+              endDate:
+                type: string
+              deviceList:
+                type: array
+                items:
+                  type: integer
 tags:
   - name: Authentication
   - name: Campaign
