@@ -545,6 +545,7 @@ export interface paths {
     parameters: {};
   };
   "/dossiers/{campaign}": {
+    get: operations["get-dossiers-campaign"];
     put: operations["put-dossiers-campaign"];
     parameters: {
       path: {
@@ -4016,6 +4017,48 @@ export interface operations {
       };
     };
     requestBody: components["requestBodies"]["DossierData"];
+  };
+  "get-dossiers-campaign": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: {
+              customer: string;
+              tester: string;
+            };
+            /** Format: date-time */
+            startDate: string;
+            /** Format: date-time */
+            endDate: string;
+            project: {
+              id: number;
+              name: string;
+            };
+            testType: {
+              id: number;
+              name: string;
+            };
+            deviceList: {
+              id: number;
+              name: string;
+            }[];
+            csm: {
+              id: number;
+              name: string;
+            };
+          };
+        };
+      };
+    };
   };
   "put-dossiers-campaign": {
     parameters: {

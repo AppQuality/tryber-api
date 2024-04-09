@@ -9705,6 +9705,126 @@ paths:
         $ref: '#/components/requestBodies/DossierData'
       security:
         - JWT: []
+    get:
+      summary: ''
+      operationId: get-dossiers-campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: qqon32evab2o5
+                  title:
+                    type: object
+                    x-stoplight:
+                      id: qfn9vuux1vjp1
+                    required:
+                      - customer
+                      - tester
+                    properties:
+                      customer:
+                        type: string
+                        x-stoplight:
+                          id: tyx8mtant8jej
+                      tester:
+                        type: string
+                        x-stoplight:
+                          id: cupl63jal29yu
+                  startDate:
+                    type: string
+                    x-stoplight:
+                      id: lif1wyyh6miiy
+                    format: date-time
+                  endDate:
+                    type: string
+                    x-stoplight:
+                      id: dhx6h9l494pyw
+                    format: date-time
+                  project:
+                    type: object
+                    x-stoplight:
+                      id: 9dnwnxk98slrj
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: 795lyzmcn2f3i
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: lonlyyu0xqpx9
+                  testType:
+                    type: object
+                    x-stoplight:
+                      id: y2l96ujpgntcx
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: 5ut1dht9q3e5f
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: 3zafe5jvg89hd
+                  deviceList:
+                    type: array
+                    x-stoplight:
+                      id: 8ac5l94cifolj
+                    items:
+                      x-stoplight:
+                        id: p874do1llblvt
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: 64zrvfx7v23m8
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: 838zaws7zfcb6
+                      required:
+                        - id
+                        - name
+                  csm:
+                    type: object
+                    x-stoplight:
+                      id: ye4vllt9hwd40
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: 29ini0mkuenx4
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: 0v4z9eu7jfeja
+                required:
+                  - id
+                  - title
+                  - startDate
+                  - endDate
+                  - project
+                  - testType
+                  - deviceList
+                  - csm
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:

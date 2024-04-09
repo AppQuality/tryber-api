@@ -33,6 +33,11 @@ export default class RouteItem extends AdminRoute<{
   }
   protected async filter() {
     if (!(await super.filter())) return false;
+
+    if (!(await this.campaignExists())) {
+      this.setError(403, new OpenapiError("Campaign does not exist"));
+      return false;
+    }
     if (!(await this.projectExists())) {
       this.setError(400, new OpenapiError("Project does not exist"));
       return false;
@@ -47,6 +52,15 @@ export default class RouteItem extends AdminRoute<{
     }
 
     return true;
+  }
+
+  private async campaignExists(): Promise<boolean> {
+    try {
+      this.campaign;
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   private async projectExists(): Promise<boolean> {

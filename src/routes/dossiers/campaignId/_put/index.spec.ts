@@ -71,6 +71,11 @@ describe("Route PUT /dossiers/:id", () => {
     expect(response.status).toBe(403);
   });
 
+  it("Should answer 403 if campaign does not exists", async () => {
+    const response = await request(app).put("/dossiers/10").send(baseRequest);
+    expect(response.status).toBe(403);
+  });
+
   it("Should answer 403 if not admin", async () => {
     const response = await request(app)
       .put("/dossiers/1")
