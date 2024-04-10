@@ -1656,6 +1656,15 @@ paths:
           in: query
           name: filterByAge
           description: Array with min and max
+        - schema:
+            type: string
+            enum:
+              - onlyAccepted
+              - onlyCandidates
+              - all
+          in: query
+          name: show
+          description: Show accepted/candidates or both
   '/campaigns/{campaign}/clusters':
     parameters:
       - name: campaign
