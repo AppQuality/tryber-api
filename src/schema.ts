@@ -540,6 +540,20 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/dossiers": {
+    post: operations["post-dossiers"];
+    parameters: {};
+  };
+  "/dossiers/{campaign}": {
+    get: operations["get-dossiers-campaign"];
+    put: operations["put-dossiers-campaign"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -934,6 +948,24 @@ export interface components {
     /** @description The value to search for */
     search: string;
     testerId: string;
+  };
+  requestBodies: {
+    DossierData: {
+      content: {
+        "application/json": {
+          project: number;
+          testType: number;
+          title: {
+            customer: string;
+            tester?: string;
+          };
+          startDate: string;
+          endDate?: string;
+          deviceList: number[];
+          csm?: number;
+        };
+      };
+    };
   };
 }
 
@@ -3974,6 +4006,83 @@ export interface operations {
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
+  };
+  "post-dossiers": {
+    parameters: {};
+    responses: {
+      /** Created */
+      201: {
+        content: {
+          "application/json": {
+            id?: number;
+          };
+        };
+      };
+    };
+    requestBody: components["requestBodies"]["DossierData"];
+  };
+  "get-dossiers-campaign": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: {
+              customer: string;
+              tester: string;
+            };
+            /** Format: date-time */
+            startDate: string;
+            /** Format: date-time */
+            endDate: string;
+            customer: {
+              id: number;
+              name: string;
+            };
+            project: {
+              id: number;
+              name: string;
+            };
+            testType: {
+              id: number;
+              name: string;
+            };
+            deviceList: {
+              id: number;
+              name: string;
+            }[];
+            csm: {
+              id: number;
+              name: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "put-dossiers-campaign": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: components["requestBodies"]["DossierData"];
   };
 }
 

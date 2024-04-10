@@ -27,7 +27,7 @@
   dependencies:
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
-    
+
 "@appquality/tryber-database@^0.27.0":
   version "0.27.0"
   resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.27.0.tgz#bff62fa3256b618d0d83b5af239b9c1ce9962835"
@@ -2295,6 +2295,11 @@ copyfiles@^2.4.1:
     through2 "^2.0.1"
     untildify "^4.0.0"
     yargs "^16.1.0"
+
+core-js@^3.6.5:
+  version "3.36.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.36.1.tgz#c97a7160ebd00b2de19e62f4bbd3406ab720e578"
+  integrity sha512-BTvUrwxVBezj5SZ3f10ImnX2oRByMxql3EimVqMysepbC9EeMUOpLwdy6Eoili2x6E4kf+ZUB5k/+Jv55alPfA==
 
 core-util-is@~1.0.0:
   version "1.0.2"
