@@ -4,6 +4,11 @@ import request from "supertest";
 
 describe("Route GET /dossiers/:id", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqCustomer.do().insert({
+      id: 1,
+      company: "Test Company",
+      pm_id: 1,
+    });
     await tryber.tables.WpAppqProject.do().insert({
       id: 1,
       display_name: "Test Project",
@@ -55,6 +60,7 @@ describe("Route GET /dossiers/:id", () => {
   });
 
   afterAll(async () => {
+    await tryber.tables.WpAppqCustomer.do().delete();
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqEvdPlatform.do().delete();
@@ -84,6 +90,7 @@ describe("Route GET /dossiers/:id", () => {
     const response = await request(app)
       .get("/dossiers/1")
       .set("authorization", "Bearer admin");
+    console.log(response.body);
     expect(response.status).toBe(200);
   });
 
@@ -178,5 +185,15 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.body).toHaveProperty("csm");
     expect(response.body.csm).toHaveProperty("id", 1);
     expect(response.body.csm).toHaveProperty("name", "Test CSM");
+  });
+  it("Should return the customer", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("customer");
+    expect(response.body.customer).toHaveProperty("id", 1);
+    expect(response.body.customer).toHaveProperty("name", "Test Company");
   });
 });

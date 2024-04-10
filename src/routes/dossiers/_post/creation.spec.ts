@@ -216,7 +216,7 @@ describe("Route POST /dossiers", () => {
     expect(campaign).toHaveProperty("end_date", "2021-08-27T14:15:22Z");
   });
 
-  it("Should create a campaign with current user as pm_id", async () => {
+  it("Should create a campaign with current user as pm_id if left unspecified", async () => {
     const response = await request(app)
       .post("/dossiers")
       .set("authorization", "Bearer admin")
@@ -232,6 +232,24 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("pm_id", 1);
+  });
+
+  it("Should create a campaign with current user as pm_id if specified", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, csm: 2 });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("pm_id", 2);
   });
 
   it("Should create a campaign with the specified device list", async () => {

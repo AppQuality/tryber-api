@@ -1656,6 +1656,15 @@ paths:
           in: query
           name: filterByAge
           description: Array with min and max
+        - schema:
+            type: string
+            enum:
+              - onlyAccepted
+              - onlyCandidates
+              - all
+          in: query
+          name: show
+          description: Show accepted/candidates or both
   '/campaigns/{campaign}/clusters':
     parameters:
       - name: campaign
@@ -9746,6 +9755,22 @@ paths:
                     x-stoplight:
                       id: dhx6h9l494pyw
                     format: date-time
+                  customer:
+                    type: object
+                    x-stoplight:
+                      id: b6vdml702n2vr
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: hzxvga289ilzv
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: zxk4wi6clmaxr
                   project:
                     type: object
                     x-stoplight:
@@ -9819,55 +9844,11 @@ paths:
                   - title
                   - startDate
                   - endDate
+                  - customer
                   - project
                   - testType
                   - deviceList
                   - csm
-      security:
-        - JWT: []
-  '/customers/{customer}/projects':
-    parameters:
-      - name: customer
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A customer id
-    get:
-      summary: Get customer projects
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    x-stoplight:
-                      id: 28ae941exmfsq
-                    items:
-                      x-stoplight:
-                        id: u5ecba3520spi
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          x-stoplight:
-                            id: q9r92j3k8tap2
-                        name:
-                          type: string
-                          x-stoplight:
-                            id: sxueavqiqkfmv
-                      required:
-                        - id
-                        - name
-                required:
-                  - results
-      operationId: get-customers-customer-projects
-      description: ''
       security:
         - JWT: []
 components:
@@ -11000,12 +10981,6 @@ components:
                   - 5
                   - 10
                   - 36
-            required:
-              - project
-              - testType
-              - title
-              - startDate
-              - deviceList
             properties:
               project:
                 type: integer
@@ -11028,6 +11003,16 @@ components:
                 type: array
                 items:
                   type: integer
+              csm:
+                type: number
+                x-stoplight:
+                  id: tczilke0whidg
+            required:
+              - project
+              - testType
+              - title
+              - startDate
+              - deviceList
 tags:
   - name: Authentication
   - name: Campaign

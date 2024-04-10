@@ -78,7 +78,7 @@ export default class RouteItem extends AdminRoute<{
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
-        pm_id: this.getTesterId(),
+        pm_id: this.getCsmId(),
         project_id: this.getBody().project,
         campaign_type_id: this.getBody().testType,
         customer_title: this.getBody().title.customer,
@@ -88,6 +88,11 @@ export default class RouteItem extends AdminRoute<{
       .returning("id");
 
     return results[0].id ?? results[0];
+  }
+
+  private getCsmId() {
+    const { csm } = this.getBody();
+    return csm ? csm : this.getTesterId();
   }
 
   private getEndDate() {

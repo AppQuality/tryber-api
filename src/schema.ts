@@ -554,15 +554,6 @@ export interface paths {
       };
     };
   };
-  "/customers/{customer}/projects": {
-    get: operations["get-customers-customer-projects"];
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: string;
-      };
-    };
-  };
 }
 
 export interface components {
@@ -971,6 +962,7 @@ export interface components {
           startDate: string;
           endDate?: string;
           deviceList: number[];
+          csm?: number;
         };
       };
     };
@@ -1351,6 +1343,8 @@ export interface operations {
         filterByExclude?: unknown;
         /** Array with min and max */
         filterByAge?: unknown;
+        /** Show accepted/candidates or both */
+        show?: "onlyAccepted" | "onlyCandidates" | "all";
       };
     };
     responses: {
@@ -4048,6 +4042,10 @@ export interface operations {
             startDate: string;
             /** Format: date-time */
             endDate: string;
+            customer: {
+              id: number;
+              name: string;
+            };
             project: {
               id: number;
               name: string;
@@ -4085,27 +4083,6 @@ export interface operations {
       };
     };
     requestBody: components["requestBodies"]["DossierData"];
-  };
-  "get-customers-customer-projects": {
-    parameters: {
-      path: {
-        /** A customer id */
-        customer: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            results: {
-              id: number;
-              name: string;
-            }[];
-          };
-        };
-      };
-    };
   };
 }
 

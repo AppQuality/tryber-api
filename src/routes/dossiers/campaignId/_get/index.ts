@@ -18,7 +18,12 @@ export default class RouteItem extends AdminRoute<{
 
   protected async init(): Promise<void> {
     await super.init();
-    this._campaign = await this.getCampaign();
+    try {
+      this._campaign = await this.getCampaign();
+    } catch (e) {
+      this.setError(500, e as OpenapiError);
+      throw e;
+    }
   }
 
   private async getCampaign() {
@@ -40,14 +45,30 @@ export default class RouteItem extends AdminRoute<{
           .ref("name")
           .withSchema("wp_appq_campaign_type")
           .as("campaign_type_name"),
-        "pm_id",
+        tryber.ref("pm_id").withSchema("wp_appq_evd_campaign"),
         tryber.ref("name").withSchema("wp_appq_evd_profile").as("pm_name"),
-        tryber.ref("surname").withSchema("wp_appq_evd_profile").as("pm_surname")
+        tryber
+          .ref("surname")
+          .withSchema("wp_appq_evd_profile")
+          .as("pm_surname"),
+        tryber
+          .ref("company")
+          .withSchema("wp_appq_customer")
+          .as("customer_name"),
+        tryber
+          .ref("customer_id")
+          .withSchema("wp_appq_project")
+          .as("customer_id")
       )
       .join(
         "wp_appq_project",
         "wp_appq_project.id",
         "wp_appq_evd_campaign.project_id"
+      )
+      .join(
+        "wp_appq_customer",
+        "wp_appq_customer.id",
+        "wp_appq_project.customer_id"
       )
       .join(
         "wp_appq_campaign_type",
@@ -103,6 +124,10 @@ export default class RouteItem extends AdminRoute<{
         title: {
           customer: this.campaign.customer_title,
           tester: this.campaign.title,
+        },
+        customer: {
+          id: this.campaign.customer_id,
+          name: this.campaign.customer_name,
         },
         project: {
           id: this.campaign.project_id,
