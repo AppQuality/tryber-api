@@ -1311,6 +1311,8 @@ export interface operations {
         filterByExclude?: unknown;
         /** Array with min and max */
         filterByAge?: unknown;
+        /** Show accepted/candidates or both */
+        show?: "onlyAccepted" | "onlyCandidates" | "all";
       };
     };
     responses: {
