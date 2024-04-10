@@ -4041,6 +4041,10 @@ export interface operations {
             startDate: string;
             /** Format: date-time */
             endDate: string;
+            customer: {
+              id: number;
+              name: string;
+            };
             project: {
               id: number;
               name: string;

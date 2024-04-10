@@ -9755,6 +9755,22 @@ paths:
                     x-stoplight:
                       id: dhx6h9l494pyw
                     format: date-time
+                  customer:
+                    type: object
+                    x-stoplight:
+                      id: b6vdml702n2vr
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: hzxvga289ilzv
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: zxk4wi6clmaxr
                   project:
                     type: object
                     x-stoplight:
@@ -9828,6 +9844,7 @@ paths:
                   - title
                   - startDate
                   - endDate
+                  - customer
                   - project
                   - testType
                   - deviceList
