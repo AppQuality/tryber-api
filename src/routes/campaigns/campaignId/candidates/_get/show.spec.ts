@@ -55,10 +55,13 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
         user_id: 1,
         accepted: 0,
       },
+    ]);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
       {
         ...candidate,
         user_id: 2,
         accepted: 1,
+        selected_device: 3,
       },
     ]);
 
@@ -79,6 +82,12 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
       {
         ...device,
         id: 2,
+        id_profile: 2,
+      },
+      {
+        ...device,
+        model: "iPhone X",
+        id: 3,
         id_profile: 2,
       },
     ]);
@@ -147,5 +156,16 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
         }),
       ])
     );
+  });
+
+  it("Should show selected device if onlyAccepted", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?show=onlyAccepted")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(1);
+    expect(response.body.results[0]).toHaveProperty("devices");
+    expect(response.body.results[0].devices).toHaveLength(1);
+    expect(response.body.results[0].devices[0]).toHaveProperty("id", 3);
   });
 });

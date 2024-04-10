@@ -41,6 +41,7 @@ class CandidateDevices implements CandidateData {
     this.candidateIds = candidateIds;
     this.filters = filters;
     this.campaignId = campaignId;
+    this.show = show;
   }
 
   get devices() {
