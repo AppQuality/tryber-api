@@ -43,7 +43,7 @@ class CandidateBhLevel implements CandidateData {
   }
 
   async init() {
-    const result = await tryber.tables.WpAppqEvdBug.do()
+    const campaignAndBugsQuery = tryber.tables.WpAppqEvdBug.do()
       .join(
         "wp_appq_evd_profile",
         "wp_appq_evd_bug.wp_user_id",
@@ -56,12 +56,7 @@ class CandidateBhLevel implements CandidateData {
       .whereIn("wp_appq_evd_profile.id", this.candidateIds)
       .groupBy("wp_appq_evd_profile.id");
 
-    const hasLevelOneCourse = await tryber.tables.WpAppqEvdProfile.do()
-      .join(
-        "wp_appq_course_tester_status",
-        "wp_appq_evd_profile.id",
-        "wp_appq_course_tester_status.tester_id"
-      )
+    const hasLevelOneCourseQuery = tryber.tables.WpAppqCourseTesterStatus.do()
       .join(
         "wp_appq_course",
         "wp_appq_course_tester_status.course_id",
@@ -70,14 +65,9 @@ class CandidateBhLevel implements CandidateData {
       .where("wp_appq_course_tester_status.is_completed", 1)
       .where("wp_appq_course.level", this.courses.levelone.level)
       .where("wp_appq_course.career", this.courses.levelone.career)
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds);
+      .whereIn("wp_appq_course_tester_status.tester_id", this.candidateIds);
 
-    const hasLevelTwoCourse = await tryber.tables.WpAppqEvdProfile.do()
-      .join(
-        "wp_appq_course_tester_status",
-        "wp_appq_evd_profile.id",
-        "wp_appq_course_tester_status.tester_id"
-      )
+    const hasLevelTwoCourseQuery = tryber.tables.WpAppqCourseTesterStatus.do()
       .join(
         "wp_appq_course",
         "wp_appq_course_tester_status.course_id",
@@ -86,42 +76,48 @@ class CandidateBhLevel implements CandidateData {
       .where("wp_appq_course_tester_status.is_completed", 1)
       .where("wp_appq_course.level", this.courses.leveltwo.level)
       .where("wp_appq_course.career", this.courses.leveltwo.career)
+      .whereIn("wp_appq_course_tester_status.tester_id", this.candidateIds);
+
+    const bugsBySeverityQuery = tryber.tables.WpAppqEvdBug.do()
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_bug.wp_user_id",
+        "wp_appq_evd_profile.wp_user_id"
+      )
+      .select(
+        tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
+        "severity_id"
+      )
+      .where("status_id", 2)
+      .whereIn("severity_id", [3, 4])
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
 
-    const criticalBugs = await tryber.tables.WpAppqEvdBug.do()
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_bug.wp_user_id",
-        "wp_appq_evd_profile.wp_user_id"
-      )
-      .select(
-        tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id")
-      )
-      .count({ bug: tryber.ref("id").withSchema("wp_appq_evd_bug") })
-      .where("status_id", 2)
-      .where("severity_id", 4)
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds)
-      .groupBy("wp_appq_evd_bug.wp_user_id");
-    const highBugs = await tryber.tables.WpAppqEvdBug.do()
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_bug.wp_user_id",
-        "wp_appq_evd_profile.wp_user_id"
-      )
-      .select(
-        tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id")
-      )
-      .count({ bug: tryber.ref("id").withSchema("wp_appq_evd_bug") })
-      .where("status_id", 2)
-      .where("severity_id", 3)
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds)
-      .groupBy("wp_appq_evd_bug.wp_user_id");
+    const [
+      campaignAndBugs,
+      hasLevelOneCourse,
+      hasLevelTwoCourse,
+      bugsBySeverity,
+    ] = await Promise.all([
+      campaignAndBugsQuery,
+      hasLevelOneCourseQuery,
+      hasLevelTwoCourseQuery,
+      bugsBySeverityQuery,
+    ]);
 
-    this._candidateData = result.map((candidate) => {
-      const highBug = highBugs.find((bug) => bug.tester_id === candidate.id);
-      const criticalBug = criticalBugs.find(
-        (bug) => bug.tester_id === candidate.id
-      );
+    const criticalBugs = bugsBySeverity
+      .filter((bug) => bug.severity_id === 4)
+      .reduce((acc, bug) => {
+        acc[bug.tester_id] = (acc[bug.tester_id] || 0) + 1;
+        return acc;
+      }, {} as Record<number, number>);
+    const highBugs = bugsBySeverity
+      .filter((bug) => bug.severity_id === 3)
+      .reduce((acc, bug) => {
+        acc[bug.tester_id] = (acc[bug.tester_id] || 0) + 1;
+        return acc;
+      }, {} as Record<number, number>);
+
+    this._candidateData = campaignAndBugs.map((candidate) => {
       return {
         id: candidate.id,
         campaigns: candidate.campaigns ? Number(candidate.campaigns) : 0,
@@ -132,8 +128,9 @@ class CandidateBhLevel implements CandidateData {
         levelTwoCourse: hasLevelTwoCourse.some(
           (course) => course.tester_id === candidate.id
         ),
-        highBugs: highBug ? Number(highBug.bug) : 0,
-        criticalBugs: criticalBug ? Number(criticalBug.bug) : 0,
+        highBugs: candidate.id in highBugs ? highBugs[candidate.id] : 0,
+        criticalBugs:
+          candidate.id in criticalBugs ? criticalBugs[candidate.id] : 0,
       };
     });
 
