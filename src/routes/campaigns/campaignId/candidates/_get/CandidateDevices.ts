@@ -5,6 +5,7 @@ class CandidateDevices implements CandidateData {
   private campaignId: number;
   private candidateIds: number[];
   private filters?: { os?: string[] };
+  private show: "onlyAccepted" | "onlyCandidates" | "all" = "all";
 
   private _devices:
     | {
@@ -22,6 +23,7 @@ class CandidateDevices implements CandidateData {
     | {
         id: number;
         devices: string;
+        selected_device: number;
       }[]
     | undefined;
 
@@ -29,10 +31,12 @@ class CandidateDevices implements CandidateData {
     campaignId,
     candidateIds,
     filters,
+    show,
   }: {
     campaignId: number;
     candidateIds: number[];
     filters?: { os?: string[] };
+    show: "onlyAccepted" | "onlyCandidates" | "all";
   }) {
     this.candidateIds = candidateIds;
     this.filters = filters;
@@ -86,7 +90,8 @@ class CandidateDevices implements CandidateData {
       )
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile").as("id"),
-        "devices"
+        "devices",
+        "selected_device"
       )
       .where("campaign_id", this.campaignId)
       .whereIn("wp_appq_evd_profile.id", this.candidateIds);
@@ -137,9 +142,14 @@ class CandidateDevices implements CandidateData {
 
     if (!candidateDevicesIds) return "none";
 
-    if (candidateDevicesIds.devices === "0") return "all";
+    const devices =
+      this.show === "onlyAccepted"
+        ? candidateDevicesIds.selected_device.toString()
+        : candidateDevicesIds.devices;
 
-    return candidateDevicesIds.devices.split(",");
+    if (devices === "0") return "all";
+
+    return devices.split(",");
   }
 
   isCandidateFiltered(candidate: { id: number }) {

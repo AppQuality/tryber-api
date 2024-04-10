@@ -305,6 +305,7 @@ export default class RouteItem extends UserRoute<{
     const deviceGetter = new CandidateDevices({
       campaignId: this.campaign_id,
       candidateIds: candidates.map((candidate) => candidate.id),
+      show: this.show,
       ...(this.filters?.os && { filters: { os: this.filters?.os } }),
     });
     await deviceGetter.init();
