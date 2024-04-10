@@ -962,6 +962,7 @@ export interface components {
           startDate: string;
           endDate?: string;
           deviceList: number[];
+          csm?: number;
         };
       };
     };

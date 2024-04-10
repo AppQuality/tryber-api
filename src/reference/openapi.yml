@@ -10981,12 +10981,6 @@ components:
                   - 5
                   - 10
                   - 36
-            required:
-              - project
-              - testType
-              - title
-              - startDate
-              - deviceList
             properties:
               project:
                 type: integer
@@ -11009,6 +11003,16 @@ components:
                 type: array
                 items:
                   type: integer
+              csm:
+                type: number
+                x-stoplight:
+                  id: tczilke0whidg
+            required:
+              - project
+              - testType
+              - title
+              - startDate
+              - deviceList
 tags:
   - name: Authentication
   - name: Campaign
