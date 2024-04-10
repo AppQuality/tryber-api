@@ -9851,6 +9851,50 @@ paths:
                   - csm
       security:
         - JWT: []
+  '/customers/{customer}/projects':
+    parameters:
+      - schema:
+          type: string
+        name: customer
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    x-stoplight:
+                      id: 9ccc89bhovco5
+                    items:
+                      x-stoplight:
+                        id: zog5qqnv5h7rb
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: xapq51u019ada
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: 8fxvw6c3m46bv
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+      operationId: get-customers-customer-projects
+      description: ''
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:
