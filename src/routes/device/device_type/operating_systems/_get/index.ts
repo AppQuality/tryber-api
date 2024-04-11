@@ -8,18 +8,26 @@ export default class Route extends UserRoute<{
   parameters: StoplightOperations["get-devices-operating-systems"]["parameters"]["path"];
   query: StoplightOperations["get-devices-operating-systems"]["parameters"]["query"];
 }> {
-  private deviceType: number;
+  private deviceType: "all" | number;
   private filterBy:
     | {
         manufacturer?: string | string[];
         model?: string | string[];
       }
     | false = false;
+  private readonly DEVICE_TYPES = {
+    0: "Smartphone",
+    1: "Tablet",
+    2: "PC",
+    3: "Smartwatch",
+    4: "Console",
+    5: "SmartTV",
+  };
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const { device_type } = this.getParameters();
-    this.deviceType = Number(device_type);
+    this.deviceType = device_type === "all" ? device_type : Number(device_type);
     const { filterBy } = this.getQuery();
     if (filterBy) {
       this.filterBy = {
@@ -37,35 +45,51 @@ export default class Route extends UserRoute<{
     try {
       const results = await this.getData();
 
-      if (!results.length) {
-        const fallbackResults = await this.getFallback();
-        if (!fallbackResults.length) throw Error("Error on finding devices");
-        this.setSuccess(200, fallbackResults);
-        return;
-      }
+      if (results.length)
+        return this.setSuccess(
+          200,
+          results.map((row) => ({
+            id: row.id,
+            name: row.name,
+            type: row.type,
+          }))
+        );
 
-      return this.setSuccess(200, results);
+      const fallbackResults = await this.getFallback();
+      if (!fallbackResults.length) throw Error("Error on finding devices");
+      this.setSuccess(
+        200,
+        fallbackResults.map((row) => ({
+          id: row.id,
+          name: row.name,
+          type: row.type,
+        }))
+      );
     } catch (error) {
       this.setError(404, error as OpenapiError);
     }
   }
 
   private async getData() {
-    const subQueryIds = await this.getSubQuery();
-    if (!subQueryIds.length) return [];
+    const osFromFilters = await this.getOsFromFilters();
+    if (!osFromFilters.length) return [];
 
-    const results = tryber.tables.WpAppqEvdPlatform.do()
+    const results = await tryber.tables.WpAppqEvdPlatform.do()
       .distinct("id")
       .select("name")
-      .whereIn("id", subQueryIds);
+      .select("form_factor")
+      .whereIn("id", osFromFilters);
 
-    return results;
+    return results.map((row) => ({
+      ...row,
+      type: this.mapDeviceTypeToFormFactor(row.form_factor),
+    }));
   }
 
-  private async getSubQuery() {
-    const query = tryber.tables.WpDcAppqDevices.do()
-      .distinct("platform_id")
-      .where("device_type", this.deviceType);
+  private async getOsFromFilters() {
+    const query = tryber.tables.WpDcAppqDevices.do().distinct("platform_id");
+
+    if (this.deviceType !== "all") query.where("device_type", this.deviceType);
 
     if (this.filterBy) {
       if (this.filterBy.manufacturer) {
@@ -88,9 +112,24 @@ export default class Route extends UserRoute<{
   }
 
   private async getFallback() {
-    return await tryber.tables.WpAppqEvdPlatform.do()
+    const query = tryber.tables.WpAppqEvdPlatform.do()
       .distinct("id")
       .select("name")
-      .where("form_factor", this.deviceType);
+      .select("form_factor");
+
+    if (this.deviceType !== "all") query.where("form_factor", this.deviceType);
+
+    const results = await query;
+
+    return results.map((row) => ({
+      ...row,
+      type: this.mapDeviceTypeToFormFactor(row.form_factor),
+    }));
+  }
+
+  private mapDeviceTypeToFormFactor(deviceType: number) {
+    if (deviceType in this.DEVICE_TYPES)
+      return this.DEVICE_TYPES[deviceType as keyof typeof this.DEVICE_TYPES];
+    return "Unknown";
   }
 }
