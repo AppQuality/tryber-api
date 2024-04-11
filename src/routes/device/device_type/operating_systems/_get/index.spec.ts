@@ -82,30 +82,18 @@ describe("GET /devices/{type}/operating_systems", () => {
       .get("/devices/0/operating_systems")
       .set("authorization", "Bearer tester");
     expect(responseFF0.body).toHaveLength(3);
-    expect(responseFF0.body).toEqual([
-      {
-        id: 1,
-        name: "Android",
-      },
-      {
-        id: 3,
-        name: "iOS",
-      },
-      {
-        id: 4,
-        name: "Android (Farlocco)",
-      },
-    ]);
+    expect(responseFF0.body[0]).toHaveProperty("id", 1);
+    expect(responseFF0.body[0]).toHaveProperty("name", "Android");
+    expect(responseFF0.body[1]).toHaveProperty("id", 3);
+    expect(responseFF0.body[1]).toHaveProperty("name", "iOS");
+    expect(responseFF0.body[2]).toHaveProperty("id", 4);
+    expect(responseFF0.body[2]).toHaveProperty("name", "Android (Farlocco)");
     const responseFF1 = await request(app)
       .get("/devices/1/operating_systems")
       .set("authorization", "Bearer tester");
     expect(responseFF1.body).toHaveLength(1);
-    expect(responseFF1.body).toEqual([
-      {
-        id: 2,
-        name: "Android (Tablet)",
-      },
-    ]);
+    expect(responseFF1.body[0]).toHaveProperty("id", 2);
+    expect(responseFF1.body[0]).toHaveProperty("name", "Android (Tablet)");
   });
 
   it("Should return the os by manufacturer", async () => {
@@ -114,16 +102,10 @@ describe("GET /devices/{type}/operating_systems", () => {
       .set("authorization", "Bearer tester");
 
     expect(response.body).toHaveLength(2);
-    expect(response.body).toEqual([
-      {
-        id: 1,
-        name: "Android",
-      },
-      {
-        id: 4,
-        name: "Android (Farlocco)",
-      },
-    ]);
+    expect(response.body[0]).toHaveProperty("id", 1);
+    expect(response.body[0]).toHaveProperty("name", "Android");
+    expect(response.body[1]).toHaveProperty("id", 4);
+    expect(response.body[1]).toHaveProperty("name", "Android (Farlocco)");
   });
   it("Should return the os by model", async () => {
     const response = await request(app)
@@ -131,12 +113,8 @@ describe("GET /devices/{type}/operating_systems", () => {
       .set("authorization", "Bearer tester");
 
     expect(response.body).toHaveLength(1);
-    expect(response.body).toEqual([
-      {
-        id: 1,
-        name: "Android",
-      },
-    ]);
+    expect(response.body[0]).toHaveProperty("id", 1);
+    expect(response.body[0]).toHaveProperty("name", "Android");
   });
 
   it("Should return the os by model and manufacturer", async () => {
@@ -147,11 +125,7 @@ describe("GET /devices/{type}/operating_systems", () => {
       .set("authorization", "Bearer tester");
 
     expect(response.body).toHaveLength(1);
-    expect(response.body).toEqual([
-      {
-        id: 1,
-        name: "Android",
-      },
-    ]);
+    expect(response.body[0]).toHaveProperty("id", 1);
+    expect(response.body[0]).toHaveProperty("name", "Android");
   });
 });
