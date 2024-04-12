@@ -9847,6 +9847,52 @@ paths:
                         type: string
                         x-stoplight:
                           id: 0v4z9eu7jfeja
+                  roles:
+                    type: array
+                    x-stoplight:
+                      id: 3p09fuirignj7
+                    items:
+                      x-stoplight:
+                        id: 5m9aii1v8wcis
+                      type: object
+                      properties:
+                        role:
+                          type: object
+                          x-stoplight:
+                            id: 3tivc1nwgyrwx
+                          properties:
+                            id:
+                              type: integer
+                              x-stoplight:
+                                id: aji8k6mr94cwt
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: 3e0auomt8mz8t
+                          required:
+                            - id
+                            - name
+                        user:
+                          type: object
+                          x-stoplight:
+                            id: 7pwjsavtoyxck
+                          properties:
+                            id:
+                              type: integer
+                              x-stoplight:
+                                id: gi6r57k7mjmwt
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: em7xmfoc3l3m1
+                            surname:
+                              type: string
+                              x-stoplight:
+                                id: x6eckuam89tz2
+                          required:
+                            - id
+                            - name
+                            - surname
                 required:
                   - id
                   - title
@@ -9857,6 +9903,38 @@ paths:
                   - testType
                   - deviceList
                   - csm
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title:
+                      customer: Customer Title
+                      tester: Tester Title
+                    startDate: '2019-08-24T14:15:22Z'
+                    endDate: '2019-08-24T14:15:22Z'
+                    customer:
+                      id: 1
+                      name: My Customer
+                    project:
+                      id: 1
+                      name: My Project
+                    testType:
+                      id: 1
+                      name: Bughunting
+                    deviceList:
+                      - id: 1
+                        name: Android
+                    csm:
+                      id: 1
+                      name: Name Surname
+                    roles:
+                      - role:
+                          id: 1
+                          name: PM
+                        user:
+                          id: 1
+                          name: Name
+                          surname: Surname
       security:
         - JWT: []
   '/customers/{customer}/projects':
@@ -11059,6 +11137,23 @@ components:
                 type: number
                 x-stoplight:
                   id: tczilke0whidg
+              roles:
+                type: array
+                x-stoplight:
+                  id: 4poufjsvqfo7j
+                items:
+                  x-stoplight:
+                    id: zw9rdiq7ssshf
+                  type: object
+                  properties:
+                    role:
+                      type: number
+                      x-stoplight:
+                        id: rnq0iog3qgoni
+                    user:
+                      type: number
+                      x-stoplight:
+                        id: icf9slvhqkee2
             required:
               - project
               - testType
