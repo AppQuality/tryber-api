@@ -128,4 +128,16 @@ describe("GET /devices/{type}/operating_systems", () => {
     expect(response.body[0]).toHaveProperty("id", 1);
     expect(response.body[0]).toHaveProperty("name", "Android");
   });
+
+  it("Should return 406 if device type = all and filterBy is present", async () => {
+    const responseModel = await request(app)
+      .get("/devices/all/operating_systems?filterBy[model]=Galaxy S10")
+      .set("authorization", "Bearer tester");
+    expect(responseModel.status).toBe(406);
+
+    const responseManufacturer = await request(app)
+      .get("/devices/all/operating_systems?filterBy[manufacturer]=Samsung")
+      .set("authorization", "Bearer tester");
+    expect(responseManufacturer.status).toBe(406);
+  });
 });

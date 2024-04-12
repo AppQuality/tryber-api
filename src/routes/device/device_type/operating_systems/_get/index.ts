@@ -1,3 +1,4 @@
+import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 
@@ -41,28 +42,28 @@ export default class Route extends UserRoute<{
     }
   }
 
+  protected async filter() {
+    if (!(await super.filter())) return false;
+    if (this.deviceType === "all" && this.filterBy) {
+      this.setError(
+        406,
+        new OpenapiError("Filtering is not allowed for all devices")
+      );
+      return false;
+    }
+    return true;
+  }
+
   protected async prepare(): Promise<void> {
     try {
-      const results = await this.getData();
+      const results = await this.getOperativeSystems();
 
-      if (results.length)
-        return this.setSuccess(
-          200,
-          results.map((row) => ({
-            id: row.id,
-            name: row.name,
-            type: row.type,
-          }))
-        );
-
-      const fallbackResults = await this.getFallback();
-      if (!fallbackResults.length) throw Error("Error on finding devices");
-      this.setSuccess(
+      return this.setSuccess(
         200,
-        fallbackResults.map((row) => ({
+        results.map((row) => ({
           id: row.id,
           name: row.name,
-          type: row.type,
+          type: this.mapDeviceTypeToFormFactor(row.form_factor),
         }))
       );
     } catch (error) {
@@ -70,9 +71,16 @@ export default class Route extends UserRoute<{
     }
   }
 
-  private async getData() {
+  private async getOperativeSystems() {
+    if (this.deviceType === "all") {
+      return await tryber.tables.WpAppqEvdPlatform.do()
+        .distinct("id")
+        .select("name")
+        .select("form_factor");
+    }
+
     const osFromFilters = await this.getOsFromFilters();
-    if (!osFromFilters.length) return [];
+    if (!osFromFilters.length) return await this.getFallback();
 
     const results = await tryber.tables.WpAppqEvdPlatform.do()
       .distinct("id")
@@ -80,10 +88,8 @@ export default class Route extends UserRoute<{
       .select("form_factor")
       .whereIn("id", osFromFilters);
 
-    return results.map((row) => ({
-      ...row,
-      type: this.mapDeviceTypeToFormFactor(row.form_factor),
-    }));
+    if (!results.length) await this.getFallback();
+    return results;
   }
 
   private async getOsFromFilters() {
@@ -121,10 +127,7 @@ export default class Route extends UserRoute<{
 
     const results = await query;
 
-    return results.map((row) => ({
-      ...row,
-      type: this.mapDeviceTypeToFormFactor(row.form_factor),
-    }));
+    return results;
   }
 
   private mapDeviceTypeToFormFactor(deviceType: number) {
