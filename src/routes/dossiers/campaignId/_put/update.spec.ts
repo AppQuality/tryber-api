@@ -271,4 +271,123 @@ describe("Route POST /dossiers", () => {
     expect(campaign).toHaveProperty("os", "1,2");
     expect(campaign).toHaveProperty("form_factor", "0,1");
   });
+
+  describe("Role handling", () => {
+    beforeAll(async () => {
+      await tryber.tables.WpAppqEvdProfile.do().insert({
+        id: 2,
+        wp_user_id: 2,
+        name: "Test User",
+        surname: "Test Surname",
+        education_id: 1,
+        employment_id: 1,
+        email: "",
+      });
+
+      await tryber.tables.CustomRoles.do().insert([
+        {
+          id: 1,
+          name: "Test Role",
+          olp: '["appq_bugs"]',
+        },
+        {
+          id: 2,
+          name: "Another Role",
+          olp: '["appq_bugs_2"]',
+        },
+      ]);
+    });
+    afterAll(async () => {
+      await tryber.tables.WpAppqEvdProfile.do().delete();
+      await tryber.tables.CustomRoles.do().delete();
+      await tryber.tables.WpAppqEvdProfile.do().delete();
+    });
+    describe("When campaign has no roles", () => {
+      it("Should link the roles to the campaign", async () => {
+        const response = await request(app)
+          .put("/dossiers/1")
+          .set("authorization", "Bearer admin")
+          .send({ ...baseRequest, roles: [{ role: 1, user: 1 }] });
+
+        const id = response.body.id;
+
+        const roles = await tryber.tables.CampaignCustomRoles.do()
+          .select()
+          .where({ campaign_id: id });
+        expect(roles).toHaveLength(1);
+        expect(roles[0]).toHaveProperty("custom_role_id", 1);
+        expect(roles[0]).toHaveProperty("tester_id", 1);
+      });
+
+      it("Should set the olp roles to the campaign", async () => {
+        const response = await request(app)
+          .put("/dossiers/1")
+          .set("authorization", "Bearer admin")
+          .send({ ...baseRequest, roles: [{ role: 1, user: 2 }] });
+
+        const olps = await tryber.tables.WpAppqOlpPermissions.do()
+          .select()
+          .where({ main_id: 1 });
+        expect(olps).toHaveLength(1);
+        expect(olps[0]).toHaveProperty("type", "appq_bugs");
+        expect(olps[0]).toHaveProperty("main_type", "campaign");
+        expect(olps[0]).toHaveProperty("wp_user_id", 2);
+      });
+    });
+
+    describe("When campaign has roles", () => {
+      beforeEach(async () => {
+        await tryber.tables.CampaignCustomRoles.do().insert([
+          {
+            campaign_id: 1,
+            custom_role_id: 1,
+            tester_id: 2,
+          },
+        ]);
+        await tryber.tables.WpAppqOlpPermissions.do().insert([
+          {
+            main_id: 1,
+            main_type: "campaign",
+            type: "appq_bug",
+            wp_user_id: 1,
+          },
+        ]);
+      });
+
+      afterEach(async () => {
+        await tryber.tables.CampaignCustomRoles.do().delete();
+        await tryber.tables.WpAppqOlpPermissions.do().delete();
+      });
+      it("Should link the roles to the campaign", async () => {
+        const response = await request(app)
+          .put("/dossiers/1")
+          .set("authorization", "Bearer admin")
+          .send({ ...baseRequest, roles: [{ role: 2, user: 2 }] });
+
+        const id = response.body.id;
+
+        const roles = await tryber.tables.CampaignCustomRoles.do()
+          .select()
+          .where({ campaign_id: id });
+        expect(roles).toHaveLength(1);
+        expect(roles[0]).toHaveProperty("custom_role_id", 2);
+        expect(roles[0]).toHaveProperty("tester_id", 2);
+      });
+
+      it("Should set the olp roles to the campaign", async () => {
+        const response = await request(app)
+          .put("/dossiers/1")
+          .set("authorization", "Bearer admin")
+          .send({ ...baseRequest, roles: [{ role: 2, user: 2 }] });
+
+        const olps = await tryber.tables.WpAppqOlpPermissions.do()
+          .select()
+          .where({ main_id: 1 });
+        expect(olps).toHaveLength(1);
+        expect(olps[0]).toHaveProperty("type", "appq_bugs_2");
+        expect(olps[0]).toHaveProperty("main_type", "campaign");
+        expect(olps[0]).toHaveProperty("wp_user_id", 2);
+      });
+    });
+  });
 });

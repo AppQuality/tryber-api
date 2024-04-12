@@ -126,6 +126,63 @@ export default class RouteItem extends AdminRoute<{
       .where({
         id: this.campaignId,
       });
+
+    await this.linkRolesToCampaign(this.campaignId);
+  }
+
+  private async linkRolesToCampaign(campaignId: number) {
+    await tryber.tables.CampaignCustomRoles.do().delete().where({
+      campaign_id: campaignId,
+    });
+    const roles = this.getBody().roles;
+    if (!roles) return;
+
+    await tryber.tables.CampaignCustomRoles.do().insert(
+      roles.map((role) => ({
+        campaign_id: campaignId,
+        custom_role_id: role.role,
+        tester_id: role.user,
+      }))
+    );
+
+    await this.assignOlps(campaignId);
+  }
+
+  private async assignOlps(campaignId: number) {
+    await tryber.tables.WpAppqOlpPermissions.do().delete().where({
+      main_id: campaignId,
+      main_type: "campaign",
+    });
+    const roles = this.getBody().roles;
+    if (!roles) return;
+
+    const roleOlps = await tryber.tables.CustomRoles.do()
+      .select("id", "olp")
+      .whereIn(
+        "id",
+        roles.map((role) => role.role)
+      );
+    const wpUserIds = await tryber.tables.WpAppqEvdProfile.do()
+      .select("id", "wp_user_id")
+      .whereIn(
+        "id",
+        roles.map((role) => role.user)
+      );
+    for (const role of roles) {
+      const olp = roleOlps.find((r) => r.id === role.role)?.olp;
+      const wpUserId = wpUserIds.find((r) => r.id === role.user);
+      if (olp && wpUserId) {
+        const olpObject = JSON.parse(olp);
+        await tryber.tables.WpAppqOlpPermissions.do().insert(
+          olpObject.map((olpType: string) => ({
+            main_id: campaignId,
+            main_type: "campaign",
+            type: olpType,
+            wp_user_id: wpUserId.wp_user_id,
+          }))
+        );
+      }
+    }
   }
 
   private getEndDate() {
