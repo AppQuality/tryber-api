@@ -149,12 +149,15 @@ export default class RouteItem extends AdminRoute<{
       const olp = roleOlps.find((r) => r.id === role.role)?.olp;
       const wpUserId = wpUserIds.find((r) => r.id === role.user);
       if (olp && wpUserId) {
-        await tryber.tables.WpAppqOlpPermissions.do().insert({
-          main_id: campaignId,
-          main_type: "campaign",
-          type: "appq_bugs",
-          wp_user_id: wpUserId.wp_user_id,
-        });
+        const olpObject = JSON.parse(olp);
+        await tryber.tables.WpAppqOlpPermissions.do().insert(
+          olpObject.map((olpType: string) => ({
+            main_id: campaignId,
+            main_type: "campaign",
+            type: olpType,
+            wp_user_id: wpUserId.wp_user_id,
+          }))
+        );
       }
     }
   }
