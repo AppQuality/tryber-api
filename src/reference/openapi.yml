@@ -4237,6 +4237,14 @@ paths:
                       type: integer
                     name:
                       type: string
+                    type:
+                      type: string
+                      x-stoplight:
+                        id: 6yohqfohiv47u
+                  required:
+                    - id
+                    - name
+                    - type
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

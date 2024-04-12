@@ -2283,8 +2283,9 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            id?: number;
-            name?: string;
+            id: number;
+            name: string;
+            type: string;
           }[];
         };
       };
