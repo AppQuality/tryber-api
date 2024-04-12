@@ -972,8 +972,8 @@ export interface components {
           deviceList: number[];
           csm?: number;
           roles?: {
-            role?: number;
-            user?: number;
+            role: number;
+            user: number;
           }[];
         };
       };
