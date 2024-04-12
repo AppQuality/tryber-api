@@ -127,32 +127,65 @@ export default class RouteItem extends AdminRoute<{
         id: this.campaignId,
       });
 
-    await this.linkRolesToCampaign(this.campaignId);
+    await this.linkRolesToCampaign();
   }
 
-  private async linkRolesToCampaign(campaignId: number) {
-    await tryber.tables.CampaignCustomRoles.do().delete().where({
-      campaign_id: campaignId,
-    });
+  private async linkRolesToCampaign() {
+    await this.cleanupCurrentRoles();
     const roles = this.getBody().roles;
     if (!roles) return;
 
     await tryber.tables.CampaignCustomRoles.do().insert(
       roles.map((role) => ({
-        campaign_id: campaignId,
+        campaign_id: this.campaignId,
         custom_role_id: role.role,
         tester_id: role.user,
       }))
     );
 
-    await this.assignOlps(campaignId);
+    await this.assignOlps();
   }
 
-  private async assignOlps(campaignId: number) {
-    await tryber.tables.WpAppqOlpPermissions.do().delete().where({
-      main_id: campaignId,
-      main_type: "campaign",
+  private async cleanupCurrentRoles() {
+    const currentRoles = await tryber.tables.CampaignCustomRoles.do()
+      .select(
+        "tester_id",
+        "custom_role_id",
+        tryber.ref("olp").withSchema("custom_roles"),
+        "wp_user_id"
+      )
+      .join(
+        "custom_roles",
+        "custom_roles.id",
+        "campaign_custom_roles.custom_role_id"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "campaign_custom_roles.tester_id"
+      )
+      .where({
+        campaign_id: this.campaignId,
+      });
+    if (!currentRoles.length) return;
+    await tryber.tables.CampaignCustomRoles.do().delete().where({
+      campaign_id: this.campaignId,
     });
+
+    for (const role of currentRoles) {
+      const olpObject = JSON.parse(role.olp);
+      await tryber.tables.WpAppqOlpPermissions.do()
+        .delete()
+        .where({
+          main_id: this.campaignId,
+          main_type: "campaign",
+          wp_user_id: role.wp_user_id,
+        })
+        .whereIn("type", olpObject);
+    }
+  }
+
+  private async assignOlps() {
     const roles = this.getBody().roles;
     if (!roles) return;
 
@@ -175,7 +208,7 @@ export default class RouteItem extends AdminRoute<{
         const olpObject = JSON.parse(olp);
         await tryber.tables.WpAppqOlpPermissions.do().insert(
           olpObject.map((olpType: string) => ({
-            main_id: campaignId,
+            main_id: this.campaignId,
             main_type: "campaign",
             type: olpType,
             wp_user_id: wpUserId.wp_user_id,

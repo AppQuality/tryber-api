@@ -302,6 +302,10 @@ describe("Route POST /dossiers", () => {
       await tryber.tables.CustomRoles.do().delete();
       await tryber.tables.WpAppqEvdProfile.do().delete();
     });
+    afterEach(async () => {
+      await tryber.tables.CampaignCustomRoles.do().delete();
+      await tryber.tables.WpAppqOlpPermissions.do().delete();
+    });
     describe("When campaign has no roles", () => {
       it("Should link the roles to the campaign", async () => {
         const response = await request(app)
@@ -348,8 +352,8 @@ describe("Route POST /dossiers", () => {
           {
             main_id: 1,
             main_type: "campaign",
-            type: "appq_bug",
-            wp_user_id: 1,
+            type: "appq_bugs",
+            wp_user_id: 2,
           },
         ]);
       });
