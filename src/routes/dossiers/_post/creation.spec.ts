@@ -310,7 +310,6 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({ ...baseRequest, roles: [{ role: 1, user: 1 }] });
 
-    console.log(response.body);
     const id = response.body.id;
 
     const roles = await tryber.tables.CampaignCustomRoles.do()
@@ -319,5 +318,22 @@ describe("Route POST /dossiers", () => {
     expect(roles).toHaveLength(1);
     expect(roles[0]).toHaveProperty("custom_role_id", 1);
     expect(roles[0]).toHaveProperty("tester_id", 1);
+  });
+
+  it("Should set the olp roles to the campaign", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, roles: [{ role: 1, user: 1 }] });
+
+    const id = response.body.id;
+
+    const olps = await tryber.tables.WpAppqOlpPermissions.do()
+      .select()
+      .where({ main_id: id });
+    expect(olps).toHaveLength(1);
+    expect(olps[0]).toHaveProperty("type", "appq_bugs");
+    expect(olps[0]).toHaveProperty("main_type", "campaign");
+    expect(olps[0]).toHaveProperty("wp_user_id", 100);
   });
 });

@@ -125,6 +125,38 @@ export default class RouteItem extends AdminRoute<{
         tester_id: role.user,
       }))
     );
+
+    await this.assignOlps(campaignId);
+  }
+
+  private async assignOlps(campaignId: number) {
+    const roles = this.getBody().roles;
+    if (!roles) return;
+
+    const roleOlps = await tryber.tables.CustomRoles.do()
+      .select("id", "olp")
+      .whereIn(
+        "id",
+        roles.map((role) => role.role)
+      );
+    const wpUserIds = await tryber.tables.WpAppqEvdProfile.do()
+      .select("id", "wp_user_id")
+      .whereIn(
+        "id",
+        roles.map((role) => role.user)
+      );
+    for (const role of roles) {
+      const olp = roleOlps.find((r) => r.id === role.role)?.olp;
+      const wpUserId = wpUserIds.find((r) => r.id === role.user);
+      if (olp && wpUserId) {
+        await tryber.tables.WpAppqOlpPermissions.do().insert({
+          main_id: campaignId,
+          main_type: "campaign",
+          type: "appq_bugs",
+          wp_user_id: wpUserId.wp_user_id,
+        });
+      }
+    }
   }
 
   private getCsmId() {
