@@ -967,8 +967,11 @@ export interface components {
             customer: string;
             tester?: string;
           };
+          /** Format: date-time */
           startDate: string;
+          /** Format: date-time */
           endDate?: string;
+          /** Format: date-time */
           closeDate?: string;
           deviceList: number[];
           csm?: number;
