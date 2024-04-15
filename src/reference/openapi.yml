@@ -1176,8 +1176,6 @@ paths:
                                   type: string
                                 metal:
                                   type: string
-                                  x-stoplight:
-                                    id: 9afe0zlf0hr2b
                             devices:
                               type: array
                               items:
@@ -4239,8 +4237,6 @@ paths:
                       type: string
                     type:
                       type: string
-                      x-stoplight:
-                        id: 6yohqfohiv47u
                   required:
                     - id
                     - name
@@ -9688,8 +9684,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: 965rh7aagxj8x
               examples:
                 Example 1:
                   value:
@@ -9735,160 +9729,98 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: qqon32evab2o5
                   title:
                     type: object
-                    x-stoplight:
-                      id: qfn9vuux1vjp1
                     required:
                       - customer
                       - tester
                     properties:
                       customer:
                         type: string
-                        x-stoplight:
-                          id: tyx8mtant8jej
                       tester:
                         type: string
-                        x-stoplight:
-                          id: cupl63jal29yu
                   startDate:
                     type: string
-                    x-stoplight:
-                      id: lif1wyyh6miiy
                     format: date-time
                   endDate:
                     type: string
-                    x-stoplight:
-                      id: dhx6h9l494pyw
                     format: date-time
                   customer:
                     type: object
-                    x-stoplight:
-                      id: b6vdml702n2vr
                     required:
                       - id
                       - name
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: hzxvga289ilzv
                       name:
                         type: string
-                        x-stoplight:
-                          id: zxk4wi6clmaxr
                   project:
                     type: object
-                    x-stoplight:
-                      id: 9dnwnxk98slrj
                     required:
                       - id
                       - name
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: 795lyzmcn2f3i
                       name:
                         type: string
-                        x-stoplight:
-                          id: lonlyyu0xqpx9
                   testType:
                     type: object
-                    x-stoplight:
-                      id: y2l96ujpgntcx
                     required:
                       - id
                       - name
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: 5ut1dht9q3e5f
                       name:
                         type: string
-                        x-stoplight:
-                          id: 3zafe5jvg89hd
                   deviceList:
                     type: array
-                    x-stoplight:
-                      id: 8ac5l94cifolj
                     items:
-                      x-stoplight:
-                        id: p874do1llblvt
                       type: object
                       properties:
                         id:
                           type: integer
-                          x-stoplight:
-                            id: 64zrvfx7v23m8
                         name:
                           type: string
-                          x-stoplight:
-                            id: 838zaws7zfcb6
                       required:
                         - id
                         - name
                   csm:
                     type: object
-                    x-stoplight:
-                      id: ye4vllt9hwd40
                     required:
                       - id
                       - name
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: 29ini0mkuenx4
                       name:
                         type: string
-                        x-stoplight:
-                          id: 0v4z9eu7jfeja
                   roles:
                     type: array
-                    x-stoplight:
-                      id: 3p09fuirignj7
                     items:
-                      x-stoplight:
-                        id: 5m9aii1v8wcis
                       type: object
                       properties:
                         role:
                           type: object
-                          x-stoplight:
-                            id: 3tivc1nwgyrwx
                           properties:
                             id:
                               type: integer
-                              x-stoplight:
-                                id: aji8k6mr94cwt
                             name:
                               type: string
-                              x-stoplight:
-                                id: 3e0auomt8mz8t
                           required:
                             - id
                             - name
                         user:
                           type: object
-                          x-stoplight:
-                            id: 7pwjsavtoyxck
                           properties:
                             id:
                               type: integer
-                              x-stoplight:
-                                id: gi6r57k7mjmwt
                             name:
                               type: string
-                              x-stoplight:
-                                id: em7xmfoc3l3m1
                             surname:
                               type: string
-                              x-stoplight:
-                                id: x6eckuam89tz2
                           required:
                             - id
                             - name
@@ -9957,21 +9889,13 @@ paths:
                 properties:
                   results:
                     type: array
-                    x-stoplight:
-                      id: 9ccc89bhovco5
                     items:
-                      x-stoplight:
-                        id: zog5qqnv5h7rb
                       type: object
                       properties:
                         id:
                           type: integer
-                          x-stoplight:
-                            id: xapq51u019ada
                         name:
                           type: string
-                          x-stoplight:
-                            id: 8fxvw6c3m46bv
                       required:
                         - id
                         - name
@@ -11135,25 +11059,15 @@ components:
                   type: integer
               csm:
                 type: number
-                x-stoplight:
-                  id: tczilke0whidg
               roles:
                 type: array
-                x-stoplight:
-                  id: 4poufjsvqfo7j
                 items:
-                  x-stoplight:
-                    id: zw9rdiq7ssshf
                   type: object
                   properties:
                     role:
                       type: number
-                      x-stoplight:
-                        id: rnq0iog3qgoni
                     user:
                       type: number
-                      x-stoplight:
-                        id: icf9slvhqkee2
                   required:
                     - role
                     - user
