@@ -82,6 +82,7 @@ describe("Route POST /dossiers", () => {
       customer_title: "Test Customer Campaign",
       start_date: "2019-08-24T14:15:22Z",
       end_date: "2019-08-24T14:15:22Z",
+      close_date: "2019-08-25T14:15:22Z",
       platform_id: 0,
       os: "1",
       page_manual_id: 0,
@@ -214,6 +215,27 @@ describe("Route POST /dossiers", () => {
     expect(campaign).toHaveProperty("end_date", "2021-08-20T14:15:22Z");
   });
 
+  it("Should update the campaign with the specified close date ", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        closeDate: "2021-08-20T14:15:22Z",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("close_date", "2021-08-20T14:15:22Z");
+  });
+
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
     const response = await request(app)
       .put("/dossiers/1")
@@ -233,6 +255,27 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("end_date", "2019-08-24T14:15:22Z");
+  });
+
+  it("Should leave the close date of the campaign unedited if left unspecified", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        startDate: "2021-08-20T14:15:22Z",
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("close_date", "2019-08-25T14:15:22Z");
   });
 
   it("Should update the campaign with current user as pm_id", async () => {

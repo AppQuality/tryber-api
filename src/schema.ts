@@ -969,6 +969,7 @@ export interface components {
           };
           startDate: string;
           endDate?: string;
+          closeDate?: string;
           deviceList: number[];
           csm?: number;
           roles?: {

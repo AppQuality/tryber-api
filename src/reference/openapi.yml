@@ -11053,6 +11053,10 @@ components:
                 type: string
               endDate:
                 type: string
+              closeDate:
+                type: string
+                x-stoplight:
+                  id: l1vu2chddov3z
               deviceList:
                 type: array
                 items:

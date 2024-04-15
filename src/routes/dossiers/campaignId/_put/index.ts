@@ -10,7 +10,7 @@ export default class RouteItem extends AdminRoute<{
   parameters: StoplightOperations["put-dossiers-campaign"]["parameters"]["path"];
 }> {
   private campaignId: number;
-  private _campaign: { end_date: string } | undefined;
+  private _campaign: { end_date: string; close_date: string } | undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -20,7 +20,7 @@ export default class RouteItem extends AdminRoute<{
   protected async init(): Promise<void> {
     await super.init();
     this._campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("end_date")
+      .select("end_date", "close_date")
       .where({
         id: this.campaignId,
       })
@@ -113,6 +113,7 @@ export default class RouteItem extends AdminRoute<{
         platform_id: 0,
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
+        close_date: this.getCloseDate(),
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
@@ -222,6 +223,12 @@ export default class RouteItem extends AdminRoute<{
     if (this.getBody().endDate) return this.getBody().endDate;
 
     return this.campaign.end_date;
+  }
+
+  private getCloseDate() {
+    if (this.getBody().closeDate) return this.getBody().closeDate;
+
+    return this.campaign.close_date;
   }
 
   private async getDevices() {
