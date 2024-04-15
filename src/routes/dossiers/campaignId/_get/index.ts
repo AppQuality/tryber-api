@@ -31,6 +31,7 @@ export default class RouteItem extends AdminRoute<{
       .select(
         tryber.fn.charDate("start_date"),
         tryber.fn.charDate("end_date"),
+        tryber.fn.charDate("close_date"),
         tryber.ref("id").withSchema("wp_appq_evd_campaign"),
         "title",
         "customer_title",
@@ -163,6 +164,7 @@ export default class RouteItem extends AdminRoute<{
         },
         startDate: this.formatDate(this.campaign.start_date),
         endDate: this.formatDate(this.campaign.end_date),
+        closeDate: this.formatDate(this.campaign.close_date),
         deviceList: this.campaign.devices,
         csm: {
           id: this.campaign.pm_id,

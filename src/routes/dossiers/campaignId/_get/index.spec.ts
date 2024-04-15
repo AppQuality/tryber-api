@@ -62,6 +62,7 @@ describe("Route GET /dossiers/:id", () => {
       customer_title: "Test Customer Campaign",
       start_date: "2019-08-24T14:15:22Z",
       end_date: "2019-08-24T14:15:22Z",
+      close_date: "2019-08-27T14:15:22Z",
       platform_id: 0,
       os: "1",
       page_manual_id: 0,
@@ -187,6 +188,14 @@ describe("Route GET /dossiers/:id", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("endDate", "2019-08-24T14:15:22Z");
+  });
+  it("Should return the close date", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("closeDate", "2019-08-27T14:15:22Z");
   });
 
   it("Should return the device list", async () => {

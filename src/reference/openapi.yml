@@ -9745,6 +9745,11 @@ paths:
                   endDate:
                     type: string
                     format: date-time
+                  closeDate:
+                    type: string
+                    x-stoplight:
+                      id: mp8bnj3euw39d
+                    format: date-time
                   customer:
                     type: object
                     required:
@@ -9830,6 +9835,7 @@ paths:
                   - title
                   - startDate
                   - endDate
+                  - closeDate
                   - customer
                   - project
                   - testType

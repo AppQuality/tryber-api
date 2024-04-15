@@ -4059,6 +4059,8 @@ export interface operations {
             startDate: string;
             /** Format: date-time */
             endDate: string;
+            /** Format: date-time */
+            closeDate: string;
             customer: {
               id: number;
               name: string;
