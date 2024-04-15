@@ -29,12 +29,12 @@ export default class RouteItem extends AdminRoute<{
   private async getCampaign() {
     const campaign = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
-        "end_date",
+        tryber.fn.charDate("start_date"),
+        tryber.fn.charDate("end_date"),
         tryber.ref("id").withSchema("wp_appq_evd_campaign"),
         "title",
         "customer_title",
         "project_id",
-        "start_date",
         "campaign_type_id",
         "os",
         tryber
@@ -141,6 +141,7 @@ export default class RouteItem extends AdminRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    console.log(this.campaign.start_date);
     try {
       this.setSuccess(200, {
         id: this.campaign.id,
@@ -160,8 +161,8 @@ export default class RouteItem extends AdminRoute<{
           id: this.campaign.campaign_type_id,
           name: this.campaign.campaign_type_name,
         },
-        startDate: this.campaign.start_date,
-        endDate: this.campaign.end_date,
+        startDate: this.formatDate(this.campaign.start_date),
+        endDate: this.formatDate(this.campaign.end_date),
         deviceList: this.campaign.devices,
         csm: {
           id: this.campaign.pm_id,
@@ -188,5 +189,10 @@ export default class RouteItem extends AdminRoute<{
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private formatDate(dateTime: string) {
+    const [date, time] = dateTime.split(" ");
+    return `${date}T${time}Z`;
   }
 }
