@@ -16,15 +16,27 @@ describe("Route GET /dossiers/:id", () => {
       edited_by: 1,
     });
 
-    await tryber.tables.WpAppqEvdProfile.do().insert({
-      id: 1,
-      wp_user_id: 1,
+    const profile = {
       name: "Test",
-      surname: "CSM",
+      surname: "Profile",
       email: "",
       education_id: 1,
       employment_id: 1,
-    });
+    };
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        ...profile,
+        id: 1,
+        wp_user_id: 1,
+        surname: "CSM",
+      },
+      {
+        ...profile,
+        id: 2,
+        wp_user_id: 2,
+        surname: "PM",
+      },
+    ]);
 
     await tryber.tables.WpAppqCampaignType.do().insert({
       id: 1,
@@ -57,6 +69,20 @@ describe("Route GET /dossiers/:id", () => {
       pm_id: 1,
       customer_id: 0,
     });
+
+    await tryber.tables.CustomRoles.do().insert([
+      {
+        id: 1,
+        name: "Test Role",
+        olp: '["appq_bug"]',
+      },
+    ]);
+
+    await tryber.tables.CampaignCustomRoles.do().insert({
+      campaign_id: 1,
+      custom_role_id: 1,
+      tester_id: 2,
+    });
   });
 
   afterAll(async () => {
@@ -82,7 +108,6 @@ describe("Route GET /dossiers/:id", () => {
     const response = await request(app)
       .get("/dossiers/1")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
     expect(response.status).toBe(403);
   });
 
@@ -195,5 +220,22 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.body).toHaveProperty("customer");
     expect(response.body.customer).toHaveProperty("id", 1);
     expect(response.body.customer).toHaveProperty("name", "Test Company");
+  });
+
+  it("Should return the roles", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("roles");
+    expect(response.body.roles).toHaveLength(1);
+    expect(response.body.roles[0]).toHaveProperty("role");
+    expect(response.body.roles[0].role).toHaveProperty("id", 1);
+    expect(response.body.roles[0].role).toHaveProperty("name", "Test Role");
+    expect(response.body.roles[0]).toHaveProperty("user");
+    expect(response.body.roles[0].user).toHaveProperty("id", 2);
+    expect(response.body.roles[0].user).toHaveProperty("name", "Test");
+    expect(response.body.roles[0].user).toHaveProperty("surname", "PM");
   });
 });

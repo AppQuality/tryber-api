@@ -971,6 +971,10 @@ export interface components {
           endDate?: string;
           deviceList: number[];
           csm?: number;
+          roles?: {
+            role: number;
+            user: number;
+          }[];
         };
       };
     };
@@ -4071,6 +4075,17 @@ export interface operations {
               id: number;
               name: string;
             };
+            roles?: {
+              role?: {
+                id: number;
+                name: string;
+              };
+              user?: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+            }[];
           };
         };
       };
