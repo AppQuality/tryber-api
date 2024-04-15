@@ -10,6 +10,10 @@ export default class RouteItem extends AdminRoute<{
 }> {
   protected async filter() {
     if (!(await super.filter())) return false;
+    if (await this.invalidRolesSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid roles submitted"));
+      return false;
+    }
     if (!(await this.projectExists())) {
       this.setError(400, new OpenapiError("Project does not exist"));
       return false;
@@ -24,6 +28,23 @@ export default class RouteItem extends AdminRoute<{
     }
 
     return true;
+  }
+
+  private async invalidRolesSubmitted() {
+    const { roles } = this.getBody();
+    if (!roles) return false;
+    const roleIds = [...new Set(roles.map((role) => role.role))];
+    const rolesExist = await tryber.tables.CustomRoles.do()
+      .select()
+      .whereIn("id", roleIds);
+    if (rolesExist.length !== roleIds.length) return true;
+
+    const userIds = [...new Set(roles.map((role) => role.user))];
+    const usersExist = await tryber.tables.WpAppqEvdProfile.do()
+      .select()
+      .whereIn("id", userIds);
+    if (usersExist.length !== userIds.length) return true;
+    return false;
   }
 
   private async projectExists(): Promise<boolean> {
@@ -58,8 +79,11 @@ export default class RouteItem extends AdminRoute<{
 
   protected async prepare(): Promise<void> {
     try {
+      const campaignId = await this.createCampaign();
+      await this.linkRolesToCampaign(campaignId);
+
       this.setSuccess(201, {
-        id: await this.createCampaign(),
+        id: campaignId,
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
@@ -88,6 +112,54 @@ export default class RouteItem extends AdminRoute<{
       .returning("id");
 
     return results[0].id ?? results[0];
+  }
+
+  private async linkRolesToCampaign(campaignId: number) {
+    const roles = this.getBody().roles;
+    if (!roles) return;
+
+    await tryber.tables.CampaignCustomRoles.do().insert(
+      roles.map((role) => ({
+        campaign_id: campaignId,
+        custom_role_id: role.role,
+        tester_id: role.user,
+      }))
+    );
+
+    await this.assignOlps(campaignId);
+  }
+
+  private async assignOlps(campaignId: number) {
+    const roles = this.getBody().roles;
+    if (!roles) return;
+
+    const roleOlps = await tryber.tables.CustomRoles.do()
+      .select("id", "olp")
+      .whereIn(
+        "id",
+        roles.map((role) => role.role)
+      );
+    const wpUserIds = await tryber.tables.WpAppqEvdProfile.do()
+      .select("id", "wp_user_id")
+      .whereIn(
+        "id",
+        roles.map((role) => role.user)
+      );
+    for (const role of roles) {
+      const olp = roleOlps.find((r) => r.id === role.role)?.olp;
+      const wpUserId = wpUserIds.find((r) => r.id === role.user);
+      if (olp && wpUserId) {
+        const olpObject = JSON.parse(olp);
+        await tryber.tables.WpAppqOlpPermissions.do().insert(
+          olpObject.map((olpType: string) => ({
+            main_id: campaignId,
+            main_type: "campaign",
+            type: olpType,
+            wp_user_id: wpUserId.wp_user_id,
+          }))
+        );
+      }
+    }
   }
 
   private getCsmId() {
