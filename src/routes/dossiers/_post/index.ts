@@ -99,6 +99,7 @@ export default class RouteItem extends AdminRoute<{
         platform_id: 0,
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
+        close_date: this.getCloseDate(),
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
@@ -172,6 +173,14 @@ export default class RouteItem extends AdminRoute<{
 
     const startDate = new Date(this.getBody().startDate);
     startDate.setDate(startDate.getDate() + 7);
+    return startDate.toISOString().replace(/\.\d+/, "");
+  }
+
+  private getCloseDate() {
+    if (this.getBody().closeDate) return this.getBody().closeDate;
+
+    const startDate = new Date(this.getBody().startDate);
+    startDate.setDate(startDate.getDate() + 14);
     return startDate.toISOString().replace(/\.\d+/, "");
   }
 

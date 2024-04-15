@@ -210,6 +210,27 @@ describe("Route POST /dossiers", () => {
     expect(campaign).toHaveProperty("end_date", "2021-08-20T14:15:22Z");
   });
 
+  it("Should create a campaign with the specified close date ", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        closeDate: "2021-08-20T14:15:22Z",
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("close_date", "2021-08-20T14:15:22Z");
+  });
+
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {
     const response = await request(app)
       .post("/dossiers")
@@ -229,6 +250,27 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("end_date", "2021-08-27T14:15:22Z");
+  });
+
+  it("Should create a campaign with the close date as start date + 14 if left unspecified", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        startDate: "2021-08-20T14:15:22Z",
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("close_date", "2021-09-03T14:15:22Z");
   });
 
   it("Should create a campaign with current user as pm_id if left unspecified", async () => {
