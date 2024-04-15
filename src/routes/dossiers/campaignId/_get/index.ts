@@ -193,6 +193,7 @@ export default class RouteItem extends AdminRoute<{
 
   private formatDate(dateTime: string) {
     const [date, time] = dateTime.split(" ");
+    if (!date || !time) return dateTime;
     return `${date}T${time}Z`;
   }
 }
