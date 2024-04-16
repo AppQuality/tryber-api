@@ -247,4 +247,100 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.body.roles[0].user).toHaveProperty("name", "Test");
     expect(response.body.roles[0].user).toHaveProperty("surname", "PM");
   });
+
+  describe("With dossier data", () => {
+    beforeAll(async () => {
+      await tryber.tables.CampaignDossierData.do().insert({
+        campaign_id: 1,
+        description: "Original description",
+        link: "Original link",
+        goal: "Original goal",
+        out_of_scope: "Original out of scope",
+        target_audience: "Original target audience",
+        target_size: 7,
+        target_devices: "Original target devices",
+        created_by: 100,
+        updated_by: 100,
+      });
+    });
+    afterAll(async () => {
+      await tryber.tables.CampaignDossierData.do().delete();
+    });
+
+    it("Should return description", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "description",
+        "Original description"
+      );
+    });
+
+    it("Should return link", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("productLink", "Original link");
+    });
+
+    it("Should return goal", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("goal", "Original goal");
+    });
+
+    it("Should return out of scope", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "outOfScope",
+        "Original out of scope"
+      );
+    });
+
+    it("Should return target audience", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "target",
+        expect.objectContaining({ notes: "Original target audience" })
+      );
+    });
+
+    it("Should return target size", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("target");
+      expect(response.body.target).toHaveProperty("size", 7);
+    });
+
+    it("Should return devices requirements", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "deviceRequirements",
+        "Original target devices"
+      );
+    });
+  });
 });

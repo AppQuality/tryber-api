@@ -4101,6 +4101,15 @@ export interface operations {
                 surname: string;
               };
             }[];
+            description?: string;
+            productLink?: string;
+            goal?: string;
+            outOfScope?: string;
+            deviceRequirements?: string;
+            target?: {
+              notes?: string;
+              size?: number;
+            };
           };
         };
       };

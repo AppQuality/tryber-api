@@ -113,7 +113,20 @@ export default class RouteItem extends AdminRoute<{
       )
       .where("campaign_custom_roles.campaign_id", this.campaignId);
 
-    return { ...campaign, devices, roles };
+    const dossierData = await tryber.tables.CampaignDossierData.do()
+      .select(
+        "description",
+        "link",
+        "goal",
+        "out_of_scope",
+        "target_audience",
+        "target_size",
+        "target_devices"
+      )
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    return { ...campaign, devices, roles, ...dossierData };
   }
 
   get campaign() {
@@ -187,6 +200,22 @@ export default class RouteItem extends AdminRoute<{
               }),
             }
           : {}),
+        description: this.campaign.description,
+        productLink: this.campaign.link,
+        goal: this.campaign.goal,
+        outOfScope: this.campaign.out_of_scope,
+        target:
+          this.campaign.target_audience || this.campaign.target_size
+            ? {
+                ...(this.campaign.target_audience && {
+                  notes: this.campaign.target_audience,
+                }),
+                ...(this.campaign.target_size && {
+                  size: this.campaign.target_size,
+                }),
+              }
+            : undefined,
+        deviceRequirements: this.campaign.target_devices,
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);

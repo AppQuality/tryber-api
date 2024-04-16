@@ -9830,6 +9830,39 @@ paths:
                             - id
                             - name
                             - surname
+                  description:
+                    type: string
+                    x-stoplight:
+                      id: e55a4kaaqxzc4
+                  productLink:
+                    type: string
+                    x-stoplight:
+                      id: ihnf5pfqcbnrp
+                  goal:
+                    type: string
+                    x-stoplight:
+                      id: g7fiqpdar1bhx
+                  outOfScope:
+                    type: string
+                    x-stoplight:
+                      id: q66k7i338p3lw
+                  deviceRequirements:
+                    type: string
+                    x-stoplight:
+                      id: 8eu3oh67c7syn
+                  target:
+                    type: object
+                    x-stoplight:
+                      id: nkwxna1rbyfw7
+                    properties:
+                      notes:
+                        type: string
+                        x-stoplight:
+                          id: kygk3ckinhe7d
+                      size:
+                        type: integer
+                        x-stoplight:
+                          id: k8ujpmeef31mm
                 required:
                   - id
                   - title
