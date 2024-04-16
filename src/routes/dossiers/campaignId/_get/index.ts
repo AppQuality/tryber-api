@@ -168,7 +168,6 @@ export default class RouteItem extends AdminRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    console.log(this.campaign.start_date);
     try {
       this.setSuccess(200, {
         id: this.campaign.id,

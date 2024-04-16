@@ -569,4 +569,29 @@ describe("Route POST /dossiers", () => {
     expect(dossierData[0]).toHaveProperty("created_by", 1);
     expect(dossierData[0]).toHaveProperty("updated_by", 1);
   });
+
+  it("Should save the countries in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        countries: ["IT", "FR"],
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const getResponse = await request(app)
+      .get(`/dossiers/${id}`)
+      .set("authorization", "Bearer admin");
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toHaveProperty("countries");
+    expect(getResponse.body.countries).toHaveLength(2);
+    expect(getResponse.body.countries).toContain("IT");
+    expect(getResponse.body.countries).toContain("FR");
+  });
 });

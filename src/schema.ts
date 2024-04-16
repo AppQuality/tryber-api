@@ -990,6 +990,7 @@ export interface components {
             notes?: string;
             size?: number;
           };
+          countries?: components["schemas"]["CountryCode"][];
         };
       };
     };

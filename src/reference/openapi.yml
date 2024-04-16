@@ -11166,6 +11166,12 @@ components:
                     type: integer
                     x-stoplight:
                       id: s7yed3nl526j0
+              countries:
+                type: array
+                x-stoplight:
+                  id: yej50odkd75wa
+                items:
+                  $ref: '#/components/schemas/CountryCode'
             required:
               - project
               - testType
