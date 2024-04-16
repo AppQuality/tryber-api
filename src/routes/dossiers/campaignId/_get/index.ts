@@ -131,7 +131,7 @@ export default class RouteItem extends AdminRoute<{
       ? await tryber.tables.CampaignDossierDataCountries.do()
           .select("country_code")
           .where("campaign_dossier_data_id", dossierData.id)
-      : undefined;
+      : [];
 
     return {
       ...campaign,
@@ -213,23 +213,32 @@ export default class RouteItem extends AdminRoute<{
               }),
             }
           : {}),
-        description: this.campaign.description,
+        ...(this.campaign.description && {
+          description: this.campaign.description,
+        }),
         productLink: this.campaign.link,
-        goal: this.campaign.goal,
-        outOfScope: this.campaign.out_of_scope,
-        target:
-          this.campaign.target_audience || this.campaign.target_size
-            ? {
-                ...(this.campaign.target_audience && {
-                  notes: this.campaign.target_audience,
-                }),
-                ...(this.campaign.target_size && {
-                  size: this.campaign.target_size,
-                }),
-              }
-            : undefined,
-        deviceRequirements: this.campaign.target_devices,
-        countries: this.campaign.countries?.map((item) => item.country_code),
+        ...(this.campaign.goal && {
+          goal: this.campaign.goal,
+        }),
+        ...(this.campaign.out_of_scope && {
+          outOfScope: this.campaign.out_of_scope,
+        }),
+        ...((this.campaign.target_audience || this.campaign.target_size) && {
+          target: {
+            ...(this.campaign.target_audience && {
+              notes: this.campaign.target_audience,
+            }),
+            ...(this.campaign.target_size && {
+              size: this.campaign.target_size,
+            }),
+          },
+        }),
+        ...(this.campaign.target_devices && {
+          deviceRequirements: this.campaign.target_devices,
+        }),
+        ...(this.campaign.countries.length > 0 && {
+          countries: this.campaign.countries?.map((item) => item.country_code),
+        }),
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
