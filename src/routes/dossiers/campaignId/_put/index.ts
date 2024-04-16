@@ -129,6 +129,43 @@ export default class RouteItem extends AdminRoute<{
       });
 
     await this.linkRolesToCampaign();
+
+    await this.updateCampaignDossierData();
+  }
+
+  private async updateCampaignDossierData() {
+    const dossierExists = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossierExists) {
+      await tryber.tables.CampaignDossierData.do().insert({
+        campaign_id: this.campaignId,
+        created_by: this.getTesterId(),
+        updated_by: this.getTesterId(),
+      });
+    }
+
+    await tryber.tables.CampaignDossierData.do()
+      .update({
+        description: this.getBody().description,
+        ...(this.getBody().productLink && {
+          link: this.getBody().productLink,
+        }),
+        goal: this.getBody().goal,
+        out_of_scope: this.getBody().outOfScope,
+        target_audience: this.getBody().target?.notes,
+        ...(this.getBody().target?.size && {
+          target_size: this.getBody().target?.size,
+        }),
+        target_devices: this.getBody().deviceRequirements,
+        updated_by: this.getTesterId(),
+      })
+      .where({
+        campaign_id: this.campaignId,
+      });
   }
 
   private async linkRolesToCampaign() {

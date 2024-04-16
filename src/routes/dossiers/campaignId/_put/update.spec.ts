@@ -93,6 +93,7 @@ describe("Route POST /dossiers", () => {
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.CampaignDossierData.do().delete();
   });
 
   it("Should update the campaign to be linked to the specified project", async () => {
@@ -313,6 +314,185 @@ describe("Route POST /dossiers", () => {
 
     expect(campaign).toHaveProperty("os", "1,2");
     expect(campaign).toHaveProperty("form_factor", "0,1");
+  });
+
+  describe("Without dossier data", () => {
+    it("Should create dossier data for the campaign", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, description: "Test description" });
+
+      expect(response.status).toBe(200);
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: 1 });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("description", "Test description");
+    });
+  });
+
+  describe("With dossier data", () => {
+    beforeEach(async () => {
+      await tryber.tables.CampaignDossierData.do().insert({
+        campaign_id: 1,
+        description: "Original description",
+        link: "Original link",
+        goal: "Original goal",
+        out_of_scope: "Original out of scope",
+        target_audience: "Original target audience",
+        target_size: 0,
+        target_devices: "Original target devices",
+        created_by: 100,
+        updated_by: 100,
+      });
+    });
+
+    it("Should save description in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, description: "Test description" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = response.body.id;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("description", "Test description");
+    });
+
+    it("Should save productLink in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, productLink: "https://example.com" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = response.body.id;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("link", "https://example.com");
+    });
+
+    it("Should save goal in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, goal: "Having no bugs" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("goal", "Having no bugs");
+    });
+
+    it("Should save outOfScope in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, outOfScope: "Login page" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("out_of_scope", "Login page");
+    });
+
+    it("Should save target notes in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, target: { notes: "New testers" } });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("target_audience", "New testers");
+    });
+
+    it("Should save device requirements in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, deviceRequirements: "New devices" });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("target_devices", "New devices");
+    });
+
+    it("Should save target size in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, target: { size: 10 } });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("target_size", 10);
+    });
+
+    it("Should save the tester id in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("created_by", 100);
+      expect(dossierData[0]).toHaveProperty("updated_by", 1);
+    });
   });
 
   describe("Role handling", () => {

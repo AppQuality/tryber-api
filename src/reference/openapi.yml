@@ -11084,6 +11084,39 @@ components:
                   required:
                     - role
                     - user
+              description:
+                type: string
+                x-stoplight:
+                  id: 5237eb5d7mjxw
+              productLink:
+                type: string
+                x-stoplight:
+                  id: ge2phxp9frlfs
+              goal:
+                type: string
+                x-stoplight:
+                  id: m6wtldsyldnwd
+              outOfScope:
+                type: string
+                x-stoplight:
+                  id: y1anp1f44yn2f
+              deviceRequirements:
+                type: string
+                x-stoplight:
+                  id: kxkdwki5e9avj
+              target:
+                type: object
+                x-stoplight:
+                  id: 0qyk7cajxn49d
+                properties:
+                  notes:
+                    type: string
+                    x-stoplight:
+                      id: ljeltiy85uev6
+                  size:
+                    type: integer
+                    x-stoplight:
+                      id: s7yed3nl526j0
             required:
               - project
               - testType

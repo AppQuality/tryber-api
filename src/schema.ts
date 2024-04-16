@@ -979,6 +979,15 @@ export interface components {
             role: number;
             user: number;
           }[];
+          description?: string;
+          productLink?: string;
+          goal?: string;
+          outOfScope?: string;
+          deviceRequirements?: string;
+          target?: {
+            notes?: string;
+            size?: number;
+          };
         };
       };
     };
