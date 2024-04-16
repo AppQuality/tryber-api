@@ -251,6 +251,7 @@ describe("Route GET /dossiers/:id", () => {
   describe("With dossier data", () => {
     beforeAll(async () => {
       await tryber.tables.CampaignDossierData.do().insert({
+        id: 1,
         campaign_id: 1,
         description: "Original description",
         link: "Original link",
@@ -262,9 +263,20 @@ describe("Route GET /dossiers/:id", () => {
         created_by: 100,
         updated_by: 100,
       });
+      await tryber.tables.CampaignDossierDataCountries.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          country_code: "IT",
+        },
+        {
+          campaign_dossier_data_id: 1,
+          country_code: "FR",
+        },
+      ]);
     });
     afterAll(async () => {
       await tryber.tables.CampaignDossierData.do().delete();
+      await tryber.tables.CampaignDossierDataCountries.do().delete();
     });
 
     it("Should return description", async () => {
@@ -341,6 +353,18 @@ describe("Route GET /dossiers/:id", () => {
         "deviceRequirements",
         "Original target devices"
       );
+    });
+
+    it("Should return countries", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("countries");
+      expect(response.body.countries).toHaveLength(2);
+      expect(response.body.countries).toContainEqual("IT");
+      expect(response.body.countries).toContainEqual("FR");
     });
   });
 });

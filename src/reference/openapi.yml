@@ -9863,6 +9863,14 @@ paths:
                         type: integer
                         x-stoplight:
                           id: k8ujpmeef31mm
+                  countries:
+                    type: array
+                    x-stoplight:
+                      id: 448rwgcretrl4
+                    minItems: 1
+                    uniqueItems: true
+                    items:
+                      $ref: '#/components/schemas/CountryCode'
                 required:
                   - id
                   - title
@@ -10756,6 +10764,14 @@ components:
         - draft
         - confirmed
         - done
+    CountryCode:
+      title: CountryCode
+      x-stoplight:
+        id: x86hxduj44bgg
+      type: string
+      pattern: '^[A-Z][A-Z]$'
+      minLength: 2
+      maxLength: 2
   securitySchemes:
     JWT:
       type: http

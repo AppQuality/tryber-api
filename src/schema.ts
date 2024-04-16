@@ -869,6 +869,8 @@ export interface components {
      * @enum {string}
      */
     ProspectStatus: "draft" | "confirmed" | "done";
+    /** CountryCode */
+    CountryCode: string;
   };
   responses: {
     /** A user */
@@ -4110,6 +4112,7 @@ export interface operations {
               notes?: string;
               size?: number;
             };
+            countries?: components["schemas"]["CountryCode"][];
           };
         };
       };

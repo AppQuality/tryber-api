@@ -115,6 +115,7 @@ export default class RouteItem extends AdminRoute<{
 
     const dossierData = await tryber.tables.CampaignDossierData.do()
       .select(
+        "id",
         "description",
         "link",
         "goal",
@@ -126,7 +127,19 @@ export default class RouteItem extends AdminRoute<{
       .where("campaign_id", this.campaignId)
       .first();
 
-    return { ...campaign, devices, roles, ...dossierData };
+    const targetCountries = dossierData
+      ? await tryber.tables.CampaignDossierDataCountries.do()
+          .select("country_code")
+          .where("campaign_dossier_data_id", dossierData.id)
+      : undefined;
+
+    return {
+      ...campaign,
+      devices,
+      roles,
+      ...dossierData,
+      countries: targetCountries,
+    };
   }
 
   get campaign() {
@@ -216,6 +229,7 @@ export default class RouteItem extends AdminRoute<{
               }
             : undefined,
         deviceRequirements: this.campaign.target_devices,
+        countries: this.campaign.countries?.map((item) => item.country_code),
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
