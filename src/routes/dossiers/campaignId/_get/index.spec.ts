@@ -262,6 +262,7 @@ describe("Route GET /dossiers/:id", () => {
         target_devices: "Original target devices",
         created_by: 100,
         updated_by: 100,
+        product_type_id: 1,
       });
       await tryber.tables.CampaignDossierDataCountries.do().insert([
         {
@@ -319,6 +320,17 @@ describe("Route GET /dossiers/:id", () => {
           browser_id: 2,
         },
       ]);
+
+      await tryber.tables.ProductTypes.do().insert([
+        {
+          id: 1,
+          name: "Test Product",
+        },
+        {
+          id: 2,
+          name: "Another Product",
+        },
+      ]);
     });
     afterAll(async () => {
       await tryber.tables.CampaignDossierData.do().delete();
@@ -327,6 +339,7 @@ describe("Route GET /dossiers/:id", () => {
       await tryber.tables.CampaignDossierDataLanguages.do().delete();
       await tryber.tables.Browsers.do().delete();
       await tryber.tables.CampaignDossierDataBrowsers.do().delete();
+      await tryber.tables.ProductTypes.do().delete();
     });
 
     it("Should return description", async () => {
@@ -452,6 +465,16 @@ describe("Route GET /dossiers/:id", () => {
           },
         ])
       );
+    });
+    it("Should return product type", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("productType");
+      expect(response.body.productType).toHaveProperty("id", 1);
+      expect(response.body.productType).toHaveProperty("name", "Test Product");
     });
   });
 });

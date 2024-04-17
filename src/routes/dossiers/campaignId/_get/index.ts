@@ -115,14 +115,21 @@ export default class RouteItem extends AdminRoute<{
 
     const dossierData = await tryber.tables.CampaignDossierData.do()
       .select(
-        "id",
+        tryber.ref("id").withSchema("campaign_dossier_data"),
         "description",
         "link",
         "goal",
         "out_of_scope",
         "target_audience",
         "target_size",
-        "target_devices"
+        "target_devices",
+        "product_type_id",
+        tryber.ref("name").withSchema("product_types").as("product_type_name")
+      )
+      .join(
+        "product_types",
+        "product_types.id",
+        "campaign_dossier_data.product_type_id"
       )
       .where("campaign_id", this.campaignId)
       .first();
@@ -276,6 +283,14 @@ export default class RouteItem extends AdminRoute<{
             name: item.name,
           })),
         }),
+
+        ...(this.campaign.product_type_id &&
+          this.campaign.product_type_name && {
+            productType: {
+              id: this.campaign.product_type_id,
+              name: this.campaign.product_type_name,
+            },
+          }),
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);

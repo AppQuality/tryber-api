@@ -11166,6 +11166,22 @@ components:
                   x-stoplight:
                     id: 9wdgspthmxvhf
                   type: integer
+              productType:
+                type: object
+                x-stoplight:
+                  id: ilm9662wwxef3
+                properties:
+                  id:
+                    type: number
+                    x-stoplight:
+                      id: q3394bji4ff1c
+                  name:
+                    type: string
+                    x-stoplight:
+                      id: yv6aysf3arzxa
+                required:
+                  - id
+                  - name
             required:
               - project
               - testType
