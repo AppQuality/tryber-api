@@ -562,8 +562,13 @@ export interface paths {
       };
     };
   };
-  "/users/projectManagers": {
-    get: operations["get-users-projectManagers"];
+  "/users/by-role/{role}": {
+    get: operations["get-users-by-role-role"];
+    parameters: {
+      path: {
+        role: "tester_lead" | "quality_leader" | "ux_researcher";
+      };
+    };
   };
 }
 
@@ -4174,7 +4179,12 @@ export interface operations {
       };
     };
   };
-  "get-users-projectManagers": {
+  "get-users-by-role-role": {
+    parameters: {
+      path: {
+        role: "tester_lead" | "quality_leader" | "ux_researcher";
+      };
+    };
     responses: {
       /** OK */
       200: {

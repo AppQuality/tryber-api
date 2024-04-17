@@ -9988,7 +9988,7 @@ paths:
       description: ''
       security:
         - JWT: []
-  /users/projectManagers:
+  '/users/by-role/{role}':
     get:
       summary: Your GET endpoint
       tags: []
@@ -10027,11 +10027,21 @@ paths:
                         - surname
                 required:
                   - results
-      operationId: get-users-projectManagers
+      operationId: get-users-by-role-role
       security:
         - JWT: []
       requestBody:
         content: {}
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - tester_lead
+            - quality_leader
+            - ux_researcher
+        name: role
+        in: path
+        required: true
 components:
   schemas:
     AdditionalField:
