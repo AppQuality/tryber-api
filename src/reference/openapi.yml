@@ -9988,6 +9988,50 @@ paths:
       description: ''
       security:
         - JWT: []
+  /users/projectManagers:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    x-stoplight:
+                      id: bit4usrip6upm
+                    items:
+                      x-stoplight:
+                        id: o7tw7533e3qes
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: 03fxvfejydtdr
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: b9qd1xctx2kcy
+                        surname:
+                          type: string
+                          x-stoplight:
+                            id: j4j7zt1laq54b
+                      required:
+                        - id
+                        - name
+                        - surname
+                required:
+                  - results
+      operationId: get-users-projectManagers
+      security:
+        - JWT: []
+      requestBody:
+        content: {}
 components:
   schemas:
     AdditionalField:

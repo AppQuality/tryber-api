@@ -562,6 +562,9 @@ export interface paths {
       };
     };
   };
+  "/users/projectManagers": {
+    get: operations["get-users-projectManagers"];
+  };
 }
 
 export interface components {
@@ -4169,6 +4172,25 @@ export interface operations {
           };
         };
       };
+    };
+  };
+  "get-users-projectManagers": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+              surname: string;
+            }[];
+          };
+        };
+      };
+    };
+    requestBody: {
+      unknown;
     };
   };
 }
