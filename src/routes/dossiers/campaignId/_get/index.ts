@@ -145,6 +145,18 @@ export default class RouteItem extends AdminRoute<{
           .where("campaign_dossier_data_id", dossierData.id)
       : [];
 
+    const targetBrowsers = dossierData
+      ? await tryber.tables.CampaignDossierDataBrowsers.do()
+          .join(
+            "browsers",
+            "browsers.id",
+            "campaign_dossier_data_browsers.browser_id"
+          )
+          .select("browser_id")
+          .select("name")
+          .where("campaign_dossier_data_id", dossierData.id)
+      : [];
+
     return {
       ...campaign,
       devices,
@@ -152,6 +164,7 @@ export default class RouteItem extends AdminRoute<{
       ...dossierData,
       countries: targetCountries,
       languages: targetLanguages,
+      browsers: targetBrowsers,
     };
   }
 
@@ -255,6 +268,12 @@ export default class RouteItem extends AdminRoute<{
           languages: this.campaign.languages?.map((item) => ({
             id: item.language_id,
             name: item.display_name,
+          })),
+        }),
+        ...(this.campaign.browsers.length > 0 && {
+          browsers: this.campaign.browsers?.map((item) => ({
+            id: item.browser_id,
+            name: item.name,
           })),
         }),
       });

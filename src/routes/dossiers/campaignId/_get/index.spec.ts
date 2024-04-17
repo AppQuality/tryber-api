@@ -297,12 +297,36 @@ describe("Route GET /dossiers/:id", () => {
           language_id: 2,
         },
       ]);
+
+      await tryber.tables.Browsers.do().insert([
+        {
+          id: 1,
+          name: "Chrome",
+        },
+        {
+          id: 2,
+          name: "Edge",
+        },
+      ]);
+
+      await tryber.tables.CampaignDossierDataBrowsers.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          browser_id: 1,
+        },
+        {
+          campaign_dossier_data_id: 1,
+          browser_id: 2,
+        },
+      ]);
     });
     afterAll(async () => {
       await tryber.tables.CampaignDossierData.do().delete();
       await tryber.tables.CampaignDossierDataCountries.do().delete();
       await tryber.tables.WpAppqLang.do().delete();
       await tryber.tables.CampaignDossierDataLanguages.do().delete();
+      await tryber.tables.Browsers.do().delete();
+      await tryber.tables.CampaignDossierDataBrowsers.do().delete();
     });
 
     it("Should return description", async () => {
@@ -407,6 +431,24 @@ describe("Route GET /dossiers/:id", () => {
           {
             id: 2,
             name: "Italiano",
+          },
+        ])
+      );
+    });
+    it("Should return browsers", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("browsers");
+      expect(response.body.browsers).toHaveLength(2);
+      expect(response.body.browsers).toEqual(
+        expect.arrayContaining([
+          { id: 1, name: "Chrome" },
+          {
+            id: 2,
+            name: "Edge",
           },
         ])
       );
