@@ -10042,6 +10042,102 @@ paths:
         name: role
         in: path
         required: true
+  /browsers:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    x-stoplight:
+                      id: 5wcw8uwqeljlf
+                    items:
+                      x-stoplight:
+                        id: xxr1fwn9kxcp4
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: cx3i7ryqsjmrq
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: 93yftbsxaqmdm
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+              examples:
+                Example 1:
+                  value:
+                    results:
+                      - id: 1
+                        name: Chrome
+                      - id: 2
+                        name: Firefox
+                      - id: 3
+                        name: Safari
+                      - id: 4
+                        name: Edge
+                      - id: 100
+                        name: Other
+      operationId: get-browsers
+  /productTypes:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    x-stoplight:
+                      id: 5wcw8uwqeljlf
+                    items:
+                      x-stoplight:
+                        id: xxr1fwn9kxcp4
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: cx3i7ryqsjmrq
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: 93yftbsxaqmdm
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+              examples:
+                Example 1:
+                  value:
+                    results:
+                      - id: 1
+                        name: Website / Webapp
+                      - id: 2
+                        name: Mobile App
+                      - id: 100
+                        name: Other
+      operationId: get-productTypes
+      description: ''
+    parameters: []
 components:
   schemas:
     AdditionalField:

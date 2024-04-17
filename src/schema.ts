@@ -570,6 +570,13 @@ export interface paths {
       };
     };
   };
+  "/browsers": {
+    get: operations["get-browsers"];
+  };
+  "/productTypes": {
+    get: operations["get-productTypes"];
+    parameters: {};
+  };
 }
 
 export interface components {
@@ -4201,6 +4208,37 @@ export interface operations {
     };
     requestBody: {
       unknown;
+    };
+  };
+  "get-browsers": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-productTypes": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
     };
   };
 }
