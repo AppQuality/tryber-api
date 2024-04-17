@@ -594,4 +594,31 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.body.countries).toContain("IT");
     expect(getResponse.body.countries).toContain("FR");
   });
+
+  it("Should save the languages in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        languages: [1],
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const getResponse = await request(app)
+      .get(`/dossiers/${id}`)
+      .set("authorization", "Bearer admin");
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toHaveProperty("languages");
+    expect(getResponse.body.languages).toHaveLength(1);
+    expect(getResponse.body.languages[0]).toEqual({
+      id: 1,
+      name: "Test Language",
+    });
+  });
 });

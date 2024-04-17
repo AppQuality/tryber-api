@@ -144,6 +144,16 @@ export default class RouteItem extends AdminRoute<{
         }))
       );
     }
+
+    const languages = this.getBody().languages;
+    if (languages) {
+      await tryber.tables.CampaignDossierDataLanguages.do().insert(
+        languages.map((language) => ({
+          campaign_dossier_data_id: dossierId,
+          language_id: language,
+        }))
+      );
+    }
     return campaignId;
   }
 

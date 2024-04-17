@@ -991,6 +991,7 @@ export interface components {
             size?: number;
           };
           countries?: components["schemas"]["CountryCode"][];
+          languages?: number[];
         };
       };
     };
@@ -4114,6 +4115,10 @@ export interface operations {
               size?: number;
             };
             countries?: components["schemas"]["CountryCode"][];
+            languages?: {
+              id: number;
+              name: string;
+            }[];
           };
         };
       };
