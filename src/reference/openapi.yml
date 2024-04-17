@@ -11158,6 +11158,14 @@ components:
                   x-stoplight:
                     id: bko78gf0sdhjz
                   type: integer
+              browsers:
+                type: array
+                x-stoplight:
+                  id: jc5nfd988spfc
+                items:
+                  x-stoplight:
+                    id: 9wdgspthmxvhf
+                  type: integer
             required:
               - project
               - testType

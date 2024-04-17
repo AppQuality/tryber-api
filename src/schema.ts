@@ -992,6 +992,7 @@ export interface components {
           };
           countries?: components["schemas"]["CountryCode"][];
           languages?: number[];
+          browsers?: number[];
         };
       };
     };

@@ -73,6 +73,10 @@ describe("Route POST /dossiers", () => {
         id: 1,
         name: "Test Browser",
       },
+      {
+        id: 2,
+        name: "Other Browser",
+      },
     ]);
 
     await tryber.tables.WpAppqLang.do().insert([
@@ -619,6 +623,33 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.body.languages[0]).toEqual({
       id: 1,
       name: "Test Language",
+    });
+  });
+
+  it("Should save the browsers in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        browsers: [1],
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const getResponse = await request(app)
+      .get(`/dossiers/${id}`)
+      .set("authorization", "Bearer admin");
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toHaveProperty("browsers");
+    expect(getResponse.body.browsers).toHaveLength(1);
+    expect(getResponse.body.browsers[0]).toEqual({
+      id: 1,
+      name: "Test Browser",
     });
   });
 });

@@ -154,6 +154,17 @@ export default class RouteItem extends AdminRoute<{
         }))
       );
     }
+
+    const browsers = this.getBody().browsers;
+    if (browsers) {
+      await tryber.tables.CampaignDossierDataBrowsers.do().insert(
+        browsers.map((browser) => ({
+          campaign_dossier_data_id: dossierId,
+          browser_id: browser,
+        }))
+      );
+    }
+
     return campaignId;
   }
 
