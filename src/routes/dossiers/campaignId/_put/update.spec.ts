@@ -78,6 +78,11 @@ describe("Route POST /dossiers", () => {
       { id: 1, display_name: "Test Language", lang_code: "TL" },
       { id: 2, display_name: "Other Language", lang_code: "OL" },
     ]);
+
+    await tryber.tables.Browsers.do().insert([
+      { id: 1, name: "Test Browser" },
+      { id: 2, name: "Other Browser" },
+    ]);
   });
 
   afterAll(async () => {
@@ -87,6 +92,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.WpAppqEvdPlatform.do().delete();
     await tryber.tables.WpAppqEvdProfile.do().delete();
     await tryber.tables.WpAppqLang.do().delete();
+    await tryber.tables.Browsers.do().delete();
   });
 
   beforeEach(async () => {
@@ -112,6 +118,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.CampaignDossierData.do().delete();
     await tryber.tables.CampaignDossierDataCountries.do().delete();
     await tryber.tables.CampaignDossierDataLanguages.do().delete();
+    await tryber.tables.CampaignDossierDataBrowsers.do().delete();
   });
 
   it("Should update the campaign to be linked to the specified project", async () => {
@@ -375,6 +382,9 @@ describe("Route POST /dossiers", () => {
       await tryber.tables.CampaignDossierDataLanguages.do().insert([
         { campaign_dossier_data_id: 1, language_id: 2 },
       ]);
+      await tryber.tables.CampaignDossierDataBrowsers.do().insert([
+        { campaign_dossier_data_id: 1, browser_id: 2 },
+      ]);
     });
 
     it("Should save description in the dossier data", async () => {
@@ -557,6 +567,28 @@ describe("Route POST /dossiers", () => {
       expect(responseGet.body.languages[0]).toEqual({
         id: 1,
         name: "Test Language",
+      });
+    });
+
+    it("Should update the browsers in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          browsers: [1],
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      console.log(responseGet.body);
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("browsers");
+      expect(responseGet.body.browsers).toHaveLength(1);
+      expect(responseGet.body.browsers[0]).toEqual({
+        id: 1,
+        name: "Test Browser",
       });
     });
   });
