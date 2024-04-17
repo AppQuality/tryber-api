@@ -133,6 +133,7 @@ export default class RouteItem extends AdminRoute<{
     await this.updateCampaignDossierData();
 
     await this.updateCampaignDossierDataCountries();
+    await this.updateCampaignDossierDataLanguages();
   }
 
   private async updateCampaignDossierData() {
@@ -191,6 +192,31 @@ export default class RouteItem extends AdminRoute<{
       countries.map((country) => ({
         campaign_dossier_data_id: dossierId,
         country_code: country,
+      }))
+    );
+  }
+
+  private async updateCampaignDossierDataLanguages() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataLanguages.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const languages = this.getBody().languages;
+    if (!languages) return;
+
+    await tryber.tables.CampaignDossierDataLanguages.do().insert(
+      languages.map((lang) => ({
+        campaign_dossier_data_id: dossierId,
+        language_id: lang,
       }))
     );
   }

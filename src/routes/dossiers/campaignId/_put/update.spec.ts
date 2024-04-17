@@ -73,6 +73,11 @@ describe("Route POST /dossiers", () => {
       education_id: 1,
       employment_id: 1,
     });
+
+    await tryber.tables.WpAppqLang.do().insert([
+      { id: 1, display_name: "Test Language", lang_code: "TL" },
+      { id: 2, display_name: "Other Language", lang_code: "OL" },
+    ]);
   });
 
   afterAll(async () => {
@@ -81,6 +86,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqEvdPlatform.do().delete();
     await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.WpAppqLang.do().delete();
   });
 
   beforeEach(async () => {
@@ -105,6 +111,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.CampaignDossierData.do().delete();
     await tryber.tables.CampaignDossierDataCountries.do().delete();
+    await tryber.tables.CampaignDossierDataLanguages.do().delete();
   });
 
   it("Should update the campaign to be linked to the specified project", async () => {
@@ -364,6 +371,10 @@ describe("Route POST /dossiers", () => {
         { campaign_dossier_data_id: 1, country_code: "US" },
         { campaign_dossier_data_id: 1, country_code: "GB" },
       ]);
+
+      await tryber.tables.CampaignDossierDataLanguages.do().insert([
+        { campaign_dossier_data_id: 1, language_id: 2 },
+      ]);
     });
 
     it("Should save description in the dossier data", async () => {
@@ -526,6 +537,27 @@ describe("Route POST /dossiers", () => {
       console.log(responseGet.body);
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("countries", ["DE", "FR"]);
+    });
+    it("Should update the languages in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          languages: [1],
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      console.log(responseGet.body);
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("languages");
+      expect(responseGet.body.languages).toHaveLength(1);
+      expect(responseGet.body.languages[0]).toEqual({
+        id: 1,
+        name: "Test Language",
+      });
     });
   });
 
