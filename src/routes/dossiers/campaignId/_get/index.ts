@@ -133,12 +133,25 @@ export default class RouteItem extends AdminRoute<{
           .where("campaign_dossier_data_id", dossierData.id)
       : [];
 
+    const targetLanguages = dossierData
+      ? await tryber.tables.CampaignDossierDataLanguages.do()
+          .join(
+            "wp_appq_lang",
+            "wp_appq_lang.id",
+            "campaign_dossier_data_languages.language_id"
+          )
+          .select("language_id")
+          .select("display_name")
+          .where("campaign_dossier_data_id", dossierData.id)
+      : [];
+
     return {
       ...campaign,
       devices,
       roles,
       ...dossierData,
       countries: targetCountries,
+      languages: targetLanguages,
     };
   }
 
@@ -237,6 +250,12 @@ export default class RouteItem extends AdminRoute<{
         }),
         ...(this.campaign.countries.length > 0 && {
           countries: this.campaign.countries?.map((item) => item.country_code),
+        }),
+        ...(this.campaign.languages.length > 0 && {
+          languages: this.campaign.languages?.map((item) => ({
+            id: item.language_id,
+            name: item.display_name,
+          })),
         }),
       });
     } catch (e) {

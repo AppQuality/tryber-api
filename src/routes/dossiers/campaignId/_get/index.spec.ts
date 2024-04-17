@@ -273,10 +273,36 @@ describe("Route GET /dossiers/:id", () => {
           country_code: "FR",
         },
       ]);
+
+      await tryber.tables.WpAppqLang.do().insert([
+        {
+          id: 1,
+          display_name: "English",
+          lang_code: "en",
+        },
+        {
+          id: 2,
+          display_name: "Italiano",
+          lang_code: "it",
+        },
+      ]);
+
+      await tryber.tables.CampaignDossierDataLanguages.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          language_id: 1,
+        },
+        {
+          campaign_dossier_data_id: 1,
+          language_id: 2,
+        },
+      ]);
     });
     afterAll(async () => {
       await tryber.tables.CampaignDossierData.do().delete();
       await tryber.tables.CampaignDossierDataCountries.do().delete();
+      await tryber.tables.WpAppqLang.do().delete();
+      await tryber.tables.CampaignDossierDataLanguages.do().delete();
     });
 
     it("Should return description", async () => {
@@ -365,6 +391,25 @@ describe("Route GET /dossiers/:id", () => {
       expect(response.body.countries).toHaveLength(2);
       expect(response.body.countries).toContainEqual("IT");
       expect(response.body.countries).toContainEqual("FR");
+    });
+
+    it("Should return languages", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("languages");
+      expect(response.body.languages).toHaveLength(2);
+      expect(response.body.languages).toEqual(
+        expect.arrayContaining([
+          { id: 1, name: "English" },
+          {
+            id: 2,
+            name: "Italiano",
+          },
+        ])
+      );
     });
   });
 });

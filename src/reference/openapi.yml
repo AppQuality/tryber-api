@@ -9747,8 +9747,6 @@ paths:
                     format: date-time
                   closeDate:
                     type: string
-                    x-stoplight:
-                      id: mp8bnj3euw39d
                     format: date-time
                   customer:
                     type: object
@@ -9832,45 +9830,47 @@ paths:
                             - surname
                   description:
                     type: string
-                    x-stoplight:
-                      id: e55a4kaaqxzc4
                   productLink:
                     type: string
-                    x-stoplight:
-                      id: ihnf5pfqcbnrp
                   goal:
                     type: string
-                    x-stoplight:
-                      id: g7fiqpdar1bhx
                   outOfScope:
                     type: string
-                    x-stoplight:
-                      id: q66k7i338p3lw
                   deviceRequirements:
                     type: string
-                    x-stoplight:
-                      id: 8eu3oh67c7syn
                   target:
                     type: object
-                    x-stoplight:
-                      id: nkwxna1rbyfw7
                     properties:
                       notes:
                         type: string
-                        x-stoplight:
-                          id: kygk3ckinhe7d
                       size:
                         type: integer
-                        x-stoplight:
-                          id: k8ujpmeef31mm
                   countries:
                     type: array
-                    x-stoplight:
-                      id: 448rwgcretrl4
                     minItems: 1
                     uniqueItems: true
                     items:
                       $ref: '#/components/schemas/CountryCode'
+                  languages:
+                    type: array
+                    x-stoplight:
+                      id: vnqv4spymw4ki
+                    items:
+                      x-stoplight:
+                        id: 3vr40snkowkto
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: oshj1a0l38q2h
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: w3yg9dpyxvdpg
+                      required:
+                        - id
+                        - name
                 required:
                   - id
                   - title
@@ -10766,8 +10766,6 @@ components:
         - done
     CountryCode:
       title: CountryCode
-      x-stoplight:
-        id: x86hxduj44bgg
       type: string
       pattern: '^[A-Z][A-Z]$'
       minLength: 2
@@ -11112,8 +11110,6 @@ components:
                 format: date-time
               closeDate:
                 type: string
-                x-stoplight:
-                  id: l1vu2chddov3z
                 format: date-time
               deviceList:
                 type: array
@@ -11135,41 +11131,23 @@ components:
                     - user
               description:
                 type: string
-                x-stoplight:
-                  id: 5237eb5d7mjxw
               productLink:
                 type: string
-                x-stoplight:
-                  id: ge2phxp9frlfs
               goal:
                 type: string
-                x-stoplight:
-                  id: m6wtldsyldnwd
               outOfScope:
                 type: string
-                x-stoplight:
-                  id: y1anp1f44yn2f
               deviceRequirements:
                 type: string
-                x-stoplight:
-                  id: kxkdwki5e9avj
               target:
                 type: object
-                x-stoplight:
-                  id: 0qyk7cajxn49d
                 properties:
                   notes:
                     type: string
-                    x-stoplight:
-                      id: ljeltiy85uev6
                   size:
                     type: integer
-                    x-stoplight:
-                      id: s7yed3nl526j0
               countries:
                 type: array
-                x-stoplight:
-                  id: yej50odkd75wa
                 items:
                   $ref: '#/components/schemas/CountryCode'
             required:
