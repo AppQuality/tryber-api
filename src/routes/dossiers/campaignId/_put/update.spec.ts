@@ -64,6 +64,15 @@ describe("Route POST /dossiers", () => {
         architecture: 1,
       },
     ]);
+
+    await tryber.tables.WpAppqEvdProfile.do().insert({
+      id: 1,
+      wp_user_id: 1,
+      name: "Test User",
+      email: "",
+      education_id: 1,
+      employment_id: 1,
+    });
   });
 
   afterAll(async () => {
@@ -71,6 +80,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqEvdPlatform.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
   beforeEach(async () => {
@@ -94,6 +104,7 @@ describe("Route POST /dossiers", () => {
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.CampaignDossierData.do().delete();
+    await tryber.tables.CampaignDossierDataCountries.do().delete();
   });
 
   it("Should update the campaign to be linked to the specified project", async () => {
@@ -336,6 +347,7 @@ describe("Route POST /dossiers", () => {
   describe("With dossier data", () => {
     beforeEach(async () => {
       await tryber.tables.CampaignDossierData.do().insert({
+        id: 1,
         campaign_id: 1,
         description: "Original description",
         link: "Original link",
@@ -347,6 +359,11 @@ describe("Route POST /dossiers", () => {
         created_by: 100,
         updated_by: 100,
       });
+
+      await tryber.tables.CampaignDossierDataCountries.do().insert([
+        { campaign_dossier_data_id: 1, country_code: "US" },
+        { campaign_dossier_data_id: 1, country_code: "GB" },
+      ]);
     });
 
     it("Should save description in the dossier data", async () => {
@@ -492,6 +509,23 @@ describe("Route POST /dossiers", () => {
       expect(dossierData).toHaveLength(1);
       expect(dossierData[0]).toHaveProperty("created_by", 100);
       expect(dossierData[0]).toHaveProperty("updated_by", 1);
+    });
+
+    it("Should update the countries in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          countries: ["DE", "FR"],
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      console.log(responseGet.body);
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("countries", ["DE", "FR"]);
     });
   });
 

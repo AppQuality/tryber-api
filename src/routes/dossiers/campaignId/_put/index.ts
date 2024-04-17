@@ -131,6 +131,8 @@ export default class RouteItem extends AdminRoute<{
     await this.linkRolesToCampaign();
 
     await this.updateCampaignDossierData();
+
+    await this.updateCampaignDossierDataCountries();
   }
 
   private async updateCampaignDossierData() {
@@ -166,6 +168,31 @@ export default class RouteItem extends AdminRoute<{
       .where({
         campaign_id: this.campaignId,
       });
+  }
+
+  private async updateCampaignDossierDataCountries() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataCountries.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const countries = this.getBody().countries;
+    if (!countries) return;
+
+    await tryber.tables.CampaignDossierDataCountries.do().insert(
+      countries.map((country) => ({
+        campaign_dossier_data_id: dossierId,
+        country_code: country,
+      }))
+    );
   }
 
   private async linkRolesToCampaign() {
