@@ -164,6 +164,7 @@ export default class RouteItem extends AdminRoute<{
         ...(this.getBody().target?.size && {
           target_size: this.getBody().target?.size,
         }),
+        product_type_id: this.getBody().productType,
         target_devices: this.getBody().deviceRequirements,
         updated_by: this.getTesterId(),
       })

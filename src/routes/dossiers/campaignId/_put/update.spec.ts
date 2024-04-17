@@ -83,6 +83,11 @@ describe("Route POST /dossiers", () => {
       { id: 1, name: "Test Browser" },
       { id: 2, name: "Other Browser" },
     ]);
+
+    await tryber.tables.ProductTypes.do().insert([
+      { id: 1, name: "Test Product" },
+      { id: 2, name: "Other Product" },
+    ]);
   });
 
   afterAll(async () => {
@@ -93,6 +98,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
     await tryber.tables.WpAppqLang.do().delete();
     await tryber.tables.Browsers.do().delete();
+    await tryber.tables.ProductTypes.do().delete();
   });
 
   beforeEach(async () => {
@@ -370,6 +376,7 @@ describe("Route POST /dossiers", () => {
         target_audience: "Original target audience",
         target_size: 0,
         target_devices: "Original target devices",
+        product_type_id: 2,
         created_by: 100,
         updated_by: 100,
       });
@@ -582,13 +589,31 @@ describe("Route POST /dossiers", () => {
       const responseGet = await request(app)
         .get("/dossiers/1")
         .set("authorization", "Bearer admin");
-      console.log(responseGet.body);
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("browsers");
       expect(responseGet.body.browsers).toHaveLength(1);
       expect(responseGet.body.browsers[0]).toEqual({
         id: 1,
         name: "Test Browser",
+      });
+    });
+    it("Should update the product type in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          productType: 1,
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("productType");
+      expect(responseGet.body.productType).toEqual({
+        id: 1,
+        name: "Test Product",
       });
     });
   });
