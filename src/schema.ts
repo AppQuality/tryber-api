@@ -4206,9 +4206,6 @@ export interface operations {
         };
       };
     };
-    requestBody: {
-      unknown;
-    };
   };
   "get-browsers": {
     responses: {

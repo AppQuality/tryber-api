@@ -10030,8 +10030,6 @@ paths:
       operationId: get-users-by-role-role
       security:
         - JWT: []
-      requestBody:
-        content: {}
     parameters:
       - schema:
           type: string
