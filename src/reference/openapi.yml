@@ -9871,6 +9871,42 @@ paths:
                       required:
                         - id
                         - name
+                  browsers:
+                    type: array
+                    x-stoplight:
+                      id: drm3b91p7l2h0
+                    items:
+                      x-stoplight:
+                        id: 58z8i5w06gdi6
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: 12u8hxpxa3kvp
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: lpgpv16kv5okp
+                      required:
+                        - id
+                        - name
+                  productType:
+                    type: object
+                    x-stoplight:
+                      id: w34jw9gfix4od
+                    properties:
+                      id:
+                        type: number
+                        x-stoplight:
+                          id: pxc44zqtp5bot
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: ygrkmgv5bib6y
+                    required:
+                      - id
+                      - name
                 required:
                   - id
                   - title
@@ -11167,21 +11203,9 @@ components:
                     id: 9wdgspthmxvhf
                   type: integer
               productType:
-                type: object
+                type: integer
                 x-stoplight:
                   id: ilm9662wwxef3
-                properties:
-                  id:
-                    type: number
-                    x-stoplight:
-                      id: q3394bji4ff1c
-                  name:
-                    type: string
-                    x-stoplight:
-                      id: yv6aysf3arzxa
-                required:
-                  - id
-                  - name
             required:
               - project
               - testType

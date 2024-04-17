@@ -993,6 +993,7 @@ export interface components {
           countries?: components["schemas"]["CountryCode"][];
           languages?: number[];
           browsers?: number[];
+          productType?: number;
         };
       };
     };
@@ -4120,6 +4121,14 @@ export interface operations {
               id: number;
               name: string;
             }[];
+            browsers?: {
+              id: number;
+              name: string;
+            }[];
+            productType?: {
+              id: number;
+              name: string;
+            };
           };
         };
       };

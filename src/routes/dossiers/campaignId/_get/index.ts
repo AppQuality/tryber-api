@@ -126,7 +126,7 @@ export default class RouteItem extends AdminRoute<{
         "product_type_id",
         tryber.ref("name").withSchema("product_types").as("product_type_name")
       )
-      .join(
+      .leftJoin(
         "product_types",
         "product_types.id",
         "campaign_dossier_data.product_type_id"

@@ -66,6 +66,10 @@ describe("Route POST /dossiers", () => {
         id: 1,
         name: "App",
       },
+      {
+        id: 2,
+        name: "Web",
+      },
     ]);
 
     await tryber.tables.Browsers.do().insert([
@@ -650,6 +654,31 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.body.browsers[0]).toEqual({
       id: 1,
       name: "Test Browser",
+    });
+  });
+  it("Should save the product type in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        productType: 1,
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const getResponse = await request(app)
+      .get(`/dossiers/${id}`)
+      .set("authorization", "Bearer admin");
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toHaveProperty("productType");
+    expect(getResponse.body.productType).toEqual({
+      id: 1,
+      name: "App",
     });
   });
 });
