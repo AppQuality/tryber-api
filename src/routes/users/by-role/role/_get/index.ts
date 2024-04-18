@@ -69,7 +69,12 @@ export default class Route extends UserRoute<{
 
     const results = users
       .filter((user) => {
-        const value = PHPUnserialize.unserialize(user.meta_value);
+        let value;
+        try {
+          value = PHPUnserialize.unserialize(user.meta_value);
+        } catch (error) {
+          throw new Error(`Error unserializing ${user.meta_value}`);
+        }
         if (!value) return false;
         if (typeof value !== "object") return false;
 
@@ -99,16 +104,21 @@ export default class Route extends UserRoute<{
 
       if (!roles) return [];
 
-      const value = Object.entries(
-        PHPUnserialize.unserialize(roles.option_value)
-      )
+      let value;
+      try {
+        value = PHPUnserialize.unserialize(roles.option_value);
+      } catch (error) {
+        throw new Error(`Error unserializing ${roles.option_value}`);
+      }
+
+      const results = Object.entries(value)
         .filter(([, value]) => {
           return Object.keys(
             (value as { capabilities: Record<string, boolean> }).capabilities
           ).includes("wp_admin_visibility");
         })
         .map(([key]) => key);
-      return value;
+      return results;
     } catch (error) {
       return [];
     }
