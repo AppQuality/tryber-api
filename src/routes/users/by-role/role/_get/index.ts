@@ -59,11 +59,14 @@ export default class Route extends UserRoute<{
       )
       .where({
         meta_key: "wp_capabilities",
+      })
+      .andWhere((query) => {
+        for (const role of roles) {
+          query.orWhereLike("meta_value", `%${role}%`);
+        }
       });
 
-    for (const role of roles) {
-      query.orWhereLike("meta_value", `%${role}%`);
-    }
+    console.log(query.toString());
 
     const users = await query;
 
