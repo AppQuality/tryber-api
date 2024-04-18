@@ -10037,6 +10037,7 @@ paths:
             - tester_lead
             - quality_leader
             - ux_researcher
+            - assistants
         name: role
         in: path
         required: true

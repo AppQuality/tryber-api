@@ -566,7 +566,7 @@ export interface paths {
     get: operations["get-users-by-role-role"];
     parameters: {
       path: {
-        role: "tester_lead" | "quality_leader" | "ux_researcher";
+        role: "tester_lead" | "quality_leader" | "ux_researcher" | "assistants";
       };
     };
   };
@@ -4189,7 +4189,7 @@ export interface operations {
   "get-users-by-role-role": {
     parameters: {
       path: {
-        role: "tester_lead" | "quality_leader" | "ux_researcher";
+        role: "tester_lead" | "quality_leader" | "ux_researcher" | "assistants";
       };
     };
     responses: {

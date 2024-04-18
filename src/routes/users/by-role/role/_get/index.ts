@@ -34,6 +34,87 @@ export default class Route extends UserRoute<{
   }
 
   protected async prepare() {
+    const results =
+      this.roleName === "assistants"
+        ? await this.getAssistants()
+        : await this.getUsersByRole();
+
+    this.setSuccess(200, {
+      results,
+    });
+  }
+
+  private async getAssistants() {
+    const roles = [
+      ...(await this.getRolesWithVisibility()),
+      "wp_admin_visibility",
+    ];
+
+    const query = tryber.tables.WpUsermeta.do()
+      .select("id", "name", "surname", "meta_value")
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_usermeta.user_id"
+      )
+      .where({
+        meta_key: "wp_capabilities",
+      });
+
+    for (const role of roles) {
+      query.orWhereLike("meta_value", `%${role}%`);
+    }
+
+    const users = await query;
+
+    const results = users
+      .filter((user) => {
+        const value = PHPUnserialize.unserialize(user.meta_value);
+        if (!value) return false;
+        if (typeof value !== "object") return false;
+
+        return Object.keys(value).some((key) => {
+          return roles.includes(key);
+        });
+      })
+      .map((user) => {
+        return {
+          id: user.id,
+          name: user.name,
+          surname: user.surname,
+        };
+      });
+
+    return results;
+  }
+
+  private async getRolesWithVisibility() {
+    try {
+      const roles = await tryber.tables.WpOptions.do()
+        .select("option_value")
+        .where({
+          option_name: "wp_user_roles",
+        })
+        .first();
+
+      if (!roles) return [];
+
+      const value = Object.entries(
+        PHPUnserialize.unserialize(roles.option_value)
+      )
+        .filter(([, value]) => {
+          return Object.keys(
+            (value as { capabilities: Record<string, boolean> }).capabilities
+          ).includes("wp_admin_visibility");
+        })
+        .map(([key]) => key);
+      return value;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  private async getUsersByRole() {
     const users = await tryber.tables.WpUsermeta.do()
       .select("id", "name", "surname", "meta_value")
       .join(
@@ -62,8 +143,6 @@ export default class Route extends UserRoute<{
         };
       });
 
-    this.setSuccess(200, {
-      results,
-    });
+    return results;
   }
 }
