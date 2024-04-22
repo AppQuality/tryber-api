@@ -9745,6 +9745,9 @@ paths:
                   endDate:
                     type: string
                     format: date-time
+                  closeDate:
+                    type: string
+                    format: date-time
                   customer:
                     type: object
                     required:
@@ -9825,11 +9828,91 @@ paths:
                             - id
                             - name
                             - surname
+                  description:
+                    type: string
+                  productLink:
+                    type: string
+                  goal:
+                    type: string
+                  outOfScope:
+                    type: string
+                  deviceRequirements:
+                    type: string
+                  target:
+                    type: object
+                    properties:
+                      notes:
+                        type: string
+                      size:
+                        type: integer
+                  countries:
+                    type: array
+                    minItems: 1
+                    uniqueItems: true
+                    items:
+                      $ref: '#/components/schemas/CountryCode'
+                  languages:
+                    type: array
+                    x-stoplight:
+                      id: vnqv4spymw4ki
+                    items:
+                      x-stoplight:
+                        id: 3vr40snkowkto
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: oshj1a0l38q2h
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: w3yg9dpyxvdpg
+                      required:
+                        - id
+                        - name
+                  browsers:
+                    type: array
+                    x-stoplight:
+                      id: drm3b91p7l2h0
+                    items:
+                      x-stoplight:
+                        id: 58z8i5w06gdi6
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: 12u8hxpxa3kvp
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: lpgpv16kv5okp
+                      required:
+                        - id
+                        - name
+                  productType:
+                    type: object
+                    x-stoplight:
+                      id: w34jw9gfix4od
+                    properties:
+                      id:
+                        type: number
+                        x-stoplight:
+                          id: pxc44zqtp5bot
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: ygrkmgv5bib6y
+                    required:
+                      - id
+                      - name
                 required:
                   - id
                   - title
                   - startDate
                   - endDate
+                  - closeDate
                   - customer
                   - project
                   - testType
@@ -10717,6 +10800,12 @@ components:
         - draft
         - confirmed
         - done
+    CountryCode:
+      title: CountryCode
+      type: string
+      pattern: '^[A-Z][A-Z]$'
+      minLength: 2
+      maxLength: 2
   securitySchemes:
     JWT:
       type: http
@@ -11051,8 +11140,13 @@ components:
                     type: string
               startDate:
                 type: string
+                format: date-time
               endDate:
                 type: string
+                format: date-time
+              closeDate:
+                type: string
+                format: date-time
               deviceList:
                 type: array
                 items:
@@ -11071,6 +11165,47 @@ components:
                   required:
                     - role
                     - user
+              description:
+                type: string
+              productLink:
+                type: string
+              goal:
+                type: string
+              outOfScope:
+                type: string
+              deviceRequirements:
+                type: string
+              target:
+                type: object
+                properties:
+                  notes:
+                    type: string
+                  size:
+                    type: integer
+              countries:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CountryCode'
+              languages:
+                type: array
+                x-stoplight:
+                  id: dy0yofmqy4ayn
+                items:
+                  x-stoplight:
+                    id: bko78gf0sdhjz
+                  type: integer
+              browsers:
+                type: array
+                x-stoplight:
+                  id: jc5nfd988spfc
+                items:
+                  x-stoplight:
+                    id: 9wdgspthmxvhf
+                  type: integer
+              productType:
+                type: integer
+                x-stoplight:
+                  id: ilm9662wwxef3
             required:
               - project
               - testType

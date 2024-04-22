@@ -62,6 +62,7 @@ describe("Route GET /dossiers/:id", () => {
       customer_title: "Test Customer Campaign",
       start_date: "2019-08-24T14:15:22Z",
       end_date: "2019-08-24T14:15:22Z",
+      close_date: "2019-08-27T14:15:22Z",
       platform_id: 0,
       os: "1",
       page_manual_id: 0,
@@ -188,6 +189,14 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("endDate", "2019-08-24T14:15:22Z");
   });
+  it("Should return the close date", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("closeDate", "2019-08-27T14:15:22Z");
+  });
 
   it("Should return the device list", async () => {
     const response = await request(app)
@@ -237,5 +246,235 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.body.roles[0].user).toHaveProperty("id", 2);
     expect(response.body.roles[0].user).toHaveProperty("name", "Test");
     expect(response.body.roles[0].user).toHaveProperty("surname", "PM");
+  });
+
+  describe("With dossier data", () => {
+    beforeAll(async () => {
+      await tryber.tables.CampaignDossierData.do().insert({
+        id: 1,
+        campaign_id: 1,
+        description: "Original description",
+        link: "Original link",
+        goal: "Original goal",
+        out_of_scope: "Original out of scope",
+        target_audience: "Original target audience",
+        target_size: 7,
+        target_devices: "Original target devices",
+        created_by: 100,
+        updated_by: 100,
+        product_type_id: 1,
+      });
+      await tryber.tables.CampaignDossierDataCountries.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          country_code: "IT",
+        },
+        {
+          campaign_dossier_data_id: 1,
+          country_code: "FR",
+        },
+      ]);
+
+      await tryber.tables.WpAppqLang.do().insert([
+        {
+          id: 1,
+          display_name: "English",
+          lang_code: "en",
+        },
+        {
+          id: 2,
+          display_name: "Italiano",
+          lang_code: "it",
+        },
+      ]);
+
+      await tryber.tables.CampaignDossierDataLanguages.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          language_id: 1,
+        },
+        {
+          campaign_dossier_data_id: 1,
+          language_id: 2,
+        },
+      ]);
+
+      await tryber.tables.Browsers.do().insert([
+        {
+          id: 1,
+          name: "Chrome",
+        },
+        {
+          id: 2,
+          name: "Edge",
+        },
+      ]);
+
+      await tryber.tables.CampaignDossierDataBrowsers.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          browser_id: 1,
+        },
+        {
+          campaign_dossier_data_id: 1,
+          browser_id: 2,
+        },
+      ]);
+
+      await tryber.tables.ProductTypes.do().insert([
+        {
+          id: 1,
+          name: "Test Product",
+        },
+        {
+          id: 2,
+          name: "Another Product",
+        },
+      ]);
+    });
+    afterAll(async () => {
+      await tryber.tables.CampaignDossierData.do().delete();
+      await tryber.tables.CampaignDossierDataCountries.do().delete();
+      await tryber.tables.WpAppqLang.do().delete();
+      await tryber.tables.CampaignDossierDataLanguages.do().delete();
+      await tryber.tables.Browsers.do().delete();
+      await tryber.tables.CampaignDossierDataBrowsers.do().delete();
+      await tryber.tables.ProductTypes.do().delete();
+    });
+
+    it("Should return description", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "description",
+        "Original description"
+      );
+    });
+
+    it("Should return link", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("productLink", "Original link");
+    });
+
+    it("Should return goal", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("goal", "Original goal");
+    });
+
+    it("Should return out of scope", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "outOfScope",
+        "Original out of scope"
+      );
+    });
+
+    it("Should return target audience", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "target",
+        expect.objectContaining({ notes: "Original target audience" })
+      );
+    });
+
+    it("Should return target size", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("target");
+      expect(response.body.target).toHaveProperty("size", 7);
+    });
+
+    it("Should return devices requirements", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "deviceRequirements",
+        "Original target devices"
+      );
+    });
+
+    it("Should return countries", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("countries");
+      expect(response.body.countries).toHaveLength(2);
+      expect(response.body.countries).toContainEqual("IT");
+      expect(response.body.countries).toContainEqual("FR");
+    });
+
+    it("Should return languages", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("languages");
+      expect(response.body.languages).toHaveLength(2);
+      expect(response.body.languages).toEqual(
+        expect.arrayContaining([
+          { id: 1, name: "English" },
+          {
+            id: 2,
+            name: "Italiano",
+          },
+        ])
+      );
+    });
+    it("Should return browsers", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("browsers");
+      expect(response.body.browsers).toHaveLength(2);
+      expect(response.body.browsers).toEqual(
+        expect.arrayContaining([
+          { id: 1, name: "Chrome" },
+          {
+            id: 2,
+            name: "Edge",
+          },
+        ])
+      );
+    });
+    it("Should return product type", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("productType");
+      expect(response.body.productType).toHaveProperty("id", 1);
+      expect(response.body.productType).toHaveProperty("name", "Test Product");
+    });
   });
 });

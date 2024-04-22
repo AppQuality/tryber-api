@@ -31,6 +31,7 @@ export default class RouteItem extends AdminRoute<{
       .select(
         tryber.fn.charDate("start_date"),
         tryber.fn.charDate("end_date"),
+        tryber.fn.charDate("close_date"),
         tryber.ref("id").withSchema("wp_appq_evd_campaign"),
         "title",
         "customer_title",
@@ -112,7 +113,66 @@ export default class RouteItem extends AdminRoute<{
       )
       .where("campaign_custom_roles.campaign_id", this.campaignId);
 
-    return { ...campaign, devices, roles };
+    const dossierData = await tryber.tables.CampaignDossierData.do()
+      .select(
+        tryber.ref("id").withSchema("campaign_dossier_data"),
+        "description",
+        "link",
+        "goal",
+        "out_of_scope",
+        "target_audience",
+        "target_size",
+        "target_devices",
+        "product_type_id",
+        tryber.ref("name").withSchema("product_types").as("product_type_name")
+      )
+      .leftJoin(
+        "product_types",
+        "product_types.id",
+        "campaign_dossier_data.product_type_id"
+      )
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    const targetCountries = dossierData
+      ? await tryber.tables.CampaignDossierDataCountries.do()
+          .select("country_code")
+          .where("campaign_dossier_data_id", dossierData.id)
+      : [];
+
+    const targetLanguages = dossierData
+      ? await tryber.tables.CampaignDossierDataLanguages.do()
+          .join(
+            "wp_appq_lang",
+            "wp_appq_lang.id",
+            "campaign_dossier_data_languages.language_id"
+          )
+          .select("language_id")
+          .select("display_name")
+          .where("campaign_dossier_data_id", dossierData.id)
+      : [];
+
+    const targetBrowsers = dossierData
+      ? await tryber.tables.CampaignDossierDataBrowsers.do()
+          .join(
+            "browsers",
+            "browsers.id",
+            "campaign_dossier_data_browsers.browser_id"
+          )
+          .select("browser_id")
+          .select("name")
+          .where("campaign_dossier_data_id", dossierData.id)
+      : [];
+
+    return {
+      ...campaign,
+      devices,
+      roles,
+      ...dossierData,
+      countries: targetCountries,
+      languages: targetLanguages,
+      browsers: targetBrowsers,
+    };
   }
 
   get campaign() {
@@ -141,7 +201,6 @@ export default class RouteItem extends AdminRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    console.log(this.campaign.start_date);
     try {
       this.setSuccess(200, {
         id: this.campaign.id,
@@ -163,6 +222,7 @@ export default class RouteItem extends AdminRoute<{
         },
         startDate: this.formatDate(this.campaign.start_date),
         endDate: this.formatDate(this.campaign.end_date),
+        closeDate: this.formatDate(this.campaign.close_date),
         deviceList: this.campaign.devices,
         csm: {
           id: this.campaign.pm_id,
@@ -185,6 +245,52 @@ export default class RouteItem extends AdminRoute<{
               }),
             }
           : {}),
+        ...(this.campaign.description && {
+          description: this.campaign.description,
+        }),
+        productLink: this.campaign.link,
+        ...(this.campaign.goal && {
+          goal: this.campaign.goal,
+        }),
+        ...(this.campaign.out_of_scope && {
+          outOfScope: this.campaign.out_of_scope,
+        }),
+        ...((this.campaign.target_audience || this.campaign.target_size) && {
+          target: {
+            ...(this.campaign.target_audience && {
+              notes: this.campaign.target_audience,
+            }),
+            ...(this.campaign.target_size && {
+              size: this.campaign.target_size,
+            }),
+          },
+        }),
+        ...(this.campaign.target_devices && {
+          deviceRequirements: this.campaign.target_devices,
+        }),
+        ...(this.campaign.countries.length > 0 && {
+          countries: this.campaign.countries?.map((item) => item.country_code),
+        }),
+        ...(this.campaign.languages.length > 0 && {
+          languages: this.campaign.languages?.map((item) => ({
+            id: item.language_id,
+            name: item.display_name,
+          })),
+        }),
+        ...(this.campaign.browsers.length > 0 && {
+          browsers: this.campaign.browsers?.map((item) => ({
+            id: item.browser_id,
+            name: item.name,
+          })),
+        }),
+
+        ...(this.campaign.product_type_id &&
+          this.campaign.product_type_name && {
+            productType: {
+              id: this.campaign.product_type_id,
+              name: this.campaign.product_type_name,
+            },
+          }),
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
