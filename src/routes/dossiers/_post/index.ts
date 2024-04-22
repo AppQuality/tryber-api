@@ -335,11 +335,6 @@ export default class RouteItem extends AdminRoute<{
     });
 
     if (manualId) {
-      await this.copyTranslations({
-        pageId: page_manual_id,
-        campaignId: campaignId,
-      });
-
       await tryber.tables.WpAppqEvdCampaign.do().update({
         page_manual_id: manualId,
       });
@@ -351,14 +346,39 @@ export default class RouteItem extends AdminRoute<{
     });
 
     if (previewId) {
-      await this.copyTranslations({
-        pageId: page_preview_id,
-        campaignId: campaignId,
-      });
-
       await tryber.tables.WpAppqEvdCampaign.do().update({
         page_preview_id: previewId,
       });
+    }
+
+    if (manualId || previewId) {
+      const defaultLanguage = await this.getDefaultLanguage();
+      if (!defaultLanguage) return;
+      if (manualId) {
+        const parsedTranslations = await this.getPageTranslationIds({
+          pageId: page_manual_id,
+          defaultLanguage,
+        });
+        for (const t in parsedTranslations) {
+          await this.duplicatePage({
+            pageId: parsedTranslations[t],
+            campaignId,
+          });
+        }
+      }
+
+      if (previewId) {
+        const parsedTranslations = await this.getPageTranslationIds({
+          pageId: page_preview_id,
+          defaultLanguage,
+        });
+        for (const t in parsedTranslations) {
+          await this.duplicatePage({
+            pageId: parsedTranslations[t],
+            campaignId,
+          });
+        }
+      }
     }
   }
 
@@ -393,44 +413,46 @@ export default class RouteItem extends AdminRoute<{
       .select()
       .where("post_id", ID);
 
-    await tryber.tables.WpPostmeta.do().insert(
-      meta.map((metaItem) => {
-        const { meta_id, ...rest } = metaItem;
-        return {
-          ...rest,
-          post_id: newPage[0].ID ?? newPage[0],
-        };
-      })
-    );
+    if (meta.length) {
+      await tryber.tables.WpPostmeta.do().insert(
+        meta.map((metaItem) => {
+          const { meta_id, ...rest } = metaItem;
+          return {
+            ...rest,
+            post_id: newPage[0].ID ?? newPage[0],
+          };
+        })
+      );
+    }
 
     const newId = newPage[0].ID ?? newPage[0];
     return newId;
   }
 
-  private async copyTranslations({
-    pageId,
-    campaignId,
-  }: {
-    pageId: number;
-    campaignId: number;
-  }) {
-    if (!this.duplicate.pagesFrom) return;
-
+  private async getDefaultLanguage() {
     const polylangOptions = await tryber.tables.WpOptions.do()
       .select("option_value")
       .where("option_name", "polylang")
       .first();
 
-    if (!polylangOptions) return;
+    if (!polylangOptions) return false;
     let parsedOptions: { [key: string]: any } = {};
     try {
       parsedOptions = unserialize(polylangOptions.option_value);
     } catch (e) {
-      return;
+      return false;
     }
-    if (!("default_lang" in parsedOptions)) return;
-    const defaultLanguage = parsedOptions.default_lang;
+    if (!("default_lang" in parsedOptions)) return false;
+    return parsedOptions.default_lang;
+  }
 
+  private async getPageTranslationIds({
+    pageId,
+    defaultLanguage,
+  }: {
+    pageId: number;
+    defaultLanguage: string;
+  }) {
     const translations = await tryber.tables.WpTermRelationships.do()
       .select("object_id", "description")
       .join(
@@ -442,7 +464,7 @@ export default class RouteItem extends AdminRoute<{
       .where("taxonomy", "post_translations")
       .first();
 
-    if (!translations) return;
+    if (!translations) return {};
 
     let parsedTranslations: { [key: string]: any } = {};
     try {
@@ -450,42 +472,10 @@ export default class RouteItem extends AdminRoute<{
     } catch (e) {
       return;
     }
-    for (const t in parsedTranslations) {
-      if (t === defaultLanguage) continue;
 
-      const transPage = await tryber.tables.WpPosts.do()
-        .select()
-        .where("ID", parsedTranslations[t])
-        .first();
-
-      if (!transPage) continue;
-      const { ID, ...rest } = transPage;
-      const newTransPage = await tryber.tables.WpPosts.do()
-        .insert({
-          ...rest,
-          post_title: rest.post_title.replace(
-            this.duplicate.pagesFrom.toString(),
-            campaignId.toString()
-          ),
-        })
-        .returning("ID");
-
-      const transMeta = await tryber.tables.WpPostmeta.do()
-        .select()
-        .where("post_id", ID);
-
-      if (transMeta.length) {
-        await tryber.tables.WpPostmeta.do().insert(
-          transMeta.map((metaItem) => {
-            const { meta_id, ...rest } = metaItem;
-            return {
-              ...rest,
-              post_id: newTransPage[0].ID ?? newTransPage[0],
-            };
-          })
-        );
-      }
-    }
+    if (defaultLanguage in parsedTranslations)
+      delete parsedTranslations[defaultLanguage];
+    return parsedTranslations;
   }
 
   private async assignOlps(campaignId: number) {
