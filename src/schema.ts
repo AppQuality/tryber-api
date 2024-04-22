@@ -869,6 +869,8 @@ export interface components {
      * @enum {string}
      */
     ProspectStatus: "draft" | "confirmed" | "done";
+    /** CountryCode */
+    CountryCode: string;
   };
   responses: {
     /** A user */
@@ -967,14 +969,31 @@ export interface components {
             customer: string;
             tester?: string;
           };
+          /** Format: date-time */
           startDate: string;
+          /** Format: date-time */
           endDate?: string;
+          /** Format: date-time */
+          closeDate?: string;
           deviceList: number[];
           csm?: number;
           roles?: {
             role: number;
             user: number;
           }[];
+          description?: string;
+          productLink?: string;
+          goal?: string;
+          outOfScope?: string;
+          deviceRequirements?: string;
+          target?: {
+            notes?: string;
+            size?: number;
+          };
+          countries?: components["schemas"]["CountryCode"][];
+          languages?: number[];
+          browsers?: number[];
+          productType?: number;
         };
       };
     };
@@ -4055,6 +4074,8 @@ export interface operations {
             startDate: string;
             /** Format: date-time */
             endDate: string;
+            /** Format: date-time */
+            closeDate: string;
             customer: {
               id: number;
               name: string;
@@ -4086,6 +4107,28 @@ export interface operations {
                 surname: string;
               };
             }[];
+            description?: string;
+            productLink?: string;
+            goal?: string;
+            outOfScope?: string;
+            deviceRequirements?: string;
+            target?: {
+              notes?: string;
+              size?: number;
+            };
+            countries?: components["schemas"]["CountryCode"][];
+            languages?: {
+              id: number;
+              name: string;
+            }[];
+            browsers?: {
+              id: number;
+              name: string;
+            }[];
+            productType?: {
+              id: number;
+              name: string;
+            };
           };
         };
       };

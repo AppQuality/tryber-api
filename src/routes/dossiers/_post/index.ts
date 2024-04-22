@@ -99,6 +99,7 @@ export default class RouteItem extends AdminRoute<{
         platform_id: 0,
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
+        close_date: this.getCloseDate(),
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
@@ -111,7 +112,61 @@ export default class RouteItem extends AdminRoute<{
       })
       .returning("id");
 
-    return results[0].id ?? results[0];
+    const campaignId = results[0].id ?? results[0];
+
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .insert({
+        campaign_id: campaignId,
+        description: this.getBody().description,
+        ...(this.getBody().productLink && {
+          link: this.getBody().productLink,
+        }),
+        goal: this.getBody().goal,
+        out_of_scope: this.getBody().outOfScope,
+        target_audience: this.getBody().target?.notes,
+        ...(this.getBody().target?.size && {
+          target_size: this.getBody().target?.size,
+        }),
+        product_type_id: this.getBody().productType,
+        target_devices: this.getBody().deviceRequirements,
+        created_by: this.getTesterId(),
+        updated_by: this.getTesterId(),
+      })
+      .returning("id");
+
+    const dossierId = dossier[0].id ?? dossier[0];
+
+    const countries = this.getBody().countries;
+    if (countries) {
+      await tryber.tables.CampaignDossierDataCountries.do().insert(
+        countries.map((country) => ({
+          campaign_dossier_data_id: dossierId,
+          country_code: country,
+        }))
+      );
+    }
+
+    const languages = this.getBody().languages;
+    if (languages) {
+      await tryber.tables.CampaignDossierDataLanguages.do().insert(
+        languages.map((language) => ({
+          campaign_dossier_data_id: dossierId,
+          language_id: language,
+        }))
+      );
+    }
+
+    const browsers = this.getBody().browsers;
+    if (browsers) {
+      await tryber.tables.CampaignDossierDataBrowsers.do().insert(
+        browsers.map((browser) => ({
+          campaign_dossier_data_id: dossierId,
+          browser_id: browser,
+        }))
+      );
+    }
+
+    return campaignId;
   }
 
   private async linkRolesToCampaign(campaignId: number) {
@@ -172,6 +227,14 @@ export default class RouteItem extends AdminRoute<{
 
     const startDate = new Date(this.getBody().startDate);
     startDate.setDate(startDate.getDate() + 7);
+    return startDate.toISOString().replace(/\.\d+/, "");
+  }
+
+  private getCloseDate() {
+    if (this.getBody().closeDate) return this.getBody().closeDate;
+
+    const startDate = new Date(this.getBody().startDate);
+    startDate.setDate(startDate.getDate() + 14);
     return startDate.toISOString().replace(/\.\d+/, "");
   }
 

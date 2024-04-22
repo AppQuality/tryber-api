@@ -10,7 +10,7 @@ export default class RouteItem extends AdminRoute<{
   parameters: StoplightOperations["put-dossiers-campaign"]["parameters"]["path"];
 }> {
   private campaignId: number;
-  private _campaign: { end_date: string } | undefined;
+  private _campaign: { end_date: string; close_date: string } | undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -20,7 +20,7 @@ export default class RouteItem extends AdminRoute<{
   protected async init(): Promise<void> {
     await super.init();
     this._campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("end_date")
+      .select("end_date", "close_date")
       .where({
         id: this.campaignId,
       })
@@ -113,6 +113,7 @@ export default class RouteItem extends AdminRoute<{
         platform_id: 0,
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
+        close_date: this.getCloseDate(),
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
@@ -128,6 +129,123 @@ export default class RouteItem extends AdminRoute<{
       });
 
     await this.linkRolesToCampaign();
+
+    await this.updateCampaignDossierData();
+
+    await this.updateCampaignDossierDataCountries();
+    await this.updateCampaignDossierDataLanguages();
+    await this.updateCampaignDossierDataBrowsers();
+  }
+
+  private async updateCampaignDossierData() {
+    const dossierExists = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossierExists) {
+      await tryber.tables.CampaignDossierData.do().insert({
+        campaign_id: this.campaignId,
+        created_by: this.getTesterId(),
+        updated_by: this.getTesterId(),
+      });
+    }
+
+    await tryber.tables.CampaignDossierData.do()
+      .update({
+        description: this.getBody().description,
+        ...(this.getBody().productLink && {
+          link: this.getBody().productLink,
+        }),
+        goal: this.getBody().goal,
+        out_of_scope: this.getBody().outOfScope,
+        target_audience: this.getBody().target?.notes,
+        ...(this.getBody().target?.size && {
+          target_size: this.getBody().target?.size,
+        }),
+        product_type_id: this.getBody().productType,
+        target_devices: this.getBody().deviceRequirements,
+        updated_by: this.getTesterId(),
+      })
+      .where({
+        campaign_id: this.campaignId,
+      });
+  }
+
+  private async updateCampaignDossierDataCountries() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataCountries.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const countries = this.getBody().countries;
+    if (!countries) return;
+
+    await tryber.tables.CampaignDossierDataCountries.do().insert(
+      countries.map((country) => ({
+        campaign_dossier_data_id: dossierId,
+        country_code: country,
+      }))
+    );
+  }
+
+  private async updateCampaignDossierDataLanguages() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataLanguages.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const languages = this.getBody().languages;
+    if (!languages) return;
+
+    await tryber.tables.CampaignDossierDataLanguages.do().insert(
+      languages.map((lang) => ({
+        campaign_dossier_data_id: dossierId,
+        language_id: lang,
+      }))
+    );
+  }
+
+  private async updateCampaignDossierDataBrowsers() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataBrowsers.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const browsers = this.getBody().browsers;
+    if (!browsers) return;
+
+    await tryber.tables.CampaignDossierDataBrowsers.do().insert(
+      browsers.map((browser) => ({
+        campaign_dossier_data_id: dossierId,
+        browser_id: browser,
+      }))
+    );
   }
 
   private async linkRolesToCampaign() {
@@ -222,6 +340,12 @@ export default class RouteItem extends AdminRoute<{
     if (this.getBody().endDate) return this.getBody().endDate;
 
     return this.campaign.end_date;
+  }
+
+  private getCloseDate() {
+    if (this.getBody().closeDate) return this.getBody().closeDate;
+
+    return this.campaign.close_date;
   }
 
   private async getDevices() {
