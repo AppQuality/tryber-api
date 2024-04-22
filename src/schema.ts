@@ -562,6 +562,21 @@ export interface paths {
       };
     };
   };
+  "/users/by-role/{role}": {
+    get: operations["get-users-by-role-role"];
+    parameters: {
+      path: {
+        role: "tester_lead" | "quality_leader" | "ux_researcher" | "assistants";
+      };
+    };
+  };
+  "/browsers": {
+    get: operations["get-browsers"];
+  };
+  "/productTypes": {
+    get: operations["get-productTypes"];
+    parameters: {};
+  };
 }
 
 export interface components {
@@ -4157,6 +4172,58 @@ export interface operations {
         customer: string;
       };
     };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-users-by-role-role": {
+    parameters: {
+      path: {
+        role: "tester_lead" | "quality_leader" | "ux_researcher" | "assistants";
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+              surname: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-browsers": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-productTypes": {
+    parameters: {};
     responses: {
       /** OK */
       200: {
