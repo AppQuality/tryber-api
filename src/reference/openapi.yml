@@ -9688,10 +9688,39 @@ paths:
                 Example 1:
                   value:
                     id: 1
-      requestBody:
-        $ref: '#/components/requestBodies/DossierData'
       security:
         - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/DossierCreationData'
+                - type: object
+                  x-stoplight:
+                    id: 7ewqh8piy4dc8
+                  properties:
+                    duplicate:
+                      type: object
+                      x-stoplight:
+                        id: qjlhi5gbkesdj
+                      properties:
+                        fields:
+                          type: integer
+                          x-stoplight:
+                            id: eynp882a0yi85
+                        useCases:
+                          type: integer
+                          x-stoplight:
+                            id: aeis659jristy
+                        mailMerges:
+                          type: integer
+                          x-stoplight:
+                            id: uzgqkctl150pz
+                        pages:
+                          type: integer
+                          x-stoplight:
+                            id: qhyggxgrgajc1
   '/dossiers/{campaign}':
     parameters:
       - name: campaign
@@ -9712,10 +9741,13 @@ paths:
                 type: object
                 properties: {}
       description: ''
-      requestBody:
-        $ref: '#/components/requestBodies/DossierData'
       security:
         - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DossierCreationData'
     get:
       summary: ''
       operationId: get-dossiers-campaign
@@ -10955,6 +10987,117 @@ components:
       pattern: '^[A-Z][A-Z]$'
       minLength: 2
       maxLength: 2
+    DossierCreationData:
+      type: object
+      x-examples:
+        Example 1:
+          project: 0
+          testType: 0
+          title:
+            customer: string
+            tester: string
+          startDate: '2019-08-24T14:15:22Z'
+          endDate: '2019-08-24T14:15:22Z'
+          closeDate: '2019-08-24T14:15:22Z'
+          deviceList:
+            - 0
+          csm: 0
+          roles:
+            - role: 0
+              user: 0
+          description: string
+          productLink: string
+          goal: string
+          outOfScope: string
+          deviceRequirements: string
+          target:
+            notes: string
+            size: 0
+          countries:
+            - st
+          languages:
+            - 0
+          browsers:
+            - 0
+          productType: 0
+      properties:
+        project:
+          type: integer
+        testType:
+          type: integer
+        title:
+          type: object
+          required:
+            - customer
+          properties:
+            customer:
+              type: string
+            tester:
+              type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        closeDate:
+          type: string
+          format: date-time
+        deviceList:
+          type: array
+          items:
+            type: integer
+        csm:
+          type: integer
+        roles:
+          type: array
+          items:
+            type: object
+            properties:
+              role:
+                type: integer
+              user:
+                type: integer
+            required:
+              - role
+              - user
+        description:
+          type: string
+        productLink:
+          type: string
+        goal:
+          type: string
+        outOfScope:
+          type: string
+        deviceRequirements:
+          type: string
+        target:
+          type: object
+          properties:
+            notes:
+              type: string
+            size:
+              type: integer
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryCode'
+        languages:
+          type: array
+          items:
+            type: integer
+        browsers:
+          type: array
+          items:
+            type: integer
+        productType:
+          type: integer
+      required:
+        - project
+        - testType
+        - title
+        - startDate
+        - deviceList
   securitySchemes:
     JWT:
       type: http
@@ -11253,114 +11396,7 @@ components:
       schema:
         type: string
   examples: {}
-  requestBodies:
-    DossierData:
-      content:
-        application/json:
-          schema:
-            type: object
-            x-examples:
-              Example 1:
-                project: 1
-                testType: 1
-                title:
-                  customer: Campaign Title for Customer
-                  tester: Campaign Title for Tester
-                startDate: '2019-08-24T14:15:22Z'
-                endDate: '2019-08-24T14:15:22Z'
-                deviceList:
-                  - 1
-                  - 5
-                  - 10
-                  - 36
-            properties:
-              project:
-                type: integer
-              testType:
-                type: integer
-              title:
-                type: object
-                required:
-                  - customer
-                properties:
-                  customer:
-                    type: string
-                  tester:
-                    type: string
-              startDate:
-                type: string
-                format: date-time
-              endDate:
-                type: string
-                format: date-time
-              closeDate:
-                type: string
-                format: date-time
-              deviceList:
-                type: array
-                items:
-                  type: integer
-              csm:
-                type: number
-              roles:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    role:
-                      type: number
-                    user:
-                      type: number
-                  required:
-                    - role
-                    - user
-              description:
-                type: string
-              productLink:
-                type: string
-              goal:
-                type: string
-              outOfScope:
-                type: string
-              deviceRequirements:
-                type: string
-              target:
-                type: object
-                properties:
-                  notes:
-                    type: string
-                  size:
-                    type: integer
-              countries:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CountryCode'
-              languages:
-                type: array
-                x-stoplight:
-                  id: dy0yofmqy4ayn
-                items:
-                  x-stoplight:
-                    id: bko78gf0sdhjz
-                  type: integer
-              browsers:
-                type: array
-                x-stoplight:
-                  id: jc5nfd988spfc
-                items:
-                  x-stoplight:
-                    id: 9wdgspthmxvhf
-                  type: integer
-              productType:
-                type: integer
-                x-stoplight:
-                  id: ilm9662wwxef3
-            required:
-              - project
-              - testType
-              - title
-              - startDate
-              - deviceList
+  requestBodies: {}
 tags:
   - name: Authentication
   - name: Campaign
