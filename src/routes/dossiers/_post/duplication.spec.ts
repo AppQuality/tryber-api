@@ -174,6 +174,16 @@ describe("Route POST /dossiers - duplication", () => {
       },
       { post_id: 2, meta_key: "acf_field", meta_value: "value" },
     ]);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+      user_id: 1,
+      campaign_id: 1,
+      subscription_date: "1970-01-01",
+      accepted: 1,
+      devices: "1",
+      selected_device: 1,
+      modified: "1970-01-01",
+      group_id: 1,
+    });
   });
 
   afterAll(async () => {
@@ -195,6 +205,7 @@ describe("Route POST /dossiers - duplication", () => {
     await tryber.tables.WpPostmeta.do().delete();
     await tryber.tables.WpTermRelationships.do().delete();
     await tryber.tables.WpTermTaxonomy.do().delete();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
   });
 
   it("Should return 400 if campaign to duplicate does not exist", async () => {
@@ -225,6 +236,13 @@ describe("Route POST /dossiers - duplication", () => {
       .send({ ...baseRequest, duplicate: { pages: 100 } });
 
     expect(pages.status).toBe(400);
+
+    const testers = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, duplicate: { testers: 100 } });
+
+    expect(testers.status).toBe(400);
   });
 
   it("Should duplicate additional fields", async () => {
@@ -430,5 +448,33 @@ describe("Route POST /dossiers - duplication", () => {
         post_type: "preview",
       })
     );
+  });
+
+  it("Should duplicate testers", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, duplicate: { testers: 1 } });
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    const testers = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select()
+      .where({ campaign_id: id });
+
+    expect(testers).toHaveLength(1);
+
+    expect(testers[0]).toMatchObject({
+      user_id: 1,
+      campaign_id: id,
+      subscription_date: "1970-01-01",
+      accepted: 1,
+      devices: "1",
+      selected_device: 1,
+      modified: "1970-01-01",
+      group_id: 1,
+    });
   });
 });

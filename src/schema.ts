@@ -4069,6 +4069,7 @@ export interface operations {
             useCases?: number;
             mailMerges?: number;
             pages?: number;
+            testers?: number;
           };
         };
       };

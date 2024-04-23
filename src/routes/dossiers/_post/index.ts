@@ -14,6 +14,7 @@ export default class RouteItem extends AdminRoute<{
     useCasesFrom?: number;
     mailMergesFrom?: number;
     pagesFrom?: number;
+    testersFrom?: number;
   } = {};
 
   constructor(config: RouteClassConfiguration) {
@@ -27,6 +28,7 @@ export default class RouteItem extends AdminRoute<{
       if (duplicate.mailMerges)
         this.duplicate.mailMergesFrom = duplicate.mailMerges;
       if (duplicate.pages) this.duplicate.pagesFrom = duplicate.pages;
+      if (duplicate.testers) this.duplicate.testersFrom = duplicate.testers;
     }
   }
 
@@ -65,6 +67,7 @@ export default class RouteItem extends AdminRoute<{
           ? [this.duplicate.mailMergesFrom]
           : []),
         ...(this.duplicate.pagesFrom ? [this.duplicate.pagesFrom] : []),
+        ...(this.duplicate.testersFrom ? [this.duplicate.testersFrom] : []),
       ]),
     ];
     const campaigns = await tryber.tables.WpAppqEvdCampaign.do()
@@ -235,6 +238,7 @@ export default class RouteItem extends AdminRoute<{
     await this.duplicateUsecases(campaignId);
     await this.duplicateMailMerge(campaignId);
     await this.duplicatePages(campaignId);
+    await this.duplicateTesters(campaignId);
   }
 
   private async duplicateFields(campaignId: number) {
@@ -427,6 +431,31 @@ export default class RouteItem extends AdminRoute<{
 
     const newId = newPage[0].ID ?? newPage[0];
     return newId;
+  }
+
+  private async duplicateTesters(campaignId: number) {
+    if (!this.duplicate.testersFrom) return;
+
+    const testers = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select(
+        "user_id",
+        "subscription_date",
+        "accepted",
+        "devices",
+        "selected_device",
+        "modified",
+        "group_id"
+      )
+      .where("campaign_id", this.duplicate.testersFrom);
+
+    if (!testers.length) return;
+
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert(
+      testers.map((tester) => ({
+        ...tester,
+        campaign_id: campaignId,
+      }))
+    );
   }
 
   private async getDefaultLanguage() {
