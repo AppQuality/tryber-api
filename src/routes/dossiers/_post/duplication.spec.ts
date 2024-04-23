@@ -1,6 +1,9 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import request from "supertest";
+
+jest.mock("@src/features/wp/WordpressJsonApiTrigger");
 
 const baseRequest = {
   project: 1,
@@ -206,6 +209,8 @@ describe("Route POST /dossiers - duplication", () => {
     await tryber.tables.WpTermRelationships.do().delete();
     await tryber.tables.WpTermTaxonomy.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+
+    jest.clearAllMocks();
   });
 
   it("Should return 400 if campaign to duplicate does not exist", async () => {
@@ -476,5 +481,65 @@ describe("Route POST /dossiers - duplication", () => {
       modified: "1970-01-01",
       group_id: 1,
     });
+  });
+
+  it("Should not post to wordpress if usecase is duplicated", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({ ...baseRequest, duplicate: { useCases: 1 } })
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    expect(
+      WordpressJsonApiTrigger.prototype.generateUseCase
+    ).not.toHaveBeenCalled();
+  });
+
+  it("Should not post to wordpress if mailmerge is duplicated", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({ ...baseRequest, duplicate: { mailMerges: 1 } })
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    expect(
+      WordpressJsonApiTrigger.prototype.generateMailMerges
+    ).not.toHaveBeenCalled();
+  });
+
+  it("Should not post to wordpress if mailmerge is duplicated", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({ ...baseRequest, duplicate: { mailMerges: 1 } })
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    expect(
+      WordpressJsonApiTrigger.prototype.generateMailMerges
+    ).not.toHaveBeenCalled();
+  });
+
+  it("Should not post to wordpress if pages is duplicated", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({ ...baseRequest, duplicate: { pages: 1 } })
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    expect(
+      WordpressJsonApiTrigger.prototype.generatePages
+    ).not.toHaveBeenCalled();
   });
 });

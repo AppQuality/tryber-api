@@ -3,6 +3,7 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import AdminRoute from "@src/features/routes/AdminRoute";
+import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import { unserialize } from "php-unserialize";
 
 export default class RouteItem extends AdminRoute<{
@@ -129,7 +130,7 @@ export default class RouteItem extends AdminRoute<{
       const campaignId = await this.createCampaign();
       await this.linkRolesToCampaign(campaignId);
 
-      await this.copyDataFromDuplication(campaignId);
+      await this.generateLinkedData(campaignId);
 
       this.setSuccess(201, {
         id: campaignId,
@@ -233,11 +234,17 @@ export default class RouteItem extends AdminRoute<{
     await this.assignOlps(campaignId);
   }
 
-  private async copyDataFromDuplication(campaignId: number) {
+  private async generateLinkedData(campaignId: number) {
+    const apiTrigger = new WordpressJsonApiTrigger(campaignId);
     await this.duplicateFields(campaignId);
-    await this.duplicateUsecases(campaignId);
-    await this.duplicateMailMerge(campaignId);
-    await this.duplicatePages(campaignId);
+    if (this.duplicate.useCasesFrom) await this.duplicateUsecases(campaignId);
+    else await apiTrigger.generateUseCase();
+    if (this.duplicate.mailMergesFrom)
+      await this.duplicateMailMerge(campaignId);
+    else await apiTrigger.generateMailMerges();
+
+    if (this.duplicate.pagesFrom) await this.duplicatePages(campaignId);
+    else await apiTrigger.generatePages();
     await this.duplicateTesters(campaignId);
   }
 
