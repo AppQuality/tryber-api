@@ -187,7 +187,7 @@ export default class RouteItem extends AdminRoute<{
     const dossierId = dossier[0].id ?? dossier[0];
 
     const countries = this.getBody().countries;
-    if (countries) {
+    if (countries?.length) {
       await tryber.tables.CampaignDossierDataCountries.do().insert(
         countries.map((country) => ({
           campaign_dossier_data_id: dossierId,
@@ -197,7 +197,7 @@ export default class RouteItem extends AdminRoute<{
     }
 
     const languages = this.getBody().languages;
-    if (languages) {
+    if (languages?.length) {
       await tryber.tables.CampaignDossierDataLanguages.do().insert(
         languages.map((language) => ({
           campaign_dossier_data_id: dossierId,
@@ -207,7 +207,7 @@ export default class RouteItem extends AdminRoute<{
     }
 
     const browsers = this.getBody().browsers;
-    if (browsers) {
+    if (browsers?.length) {
       await tryber.tables.CampaignDossierDataBrowsers.do().insert(
         browsers.map((browser) => ({
           campaign_dossier_data_id: dossierId,
@@ -221,7 +221,7 @@ export default class RouteItem extends AdminRoute<{
 
   private async linkRolesToCampaign(campaignId: number) {
     const roles = this.getBody().roles;
-    if (!roles) return;
+    if (!roles?.length) return;
 
     await tryber.tables.CampaignCustomRoles.do().insert(
       roles.map((role) => ({
@@ -263,6 +263,8 @@ export default class RouteItem extends AdminRoute<{
         cp_id: this.duplicate.fieldsFrom,
       });
 
+    if (!fields.length) return;
+
     await tryber.tables.WpAppqCampaignAdditionalFields.do().insert(
       fields.map((field) => {
         const { id, ...rest } = field;
@@ -301,6 +303,8 @@ export default class RouteItem extends AdminRoute<{
         tasks.map((task) => task.id)
       );
 
+    if (!groups.length) return;
+
     await tryber.tables.WpAppqCampaignTaskGroup.do().insert(
       groups.map((group) => ({
         ...group,
@@ -323,6 +327,8 @@ export default class RouteItem extends AdminRoute<{
       )
       .where("campaign_id", this.duplicate.mailMergesFrom)
       .where("email_template_id", ">", 0);
+
+    if (!mailMerges.length) return;
 
     await tryber.tables.WpAppqCronJobs.do().insert(
       mailMerges.map((mailMerge) => ({
@@ -522,7 +528,7 @@ export default class RouteItem extends AdminRoute<{
 
   private async assignOlps(campaignId: number) {
     const roles = this.getBody().roles;
-    if (!roles) return;
+    if (!roles?.length) return;
 
     const roleOlps = await tryber.tables.CustomRoles.do()
       .select("id", "olp")
