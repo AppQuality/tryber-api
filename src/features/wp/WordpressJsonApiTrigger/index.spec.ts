@@ -35,7 +35,10 @@ describe("WordpressJsonApiTrigger", () => {
     expect(axios).toHaveBeenCalledTimes(1);
 
     expect(axios).toHaveBeenCalledWith({
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Tryber API",
+      },
       method: "GET",
       url: "https://example.com/regenerate-campaign-use-cases/1",
     });
@@ -49,7 +52,10 @@ describe("WordpressJsonApiTrigger", () => {
     expect(axios).toHaveBeenCalledTimes(1);
 
     expect(axios).toHaveBeenCalledWith({
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Tryber API",
+      },
       method: "GET",
       url: "https://example.com/regenerate-campaign-crons/1",
     });
@@ -62,7 +68,10 @@ describe("WordpressJsonApiTrigger", () => {
     expect(axios).toHaveBeenCalledTimes(1);
 
     expect(axios).toHaveBeenCalledWith({
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Tryber API",
+      },
       method: "GET",
       url: "https://example.com/regenerate-campaign-pages/1",
     });
@@ -76,7 +85,10 @@ describe("WordpressJsonApiTrigger", () => {
     expect(axios).toHaveBeenCalledTimes(1);
 
     expect(axios).toHaveBeenCalledWith({
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Tryber API",
+      },
       method: "GET",
       url: "https://example.com/regenerate-campaign-tasks/1",
     });
