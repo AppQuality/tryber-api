@@ -113,4 +113,22 @@ describe("Route POST /dossiers - duplication", () => {
       WordpressJsonApiTrigger.prototype.generateMailMerges
     ).toHaveBeenCalledTimes(1);
   });
+
+  it("Should post to wordpress to generate tasks", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send(baseRequest)
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    const { id } = response.body;
+
+    expect(WordpressJsonApiTrigger).toHaveBeenCalledTimes(1);
+    expect(WordpressJsonApiTrigger).toHaveBeenCalledWith(id);
+
+    expect(
+      WordpressJsonApiTrigger.prototype.generateTasks
+    ).toHaveBeenCalledTimes(1);
+  });
 });

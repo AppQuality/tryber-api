@@ -236,16 +236,22 @@ export default class RouteItem extends AdminRoute<{
 
   private async generateLinkedData(campaignId: number) {
     const apiTrigger = new WordpressJsonApiTrigger(campaignId);
-    await this.duplicateFields(campaignId);
+
+    await apiTrigger.generateTasks();
+
+    if (this.duplicate.fieldsFrom) await this.duplicateFields(campaignId);
+
     if (this.duplicate.useCasesFrom) await this.duplicateUsecases(campaignId);
     else await apiTrigger.generateUseCase();
+
     if (this.duplicate.mailMergesFrom)
       await this.duplicateMailMerge(campaignId);
     else await apiTrigger.generateMailMerges();
 
     if (this.duplicate.pagesFrom) await this.duplicatePages(campaignId);
     else await apiTrigger.generatePages();
-    await this.duplicateTesters(campaignId);
+
+    if (this.duplicate.testersFrom) await this.duplicateTesters(campaignId);
   }
 
   private async duplicateFields(campaignId: number) {
