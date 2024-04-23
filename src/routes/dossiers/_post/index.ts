@@ -3,11 +3,36 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import AdminRoute from "@src/features/routes/AdminRoute";
+import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
+import { unserialize } from "php-unserialize";
 
 export default class RouteItem extends AdminRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
 }> {
+  private duplicate: {
+    fieldsFrom?: number;
+    useCasesFrom?: number;
+    mailMergesFrom?: number;
+    pagesFrom?: number;
+    testersFrom?: number;
+  } = {};
+
+  constructor(config: RouteClassConfiguration) {
+    super(config);
+
+    const { duplicate } = this.getBody();
+
+    if (duplicate) {
+      if (duplicate.fields) this.duplicate.fieldsFrom = duplicate.fields;
+      if (duplicate.useCases) this.duplicate.useCasesFrom = duplicate.useCases;
+      if (duplicate.mailMerges)
+        this.duplicate.mailMergesFrom = duplicate.mailMerges;
+      if (duplicate.pages) this.duplicate.pagesFrom = duplicate.pages;
+      if (duplicate.testers) this.duplicate.testersFrom = duplicate.testers;
+    }
+  }
+
   protected async filter() {
     if (!(await super.filter())) return false;
     if (await this.invalidRolesSubmitted()) {
@@ -26,8 +51,31 @@ export default class RouteItem extends AdminRoute<{
       this.setError(400, new OpenapiError("Invalid devices"));
       return false;
     }
+    if (await this.campaignToDuplicateDoesNotExist()) {
+      this.setError(400, new OpenapiError("Invalid campaign to duplicate"));
+      return false;
+    }
 
     return true;
+  }
+
+  private async campaignToDuplicateDoesNotExist() {
+    const ids = [
+      ...new Set([
+        ...(this.duplicate.fieldsFrom ? [this.duplicate.fieldsFrom] : []),
+        ...(this.duplicate.useCasesFrom ? [this.duplicate.useCasesFrom] : []),
+        ...(this.duplicate.mailMergesFrom
+          ? [this.duplicate.mailMergesFrom]
+          : []),
+        ...(this.duplicate.pagesFrom ? [this.duplicate.pagesFrom] : []),
+        ...(this.duplicate.testersFrom ? [this.duplicate.testersFrom] : []),
+      ]),
+    ];
+    const campaigns = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id")
+      .whereIn("id", ids);
+
+    return campaigns.length !== ids.length;
   }
 
   private async invalidRolesSubmitted() {
@@ -81,6 +129,8 @@ export default class RouteItem extends AdminRoute<{
     try {
       const campaignId = await this.createCampaign();
       await this.linkRolesToCampaign(campaignId);
+
+      await this.generateLinkedData(campaignId);
 
       this.setSuccess(201, {
         id: campaignId,
@@ -137,7 +187,7 @@ export default class RouteItem extends AdminRoute<{
     const dossierId = dossier[0].id ?? dossier[0];
 
     const countries = this.getBody().countries;
-    if (countries) {
+    if (countries?.length) {
       await tryber.tables.CampaignDossierDataCountries.do().insert(
         countries.map((country) => ({
           campaign_dossier_data_id: dossierId,
@@ -147,7 +197,7 @@ export default class RouteItem extends AdminRoute<{
     }
 
     const languages = this.getBody().languages;
-    if (languages) {
+    if (languages?.length) {
       await tryber.tables.CampaignDossierDataLanguages.do().insert(
         languages.map((language) => ({
           campaign_dossier_data_id: dossierId,
@@ -157,7 +207,7 @@ export default class RouteItem extends AdminRoute<{
     }
 
     const browsers = this.getBody().browsers;
-    if (browsers) {
+    if (browsers?.length) {
       await tryber.tables.CampaignDossierDataBrowsers.do().insert(
         browsers.map((browser) => ({
           campaign_dossier_data_id: dossierId,
@@ -171,7 +221,7 @@ export default class RouteItem extends AdminRoute<{
 
   private async linkRolesToCampaign(campaignId: number) {
     const roles = this.getBody().roles;
-    if (!roles) return;
+    if (!roles?.length) return;
 
     await tryber.tables.CampaignCustomRoles.do().insert(
       roles.map((role) => ({
@@ -184,9 +234,301 @@ export default class RouteItem extends AdminRoute<{
     await this.assignOlps(campaignId);
   }
 
+  private async generateLinkedData(campaignId: number) {
+    const apiTrigger = new WordpressJsonApiTrigger(campaignId);
+
+    await apiTrigger.generateTasks();
+
+    if (this.duplicate.fieldsFrom) await this.duplicateFields(campaignId);
+
+    if (this.duplicate.useCasesFrom) await this.duplicateUsecases(campaignId);
+    else await apiTrigger.generateUseCase();
+
+    if (this.duplicate.mailMergesFrom)
+      await this.duplicateMailMerge(campaignId);
+    else await apiTrigger.generateMailMerges();
+
+    if (this.duplicate.pagesFrom) await this.duplicatePages(campaignId);
+    else await apiTrigger.generatePages();
+
+    if (this.duplicate.testersFrom) await this.duplicateTesters(campaignId);
+  }
+
+  private async duplicateFields(campaignId: number) {
+    if (!this.duplicate.fieldsFrom) return;
+
+    const fields = await tryber.tables.WpAppqCampaignAdditionalFields.do()
+      .select()
+      .where({
+        cp_id: this.duplicate.fieldsFrom,
+      });
+
+    if (!fields.length) return;
+
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert(
+      fields.map((field) => {
+        const { id, ...rest } = field;
+        return {
+          ...rest,
+          cp_id: campaignId,
+        };
+      })
+    );
+  }
+
+  private async duplicateUsecases(campaignId: number) {
+    if (!this.duplicate.useCasesFrom) return;
+
+    const tasks = await tryber.tables.WpAppqCampaignTask.do().select().where({
+      campaign_id: this.duplicate.useCasesFrom,
+    });
+
+    const taskMap = new Map<number, number>();
+
+    for (const task of tasks) {
+      const { id, ...rest } = task;
+      const newItem = await tryber.tables.WpAppqCampaignTask.do()
+        .insert({
+          ...rest,
+          campaign_id: campaignId,
+        })
+        .returning("id");
+      taskMap.set(id, newItem[0].id ?? newItem[0]);
+    }
+
+    const groups = await tryber.tables.WpAppqCampaignTaskGroup.do()
+      .select()
+      .whereIn(
+        "task_id",
+        tasks.map((task) => task.id)
+      );
+
+    if (!groups.length) return;
+
+    await tryber.tables.WpAppqCampaignTaskGroup.do().insert(
+      groups.map((group) => ({
+        ...group,
+        task_id: taskMap.get(group.task_id),
+      }))
+    );
+  }
+
+  private async duplicateMailMerge(campaignId: number) {
+    if (!this.duplicate.mailMergesFrom) return;
+
+    const mailMerges = await tryber.tables.WpAppqCronJobs.do()
+      .select(
+        "display_name",
+        "email_template_id",
+        "template_text",
+        "template_json",
+        "last_editor_id",
+        "template_id"
+      )
+      .where("campaign_id", this.duplicate.mailMergesFrom)
+      .where("email_template_id", ">", 0);
+
+    if (!mailMerges.length) return;
+
+    await tryber.tables.WpAppqCronJobs.do().insert(
+      mailMerges.map((mailMerge) => ({
+        ...mailMerge,
+        campaign_id: campaignId,
+        creation_date: tryber.fn.now(),
+        update_date: tryber.fn.now(),
+        executed_on: "",
+      }))
+    );
+  }
+
+  private async duplicatePages(campaignId: number) {
+    if (!this.duplicate.pagesFrom) return;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("page_manual_id", "page_preview_id")
+      .where("id", this.duplicate.pagesFrom);
+
+    if (!campaign.length) return;
+
+    const { page_manual_id, page_preview_id } = campaign[0];
+
+    const manualId = await this.duplicatePage({
+      pageId: page_manual_id,
+      campaignId,
+    });
+
+    if (manualId) {
+      await tryber.tables.WpAppqEvdCampaign.do().update({
+        page_manual_id: manualId,
+      });
+    }
+
+    const previewId = await this.duplicatePage({
+      pageId: page_preview_id,
+      campaignId,
+    });
+
+    if (previewId) {
+      await tryber.tables.WpAppqEvdCampaign.do().update({
+        page_preview_id: previewId,
+      });
+    }
+
+    if (manualId || previewId) {
+      const defaultLanguage = await this.getDefaultLanguage();
+      if (!defaultLanguage) return;
+      if (manualId) {
+        const parsedTranslations = await this.getPageTranslationIds({
+          pageId: page_manual_id,
+          defaultLanguage,
+        });
+        for (const t in parsedTranslations) {
+          await this.duplicatePage({
+            pageId: parsedTranslations[t],
+            campaignId,
+          });
+        }
+      }
+
+      if (previewId) {
+        const parsedTranslations = await this.getPageTranslationIds({
+          pageId: page_preview_id,
+          defaultLanguage,
+        });
+        for (const t in parsedTranslations) {
+          await this.duplicatePage({
+            pageId: parsedTranslations[t],
+            campaignId,
+          });
+        }
+      }
+    }
+  }
+
+  private async duplicatePage({
+    pageId,
+    campaignId,
+  }: {
+    pageId: number;
+    campaignId: number;
+  }) {
+    if (!this.duplicate.pagesFrom) return;
+
+    const page = await tryber.tables.WpPosts.do()
+      .select()
+      .where("ID", pageId)
+      .first();
+
+    if (!page) return null;
+
+    const { ID, ...rest } = page;
+    const newPage = await tryber.tables.WpPosts.do()
+      .insert({
+        ...rest,
+        post_title: rest.post_title.replace(
+          this.duplicate.pagesFrom.toString(),
+          campaignId.toString()
+        ),
+      })
+      .returning("ID");
+
+    const meta = await tryber.tables.WpPostmeta.do()
+      .select()
+      .where("post_id", ID);
+
+    if (meta.length) {
+      await tryber.tables.WpPostmeta.do().insert(
+        meta.map((metaItem) => {
+          const { meta_id, ...rest } = metaItem;
+          return {
+            ...rest,
+            post_id: newPage[0].ID ?? newPage[0],
+          };
+        })
+      );
+    }
+
+    const newId = newPage[0].ID ?? newPage[0];
+    return newId;
+  }
+
+  private async duplicateTesters(campaignId: number) {
+    if (!this.duplicate.testersFrom) return;
+
+    const testers = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select(
+        "user_id",
+        "subscription_date",
+        "accepted",
+        "devices",
+        "selected_device",
+        "modified",
+        "group_id"
+      )
+      .where("campaign_id", this.duplicate.testersFrom);
+
+    if (!testers.length) return;
+
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert(
+      testers.map((tester) => ({
+        ...tester,
+        campaign_id: campaignId,
+      }))
+    );
+  }
+
+  private async getDefaultLanguage() {
+    const polylangOptions = await tryber.tables.WpOptions.do()
+      .select("option_value")
+      .where("option_name", "polylang")
+      .first();
+
+    if (!polylangOptions) return false;
+    let parsedOptions: { [key: string]: any } = {};
+    try {
+      parsedOptions = unserialize(polylangOptions.option_value);
+    } catch (e) {
+      return false;
+    }
+    if (!("default_lang" in parsedOptions)) return false;
+    return parsedOptions.default_lang;
+  }
+
+  private async getPageTranslationIds({
+    pageId,
+    defaultLanguage,
+  }: {
+    pageId: number;
+    defaultLanguage: string;
+  }) {
+    const translations = await tryber.tables.WpTermRelationships.do()
+      .select("object_id", "description")
+      .join(
+        "wp_term_taxonomy",
+        "wp_term_taxonomy.term_taxonomy_id",
+        "wp_term_relationships.term_taxonomy_id"
+      )
+      .where("object_id", pageId)
+      .where("taxonomy", "post_translations")
+      .first();
+
+    if (!translations) return {};
+
+    let parsedTranslations: { [key: string]: any } = {};
+    try {
+      parsedTranslations = unserialize(translations.description);
+    } catch (e) {
+      return;
+    }
+
+    if (defaultLanguage in parsedTranslations)
+      delete parsedTranslations[defaultLanguage];
+    return parsedTranslations;
+  }
+
   private async assignOlps(campaignId: number) {
     const roles = this.getBody().roles;
-    if (!roles) return;
+    if (!roles?.length) return;
 
     const roleOlps = await tryber.tables.CustomRoles.do()
       .select("id", "olp")

@@ -86,6 +86,7 @@ services:
       SENTRY_SAMPLE_RATE: ${SENTRY_SAMPLE_RATE:-1}
       CLOUDFRONT_KEY_ID: ${CLOUDFRONT_KEY_ID}
       JOTFORM_APIKEY: ${JOTFORM_APIKEY}
+      WORDPRESS_API_URL: ${WORDPRESS_API_URL}
     volumes:
       - /var/docker/keys:/app/keys
     logging:
