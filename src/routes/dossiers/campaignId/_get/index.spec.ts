@@ -251,7 +251,7 @@ describe("Route GET /dossiers/:id", () => {
   describe("With dossier data", () => {
     beforeAll(async () => {
       await tryber.tables.CampaignDossierData.do().insert({
-        id: 1,
+        id: 100,
         campaign_id: 1,
         description: "Original description",
         link: "Original link",
@@ -266,11 +266,11 @@ describe("Route GET /dossiers/:id", () => {
       });
       await tryber.tables.CampaignDossierDataCountries.do().insert([
         {
-          campaign_dossier_data_id: 1,
+          campaign_dossier_data_id: 100,
           country_code: "IT",
         },
         {
-          campaign_dossier_data_id: 1,
+          campaign_dossier_data_id: 100,
           country_code: "FR",
         },
       ]);
@@ -290,11 +290,11 @@ describe("Route GET /dossiers/:id", () => {
 
       await tryber.tables.CampaignDossierDataLanguages.do().insert([
         {
-          campaign_dossier_data_id: 1,
+          campaign_dossier_data_id: 100,
           language_id: 1,
         },
         {
-          campaign_dossier_data_id: 1,
+          campaign_dossier_data_id: 100,
           language_id: 2,
         },
       ]);
@@ -312,11 +312,11 @@ describe("Route GET /dossiers/:id", () => {
 
       await tryber.tables.CampaignDossierDataBrowsers.do().insert([
         {
-          campaign_dossier_data_id: 1,
+          campaign_dossier_data_id: 100,
           browser_id: 1,
         },
         {
-          campaign_dossier_data_id: 1,
+          campaign_dossier_data_id: 100,
           browser_id: 2,
         },
       ]);
@@ -475,6 +475,15 @@ describe("Route GET /dossiers/:id", () => {
       expect(response.body).toHaveProperty("productType");
       expect(response.body.productType).toHaveProperty("id", 1);
       expect(response.body.productType).toHaveProperty("name", "Test Product");
+    });
+
+    it("Should return id", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id", 1);
     });
   });
 });
