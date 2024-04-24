@@ -115,7 +115,7 @@ export default class RouteItem extends AdminRoute<{
 
     const dossierData = await tryber.tables.CampaignDossierData.do()
       .select(
-        tryber.ref("id").withSchema("campaign_dossier_data"),
+        tryber.ref("id").withSchema("campaign_dossier_data").as("dossier_id"),
         "description",
         "link",
         "goal",
@@ -137,7 +137,7 @@ export default class RouteItem extends AdminRoute<{
     const targetCountries = dossierData
       ? await tryber.tables.CampaignDossierDataCountries.do()
           .select("country_code")
-          .where("campaign_dossier_data_id", dossierData.id)
+          .where("campaign_dossier_data_id", dossierData.dossier_id)
       : [];
 
     const targetLanguages = dossierData
@@ -149,7 +149,7 @@ export default class RouteItem extends AdminRoute<{
           )
           .select("language_id")
           .select("display_name")
-          .where("campaign_dossier_data_id", dossierData.id)
+          .where("campaign_dossier_data_id", dossierData.dossier_id)
       : [];
 
     const targetBrowsers = dossierData
@@ -161,7 +161,7 @@ export default class RouteItem extends AdminRoute<{
           )
           .select("browser_id")
           .select("name")
-          .where("campaign_dossier_data_id", dossierData.id)
+          .where("campaign_dossier_data_id", dossierData.dossier_id)
       : [];
 
     return {
