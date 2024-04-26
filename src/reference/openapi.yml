@@ -10024,6 +10024,42 @@ paths:
       description: ''
       security:
         - JWT: []
+    post:
+      summary: ''
+      operationId: post-customers-customer-projects
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    x-stoplight:
+                      id: 23mwsogkyrhe8
+                  name:
+                    type: string
+                    x-stoplight:
+                      id: zj6433e2mxne6
+                required:
+                  - id
+                  - name
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  x-stoplight:
+                    id: 7dx62s7fiaz1z
+              required:
+                - name
   '/users/by-role/{role}':
     get:
       summary: Your GET endpoint

@@ -556,6 +556,7 @@ export interface paths {
   };
   "/customers/{customer}/projects": {
     get: operations["get-customers-customer-projects"];
+    post: operations["post-customers-customer-projects"];
     parameters: {
       path: {
         customer: string;
@@ -4193,6 +4194,31 @@ export interface operations {
               name: string;
             }[];
           };
+        };
+      };
+    };
+  };
+  "post-customers-customer-projects": {
+    parameters: {
+      path: {
+        customer: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
         };
       };
     };
