@@ -4136,6 +4136,42 @@ paths:
       security:
         - JWT: []
     parameters: []
+    post:
+      summary: ''
+      operationId: post-customers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: zxshcfdjbugtr
+                  name:
+                    type: string
+                    x-stoplight:
+                      id: s32ugpcfzhrmp
+                required:
+                  - id
+                  - name
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  x-stoplight:
+                    id: 5gyi3swml7tyw
+              required:
+                - name
   /custom_user_fields:
     get:
       summary: Get all custom user fields

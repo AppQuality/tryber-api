@@ -224,6 +224,7 @@ export interface paths {
   "/customers": {
     /** Get all the customers you have access to */
     get: operations["get-customers"];
+    post: operations["post-customers"];
     parameters: {};
   };
   "/custom_user_fields": {
@@ -2253,6 +2254,27 @@ export interface operations {
         };
       };
       403: components["responses"]["NotFound"];
+    };
+  };
+  "post-customers": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+        };
+      };
     };
   };
   "get-customUserFields": {
