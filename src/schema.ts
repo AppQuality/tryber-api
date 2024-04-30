@@ -582,12 +582,12 @@ export interface paths {
   "/phases": {
     get: operations["get-phases"];
   };
-  "/dossiers/{campaign}/phase": {
-    put: operations["put-dossiers-campaign-phase"];
+  "/dossiers/{campaign}/phases": {
+    put: operations["put-dossiers-campaign-phases"];
     parameters: {
       path: {
         /** A campaign id */
-        campaign: components["parameters"]["campaign"];
+        campaign: string;
       };
     };
   };
@@ -4328,11 +4328,11 @@ export interface operations {
       };
     };
   };
-  "put-dossiers-campaign-phase": {
+  "put-dossiers-campaign-phases": {
     parameters: {
       path: {
         /** A campaign id */
-        campaign: components["parameters"]["campaign"];
+        campaign: string;
       };
     };
     responses: {
@@ -4349,7 +4349,7 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          phase?: number;
+          phase: number;
         };
       };
     };

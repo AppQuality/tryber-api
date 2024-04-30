@@ -10299,9 +10299,14 @@ paths:
       operationId: get-phases
       security:
         - JWT: []
-  '/dossiers/{campaign}/phase':
+  '/dossiers/{campaign}/phases':
     parameters:
-      - $ref: '#/components/parameters/campaign'
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
     put:
       summary: Your PUT endpoint
       tags: []
@@ -10324,7 +10329,7 @@ paths:
                 required:
                   - id
                   - name
-      operationId: put-dossiers-campaign-phase
+      operationId: put-dossiers-campaign-phases
       requestBody:
         content:
           application/json:
@@ -10335,6 +10340,8 @@ paths:
                   type: integer
                   x-stoplight:
                     id: 0jmutc81ya7sa
+              required:
+                - phase
       security:
         - JWT: []
 components:
