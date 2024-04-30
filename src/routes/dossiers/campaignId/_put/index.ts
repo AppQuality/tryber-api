@@ -188,7 +188,7 @@ export default class RouteItem extends AdminRoute<{
       .where("campaign_dossier_data_id", dossierId);
 
     const countries = this.getBody().countries;
-    if (!countries) return;
+    if (!countries || !countries.length) return;
 
     await tryber.tables.CampaignDossierDataCountries.do().insert(
       countries.map((country) => ({
@@ -213,7 +213,7 @@ export default class RouteItem extends AdminRoute<{
       .where("campaign_dossier_data_id", dossierId);
 
     const languages = this.getBody().languages;
-    if (!languages) return;
+    if (!languages || !languages.length) return;
 
     await tryber.tables.CampaignDossierDataLanguages.do().insert(
       languages.map((lang) => ({
@@ -238,7 +238,7 @@ export default class RouteItem extends AdminRoute<{
       .where("campaign_dossier_data_id", dossierId);
 
     const browsers = this.getBody().browsers;
-    if (!browsers) return;
+    if (!browsers || !browsers.length) return;
 
     await tryber.tables.CampaignDossierDataBrowsers.do().insert(
       browsers.map((browser) => ({
@@ -305,7 +305,7 @@ export default class RouteItem extends AdminRoute<{
 
   private async assignOlps() {
     const roles = this.getBody().roles;
-    if (!roles) return;
+    if (!roles || !roles.length) return;
 
     const roleOlps = await tryber.tables.CustomRoles.do()
       .select("id", "olp")
@@ -324,6 +324,7 @@ export default class RouteItem extends AdminRoute<{
       const wpUserId = wpUserIds.find((r) => r.id === role.user);
       if (olp && wpUserId) {
         const olpObject = JSON.parse(olp);
+        if (!olpObject || !olpObject.length) continue;
         await tryber.tables.WpAppqOlpPermissions.do().insert(
           olpObject.map((olpType: string) => ({
             main_id: this.campaignId,
