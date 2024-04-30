@@ -251,7 +251,7 @@ export default class RouteItem extends AdminRoute<{
   private async linkRolesToCampaign() {
     await this.cleanupCurrentRoles();
     const roles = this.getBody().roles;
-    if (!roles) return;
+    if (!roles || !roles.length) return;
 
     await tryber.tables.CampaignCustomRoles.do().insert(
       roles.map((role) => ({
