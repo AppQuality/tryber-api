@@ -16,6 +16,9 @@ const baseRequest = {
 
 describe("Route POST /dossiers", () => {
   beforeAll(async () => {
+    await tryber.tables.CampaignPhase.do().insert([
+      { id: 1, name: "Test Phase", type_id: 1 },
+    ]);
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
       wp_user_id: 100,
@@ -94,6 +97,7 @@ describe("Route POST /dossiers", () => {
   });
 
   afterAll(async () => {
+    await tryber.tables.CampaignPhase.do().delete();
     await tryber.tables.WpAppqCustomer.do().delete();
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
