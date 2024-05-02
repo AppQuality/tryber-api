@@ -99,10 +99,11 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async triggerStatusChange() {
-    const handler = new StatusChangeHandler(
-      this.campaign.phase_id,
-      this.newPhaseId
-    );
+    const handler = new StatusChangeHandler({
+      newPhase: this.newPhaseId,
+      campaignId: this.campaignId,
+      creator: this.getTesterId(),
+    });
 
     await handler.run();
   }

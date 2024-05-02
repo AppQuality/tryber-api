@@ -161,7 +161,11 @@ describe("Route PUT /dossiers/:id/phases", () => {
       .set("Authorization", "Bearer admin")
       .send({ phase: 2 });
 
-    expect(StatusChangeHandler).toHaveBeenCalledWith(1, 2);
+    expect(StatusChangeHandler).toHaveBeenCalledWith({
+      newPhase: 2,
+      campaignId: 1,
+      creator: 1,
+    });
     expect(StatusChangeHandler.prototype.run).toHaveBeenCalled();
   });
 });
