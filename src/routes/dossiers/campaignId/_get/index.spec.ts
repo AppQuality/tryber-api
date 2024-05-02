@@ -116,7 +116,20 @@ describe("Route GET /dossiers/:id", () => {
     const response = await request(app)
       .get("/dossiers/1")
       .set("authorization", "Bearer admin");
-    console.log(response.body);
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has access to the campaign", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has access to the campaign", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
   });
 
