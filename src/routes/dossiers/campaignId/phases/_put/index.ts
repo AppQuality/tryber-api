@@ -3,6 +3,7 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import { StatusChangeHandler } from "./StatusChangeHandler";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["put-dossiers-campaign-phases"]["responses"]["200"]["content"]["application/json"];
@@ -73,9 +74,36 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
-    this.setSuccess(200, {
-      id: 100,
-      name: "PIPPO",
-    });
+    const newPhase = await this.updatePhase();
+
+    this.setSuccess(200, newPhase);
+  }
+
+  private async updatePhase() {
+    await tryber.tables.WpAppqEvdCampaign.do()
+      .update({ phase_id: this.newPhaseId })
+      .where("id", this.campaignId);
+
+    const result = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(tryber.ref("id").withSchema("campaign_phase"), "name")
+      .join(
+        "campaign_phase",
+        "campaign_phase.id",
+        "wp_appq_evd_campaign.phase_id"
+      )
+      .where("wp_appq_evd_campaign.id", this.campaignId)
+      .first();
+
+    await this.triggerStatusChange();
+    return result;
+  }
+
+  private async triggerStatusChange() {
+    const handler = new StatusChangeHandler(
+      this.campaign.phase_id,
+      this.newPhaseId
+    );
+
+    await handler.run();
   }
 }
