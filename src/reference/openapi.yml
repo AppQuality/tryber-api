@@ -9979,6 +9979,22 @@ paths:
                     required:
                       - id
                       - name
+                  phase:
+                    type: object
+                    x-stoplight:
+                      id: rs89ajijla1kn
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: q9ebzl51ln517
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: dm8wvzioqfoid
                 required:
                   - id
                   - title
@@ -9990,6 +10006,7 @@ paths:
                   - testType
                   - deviceList
                   - csm
+                  - phase
               examples:
                 Example 1:
                   value:
@@ -10245,6 +10262,88 @@ paths:
       operationId: get-productTypes
       description: ''
     parameters: []
+  /phases:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    x-stoplight:
+                      id: v3nmpsqm6avkm
+                    items:
+                      x-stoplight:
+                        id: t8xafvy0ygkk2
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: gvx5dzxct64br
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: e7bpgmwgih5mb
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+      operationId: get-phases
+      security:
+        - JWT: []
+  '/dossiers/{campaign}/phases':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    put:
+      summary: Your PUT endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: 3ir2671nik0ot
+                  name:
+                    type: string
+                    x-stoplight:
+                      id: 12by584z698iq
+                required:
+                  - id
+                  - name
+      operationId: put-dossiers-campaign-phases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phase:
+                  type: integer
+                  x-stoplight:
+                    id: 0jmutc81ya7sa
+              required:
+                - phase
+      security:
+        - JWT: []
 components:
   schemas:
     AdditionalField:

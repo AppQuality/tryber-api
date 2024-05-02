@@ -15,6 +15,11 @@ const baseRequest = {
 
 describe("Route POST /dossiers", () => {
   beforeAll(async () => {
+    await tryber.tables.CampaignPhase.do().insert({
+      id: 1,
+      name: "Draft",
+      type_id: 1,
+    });
     await tryber.tables.WpAppqCustomer.do().insert({
       id: 1,
       company: "Test Company",
