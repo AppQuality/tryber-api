@@ -719,6 +719,22 @@ paths:
                                   type: string
                               required:
                                 - name
+                            phase:
+                              type: object
+                              x-stoplight:
+                                id: 99cgph0clnzjb
+                              properties:
+                                id:
+                                  type: integer
+                                  x-stoplight:
+                                    id: 5c61zclzvbcds
+                                name:
+                                  type: string
+                                  x-stoplight:
+                                    id: 192pfrpi90clp
+                              required:
+                                - id
+                                - name
                   - $ref: '#/components/schemas/PaginationData'
         '403':
           $ref: '#/components/responses/NotAuthorized'
