@@ -59,7 +59,13 @@ export default class RouteItem extends UserRoute<{
         tryber
           .ref("customer_id")
           .withSchema("wp_appq_project")
-          .as("customer_id")
+          .as("customer_id"),
+        tryber
+          .ref("id")
+
+          .withSchema("campaign_phase")
+          .as("phase_id"),
+        tryber.ref("name").withSchema("campaign_phase").as("phase_name")
       )
       .join(
         "wp_appq_project",
@@ -80,6 +86,11 @@ export default class RouteItem extends UserRoute<{
         "wp_appq_evd_profile",
         "wp_appq_evd_profile.id",
         "wp_appq_evd_campaign.pm_id"
+      )
+      .join(
+        "campaign_phase",
+        "campaign_phase.id",
+        "wp_appq_evd_campaign.phase_id"
       )
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
@@ -236,6 +247,10 @@ export default class RouteItem extends UserRoute<{
         csm: {
           id: this.campaign.pm_id,
           name: `${this.campaign.pm_name} ${this.campaign.pm_surname}`,
+        },
+        phase: {
+          id: this.campaign.phase_id,
+          name: this.campaign.phase_name,
         },
         ...(this.campaign.roles.length
           ? {

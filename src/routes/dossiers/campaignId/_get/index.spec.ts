@@ -4,6 +4,13 @@ import request from "supertest";
 
 describe("Route GET /dossiers/:id", () => {
   beforeAll(async () => {
+    await tryber.tables.CampaignPhase.do().insert([
+      {
+        id: 1,
+        name: "Active",
+        type_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqCustomer.do().insert({
       id: 1,
       company: "Test Company",
@@ -93,6 +100,9 @@ describe("Route GET /dossiers/:id", () => {
     await tryber.tables.WpAppqEvdPlatform.do().delete();
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqEvdProfile.do().delete();
+    await tryber.tables.CustomRoles.do().delete();
+    await tryber.tables.CampaignCustomRoles.do().delete();
+    await tryber.tables.CampaignPhase.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -259,6 +269,17 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.body.roles[0].user).toHaveProperty("id", 2);
     expect(response.body.roles[0].user).toHaveProperty("name", "Test");
     expect(response.body.roles[0].user).toHaveProperty("surname", "PM");
+  });
+
+  it("Should return the phase", async () => {
+    const response = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("phase");
+    expect(response.body.phase).toHaveProperty("id", 1);
+    expect(response.body.phase).toHaveProperty("name", "Active");
   });
 
   describe("With dossier data", () => {

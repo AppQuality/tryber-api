@@ -579,6 +579,18 @@ export interface paths {
     get: operations["get-productTypes"];
     parameters: {};
   };
+  "/phases": {
+    get: operations["get-phases"];
+  };
+  "/dossiers/{campaign}/phases": {
+    put: operations["put-dossiers-campaign-phases"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -4174,6 +4186,10 @@ export interface operations {
               id: number;
               name: string;
             };
+            phase: {
+              id: number;
+              name: string;
+            };
           };
         };
       };
@@ -4293,6 +4309,47 @@ export interface operations {
               name: string;
             }[];
           };
+        };
+      };
+    };
+  };
+  "get-phases": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "put-dossiers-campaign-phases": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          phase: number;
         };
       };
     };
