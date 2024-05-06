@@ -758,11 +758,15 @@ paths:
                                     required:
                                       - id
                                       - name
+                                      - surname
                                     properties:
                                       id:
                                         type: integer
                                         
                                       name:
+                                        type: string
+                                        
+                                      surname:
                                         type: string
                                         
                                 required:

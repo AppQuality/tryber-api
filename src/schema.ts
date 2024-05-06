@@ -1261,6 +1261,7 @@ export interface operations {
                 user: {
                   id: number;
                   name: string;
+                  surname: string;
                 };
               }[];
             }[];
