@@ -18,6 +18,7 @@ const ACCEPTABLE_FIELDS = [
   "status" as const,
   "type" as const,
   "phase" as const,
+  "roles" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -237,7 +238,9 @@ class RouteItem extends UserRoute<{
             },
           }
         : {}),
-      ...(this.fields.includes("phase")
+      ...(this.fields.includes("phase") &&
+      campaign.phase_id &&
+      campaign.phase_name
         ? {
             phase: {
               id: campaign.phase_id,
@@ -247,6 +250,10 @@ class RouteItem extends UserRoute<{
         : {}),
       visibility: this.getVisibilityName(campaign.visibility),
       resultType: this.getResultTypeName(campaign.resultType),
+
+      ...(this.fields.includes("roles") && {
+        roles: [],
+      }),
     }));
   }
 

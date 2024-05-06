@@ -120,6 +120,7 @@ describe("GET /campaigns", () => {
           visibility: "admin",
           resultType: "bug",
           phase: { id: 1, name: "Draft" },
+          roles: [],
         },
         {
           id: 3,
@@ -135,6 +136,7 @@ describe("GET /campaigns", () => {
           visibility: "admin",
           resultType: "bug",
           phase: { id: 1, name: "Draft" },
+          roles: [],
         },
       ])
     );

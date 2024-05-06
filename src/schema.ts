@@ -1249,6 +1249,20 @@ export interface operations {
                 id?: number;
                 name: string;
               };
+              phase?: {
+                id: number;
+                name: string;
+              };
+              roles?: {
+                role: {
+                  id: number;
+                  name: string;
+                };
+                user: {
+                  id: number;
+                  name: string;
+                };
+              }[];
             }[];
           } & components["schemas"]["PaginationData"];
         };
