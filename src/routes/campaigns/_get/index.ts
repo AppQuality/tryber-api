@@ -50,6 +50,10 @@ class RouteItem extends UserRoute<{
     type?: number[];
     status?: "closed" | "running" | "incoming";
     csm?: number;
+    roles?: {
+      id: number;
+      value: number[];
+    }[];
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -108,6 +112,15 @@ class RouteItem extends UserRoute<{
       if ((query.filterBy as any).csm) {
         const csmId = (query.filterBy as any).csm;
         this.filterBy.csm = Number(csmId);
+      }
+      const roles = Object.entries(
+        query.filterBy as { [key: string]: string }
+      ).filter(([key]) => key.startsWith("role_"));
+      if (roles.length) {
+        this.filterBy.roles = roles.map(([key, value]) => ({
+          id: parseInt(key.split("_")[1]),
+          value: value.split(",").map((id: string) => parseInt(id)),
+        }));
       }
     }
   }
@@ -436,6 +449,18 @@ class RouteItem extends UserRoute<{
             .where("wp_appq_evd_campaign.status_id", 1)
             .where("wp_appq_evd_campaign.start_date", ">", tryber.fn.now());
         }
+      }
+
+      if (this.filterBy.roles) {
+        this.filterBy.roles.forEach((role) => {
+          query = query.whereIn(
+            "wp_appq_evd_campaign.id",
+            tryber.tables.CampaignCustomRoles.do()
+              .select("campaign_id")
+              .where("custom_role_id", role.id)
+              .whereIn("tester_id", role.value)
+          );
+        });
       }
     });
   }
