@@ -50,6 +50,7 @@ describe("GET /campaigns", () => {
       { ...campaign, id: 1, title: "First campaign" },
       { ...campaign, id: 2, title: "Second campaign" },
       { ...campaign, id: 3, title: "Third campaign" },
+      { ...campaign, id: 4, title: "Fourth campaign" },
     ]);
 
     await tryber.tables.CustomRoles.do().insert([
