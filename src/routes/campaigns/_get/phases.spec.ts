@@ -75,4 +75,26 @@ describe("GET /campaigns", () => {
       ])
     );
   });
+
+  it("Should allow filtering by phase", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[phase]=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.items).toHaveLength(1);
+
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          phase: {
+            id: 1,
+            name: "Draft",
+          },
+        }),
+      ])
+    );
+  });
 });
