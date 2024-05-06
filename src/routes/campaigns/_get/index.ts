@@ -18,9 +18,15 @@ const ACCEPTABLE_FIELDS = [
   "status" as const,
   "type" as const,
   "phase" as const,
+  "roles" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
+type Roles = NonNullable<
+  NonNullable<
+    StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"]["items"]
+  >[0]["roles"]
+>;
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
@@ -165,7 +171,7 @@ class RouteItem extends UserRoute<{
 
     query.orderBy(this.orderBy, this.order);
 
-    return (await query) as {
+    const results: {
       id?: number;
       name?: string;
       startDate?: string;
@@ -185,7 +191,65 @@ class RouteItem extends UserRoute<{
       resultType?: -1 | 0 | 1;
       phase_id?: number;
       phase_name?: string;
-    }[];
+    }[] = await query;
+
+    const withRoles = this.addRoles(results);
+
+    return withRoles;
+  }
+
+  private async addRoles<T extends { id?: number }>(
+    campaigns: T[]
+  ): Promise<(T & { roles?: Roles })[]> {
+    if (!this.fields.includes("roles")) return campaigns;
+    const roles = await tryber.tables.CampaignCustomRoles.do()
+      .select(
+        "campaign_id",
+        "custom_role_id",
+        tryber.ref("name").withSchema("custom_roles").as("custom_role_name"),
+        "tester_id",
+        tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name"),
+        tryber
+          .ref("surname")
+          .withSchema("wp_appq_evd_profile")
+          .as("tester_surname")
+      )
+      .join(
+        "custom_roles",
+        "custom_roles.id",
+        "campaign_custom_roles.custom_role_id"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "campaign_custom_roles.tester_id"
+      )
+      .whereIn(
+        "campaign_id",
+        campaigns.map((result) => result.id || 0)
+      );
+
+    return campaigns.map((campaign) => {
+      const rolesForCampaign = roles.filter(
+        (role) => role.campaign_id === campaign.id
+      );
+      const results = rolesForCampaign.map((role) => ({
+        role: {
+          id: role.custom_role_id,
+          name: role.custom_role_name,
+        },
+        user: {
+          id: role.tester_id,
+          name: role.tester_name,
+          surname: role.tester_surname,
+        },
+      }));
+
+      return {
+        ...campaign,
+        roles: results,
+      };
+    });
   }
 
   private formatCampaigns(
@@ -237,7 +301,9 @@ class RouteItem extends UserRoute<{
             },
           }
         : {}),
-      ...(this.fields.includes("phase")
+      ...(this.fields.includes("phase") &&
+      campaign.phase_id &&
+      campaign.phase_name
         ? {
             phase: {
               id: campaign.phase_id,
@@ -247,6 +313,10 @@ class RouteItem extends UserRoute<{
         : {}),
       visibility: this.getVisibilityName(campaign.visibility),
       resultType: this.getResultTypeName(campaign.resultType),
+
+      ...(this.fields.includes("roles") && {
+        roles: campaign.roles,
+      }),
     }));
   }
 
