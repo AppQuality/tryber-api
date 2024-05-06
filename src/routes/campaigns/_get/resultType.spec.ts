@@ -17,6 +17,9 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.CampaignPhase.do().insert([
+      { id: 1, name: "Draft", type_id: 1 },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         ...campaign,
@@ -39,6 +42,7 @@ describe("GET /campaigns", () => {
     ]);
   });
   afterAll(async () => {
+    await tryber.tables.CampaignPhase.do().delete();
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 

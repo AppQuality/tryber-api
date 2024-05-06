@@ -153,6 +153,7 @@ export default class RouteItem extends AdminRoute<{
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
+        description: "",
         pm_id: this.getCsmId(),
         project_id: this.getBody().project,
         campaign_type_id: this.getBody().testType,

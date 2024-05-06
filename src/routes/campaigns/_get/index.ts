@@ -17,6 +17,7 @@ const ACCEPTABLE_FIELDS = [
   "resultType" as const,
   "status" as const,
   "type" as const,
+  "phase" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -152,6 +153,7 @@ class RouteItem extends UserRoute<{
     this.addTypeTo(query);
     this.addVisibilityTo(query);
     this.addResultTypeTo(query);
+    this.addPhaseTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -181,6 +183,8 @@ class RouteItem extends UserRoute<{
       type_area?: 0 | 1;
       visibility?: 0 | 1 | 2 | 3;
       resultType?: -1 | 0 | 1;
+      phase_id?: number;
+      phase_name?: string;
     }[];
   }
 
@@ -230,6 +234,14 @@ class RouteItem extends UserRoute<{
             type: {
               name: campaign.type_name || "no type",
               area: this.getArea(campaign.type_area) || "quality",
+            },
+          }
+        : {}),
+      ...(this.fields.includes("phase")
+        ? {
+            phase: {
+              id: campaign.phase_id,
+              name: campaign.phase_name,
             },
           }
         : {}),
@@ -495,6 +507,23 @@ class RouteItem extends UserRoute<{
     query.modify((query) => {
       if (this.fields.includes("resultType")) {
         query.select(tryber.ref("campaign_type").as("resultType"));
+      }
+    });
+  }
+
+  private addPhaseTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("phase")) {
+        query
+          .leftJoin(
+            "campaign_phase",
+            "campaign_phase.id",
+            "wp_appq_evd_campaign.phase_id"
+          )
+          .select(
+            tryber.ref("campaign_phase.id").as("phase_id"),
+            tryber.ref("campaign_phase.name").as("phase_name")
+          );
       }
     });
   }

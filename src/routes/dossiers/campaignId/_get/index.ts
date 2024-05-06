@@ -2,9 +2,9 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
-import AdminRoute from "@src/features/routes/AdminRoute";
+import UserRoute from "@src/features/routes/UserRoute";
 
-export default class RouteItem extends AdminRoute<{
+export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-dossiers-campaign"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-dossiers-campaign"]["parameters"]["path"];
 }> {
@@ -194,12 +194,21 @@ export default class RouteItem extends AdminRoute<{
   protected async filter() {
     if (!(await super.filter())) return false;
 
+    if (await this.doesNotHaveAccessToCampaign()) {
+      this.setError(403, new OpenapiError("No access to campaign"));
+      return false;
+    }
+
     if (!(await this.campaignExists())) {
       this.setError(403, new OpenapiError("Campaign does not exist"));
       return false;
     }
 
     return true;
+  }
+
+  private async doesNotHaveAccessToCampaign() {
+    return !this.hasAccessToCampaign(this.campaignId);
   }
 
   private async campaignExists(): Promise<boolean> {
