@@ -116,4 +116,20 @@ describe("Route PUT /dossiers/:id", () => {
       .send(baseRequest);
     expect(response.status).toBe(200);
   });
+
+  it("Should answer 200 if user has access to the campaign", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .send(baseRequest)
+      .set("authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has access to the campaign", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .send(baseRequest)
+      .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+  });
 });
