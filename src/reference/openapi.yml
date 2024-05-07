@@ -721,40 +721,31 @@ paths:
                                 - name
                             phase:
                               type: object
-                              
                               properties:
                                 id:
                                   type: integer
-                                  
                                 name:
                                   type: string
-                                  
                               required:
                                 - id
                                 - name
                             roles:
                               type: array
-                              
                               items:
-                                
                                 type: object
                                 properties:
                                   role:
                                     type: object
-                                    
                                     required:
                                       - id
                                       - name
                                     properties:
                                       id:
                                         type: integer
-                                        
                                       name:
                                         type: string
-                                        
                                   user:
                                     type: object
-                                    
                                     required:
                                       - id
                                       - name
@@ -762,13 +753,10 @@ paths:
                                     properties:
                                       id:
                                         type: integer
-                                        
                                       name:
                                         type: string
-                                        
                                       surname:
                                         type: string
-                                        
                                 required:
                                   - role
                                   - user
@@ -4202,10 +4190,8 @@ paths:
                 properties:
                   id:
                     type: integer
-                    
                   name:
                     type: string
-                    
                 required:
                   - id
                   - name
@@ -4219,7 +4205,6 @@ paths:
               properties:
                 name:
                   type: string
-                  
               required:
                 - name
   /custom_user_fields:
@@ -9783,27 +9768,20 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
                 - type: object
-                  
                   properties:
                     duplicate:
                       type: object
-                      
                       properties:
                         fields:
                           type: integer
-                          
                         useCases:
                           type: integer
-                          
                         mailMerges:
                           type: integer
-                          
                         pages:
                           type: integer
-                          
                         testers:
                           type: integer
-                          
   '/dossiers/{campaign}':
     parameters:
       - name: campaign
@@ -9968,62 +9946,48 @@ paths:
                       $ref: '#/components/schemas/CountryCode'
                   languages:
                     type: array
-                    
                     items:
-                      
                       type: object
                       properties:
                         id:
                           type: integer
-                          
                         name:
                           type: string
-                          
                       required:
                         - id
                         - name
                   browsers:
                     type: array
-                    
                     items:
-                      
                       type: object
                       properties:
                         id:
                           type: integer
-                          
                         name:
                           type: string
-                          
                       required:
                         - id
                         - name
                   productType:
                     type: object
-                    
                     properties:
                       id:
                         type: number
-                        
                       name:
                         type: string
-                        
                     required:
                       - id
                       - name
                   phase:
                     type: object
-                    
                     required:
                       - id
                       - name
                     properties:
                       id:
                         type: integer
-                        
                       name:
                         type: string
-                        
                 required:
                   - id
                   - title
@@ -10119,10 +10083,8 @@ paths:
                 properties:
                   id:
                     type: number
-                    
                   name:
                     type: string
-                    
                 required:
                   - id
                   - name
@@ -10136,7 +10098,6 @@ paths:
               properties:
                 name:
                   type: string
-                  
               required:
                 - name
   '/users/by-role/{role}':
@@ -10153,20 +10114,15 @@ paths:
                 properties:
                   results:
                     type: array
-                    
                     items:
-                      
                       type: object
                       properties:
                         id:
                           type: integer
-                          
                         name:
                           type: string
-                          
                         surname:
                           type: string
-                          
                       required:
                         - id
                         - name
@@ -10201,17 +10157,13 @@ paths:
                 properties:
                   results:
                     type: array
-                    
                     items:
-                      
                       type: object
                       properties:
                         id:
                           type: integer
-                          
                         name:
                           type: string
-                          
                       required:
                         - id
                         - name
@@ -10246,17 +10198,13 @@ paths:
                 properties:
                   results:
                     type: array
-                    
                     items:
-                      
                       type: object
                       properties:
                         id:
                           type: integer
-                          
                         name:
                           type: string
-                          
                       required:
                         - id
                         - name
@@ -10289,20 +10237,33 @@ paths:
                 properties:
                   results:
                     type: array
-                    
                     items:
-                      
                       type: object
                       properties:
                         id:
                           type: integer
-                          
                         name:
                           type: string
-                          
+                        type:
+                          type: object
+                          x-stoplight:
+                            id: jmjdmy2wzbrvx
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                              x-stoplight:
+                                id: qlltod4as9yce
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: lokz0tin3f5ad
                       required:
                         - id
                         - name
+                        - type
                 required:
                   - results
       operationId: get-phases
@@ -10329,10 +10290,8 @@ paths:
                 properties:
                   id:
                     type: integer
-                    
                   name:
                     type: string
-                    
                 required:
                   - id
                   - name
@@ -10345,7 +10304,6 @@ paths:
               properties:
                 phase:
                   type: integer
-                  
               required:
                 - phase
       security:
