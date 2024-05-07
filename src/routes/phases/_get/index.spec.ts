@@ -8,6 +8,10 @@ describe("Route GET /phases", () => {
       { id: 1, name: "Phase 1", type_id: 1 },
       { id: 2, name: "Phase 2", type_id: 2 },
     ]);
+    await tryber.tables.CampaignPhaseType.do().insert([
+      { id: 1, name: "Type 1" },
+      { id: 2, name: "Type 2" },
+    ]);
   });
 
   afterAll(async () => {
@@ -57,8 +61,8 @@ describe("Route GET /phases", () => {
     expect(response.body).toHaveProperty("results");
     expect(response.body.results).toHaveLength(2);
     expect(response.body.results).toEqual([
-      { id: 1, name: "Phase 1" },
-      { id: 2, name: "Phase 2" },
+      { id: 1, name: "Phase 1", type: { id: 1, name: "Type 1" } },
+      { id: 2, name: "Phase 2", type: { id: 2, name: "Type 2" } },
     ]);
   });
 });
