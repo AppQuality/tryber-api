@@ -4337,6 +4337,10 @@ export interface operations {
             results: {
               id: number;
               name: string;
+              type: {
+                id: number;
+                name: string;
+              };
             }[];
           };
         };
