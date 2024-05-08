@@ -2,6 +2,7 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import Campaign from "@src/features/class/Campaign";
+import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class UserSingleCampaignRoute extends UserRoute<{
@@ -12,8 +13,33 @@ export default class UserSingleCampaignRoute extends UserRoute<{
 
   protected async filter(): Promise<boolean> {
     if (await this.testerIsNotCandidate()) return false;
+    if (await this.campaignIsUnavailable()) return false;
 
     return true;
+  }
+
+  private async campaignIsUnavailable() {
+    const phaseType = await tryber.tables.WpAppqEvdCampaign.do()
+      .join(
+        "campaign_phase",
+        "campaign_phase.id",
+        "wp_appq_evd_campaign.phase_id"
+      )
+      .join(
+        "campaign_phase_type",
+        "campaign_phase_type.id",
+        "campaign_phase.type_id"
+      )
+      .select("campaign_phase_type.name")
+      .where("wp_appq_evd_campaign.id", this.campaignId)
+      .first();
+
+    if (!phaseType || phaseType.name === "unavailable") {
+      this.setError(404, new OpenapiError("This campaign does not exist"));
+      return true;
+    }
+
+    return false;
   }
 
   protected async prepare() {
