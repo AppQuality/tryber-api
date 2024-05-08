@@ -1,9 +1,9 @@
 import * as db from "@src/features/db";
-import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns from "@src/features/db/class/Campaigns";
+import UserRoute from "@src/features/routes/UserRoute";
 
-import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 import { tryber } from "@src/features/database";
+import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 
 /** OPENAPI-CLASS: get-users-me-campaigns */
 
@@ -150,7 +150,18 @@ class RouteItem extends UserRoute<{
         "wp_appq_campaign_type",
         "wp_appq_campaign_type.id",
         "wp_appq_evd_campaign.campaign_type_id"
-      );
+      )
+      .join(
+        "campaign_phase",
+        "campaign_phase.id",
+        "wp_appq_evd_campaign.phase_id"
+      )
+      .join(
+        "campaign_phase_type",
+        "campaign_phase_type.id",
+        "campaign_phase.type_id"
+      )
+      .whereNot("campaign_phase_type.name", "unavailable");
 
     if (!this.filterByAccepted()) {
       const pageAccess = await this.getPageAccess();

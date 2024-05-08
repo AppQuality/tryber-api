@@ -2,17 +2,24 @@ import campaigns from "@src/__mocks__/mockedDb/campaign";
 import campaignTypes from "@src/__mocks__/mockedDb/campaignType";
 import candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 import request from "supertest";
 
 jest.mock("@src/features/wp/resolvePermalinks");
 describe("GET /users/me/campaigns - pagination ", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     (resolvePermalinks as jest.Mock).mockImplementation(() => {
       return {
         1: { en: "en/test1", it: "it/test1", es: "es/test1" },
         2: { en: "en/test2", it: "it/test2", es: "es/test2" },
       };
+    });
+
+    await tryber.seeds().campaign_statuses();
+
+    campaignTypes.insert({
+      id: 1,
     });
     const basicCampaignObject = {
       title: "My campaign",
@@ -23,49 +30,50 @@ describe("GET /users/me/campaigns - pagination ", () => {
       page_preview_id: 1,
       page_manual_id: 2,
       os: "1",
-      is_public: 1 as 0,
-      status_id: 1 as 1,
+      is_public: 1,
+      status_id: 1,
+      pm_id: 1,
+      platform_id: 1,
+      customer_id: 1,
+      project_id: 1,
+      customer_title: "Customer title",
+      phase_id: 10,
     };
-    campaignTypes.insert({
-      id: 1,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 1,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 2,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 3,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 4,
-      status_id: 2,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 5,
-      status_id: 2,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 6,
-      status_id: 2,
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 7,
-      status_id: 2,
-    });
-
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 8,
-    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      {
+        ...basicCampaignObject,
+        id: 1,
+      },
+      {
+        ...basicCampaignObject,
+        id: 2,
+      },
+      {
+        ...basicCampaignObject,
+        id: 3,
+      },
+      {
+        ...basicCampaignObject,
+        id: 4,
+        status_id: 2,
+      },
+      {
+        ...basicCampaignObject,
+        id: 5,
+        status_id: 2,
+      },
+      {
+        ...basicCampaignObject,
+        id: 6,
+        status_id: 2,
+      },
+      {
+        ...basicCampaignObject,
+        id: 7,
+        status_id: 2,
+      },
+      { ...basicCampaignObject, id: 8 },
+    ]);
     candidature.insert({
       campaign_id: 8,
       user_id: 1,
