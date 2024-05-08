@@ -80,10 +80,19 @@ export default class PostBugsOnCampaignRoute extends UserRoute<{
 
   private async campaignDoesNotExists() {
     const result = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("id")
-      .where({
-        id: this.campaignId,
-      })
+      .select(tryber.ref("id").withSchema("wp_appq_evd_campaign"))
+      .join(
+        "campaign_phase",
+        "campaign_phase.id",
+        "wp_appq_evd_campaign.phase_id"
+      )
+      .join(
+        "campaign_phase_type",
+        "campaign_phase_type.id",
+        "campaign_phase.type_id"
+      )
+      .where("wp_appq_evd_campaign.id", this.campaignId)
+      .whereNot("campaign_phase_type.name", "unavailable")
       .first();
     if (result) return false;
     this.setError(
