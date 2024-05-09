@@ -4,6 +4,8 @@ import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import AdminRoute from "@src/features/routes/AdminRoute";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
+import crypto from "crypto";
+import { serialize } from "php-serialize";
 import { unserialize } from "php-unserialize";
 
 export default class RouteItem extends AdminRoute<{
@@ -383,31 +385,80 @@ export default class RouteItem extends AdminRoute<{
       const defaultLanguage = await this.getDefaultLanguage();
       if (!defaultLanguage) return;
       if (manualId) {
+        const manualTranslations: { [key: string]: number } = {
+          [defaultLanguage]: manualId,
+        };
         const parsedTranslations = await this.getPageTranslationIds({
           pageId: page_manual_id,
           defaultLanguage,
         });
         for (const t in parsedTranslations) {
-          await this.duplicatePage({
+          const transId = await this.duplicatePage({
             pageId: parsedTranslations[t],
             campaignId,
           });
+          if (transId) manualTranslations[t] = transId;
         }
+        await this.createPolylangTranslations({
+          id: manualId,
+          translations: manualTranslations,
+        });
       }
 
       if (previewId) {
+        const previewTranslations: { [key: string]: number } = {
+          [defaultLanguage]: previewId,
+        };
         const parsedTranslations = await this.getPageTranslationIds({
           pageId: page_preview_id,
           defaultLanguage,
         });
         for (const t in parsedTranslations) {
-          await this.duplicatePage({
+          const transId = await this.duplicatePage({
             pageId: parsedTranslations[t],
             campaignId,
           });
+          if (transId) previewTranslations[t] = transId;
         }
+        await this.createPolylangTranslations({
+          id: previewId,
+          translations: previewTranslations,
+        });
       }
     }
+  }
+
+  private async createPolylangTranslations({
+    id,
+    translations,
+  }: {
+    id: number;
+    translations: { [key: string]: number };
+  }) {
+    const term_name = crypto
+      .createHash("md5")
+      .update(id.toString())
+      .digest("hex");
+    const term = await tryber.tables.WpTerms.do()
+      .insert({
+        name: `pll_${term_name}`,
+        slug: `pll_${term_name}`,
+      })
+      .returning("term_id");
+
+    const term_id = term[0].term_id ?? term[0];
+
+    await tryber.tables.WpTermTaxonomy.do().insert({
+      term_id: term_id,
+      term_taxonomy_id: term_id,
+      taxonomy: "post_translations",
+      description: serialize(translations),
+    });
+
+    await tryber.tables.WpTermRelationships.do().insert({
+      object_id: id,
+      term_taxonomy_id: term_id,
+    });
   }
 
   private async duplicatePage({
