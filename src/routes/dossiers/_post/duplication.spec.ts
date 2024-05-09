@@ -148,6 +148,11 @@ describe("Route POST /dossiers - duplication", () => {
       { object_id: 2, term_taxonomy_id: 2 },
     ]);
 
+    await tryber.tables.WpTerms.do().insert([
+      { term_id: 1, name: "pll_1234567", slug: "pll_1234567" },
+      { term_id: 2, name: "pll_1234567", slug: "pll_1234567" },
+    ]);
+
     await tryber.tables.WpTermTaxonomy.do().insert([
       {
         term_taxonomy_id: 1,
@@ -209,6 +214,7 @@ describe("Route POST /dossiers - duplication", () => {
     await tryber.tables.WpTermRelationships.do().delete();
     await tryber.tables.WpTermTaxonomy.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+    await tryber.tables.WpTerms.do().delete();
 
     jest.clearAllMocks();
   });
