@@ -403,6 +403,14 @@ export default class RouteItem extends AdminRoute<{
           id: manualId,
           translations: manualTranslations,
         });
+        for (const transId of Object.values(manualTranslations)) {
+          await tryber.tables.WpPostmeta.do()
+            .update({
+              meta_value: campaignId.toString(),
+            })
+            .where("meta_key", "man_campaign_id")
+            .where("post_id", transId);
+        }
       }
 
       if (previewId) {
@@ -447,6 +455,7 @@ export default class RouteItem extends AdminRoute<{
       .returning("term_id");
 
     const term_id = term[0].term_id ?? term[0];
+    console.log(term_id);
 
     await tryber.tables.WpTermTaxonomy.do().insert({
       term_id: term_id,
