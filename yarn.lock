@@ -4713,6 +4713,11 @@ pg-connection-string@2.6.1:
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.6.1.tgz#78c23c21a35dd116f48e12e23c0965e8d9e2cbfb"
   integrity sha512-w6ZzNu6oMmIzEAYVw+RLK0+nqHPt8K3ZnknKi+g48Ak2pr3dtljJW3o+D/n2zzCG07Zoe9VOX3aiKpj+BN0pjg==
 
+php-serialize@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/php-serialize/-/php-serialize-4.1.1.tgz#1a614fde3da42361af05afffbaf967fb6556591e"
+  integrity sha512-7drCrSZdJ05UdG3hyYEIRW0XyKyUFkxa5A3dpIp3NTjUHpI080pkdBAvqaBtkA+kBkMeXX3XnaSnaLGJRz071A==
+
 php-unserialize@^0.0.1:
   version "0.0.1"
   resolved "https://registry.npmjs.org/php-unserialize/-/php-unserialize-0.0.1.tgz"
