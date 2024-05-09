@@ -359,9 +359,11 @@ export default class RouteItem extends AdminRoute<{
     });
 
     if (manualId) {
-      await tryber.tables.WpAppqEvdCampaign.do().update({
-        page_manual_id: manualId,
-      });
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({
+          page_manual_id: manualId,
+        })
+        .where("id", campaignId);
     }
 
     const previewId = await this.duplicatePage({
@@ -370,9 +372,11 @@ export default class RouteItem extends AdminRoute<{
     });
 
     if (previewId) {
-      await tryber.tables.WpAppqEvdCampaign.do().update({
-        page_preview_id: previewId,
-      });
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({
+          page_preview_id: previewId,
+        })
+        .where("id", campaignId);
     }
 
     if (manualId || previewId) {
