@@ -384,6 +384,7 @@ export default class RouteItem extends AdminRoute<{
     if (manualId || previewId) {
       const defaultLanguage = await this.getDefaultLanguage();
       if (!defaultLanguage) return;
+      const languages = await this.getPolylangLanguages();
       if (manualId) {
         const manualTranslations: { [key: string]: number } = {
           [defaultLanguage]: manualId,
@@ -402,6 +403,7 @@ export default class RouteItem extends AdminRoute<{
         await this.createPolylangTranslations({
           id: manualId,
           translations: manualTranslations,
+          languages,
         });
         for (const transId of Object.values(manualTranslations)) {
           await tryber.tables.WpPostmeta.do()
@@ -431,6 +433,7 @@ export default class RouteItem extends AdminRoute<{
         await this.createPolylangTranslations({
           id: previewId,
           translations: previewTranslations,
+          languages,
         });
       }
     }
@@ -439,9 +442,11 @@ export default class RouteItem extends AdminRoute<{
   private async createPolylangTranslations({
     id,
     translations,
+    languages,
   }: {
     id: number;
     translations: { [key: string]: number };
+    languages: { [key: string]: any };
   }) {
     const term_name = crypto
       .createHash("md5")
@@ -455,7 +460,6 @@ export default class RouteItem extends AdminRoute<{
       .returning("term_id");
 
     const term_id = term[0].term_id ?? term[0];
-    console.log(term_id);
 
     await tryber.tables.WpTermTaxonomy.do().insert({
       term_id: term_id,
@@ -468,6 +472,17 @@ export default class RouteItem extends AdminRoute<{
       object_id: id,
       term_taxonomy_id: term_id,
     });
+
+    for (const trans of Object.keys(translations)) {
+      const transId = translations[trans];
+      const langId = trans in languages ? languages[trans] : false;
+      if (langId) {
+        await tryber.tables.WpTermRelationships.do().insert({
+          object_id: transId,
+          term_taxonomy_id: langId,
+        });
+      }
+    }
   }
 
   private async duplicatePage({
@@ -557,6 +572,24 @@ export default class RouteItem extends AdminRoute<{
     }
     if (!("default_lang" in parsedOptions)) return false;
     return parsedOptions.default_lang;
+  }
+
+  private async getPolylangLanguages() {
+    const languages = await tryber.tables.WpTermTaxonomy.do()
+      .select("term_id", "description")
+      .where("taxonomy", "language");
+
+    let parsedLanguages: { [key: string]: number } = {};
+    for (const language of languages) {
+      try {
+        const lang = unserialize(language.description);
+        if ("locale" in lang)
+          parsedLanguages[lang.locale.split("_")[0]] = language.term_id;
+      } catch (e) {
+        continue;
+      }
+    }
+    return parsedLanguages;
   }
 
   private async getPageTranslationIds({
