@@ -119,13 +119,9 @@ export default class RouteItem extends UserRoute<{
     await tryber.tables.WpAppqEvdCampaign.do()
       .update({
         title: this.getBody().title.tester,
-        platform_id: 0,
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
         close_date: this.getCloseDate(),
-        page_preview_id: 0,
-        page_manual_id: 0,
-        customer_id: 0,
         pm_id: this.getTesterId(),
         project_id: this.getBody().project,
         campaign_type_id: this.getBody().testType,
