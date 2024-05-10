@@ -60,7 +60,7 @@ class StatusChangeHandler {
   private async handleStatusChange(type: string) {
     if (type === "closed") {
       await tryber.tables.WpAppqEvdCampaign.do()
-        .update({ status_id: 2 })
+        .update({ status_id: 2, close_date: tryber.fn.now() })
         .where("id", this.campaignId);
     } else {
       await tryber.tables.WpAppqEvdCampaign.do()

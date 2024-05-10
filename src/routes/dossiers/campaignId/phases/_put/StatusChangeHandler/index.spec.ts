@@ -97,6 +97,25 @@ describe("StatusChangeHandler", () => {
     expect(campaign.status_id).toBe(2);
   });
 
+  it("Should change the close date when changing to a closed phase", async () => {
+    const handler = new StatusChangeHandler({
+      newPhase: 3,
+      campaignId: 1,
+      creator: 1,
+    });
+
+    await handler.run();
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("close_date")
+      .where("id", 1)
+      .first();
+
+    if (!campaign) throw new Error("Campaign not found");
+    const now = new Date().toISOString().replace("T", " ").split(".")[0];
+    expect(campaign.close_date).toBe(now);
+  });
+
   it("Should change the status_id when changing from closed phase", async () => {
     const handler = new StatusChangeHandler({
       newPhase: 1,
