@@ -190,6 +190,12 @@ export default class RouteItem extends AdminRoute<{
 
     const dossierId = dossier[0].id ?? dossier[0];
 
+    await tryber.tables.CampaignPhaseHistory.do().insert({
+      campaign_id: campaignId,
+      phase_id: 1,
+      created_by: this.getTesterId(),
+    });
+
     const countries = this.getBody().countries;
     if (countries?.length) {
       await tryber.tables.CampaignDossierDataCountries.do().insert(
