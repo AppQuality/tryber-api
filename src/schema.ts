@@ -932,6 +932,7 @@ export interface components {
       languages?: number[];
       browsers?: number[];
       productType?: number;
+      notes?: string;
     };
   };
   responses: {
@@ -4205,6 +4206,7 @@ export interface operations {
               id: number;
               name: string;
             };
+            notes?: string;
           };
         };
       };

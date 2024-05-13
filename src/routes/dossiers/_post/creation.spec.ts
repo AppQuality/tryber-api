@@ -686,4 +686,25 @@ describe("Route POST /dossiers", () => {
       name: "App",
     });
   });
+  it("Should save the notes in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        notes: "Notes",
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const getResponse = await request(app)
+      .get(`/dossiers/${id}`)
+      .set("authorization", "Bearer admin");
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toHaveProperty("notes", "Notes");
+  });
 });

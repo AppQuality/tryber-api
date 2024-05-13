@@ -297,6 +297,7 @@ describe("Route GET /dossiers/:id", () => {
         created_by: 100,
         updated_by: 100,
         product_type_id: 1,
+        notes: "Notes",
       });
       await tryber.tables.CampaignDossierDataCountries.do().insert([
         {
@@ -509,6 +510,15 @@ describe("Route GET /dossiers/:id", () => {
       expect(response.body).toHaveProperty("productType");
       expect(response.body.productType).toHaveProperty("id", 1);
       expect(response.body.productType).toHaveProperty("name", "Test Product");
+    });
+
+    it("Should return notes", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("notes", "Notes");
     });
 
     it("Should return id", async () => {

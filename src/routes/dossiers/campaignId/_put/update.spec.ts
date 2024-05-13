@@ -621,6 +621,21 @@ describe("Route POST /dossiers", () => {
         name: "Test Product",
       });
     });
+    it("Should update the notes in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          notes: "Notes",
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("notes", "Notes");
+    });
   });
 
   describe("Role handling", () => {

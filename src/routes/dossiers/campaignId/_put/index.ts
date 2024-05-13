@@ -171,6 +171,7 @@ export default class RouteItem extends UserRoute<{
         }),
         product_type_id: this.getBody().productType,
         target_devices: this.getBody().deviceRequirements,
+        notes: this.getBody().notes,
         updated_by: this.getTesterId(),
       })
       .where({
