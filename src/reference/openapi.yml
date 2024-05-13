@@ -9988,6 +9988,10 @@ paths:
                         type: integer
                       name:
                         type: string
+                  notes:
+                    type: string
+                    x-stoplight:
+                      id: nep7qag1smkcp
                 required:
                   - id
                   - title
@@ -11231,6 +11235,10 @@ components:
             type: integer
         productType:
           type: integer
+        notes:
+          type: string
+          x-stoplight:
+            id: xmrb08t4qc2fv
       required:
         - project
         - testType

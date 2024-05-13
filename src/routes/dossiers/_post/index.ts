@@ -184,6 +184,7 @@ export default class RouteItem extends AdminRoute<{
         target_devices: this.getBody().deviceRequirements,
         created_by: this.getTesterId(),
         updated_by: this.getTesterId(),
+        notes: this.getBody().notes,
       })
       .returning("id");
 

@@ -135,6 +135,7 @@ export default class RouteItem extends UserRoute<{
         "target_size",
         "target_devices",
         "product_type_id",
+        "notes",
         tryber.ref("name").withSchema("product_types").as("product_type_name")
       )
       .leftJoin(
@@ -291,6 +292,9 @@ export default class RouteItem extends UserRoute<{
         }),
         ...(this.campaign.target_devices && {
           deviceRequirements: this.campaign.target_devices,
+        }),
+        ...(this.campaign.notes && {
+          notes: this.campaign.notes,
         }),
         ...(this.campaign.countries.length > 0 && {
           countries: this.campaign.countries?.map((item) => item.country_code),
