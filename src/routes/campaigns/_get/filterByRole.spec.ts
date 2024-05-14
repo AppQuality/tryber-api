@@ -51,6 +51,7 @@ describe("GET /campaigns", () => {
       { ...campaign, id: 2, title: "Second campaign" },
       { ...campaign, id: 3, title: "Third campaign" },
       { ...campaign, id: 4, title: "Fourth campaign" },
+      { ...campaign, id: 5, title: "Fifth campaign" },
     ]);
 
     await tryber.tables.CustomRoles.do().insert([
@@ -62,6 +63,7 @@ describe("GET /campaigns", () => {
       { campaign_id: 1, custom_role_id: 1, tester_id: 1 },
       { campaign_id: 2, custom_role_id: 1, tester_id: 2 },
       { campaign_id: 3, custom_role_id: 1, tester_id: 1 },
+      { campaign_id: 5, custom_role_id: 2, tester_id: 1 },
     ]);
   });
   afterAll(async () => {
@@ -119,6 +121,31 @@ describe("GET /campaigns", () => {
         expect.objectContaining({ id: 1, name: "First campaign" }),
         expect.objectContaining({ id: 2, name: "Second campaign" }),
         expect.objectContaining({ id: 3, name: "Third campaign" }),
+      ])
+    );
+  });
+  it("Should return all campaigns without the role assigned if filterBy[role_1]=empty", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[role_1]=empty")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(2);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 4, name: "Fourth campaign" }),
+        expect.objectContaining({ id: 5, name: "Fifth campaign" }),
+      ])
+    );
+  });
+  it("Should return allow filtering by multiple roles", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[role_1]=empty&filterBy[role_2]=1")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(1);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 5, name: "Fifth campaign" }),
       ])
     );
   });

@@ -52,7 +52,7 @@ class RouteItem extends UserRoute<{
     csm?: number;
     roles?: {
       id: number;
-      value: number[];
+      value: number[] | "empty";
     }[];
     phase?: number;
   } = {};
@@ -120,7 +120,10 @@ class RouteItem extends UserRoute<{
       if (roles.length) {
         this.filterBy.roles = roles.map(([key, value]) => ({
           id: parseInt(key.split("_")[1]),
-          value: value.split(",").map((id: string) => parseInt(id)),
+          value:
+            value === "empty"
+              ? "empty"
+              : value.split(",").map((id: string) => parseInt(id)),
         }));
       }
 
@@ -459,13 +462,22 @@ class RouteItem extends UserRoute<{
 
       if (this.filterBy.roles) {
         this.filterBy.roles.forEach((role) => {
-          query = query.whereIn(
-            "wp_appq_evd_campaign.id",
-            tryber.tables.CampaignCustomRoles.do()
-              .select("campaign_id")
-              .where("custom_role_id", role.id)
-              .whereIn("tester_id", role.value)
-          );
+          if (role.value === "empty") {
+            query = query.whereNotIn(
+              "wp_appq_evd_campaign.id",
+              tryber.tables.CampaignCustomRoles.do()
+                .select("campaign_id")
+                .where("custom_role_id", role.id)
+            );
+          } else {
+            query = query.whereIn(
+              "wp_appq_evd_campaign.id",
+              tryber.tables.CampaignCustomRoles.do()
+                .select("campaign_id")
+                .where("custom_role_id", role.id)
+                .whereIn("tester_id", role.value)
+            );
+          }
         });
       }
 
