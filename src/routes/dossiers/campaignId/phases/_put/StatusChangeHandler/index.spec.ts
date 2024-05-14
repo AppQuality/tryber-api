@@ -1,6 +1,7 @@
 import { tryber } from "@src/features/database";
 import { StatusChangeHandler } from ".";
 
+jest.mock("@src/features/webhookTrigger");
 describe("StatusChangeHandler", () => {
   beforeAll(async () => {
     const campaign = {
