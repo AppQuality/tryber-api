@@ -1,24 +1,9 @@
 import axios from "axios";
+import { WebhookTypes, iWebhookTrigger } from "./types";
 
-type StatusChangeWebhook = {
-  type: "status_change";
-  data: {
-    campaignId: number;
-    newPhase: number;
-    oldPhase: number;
-  };
-};
-
-type CampaignCreatedWebhook = {
-  type: "campaign_created";
-  data: {
-    campaignId: number;
-  };
-};
-
-type WebhookTypes = StatusChangeWebhook | CampaignCreatedWebhook;
-
-export class WebhookTrigger<T extends WebhookTypes["type"]> {
+export class WebhookTrigger<T extends WebhookTypes["type"]>
+  implements iWebhookTrigger
+{
   private webhookUrl: string;
   private data: WebhookTypes["data"];
 

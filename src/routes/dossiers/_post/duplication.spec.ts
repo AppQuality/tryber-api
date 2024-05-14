@@ -4,6 +4,7 @@ import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import request from "supertest";
 
 jest.mock("@src/features/wp/WordpressJsonApiTrigger");
+jest.mock("@src/features/webhookTrigger");
 
 const baseRequest = {
   project: 1,

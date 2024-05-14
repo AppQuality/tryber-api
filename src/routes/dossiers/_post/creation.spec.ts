@@ -3,6 +3,7 @@ import { tryber } from "@src/features/database";
 import request from "supertest";
 
 jest.mock("@src/features/wp/WordpressJsonApiTrigger");
+jest.mock("@src/features/webhookTrigger");
 const baseRequest = {
   project: 10,
   testType: 10,

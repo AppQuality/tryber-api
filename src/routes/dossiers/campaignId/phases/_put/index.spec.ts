@@ -4,6 +4,7 @@ import { StatusChangeHandler } from "@src/routes/dossiers/campaignId/phases/_put
 import request from "supertest";
 
 jest.mock("@src/routes/dossiers/campaignId/phases/_put/StatusChangeHandler");
+jest.mock("@src/features/webhookTrigger");
 
 describe("Route PUT /dossiers/:id/phases", () => {
   beforeAll(async () => {
