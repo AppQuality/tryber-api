@@ -3,6 +3,7 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import AdminRoute from "@src/features/routes/AdminRoute";
+import { WebhookTrigger } from "@src/features/webhookTrigger";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import crypto from "crypto";
 import { serialize } from "php-serialize";
@@ -133,6 +134,14 @@ export default class RouteItem extends AdminRoute<{
       await this.linkRolesToCampaign(campaignId);
 
       await this.generateLinkedData(campaignId);
+
+      const webhook = new WebhookTrigger({
+        type: "campaign_created",
+        data: {
+          campaignId,
+        },
+      });
+      await webhook.trigger();
 
       this.setSuccess(201, {
         id: campaignId,
