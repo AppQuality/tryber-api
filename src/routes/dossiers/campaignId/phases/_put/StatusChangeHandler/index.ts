@@ -1,4 +1,5 @@
 import { tryber } from "@src/features/database";
+import { WebhookTrigger } from "@src/features/webhookTrigger";
 
 class StatusChangeHandler {
   private oldPhase: number = 0;
@@ -67,6 +68,21 @@ class StatusChangeHandler {
         .update({ status_id: 1 })
         .where("id", this.campaignId);
     }
+
+    await this.triggerWebhook();
+  }
+
+  private async triggerWebhook() {
+    const webhook = new WebhookTrigger({
+      type: "status_change",
+      data: {
+        campaignId: this.campaignId,
+        oldPhase: this.oldPhase,
+        newPhase: this.newPhase,
+      },
+    });
+
+    await webhook.trigger();
   }
 }
 
