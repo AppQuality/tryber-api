@@ -70,14 +70,26 @@ describe("Route POST /dossiers", () => {
       },
     ]);
 
-    await tryber.tables.WpAppqEvdProfile.do().insert({
-      id: 1,
-      wp_user_id: 1,
-      name: "Test User",
+    const user = {
       email: "",
       education_id: 1,
       employment_id: 1,
-    });
+    };
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        ...user,
+        id: 1,
+        wp_user_id: 1,
+        name: "Test User",
+      },
+      {
+        ...user,
+        id: 2,
+        wp_user_id: 2,
+        name: "Other",
+        surname: "User",
+      },
+    ]);
 
     await tryber.tables.WpAppqLang.do().insert([
       { id: 1, display_name: "Test Language", lang_code: "TL" },
@@ -166,6 +178,31 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("campaign_type_id", 11);
+  });
+
+  it("Should update the campaign with the specified csm", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        csm: 2,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const responseGet = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+
+    expect(responseGet.status).toBe(200);
+    expect(responseGet.body).toHaveProperty("csm");
+    expect(responseGet.body.csm).toEqual({
+      id: 2,
+      name: "Other User",
+    });
   });
 
   it("Should update the campaign with the specified title", async () => {
@@ -640,16 +677,6 @@ describe("Route POST /dossiers", () => {
 
   describe("Role handling", () => {
     beforeAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().insert({
-        id: 2,
-        wp_user_id: 2,
-        name: "Test User",
-        surname: "Test Surname",
-        education_id: 1,
-        employment_id: 1,
-        email: "",
-      });
-
       await tryber.tables.CustomRoles.do().insert([
         {
           id: 1,
@@ -664,9 +691,7 @@ describe("Route POST /dossiers", () => {
       ]);
     });
     afterAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().delete();
       await tryber.tables.CustomRoles.do().delete();
-      await tryber.tables.WpAppqEvdProfile.do().delete();
     });
     afterEach(async () => {
       await tryber.tables.CampaignCustomRoles.do().delete();
