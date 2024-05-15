@@ -122,7 +122,7 @@ export default class RouteItem extends UserRoute<{
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
         close_date: this.getCloseDate(),
-        pm_id: this.getTesterId(),
+        pm_id: this.getBody().csm ?? this.getTesterId(),
         project_id: this.getBody().project,
         campaign_type_id: this.getBody().testType,
         customer_title: this.getBody().title.customer,
