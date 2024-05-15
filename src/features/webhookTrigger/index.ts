@@ -17,7 +17,7 @@ export class WebhookTrigger<T extends WebhookTypes["type"]>
     if (type === "status_change") {
       this.webhookUrl = process.env.STATUS_CHANGE_WEBHOOK_URL || "";
     } else if (type === "campaign_created") {
-      this.webhookUrl = process.env.CAMPAIGN_CREATED_WEBHOOK_URL || "";
+      this.webhookUrl = process.env.CAMPAIGN_CREATION_WEBHOOK || "";
     } else {
       throw new Error("Invalid webhook type");
     }
