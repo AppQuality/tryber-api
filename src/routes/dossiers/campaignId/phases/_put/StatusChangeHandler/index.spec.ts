@@ -32,9 +32,9 @@ describe("StatusChangeHandler", () => {
       },
     ]);
     await tryber.tables.CampaignPhase.do().insert([
-      { id: 1, name: "Draft", type_id: 1 },
-      { id: 2, name: "Running", type_id: 2 },
-      { id: 3, name: "Closed", type_id: 3 },
+      { id: 1, name: "Draft", type_id: 1, status_details: "Planned" },
+      { id: 2, name: "Running", type_id: 2, status_details: "Running" },
+      { id: 3, name: "Closed", type_id: 3, status_details: "Successful" },
     ]);
 
     await tryber.tables.CampaignPhaseType.do().insert([
@@ -133,5 +133,23 @@ describe("StatusChangeHandler", () => {
 
     if (!campaign) throw new Error("Campaign not found");
     expect(campaign.status_id).toBe(1);
+  });
+
+  it("Should change the status details of the campaign", async () => {
+    const handler = new StatusChangeHandler({
+      newPhase: 1,
+      campaignId: 2,
+      creator: 1,
+    });
+
+    await handler.run();
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("status_details")
+      .where("id", 2)
+      .first();
+
+    if (!campaign) throw new Error("Campaign not found");
+    expect(campaign.status_details).toBe("Planned");
   });
 });

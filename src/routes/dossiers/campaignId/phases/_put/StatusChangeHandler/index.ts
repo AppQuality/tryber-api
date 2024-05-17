@@ -37,6 +37,8 @@ class StatusChangeHandler {
 
     await this.handleStatusChange(type.name);
 
+    await this.legacySetStatusDetails();
+
     await this.saveHistory();
     console.log("Status changed from", this.oldPhase, "to", this.newPhase);
   }
@@ -70,6 +72,18 @@ class StatusChangeHandler {
     }
 
     await this.triggerWebhook();
+  }
+  private async legacySetStatusDetails() {
+    const phase = await tryber.tables.CampaignPhase.do()
+      .select("status_details")
+      .where("id", this.newPhase)
+      .first();
+
+    if (!phase || !phase.status_details) return;
+
+    await tryber.tables.WpAppqEvdCampaign.do()
+      .update({ status_details: phase.status_details })
+      .where("id", this.campaignId);
   }
 
   private async triggerWebhook() {
