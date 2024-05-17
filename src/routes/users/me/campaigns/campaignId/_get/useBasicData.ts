@@ -209,7 +209,7 @@ const useBasicData = () => {
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
-        phase_id: 10,
+        phase_id: 20,
       },
       {
         id: 2,
@@ -225,7 +225,7 @@ const useBasicData = () => {
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
-        phase_id: 10,
+        phase_id: 20,
       },
     ]);
     await tryber.tables.WpOptions.do().insert({

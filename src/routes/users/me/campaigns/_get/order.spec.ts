@@ -38,7 +38,7 @@ describe("GET /users/me/campaigns ", () => {
       customer_id: 1,
       project_id: 1,
       customer_title: "Customer title",
-      phase_id: 10,
+      phase_id: 20,
     };
     campaignTypes.insert({
       id: 1,
