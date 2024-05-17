@@ -239,7 +239,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - bug language set", () =>
       pm_id: 1,
       project_id: 1,
       customer_title: "My campaign",
-      phase_id: 10,
+      phase_id: 20,
     });
     await tryber.tables.WpAppqCpMeta.do().insert([
       {

@@ -27,7 +27,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
-      phase_id: 10,
+      phase_id: 20,
     });
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       selected_device: 1,
@@ -78,7 +78,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
-      phase_id: 10,
+      phase_id: 20,
     });
 
     await tryber.tables.WpAppqEvdCampaign.do().insert({
@@ -95,7 +95,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
-      phase_id: 10,
+      phase_id: 20,
     });
 
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
@@ -152,7 +152,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
-      phase_id: 10,
+      phase_id: 20,
     });
 
     await tryber.tables.WpAppqCampaignTask.do().insert({

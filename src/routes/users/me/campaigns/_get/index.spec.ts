@@ -46,14 +46,14 @@ describe("GET /users/me/campaigns", () => {
         id: 1,
         title: "Public campaign",
         is_public: 1,
-        phase_id: 10,
+        phase_id: 20,
       },
       {
         ...campaign,
         id: 2,
         title: "Small Group campaign",
         is_public: 0,
-        phase_id: 10,
+        phase_id: 20,
       },
       {
         ...campaign,

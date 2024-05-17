@@ -48,7 +48,7 @@ describe("GET /users/me/campaigns - filters", () => {
       pm_id: 1,
       project_id: 1,
       customer_title: "Customer title",
-      phase_id: 10,
+      phase_id: 20,
     };
     await tryber.tables.WpAppqCampaignType.do().insert({
       id: 1,
