@@ -15,7 +15,7 @@ export class WebhookTrigger<T extends WebhookTypes["type"]>
     data: Extract<WebhookTypes, { type: T }>["data"];
   }) {
     if (type === "status_change") {
-      this.webhookUrl = process.env.STATUS_CHANGE_WEBHOOK_URL || "";
+      this.webhookUrl = process.env.STATUS_CHANGE_WEBHOOK || "";
     } else if (type === "campaign_created") {
       this.webhookUrl = process.env.CAMPAIGN_CREATION_WEBHOOK || "";
     } else {
