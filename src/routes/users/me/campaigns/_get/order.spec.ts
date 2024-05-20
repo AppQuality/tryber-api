@@ -1,6 +1,7 @@
 import campaigns from "@src/__mocks__/mockedDb/campaign";
 import campaignTypes from "@src/__mocks__/mockedDb/campaignType";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 import request from "supertest";
 
@@ -12,13 +13,15 @@ const dayFromNow = (days: number) => {
     .split("T")[0];
 };
 describe("GET /users/me/campaigns ", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     (resolvePermalinks as jest.Mock).mockImplementation(() => {
       return {
         1: { en: "en/test1", it: "it/test1", es: "es/test1" },
         2: { en: "en/test2", it: "it/test2", es: "es/test2" },
       };
     });
+
+    await tryber.seeds().campaign_statuses();
     const basicCampaignObject = {
       title: "My campaign",
       start_date: new Date().toISOString().split("T")[0],
@@ -28,40 +31,48 @@ describe("GET /users/me/campaigns ", () => {
       page_preview_id: 1,
       page_manual_id: 2,
       os: "1",
-      is_public: 1 as 0,
-      status_id: 1 as 1,
+      is_public: 1,
+      status_id: 1,
+      pm_id: 1,
+      platform_id: 1,
+      customer_id: 1,
+      project_id: 1,
+      customer_title: "Customer title",
+      phase_id: 20,
     };
     campaignTypes.insert({
       id: 1,
     });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 1,
-      start_date: dayFromNow(2),
-      end_date: dayFromNow(3),
-      close_date: dayFromNow(2),
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 2,
-      start_date: dayFromNow(1),
-      end_date: dayFromNow(2),
-      close_date: dayFromNow(3),
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 3,
-      start_date: dayFromNow(3),
-      end_date: dayFromNow(4),
-      close_date: dayFromNow(4),
-    });
-    campaigns.insert({
-      ...basicCampaignObject,
-      id: 4,
-      start_date: dayFromNow(4),
-      end_date: dayFromNow(1),
-      close_date: dayFromNow(1),
-    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      {
+        ...basicCampaignObject,
+        id: 1,
+        start_date: dayFromNow(2),
+        end_date: dayFromNow(3),
+        close_date: dayFromNow(2),
+      },
+      {
+        ...basicCampaignObject,
+        id: 2,
+        start_date: dayFromNow(1),
+        end_date: dayFromNow(2),
+        close_date: dayFromNow(3),
+      },
+      {
+        ...basicCampaignObject,
+        id: 3,
+        start_date: dayFromNow(3),
+        end_date: dayFromNow(4),
+        close_date: dayFromNow(4),
+      },
+      {
+        ...basicCampaignObject,
+        id: 4,
+        start_date: dayFromNow(4),
+        end_date: dayFromNow(1),
+        close_date: dayFromNow(1),
+      },
+    ]);
   });
   afterAll(() => {
     campaigns.clear();

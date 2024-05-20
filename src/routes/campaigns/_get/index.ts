@@ -17,9 +17,16 @@ const ACCEPTABLE_FIELDS = [
   "resultType" as const,
   "status" as const,
   "type" as const,
+  "phase" as const,
+  "roles" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
+type Roles = NonNullable<
+  NonNullable<
+    StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"]["items"]
+  >[0]["roles"]
+>;
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns"]["responses"]["200"]["content"]["application/json"];
@@ -43,6 +50,11 @@ class RouteItem extends UserRoute<{
     type?: number[];
     status?: "closed" | "running" | "incoming";
     csm?: number;
+    roles?: {
+      id: number;
+      value: number[] | "empty";
+    }[];
+    phase?: number;
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -102,6 +114,23 @@ class RouteItem extends UserRoute<{
         const csmId = (query.filterBy as any).csm;
         this.filterBy.csm = Number(csmId);
       }
+      const roles = Object.entries(
+        query.filterBy as { [key: string]: string }
+      ).filter(([key]) => key.startsWith("role_"));
+      if (roles.length) {
+        this.filterBy.roles = roles.map(([key, value]) => ({
+          id: parseInt(key.split("_")[1]),
+          value:
+            value === "empty"
+              ? "empty"
+              : value.split(",").map((id: string) => parseInt(id)),
+        }));
+      }
+
+      if ((query.filterBy as any).phase) {
+        const phaseId = (query.filterBy as any).phase;
+        this.filterBy.phase = Number(phaseId);
+      }
     }
   }
 
@@ -152,6 +181,7 @@ class RouteItem extends UserRoute<{
     this.addTypeTo(query);
     this.addVisibilityTo(query);
     this.addResultTypeTo(query);
+    this.addPhaseTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -163,7 +193,7 @@ class RouteItem extends UserRoute<{
 
     query.orderBy(this.orderBy, this.order);
 
-    return (await query) as {
+    const results: {
       id?: number;
       name?: string;
       startDate?: string;
@@ -181,7 +211,67 @@ class RouteItem extends UserRoute<{
       type_area?: 0 | 1;
       visibility?: 0 | 1 | 2 | 3;
       resultType?: -1 | 0 | 1;
-    }[];
+      phase_id?: number;
+      phase_name?: string;
+    }[] = await query;
+
+    const withRoles = this.addRoles(results);
+
+    return withRoles;
+  }
+
+  private async addRoles<T extends { id?: number }>(
+    campaigns: T[]
+  ): Promise<(T & { roles?: Roles })[]> {
+    if (!this.fields.includes("roles")) return campaigns;
+    const roles = await tryber.tables.CampaignCustomRoles.do()
+      .select(
+        "campaign_id",
+        "custom_role_id",
+        tryber.ref("name").withSchema("custom_roles").as("custom_role_name"),
+        "tester_id",
+        tryber.ref("name").withSchema("wp_appq_evd_profile").as("tester_name"),
+        tryber
+          .ref("surname")
+          .withSchema("wp_appq_evd_profile")
+          .as("tester_surname")
+      )
+      .join(
+        "custom_roles",
+        "custom_roles.id",
+        "campaign_custom_roles.custom_role_id"
+      )
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.id",
+        "campaign_custom_roles.tester_id"
+      )
+      .whereIn(
+        "campaign_id",
+        campaigns.map((result) => result.id || 0)
+      );
+
+    return campaigns.map((campaign) => {
+      const rolesForCampaign = roles.filter(
+        (role) => role.campaign_id === campaign.id
+      );
+      const results = rolesForCampaign.map((role) => ({
+        role: {
+          id: role.custom_role_id,
+          name: role.custom_role_name,
+        },
+        user: {
+          id: role.tester_id,
+          name: role.tester_name,
+          surname: role.tester_surname,
+        },
+      }));
+
+      return {
+        ...campaign,
+        roles: results,
+      };
+    });
   }
 
   private formatCampaigns(
@@ -233,8 +323,22 @@ class RouteItem extends UserRoute<{
             },
           }
         : {}),
+      ...(this.fields.includes("phase") &&
+      campaign.phase_id &&
+      campaign.phase_name
+        ? {
+            phase: {
+              id: campaign.phase_id,
+              name: campaign.phase_name,
+            },
+          }
+        : {}),
       visibility: this.getVisibilityName(campaign.visibility),
       resultType: this.getResultTypeName(campaign.resultType),
+
+      ...(this.fields.includes("roles") && {
+        roles: campaign.roles,
+      }),
     }));
   }
 
@@ -354,6 +458,34 @@ class RouteItem extends UserRoute<{
             .where("wp_appq_evd_campaign.status_id", 1)
             .where("wp_appq_evd_campaign.start_date", ">", tryber.fn.now());
         }
+      }
+
+      if (this.filterBy.roles) {
+        this.filterBy.roles.forEach((role) => {
+          if (role.value === "empty") {
+            query = query.whereNotIn(
+              "wp_appq_evd_campaign.id",
+              tryber.tables.CampaignCustomRoles.do()
+                .select("campaign_id")
+                .where("custom_role_id", role.id)
+            );
+          } else {
+            query = query.whereIn(
+              "wp_appq_evd_campaign.id",
+              tryber.tables.CampaignCustomRoles.do()
+                .select("campaign_id")
+                .where("custom_role_id", role.id)
+                .whereIn("tester_id", role.value)
+            );
+          }
+        });
+      }
+
+      if (this.filterBy.phase) {
+        query = query.where(
+          "wp_appq_evd_campaign.phase_id",
+          this.filterBy.phase
+        );
       }
     });
   }
@@ -495,6 +627,23 @@ class RouteItem extends UserRoute<{
     query.modify((query) => {
       if (this.fields.includes("resultType")) {
         query.select(tryber.ref("campaign_type").as("resultType"));
+      }
+    });
+  }
+
+  private addPhaseTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("phase")) {
+        query
+          .leftJoin(
+            "campaign_phase",
+            "campaign_phase.id",
+            "wp_appq_evd_campaign.phase_id"
+          )
+          .select(
+            tryber.ref("campaign_phase.id").as("phase_id"),
+            tryber.ref("campaign_phase.name").as("phase_name")
+          );
       }
     });
   }

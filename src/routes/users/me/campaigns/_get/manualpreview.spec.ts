@@ -1,20 +1,20 @@
-import request from "supertest";
-import app from "@src/app";
 import campaigns from "@src/__mocks__/mockedDb/campaign";
-import candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import campaignTypes from "@src/__mocks__/mockedDb/campaignType";
+import candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
+import app from "@src/app";
+import { tryber } from "@src/features/database";
 import resolvePermalinks from "@src/features/wp/resolvePermalinks";
+import request from "supertest";
 
 jest.mock("@src/features/wp/resolvePermalinks");
 
 describe("GET /users/me/campaigns ", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
+    await tryber.seeds().campaign_statuses();
     campaignTypes.insert({
       id: 1,
     });
-    campaigns.insert({
-      id: 1,
-      title: "Campaign with manual not public in all languages",
+    const campaign = {
       start_date: new Date().toISOString().split("T")[0],
       end_date: new Date().toISOString().split("T")[0],
       close_date: new Date().toISOString().split("T")[0],
@@ -23,31 +23,37 @@ describe("GET /users/me/campaigns ", () => {
       page_manual_id: 2,
       os: "1",
       is_public: 1,
-    });
-    campaigns.insert({
-      id: 2,
-      title: "Campaign with preview not public in all language",
-      start_date: new Date().toISOString().split("T")[0],
-      end_date: new Date().toISOString().split("T")[0],
-      close_date: new Date().toISOString().split("T")[0],
-      campaign_type_id: 1,
-      page_preview_id: 2,
-      page_manual_id: 3,
-      os: "1",
-      is_public: 1,
-    });
-    campaigns.insert({
-      id: 3,
-      title: "Campaign with  preview not public in a single language",
-      start_date: new Date().toISOString().split("T")[0],
-      end_date: new Date().toISOString().split("T")[0],
-      close_date: new Date().toISOString().split("T")[0],
-      campaign_type_id: 1,
-      page_preview_id: 1,
-      page_manual_id: 3,
-      os: "1",
-      is_public: 1,
-    });
+      pm_id: 1,
+      platform_id: 1,
+      customer_id: 1,
+      project_id: 1,
+      phase_id: 20,
+      customer_title: "Customer title",
+    };
+
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      {
+        ...campaign,
+        id: 1,
+        title: "Campaign with manual not public in all languages",
+        page_preview_id: 3,
+        page_manual_id: 2,
+      },
+      {
+        ...campaign,
+        id: 2,
+        title: "Campaign with preview not public in all language",
+        page_preview_id: 2,
+        page_manual_id: 3,
+      },
+      {
+        ...campaign,
+        id: 3,
+        title: "Campaign with  preview not public in a single language",
+        page_preview_id: 1,
+        page_manual_id: 3,
+      },
+    ]);
   });
   afterAll(() => {
     campaigns.clear();

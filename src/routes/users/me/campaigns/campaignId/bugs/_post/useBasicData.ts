@@ -2,6 +2,7 @@ import { tryber } from "@src/features/database";
 
 const useBasicData = () => {
   beforeAll(async () => {
+    await tryber.seeds().campaign_statuses();
     await tryber.tables.WpUsers.do().insert({
       ID: 1,
     });
@@ -26,6 +27,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
+      phase_id: 20,
     });
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       selected_device: 1,
@@ -76,6 +78,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
+      phase_id: 20,
     });
 
     await tryber.tables.WpAppqEvdCampaign.do().insert({
@@ -92,6 +95,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
+      phase_id: 20,
     });
 
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
@@ -148,6 +152,7 @@ const useBasicData = () => {
       customer_id: 1,
       pm_id: 1,
       project_id: 1,
+      phase_id: 20,
     });
 
     await tryber.tables.WpAppqCampaignTask.do().insert({

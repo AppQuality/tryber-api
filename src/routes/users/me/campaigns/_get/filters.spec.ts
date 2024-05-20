@@ -1,12 +1,13 @@
-import request from "supertest";
 import app from "@src/app";
-import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 import { tryber } from "@src/features/database";
+import resolvePermalinks from "@src/features/wp/resolvePermalinks";
+import request from "supertest";
 
 jest.mock("@src/features/wp/resolvePermalinks");
 
 describe("GET /users/me/campaigns - filters", () => {
   beforeAll(async () => {
+    await tryber.seeds().campaign_statuses();
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
         id: 1,
@@ -47,6 +48,7 @@ describe("GET /users/me/campaigns - filters", () => {
       pm_id: 1,
       project_id: 1,
       customer_title: "Customer title",
+      phase_id: 20,
     };
     await tryber.tables.WpAppqCampaignType.do().insert({
       id: 1,

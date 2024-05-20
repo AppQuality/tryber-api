@@ -1,7 +1,6 @@
-import campaigns from "@src/__mocks__/mockedDb/campaign";
-import campaignTypes from "@src/__mocks__/mockedDb/campaignType";
 import candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import resolvePermalinks from "@src/features/wp/resolvePermalinks";
 import request from "supertest";
 
@@ -13,20 +12,21 @@ const fourteenDaysFromNow = new Date().setDate(new Date().getDate() + 14);
 const closeDate = new Date(fourteenDaysFromNow).toISOString().split("T")[0];
 
 describe("GET /users/me/campaigns", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     (resolvePermalinks as jest.Mock).mockImplementation(() => {
       return {
         1: { en: "en/test1", it: "it/test1", es: "es/test1" },
         2: { en: "en/test2", it: "it/test2", es: "es/test2" },
       };
     });
-    campaignTypes.insert({
+    await tryber.tables.WpAppqCampaignType.do().insert({
       id: 1,
+      name: "Type",
+      category_id: 1,
     });
 
-    campaigns.insert({
-      id: 1,
-      title: "Public campaign",
+    await tryber.seeds().campaign_statuses();
+    const campaign = {
       start_date: new Date().toISOString().split("T")[0],
       end_date: endDate,
       close_date: closeDate,
@@ -34,24 +34,47 @@ describe("GET /users/me/campaigns", () => {
       page_preview_id: 1,
       page_manual_id: 2,
       os: "1",
-      is_public: 1,
-    });
-    campaigns.insert({
-      id: 2,
-      title: "Small Group campaign",
-      start_date: new Date().toISOString().split("T")[0],
-      end_date: endDate,
-      close_date: closeDate,
-      campaign_type_id: 1,
-      page_preview_id: 1,
-      page_manual_id: 2,
-      os: "1",
-      is_public: 0,
-    });
+      platform_id: 1,
+      pm_id: 1,
+      customer_id: 1,
+      project_id: 1,
+      customer_title: "Customer",
+    };
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      {
+        ...campaign,
+        id: 1,
+        title: "Public campaign",
+        is_public: 1,
+        phase_id: 20,
+      },
+      {
+        ...campaign,
+        id: 2,
+        title: "Small Group campaign",
+        is_public: 0,
+        phase_id: 20,
+      },
+      {
+        ...campaign,
+        id: 3,
+        title: "Public campaign - draft",
+        is_public: 1,
+        phase_id: 1,
+      },
+      {
+        ...campaign,
+        id: 4,
+        title: "Small Group campaign - draft",
+        is_public: 0,
+        phase_id: 1,
+      },
+    ]);
   });
-  afterAll(() => {
-    campaigns.clear();
-    campaignTypes.clear();
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.CampaignPhase.do().delete();
     jest.resetAllMocks();
   });
   describe("GET /users/me/campaigns", () => {

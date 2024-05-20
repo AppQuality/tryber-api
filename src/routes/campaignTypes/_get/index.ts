@@ -27,10 +27,12 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const types = await tryber.tables.WpAppqCampaignType.do().select(
-      tryber.ref("id").withSchema("wp_appq_campaign_type"),
-      tryber.ref("name").withSchema("wp_appq_campaign_type")
-    );
+    const types = await tryber.tables.WpAppqCampaignType.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_campaign_type"),
+        tryber.ref("name").withSchema("wp_appq_campaign_type")
+      )
+      .orderBy("name", "asc");
     return this.setSuccess(200, types);
   }
 }

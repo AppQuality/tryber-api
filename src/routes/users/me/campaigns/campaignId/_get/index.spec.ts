@@ -1,6 +1,6 @@
 import app from "@src/app";
-import request from "supertest";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 import useBasicData from "./useBasicData";
 
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
@@ -239,6 +239,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - bug language set", () =>
       pm_id: 1,
       project_id: 1,
       customer_title: "My campaign",
+      phase_id: 20,
     });
     await tryber.tables.WpAppqCpMeta.do().insert([
       {

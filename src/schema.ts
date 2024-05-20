@@ -224,6 +224,7 @@ export interface paths {
   "/customers": {
     /** Get all the customers you have access to */
     get: operations["get-customers"];
+    post: operations["post-customers"];
     parameters: {};
   };
   "/custom_user_fields": {
@@ -540,6 +541,56 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/dossiers": {
+    post: operations["post-dossiers"];
+    parameters: {};
+  };
+  "/dossiers/{campaign}": {
+    get: operations["get-dossiers-campaign"];
+    put: operations["put-dossiers-campaign"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
+  "/customers/{customer}/projects": {
+    get: operations["get-customers-customer-projects"];
+    post: operations["post-customers-customer-projects"];
+    parameters: {
+      path: {
+        customer: string;
+      };
+    };
+  };
+  "/users/by-role/{role}": {
+    get: operations["get-users-by-role-role"];
+    parameters: {
+      path: {
+        role: "tester_lead" | "quality_leader" | "ux_researcher" | "assistants";
+      };
+    };
+  };
+  "/browsers": {
+    get: operations["get-browsers"];
+  };
+  "/productTypes": {
+    get: operations["get-productTypes"];
+    parameters: {};
+  };
+  "/phases": {
+    get: operations["get-phases"];
+  };
+  "/dossiers/{campaign}/phases": {
+    put: operations["put-dossiers-campaign-phases"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -847,6 +898,42 @@ export interface components {
      * @enum {string}
      */
     ProspectStatus: "draft" | "confirmed" | "done";
+    /** CountryCode */
+    CountryCode: string;
+    DossierCreationData: {
+      project: number;
+      testType: number;
+      title: {
+        customer: string;
+        tester?: string;
+      };
+      /** Format: date-time */
+      startDate: string;
+      /** Format: date-time */
+      endDate?: string;
+      /** Format: date-time */
+      closeDate?: string;
+      deviceList: number[];
+      csm?: number;
+      roles?: {
+        role: number;
+        user: number;
+      }[];
+      description?: string;
+      productLink?: string;
+      goal?: string;
+      outOfScope?: string;
+      deviceRequirements?: string;
+      target?: {
+        notes?: string;
+        size?: number;
+      };
+      countries?: components["schemas"]["CountryCode"][];
+      languages?: number[];
+      browsers?: number[];
+      productType?: number;
+      notes?: string;
+    };
   };
   responses: {
     /** A user */
@@ -935,6 +1022,7 @@ export interface components {
     search: string;
     testerId: string;
   };
+  requestBodies: {};
 }
 
 export interface operations {
@@ -1162,6 +1250,21 @@ export interface operations {
                 id?: number;
                 name: string;
               };
+              phase?: {
+                id: number;
+                name: string;
+              };
+              roles?: {
+                role: {
+                  id: number;
+                  name: string;
+                };
+                user: {
+                  id: number;
+                  name: string;
+                  surname: string;
+                };
+              }[];
             }[];
           } & components["schemas"]["PaginationData"];
         };
@@ -2181,6 +2284,27 @@ export interface operations {
       403: components["responses"]["NotFound"];
     };
   };
+  "post-customers": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+        };
+      };
+    };
+  };
   "get-customUserFields": {
     parameters: {};
     responses: {
@@ -2243,8 +2367,9 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            id?: number;
-            name?: string;
+            id: number;
+            name: string;
+            type: string;
           }[];
         };
       };
@@ -3973,6 +4098,281 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "post-dossiers": {
+    parameters: {};
+    responses: {
+      /** Created */
+      201: {
+        content: {
+          "application/json": {
+            id?: number;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DossierCreationData"] & {
+          duplicate?: {
+            fields?: number;
+            useCases?: number;
+            mailMerges?: number;
+            pages?: number;
+            testers?: number;
+          };
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: {
+              customer: string;
+              tester: string;
+            };
+            /** Format: date-time */
+            startDate: string;
+            /** Format: date-time */
+            endDate: string;
+            /** Format: date-time */
+            closeDate: string;
+            customer: {
+              id: number;
+              name: string;
+            };
+            project: {
+              id: number;
+              name: string;
+            };
+            testType: {
+              id: number;
+              name: string;
+            };
+            deviceList: {
+              id: number;
+              name: string;
+            }[];
+            csm: {
+              id: number;
+              name: string;
+            };
+            roles?: {
+              role?: {
+                id: number;
+                name: string;
+              };
+              user?: {
+                id: number;
+                name: string;
+                surname: string;
+              };
+            }[];
+            description?: string;
+            productLink?: string;
+            goal?: string;
+            outOfScope?: string;
+            deviceRequirements?: string;
+            target?: {
+              notes?: string;
+              size?: number;
+            };
+            countries?: components["schemas"]["CountryCode"][];
+            languages?: {
+              id: number;
+              name: string;
+            }[];
+            browsers?: {
+              id: number;
+              name: string;
+            }[];
+            productType?: {
+              id: number;
+              name: string;
+            };
+            phase: {
+              id: number;
+              name: string;
+            };
+            notes?: string;
+          };
+        };
+      };
+    };
+  };
+  "put-dossiers-campaign": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DossierCreationData"];
+      };
+    };
+  };
+  "get-customers-customer-projects": {
+    parameters: {
+      path: {
+        customer: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "post-customers-customer-projects": {
+    parameters: {
+      path: {
+        customer: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+        };
+      };
+    };
+  };
+  "get-users-by-role-role": {
+    parameters: {
+      path: {
+        role: "tester_lead" | "quality_leader" | "ux_researcher" | "assistants";
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+              surname: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-browsers": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-productTypes": {
+    parameters: {};
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "get-phases": {
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            results: {
+              id: number;
+              name: string;
+              type: {
+                id: number;
+                name: string;
+              };
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "put-dossiers-campaign-phases": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          phase: number;
+        };
+      };
     };
   };
 }

@@ -17,6 +17,9 @@ const campaign = {
 };
 describe("GET /campaigns", () => {
   beforeAll(async () => {
+    await tryber.tables.CampaignPhase.do().insert([
+      { id: 1, name: "Draft", type_id: 1 },
+    ]);
     await tryber.tables.WpAppqCustomer.do().insert([
       {
         id: 1,
@@ -92,6 +95,7 @@ describe("GET /campaigns", () => {
     ]);
   });
   afterAll(async () => {
+    await tryber.tables.CampaignPhase.do().delete();
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
@@ -115,6 +119,8 @@ describe("GET /campaigns", () => {
           type: { name: "CampaignType 1", area: "quality" },
           visibility: "admin",
           resultType: "bug",
+          phase: { id: 1, name: "Draft" },
+          roles: [],
         },
         {
           id: 3,
@@ -129,6 +135,8 @@ describe("GET /campaigns", () => {
           type: { name: "CampaignType 2", area: "experience" },
           visibility: "admin",
           resultType: "bug",
+          phase: { id: 1, name: "Draft" },
+          roles: [],
         },
       ])
     );

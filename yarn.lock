@@ -28,10 +28,10 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.30.0":
-  version "0.30.0"
-  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.30.0.tgz#6bb4e1ad996685d2f5b79251cf98c2291bb56c6b"
-  integrity sha512-Medf+jBxBIoYus6IpkdfO4qfyZcSsMt7U1UuvgrgSuPRVTYXSgnVWrzuoI5Nqx4xQlF7i0wbVH+ptQOgw+v/+Q==
+"@appquality/tryber-database@^0.39.0":
+  version "0.39.0"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.39.0.tgz#b0b0e4a6c6d456f5cc7d6b9d0348e60795fac8ea"
+  integrity sha512-SQaETcgQml5qBhkJUJNRdk+POjQx8zRLTNPnRlR5/ZUdN6qzsrhUfmP+2mA1SHx0AIqP4Gfh2hKV1QJZj7FV/w==
   dependencies:
     better-sqlite3 "^8.1.0"
     knex "^2.5.1"
@@ -4712,6 +4712,11 @@ pg-connection-string@2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.6.1.tgz#78c23c21a35dd116f48e12e23c0965e8d9e2cbfb"
   integrity sha512-w6ZzNu6oMmIzEAYVw+RLK0+nqHPt8K3ZnknKi+g48Ak2pr3dtljJW3o+D/n2zzCG07Zoe9VOX3aiKpj+BN0pjg==
+
+php-serialize@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/php-serialize/-/php-serialize-4.1.1.tgz#1a614fde3da42361af05afffbaf967fb6556591e"
+  integrity sha512-7drCrSZdJ05UdG3hyYEIRW0XyKyUFkxa5A3dpIp3NTjUHpI080pkdBAvqaBtkA+kBkMeXX3XnaSnaLGJRz071A==
 
 php-unserialize@^0.0.1:
   version "0.0.1"

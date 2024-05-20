@@ -2,6 +2,7 @@ import { tryber } from "@src/features/database";
 
 const useBasicData = () => {
   beforeAll(async () => {
+    await tryber.seeds().campaign_statuses();
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
       name: "tester",
@@ -208,6 +209,7 @@ const useBasicData = () => {
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
+        phase_id: 20,
       },
       {
         id: 2,
@@ -223,6 +225,7 @@ const useBasicData = () => {
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
+        phase_id: 20,
       },
     ]);
     await tryber.tables.WpOptions.do().insert({

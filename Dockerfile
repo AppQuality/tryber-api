@@ -21,13 +21,7 @@ RUN yarn global add npm-run-all
 RUN yarn build
 
 
-FROM alpine:3.16 as web
-
-COPY --from=node /usr/lib /usr/lib
-COPY --from=node /usr/local/share /usr/local/share
-COPY --from=node /usr/local/lib /usr/local/lib
-COPY --from=node /usr/local/include /usr/local/include
-COPY --from=node /usr/local/bin /usr/local/bin
+FROM node:18-alpine3.16 AS web
 
 COPY --from=base /dist /app/build
 COPY package*.json /app/
