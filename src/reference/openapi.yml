@@ -9759,6 +9759,17 @@ paths:
                 Example 1:
                   value:
                     id: 1
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: y5n0dny2hhlc8
       security:
         - JWT: []
       requestBody:

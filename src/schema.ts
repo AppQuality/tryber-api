@@ -4111,6 +4111,14 @@ export interface operations {
           };
         };
       };
+      /** Partial Content */
+      206: {
+        content: {
+          "application/json": {
+            id?: number;
+          };
+        };
+      };
     };
     requestBody: {
       content: {
