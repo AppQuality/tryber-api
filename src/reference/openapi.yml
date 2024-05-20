@@ -2864,9 +2864,9 @@ paths:
                               id:
                                 type: integer
                               start:
-                                type: integer
+                                type: number
                               end:
-                                type: integer
+                                type: number
                               mediaId:
                                 type: integer
                               url:
@@ -3323,7 +3323,7 @@ paths:
                                 start:
                                   type: number
                                 end:
-                                  type: integer
+                                  type: number
                                 mediaId:
                                   type: integer
                                 description:
