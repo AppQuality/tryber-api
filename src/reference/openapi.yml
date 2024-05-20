@@ -1870,18 +1870,27 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - items
                 properties:
                   items:
                     type: array
                     items:
                       type: object
+                      required:
+                        - id
+                        - name
+                        - time
+                        - tester
+                        - cluster
+                        - media
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
                         time:
-                          type: integer
+                          type: number
                         tester:
                           type: object
                           required:
@@ -1915,15 +1924,6 @@ paths:
                               type: string
                             streamUrl:
                               type: string
-                      required:
-                        - id
-                        - name
-                        - time
-                        - tester
-                        - cluster
-                        - media
-                required:
-                  - items
               examples:
                 3-observations:
                   value:

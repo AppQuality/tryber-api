@@ -47,7 +47,7 @@ beforeAll(async () => {
       id: 1,
       media_id: 1,
       name: "Observation1 name",
-      video_ts: 59,
+      video_ts: 59.5232,
       description: "Observation1 description",
       ux_note: "Observation1 ux_notes",
     },
@@ -55,7 +55,7 @@ beforeAll(async () => {
       id: 2,
       media_id: 2,
       name: "Observation2 name",
-      video_ts: 59,
+      video_ts: 59.5658,
       description: "Observation2 description",
       ux_note: "Observation2 ux_notes",
     },
@@ -63,7 +63,7 @@ beforeAll(async () => {
       id: 3,
       media_id: 3,
       name: "Observation2 name",
-      video_ts: 59,
+      video_ts: 59.545122,
       description: "Observation2 description",
       ux_note: "Observation2 ux_notes",
     },
@@ -250,7 +250,7 @@ describe("GET /campaigns/:campaignId/observations", () => {
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          time: 59,
+          time: 59.5,
         }),
       ])
     );

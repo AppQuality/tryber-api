@@ -99,7 +99,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       results.push({
         id: observation.id,
         name: observation.name,
-        time: observation.time,
+        time: Number(observation.time.toFixed(1)),
         cluster: {
           id: observation.cluster_id,
           name: observation.cluster_title,
