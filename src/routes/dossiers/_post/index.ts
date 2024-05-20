@@ -2,14 +2,14 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
-import AdminRoute from "@src/features/routes/AdminRoute";
+import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import crypto from "crypto";
 import { serialize } from "php-serialize";
 import { unserialize } from "php-unserialize";
 
-export default class RouteItem extends AdminRoute<{
+export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
 }> {
@@ -38,6 +38,10 @@ export default class RouteItem extends AdminRoute<{
 
   protected async filter() {
     if (!(await super.filter())) return false;
+    if (!(await this.hasFullAccess())) {
+      this.setError(403, new OpenapiError("You are not authorized to do this"));
+      return false;
+    }
     if (await this.invalidRolesSubmitted()) {
       this.setError(406, new OpenapiError("Invalid roles submitted"));
       return false;
@@ -60,6 +64,10 @@ export default class RouteItem extends AdminRoute<{
     }
 
     return true;
+  }
+
+  private async hasFullAccess() {
+    return this.campaignOlps === true;
   }
 
   private async campaignToDuplicateDoesNotExist() {
