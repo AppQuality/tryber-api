@@ -9755,6 +9755,14 @@ paths:
                 properties:
                   id:
                     type: integer
+                  message:
+                    type: string
+                    x-stoplight:
+                      id: 8a0ic1hhs5mpz
+                    enum:
+                      - HOOK_FAILED
+                required:
+                  - id
               examples:
                 Example 1:
                   value:

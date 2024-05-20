@@ -148,8 +148,9 @@ export default class RouteItem extends AdminRoute<{
           id: campaignId,
         });
       } catch (e) {
-        this.setSuccess(206, {
+        this.setSuccess(201, {
           id: campaignId,
+          message: "HOOK_FAILED",
         });
       }
     } catch (e) {

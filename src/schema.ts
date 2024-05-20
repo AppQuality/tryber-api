@@ -4107,7 +4107,9 @@ export interface operations {
       201: {
         content: {
           "application/json": {
-            id?: number;
+            id: number;
+            /** @enum {string} */
+            message?: "HOOK_FAILED";
           };
         };
       };
