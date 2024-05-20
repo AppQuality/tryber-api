@@ -22,14 +22,19 @@ class WordpressJsonApiTrigger {
   }
 
   private async postToWordpress(url: string) {
-    await axios({
-      method: "GET",
-      url: `${process.env.WORDPRESS_API_URL}/${url}`,
-      headers: {
-        "User-Agent": "Tryber API",
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      await axios({
+        method: "GET",
+        url: `${process.env.WORDPRESS_API_URL}/${url}`,
+        headers: {
+          "User-Agent": "Tryber API",
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (e) {
+      console.error("Error triggering wp", e);
+      throw e;
+    }
   }
 }
 

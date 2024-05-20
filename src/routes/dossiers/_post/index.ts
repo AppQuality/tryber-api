@@ -141,18 +141,70 @@ export default class RouteItem extends AdminRoute<{
           campaignId,
         },
       });
-      await webhook.trigger();
 
-      this.setSuccess(201, {
-        id: campaignId,
-      });
+      try {
+        await webhook.trigger();
+        this.setSuccess(201, {
+          id: campaignId,
+        });
+      } catch (e) {
+        this.setSuccess(201, {
+          id: campaignId,
+          message: "HOOK_FAILED",
+        });
+      }
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
   }
 
+  private async getCampaignToDuplicate() {
+    const { duplicate } = this.getBody();
+    if (!duplicate || !duplicate.campaign) return;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        "id",
+        "desired_number_of_testers",
+        "min_allowed_media",
+        "cust_bug_vis",
+        "campaign_type",
+        "campaign_pts"
+      )
+      .where("id", duplicate.campaign)
+      .first();
+
+    return campaign;
+  }
+
+  private async duplicateMeta({
+    campaignId,
+    campaignToDuplicate,
+  }: {
+    campaignId: number;
+    campaignToDuplicate: number;
+  }) {
+    const meta = await tryber.tables.WpAppqCpMeta.do()
+      .select()
+      .where("cp_id", campaignToDuplicate);
+
+    if (meta.length) {
+      await tryber.tables.WpAppqCpMeta.do().insert(
+        meta.map((metaItem) => {
+          const { meta_id, ...rest } = metaItem;
+          return {
+            ...rest,
+            cp_id: campaignId,
+          };
+        })
+      );
+    }
+  }
+
   private async createCampaign() {
     const { os, form_factor } = await this.getDevices();
+
+    const campaignToDuplicate = await this.getCampaignToDuplicate();
 
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
@@ -171,10 +223,28 @@ export default class RouteItem extends AdminRoute<{
         customer_title: this.getBody().title.customer,
         os: os.join(","),
         form_factor: form_factor.join(","),
+        base_bug_internal_id: "UG",
+        ...(campaignToDuplicate
+          ? {
+              desired_number_of_testers:
+                campaignToDuplicate.desired_number_of_testers,
+              min_allowed_media: campaignToDuplicate.min_allowed_media,
+              cust_bug_vis: campaignToDuplicate.cust_bug_vis,
+              campaign_type: campaignToDuplicate.campaign_type,
+              campaign_pts: campaignToDuplicate.campaign_pts,
+            }
+          : {}),
       })
       .returning("id");
 
     const campaignId = results[0].id ?? results[0];
+
+    if (campaignToDuplicate) {
+      await this.duplicateMeta({
+        campaignId,
+        campaignToDuplicate: campaignToDuplicate.id,
+      });
+    }
 
     const dossier = await tryber.tables.CampaignDossierData.do()
       .insert({

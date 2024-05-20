@@ -1870,18 +1870,27 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - items
                 properties:
                   items:
                     type: array
                     items:
                       type: object
+                      required:
+                        - id
+                        - name
+                        - time
+                        - tester
+                        - cluster
+                        - media
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
                         time:
-                          type: integer
+                          type: number
                         tester:
                           type: object
                           required:
@@ -1915,15 +1924,6 @@ paths:
                               type: string
                             streamUrl:
                               type: string
-                      required:
-                        - id
-                        - name
-                        - time
-                        - tester
-                        - cluster
-                        - media
-                required:
-                  - items
               examples:
                 3-observations:
                   value:
@@ -2864,9 +2864,9 @@ paths:
                               id:
                                 type: integer
                               start:
-                                type: integer
+                                type: number
                               end:
-                                type: integer
+                                type: number
                               mediaId:
                                 type: integer
                               url:
@@ -3321,9 +3321,9 @@ paths:
                                 id:
                                   type: integer
                                 start:
-                                  type: integer
+                                  type: number
                                 end:
-                                  type: integer
+                                  type: number
                                 mediaId:
                                   type: integer
                                 description:
@@ -9755,10 +9755,29 @@ paths:
                 properties:
                   id:
                     type: integer
+                  message:
+                    type: string
+                    x-stoplight:
+                      id: 8a0ic1hhs5mpz
+                    enum:
+                      - HOOK_FAILED
+                required:
+                  - id
               examples:
                 Example 1:
                   value:
                     id: 1
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    x-stoplight:
+                      id: y5n0dny2hhlc8
       security:
         - JWT: []
       requestBody:
@@ -9782,6 +9801,10 @@ paths:
                           type: integer
                         testers:
                           type: integer
+                        campaign:
+                          type: integer
+                          x-stoplight:
+                            id: 8os8pe07l1htz
   '/dossiers/{campaign}':
     parameters:
       - name: campaign

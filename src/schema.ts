@@ -4107,6 +4107,16 @@ export interface operations {
       201: {
         content: {
           "application/json": {
+            id: number;
+            /** @enum {string} */
+            message?: "HOOK_FAILED";
+          };
+        };
+      };
+      /** Partial Content */
+      206: {
+        content: {
+          "application/json": {
             id?: number;
           };
         };
@@ -4121,6 +4131,7 @@ export interface operations {
             mailMerges?: number;
             pages?: number;
             testers?: number;
+            campaign?: number;
           };
         };
       };
