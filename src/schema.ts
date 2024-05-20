@@ -4121,6 +4121,7 @@ export interface operations {
             mailMerges?: number;
             pages?: number;
             testers?: number;
+            campaign?: number;
           };
         };
       };

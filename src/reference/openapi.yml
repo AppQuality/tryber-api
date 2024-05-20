@@ -9782,6 +9782,10 @@ paths:
                           type: integer
                         testers:
                           type: integer
+                        campaign:
+                          type: integer
+                          x-stoplight:
+                            id: 8os8pe07l1htz
   '/dossiers/{campaign}':
     parameters:
       - name: campaign
