@@ -3321,7 +3321,7 @@ paths:
                                 id:
                                   type: integer
                                 start:
-                                  type: integer
+                                  type: number
                                 end:
                                   type: integer
                                 mediaId:
