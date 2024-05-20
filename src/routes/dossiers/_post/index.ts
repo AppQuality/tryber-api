@@ -186,7 +186,7 @@ export default class RouteItem extends AdminRoute<{
   }) {
     const meta = await tryber.tables.WpAppqCpMeta.do()
       .select()
-      .where("cp_id", campaignToDuplicate);
+      .where("campaign_id", campaignToDuplicate);
 
     if (meta.length) {
       await tryber.tables.WpAppqCpMeta.do().insert(
