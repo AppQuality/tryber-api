@@ -222,6 +222,7 @@ export default class RouteItem extends AdminRoute<{
         customer_title: this.getBody().title.customer,
         os: os.join(","),
         form_factor: form_factor.join(","),
+        base_bug_internal_id: "UG",
         ...(campaignToDuplicate
           ? {
               desired_number_of_testers:
