@@ -54,6 +54,7 @@ describe("StatusChangeHandler", () => {
   });
   it("should have a constructor", () => {
     const handler = new StatusChangeHandler({
+      oldPhase: 1,
       newPhase: 2,
       campaignId: 1,
       creator: 1,
@@ -63,6 +64,7 @@ describe("StatusChangeHandler", () => {
 
   it("Should save the oldPhase, newPhase and campaignId", async () => {
     const handler = new StatusChangeHandler({
+      oldPhase: 1,
       newPhase: 2,
       campaignId: 1,
       creator: 1,
@@ -82,6 +84,7 @@ describe("StatusChangeHandler", () => {
 
   it("Should change the status_id when changing to a closed phase", async () => {
     const handler = new StatusChangeHandler({
+      oldPhase: 1,
       newPhase: 3,
       campaignId: 1,
       creator: 1,
@@ -100,6 +103,7 @@ describe("StatusChangeHandler", () => {
 
   it("Should change the close date when changing to a closed phase", async () => {
     const handler = new StatusChangeHandler({
+      oldPhase: 1,
       newPhase: 3,
       campaignId: 1,
       creator: 1,
@@ -119,6 +123,7 @@ describe("StatusChangeHandler", () => {
 
   it("Should change the status_id when changing from closed phase", async () => {
     const handler = new StatusChangeHandler({
+      oldPhase: 3,
       newPhase: 1,
       campaignId: 2,
       creator: 1,
@@ -137,6 +142,7 @@ describe("StatusChangeHandler", () => {
 
   it("Should change the status details of the campaign", async () => {
     const handler = new StatusChangeHandler({
+      oldPhase: 3,
       newPhase: 1,
       campaignId: 2,
       creator: 1,

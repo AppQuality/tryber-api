@@ -80,6 +80,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async updatePhase() {
+    const oldPhase = this.campaign.phase_id;
     await tryber.tables.WpAppqEvdCampaign.do()
       .update({ phase_id: this.newPhaseId })
       .where("id", this.campaignId);
@@ -94,12 +95,15 @@ export default class RouteItem extends UserRoute<{
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
 
-    await this.triggerStatusChange();
+    await this.triggerStatusChange({
+      oldPhase,
+    });
     return result;
   }
 
-  private async triggerStatusChange() {
+  private async triggerStatusChange({ oldPhase }: { oldPhase: number }) {
     const handler = new StatusChangeHandler({
+      oldPhase,
       newPhase: this.newPhaseId,
       campaignId: this.campaignId,
       creator: this.getTesterId(),

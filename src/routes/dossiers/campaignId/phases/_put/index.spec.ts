@@ -163,6 +163,7 @@ describe("Route PUT /dossiers/:id/phases", () => {
       .send({ phase: 2 });
 
     expect(StatusChangeHandler).toHaveBeenCalledWith({
+      oldPhase: 1,
       newPhase: 2,
       campaignId: 1,
       creator: 1,

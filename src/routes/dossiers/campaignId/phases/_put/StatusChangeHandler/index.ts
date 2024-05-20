@@ -8,22 +8,23 @@ class StatusChangeHandler {
   private creator: number;
 
   constructor({
+    oldPhase,
     newPhase,
     campaignId,
     creator,
   }: {
+    oldPhase: number;
     newPhase: number;
     campaignId: number;
     creator: number;
   }) {
+    this.oldPhase = oldPhase;
     this.newPhase = newPhase;
     this.campaignId = campaignId;
     this.creator = creator;
   }
 
   public async run() {
-    this.oldPhase = await this.getOldPhase();
-
     const type = await tryber.tables.CampaignPhaseType.do()
       .select(tryber.ref("name").withSchema("campaign_phase_type"))
       .join(
@@ -41,15 +42,6 @@ class StatusChangeHandler {
 
     await this.saveHistory();
     console.log("Status changed from", this.oldPhase, "to", this.newPhase);
-  }
-
-  private async getOldPhase() {
-    const oldPhase = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("phase_id")
-      .where("id", this.campaignId)
-      .first();
-    if (!oldPhase || !oldPhase.phase_id) throw new Error("Old phase not found");
-    return oldPhase.phase_id;
   }
 
   private async saveHistory() {
