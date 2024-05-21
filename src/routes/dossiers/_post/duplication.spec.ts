@@ -370,7 +370,7 @@ describe("Route POST /dossiers - duplication", () => {
       post_title: `CP${id} - Test Manual`,
       post_type: "manual",
       post_content: "Test Content",
-      post_status: "publish",
+      post_status: "draft",
       post_author: 1,
       post_excerpt: "Test Excerpt",
     });
@@ -385,7 +385,7 @@ describe("Route POST /dossiers - duplication", () => {
       post_title: `CP${id} - Test Preview`,
       post_type: "preview",
       post_content: "Test Content",
-      post_status: "publish",
+      post_status: "draft",
       post_author: 1,
       post_excerpt: "Test Excerpt",
     });
