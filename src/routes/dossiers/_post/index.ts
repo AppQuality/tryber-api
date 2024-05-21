@@ -593,11 +593,6 @@ export default class RouteItem extends UserRoute<{
       description: serialize(translations),
     });
 
-    await tryber.tables.WpTermRelationships.do().insert({
-      object_id: id,
-      term_taxonomy_id: term_id,
-    });
-
     for (const trans of Object.keys(translations)) {
       const transId = translations[trans];
       const langId = trans in languages ? languages[trans] : false;
@@ -605,6 +600,10 @@ export default class RouteItem extends UserRoute<{
         await tryber.tables.WpTermRelationships.do().insert({
           object_id: transId,
           term_taxonomy_id: langId,
+        });
+        await tryber.tables.WpTermRelationships.do().insert({
+          object_id: transId,
+          term_taxonomy_id: term_id,
         });
       }
     }
@@ -634,6 +633,8 @@ export default class RouteItem extends UserRoute<{
           this.duplicate.pagesFrom.toString(),
           campaignId.toString()
         ),
+        post_name: "",
+        post_status: "draft",
       })
       .returning("ID");
 
