@@ -560,6 +560,14 @@ export default class RouteItem extends UserRoute<{
           translations: previewTranslations,
           languages,
         });
+        for (const transId of Object.values(previewTranslations)) {
+          await tryber.tables.WpPostmeta.do()
+            .update({
+              meta_value: campaignId.toString(),
+            })
+            .where("meta_key", "preview_campaign_id")
+            .where("post_id", transId);
+        }
       }
     }
   }
