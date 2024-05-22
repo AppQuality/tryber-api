@@ -81,18 +81,24 @@ class RouteItem extends UserRoute<{
       ),
     ];
 
-    const userIdMap = await tryber.tables.WpAppqEvdProfile.do()
-      .select("wp_user_id", "id")
-      .whereIn("wp_user_id", userIds);
+    const userIdMap = (
+      await tryber.tables.WpAppqEvdProfile.do()
+        .select("wp_user_id", "id")
+        .whereIn("wp_user_id", userIds)
+    ).reduce((acc, user) => {
+      acc[user.wp_user_id] = user.id;
+      return acc;
+    }, {} as Record<number, number>);
 
     return types.map((type) => {
       const customRoles = Object.keys(type.custom_roles).map((roleId) => {
-        const users = userIdMap.filter((user) =>
-          type.custom_roles[roleId].includes(user.wp_user_id)
-        );
+        const usertoadd = (type.custom_roles[roleId] as number[])
+          .map((id) => userIdMap[id])
+          .filter((t) => typeof t === "number");
+
         return {
           roleId: parseInt(roleId),
-          userIds: users.map((user) => user.id),
+          userIds: usertoadd,
         };
       });
 
