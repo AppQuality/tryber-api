@@ -28,10 +28,10 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.39.0":
-  version "0.39.0"
-  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.39.0.tgz#b0b0e4a6c6d456f5cc7d6b9d0348e60795fac8ea"
-  integrity sha512-SQaETcgQml5qBhkJUJNRdk+POjQx8zRLTNPnRlR5/ZUdN6qzsrhUfmP+2mA1SHx0AIqP4Gfh2hKV1QJZj7FV/w==
+"@appquality/tryber-database@^0.40.0":
+  version "0.40.0"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.40.0.tgz#c4cec8c65ca756414d29763adbd51a701dc396bb"
+  integrity sha512-54VpXGy8601sORtN14YBRQKcTPFxXu67zaeEhV1ycJ/SnMAZQeSEnmFqQN0G2o3jt5KX89TtMi0ndpRrOme7kg==
   dependencies:
     better-sqlite3 "^8.1.0"
     knex "^2.5.1"
@@ -2296,10 +2296,10 @@ copyfiles@^2.4.1:
     untildify "^4.0.0"
     yargs "^16.1.0"
 
-core-js@^3.37.0:
-  version "3.37.0"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.37.0.tgz#d8dde58e91d156b2547c19d8a4efd5c7f6c426bb"
-  integrity sha512-fu5vHevQ8ZG4og+LXug8ulUtVxjOcEYvifJr7L5Bfq9GOztVqsKd9/59hUk2ZSbCrS3BqUr3EpaYGIYzq7g3Ug==
+core-js@^3.6.5:
+  version "3.37.1"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-3.37.1.tgz#d21751ddb756518ac5a00e4d66499df981a62db9"
+  integrity sha512-Xn6qmxrQZyB0FFY8E3bgRXei3lWDJHhvI+u0q9TKIYM49G8pAr0FgnnrFRAmsbptZL1yxRADVXn+x5AGsbBfyw==
 
 core-util-is@~1.0.0:
   version "1.0.2"
