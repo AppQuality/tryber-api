@@ -29,7 +29,7 @@ export class WebhookTrigger<T extends WebhookTypes["type"]>
     try {
       await axios.post(this.webhookUrl, {
         ...this.data,
-        environment: process.env.ENVIROMENT,
+        environment: process.env.ENVIRONMENT,
       });
     } catch (e) {
       console.error("Error triggering webhook", e);
