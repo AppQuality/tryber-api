@@ -2218,6 +2218,10 @@ export interface operations {
           "application/json": {
             id: number;
             name: string;
+            customRoles: {
+              roleId: number;
+              userIds: number[];
+            }[];
           }[];
         };
       };

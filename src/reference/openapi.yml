@@ -4044,9 +4044,34 @@ paths:
                       type: integer
                     name:
                       type: string
+                    customRoles:
+                      type: array
+                      x-stoplight:
+                        id: 2d3889y7ey2kq
+                      items:
+                        x-stoplight:
+                          id: 9co5gffc2hn6i
+                        type: object
+                        properties:
+                          roleId:
+                            type: integer
+                            x-stoplight:
+                              id: zd1kwwa615imc
+                          userIds:
+                            type: array
+                            x-stoplight:
+                              id: ytdjdr4x7fwp5
+                            items:
+                              x-stoplight:
+                                id: n1rh2j7oemn08
+                              type: integer
+                        required:
+                          - roleId
+                          - userIds
                   required:
                     - id
                     - name
+                    - customRoles
               examples:
                 Example 1:
                   value:

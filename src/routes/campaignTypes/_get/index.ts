@@ -27,13 +27,86 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const types = await this.getTypes();
+
+    const result = await this.enhanceTypesWithCustomRoles(types);
+    return this.setSuccess(
+      200,
+      result.map((type) => ({
+        id: type.id,
+        name: type.name,
+        customRoles: type.customRoles,
+      }))
+    );
+  }
+
+  private async getTypes() {
     const types = await tryber.tables.WpAppqCampaignType.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_campaign_type"),
-        tryber.ref("name").withSchema("wp_appq_campaign_type")
+        tryber.ref("name").withSchema("wp_appq_campaign_type"),
+        "custom_roles"
       )
-      .orderBy("name", "asc");
-    return this.setSuccess(200, types);
+      .join(
+        "wp_appq_campaign_category",
+        "wp_appq_campaign_category.id",
+        "wp_appq_campaign_type.category_id"
+      )
+      .orderBy("wp_appq_campaign_type.name", "asc");
+    const parsedTypes = types.map((type) => {
+      let parsedRoles: Record<string, any> = {};
+      if (type.custom_roles) {
+        try {
+          parsedRoles = JSON.parse(type.custom_roles);
+        } catch (error) {
+          console.error("Error parsing custom roles", error);
+        }
+      }
+      return {
+        ...type,
+        custom_roles: parsedRoles,
+      };
+    });
+    return parsedTypes;
+  }
+
+  private async enhanceTypesWithCustomRoles<T>(
+    types: (T & {
+      custom_roles: Record<string, any>;
+    })[]
+  ) {
+    const userIds = [
+      ...new Set(
+        types.flatMap((type) => Object.values(type.custom_roles)).flat()
+      ),
+    ];
+
+    const userIdMap = (
+      await tryber.tables.WpAppqEvdProfile.do()
+        .select("wp_user_id", "id")
+        .whereIn("wp_user_id", userIds)
+    ).reduce((acc, user) => {
+      acc[user.wp_user_id] = user.id;
+      return acc;
+    }, {} as Record<number, number>);
+
+    return types.map((type) => {
+      const customRoles = Object.keys(type.custom_roles).map((roleId) => {
+        const usertoadd = (type.custom_roles[roleId] as number[])
+          .map((id) => userIdMap[id])
+          .filter((t) => typeof t === "number");
+
+        return {
+          roleId: parseInt(roleId),
+          userIds: usertoadd,
+        };
+      });
+
+      return {
+        ...type,
+        customRoles: customRoles,
+      };
+    });
   }
 }
 
