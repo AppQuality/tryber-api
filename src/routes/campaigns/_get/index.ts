@@ -54,7 +54,7 @@ class RouteItem extends UserRoute<{
       id: number;
       value: number[] | "empty";
     }[];
-    phase?: number;
+    phase?: number[];
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -128,8 +128,8 @@ class RouteItem extends UserRoute<{
       }
 
       if ((query.filterBy as any).phase) {
-        const phaseId = (query.filterBy as any).phase;
-        this.filterBy.phase = Number(phaseId);
+        const phaseIds = (query.filterBy as any).phase.split(",").map(Number);
+        this.filterBy.phase = phaseIds;
       }
     }
   }
@@ -482,7 +482,7 @@ class RouteItem extends UserRoute<{
       }
 
       if (this.filterBy.phase) {
-        query = query.where(
+        query = query.whereIn(
           "wp_appq_evd_campaign.phase_id",
           this.filterBy.phase
         );
