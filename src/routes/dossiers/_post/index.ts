@@ -269,6 +269,7 @@ export default class RouteItem extends UserRoute<{
               cust_bug_vis: campaignToDuplicate.cust_bug_vis,
               campaign_type: campaignToDuplicate.campaign_type,
               campaign_pts: campaignToDuplicate.campaign_pts,
+              duplicate_from: campaignToDuplicate.id,
             }
           : {}),
       })
