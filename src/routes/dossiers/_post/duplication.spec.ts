@@ -549,4 +549,22 @@ describe("Route POST /dossiers - duplication", () => {
       WordpressJsonApiTrigger.prototype.generatePages
     ).not.toHaveBeenCalled();
   });
+
+  it("Should save duplication origin", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({ ...baseRequest, duplicate: { campaign: 1 } })
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("duplicate_from")
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("duplicate_from", 1);
+  });
 });
