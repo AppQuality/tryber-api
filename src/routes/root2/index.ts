@@ -1,5 +1,5 @@
 /**  OPENAPI-CLASS : get-root */
-/**  OPENAPI-VERSION : v1 */
+/**  OPENAPI-VERSION : v2 */
 import Route from "@src/features/routes/Route";
 import getBranch from "./getBranch";
 import getRevision from "./getRevision";
@@ -10,6 +10,6 @@ export default class RouteItem extends Route<{
   protected async prepare() {
     let revision = getRevision();
     let branch = getBranch();
-    this.setSuccess(200, { branch, revision });
+    this.setSuccess(200, { branch: "suchino", revision });
   }
 }

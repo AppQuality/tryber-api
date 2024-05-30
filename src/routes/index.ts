@@ -6,6 +6,7 @@ import Comments from "parse-comments";
 
 type RouteObject = {
   name: string;
+  version: string[];
   handler: (
     c: Context,
     req: OpenapiRequest,
@@ -29,12 +30,14 @@ class Routes {
           return {
             name: routeComment.operation,
             handler: this.getHandler(file),
+            version: routeComment.version,
           };
         }
         if (routeComment.operationClass) {
           return {
             name: routeComment.operationClass,
             handler: this.getClassHandler(file),
+            version: routeComment.version,
           };
         }
         return null;
@@ -73,6 +76,7 @@ class Routes {
 class RouteComment {
   public operation: string | false;
   public operationClass: string | false;
+  public version: string[] = [];
 
   constructor(file: string) {
     const comments = this.extractFileContent(file);
@@ -87,6 +91,12 @@ class RouteComment {
     );
     if (!classComment) this.operationClass = false;
     else this.operationClass = classComment.value.split(":")[1].trim();
+
+    const versionComment = comments.find((comment) =>
+      comment.value.includes("OPENAPI-VERSION")
+    );
+    if (versionComment)
+      this.version = versionComment.value.split(":")[1].trim().split(",");
   }
 
   extractFileContent(file: string) {
@@ -96,9 +106,12 @@ class RouteComment {
   }
 }
 
-export default (api: OpenAPIBackend) => {
+export default (api: OpenAPIBackend, version: string) => {
   const routeHandler = new Routes("./src/routes");
-  routeHandler.routes.forEach((route) => {
-    api.register(route.name, route.handler);
-  });
+  routeHandler.routes
+    .filter((route) => route.version.includes(version))
+    .forEach((route) => {
+      console.log(`Registering route ${route.name} for version ${version}`);
+      api.register(route.name, route.handler);
+    });
 };

@@ -3,37 +3,54 @@ import busboy from "connect-busboy";
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
-import OpenAPIBackend, { Options, Request } from "openapi-backend";
+import OpenAPIBackend, { Request } from "openapi-backend";
 import config from "./config";
 import Sentry from "./features/sentry";
 import middleware from "./middleware";
-import getExample from "./middleware/getExample";
 import routes from "./routes";
 
-const opts: Options = {
-  definition: __dirname + "/reference/openapi.yml",
+const optsV1 = {
+  definition: __dirname + "/reference/openapi-v1.yml",
   quick: true,
+  apiRoot: "/v1",
 };
 
-let referencePath = "/reference/";
-if (config.apiRoot) {
-  opts.apiRoot = config.apiRoot;
-  referencePath = config.apiRoot + referencePath;
-}
-const api = new OpenAPIBackend(opts);
-api.register({
+const optsV2 = {
+  definition: __dirname + "/reference/openapi-v2.yml",
+  quick: true,
+  apiRoot: "/v2",
+};
+
+if (config.apiRoot) optsV1.apiRoot = `${config.apiRoot}${optsV1.apiRoot}`;
+if (config.apiRoot) optsV2.apiRoot = `${config.apiRoot}${optsV2.apiRoot}`;
+const apiV1 = new OpenAPIBackend(optsV1);
+const apiV2 = new OpenAPIBackend(optsV2);
+apiV1.register({
+  notFound: middleware.notFound,
+  unauthorizedHandler: middleware.unauthorized,
+  validationFail: middleware.validationFail,
+});
+apiV2.register({
   notFound: middleware.notFound,
   unauthorizedHandler: middleware.unauthorized,
   validationFail: middleware.validationFail,
 });
 
-api.registerHandler("notImplemented", middleware.notImplemented(api));
+apiV1.registerHandler("notImplemented", middleware.notImplemented(apiV1));
+apiV2.registerHandler("notImplemented", middleware.notImplemented(apiV1));
 // register security handler for jwt auth
-api.registerSecurityHandler("JWT", middleware.jwtSecurityHandler);
-api.registerSecurityHandler("User Token", middleware.userTokenSecurityHandler);
-api.register("postResponseHandler", middleware.postResponseHandler);
-routes(api);
-api.init();
+apiV1.registerSecurityHandler("JWT", middleware.jwtSecurityHandler);
+apiV2.registerSecurityHandler("JWT", middleware.jwtSecurityHandler);
+apiV1.registerSecurityHandler(
+  "User Token",
+  middleware.userTokenSecurityHandler
+);
+apiV1.register("postResponseHandler", middleware.postResponseHandler);
+apiV2.register("postResponseHandler", middleware.postResponseHandler);
+routes(apiV1, "v1");
+routes(apiV2, "v2");
+apiV1.init();
+apiV2.init();
 
 const app = express();
 const sentry = new Sentry(app);
@@ -54,8 +71,12 @@ app.use(
   })
 );
 
-app.get(referencePath, function (req, res) {
-  res.sendFile(__dirname + "/reference/openapi.yml");
+app.get(optsV1.apiRoot + "/reference/", function (req, res) {
+  res.sendFile(__dirname + "/reference/openapi-v1.yml");
+});
+
+app.get(optsV2.apiRoot + "/reference/", function (req, res) {
+  res.sendFile(__dirname + "/reference/openapi-v2.yml");
 });
 
 app.use(
@@ -75,29 +96,12 @@ app.use(
 );
 
 app.use((req, res) => {
-  if (req.rawHeaders.includes("x-tryber-mock-example")) {
-    let exampleData = req.headers["x-tryber-mock-example"];
-    if (typeof exampleData === "string") {
-      exampleData = exampleData.split(":");
-      if (exampleData.length === 2) {
-        let path = req.path;
-        if (config.apiRoot) {
-          path = path.replace(new RegExp(`^${config.apiRoot}`), "");
-        }
-        const example = getExample(
-          api,
-          path,
-          req.method,
-          exampleData[0],
-          exampleData[1]
-        );
-        if (example) {
-          return res.status(parseInt(exampleData[0])).json(example);
-        }
-      }
-    }
+  console.log(req.path);
+  if (req.path.startsWith(optsV1.apiRoot)) {
+    return apiV1.handleRequest(req as Request, req, res);
+  } else if (req.path.startsWith(optsV2.apiRoot)) {
+    return apiV2.handleRequest(req as Request, req, res);
   }
-  return api.handleRequest(req as Request, req, res);
 });
 
 sentry.setErrorHandler();
