@@ -24,6 +24,7 @@ describe("GET /campaigns", () => {
     await tryber.tables.CampaignPhase.do().insert([
       { id: 1, name: "Draft", type_id: 1 },
       { id: 2, name: "Running", type_id: 2 },
+      { id: 3, name: "Confirmed", type_id: 2 },
     ]);
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
@@ -39,6 +40,7 @@ describe("GET /campaigns", () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, title: "First test campaign", phase_id: 1 },
       { ...campaign, id: 2, title: "Second test campaign", phase_id: 2 },
+      { ...campaign, id: 3, title: "Third test campaign", phase_id: 3 },
     ]);
   });
   afterAll(async () => {
@@ -54,7 +56,7 @@ describe("GET /campaigns", () => {
 
     expect(response.status).toBe(200);
 
-    expect(response.body.items).toHaveLength(2);
+    expect(response.body.items).toHaveLength(3);
 
     expect(response.body.items).toEqual(
       expect.arrayContaining([
@@ -70,6 +72,13 @@ describe("GET /campaigns", () => {
           phase: {
             id: 2,
             name: "Running",
+          },
+        }),
+        expect.objectContaining({
+          id: 3,
+          phase: {
+            id: 3,
+            name: "Confirmed",
           },
         }),
       ])
@@ -92,6 +101,34 @@ describe("GET /campaigns", () => {
           phase: {
             id: 1,
             name: "Draft",
+          },
+        }),
+      ])
+    );
+  });
+  it("Should allow filtering by multiple phases", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[phase]=1,2")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+
+    expect(response.status).toBe(200);
+
+    expect(response.body.items).toHaveLength(2);
+
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          phase: {
+            id: 1,
+            name: "Draft",
+          },
+        }),
+        expect.objectContaining({
+          id: 2,
+          phase: {
+            id: 2,
+            name: "Running",
           },
         }),
       ])
