@@ -88,7 +88,7 @@ export default class Route extends UserRoute<{
       .select("form_factor")
       .whereIn("id", osFromFilters);
 
-    if (!results.length) await this.getFallback();
+    if (!results.length) return await this.getFallback();
     return results;
   }
 
