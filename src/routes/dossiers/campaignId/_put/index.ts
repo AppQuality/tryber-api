@@ -169,6 +169,9 @@ export default class RouteItem extends UserRoute<{
         ...(this.getBody().target?.size && {
           target_size: this.getBody().target?.size,
         }),
+        ...(this.getBody().target?.cap && {
+          cap: this.getBody().target?.cap,
+        }),
         product_type_id: this.getBody().productType,
         target_devices: this.getBody().deviceRequirements,
         notes: this.getBody().notes,
