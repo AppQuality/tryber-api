@@ -298,6 +298,7 @@ describe("Route GET /dossiers/:id", () => {
         updated_by: 100,
         product_type_id: 1,
         notes: "Notes",
+        cap: 100,
       });
       await tryber.tables.CampaignDossierDataCountries.do().insert([
         {
@@ -528,6 +529,16 @@ describe("Route GET /dossiers/:id", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("id", 1);
+    });
+
+    it("Should return cap", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("target");
+      expect(response.body.target).toHaveProperty("cap", 100);
     });
   });
 });
