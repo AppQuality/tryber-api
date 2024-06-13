@@ -304,6 +304,9 @@ export default class RouteItem extends UserRoute<{
         created_by: this.getTesterId(),
         updated_by: this.getTesterId(),
         notes: this.getBody().notes,
+        ...(this.getBody().target?.cap
+          ? { cap: this.getBody().target?.cap }
+          : {}),
       })
       .returning("id");
 
