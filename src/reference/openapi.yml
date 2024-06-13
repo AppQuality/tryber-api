@@ -9986,6 +9986,10 @@ paths:
                         type: string
                       size:
                         type: integer
+                      cap:
+                        type: integer
+                        x-stoplight:
+                          id: yzv1ppm6f5kq7
                   countries:
                     type: array
                     minItems: 1
@@ -11269,6 +11273,10 @@ components:
               type: string
             size:
               type: integer
+            cap:
+              type: integer
+              x-stoplight:
+                id: dv3yqv5k8gpv6
         countries:
           type: array
           items:

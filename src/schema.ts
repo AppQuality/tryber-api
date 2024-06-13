@@ -927,6 +927,7 @@ export interface components {
       target?: {
         notes?: string;
         size?: number;
+        cap?: number;
       };
       countries?: components["schemas"]["CountryCode"][];
       languages?: number[];
@@ -4203,6 +4204,7 @@ export interface operations {
             target?: {
               notes?: string;
               size?: number;
+              cap?: number;
             };
             countries?: components["schemas"]["CountryCode"][];
             languages?: {
