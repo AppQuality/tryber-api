@@ -2,6 +2,7 @@ import UserRoute from "@src/features/routes/UserRoute";
 
 import { tryber } from "@src/features/database";
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
+import { UserTargetChecker } from "./UserTargetChecker";
 
 /** OPENAPI-CLASS: get-users-me-campaigns */
 
@@ -74,11 +75,19 @@ class RouteItem extends UserRoute<{
       throw Error("no data found");
     }
 
-    const items = await this.enhanceWithLinkedPages(
-      await this.enhanceWithCampaignType(
-        await this.enhanceCampaignsWithApplication(results)
+    const items = await this.filterByTargetRules(
+      await this.enhanceWithTargetRules(
+        await this.enhanceWithLinkedPages(
+          await this.enhanceWithCampaignType(
+            await this.enhanceCampaignsWithApplication(results)
+          )
+        )
       )
     );
+
+    if (!items.length) {
+      throw Error("no data found");
+    }
 
     return items
       .filter((campaign) => {
@@ -117,6 +126,10 @@ class RouteItem extends UserRoute<{
         "close_date",
         "campaign_type_id",
         tryber
+          .ref("is_public")
+          .withSchema("wp_appq_evd_campaign")
+          .as("visibility_type"),
+        tryber
           .ref("name")
           .withSchema("wp_appq_campaign_type")
           .as("campaign_type")
@@ -142,7 +155,7 @@ class RouteItem extends UserRoute<{
       const pageAccess = await this.getPageAccess();
 
       query.where((q) => {
-        q.whereIn("is_public", [1, 2]);
+        q.whereIn("is_public", [1, 2, 4]);
         if (pageAccess.length) {
           q.orWhereIn("page_preview_id", pageAccess);
         }
@@ -239,6 +252,64 @@ class RouteItem extends UserRoute<{
         ...campaign,
         campaign_type: type ? type.name : undefined,
       };
+    });
+  }
+
+  private async enhanceWithTargetRules<T>(
+    campaigns: (T & { id: number; visibility_type: number })[]
+  ) {
+    const campaignsWithTarget = campaigns.filter(
+      (c) => c.visibility_type === 4
+    );
+    if (!campaignsWithTarget.length) return campaigns;
+
+    const allowedLanguages =
+      await tryber.tables.CampaignDossierDataLanguages.do()
+        .select("campaign_id", "language_id")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data.id",
+          "campaign_dossier_data_languages.campaign_dossier_data_id"
+        )
+        .whereIn(
+          "campaign_dossier_data.campaign_id",
+          campaignsWithTarget.map((c) => c.id)
+        );
+
+    return campaigns.map((campaign) => {
+      if (campaign.visibility_type !== 4) return campaign;
+
+      const languages = allowedLanguages
+        .filter((l) => l.campaign_id === campaign.id)
+        .map((l) => l.language_id);
+
+      return {
+        ...campaign,
+        targetRules: {
+          ...(languages.length ? { languages } : {}),
+        },
+      };
+    });
+  }
+
+  private async filterByTargetRules<T>(
+    campaigns: (T & {
+      targetRules?: {
+        languages?: number[];
+        countries?: string[];
+      };
+    })[]
+  ) {
+    const userTargetChecker = new UserTargetChecker({
+      testerId: this.getTesterId(),
+    });
+    await userTargetChecker.init();
+    return campaigns.filter((campaign) => {
+      if (!campaign.targetRules) {
+        return true;
+      } else {
+        return userTargetChecker.inTarget(campaign.targetRules);
+      }
     });
   }
 
