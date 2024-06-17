@@ -76,10 +76,12 @@ class RouteItem extends UserRoute<{
     }
 
     const items = await this.filterByTargetRules(
-      await this.enhanceWithTargetRules(
-        await this.enhanceWithLinkedPages(
-          await this.enhanceWithCampaignType(
-            await this.enhanceCampaignsWithApplication(results)
+      await this.enhanceWithFreeSpots(
+        await this.enhanceWithTargetRules(
+          await this.enhanceWithLinkedPages(
+            await this.enhanceWithCampaignType(
+              await this.enhanceCampaignsWithApplication(results)
+            )
           )
         )
       )
@@ -111,6 +113,14 @@ class RouteItem extends UserRoute<{
         manual_link: cp.manual_link,
         preview_link: cp.preview_link,
         applied: cp.applied == 1,
+        ...(cp.freeSpots && cp.totalSpots
+          ? {
+              visibility: {
+                freeSpots: cp.freeSpots,
+                totalSpots: cp.totalSpots,
+              },
+            }
+          : {}),
       }));
   }
 
@@ -288,6 +298,63 @@ class RouteItem extends UserRoute<{
         targetRules: {
           ...(languages.length ? { languages } : {}),
         },
+      };
+    });
+  }
+
+  private async enhanceWithFreeSpots<T>(
+    campaigns: (T & { id: number; visibility_type: number })[]
+  ) {
+    const campaignsWithTarget = campaigns.filter(
+      (c) => c.visibility_type === 4
+    );
+    if (!campaignsWithTarget.length)
+      return campaigns.map((c) => ({
+        ...c,
+        freeSpots: undefined,
+        totalSpots: undefined,
+      }));
+
+    const applicationSpots = await tryber.tables.CampaignDossierData.do()
+      .select("campaign_id", "cap")
+      .whereIn(
+        "campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const validApplications = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("campaign_id")
+      .count({
+        count: "user_id",
+      })
+      .whereNot("accepted", -1)
+      .whereIn(
+        "campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      )
+      .then((res) =>
+        res.map((r) => ({
+          campaign_id: r.campaign_id,
+          count: typeof r.count === "number" ? r.count : 0,
+        }))
+      );
+
+    return campaigns.map((campaign) => {
+      const applicationSpot = applicationSpots.find(
+        (c) => c.campaign_id === campaign.id
+      );
+      const validApplicationsCount = validApplications.find(
+        (c) => c.campaign_id === campaign.id
+      );
+      return {
+        ...campaign,
+        ...(applicationSpot
+          ? {
+              freeSpots:
+                applicationSpot.cap - (validApplicationsCount?.count || 0),
+              totalSpots: applicationSpot.cap,
+            }
+          : {}),
       };
     });
   }

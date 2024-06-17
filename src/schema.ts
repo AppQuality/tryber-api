@@ -698,6 +698,10 @@ export interface components {
       bugform_link?: boolean | components["schemas"]["TranslatablePage"];
       /** @description True if you applied on this Campaign */
       applied?: boolean;
+      visibility?: {
+        freeSpots?: number;
+        totalSpots?: number;
+      };
     };
     CampaignRequired: {
       name: string;
