@@ -3290,61 +3290,6 @@ paths:
                       type: string
                     usersNumber:
                       type: integer
-                    insights:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          title:
-                            type: string
-                          description:
-                            type: string
-                            maxLength: 350
-                          severityId:
-                            type: integer
-                          order:
-                            type: integer
-                          clusterIds:
-                            oneOf:
-                              - type: array
-                                items:
-                                  type: integer
-                              - type: string
-                                enum:
-                                  - all
-                          videoParts:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                id:
-                                  type: integer
-                                start:
-                                  type: number
-                                end:
-                                  type: number
-                                mediaId:
-                                  type: integer
-                                description:
-                                  type: string
-                                  maxLength: 150
-                                order:
-                                  type: integer
-                              required:
-                                - start
-                                - end
-                                - mediaId
-                                - description
-                                - order
-                        required:
-                          - title
-                          - description
-                          - severityId
-                          - order
-                          - clusterIds
-                          - videoParts
                     sentiments:
                       type: array
                       items:
@@ -3391,7 +3336,6 @@ paths:
                   required:
                     - goal
                     - usersNumber
-                    - insights
                     - sentiments
                     - methodology
                     - questions
@@ -3411,21 +3355,6 @@ paths:
                   methodology:
                     description: Methodology Description
                     type: quantitative
-                  insights:
-                    - id: 5
-                      title: string
-                      description: string
-                      severityId: 0
-                      order: 0
-                      clusterIds:
-                        - 0
-                      videoParts:
-                        - id: 7
-                          start: 0
-                          end: 0
-                          mediaId: 0
-                          description: string
-                          order: 0
                   sentiments:
                     - clusterId: 0
                       value: 4
@@ -3451,19 +3380,6 @@ paths:
                   methodology:
                     description: Methodology Description
                     type: qualitative
-                  insights:
-                    - title: string
-                      description: string
-                      severityId: 0
-                      order: 0
-                      clusterIds:
-                        - 0
-                      videoParts:
-                        - start: 0
-                          end: 0
-                          mediaId: 0
-                          description: string
-                          order: 0
                   sentiments:
                     - clusterId: 0
                       value: 4

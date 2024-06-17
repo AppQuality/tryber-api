@@ -2030,22 +2030,6 @@ export interface operations {
           | {
               goal: string;
               usersNumber: number;
-              insights: {
-                id?: number;
-                title: string;
-                description: string;
-                severityId: number;
-                order: number;
-                clusterIds: number[] | "all";
-                videoParts: {
-                  id?: number;
-                  start: number;
-                  end: number;
-                  mediaId: number;
-                  description: string;
-                  order: number;
-                }[];
-              }[];
               sentiments: {
                 id?: number;
                 clusterId: number;
