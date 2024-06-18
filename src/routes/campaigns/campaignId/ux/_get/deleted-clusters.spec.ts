@@ -186,58 +186,7 @@ describe("With draft only", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
-  });
-
-  it("Should not return findings of a deleted clusters", async () => {
-    const response = await request(app)
-      .get(`/campaigns/1/ux`)
-      .set("Authorization", "Bearer admin");
-
-    expect(response.body.insights.length).toEqual(4);
-
-    expect(response.body.insights).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-        }),
-        expect.objectContaining({
-          id: 2,
-        }),
-        expect.objectContaining({
-          id: 3,
-        }),
-        expect.objectContaining({
-          id: 6,
-        }),
-      ])
-    );
-  });
-
-  it("Should remove deleted cluster on returning findings", async () => {
-    const response = await request(app)
-      .get(`/campaigns/1/ux`)
-      .set("Authorization", "Bearer admin");
-
-    expect(response.body.insights.length).toEqual(4);
-    expect(response.body.insights).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-        }),
-        expect.objectContaining({
-          id: 2,
-        }),
-        expect.objectContaining({
-          id: 3,
-        }),
-        expect.objectContaining({
-          id: 6,
-          clusters: [{ id: 1, name: "Cluster 1" }],
-        }),
-      ])
-    );
   });
 
   it("Should return the sentiments if exist the cluster", async () => {

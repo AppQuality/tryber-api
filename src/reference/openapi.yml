@@ -2820,79 +2820,6 @@ paths:
                     type: string
                   usersNumber:
                     type: integer
-                  insights:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        title:
-                          type: string
-                        severity:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                        description:
-                          type: string
-                        clusters:
-                          oneOf:
-                            - type: string
-                              enum:
-                                - all
-                            - type: array
-                              items:
-                                type: object
-                                properties:
-                                  id:
-                                    type: integer
-                                  name:
-                                    type: string
-                                required:
-                                  - id
-                                  - name
-                        videoParts:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: integer
-                              start:
-                                type: number
-                              end:
-                                type: number
-                              mediaId:
-                                type: integer
-                              url:
-                                type: string
-                              streamUrl:
-                                type: string
-                              description:
-                                type: string
-                              poster:
-                                type: string
-                            required:
-                              - id
-                              - start
-                              - end
-                              - mediaId
-                              - url
-                              - streamUrl
-                              - description
-                      required:
-                        - id
-                        - title
-                        - severity
-                        - description
-                        - clusters
-                        - videoParts
                   sentiments:
                     type: array
                     items:
@@ -2970,41 +2897,6 @@ paths:
                       name: Usability Test
                       description: Methodology Description
                       type: qualitative
-                    insights:
-                      - id: 1
-                        title: My insight
-                        description: This is an insight
-                        severity:
-                          id: 1
-                          name: Minor
-                        clusters: all
-                        videoParts:
-                          - id: 1
-                            start: 10
-                            end: 20
-                            mediaId: 1
-                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
-                            description: This is a video part
-                      - id: 2
-                        title: My second insight
-                        description: This is another insight
-                        severity:
-                          id: 2
-                          name: Positive
-                        clusters:
-                          - id: 1
-                            name: 'UC1: Cart'
-                          - id: 2
-                            name: 'UC2: Login'
-                        videoParts:
-                          - id: 2
-                            start: 15
-                            end: 25
-                            mediaId: 2
-                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
-                            description: This is a video part
                     sentiments:
                       - id: 1
                         value: 5
@@ -3032,41 +2924,6 @@ paths:
                       name: Usability Test
                       description: Methodology Description
                       type: quantitative
-                    insights:
-                      - id: 1
-                        title: My insight
-                        description: This is an insight
-                        severity:
-                          id: 1
-                          name: Minor
-                        clusters: all
-                        videoParts:
-                          - id: 1
-                            start: 10
-                            end: 20
-                            mediaId: 1
-                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
-                            description: This is a video part
-                      - id: 2
-                        title: My second insight
-                        description: This is another insight
-                        severity:
-                          id: 2
-                          name: Positive
-                        clusters:
-                          - id: 1
-                            name: 'UC1: Cart'
-                          - id: 2
-                            name: 'UC2: Login'
-                        videoParts:
-                          - id: 2
-                            start: 15
-                            end: 25
-                            mediaId: 2
-                            url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-                            streamUrl: 'http://sample.vodobox.net/skate_phantom_flex_4k/skate_phantom_flex_4k.m3u8'
-                            description: This is a video part
                     sentiments:
                       - id: 1
                         value: 5
@@ -3100,72 +2957,6 @@ paths:
                       name: UX Challenge
                       description: UX Challenge
                       type: qualitative
-                    insights:
-                      - id: 70
-                        title: Malfunzionamento form
-                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst.'
-                        clusters:
-                          - id: 1
-                            name: UC 1 - Carrello
-                        severity:
-                          id: 1
-                          name: Minor
-                        videoParts:
-                          - id: 250
-                            start: 0
-                            mediaId: 73579
-                            end: 97
-                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien'
-                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
-                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
-                          - id: 251
-                            start: 22
-                            mediaId: 73577
-                            end: 101
-                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
-                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
-                          - id: 252
-                            start: 0
-                            mediaId: 73578
-                            end: 152
-                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
-                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
-                      - id: 71
-                        title: Difficoltà di navigazione
-                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-                        clusters:
-                          - id: 2
-                            name: UC 2 - Profilo
-                        severity:
-                          id: 1
-                          name: Minor
-                        videoParts:
-                          - id: 253
-                            start: 0
-                            mediaId: 73580
-                            end: 102
-                            description: Lorem ipsum dolor sit amet
-                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
-                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
-                      - id: 72
-                        title: Criticità Pagina Prodotto
-                        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis, at condimentum arcu vehicula eget. Donec sollicitudin dapibus '
-                        clusters:
-                          - id: 1
-                            name: UC 1 - Carrello
-                        severity:
-                          id: 2
-                          name: Major
-                        videoParts:
-                          - id: 254
-                            start: 0
-                            mediaId: 73589
-                            end: 106
-                            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis,'
-                            url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
-                            streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
                     sentiments: []
                     questions:
                       - id: 1

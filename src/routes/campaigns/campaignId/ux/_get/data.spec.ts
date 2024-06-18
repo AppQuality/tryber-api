@@ -56,56 +56,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       goal: "This is the goal of the reasearch",
       users: 100,
     });
-    await tryber.tables.UxCampaignInsights.do().insert([
-      {
-        id: 1,
-        campaign_id: 1,
-        version: 1,
-        title: "Test Insight",
-        description: "Test Description",
-        severity_id: 1,
-        cluster_ids: "1,2",
-        order: 1,
-        finding_id: 10,
-        enabled: 1,
-      },
-      {
-        id: 2,
-        campaign_id: 1,
-        version: 1,
-        title: "Test Insight All Cluster",
-        description: "Test Description All Cluster",
-        severity_id: 1,
-        cluster_ids: "0",
-        order: 0,
-        finding_id: 20,
-        enabled: 1,
-      },
-      {
-        id: 3,
-        campaign_id: 1,
-        version: 1,
-        title: "Test Insight Disabled",
-        description: "Test Description Disabled",
-        severity_id: 1,
-        cluster_ids: "0",
-        order: 0,
-        finding_id: 30,
-        enabled: 0,
-      },
-      {
-        id: 4,
-        campaign_id: 2,
-        version: 1,
-        title: "Test Insight Other CP",
-        description: "Test Description Other CP",
-        severity_id: 1,
-        cluster_ids: "0",
-        order: 0,
-        finding_id: 40,
-        enabled: 1,
-      },
-    ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
       {
         id: 1,
@@ -127,15 +77,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       },
     ]);
 
-    await tryber.tables.UxCampaignVideoParts.do().insert({
-      id: 1,
-      insight_id: 1,
-      start: 0,
-      end: 10,
-      order: 0,
-      media_id: 1,
-      description: "Test Description",
-    });
     await tryber.tables.WpAppqUserTaskMedia.do().insert({
       id: 1,
       campaign_task_id: 1,
@@ -189,114 +130,10 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
-    await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
-  });
-
-  it("Should return all the enabled findings", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("insights");
-    expect(response.body.insights).toHaveLength(2);
-    expect(response.body.insights[0]).toEqual(
-      expect.objectContaining({
-        title: "Test Insight All Cluster",
-        description: "Test Description All Cluster",
-        severity: expect.objectContaining({
-          id: 1,
-          name: "Minor",
-        }),
-        clusters: "all",
-        videoParts: expect.arrayContaining([]),
-      })
-    );
-    expect(response.body.insights[1]).toEqual(
-      expect.objectContaining({
-        title: "Test Insight",
-        description: "Test Description",
-        severity: expect.objectContaining({
-          id: 1,
-          name: "Minor",
-        }),
-        clusters: [
-          expect.objectContaining({
-            id: 1,
-            name: "Test Cluster",
-          }),
-          expect.objectContaining({
-            id: 2,
-            name: "Test Cluster 2",
-          }),
-        ],
-        videoParts: expect.arrayContaining([]),
-      })
-    );
-  });
-
-  it("Should return all findings of a specific Campaign", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("insights");
-    expect(response.body.insights).toHaveLength(2);
-    expect(response.body.insights).toEqual(
-      expect.arrayContaining([
-        expect.not.objectContaining({
-          id: 4,
-        }),
-      ])
-    );
-  });
-
-  it("Should return the correct ids for each finding", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("insights");
-    expect(response.body.insights).toHaveLength(2);
-    expect(response.body.insights).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-        }),
-        expect.objectContaining({
-          id: 2,
-        }),
-      ])
-    );
-  });
-
-  it("Should return all the video part in a finding", async () => {
-    const response = await request(app)
-      .get("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin");
-    expect(response.body).toHaveProperty("insights");
-    expect(response.body.insights).toHaveLength(2);
-    expect(response.body.insights[1]).toEqual(
-      expect.objectContaining({
-        id: 1,
-        videoParts: expect.arrayContaining([]),
-      })
-    );
-    expect(response.body.insights[1].videoParts).toHaveLength(1);
-    expect(response.body.insights[1].videoParts[0]).toEqual(
-      expect.objectContaining({
-        start: 0,
-        end: 10,
-        description: "Test Description",
-        mediaId: 1,
-        url: "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4",
-        streamUrl:
-          "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8",
-        poster:
-          "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.0000000.jpg",
-      })
-    );
   });
 
   it("Should return the questions", async () => {
