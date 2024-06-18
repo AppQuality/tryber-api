@@ -59,8 +59,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
 
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
-    await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
@@ -73,16 +71,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [
-          {
-            title: "My insight",
-            description: "My description",
-            severityId: 1,
-            order: 0,
-            clusterIds: "all",
-            videoParts: [],
-          },
-        ],
         sentiments: [],
         questions: [],
         methodology,
@@ -102,71 +90,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     );
   });
 
-  it("Should insert insight as draft", async () => {
-    await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [
-          {
-            title: "My insight",
-            description: "My description",
-            severityId: 1,
-            order: 0,
-            clusterIds: "all",
-            videoParts: [],
-          },
-        ],
-        sentiments: [],
-        questions: [],
-        methodology,
-      });
-    const data = await tryber.tables.UxCampaignInsights.do().select();
-    expect(data).toHaveLength(1);
-    expect(data[0]).toEqual(
-      expect.objectContaining({
-        cluster_ids: "0",
-        description: "My description",
-        order: 0,
-        severity_id: 1,
-        title: "My insight",
-      })
-    );
-  });
-
-  it("Should insert insight as draft with correct finding_id", async () => {
-    await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [
-          {
-            title: "My insight",
-            description: "My description",
-            severityId: 1,
-            order: 0,
-            clusterIds: "all",
-            videoParts: [],
-          },
-        ],
-        sentiments: [],
-        questions: [],
-        methodology,
-      });
-
-    const data = await tryber.tables.UxCampaignInsights.do().select();
-    expect(data).toHaveLength(1);
-    expect(data[0]).toEqual(
-      expect.objectContaining({
-        finding_id: 1,
-      })
-    );
-  });
-
   it("Should insert question as draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
@@ -174,7 +97,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [{ name: "Is there life on Mars?" }],
         methodology,
@@ -198,7 +120,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [{ value: 5, clusterId: 1, comment: "My comment" }],
         questions: [],
         methodology,
@@ -218,53 +139,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     );
   });
 
-  it("Should insert insight videopart as draft", async () => {
-    await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [
-          {
-            title: "My insight",
-            description: "My description",
-            severityId: 1,
-            order: 0,
-            clusterIds: "all",
-            videoParts: [
-              {
-                start: 0,
-                end: 10,
-                mediaId: 1,
-                description: "My video",
-                order: 0,
-              },
-            ],
-          },
-        ],
-        sentiments: [],
-        questions: [],
-        methodology,
-      });
-
-    const data = await tryber.tables.UxCampaignInsights.do().select();
-    expect(data).toHaveLength(1);
-    const insightId = data[0].id;
-    const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
-    expect(videoParts).toHaveLength(1);
-    expect(videoParts[0]).toEqual(
-      expect.objectContaining({
-        start: 0,
-        end: 10,
-        media_id: 1,
-        description: "My video",
-        order: 0,
-        insight_id: insightId,
-      })
-    );
-  });
-
   it("Should insert methodology type as draft", async () => {
     await request(app)
       .patch("/campaigns/1/ux")
@@ -272,7 +146,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
         methodology,
@@ -294,7 +167,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
 
@@ -316,7 +188,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
 
@@ -338,7 +209,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 6,
-        insights: [],
         sentiments: [],
         questions: [],
 
@@ -351,40 +221,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from empty", () => {
     expect(data?.users).toEqual(6);
     expect(data?.published).toEqual(0);
     expect(data?.version).toEqual(1);
-  });
-
-  it("Should return 400 if inserting video part with invalid media id", async () => {
-    const response = await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [
-          {
-            title: "My insight",
-            description: "My description",
-            severityId: 1,
-            order: 0,
-            clusterIds: "all",
-            videoParts: [
-              {
-                start: 0,
-                end: 10,
-                mediaId: 99,
-                description: "My video",
-                order: 0,
-              },
-            ],
-          },
-        ],
-        sentiments: [],
-        questions: [],
-
-        methodology,
-      });
-
-    expect(response.status).toBe(400);
   });
 
   it("Should return 400 on publish", async () => {

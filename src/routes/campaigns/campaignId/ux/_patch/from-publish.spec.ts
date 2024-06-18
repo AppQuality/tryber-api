@@ -68,49 +68,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       },
     ]);
 
-    await tryber.tables.UxCampaignInsights.do().insert([
-      {
-        id: 1,
-        campaign_id: 1,
-        version: 1,
-        title: "Publish insight",
-        description: "Publish description",
-        severity_id: 1,
-        cluster_ids: "1",
-        finding_id: 10,
-        enabled: 1,
-      },
-      {
-        id: 2,
-        campaign_id: 1,
-        version: 2,
-        title: "Draft insight",
-        description: "Draft description",
-        severity_id: 1,
-        cluster_ids: "1",
-        finding_id: 20,
-        enabled: 1,
-      },
-    ]);
-
-    await tryber.tables.UxCampaignVideoParts.do().insert([
-      {
-        id: 1,
-        media_id: 1,
-        insight_id: 1,
-        start: 0,
-        end: 10,
-        description: "Publish video part",
-      },
-      {
-        id: 2,
-        media_id: 1,
-        insight_id: 1,
-        start: 0,
-        end: 10,
-        description: "Draft video part",
-      },
-    ]);
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
         id: 1,
@@ -135,8 +92,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
 
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
-    await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
@@ -147,7 +102,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
         methodology,
@@ -175,52 +129,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
     );
   });
 
-  it("Should disable insights from the draft", async () => {
-    await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [],
-        sentiments: [],
-        questions: [],
-        methodology,
-      });
-
-    const data = await tryber.tables.UxCampaignInsights.do().select();
-
-    expect(data).toHaveLength(2);
-    expect(data[0]).toEqual(
-      expect.objectContaining({
-        id: 1,
-        campaign_id: 1,
-        cluster_ids: "1",
-        description: "Publish description",
-        order: 0,
-        severity_id: 1,
-        title: "Publish insight",
-        version: 1,
-        finding_id: 10,
-        enabled: 1,
-      })
-    );
-    expect(data[1]).toEqual(
-      expect.objectContaining({
-        id: 2,
-        campaign_id: 1,
-        cluster_ids: "1",
-        description: "Draft description",
-        order: 0,
-        severity_id: 1,
-        title: "Draft insight",
-        version: 2,
-        finding_id: 20,
-        enabled: 0,
-      })
-    );
-  });
-
   it("Should update a methodology description in the draft", async () => {
     const draftBefore = await tryber.tables.UxCampaignData.do()
       .select("methodology_description")
@@ -232,7 +140,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
         methodology: { ...methodology, description: "New description" },
@@ -259,7 +166,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
         methodology: { ...methodology, type: "quantitative" },
@@ -287,7 +193,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [{ name: "Updated Draft Question", id: 2 }],
         methodology,
@@ -312,7 +217,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         goal: "New Test Goal",
         usersNumber: 5,
-        insights: [],
         sentiments: [],
         questions: [],
         methodology,
@@ -337,7 +241,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 6,
-        insights: [],
         sentiments: [],
         questions: [],
         methodology,
@@ -349,143 +252,5 @@ describe("PATCH /campaigns/{campaignId}/ux - from publish", () => {
       .first();
     expect(updatedDraft?.users).not.toEqual(draftBefore?.users);
     expect(updatedDraft?.users).toEqual(6);
-  });
-
-  it("Should insert a insights in the draft", async () => {
-    await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [
-          {
-            id: 2,
-            title: "Draft insight",
-            description: "Draft description",
-            severityId: 1,
-            clusterIds: [1],
-            order: 0,
-            videoParts: [],
-          },
-          {
-            title: "New insight",
-            description: "New description",
-            severityId: 2,
-            clusterIds: "all",
-            order: 1,
-            videoParts: [],
-          },
-        ],
-        sentiments: [],
-        questions: [],
-        methodology,
-      });
-
-    const insights = await tryber.tables.UxCampaignInsights.do().select();
-    expect(insights).toHaveLength(3);
-    expect(insights[0]).toEqual(
-      expect.objectContaining({
-        campaign_id: 1,
-        cluster_ids: "1",
-        description: "Publish description",
-        order: 0,
-        severity_id: 1,
-        title: "Publish insight",
-        version: 1,
-      })
-    );
-
-    expect(insights[1]).toEqual(
-      expect.objectContaining({
-        campaign_id: 1,
-        cluster_ids: "1",
-        description: "Draft description",
-        order: 0,
-        severity_id: 1,
-        title: "Draft insight",
-        version: 2,
-      })
-    );
-    expect(insights[2]).toEqual(
-      expect.objectContaining({
-        campaign_id: 1,
-        cluster_ids: "0",
-        description: "New description",
-        order: 1,
-        severity_id: 2,
-        title: "New insight",
-        version: 2,
-      })
-    );
-  });
-
-  it("Should insert a insights video part in the draft", async () => {
-    await request(app)
-      .patch("/campaigns/1/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        insights: [
-          {
-            id: 2,
-            title: "Draft insight",
-            description: "Draft description",
-            severityId: 1,
-            clusterIds: [1],
-            order: 0,
-            videoParts: [
-              {
-                id: 2,
-                start: 0,
-                end: 10,
-                mediaId: 1,
-                description: "Draft video part",
-                order: 0,
-              },
-              {
-                start: 10,
-                end: 100,
-                mediaId: 1,
-                description: "New video part",
-                order: 1,
-              },
-            ],
-          },
-          {
-            title: "New insight",
-            description: "New description",
-            severityId: 2,
-            clusterIds: "all",
-            order: 1,
-            videoParts: [],
-          },
-        ],
-        sentiments: [],
-        questions: [],
-        methodology,
-      });
-
-    const videoPart = await tryber.tables.UxCampaignVideoParts.do().select();
-    expect(videoPart).toHaveLength(3);
-    expect(videoPart[0]).toEqual(
-      expect.objectContaining({
-        id: 1,
-        description: "Publish video part",
-      })
-    );
-    expect(videoPart[1]).toEqual(
-      expect.objectContaining({
-        id: 2,
-        description: "Draft video part",
-      })
-    );
-    expect(videoPart[2]).toEqual(
-      expect.objectContaining({
-        id: 3,
-        description: "New video part",
-      })
-    );
   });
 });
