@@ -59,81 +59,12 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
         published: 0,
       },
     ]);
-
-    await tryber.tables.UxCampaignInsights.do().insert([
-      {
-        id: 1,
-        campaign_id: 123,
-        version: 1,
-        title: "Publish insight",
-        description: "Publish description",
-        severity_id: 1,
-        cluster_ids: "1",
-        finding_id: 10,
-        enabled: 1,
-      },
-      {
-        id: 2,
-        campaign_id: 123,
-        version: 1,
-        title: "Publish insight 2",
-        description: "Publish description 2",
-        severity_id: 1,
-        cluster_ids: "1",
-        finding_id: 20,
-        enabled: 1,
-      },
-      // Draft modified insights
-      {
-        id: 3,
-        campaign_id: 123,
-        version: 2,
-        title: "Publish insight",
-        description: "Publish description",
-        severity_id: 1,
-        cluster_ids: "1",
-        finding_id: 10,
-        enabled: 1,
-      },
-      {
-        id: 4,
-        campaign_id: 123,
-        version: 2,
-        title: "Publish insight 2",
-        description: "Publish description 2",
-        severity_id: 1,
-        cluster_ids: "1",
-        finding_id: 20,
-        enabled: 1,
-      },
-    ]);
-
-    await tryber.tables.UxCampaignVideoParts.do().insert([
-      {
-        id: 1,
-        media_id: 1,
-        insight_id: 2,
-        start: 0,
-        end: 10,
-        description: "Publish video part",
-      },
-      {
-        id: 2,
-        media_id: 1,
-        insight_id: 4,
-        start: 0,
-        end: 10,
-        description: "Publish video part",
-      },
-    ]);
   });
 
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
-    await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
@@ -144,35 +75,6 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
       .send({
         goal: "Test Goal",
         usersNumber: 5,
-        insights: [
-          {
-            id: 3,
-            title: "Publish insight",
-            description: "Publish description",
-            order: 0,
-            severityId: 1,
-            clusterIds: [1],
-            videoParts: [],
-          },
-          {
-            id: 4,
-            title: "Publish insight 2",
-            description: "Publish description 2",
-            order: 0,
-            severityId: 1,
-            clusterIds: [1],
-            videoParts: [
-              {
-                id: 2,
-                order: 0,
-                start: 0,
-                end: 10,
-                mediaId: 1,
-                description: "Publish video part",
-              },
-            ],
-          },
-        ],
         sentiments: [],
         questions: [],
         methodology,
@@ -198,9 +100,5 @@ describe("PATCH /campaigns/{campaignId}/ux - from draft modified", () => {
         campaign_id: 123,
       })
     );
-
-    const videoParts = await tryber.tables.UxCampaignVideoParts.do().select();
-
-    expect(videoParts.length).toBe(2);
   });
 });
