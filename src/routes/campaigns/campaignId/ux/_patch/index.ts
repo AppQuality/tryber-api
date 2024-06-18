@@ -283,7 +283,6 @@ export default class PatchUx extends UserRoute<{
     }
 
     await this.publishData();
-    await this.publishInsight();
     await this.publishQuestions();
     await this.publishSentiments();
     this.version++;
@@ -349,44 +348,6 @@ export default class PatchUx extends UserRoute<{
           cluster_id: sentiment.cluster.id,
           comment: sentiment.comment,
           version: this.version,
-        });
-      }
-    }
-  }
-
-  private async publishInsight() {
-    const draftData = this.lastDraft?.data;
-    if (!draftData) throw new OpenapiError("No draft found");
-
-    let findingOrder = 0;
-    for (const insight of draftData.findings) {
-      const insertedInsight = await tryber.tables.UxCampaignInsights.do()
-        .insert({
-          campaign_id: this.campaignId,
-          cluster_ids:
-            insight.clusters === "all"
-              ? "0"
-              : insight.clusters.map((c) => c.id).join(","),
-          description: insight.description,
-          order: findingOrder++,
-          severity_id: insight.severity.id,
-          title: insight.title,
-          version: this.version + 1,
-          finding_id: insight.findingId,
-        })
-        .returning("id");
-
-      const insertedInsightId = insertedInsight[0].id ?? insertedInsight[0];
-
-      let videoPartOrder = 0;
-      for (const videoPart of insight.videoParts) {
-        await tryber.tables.UxCampaignVideoParts.do().insert({
-          start: videoPart.start,
-          end: videoPart.end,
-          media_id: videoPart.mediaId,
-          description: videoPart.description,
-          order: videoPartOrder++,
-          insight_id: insertedInsightId,
         });
       }
     }
