@@ -41,6 +41,7 @@ describe("GET /users/me/campaigns - cap", () => {
       title: "Public campaign",
       is_public: 4,
       phase_id: 20,
+      desired_number_of_testers: 10,
     });
 
     await tryber.tables.CampaignDossierData.do().insert({
@@ -48,7 +49,6 @@ describe("GET /users/me/campaigns - cap", () => {
       campaign_id: 1,
       created_by: 1,
       updated_by: 1,
-      cap: 10,
     });
 
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert([

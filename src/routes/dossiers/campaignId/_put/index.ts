@@ -128,6 +128,9 @@ export default class RouteItem extends UserRoute<{
         customer_title: this.getBody().title.customer,
         os: os.join(","),
         form_factor: form_factor.join(","),
+        ...(this.getBody().target?.cap && {
+          desired_number_of_testers: this.getBody().target?.cap,
+        }),
       })
       .where({
         id: this.campaignId,
@@ -168,9 +171,6 @@ export default class RouteItem extends UserRoute<{
         target_audience: this.getBody().target?.notes,
         ...(this.getBody().target?.size && {
           target_size: this.getBody().target?.size,
-        }),
-        ...(this.getBody().target?.cap && {
-          cap: this.getBody().target?.cap,
         }),
         product_type_id: this.getBody().productType,
         target_devices: this.getBody().deviceRequirements,

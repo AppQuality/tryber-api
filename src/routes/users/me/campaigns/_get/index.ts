@@ -315,10 +315,16 @@ class RouteItem extends UserRoute<{
         totalSpots: undefined,
       }));
 
-    const applicationSpots = await tryber.tables.CampaignDossierData.do()
-      .select("campaign_id", "cap")
+    const applicationSpots = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        "id",
+        tryber
+          .ref("desired_number_of_testers")
+          .withSchema("wp_appq_evd_campaign")
+          .as("cap")
+      )
       .whereIn(
-        "campaign_id",
+        "id",
         campaignsWithTarget.map((c) => c.id)
       );
 
@@ -341,7 +347,7 @@ class RouteItem extends UserRoute<{
 
     return campaigns.map((campaign) => {
       const applicationSpot = applicationSpots.find(
-        (c) => c.campaign_id === campaign.id
+        (c) => c.id === campaign.id
       );
       const validApplicationsCount = validApplications.find(
         (c) => c.campaign_id === campaign.id

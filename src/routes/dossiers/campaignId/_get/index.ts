@@ -39,6 +39,10 @@ export default class RouteItem extends UserRoute<{
         "campaign_type_id",
         "os",
         tryber
+          .ref("desired_number_of_testers")
+          .withSchema("wp_appq_evd_campaign")
+          .as("cap"),
+        tryber
           .ref("display_name")
           .withSchema("wp_appq_project")
           .as("project_name"),
@@ -136,7 +140,6 @@ export default class RouteItem extends UserRoute<{
         "target_devices",
         "product_type_id",
         "notes",
-        "cap",
         tryber.ref("name").withSchema("product_types").as("product_type_name")
       )
       .leftJoin(
