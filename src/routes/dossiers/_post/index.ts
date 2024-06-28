@@ -266,8 +266,6 @@ export default class RouteItem extends UserRoute<{
           : {}),
         ...(campaignToDuplicate
           ? {
-              desired_number_of_testers:
-                campaignToDuplicate.desired_number_of_testers,
               min_allowed_media: campaignToDuplicate.min_allowed_media,
               cust_bug_vis: campaignToDuplicate.cust_bug_vis,
               campaign_type: campaignToDuplicate.campaign_type,
