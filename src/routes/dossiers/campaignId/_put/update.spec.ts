@@ -673,6 +673,24 @@ describe("Route POST /dossiers", () => {
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("notes", "Notes");
     });
+    it("Should update the cap in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          target: {
+            cap: 10,
+          },
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("target");
+      expect(responseGet.body.target).toHaveProperty("cap", 10);
+    });
   });
 
   describe("Role handling", () => {

@@ -9986,6 +9986,10 @@ paths:
                         type: string
                       size:
                         type: integer
+                      cap:
+                        type: integer
+                        x-stoplight:
+                          id: yzv1ppm6f5kq7
                   countries:
                     type: array
                     minItems: 1
@@ -10532,7 +10536,6 @@ components:
         id:
           type: integer
     CampaignOptional:
-      description: ''
       type: object
       x-examples:
         example-1:
@@ -10674,14 +10677,26 @@ components:
           $ref: '#/components/schemas/TranslatablePage'
         bugform_link:
           oneOf:
-            - properties: {}
-              type: boolean
+            - type: boolean
               description: Exists only when the campaign bugform is deactivated. It is FALSE
             - $ref: '#/components/schemas/TranslatablePage'
           description: If bugform is deactivated is a boolean else contains URLs to bugforms for each languages
         applied:
           type: boolean
           description: True if you applied on this Campaign
+        visibility:
+          type: object
+          x-stoplight:
+            id: z9vo6su8stzvn
+          properties:
+            freeSpots:
+              type: integer
+              x-stoplight:
+                id: qy6n5oa4quk52
+            totalSpots:
+              type: integer
+              x-stoplight:
+                id: 1jumwi4cvp91d
     CampaignRequired:
       description: ''
       type: object
@@ -11269,6 +11284,10 @@ components:
               type: string
             size:
               type: integer
+            cap:
+              type: integer
+              x-stoplight:
+                id: dv3yqv5k8gpv6
         countries:
           type: array
           items:

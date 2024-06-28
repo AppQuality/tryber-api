@@ -39,6 +39,10 @@ export default class RouteItem extends UserRoute<{
         "campaign_type_id",
         "os",
         tryber
+          .ref("desired_number_of_testers")
+          .withSchema("wp_appq_evd_campaign")
+          .as("cap"),
+        tryber
           .ref("display_name")
           .withSchema("wp_appq_project")
           .as("project_name"),
@@ -280,13 +284,18 @@ export default class RouteItem extends UserRoute<{
         ...(this.campaign.out_of_scope && {
           outOfScope: this.campaign.out_of_scope,
         }),
-        ...((this.campaign.target_audience || this.campaign.target_size) && {
+        ...((this.campaign.target_audience ||
+          this.campaign.target_size ||
+          this.campaign.cap) && {
           target: {
             ...(this.campaign.target_audience && {
               notes: this.campaign.target_audience,
             }),
             ...(this.campaign.target_size && {
               size: this.campaign.target_size,
+            }),
+            ...(this.campaign.cap && {
+              cap: this.campaign.cap,
             }),
           },
         }),

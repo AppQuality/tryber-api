@@ -76,6 +76,7 @@ describe("Route GET /dossiers/:id", () => {
       page_preview_id: 0,
       pm_id: 1,
       customer_id: 0,
+      desired_number_of_testers: 100,
     });
 
     await tryber.tables.CustomRoles.do().insert([

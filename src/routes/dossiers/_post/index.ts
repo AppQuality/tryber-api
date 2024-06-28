@@ -261,6 +261,9 @@ export default class RouteItem extends UserRoute<{
         os: os.join(","),
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
+        ...(this.getBody().target?.cap
+          ? { desired_number_of_testers: this.getBody().target?.cap }
+          : {}),
         ...(campaignToDuplicate
           ? {
               desired_number_of_testers:

@@ -128,6 +128,9 @@ export default class RouteItem extends UserRoute<{
         customer_title: this.getBody().title.customer,
         os: os.join(","),
         form_factor: form_factor.join(","),
+        ...(this.getBody().target?.cap && {
+          desired_number_of_testers: this.getBody().target?.cap,
+        }),
       })
       .where({
         id: this.campaignId,
