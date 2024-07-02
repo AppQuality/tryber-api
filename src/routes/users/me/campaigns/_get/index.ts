@@ -286,17 +286,34 @@ class RouteItem extends UserRoute<{
           campaignsWithTarget.map((c) => c.id)
         );
 
+    const allowedCountries =
+      await tryber.tables.CampaignDossierDataCountries.do()
+        .select("campaign_id", "country_code")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data.id",
+          "campaign_dossier_data_countries.campaign_dossier_data_id"
+        )
+        .whereIn(
+          "campaign_dossier_data.campaign_id",
+          campaignsWithTarget.map((c) => c.id)
+        );
+
     return campaigns.map((campaign) => {
       if (campaign.visibility_type !== 4) return campaign;
 
       const languages = allowedLanguages
         .filter((l) => l.campaign_id === campaign.id)
         .map((l) => l.language_id);
+      const countries = allowedCountries
+        .filter((l) => l.campaign_id === campaign.id)
+        .map((l) => l.country_code);
 
       return {
         ...campaign,
         targetRules: {
           ...(languages.length ? { languages } : {}),
+          ...(countries.length ? { countries } : {}),
         },
       };
     });
