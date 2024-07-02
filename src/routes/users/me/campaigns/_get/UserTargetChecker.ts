@@ -14,6 +14,7 @@ export class UserTargetChecker {
 
   async init() {
     await this.initUserLanguages();
+    await this.initUserCountries();
   }
 
   private async initUserLanguages() {
@@ -27,10 +28,10 @@ export class UserTargetChecker {
     const country = await tryber.tables.WpAppqEvdProfile.do()
       .select("country")
       .where("id", this.testerId)
-      .then((res) => res[0].country);
+      .then((res) => (res.length ? res[0].country : ""));
 
-    const countryCode = countryList.getAlpha2Codes()[country];
-    this.userCountry = countryCode;
+    const countryCode = countryList.getAlpha2Code(country, "en");
+    this.userCountry = countryCode || "";
   }
 
   inTarget(targetRules: { languages?: number[]; countries?: string[] }) {
