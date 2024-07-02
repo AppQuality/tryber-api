@@ -564,6 +564,23 @@ describe("Route POST /dossiers", () => {
     expect(dossierData).toHaveLength(1);
     expect(dossierData[0]).toHaveProperty("target_size", 10);
   });
+  it("Should save target size 0 in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({ ...baseRequest, target: { size: 0 } });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const dossierData = await tryber.tables.CampaignDossierData.do()
+      .select()
+      .where({ campaign_id: id });
+    expect(dossierData).toHaveLength(1);
+    expect(dossierData[0]).toHaveProperty("target_size", 0);
+  });
 
   it("Should save the tester id in the dossier data", async () => {
     const response = await request(app)
@@ -731,5 +748,29 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.status).toBe(200);
     expect(getResponse.body).toHaveProperty("target");
     expect(getResponse.body.target).toHaveProperty("cap", 100);
+  });
+  it("Should save the cap 0 in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        target: {
+          cap: 0,
+        },
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const getResponse = await request(app)
+      .get(`/dossiers/${id}`)
+      .set("authorization", "Bearer admin");
+
+    expect(getResponse.status).toBe(200);
+    expect(getResponse.body).toHaveProperty("target");
+    expect(getResponse.body.target).toHaveProperty("cap", 0);
   });
 });

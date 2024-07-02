@@ -173,7 +173,6 @@ export default class RouteItem extends UserRoute<{
     const campaign = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
         "id",
-        "desired_number_of_testers",
         "min_allowed_media",
         "cust_bug_vis",
         "campaign_type",
@@ -261,7 +260,7 @@ export default class RouteItem extends UserRoute<{
         os: os.join(","),
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
-        ...(this.getBody().target?.cap
+        ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
         ...(campaignToDuplicate
@@ -297,7 +296,7 @@ export default class RouteItem extends UserRoute<{
         goal: this.getBody().goal,
         out_of_scope: this.getBody().outOfScope,
         target_audience: this.getBody().target?.notes,
-        ...(this.getBody().target?.size && {
+        ...(typeof this.getBody().target?.size !== "undefined" && {
           target_size: this.getBody().target?.size,
         }),
         product_type_id: this.getBody().productType,

@@ -285,16 +285,16 @@ export default class RouteItem extends UserRoute<{
           outOfScope: this.campaign.out_of_scope,
         }),
         ...((this.campaign.target_audience ||
-          this.campaign.target_size ||
-          this.campaign.cap) && {
+          typeof this.campaign.target_size !== "undefined" ||
+          typeof this.campaign.cap !== "undefined") && {
           target: {
             ...(this.campaign.target_audience && {
               notes: this.campaign.target_audience,
             }),
-            ...(this.campaign.target_size && {
+            ...(typeof this.campaign.target_size !== "undefined" && {
               size: this.campaign.target_size,
             }),
-            ...(this.campaign.cap && {
+            ...(typeof this.campaign.cap !== "undefined" && {
               cap: this.campaign.cap,
             }),
           },
