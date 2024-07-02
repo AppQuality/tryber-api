@@ -2903,7 +2903,6 @@ export interface operations {
               name: string;
             };
             certifications?: components["schemas"]["Certification"][] | boolean;
-            completionPercent?: number;
             country?: string;
             city?: string;
             attended_cp?: number;
@@ -2998,7 +2997,6 @@ export interface operations {
               name: string;
             };
             certifications?: components["schemas"]["Certification"][] | boolean;
-            completionPercent?: number;
             country?: string;
             city?: string;
             attended_cp?: number;
