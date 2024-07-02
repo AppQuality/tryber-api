@@ -416,7 +416,7 @@ describe("Route POST /dossiers", () => {
         goal: "Original goal",
         out_of_scope: "Original out of scope",
         target_audience: "Original target audience",
-        target_size: 0,
+        target_size: 10,
         target_devices: "Original target devices",
         product_type_id: 2,
         created_by: 100,
@@ -561,6 +561,23 @@ describe("Route POST /dossiers", () => {
       expect(dossierData).toHaveLength(1);
       expect(dossierData[0]).toHaveProperty("target_size", 10);
     });
+    it("Should save target size 0 in the dossier data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, target: { size: 0 } });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("id");
+
+      const id = 1;
+
+      const dossierData = await tryber.tables.CampaignDossierData.do()
+        .select()
+        .where({ campaign_id: id });
+      expect(dossierData).toHaveLength(1);
+      expect(dossierData[0]).toHaveProperty("target_size", 0);
+    });
 
     it("Should save the tester id in the dossier data", async () => {
       const response = await request(app)
@@ -672,6 +689,42 @@ describe("Route POST /dossiers", () => {
         .set("authorization", "Bearer admin");
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("notes", "Notes");
+    });
+    it("Should update the cap in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          target: {
+            cap: 10,
+          },
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("target");
+      expect(responseGet.body.target).toHaveProperty("cap", 10);
+    });
+    it("Should update the cap to 0 in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          target: {
+            cap: 0,
+          },
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("target");
+      expect(responseGet.body.target).toHaveProperty("cap", 0);
     });
   });
 

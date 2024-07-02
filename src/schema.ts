@@ -698,6 +698,10 @@ export interface components {
       bugform_link?: boolean | components["schemas"]["TranslatablePage"];
       /** @description True if you applied on this Campaign */
       applied?: boolean;
+      visibility?: {
+        freeSpots?: number;
+        totalSpots?: number;
+      };
     };
     CampaignRequired: {
       name: string;
@@ -927,6 +931,7 @@ export interface components {
       target?: {
         notes?: string;
         size?: number;
+        cap?: number;
       };
       countries?: components["schemas"]["CountryCode"][];
       languages?: number[];
@@ -4203,6 +4208,7 @@ export interface operations {
             target?: {
               notes?: string;
               size?: number;
+              cap?: number;
             };
             countries?: components["schemas"]["CountryCode"][];
             languages?: {

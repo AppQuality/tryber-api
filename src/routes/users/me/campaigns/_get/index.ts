@@ -1,25 +1,12 @@
-import * as db from "@src/features/db";
-import Campaigns from "@src/features/db/class/Campaigns";
 import UserRoute from "@src/features/routes/UserRoute";
 
 import { tryber } from "@src/features/database";
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
+import { UserTargetChecker } from "./UserTargetChecker";
 
 /** OPENAPI-CLASS: get-users-me-campaigns */
 
 type TranslatablePage = StoplightComponents["schemas"]["TranslatablePage"];
-
-type CampaignType = {
-  id: number;
-  title: string;
-  page_preview_id: number;
-  page_manual_id: number;
-  start_date: string;
-  end_date: string;
-  close_date: string;
-  campaign_type?: string;
-  campaign_type_id: number;
-};
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["get-users-me-campaigns"]["responses"]["200"]["content"]["application/json"];
@@ -34,58 +21,45 @@ class RouteItem extends UserRoute<{
   private order: NonNullable<RouteItem["query"]>["order"] | undefined;
 
   private start: NonNullable<NonNullable<RouteItem["query"]>["start"]> = 0;
-  private limit: NonNullable<NonNullable<RouteItem["query"]>["limit"]> = 10;
-  private hasLimit: boolean = false;
-
-  private db: {
-    campaigns: Campaigns;
-  };
+  private limit: NonNullable<RouteItem["query"]>["limit"];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const query = this.getQuery();
+    this.setOrderBy();
+    this.setOrder();
+    if (query.start) this.start = parseInt(query.start as unknown as string);
+    if (query.limit) this.limit = parseInt(query.limit as unknown as string);
     this.filterBy = query.filterBy || {};
-    if (
-      query.orderBy &&
-      ["start_date", "end_date", "close_date"].includes(query.orderBy)
-    ) {
-      this.orderBy = query.orderBy as RouteItem["orderBy"];
-    }
-    if (query.order && ["ASC", "DESC"].includes(query.order)) {
-      this.order = query.order;
-    }
-    if (query.start) {
-      this.start = parseInt(query.start as unknown as string);
-    }
-    if (query.limit) {
-      this.hasLimit = true;
-      this.limit = parseInt(query.limit as unknown as string);
-    }
+  }
 
-    this.db = {
-      campaigns: new Campaigns(["*"]),
-    };
+  private setOrderBy() {
+    const { orderBy } = this.getQuery();
+    if (!orderBy) return;
+    if (orderBy === "start_date") this.orderBy = "start_date";
+    if (orderBy === "end_date") this.orderBy = "end_date";
+    if (orderBy === "close_date") this.orderBy = "close_date";
+  }
+
+  private setOrder() {
+    const { order } = this.getQuery();
+    if (!order) return;
+    if (order === "ASC") this.order = "ASC";
+    if (order === "DESC") this.order = "DESC";
   }
 
   protected async prepare() {
     try {
-      let campaigns = await this.getCampaigns();
-
-      if (!this.hasLimit) {
-        this.setSuccess(200, {
-          results: campaigns,
-          size: campaigns.length,
-          start: this.start,
-        });
-      }
-      let total = campaigns.length || 0;
-      campaigns = campaigns.slice(this.start, this.limit + this.start);
+      const campaigns = await this.getCampaigns();
+      const total = campaigns.length || 0;
+      const results = this.limit
+        ? campaigns.slice(this.start, this.limit + this.start)
+        : campaigns;
 
       this.setSuccess(200, {
-        results: campaigns,
-        size: campaigns.length,
-        limit: this.limit,
-        total: total,
+        results,
+        size: results.length,
+        ...(this.limit ? { limit: this.limit, total } : {}),
         start: this.start,
       });
     } catch (e) {
@@ -95,15 +69,37 @@ class RouteItem extends UserRoute<{
   }
 
   private async getCampaigns() {
-    const query = await this.getCampaignsQuery();
+    const results = await this.getCampaignsQuery();
 
-    const results = await query;
     if (!results.length) {
       throw Error("no data found");
     }
 
-    const enhancedCampaigns = (await this.enhanceCampaigns(results)).map(
-      (cp) => ({
+    const items = await this.filterByTargetRules(
+      await this.enhanceWithFreeSpots(
+        await this.enhanceWithTargetRules(
+          await this.enhanceWithLinkedPages(
+            await this.enhanceWithCampaignType(
+              await this.enhanceCampaignsWithApplication(results)
+            )
+          )
+        )
+      )
+    );
+
+    if (!items.length) {
+      throw Error("no data found");
+    }
+
+    return items
+      .filter((campaign) => {
+        if (this.filterByAccepted()) return campaign.accepted;
+        else
+          return (
+            !campaign.accepted && this.campaignHasAllPreviewPublished(campaign)
+          );
+      })
+      .map((cp) => ({
         id: cp.id,
         name: cp.title,
         dates: {
@@ -117,17 +113,15 @@ class RouteItem extends UserRoute<{
         manual_link: cp.manual_link,
         preview_link: cp.preview_link,
         applied: cp.applied == 1,
-      })
-    );
-
-    if (!this.filterByAccepted()) {
-      return enhancedCampaigns.filter(
-        (item: { preview_link: TranslatablePage }) =>
-          this.campaignHasAllPreviewPublished(item)
-      );
-    }
-
-    return enhancedCampaigns;
+        ...(cp.freeSpots && cp.totalSpots
+          ? {
+              visibility: {
+                freeSpots: cp.freeSpots,
+                totalSpots: cp.totalSpots,
+              },
+            }
+          : {}),
+      }));
   }
 
   private async getCampaignsQuery() {
@@ -141,6 +135,10 @@ class RouteItem extends UserRoute<{
         "end_date",
         "close_date",
         "campaign_type_id",
+        tryber
+          .ref("is_public")
+          .withSchema("wp_appq_evd_campaign")
+          .as("visibility_type"),
         tryber
           .ref("name")
           .withSchema("wp_appq_campaign_type")
@@ -167,7 +165,7 @@ class RouteItem extends UserRoute<{
       const pageAccess = await this.getPageAccess();
 
       query.where((q) => {
-        q.whereIn("is_public", [1, 2]);
+        q.whereIn("is_public", [1, 2, 4]);
         if (pageAccess.length) {
           q.orWhereIn("page_preview_id", pageAccess);
         }
@@ -194,34 +192,46 @@ class RouteItem extends UserRoute<{
     return query;
   }
 
-  private async enhanceCampaigns(campaigns: CampaignType[]): Promise<
-    (CampaignType & {
-      preview_link: TranslatablePage;
-      manual_link: TranslatablePage;
-      campaign_type?: string;
-      applied?: 0 | 1;
+  private async enhanceCampaignsWithApplication<T>(
+    campaigns: (T & { id: number })[]
+  ) {
+    const applications = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("campaign_id", "accepted")
+      .whereIn(
+        "campaign_id",
+        campaigns.map((c) => c.id)
+      )
+      .andWhere("user_id", this.getWordpressId());
+
+    return campaigns.map((campaign) => {
+      const application = applications.find(
+        (a) => a.campaign_id == campaign.id
+      );
+
+      return {
+        ...campaign,
+        applied: applications.find((a) => a.campaign_id == campaign.id)
+          ? (1 as const)
+          : (0 as const),
+        accepted: application ? application.accepted === 1 : false,
+      };
+    });
+  }
+
+  private async enhanceWithLinkedPages<T>(
+    campaigns: (T & {
+      page_manual_id: number;
+      page_preview_id: number;
     })[]
-  > {
-    const applications = await this.getCampaignApplications(campaigns);
+  ) {
+    const pageIds = campaigns.reduce(
+      (accumulator: number[], r) =>
+        [r.page_preview_id, r.page_manual_id].concat(accumulator),
+      []
+    );
+    const linkedPages = await resolvePermalinks(pageIds);
 
-    if (this.filterByAccepted()) {
-      campaigns = campaigns.filter((r) => {
-        const application = applications.find((a) => a.campaign_id == r.id);
-        return application ? application.accepted === 1 : false;
-      });
-    } else {
-      campaigns = campaigns.filter((r) => {
-        const application = applications.find((a) => a.campaign_id == r.id);
-        return application ? application.accepted === 0 : true;
-      });
-    }
-
-    const linkedPages = await this.getLinkedPages(campaigns);
-    const types = await this.getListOfCampaignTypes(campaigns);
-
-    let results = campaigns.map((campaign) => {
-      const type = types.find((t) => t.id == campaign.campaign_type_id);
-
+    return campaigns.map((campaign) => {
       return {
         ...campaign,
         preview_link: linkedPages[campaign.page_preview_id]
@@ -230,34 +240,150 @@ class RouteItem extends UserRoute<{
         manual_link: linkedPages[campaign.page_manual_id]
           ? linkedPages[campaign.page_manual_id]
           : {},
-        campaign_type: type ? type.name : undefined,
-        applied: applications.find((a) => a.campaign_id == campaign.id)
-          ? (1 as 1)
-          : (0 as 0),
       };
     });
-    return results;
   }
 
-  private async getListOfCampaignTypes(
-    campaigns: CampaignType[]
-  ): Promise<{ id: number; name: string }[]> {
+  private async enhanceWithCampaignType<T>(
+    campaigns: (T & { campaign_type_id: number })[]
+  ) {
     if (!campaigns.length) return [];
-    return await db.query(
-      `SELECT id,name FROM wp_appq_campaign_type WHERE id IN (${campaigns
-        .map((c) => db.format("?", [c.campaign_type_id]))
-        .join(",")})`
-    );
+    const types = await tryber.tables.WpAppqCampaignType.do()
+      .select("id", "name")
+      .whereIn(
+        "id",
+        campaigns.map((c) => c.campaign_type_id)
+      );
+
+    return campaigns.map((campaign) => {
+      const type = types.find((t) => t.id == campaign.campaign_type_id);
+
+      return {
+        ...campaign,
+        campaign_type: type ? type.name : undefined,
+      };
+    });
   }
 
-  private async getLinkedPages(rows: CampaignType[]) {
-    const pageIds = rows.reduce(
-      (accumulator: number[], r) =>
-        [r.page_preview_id, r.page_manual_id].concat(accumulator),
-      []
+  private async enhanceWithTargetRules<T>(
+    campaigns: (T & { id: number; visibility_type: number })[]
+  ) {
+    const campaignsWithTarget = campaigns.filter(
+      (c) => c.visibility_type === 4
     );
-    const pageLinks = await resolvePermalinks(pageIds);
-    return pageLinks;
+    if (!campaignsWithTarget.length) return campaigns;
+
+    const allowedLanguages =
+      await tryber.tables.CampaignDossierDataLanguages.do()
+        .select("campaign_id", "language_id")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data.id",
+          "campaign_dossier_data_languages.campaign_dossier_data_id"
+        )
+        .whereIn(
+          "campaign_dossier_data.campaign_id",
+          campaignsWithTarget.map((c) => c.id)
+        );
+
+    return campaigns.map((campaign) => {
+      if (campaign.visibility_type !== 4) return campaign;
+
+      const languages = allowedLanguages
+        .filter((l) => l.campaign_id === campaign.id)
+        .map((l) => l.language_id);
+
+      return {
+        ...campaign,
+        targetRules: {
+          ...(languages.length ? { languages } : {}),
+        },
+      };
+    });
+  }
+
+  private async enhanceWithFreeSpots<T>(
+    campaigns: (T & { id: number; visibility_type: number })[]
+  ) {
+    const campaignsWithTarget = campaigns.filter(
+      (c) => c.visibility_type === 4
+    );
+    if (!campaignsWithTarget.length)
+      return campaigns.map((c) => ({
+        ...c,
+        freeSpots: undefined,
+        totalSpots: undefined,
+      }));
+
+    const applicationSpots = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        "id",
+        tryber
+          .ref("desired_number_of_testers")
+          .withSchema("wp_appq_evd_campaign")
+          .as("cap")
+      )
+      .whereIn(
+        "id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const validApplications = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("campaign_id")
+      .count({
+        count: "user_id",
+      })
+      .whereNot("accepted", -1)
+      .whereIn(
+        "campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      )
+      .then((res) =>
+        res.map((r) => ({
+          campaign_id: r.campaign_id,
+          count: typeof r.count === "number" ? r.count : 0,
+        }))
+      );
+
+    return campaigns.map((campaign) => {
+      const applicationSpot = applicationSpots.find(
+        (c) => c.id === campaign.id
+      );
+      const validApplicationsCount = validApplications.find(
+        (c) => c.campaign_id === campaign.id
+      );
+      return {
+        ...campaign,
+        ...(applicationSpot
+          ? {
+              freeSpots:
+                applicationSpot.cap - (validApplicationsCount?.count || 0),
+              totalSpots: applicationSpot.cap,
+            }
+          : {}),
+      };
+    });
+  }
+
+  private async filterByTargetRules<T>(
+    campaigns: (T & {
+      targetRules?: {
+        languages?: number[];
+        countries?: string[];
+      };
+    })[]
+  ) {
+    const userTargetChecker = new UserTargetChecker({
+      testerId: this.getTesterId(),
+    });
+    await userTargetChecker.init();
+    return campaigns.filter((campaign) => {
+      if (!campaign.targetRules) {
+        return true;
+      } else {
+        return userTargetChecker.inTarget(campaign.targetRules);
+      }
+    });
   }
 
   private campaignHasAllPreviewPublished(campaign: {
@@ -283,24 +409,11 @@ class RouteItem extends UserRoute<{
     return true;
   }
 
-  private getCampaignApplications(
-    campaigns: CampaignType[]
-  ): Promise<{ campaign_id: number; accepted: number }[]> {
-    return db.query(
-      `SELECT campaign_id,accepted  
-      FROM wp_crowd_appq_has_candidate 
-      WHERE campaign_id IN (${campaigns
-        .map((c) => db.format("?", [c.id]))
-        .join(",")}) AND user_id = ${this.getWordpressId()}`
-    );
-  }
-
-  private async getPageAccess(): Promise<number[]> {
-    return (
-      await db.query(
-        `SELECT view_id FROM wp_appq_lc_access WHERE tester_id = ${this.getTesterId()}`
-      )
-    ).map((row: { view_id: number }) => db.format("?", [row.view_id]));
+  private async getPageAccess() {
+    return await tryber.tables.WpAppqLcAccess.do()
+      .select("view_id")
+      .where("tester_id", this.getTesterId())
+      .then((rows) => rows.map((row) => row.view_id));
   }
 
   private filterByAccepted() {
@@ -308,21 +421,25 @@ class RouteItem extends UserRoute<{
     if (parseInt(this.filterBy.accepted) === 1) return true;
     return false;
   }
+
   private filterByCompleted() {
     if (typeof this.filterBy?.completed === "undefined") return false;
     if (parseInt(this.filterBy.completed) === 1) return true;
     return false;
   }
+
   private filterByRunning() {
     if (typeof this.filterBy?.completed === "undefined") return false;
     if (parseInt(this.filterBy.completed) === 0) return true;
     return false;
   }
+
   private filterByClosed() {
     if (typeof this.filterBy?.statusId === "undefined") return false;
     if (parseInt(this.filterBy.statusId) === 2) return true;
     return false;
   }
+
   private filterByOpen() {
     if (typeof this.filterBy?.statusId === "undefined") return false;
     if (parseInt(this.filterBy.statusId) === 1) return true;
