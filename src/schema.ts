@@ -1234,7 +1234,12 @@ export interface operations {
               /** @enum {string} */
               status?: "running" | "closed" | "incoming";
               /** @enum {string} */
-              visibility?: "admin" | "smallgroup" | "logged" | "public";
+              visibility?:
+                | "admin"
+                | "smallgroup"
+                | "logged"
+                | "public"
+                | "target";
               /** @enum {string} */
               resultType?: "bug" | "bugparade" | "no";
               csm?: {
