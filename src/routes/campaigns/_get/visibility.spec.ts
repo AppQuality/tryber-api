@@ -45,6 +45,12 @@ describe("GET /campaigns", () => {
         title: "Fourth campaign",
         is_public: 2,
       },
+      {
+        ...campaign,
+        id: 5,
+        title: "Fifth campaign",
+        is_public: 4,
+      },
     ]);
   });
   afterAll(async () => {
@@ -73,6 +79,10 @@ describe("GET /campaigns", () => {
         {
           id: 4,
           visibility: "public",
+        },
+        {
+          id: 5,
+          visibility: "target",
         },
       ])
     );

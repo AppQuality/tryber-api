@@ -355,7 +355,7 @@ class RouteItem extends UserRoute<{
     return "closed" as const;
   }
 
-  private getVisibilityName(visibility: 0 | 1 | 2 | 3 | undefined) {
+  private getVisibilityName(visibility: 0 | 1 | 2 | 3 | 4 | undefined) {
     switch (visibility) {
       case 0:
         return "admin" as const;
@@ -365,6 +365,8 @@ class RouteItem extends UserRoute<{
         return "public" as const;
       case 3:
         return "smallgroup" as const;
+      case 4:
+        return "target" as const;
       default:
         return undefined;
     }

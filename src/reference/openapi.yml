@@ -669,6 +669,7 @@ paths:
                                 - smallgroup
                                 - logged
                                 - public
+                                - target
                             resultType:
                               type: string
                               enum:
