@@ -62,7 +62,7 @@ export default class Route extends UserRoute<{
       })
       .andWhere((query) => {
         for (const role of roles) {
-          query.orWhereLike("meta_value", `%${role}%`);
+          query.orWhere("meta_value", "LIKE", `%${role}%`);
         }
       });
 
@@ -138,7 +138,7 @@ export default class Route extends UserRoute<{
       .where({
         meta_key: "wp_capabilities",
       })
-      .whereLike("meta_value", `%${this.roleName}%`);
+      .where("meta_value", "LIKE", `%${this.roleName}%`);
 
     const results = users
       .filter((user) => {

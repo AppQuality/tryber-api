@@ -78,7 +78,7 @@ class CandidateDevices implements CandidateData {
       const operativeSystems = this.filters.os;
       deviceQuery.where((query) => {
         for (const os of operativeSystems) {
-          query.orWhereLike("wp_appq_evd_platform.name", `%${os}%`);
+          query.orWhere("wp_appq_evd_platform.name", "LIKE", `%${os}%`);
         }
       });
     }
