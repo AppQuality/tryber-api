@@ -24,7 +24,7 @@ describe("GET /users/me/campaigns - cap", () => {
       category_id: 1,
     });
     await tryber.seeds().campaign_statuses();
-    await tryber.tables.WpAppqEvdCampaign.do().insert({
+    const campaign = {
       start_date: new Date().toISOString().split("T")[0],
       end_date: endDate,
       close_date: closeDate,
@@ -42,7 +42,11 @@ describe("GET /users/me/campaigns - cap", () => {
       is_public: 4,
       phase_id: 20,
       desired_number_of_testers: 10,
-    });
+    };
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 1 },
+      { ...campaign, id: 2 },
+    ]);
 
     await tryber.tables.CampaignDossierData.do().insert({
       id: 1,
@@ -54,6 +58,7 @@ describe("GET /users/me/campaigns - cap", () => {
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
       { campaign_id: 1, user_id: 10, accepted: -1 },
       { campaign_id: 1, user_id: 20, accepted: 0 },
+      { campaign_id: 2, user_id: 30, accepted: 0 },
     ]);
   });
 
@@ -71,8 +76,9 @@ describe("GET /users/me/campaigns - cap", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(Array.isArray(response.body.results)).toBe(true);
-    expect(response.body.results.length).toBe(1);
+    expect(response.body.results.length).toBe(2);
     expect(response.body.results[0]).toHaveProperty("visibility");
+    expect(response.body.results[0]).toHaveProperty("id", 1);
     expect(response.body.results[0].visibility).toHaveProperty("freeSpots", 9);
   });
 
@@ -83,7 +89,7 @@ describe("GET /users/me/campaigns - cap", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("results");
     expect(Array.isArray(response.body.results)).toBe(true);
-    expect(response.body.results.length).toBe(1);
+    expect(response.body.results.length).toBe(2);
     expect(response.body.results[0]).toHaveProperty("visibility");
     expect(response.body.results[0].visibility).toHaveProperty(
       "totalSpots",

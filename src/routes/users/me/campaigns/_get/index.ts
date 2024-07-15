@@ -355,6 +355,7 @@ class RouteItem extends UserRoute<{
         "campaign_id",
         campaignsWithTarget.map((c) => c.id)
       )
+      .groupBy("campaign_id")
       .then((res) =>
         res.map((r) => ({
           campaign_id: r.campaign_id,
