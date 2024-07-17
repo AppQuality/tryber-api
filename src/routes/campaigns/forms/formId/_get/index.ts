@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS: get-campaigns-forms-formId */
 
-import UserRoute from "@src/features/routes/UserRoute";
-import * as db from "@src/features/db";
 import { tryber } from "@src/features/database";
+import * as db from "@src/features/db";
+import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
@@ -89,17 +89,30 @@ export default class RouteItem extends UserRoute<{
   private async getFormFields() {
     const results =
       await tryber.tables.WpAppqCampaignPreselectionFormFields.do()
-        .select("id", "type", "question", "short_name", "options")
+        .select(
+          "id",
+          "type",
+          "question",
+          "short_name",
+          "options",
+          "invalid_options"
+        )
         .where("form_id", this.getId())
         .orderBy("priority", "asc");
 
     return results.map((item) => {
       return {
-        ...item,
+        id: item.id,
+        type: item.type,
+        question: item.question,
         short_name: item.short_name ? item.short_name : undefined,
         options:
           isFieldTypeWithOptions(item.type) && item.options
             ? parseOptions(item.options)
+            : undefined,
+        invalidOptions:
+          isFieldTypeWithOptions(item.type) && item.invalid_options
+            ? parseOptions(item.invalid_options)
             : undefined,
       };
     });

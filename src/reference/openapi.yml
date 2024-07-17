@@ -10611,8 +10611,7 @@ components:
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
-        - type: object
-          properties:
+        - properties:
             question:
               type: string
             short_name:
@@ -10620,16 +10619,14 @@ components:
           required:
             - question
         - oneOf:
-            - type: object
-              properties:
+            - properties:
                 type:
                   type: string
                   enum:
                     - text
               required:
                 - type
-            - type: object
-              properties:
+            - properties:
                 type:
                   type: string
                   enum:
@@ -10640,11 +10637,18 @@ components:
                   type: array
                   items:
                     type: string
+                invalidOptions:
+                  type: array
+                  x-stoplight:
+                    id: xgjgbndwz4cd3
+                  items:
+                    x-stoplight:
+                      id: hdc1yjxxy6con
+                    type: string
               required:
                 - type
                 - options
-            - type: object
-              properties:
+            - properties:
                 type:
                   type: string
                   pattern: '^cuf_[0-9]*$'
@@ -10652,10 +10656,17 @@ components:
                   type: array
                   items:
                     type: integer
+                invalidOptions:
+                  type: array
+                  x-stoplight:
+                    id: ytwf24veu2syh
+                  items:
+                    x-stoplight:
+                      id: adavsvppix2u2
+                    type: integer
               required:
                 - type
-            - type: object
-              properties:
+            - properties:
                 type:
                   type: string
                   enum:
@@ -10664,6 +10675,7 @@ components:
                     - address
               required:
                 - type
+      type: object
     Project:
       title: Project
       type: object

@@ -806,10 +806,12 @@ export interface components {
           /** @enum {string} */
           type: "multiselect" | "select" | "radio";
           options: string[];
+          invalidOptions?: string[];
         }
       | {
           type: string;
           options?: number[];
+          invalidOptions?: number[];
         }
       | {
           /** @enum {string} */
