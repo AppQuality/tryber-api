@@ -2,8 +2,6 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
-import Campaigns from "@src/features/db/class/Campaigns";
-import PreselectionForms from "@src/features/db/class/PreselectionForms";
 import UserRoute from "@src/features/routes/UserRoute";
 import FieldCreator from "../FieldCreator";
 
@@ -12,17 +10,9 @@ export default class RouteItem extends UserRoute<{
   body: StoplightOperations["post-campaigns-forms"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number | undefined;
-  private db: {
-    forms: PreselectionForms;
-    campaigns: Campaigns;
-  };
 
   constructor(options: RouteItem["configuration"]) {
     super(options);
-    this.db = {
-      forms: new PreselectionForms(),
-      campaigns: new Campaigns(),
-    };
     const body = this.getBody();
     if (body.campaign) {
       this.campaignId = body.campaign;
@@ -143,7 +133,9 @@ export default class RouteItem extends UserRoute<{
         question: field.question,
         short_name: field.short_name,
         type: field.type,
-        options: field.hasOwnProperty("options") ? field.options : undefined,
+        options: "options" in field ? field.options : undefined,
+        invalid_options:
+          "invalidOptions" in field ? field.invalidOptions : undefined,
         priority: i++,
       });
       try {

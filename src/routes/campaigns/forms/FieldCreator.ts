@@ -1,5 +1,5 @@
-import * as db from "@src/features/db";
 import { tryber } from "@src/features/database";
+import * as db from "@src/features/db";
 
 export default class FieldCreator {
   private formId: number;
@@ -7,6 +7,7 @@ export default class FieldCreator {
   private question: string;
   private short_name: string | undefined;
   private options: string | undefined;
+  private invalid_options: string | undefined;
   private id: number | undefined;
   private priority: number;
 
@@ -23,6 +24,7 @@ export default class FieldCreator {
     short_name,
     type,
     options,
+    invalid_options,
     id,
     priority,
   }: {
@@ -31,6 +33,7 @@ export default class FieldCreator {
     short_name?: string;
     type: string;
     options?: string[] | number[];
+    invalid_options?: string[] | number[];
     id?: number;
     priority: number;
   }) {
@@ -42,6 +45,9 @@ export default class FieldCreator {
     this.question = question;
     this.short_name = short_name;
     this.options = options ? JSON.stringify(options) : undefined;
+    this.invalid_options = options
+      ? JSON.stringify(invalid_options)
+      : undefined;
     this.id = id;
     this.priority = priority;
   }
@@ -68,6 +74,9 @@ export default class FieldCreator {
         form_id: this.formId,
         priority: this.priority,
         ...(this.options ? { options: this.options } : {}),
+        ...(this.invalid_options
+          ? { invalid_options: this.invalid_options }
+          : {}),
         ...(this.short_name ? { short_name: this.short_name } : {}),
         ...(this.id ? { id: this.id } : {}),
       })
