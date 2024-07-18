@@ -1702,6 +1702,7 @@ paths:
               - onlyAccepted
               - onlyCandidates
               - all
+              - candidatesAndExcluded
           in: query
           name: show
           description: Show accepted/candidates or both

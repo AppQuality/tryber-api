@@ -25,23 +25,25 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
       surname: "pluto",
       education_id: 1,
       employment_id: 1,
+      birth_date: "1999-01-01",
+      total_exp_pts: 90,
+      sex: 0,
     };
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
         ...profile,
         id: 1,
         wp_user_id: 1,
-        birth_date: "2000-01-01",
-        total_exp_pts: 100,
-        sex: 1,
       },
       {
         ...profile,
         id: 2,
         wp_user_id: 2,
-        birth_date: "1999-01-01",
-        total_exp_pts: 90,
-        sex: 0,
+      },
+      {
+        ...profile,
+        id: 3,
+        wp_user_id: 3,
       },
     ]);
 
@@ -54,6 +56,11 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
         ...candidate,
         user_id: 1,
         accepted: 0,
+      },
+      {
+        ...candidate,
+        user_id: 3,
+        accepted: -1,
       },
     ]);
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert([
@@ -89,6 +96,11 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
         model: "iPhone X",
         id: 3,
         id_profile: 2,
+      },
+      {
+        ...device,
+        id: 4,
+        id_profile: 3,
       },
     ]);
 
@@ -145,7 +157,7 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
       .get("/campaigns/1/candidates?show=all")
       .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
     expect(response.body).toHaveProperty("results");
-    expect(response.body.results).toHaveLength(2);
+    expect(response.body.results).toHaveLength(3);
     expect(response.body.results).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -153,6 +165,9 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
         }),
         expect.objectContaining({
           id: 2,
+        }),
+        expect.objectContaining({
+          id: 3,
         }),
       ])
     );
@@ -167,5 +182,22 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
     expect(response.body.results[0]).toHaveProperty("devices");
     expect(response.body.results[0].devices).toHaveLength(1);
     expect(response.body.results[0].devices[0]).toHaveProperty("id", 3);
+  });
+  it("Should show candidates and excluded if candidatesAndExcluded", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?show=candidatesAndExcluded")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(2);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+        }),
+        expect.objectContaining({
+          id: 3,
+        }),
+      ])
+    );
   });
 });

@@ -2,13 +2,17 @@ import { tryber } from "@src/features/database";
 
 class Candidates {
   private campaign_id: number;
-  private show: "onlyAccepted" | "onlyCandidates" | "all" = "all";
+  private show:
+    | "onlyAccepted"
+    | "onlyCandidates"
+    | "all"
+    | "candidatesAndExcluded" = "all";
   constructor({
     campaign_id,
     show,
   }: {
     campaign_id: number;
-    show: "onlyAccepted" | "onlyCandidates" | "all";
+    show: "onlyAccepted" | "onlyCandidates" | "all" | "candidatesAndExcluded";
   }) {
     this.campaign_id = campaign_id;
     this.show = show;
@@ -40,7 +44,11 @@ class Candidates {
       query.where("accepted", 1);
     } else if (this.show === "onlyCandidates") {
       query.where("accepted", 0);
+    } else if (this.show === "candidatesAndExcluded") {
+      query.whereIn("accepted", [0, -1]);
     }
+
+    console.log(query.toString());
 
     return await query;
   }

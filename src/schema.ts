@@ -1427,7 +1427,11 @@ export interface operations {
         /** Array with min and max */
         filterByAge?: unknown;
         /** Show accepted/candidates or both */
-        show?: "onlyAccepted" | "onlyCandidates" | "all";
+        show?:
+          | "onlyAccepted"
+          | "onlyCandidates"
+          | "all"
+          | "candidatesAndExcluded";
       };
     };
     responses: {
