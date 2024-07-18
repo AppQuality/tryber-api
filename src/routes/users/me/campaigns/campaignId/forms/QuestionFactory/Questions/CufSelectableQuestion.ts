@@ -125,6 +125,13 @@ class CufSelectQuestion extends Question<{
       });
     }
   }
+
+  async isScreenedOut(item: { data: any }) {
+    if (!this.question.invalid_options) return false;
+    const value = item.data.value.id;
+    if (this.options.length === 0 || this.isNoneOfTheAbove(value)) return false;
+    return this.question.invalid_options.includes(value);
+  }
 }
 
 export default CufSelectQuestion;
