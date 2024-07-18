@@ -286,6 +286,7 @@ export default class RouteItem extends UserRoute<{
           age: candidate.age,
           questions: candidate.questions,
           levels: candidate.levels,
+          status: candidate.status,
         };
       }),
       size: candidates.length,

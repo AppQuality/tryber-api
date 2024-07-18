@@ -1248,6 +1248,14 @@ paths:
                                     type: string
                                   value:
                                     type: string
+                            status:
+                              type: string
+                              x-stoplight:
+                                id: 3f1wy22lgngzn
+                              enum:
+                                - candidate
+                                - excluded
+                                - selected
                           required:
                             - id
                             - name

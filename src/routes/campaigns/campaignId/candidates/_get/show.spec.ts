@@ -173,6 +173,30 @@ describe("GET /campaigns/:campaignId/candidates - show ", () => {
     );
   });
 
+  it("Should return acceptance status", async () => {
+    const response = await request(app)
+      .get("/campaigns/1/candidates?show=all")
+      .set("authorization", `Bearer tester olp {"appq_tester_selection":true}`);
+    expect(response.body).toHaveProperty("results");
+    expect(response.body.results).toHaveLength(3);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 1,
+          status: "candidate",
+        }),
+        expect.objectContaining({
+          id: 2,
+          status: "selected",
+        }),
+        expect.objectContaining({
+          id: 3,
+          status: "excluded",
+        }),
+      ])
+    );
+  });
+
   it("Should show selected device if onlyAccepted", async () => {
     const response = await request(app)
       .get("/campaigns/1/candidates?show=onlyAccepted")

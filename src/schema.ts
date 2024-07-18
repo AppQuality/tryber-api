@@ -1464,6 +1464,8 @@ export interface operations {
                 title?: string;
                 value?: string;
               }[];
+              /** @enum {string} */
+              status?: "candidate" | "excluded" | "selected";
             }[];
           } & components["schemas"]["PaginationData"];
         };

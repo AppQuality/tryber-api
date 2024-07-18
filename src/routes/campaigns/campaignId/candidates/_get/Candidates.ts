@@ -33,7 +33,8 @@ class Candidates {
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         "name",
-        "surname"
+        "surname",
+        "accepted"
       )
       .where("campaign_id", this.campaign_id)
       .where("name", "<>", "Deleted User")
@@ -48,9 +49,15 @@ class Candidates {
       query.whereIn("accepted", [0, -1]);
     }
 
-    console.log(query.toString());
-
-    return await query;
+    return (await query).map((candidate) => ({
+      ...candidate,
+      status:
+        candidate.accepted === 1
+          ? ("selected" as const)
+          : candidate.accepted === 0
+          ? ("candidate" as const)
+          : ("excluded" as const),
+    }));
   }
 }
 
