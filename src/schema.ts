@@ -3097,7 +3097,12 @@ export interface operations {
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
         /** The field for item order */
-        orderBy?: "name" | "start_date" | "end_date" | "close_date";
+        orderBy?:
+          | "name"
+          | "start_date"
+          | "end_date"
+          | "close_date"
+          | "visibility";
       };
     };
     responses: {

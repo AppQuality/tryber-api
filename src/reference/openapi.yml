@@ -6346,6 +6346,7 @@ paths:
               - start_date
               - end_date
               - close_date
+              - visibility
           in: query
           name: orderBy
           description: The field for item order
