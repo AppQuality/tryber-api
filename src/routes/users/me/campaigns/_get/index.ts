@@ -124,15 +124,15 @@ class RouteItem extends UserRoute<{
         manual_link: cp.manual_link,
         preview_link: cp.preview_link,
         applied: cp.applied == 1,
-        visibility: this.getVisibility(cp),
-        ...(cp.freeSpots !== undefined && cp.totalSpots !== undefined
-          ? {
-              visibility: {
-                freeSpots: cp.freeSpots,
-                totalSpots: cp.totalSpots,
-              },
-            }
-          : {}),
+        visibility: {
+          type: this.getVisibility({
+            applied: cp.applied == 1,
+            start_date: cp.start_date,
+            freeSpots: cp.freeSpots,
+          }),
+          ...(cp.freeSpots !== undefined ? { freeSpots: cp.freeSpots } : {}),
+          ...(cp.totalSpots !== undefined ? { totalSpots: cp.totalSpots } : {}),
+        },
       }));
   }
 

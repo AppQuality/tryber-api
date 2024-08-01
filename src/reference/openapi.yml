@@ -10414,6 +10414,14 @@ components:
               type: integer
               x-stoplight:
                 id: 1jumwi4cvp91d
+            type:
+              type: string
+              x-stoplight:
+                id: o8jt4lts5ij18
+              enum:
+                - available
+                - unavailable
+                - candidate
     CampaignRequired:
       description: ''
       type: object

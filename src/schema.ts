@@ -701,6 +701,8 @@ export interface components {
       visibility?: {
         freeSpots?: number;
         totalSpots?: number;
+        /** @enum {string} */
+        type?: "available" | "unavailable" | "candidate";
       };
     };
     CampaignRequired: {
