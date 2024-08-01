@@ -33,6 +33,17 @@ class RouteItem extends UserRoute<{
     this.filterBy = query.filterBy || {};
   }
 
+  private getVisibility(campaign: {
+    applied: boolean;
+    start_date: string;
+    freeSpots?: number;
+  }): "candidate" | "unavailable" | "available" {
+    if (campaign.applied) return "candidate";
+    if (new Date(campaign.start_date) > new Date() || campaign.freeSpots === 0)
+      return "unavailable";
+    return "available";
+  }
+
   private setOrderBy() {
     const { orderBy } = this.getQuery();
     if (!orderBy) return;
@@ -113,7 +124,8 @@ class RouteItem extends UserRoute<{
         manual_link: cp.manual_link,
         preview_link: cp.preview_link,
         applied: cp.applied == 1,
-        ...(cp.freeSpots && cp.totalSpots
+        visibility: this.getVisibility(cp),
+        ...(cp.freeSpots !== undefined && cp.totalSpots !== undefined
           ? {
               visibility: {
                 freeSpots: cp.freeSpots,
