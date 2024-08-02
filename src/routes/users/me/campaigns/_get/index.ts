@@ -454,7 +454,7 @@ class RouteItem extends UserRoute<{
       );
       return {
         ...campaign,
-        ...(applicationSpot
+        ...(applicationSpot && applicationSpot.cap >= 0
           ? {
               freeSpots:
                 applicationSpot.cap - (validApplicationsCount?.count || 0),
