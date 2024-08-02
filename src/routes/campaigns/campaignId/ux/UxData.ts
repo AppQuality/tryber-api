@@ -1,15 +1,7 @@
-import { checkUrl } from "@src/features/checkUrl";
 import { tryber } from "@src/features/database";
 import { mapToDistribution } from "@src/features/s3/mapToDistribution";
 
 export default class UxData {
-  private SEVERITIES = {
-    1: "Minor",
-    2: "Major",
-    3: "Positive",
-    4: "Observation",
-  };
-
   private _data:
     | {
         id: number;
@@ -134,6 +126,7 @@ export default class UxData {
     const { id: i, version: v, published: p, ...data } = this._data;
     return {
       ...data,
+      visible: p,
       questions: this.questions,
       sentiments: this.sentiments,
     };

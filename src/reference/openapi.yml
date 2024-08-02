@@ -2869,12 +2869,17 @@ paths:
                       required:
                         - id
                         - name
+                  visible:
+                    type: integer
+                    minimum: 0
+                    maximum: 1
                 required:
                   - goal
                   - usersNumber
                   - sentiments
                   - methodology
                   - questions
+                  - visible
               examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'

@@ -1973,6 +1973,7 @@ export interface operations {
               id: number;
               name: string;
             }[];
+            visible: number;
           };
         };
       };

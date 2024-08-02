@@ -25,7 +25,9 @@ export default class Route extends UserRoute<{
   protected async init(): Promise<void> {
     await super.init();
     const item = new UxData(this.campaignId);
-    await item.lastDraft();
+    await item.lastPublished();
+    if (!item.data) await item.lastDraft();
+
     this._draft = item;
   }
 
@@ -76,7 +78,7 @@ export default class Route extends UserRoute<{
     await this.addCookieSign();
 
     this.setSuccess(200, {
-      status: await this.getStatus(),
+      visible: this.draft.data?.visible || 0,
       goal: this.draft.data?.goal || "",
       usersNumber: this.draft.data?.users || 0,
       methodology: {
@@ -122,16 +124,6 @@ export default class Route extends UserRoute<{
         domain: ".tryber.me",
       }
     );
-  }
-
-  private async getStatus() {
-    const published = new UxData(this.campaignId);
-    await published.lastPublished();
-    if (!published.data) return "draft" as const;
-
-    if (published.isEqual(this.draft)) return "published" as const;
-
-    return "draft-modified" as const;
   }
 
   private async getCampaignType() {
