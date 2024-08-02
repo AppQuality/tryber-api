@@ -2810,12 +2810,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                    enum:
-                      - draft
-                      - published
-                      - draft-modified
                   goal:
                     type: string
                   usersNumber:
@@ -2876,104 +2870,12 @@ paths:
                         - id
                         - name
                 required:
-                  - status
                   - goal
                   - usersNumber
                   - sentiments
                   - methodology
                   - questions
-              examples:
-                example-qualitative:
-                  value:
-                    status: draft
-                    goal: The Research Goal
-                    usersNumber: 10
-                    questions:
-                      - id: 1
-                        name: Why the world exists?
-                      - id: 1
-                        name: How the world exists?
-                    methodology:
-                      name: Usability Test
-                      description: Methodology Description
-                      type: qualitative
-                    sentiments:
-                      - id: 1
-                        value: 5
-                        comment: Top rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                      - id: 2
-                        value: 1
-                        comment: Bad rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                example-quantitative:
-                  value:
-                    status: draft
-                    goal: The Research Goal
-                    usersNumber: 10
-                    questions:
-                      - id: 1
-                        name: Why the world exists?
-                      - id: 1
-                        name: How the world exists?
-                    methodology:
-                      name: Usability Test
-                      description: Methodology Description
-                      type: quantitative
-                    sentiments:
-                      - id: 1
-                        value: 5
-                        comment: Top rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                      - id: 2
-                        value: 1
-                        comment: Bad rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                ux-campaign-draft-NO-insights:
-                  value:
-                    status: draft
-                    sentiments: []
-                    questions: []
-                    goal: The Research Goal
-                    usersNumber: 10
-                    methodology:
-                      name: UX Challenge
-                      description: UX Challenge
-                      type: qualitative
-                ux-campaign-draft-with-insights:
-                  value:
-                    status: draft
-                    goal: this is goal
-                    usersNumber: 10
-                    methodology:
-                      name: UX Challenge
-                      description: UX Challenge
-                      type: qualitative
-                    sentiments: []
-                    questions:
-                      - id: 1
-                        name: question 1
-                      - id: 2
-                        name: question 2
-                ux-campaign-draft-modified:
-                  value:
-                    status: draft-modified
-                    goal: this is goal
-                    usersNumber: 0
-                    methodology:
-                      name: UX Challenge
-                      description: UX Challenge
-                      type: qualitative
-                    sentiments: []
-                    questions: []
+              examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

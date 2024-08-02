@@ -1952,8 +1952,6 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            /** @enum {string} */
-            status: "draft" | "published" | "draft-modified";
             goal: string;
             usersNumber: number;
             sentiments: {
