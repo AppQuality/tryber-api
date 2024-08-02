@@ -44,7 +44,7 @@ class RouteItem extends UserRoute<{
     freeSpots?: number;
   }): "candidate" | "unavailable" | "available" {
     if (campaign.applied) return "candidate";
-    if (new Date(campaign.start_date) > new Date() || campaign.freeSpots === 0)
+    if (new Date(campaign.start_date) <= new Date() || campaign.freeSpots === 0)
       return "unavailable";
     return "available";
   }

@@ -69,8 +69,8 @@ describe("GET /users/me/campaigns - visibility", () => {
       {
         ...basicCampaignObject,
         id: 2,
-        title: "Campaign future start date",
-        start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+        title: "Campaign past start date",
+        start_date: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
           .toISOString()
           .split("T")[0],
       },
@@ -84,7 +84,10 @@ describe("GET /users/me/campaigns - visibility", () => {
       {
         ...basicCampaignObject,
         id: 4,
-        title: "Campaign available",
+        title: "Campaign future start date",
+        start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
       },
     ]);
 
