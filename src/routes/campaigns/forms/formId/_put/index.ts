@@ -123,8 +123,15 @@ export default class RouteItem extends UserRoute<{
       const fieldCreator = new FieldCreator({
         ...field,
         formId: this.getId(),
+
+        options:
+          "options" in field && field.options
+            ? field.options.map((o) => o.value)
+            : undefined,
         invalid_options:
-          "invalidOptions" in field ? field.invalidOptions : undefined,
+          "options" in field && field.options
+            ? field.options.filter((o) => o.isInvalid).map((o) => o.value)
+            : undefined,
         priority: i++,
       });
       await fieldCreator.create();

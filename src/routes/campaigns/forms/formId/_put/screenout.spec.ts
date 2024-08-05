@@ -156,8 +156,7 @@ describe("PUT /campaigns/forms/ - screenout", () => {
           {
             question: "Yes or no",
             type: "select",
-            options: ["Yes", "No"],
-            invalidOptions: ["No"],
+            options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
           },
         ],
       })
@@ -178,7 +177,7 @@ describe("PUT /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Yes or no",
-      invalidOptions: ["No"],
+      options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
     });
   });
 
@@ -191,8 +190,11 @@ describe("PUT /campaigns/forms/ - screenout", () => {
           {
             question: "Select one",
             type: "multiselect",
-            options: ["Red", "Blue", "Yellow"],
-            invalidOptions: ["Red", "Blue"],
+            options: [
+              { value: "Red", isInvalid: true },
+              { value: "Blue", isInvalid: true },
+              { value: "Yellow" },
+            ],
           },
         ],
       })
@@ -213,7 +215,11 @@ describe("PUT /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Select one",
-      invalidOptions: ["Red", "Blue"],
+      options: [
+        { value: "Red", isInvalid: true },
+        { value: "Blue", isInvalid: true },
+        { value: "Yellow" },
+      ],
     });
   });
 
@@ -226,8 +232,7 @@ describe("PUT /campaigns/forms/ - screenout", () => {
           {
             question: "Yes or no",
             type: "radio",
-            options: ["Yes", "No"],
-            invalidOptions: ["No"],
+            options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
           },
         ],
       })
@@ -248,7 +253,7 @@ describe("PUT /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Yes or no",
-      invalidOptions: ["No"],
+      options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
     });
   });
 
@@ -261,8 +266,11 @@ describe("PUT /campaigns/forms/ - screenout", () => {
           {
             question: "Electricity",
             type: "cuf_1",
-            options: [1, 2, 3],
-            invalidOptions: [1, 2],
+            options: [
+              { value: 1, isInvalid: true },
+              { value: 2, isInvalid: true },
+              { value: 3 },
+            ],
           },
         ],
       })
@@ -283,7 +291,11 @@ describe("PUT /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Electricity",
-      invalidOptions: [1, 2],
+      options: [
+        { value: 1, isInvalid: true },
+        { value: 2, isInvalid: true },
+        { value: 3 },
+      ],
     });
   });
 });
