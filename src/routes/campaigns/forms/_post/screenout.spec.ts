@@ -77,8 +77,7 @@ describe("POST /campaigns/forms/ - screenout", () => {
             question: "Yes or no",
             type: "select",
             priority: 1,
-            options: ["Yes", "No"],
-            invalidOptions: ["No"],
+            options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
           },
         ],
         creationDate: "2024-02-23 00:00:00",
@@ -101,7 +100,7 @@ describe("POST /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Yes or no",
-      invalidOptions: ["No"],
+      options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
     });
   });
   it("Should save screenout options for multiselect", async () => {
@@ -114,8 +113,11 @@ describe("POST /campaigns/forms/ - screenout", () => {
             question: "Select one",
             type: "multiselect",
             priority: 1,
-            options: ["Blue", "Red", "Yellow"],
-            invalidOptions: ["Blue", "Red"],
+            options: [
+              { value: "Blue", isInvalid: true },
+              { value: "Red", isInvalid: true },
+              { value: "Yellow" },
+            ],
           },
         ],
         creationDate: "2024-02-23 00:00:00",
@@ -138,7 +140,11 @@ describe("POST /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Select one",
-      invalidOptions: ["Blue", "Red"],
+      options: [
+        { value: "Blue", isInvalid: true },
+        { value: "Red", isInvalid: true },
+        { value: "Yellow" },
+      ],
     });
   });
   it("Should save screenout options for radio", async () => {
@@ -151,8 +157,7 @@ describe("POST /campaigns/forms/ - screenout", () => {
             question: "Yes or no",
             type: "radio",
             priority: 1,
-            options: ["Yes", "No"],
-            invalidOptions: ["No"],
+            options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
           },
         ],
         creationDate: "2024-02-23 00:00:00",
@@ -175,7 +180,7 @@ describe("POST /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Yes or no",
-      invalidOptions: ["No"],
+      options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
     });
   });
   it("Should save screenout options for cuf", async () => {
@@ -188,8 +193,11 @@ describe("POST /campaigns/forms/ - screenout", () => {
             question: "Electricity",
             type: "cuf_1",
             priority: 1,
-            options: [1, 2, 3],
-            invalidOptions: [1, 2],
+            options: [
+              { value: 1, isInvalid: true },
+              { value: 2, isInvalid: true },
+              { value: 3 },
+            ],
           },
         ],
         creationDate: "2024-02-23 00:00:00",
@@ -212,7 +220,11 @@ describe("POST /campaigns/forms/ - screenout", () => {
     expect(get.body.fields).toHaveLength(1);
     expect(get.body.fields[0]).toMatchObject({
       question: "Electricity",
-      invalidOptions: [1, 2],
+      options: [
+        { value: 1, isInvalid: true },
+        { value: 2, isInvalid: true },
+        { value: 3 },
+      ],
     });
   });
 });

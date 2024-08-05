@@ -32,8 +32,8 @@ export default class FieldCreator {
     question: string;
     short_name?: string;
     type: string;
-    options?: string[] | number[];
-    invalid_options?: string[] | number[];
+    options?: (string | number)[];
+    invalid_options?: (string | number)[];
     id?: number;
     priority: number;
   }) {
