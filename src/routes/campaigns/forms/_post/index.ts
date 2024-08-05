@@ -128,6 +128,10 @@ export default class RouteItem extends UserRoute<{
     const results = [];
     let i = 1;
     for (const field of body.fields) {
+      const options =
+        "options" in field && field.options
+          ? (field.options as { isInvalid: boolean; value: string | number }[])
+          : undefined;
       const item = new FieldCreator({
         formId: formId,
         question: field.question,
@@ -137,10 +141,13 @@ export default class RouteItem extends UserRoute<{
           "options" in field && field.options
             ? field.options.map((o) => o.value)
             : undefined,
-        invalid_options:
-          "options" in field && field.options
-            ? field.options.filter((o) => o.isInvalid).map((o) => o.value)
-            : undefined,
+        invalid_options: options
+          ? options
+              .filter(
+                (o): o is { isInvalid: true; value: number } => o.isInvalid
+              )
+              .map((o) => o.value)
+          : undefined,
         priority: i++,
       });
       try {

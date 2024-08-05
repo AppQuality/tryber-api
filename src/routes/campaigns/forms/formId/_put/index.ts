@@ -120,6 +120,10 @@ export default class RouteItem extends UserRoute<{
     await this.clearFields();
     let i = 1;
     for (const field of fields) {
+      const options =
+        "options" in field && field.options
+          ? (field.options as { isInvalid: boolean; value: string | number }[])
+          : undefined;
       const fieldCreator = new FieldCreator({
         ...field,
         formId: this.getId(),
@@ -128,10 +132,9 @@ export default class RouteItem extends UserRoute<{
           "options" in field && field.options
             ? field.options.map((o) => o.value)
             : undefined,
-        invalid_options:
-          "options" in field && field.options
-            ? field.options.filter((o) => o.isInvalid).map((o) => o.value)
-            : undefined,
+        invalid_options: options
+          ? options.filter((o) => o.isInvalid).map((o) => o.value)
+          : undefined,
         priority: i++,
       });
       await fieldCreator.create();
