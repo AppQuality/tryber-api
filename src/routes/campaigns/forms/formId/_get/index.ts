@@ -101,19 +101,24 @@ export default class RouteItem extends UserRoute<{
         .orderBy("priority", "asc");
 
     return results.map((item) => {
+      const options =
+        isFieldTypeWithOptions(item.type) && item.options
+          ? parseOptions(item.options)
+          : undefined;
+
       return {
         id: item.id,
         type: item.type,
         question: item.question,
         short_name: item.short_name ? item.short_name : undefined,
-        options:
-          isFieldTypeWithOptions(item.type) && item.options
-            ? parseOptions(item.options)
-            : undefined,
-        invalidOptions:
-          isFieldTypeWithOptions(item.type) && item.invalid_options
-            ? parseOptions(item.invalid_options)
-            : undefined,
+        options: options
+          ? options.map((value: string | number) => {
+              const isInvalid = (
+                item.invalid_options ? parseOptions(item.invalid_options) : []
+              ).includes(value);
+              return { value, ...(isInvalid ? { isInvalid } : {}) };
+            })
+          : undefined,
       };
     });
 

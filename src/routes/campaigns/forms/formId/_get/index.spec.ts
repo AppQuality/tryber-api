@@ -1,8 +1,8 @@
-import app from "@src/app";
-import request from "supertest";
+import Campaign from "@src/__mocks__/mockedDb/campaign";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
-import Campaign from "@src/__mocks__/mockedDb/campaign";
+import app from "@src/app";
+import request from "supertest";
 
 describe("GET /campaigns/forms/{formId}", () => {
   beforeAll(() => {
@@ -132,23 +132,28 @@ describe("GET /campaigns/forms/{formId}", () => {
       );
     expect(response.body).toHaveProperty("fields");
     expect(response.body.fields).toEqual([
-      { id: 8, type: "cuf_1", options: [1, 2, 3], question: "Cuf question" },
+      {
+        id: 8,
+        type: "cuf_1",
+        options: [{ value: 1 }, { value: 2 }, { value: 3 }],
+        question: "Cuf question",
+      },
       {
         id: 2,
         type: "select",
-        options: ["Option 1", "Option 2"],
+        options: [{ value: "Option 1" }, { value: "Option 2" }],
         question: "Select question",
       },
       {
         id: 3,
         type: "multiselect",
-        options: ["Option 3", "Option 4"],
+        options: [{ value: "Option 3" }, { value: "Option 4" }],
         question: "Multiselect question",
       },
       {
         id: 4,
         type: "radio",
-        options: ["Yes", "No"],
+        options: [{ value: "Yes" }, { value: "No" }],
         question: "Radio question",
       },
       { id: 5, type: "gender", question: "Gender question" },

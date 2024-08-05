@@ -802,22 +802,22 @@ export interface components {
     } & (
       | {
           /** @enum {string} */
-          type: "text";
+          type: "text" | "gender" | "phone_number" | "address";
         }
       | {
           /** @enum {string} */
           type: "multiselect" | "select" | "radio";
-          options: string[];
-          invalidOptions?: string[];
+          options: {
+            value: string;
+            isInvalid: boolean;
+          }[];
         }
       | {
           type: string;
-          options?: number[];
-          invalidOptions?: number[];
-        }
-      | {
-          /** @enum {string} */
-          type: "gender" | "phone_number" | "address";
+          options?: {
+            value: number;
+            isInvalid: boolean;
+          }[];
         }
     );
     /** Project */

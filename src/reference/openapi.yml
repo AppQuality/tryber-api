@@ -10640,8 +10640,13 @@ components:
             - properties:
                 type:
                   type: string
+                  x-stoplight:
+                    id: hio24fhxketl6
                   enum:
                     - text
+                    - gender
+                    - phone_number
+                    - address
               required:
                 - type
             - properties:
@@ -10654,15 +10659,18 @@ components:
                 options:
                   type: array
                   items:
-                    type: string
-                invalidOptions:
-                  type: array
-                  x-stoplight:
-                    id: xgjgbndwz4cd3
-                  items:
-                    x-stoplight:
-                      id: hdc1yjxxy6con
-                    type: string
+                    type: object
+                    properties:
+                      value:
+                        type: string
+                        x-stoplight:
+                          id: bqwax1jmhhsc5
+                      isInvalid:
+                        type: boolean
+                        x-stoplight:
+                          id: 8xwnpgdiarx8k
+                    required:
+                      - value
               required:
                 - type
                 - options
@@ -10673,24 +10681,18 @@ components:
                 options:
                   type: array
                   items:
-                    type: integer
-                invalidOptions:
-                  type: array
-                  x-stoplight:
-                    id: ytwf24veu2syh
-                  items:
-                    x-stoplight:
-                      id: adavsvppix2u2
-                    type: integer
-              required:
-                - type
-            - properties:
-                type:
-                  type: string
-                  enum:
-                    - gender
-                    - phone_number
-                    - address
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                        x-stoplight:
+                          id: pkxj2bvb8vuj3
+                      isInvalid:
+                        type: boolean
+                        x-stoplight:
+                          id: 7sffsmb0sefc9
+                    required:
+                      - value
               required:
                 - type
       type: object

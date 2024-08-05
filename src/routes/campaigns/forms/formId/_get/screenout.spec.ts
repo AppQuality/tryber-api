@@ -80,7 +80,10 @@ describe("GET /campaigns/forms/{formId} - screenout data", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 2,
-          invalidOptions: ["Option 1"],
+          options: [
+            { value: "Option 1", isInvalid: true },
+            { value: "Option 2" },
+          ],
         }),
       ])
     );
@@ -98,7 +101,10 @@ describe("GET /campaigns/forms/{formId} - screenout data", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 3,
-          invalidOptions: ["Option 3"],
+          options: [
+            { value: "Option 3", isInvalid: true },
+            { value: "Option 4" },
+          ],
         }),
       ])
     );
@@ -116,7 +122,7 @@ describe("GET /campaigns/forms/{formId} - screenout data", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 4,
-          invalidOptions: ["No"],
+          options: [{ value: "Yes" }, { value: "No", isInvalid: true }],
         }),
       ])
     );
@@ -134,7 +140,7 @@ describe("GET /campaigns/forms/{formId} - screenout data", () => {
       expect.arrayContaining([
         expect.objectContaining({
           id: 8,
-          invalidOptions: [1],
+          options: [{ value: 1, isInvalid: true }, { value: 2 }, { value: 3 }],
         }),
       ])
     );
