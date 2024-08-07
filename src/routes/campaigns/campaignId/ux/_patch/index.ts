@@ -88,39 +88,69 @@ export default class PatchUx extends UserRoute<{
   }
 
   private async update() {
-    // if (!this.data?.data) {
-    //   await this.insertFirstVersion();
-    // }
+    if (!this.data?.data) {
+      await this.insertFirstVersion();
+    }
 
     await this.updateUxData();
     await this.updateQuestions();
     await this.updateSentiments();
   }
 
-  // private async insertFirstVersion() {
-  //   const body = this.getBody();
-  //   if ("status" in body) return;
-  //   await tryber.tables.UxCampaignData.do().insert({
-  //     goal: body.goal,
-  //     users: body.usersNumber,
-  //     campaign_id: this.campaignId,
-  //     version: 1,
-  //     published: 0,
-  //     methodology_type: body.methodology.type,
-  //     methodology_description: body.methodology.description,
-  //   });
-  //   this.version = 1;
-  // }
+  private async insertFirstVersion() {
+    const body = this.getBody();
+
+    if (
+      !body.methodology ||
+      !body.methodology.type ||
+      !body.methodology.description
+    ) {
+      this.setError(400, new OpenapiError("Methodology is required"));
+      throw new OpenapiError("Methodology is required");
+    }
+    if (!body.goal) {
+      this.setError(400, new OpenapiError("Goal is required"));
+      throw new OpenapiError("Goal is required");
+    }
+    if (!body.usersNumber) {
+      this.setError(400, new OpenapiError("Users number is required"));
+      throw new OpenapiError("Users number is required");
+    }
+    await tryber.tables.UxCampaignData.do().insert({
+      goal: body.goal,
+      users: body.usersNumber,
+      campaign_id: this.campaignId,
+      version: 1,
+      published: 0,
+      methodology_type: body.methodology.type,
+      methodology_description: body.methodology.description,
+    });
+  }
 
   private async updateUxData() {
     const body = this.getBody();
-    if ("status" in body) return;
+    let uxDataToUpdate = {};
+    if (body.methodology)
+      uxDataToUpdate = {
+        methodology_type: body.methodology.type,
+        methodology_description: body.methodology.description,
+      };
+    if (body.goal) {
+      uxDataToUpdate = {
+        ...uxDataToUpdate,
+        goal: body.goal,
+      };
+    }
+    if (body.usersNumber) {
+      uxDataToUpdate = {
+        ...uxDataToUpdate,
+        users: body.usersNumber,
+      };
+    }
     await tryber.tables.UxCampaignData.do()
       .update({
-        goal: body.goal,
-        users: body.usersNumber,
-        // methodology_type: body.methodology.type,
-        // methodology_description: body.methodology.description,
+        ...uxDataToUpdate,
+        version: this.version,
       })
       .where({
         version: this.version,
@@ -218,75 +248,6 @@ export default class PatchUx extends UserRoute<{
       this.setError(400, new OpenapiError("No draft found"));
       throw new OpenapiError("No draft found");
     }
-
-    await this.publishData();
-    await this.publishQuestions();
-    await this.publishSentiments();
-    this.version++;
-  }
-
-  private async publishData() {
-    await tryber.tables.UxCampaignData.do()
-      .update({
-        published: 1,
-      })
-      .where({
-        campaign_id: this.campaignId,
-        version: this.version,
-      });
-
-    await tryber.tables.UxCampaignData.do().insert({
-      goal: this.data?.data?.goal,
-      users: this.data?.data?.users,
-      campaign_id: this.campaignId,
-      version: this.version + 1,
-      methodology_description: this.data?.data?.methodology_description,
-      methodology_type: this.data?.data?.methodology_type,
-      published: 0,
-    });
-  }
-
-  private async publishQuestions() {
-    if (this.data?.questions.length) {
-      await tryber.tables.UxCampaignQuestions.do()
-        .update({
-          version: this.version + 1,
-        })
-        .where({
-          campaign_id: this.campaignId,
-          version: this.version,
-        });
-
-      for (const question of this.data?.questions || []) {
-        await tryber.tables.UxCampaignQuestions.do().insert({
-          campaign_id: this.campaignId,
-          question: question.name,
-          version: this.version,
-        });
-      }
-    }
-  }
-
-  private async publishSentiments() {
-    if (this.data?.sentiments.length) {
-      await tryber.tables.UxCampaignSentiments.do()
-        .update({
-          version: this.version + 1,
-        })
-        .where({
-          campaign_id: this.campaignId,
-          version: this.version,
-        });
-
-      for (const sentiment of this.data?.sentiments || []) {
-        await tryber.tables.UxCampaignSentiments.do().insert({
-          campaign_id: this.campaignId,
-          value: sentiment.value,
-          cluster_id: sentiment.cluster.id,
-          comment: sentiment.comment,
-          version: this.version,
-        });
-      }
-    }
+    // TODO set visible to true
   }
 }
