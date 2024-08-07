@@ -85,7 +85,7 @@ describe("PATCH /campaigns/{campaignId}/ux - questions", () => {
     ]);
   });
   afterEach(async () => {
-    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.UxCampaignQuestions.do().delete();
   });
 
   it("Should remove questions if send empty array", async () => {

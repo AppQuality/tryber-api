@@ -51,7 +51,7 @@ export default class PatchUx extends UserRoute<{
     if (!sentiments) return false;
 
     for (const s of sentiments) {
-      if (s.value < 0 || s.value > 5) return true;
+      if (s.value < 1 || s.value > 5) return true;
     }
   }
 
@@ -75,12 +75,15 @@ export default class PatchUx extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     const body = this.getBody();
-
-    if ("status" in body) {
-      if (body.status === "publish") {
-        await this.publish();
-      }
-    } else {
+    if (
+      body &&
+      (body.goal ||
+        body.usersNumber ||
+        body.methodology ||
+        body.sentiments ||
+        body.questions ||
+        body.visible)
+    ) {
       await this.update();
     }
 
@@ -95,6 +98,7 @@ export default class PatchUx extends UserRoute<{
     await this.updateUxData();
     await this.updateQuestions();
     await this.updateSentiments();
+    await this.updateVisibleStatus();
   }
 
   private async insertFirstVersion() {
@@ -116,6 +120,10 @@ export default class PatchUx extends UserRoute<{
       this.setError(400, new OpenapiError("Users number is required"));
       throw new OpenapiError("Users number is required");
     }
+    if (!body.visible) {
+      this.setError(400, new OpenapiError("Visible status is required"));
+      throw new OpenapiError("Visible status is required");
+    }
     await tryber.tables.UxCampaignData.do().insert({
       goal: body.goal,
       users: body.usersNumber,
@@ -129,6 +137,7 @@ export default class PatchUx extends UserRoute<{
 
   private async updateUxData() {
     const body = this.getBody();
+
     let uxDataToUpdate = {};
     if (body.methodology)
       uxDataToUpdate = {
@@ -217,12 +226,14 @@ export default class PatchUx extends UserRoute<{
     }
   }
 
-  private async publish() {
-    const draftData = this.data?.data;
-    if (!draftData) {
-      this.setError(400, new OpenapiError("No draft found"));
-      throw new OpenapiError("No draft found");
+  private async updateVisibleStatus() {
+    const body = this.getBody();
+    if ("visible" in body) {
+      await tryber.tables.UxCampaignData.do()
+        .update({
+          published: body.visible,
+        })
+        .where("campaign_id", this.campaignId);
     }
-    // TODO set visible to true
   }
 }
