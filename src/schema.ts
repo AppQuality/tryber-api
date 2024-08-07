@@ -2003,6 +2003,7 @@ export interface operations {
         "application/json": {
           goal?: string;
           usersNumber?: number;
+          visible?: number;
           methodology?: {
             description: string;
             type: string;

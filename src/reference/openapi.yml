@@ -3013,6 +3013,10 @@ paths:
                   type: string
                 usersNumber:
                   type: integer
+                visible:
+                  type: integer
+                  minimum: 0
+                  maximum: 1
                 methodology:
                   type: object
                   properties:
