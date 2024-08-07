@@ -155,8 +155,4 @@ export default class UxData {
     if (JSON.stringify(this.data) !== JSON.stringify(other.data)) return false;
     return true;
   }
-
-  private mapToDistribution(url: string) {
-    return mapToDistribution(url);
-  }
 }

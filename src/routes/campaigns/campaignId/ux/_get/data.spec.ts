@@ -80,22 +80,22 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       {
         campaign_id: 10,
         question: "Why the world is round?",
-        version: 2,
+        version: 1,
       },
       {
         campaign_id: 10,
         question: "How many stars are in the sky?",
-        version: 2,
+        version: 1,
       },
       {
-        campaign_id: 10,
+        campaign_id: 20,
         question: "How many stars are in the universe?",
-        version: 3,
+        version: 1,
       },
       {
-        campaign_id: 2,
+        campaign_id: 20,
         question: "Be or not to be?",
-        version: 2,
+        version: 1,
       },
     ]);
     await tryber.tables.UxCampaignSentiments.do().insert([
@@ -104,14 +104,14 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         campaign_id: 10,
         value: 1,
         comment: "Low Comment cluster1",
-        version: 2,
+        version: 1,
       },
       {
         cluster_id: 2,
         campaign_id: 10,
         value: 5,
         comment: "High Comment cluster2",
-        version: 2,
+        version: 1,
       },
       {
         cluster_id: 1,
@@ -122,10 +122,10 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       },
       {
         cluster_id: 1,
-        campaign_id: 10,
+        campaign_id: 20,
         value: 5,
         comment: "Medium Comment cluster1",
-        version: 3,
+        version: 1,
       },
     ]);
   });
@@ -142,7 +142,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     beforeAll(async () => {
       await tryber.tables.UxCampaignData.do().insert([
         {
-          campaign_id: 10,
+          campaign_id: 20,
           version: 2,
           published: 0,
           methodology_description: "Ux Description DATA",
@@ -259,7 +259,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         .get("/campaigns/10/ux")
         .set("Authorization", "Bearer admin");
       expect(response.body).toHaveProperty("usersNumber");
-      expect(response.body.usersNumber).toEqual(100);
+      expect(response.body.usersNumber).toEqual(99);
     });
     it("Should return visible status", async () => {
       const response = await request(app)
@@ -274,7 +274,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     beforeAll(async () => {
       await tryber.tables.UxCampaignData.do().insert([
         {
-          campaign_id: 10,
+          campaign_id: 20,
           version: 2,
           published: 1,
           methodology_description: "Ux Description DATA",
@@ -285,7 +285,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         {
           campaign_id: 10,
           version: 1,
-          published: 0,
+          published: 1,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
           goal: "This is the goal of the reasearch",
@@ -391,7 +391,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         .get("/campaigns/10/ux")
         .set("Authorization", "Bearer admin");
       expect(response.body).toHaveProperty("usersNumber");
-      expect(response.body.usersNumber).toEqual(100);
+      expect(response.body.usersNumber).toEqual(99);
     });
     it("Should return visible status", async () => {
       const response = await request(app)
