@@ -10709,6 +10709,8 @@ components:
                         type: boolean
                         x-stoplight:
                           id: 6imsh5mbep30d
+                    required:
+                      - value
               required:
                 - type
             - properties:
@@ -10731,6 +10733,8 @@ components:
                         type: boolean
                         x-stoplight:
                           id: wiocd6n2pq0z5
+                    required:
+                      - value
               required:
                 - type
       type: object

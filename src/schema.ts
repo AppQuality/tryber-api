@@ -806,16 +806,16 @@ export interface components {
       | {
           type: components["schemas"]["PreselectionQuestionMultiple"];
           options?: {
-            value?: string;
+            value: string;
             isInvalid?: boolean;
           }[];
         }
       | {
           type: components["schemas"]["PreselectionQuestionCuf"];
           options?: {
-            value?: number;
+            value: number;
             isInvalid?: boolean;
-          };
+          }[];
         }
     );
     /** Project */
