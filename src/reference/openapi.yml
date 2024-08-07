@@ -3036,8 +3036,6 @@ paths:
                         type: string
                       id:
                         type: integer
-                        x-stoplight:
-                          id: 2rp9iotogyyx4
                     required:
                       - clusterId
                       - value
@@ -3666,24 +3664,14 @@ paths:
                       type: string
                     customRoles:
                       type: array
-                      x-stoplight:
-                        id: 2d3889y7ey2kq
                       items:
-                        x-stoplight:
-                          id: 9co5gffc2hn6i
                         type: object
                         properties:
                           roleId:
                             type: integer
-                            x-stoplight:
-                              id: zd1kwwa615imc
                           userIds:
                             type: array
-                            x-stoplight:
-                              id: ytdjdr4x7fwp5
                             items:
-                              x-stoplight:
-                                id: n1rh2j7oemn08
                               type: integer
                         required:
                           - roleId
@@ -9402,8 +9390,6 @@ paths:
                     type: integer
                   message:
                     type: string
-                    x-stoplight:
-                      id: 8a0ic1hhs5mpz
                     enum:
                       - HOOK_FAILED
                 required:
@@ -9421,8 +9407,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: y5n0dny2hhlc8
       security:
         - JWT: []
       requestBody:
@@ -9448,8 +9432,6 @@ paths:
                           type: integer
                         campaign:
                           type: integer
-                          x-stoplight:
-                            id: 8os8pe07l1htz
   '/dossiers/{campaign}':
     parameters:
       - name: campaign
@@ -9608,8 +9590,6 @@ paths:
                         type: integer
                       cap:
                         type: integer
-                        x-stoplight:
-                          id: yzv1ppm6f5kq7
                   countries:
                     type: array
                     minItems: 1
@@ -9662,8 +9642,6 @@ paths:
                         type: string
                   notes:
                     type: string
-                    x-stoplight:
-                      id: nep7qag1smkcp
                 required:
                   - id
                   - title
@@ -9922,20 +9900,14 @@ paths:
                           type: string
                         type:
                           type: object
-                          x-stoplight:
-                            id: jmjdmy2wzbrvx
                           required:
                             - id
                             - name
                           properties:
                             id:
                               type: integer
-                              x-stoplight:
-                                id: qlltod4as9yce
                             name:
                               type: string
-                              x-stoplight:
-                                id: lokz0tin3f5ad
                       required:
                         - id
                         - name
@@ -10306,17 +10278,11 @@ components:
           description: True if you applied on this Campaign
         visibility:
           type: object
-          x-stoplight:
-            id: z9vo6su8stzvn
           properties:
             freeSpots:
               type: integer
-              x-stoplight:
-                id: qy6n5oa4quk52
             totalSpots:
               type: integer
-              x-stoplight:
-                id: 1jumwi4cvp91d
     CampaignRequired:
       description: ''
       type: object
@@ -10906,8 +10872,6 @@ components:
               type: integer
             cap:
               type: integer
-              x-stoplight:
-                id: dv3yqv5k8gpv6
         countries:
           type: array
           items:
@@ -10924,8 +10888,6 @@ components:
           type: integer
         notes:
           type: string
-          x-stoplight:
-            id: xmrb08t4qc2fv
       required:
         - project
         - testType
