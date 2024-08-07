@@ -159,8 +159,11 @@ export default class PatchUx extends UserRoute<{
   }
 
   private async updateQuestions() {
-    await this.removeQuestions();
-    await this.insertNewQuestions();
+    const body = this.getBody();
+    if ("questions" in body) {
+      await this.removeQuestions();
+      await this.insertNewQuestions();
+    }
   }
 
   private async updateSentiments() {
@@ -199,45 +202,21 @@ export default class PatchUx extends UserRoute<{
   }
 
   private async removeQuestions() {
-    const body = this.getBody();
-    const { questions } = body;
-    if (questions) {
-      const toUpdate = questions.filter((i) => i.id);
-      const currentQuestions = this.data?.questions || [];
-      const currentQuestionsIds = currentQuestions.map((i) => i.id);
-
-      const toRemove = currentQuestionsIds.filter(
-        (id) => !toUpdate.map((i) => i.id).includes(id as number)
-      );
-
-      if (toRemove.length) {
-        await tryber.tables.UxCampaignQuestions.do()
-          .delete()
-          .whereIn(
-            "id",
-            currentQuestionsIds.filter(
-              (id) => !toUpdate.map((i) => i.id).includes(id as number)
-            )
-          );
-      }
-    }
+    await tryber.tables.UxCampaignQuestions.do()
+      .delete()
+      .where("campaign_id", this.campaignId);
   }
 
   private async insertNewQuestions() {
     const body = this.getBody();
     const { questions } = body;
-    if (questions) {
-      const toInsert = questions.filter((i) => !i.id);
-      if (toInsert.length) {
-        for (const item of toInsert) {
-          await tryber.tables.UxCampaignQuestions.do()
-            .insert({
-              campaign_id: this.campaignId,
-              question: item.name,
-              version: this.version,
-            })
-            .returning("id");
-        }
+    if (questions && questions.length) {
+      for (const item of questions) {
+        await tryber.tables.UxCampaignQuestions.do().insert({
+          campaign_id: this.campaignId,
+          question: item.name,
+          version: this.version,
+        });
       }
     }
   }
