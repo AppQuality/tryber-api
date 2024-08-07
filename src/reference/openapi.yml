@@ -2982,69 +2982,77 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - properties:
-                    goal:
-                      type: string
-                    usersNumber:
-                      type: integer
-                    sentiments:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          clusterId:
-                            type: integer
-                          value:
-                            type: integer
-                          comment:
-                            type: string
-                            maxLength: 100
-                        required:
-                          - clusterId
-                          - value
-                          - comment
-                    methodology:
-                      type: object
-                      required:
-                        - type
-                        - description
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                            - qualitative
-                            - quantitative
-                            - quali-quantitative
-                        description:
-                          type: string
-                    questions:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          name:
-                            type: string
-                        required:
-                          - name
-                  required:
-                    - goal
-                    - usersNumber
-                    - sentiments
-                    - methodology
-                    - questions
-                - properties:
-                    status:
-                      type: string
-                      enum:
-                        - publish
-                  required:
-                    - status
               type: object
+              x-examples:
+                Example 1:
+                  goal: this is the goal
+                  usersNumber: 5
+                  methodology:
+                    description: Methodology Description
+                    type: quantitative
+                  sentiments:
+                    - clusterId: 0
+                      value: 4
+                      comment: comment
+                    - id: 1
+                      clusterId: 0
+                      value: 5
+                      comment: comment
+                  questions:
+                    - name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - id: 5
+                      name: who?
+              properties:
+                goal:
+                  type: string
+                usersNumber:
+                  type: integer
+                methodology:
+                  type: object
+                  properties:
+                    description:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                    - description
+                    - type
+                sentiments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      clusterId:
+                        type: integer
+                      value:
+                        type: integer
+                      comment:
+                        type: string
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: 2rp9iotogyyx4
+                    required:
+                      - clusterId
+                      - value
+                      - comment
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      id:
+                        type: integer
+                    required:
+                      - name
             examples:
               edit-insight-and-videopart:
                 value:
@@ -3096,9 +3104,6 @@ paths:
                     - id: 4
                       name: how?
                     - name: who?
-              publish:
-                value:
-                  status: publish
         description: ''
   /campaigns/forms:
     post:
