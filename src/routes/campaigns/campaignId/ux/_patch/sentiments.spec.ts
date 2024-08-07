@@ -34,7 +34,6 @@ const campaign = {
 const requestBody = {
   goal: "Test Goal",
   usersNumber: 5,
-  sentiments: [],
   questions: [],
   methodology: {
     name: "Methodology Name",
@@ -43,7 +42,7 @@ const requestBody = {
   },
 };
 
-describe("PATCH /campaigns/{campaignId}/ux - delete sentiments", () => {
+describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 10, campaign_type_id: 1 },
@@ -79,12 +78,20 @@ describe("PATCH /campaigns/{campaignId}/ux - delete sentiments", () => {
         subtitle: "Subtitle 1",
       },
     ]);
+  });
+  afterAll(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.UxCampaignData.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+  });
+  beforeEach(async () => {
     await tryber.tables.UxCampaignSentiments.do().insert([
       {
         id: 1,
         cluster_id: 1,
         campaign_id: 10,
-        value: 1,
+        value: 3,
         comment: "test",
         version: 1,
       },
@@ -98,9 +105,8 @@ describe("PATCH /campaigns/{campaignId}/ux - delete sentiments", () => {
       },
     ]);
   });
-  afterAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.UxCampaignData.do().delete();
+  afterEach(async () => {
+    await tryber.tables.UxCampaignSentiments.do().delete();
   });
 
   it("Should remove sentiments if send empty array", async () => {
@@ -115,6 +121,29 @@ describe("PATCH /campaigns/{campaignId}/ux - delete sentiments", () => {
       .select("id");
 
     expect(sentiments).toEqual([]);
+  });
+
+  it("Should not sentiments if not send sentiments", async () => {
+    await request(app)
+      .patch("/campaigns/10/ux")
+      .send({ ...requestBody })
+      .set("Authorization", "Bearer admin");
+    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+      .where({
+        campaign_id: 10,
+      })
+      .select();
+
+    expect(sentiments.length).toEqual(1);
+    expect(sentiments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          value: 3,
+          comment: "test",
+          cluster_id: 1,
+        }),
+      ])
+    );
   });
 
   it("Should add sentiments", async () => {

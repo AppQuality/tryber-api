@@ -167,19 +167,17 @@ export default class PatchUx extends UserRoute<{
   }
 
   private async updateSentiments() {
-    await this.removeSentiments();
-    await this.insertNewSentiments();
+    const body = this.getBody();
+    if ("sentiments" in body) {
+      await this.removeSentiments();
+      await this.insertNewSentiments();
+    }
   }
 
   private async removeSentiments() {
-    const currentSentiments = this.data?.sentiments || [];
-    const currentSentimentsIds = currentSentiments.map((i) => i.id);
-
-    if (currentSentimentsIds.length) {
-      await tryber.tables.UxCampaignSentiments.do()
-        .delete()
-        .whereIn("id", currentSentimentsIds);
-    }
+    await tryber.tables.UxCampaignSentiments.do()
+      .delete()
+      .where("campaign_id", this.campaignId);
   }
 
   private async insertNewSentiments() {
@@ -188,15 +186,13 @@ export default class PatchUx extends UserRoute<{
 
     if (sentiments && sentiments.length) {
       for (const item of sentiments) {
-        await tryber.tables.UxCampaignSentiments.do()
-          .insert({
-            campaign_id: this.campaignId,
-            value: item.value,
-            comment: item.comment,
-            cluster_id: item.clusterId,
-            version: this.version,
-          })
-          .returning("id");
+        await tryber.tables.UxCampaignSentiments.do().insert({
+          campaign_id: this.campaignId,
+          value: item.value,
+          comment: item.comment,
+          cluster_id: item.clusterId,
+          version: this.version,
+        });
       }
     }
   }
