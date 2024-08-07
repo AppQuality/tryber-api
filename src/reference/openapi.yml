@@ -7031,9 +7031,15 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: '#/components/schemas/PreselectionFormQuestion'
-                    - type: object
-                      properties:
+                    - properties:
+                        question:
+                          type: string
+                          x-stoplight:
+                            id: ir6xgrpexauf5
+                        short_name:
+                          type: string
+                          x-stoplight:
+                            id: bl9s0k131fjp4
                         value:
                           oneOf:
                             - type: integer
@@ -7059,7 +7065,48 @@ paths:
                         id:
                           type: number
                       required:
+                        - question
                         - id
+                    - x-stoplight:
+                        id: 76ya1n62vrxoj
+                      oneOf:
+                        - properties:
+                            type:
+                              $ref: '#/components/schemas/PreselectionQuestionSimple'
+                          required:
+                            - type
+                        - x-stoplight:
+                            id: age6qie67x6dt
+                          properties:
+                            type:
+                              $ref: '#/components/schemas/PreselectionQuestionMultiple'
+                            options:
+                              type: array
+                              x-stoplight:
+                                id: 3eqfw8hp0j217
+                              items:
+                                x-stoplight:
+                                  id: u67gsrnn8bhvb
+                                type: string
+                          required:
+                            - type
+                            - options
+                        - x-stoplight:
+                            id: v6nzvavd1bbnh
+                          properties:
+                            type:
+                              $ref: '#/components/schemas/PreselectionQuestionCuf'
+                            options:
+                              type: array
+                              x-stoplight:
+                                id: ilyb6ci3tao5c
+                              items:
+                                x-stoplight:
+                                  id: 511phg4idvt3g
+                                type: number
+                          required:
+                            - type
+                  type: object
               examples:
                 example-1:
                   value:
@@ -10639,60 +10686,51 @@ components:
         - oneOf:
             - properties:
                 type:
-                  type: string
-                  x-stoplight:
-                    id: hio24fhxketl6
-                  enum:
-                    - text
-                    - gender
-                    - phone_number
-                    - address
+                  $ref: '#/components/schemas/PreselectionQuestionSimple'
               required:
                 - type
             - properties:
                 type:
-                  type: string
-                  enum:
-                    - multiselect
-                    - select
-                    - radio
+                  $ref: '#/components/schemas/PreselectionQuestionMultiple'
                 options:
                   type: array
+                  x-stoplight:
+                    id: xdbut0hjezieh
                   items:
+                    x-stoplight:
+                      id: cln0chyj7s107
                     type: object
                     properties:
                       value:
                         type: string
                         x-stoplight:
-                          id: bqwax1jmhhsc5
+                          id: ifhnncm4ap0l8
                       isInvalid:
                         type: boolean
                         x-stoplight:
-                          id: 8xwnpgdiarx8k
-                    required:
-                      - value
+                          id: 6imsh5mbep30d
               required:
                 - type
-                - options
             - properties:
                 type:
-                  type: string
-                  pattern: '^cuf_[0-9]*$'
+                  $ref: '#/components/schemas/PreselectionQuestionCuf'
                 options:
                   type: array
+                  x-stoplight:
+                    id: 98p0edyoy9t49
                   items:
+                    x-stoplight:
+                      id: lri0oems0d8by
                     type: object
                     properties:
                       value:
                         type: number
                         x-stoplight:
-                          id: pkxj2bvb8vuj3
+                          id: hrwvvg2r2jm4v
                       isInvalid:
                         type: boolean
                         x-stoplight:
-                          id: 7sffsmb0sefc9
-                    required:
-                      - value
+                          id: wiocd6n2pq0z5
               required:
                 - type
       type: object
@@ -11052,6 +11090,31 @@ components:
         - title
         - startDate
         - deviceList
+    PreselectionQuestionSimple:
+      title: PreselectionQuestionSimple
+      x-stoplight:
+        id: huxuwdbvi0pep
+      type: string
+      enum:
+        - gender
+        - text
+        - phone_number
+        - address
+    PreselectionQuestionMultiple:
+      title: PreselectionQuestionMultiple
+      x-stoplight:
+        id: op7khbr8grgql
+      type: string
+      enum:
+        - multiselect
+        - select
+        - radio
+    PreselectionQuestionCuf:
+      title: PreselectionQuestionCuf
+      x-stoplight:
+        id: 5diemuprwjolx
+      type: string
+      pattern: '^cuf_[0-9]*$'
   securitySchemes:
     JWT:
       type: http
