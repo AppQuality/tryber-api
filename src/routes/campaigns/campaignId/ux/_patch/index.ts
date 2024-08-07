@@ -50,9 +50,7 @@ export default class PatchUx extends UserRoute<{
 
     if (!sentiments) return false;
 
-    for (const s of sentiments) {
-      if (s.value < 1 || s.value > 5) return true;
-    }
+    return sentiments.some((s) => s.value < 1 || s.value > 5);
   }
 
   private setNoAccessError() {
