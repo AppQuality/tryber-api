@@ -92,16 +92,17 @@ export default class PatchUx extends UserRoute<{
 
   private async update() {
     if (!this.data?.data) {
-      await this.insertFirstVersion();
+      await this.insertNewUxData();
+    } else {
+      await this.updateUxData();
     }
 
-    await this.updateUxData();
     await this.updateQuestions();
     await this.updateSentiments();
     await this.updateVisibleStatus();
   }
 
-  private async insertFirstVersion() {
+  private async insertNewUxData() {
     const body = this.getBody();
 
     if (
@@ -116,11 +117,11 @@ export default class PatchUx extends UserRoute<{
       this.setError(400, new OpenapiError("Goal is required"));
       throw new OpenapiError("Goal is required");
     }
-    if (!body.usersNumber) {
+    if (!("usersNumber" in body)) {
       this.setError(400, new OpenapiError("Users number is required"));
       throw new OpenapiError("Users number is required");
     }
-    if (!body.visible) {
+    if (!("visible" in body)) {
       this.setError(400, new OpenapiError("Visible status is required"));
       throw new OpenapiError("Visible status is required");
     }

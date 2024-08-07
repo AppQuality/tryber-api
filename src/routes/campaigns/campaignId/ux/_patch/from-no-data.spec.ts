@@ -25,7 +25,9 @@ const methodology = {
 
 describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      { ...campaign, id: 10 },
+    ]);
     await tryber.tables.WpAppqUserTaskMedia.do().insert([
       {
         id: 1,
@@ -41,7 +43,7 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         id: 1,
         title: "Cluster 1",
         subtitle: "Subtitle 1",
-        campaign_id: 1,
+        campaign_id: 10,
       },
       {
         id: 2,
@@ -55,18 +57,18 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
+    await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
 
   afterEach(async () => {
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
-    await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
 
-  it("Should insert data unpublished", async () => {
+  it("Should insert unpublished data ", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
@@ -74,22 +76,45 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         sentiments: [],
         questions: [],
         methodology,
+        visible: 0,
       });
-    const data = await tryber.tables.UxCampaignData.do().select(
-      "published",
-      "campaign_id"
-    );
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select()
+      .where({ campaign_id: 10 });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual(
       expect.objectContaining({
         published: 0,
-        campaign_id: 1,
+      })
+    );
+  });
+  it("Should insert published data", async () => {
+    await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        usersNumber: 5,
+        sentiments: [],
+        questions: [],
+        methodology,
+        visible: 1,
+      });
+
+    const data = await tryber.tables.UxCampaignData.do()
+      .select()
+      .where({ campaign_id: 10 });
+    expect(data).toHaveLength(1);
+    expect(data[0]).toEqual(
+      expect.objectContaining({
+        published: 1,
       })
     );
   });
   it("Should insert data as version 1", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
@@ -97,17 +122,14 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         sentiments: [],
         questions: [],
         methodology,
+        visible: 0,
       });
-    const data = await tryber.tables.UxCampaignData.do().select(
-      "published",
-      "campaign_id",
-      "version"
-    );
+    const data = await tryber.tables.UxCampaignData.do()
+      .select()
+      .where({ campaign_id: 10 });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual(
       expect.objectContaining({
-        published: 0,
-        campaign_id: 1,
         version: 1,
       })
     );
@@ -115,7 +137,7 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
 
   it("Should insert a question", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
@@ -123,10 +145,11 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         sentiments: [],
         questions: [{ name: "Is there life on Mars?" }],
         methodology,
+        visible: 0,
       });
     const data = await tryber.tables.UxCampaignQuestions.do()
       .select()
-      .where({ campaign_id: 1 });
+      .where({ campaign_id: 10 });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual(
       expect.objectContaining({
@@ -137,7 +160,7 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
 
   it("Should insert a sentiment", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
@@ -145,24 +168,25 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         sentiments: [{ value: 5, clusterId: 1, comment: "My comment" }],
         questions: [],
         methodology,
+        visible: 0,
       });
     const data = await tryber.tables.UxCampaignSentiments.do()
       .select()
-      .where({ campaign_id: 1 });
+      .where({ campaign_id: 10 });
     expect(data).toHaveLength(1);
     expect(data[0]).toEqual(
       expect.objectContaining({
         cluster_id: 1,
         value: 5,
         comment: "My comment",
-        campaign_id: 1,
+        campaign_id: 10,
       })
     );
   });
 
   it("Should insert methodology type", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
@@ -170,10 +194,11 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         sentiments: [],
         questions: [],
         methodology,
+        visible: 0,
       });
 
     const data = await tryber.tables.UxCampaignData.do()
-      .select("methodology_type", "version", "published")
+      .select("methodology_type")
       .first();
     expect(data?.methodology_type).toBeDefined();
     expect(data?.methodology_type).toEqual(methodology.type);
@@ -181,18 +206,18 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
 
   it("Should insert methodology description", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
         usersNumber: 5,
         sentiments: [],
         questions: [],
-
         methodology,
+        visible: 0,
       });
     const data = await tryber.tables.UxCampaignData.do()
-      .select("methodology_description", "version", "published")
+      .select("methodology_description")
       .first();
     expect(data?.methodology_description).toBeDefined();
     expect(data?.methodology_description).toEqual(methodology.description);
@@ -200,15 +225,15 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
 
   it("Should insert goal", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
         usersNumber: 5,
         sentiments: [],
         questions: [],
-
         methodology,
+        visible: 0,
       });
     const data = await tryber.tables.UxCampaignData.do().select("goal").first();
     expect(data?.goal).toBeDefined();
@@ -217,7 +242,7 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
 
   it("Should insert users", async () => {
     await request(app)
-      .patch("/campaigns/1/ux")
+      .patch("/campaigns/10/ux")
       .set("Authorization", "Bearer admin")
       .send({
         goal: "Test Goal",
@@ -225,11 +250,52 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
         sentiments: [],
         questions: [],
         methodology,
+        visible: 0,
       });
     const data = await tryber.tables.UxCampaignData.do()
       .select("users")
       .first();
     expect(data?.users).toBeDefined();
     expect(data?.users).toEqual(6);
+  });
+
+  it("Should receive an error if miss users", async () => {
+    const response = await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        goal: "Test Goal",
+        sentiments: [],
+        questions: [],
+        methodology,
+        visible: 0,
+      });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: "Users number is required",
+      })
+    );
+  });
+
+  it("Should receive an error if miss goal", async () => {
+    const response = await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        usersNumber: 6,
+        sentiments: [],
+        questions: [],
+        methodology,
+        visible: 0,
+      });
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: "Goal is required",
+      })
+    );
   });
 });
