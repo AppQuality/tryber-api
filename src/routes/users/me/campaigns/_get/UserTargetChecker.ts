@@ -38,11 +38,19 @@ export class UserTargetChecker {
     if (Object.keys(targetRules).length === 0) return true;
     const { languages, countries } = targetRules;
 
-    if (languages && !languages.some((l) => this.userLanguages.includes(l))) {
+    if (
+      languages &&
+      languages.length &&
+      !languages.some((l) => this.userLanguages.includes(l))
+    ) {
       return false;
     }
 
-    if (countries && !countries.includes(this.userCountry)) {
+    if (
+      countries &&
+      countries.length &&
+      !countries.includes(this.userCountry)
+    ) {
       return false;
     }
 
