@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS: put-campaigns-forms-formId */
-import UserRoute from "@src/features/routes/UserRoute";
 import OpenapiError from "@src/features/OpenapiError";
-import FieldCreator from "../../FieldCreator";
 import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+import FieldCreator from "../../FieldCreator";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["put-campaigns-forms-formId"]["responses"]["200"]["content"]["application/json"];
@@ -120,9 +120,21 @@ export default class RouteItem extends UserRoute<{
     await this.clearFields();
     let i = 1;
     for (const field of fields) {
+      const options =
+        "options" in field && field.options
+          ? (field.options as { isInvalid: boolean; value: string | number }[])
+          : undefined;
       const fieldCreator = new FieldCreator({
         ...field,
         formId: this.getId(),
+
+        options:
+          "options" in field && field.options
+            ? field.options.map((o) => o.value)
+            : undefined,
+        invalid_options: options
+          ? options.filter((o) => o.isInvalid).map((o) => o.value)
+          : undefined,
         priority: i++,
       });
       await fieldCreator.create();

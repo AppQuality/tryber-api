@@ -17,7 +17,12 @@ class RouteItem extends UserRoute<{
     completed?: "0" | "1";
     statusId?: "1" | "2";
   } = {};
-  private orderBy: "start_date" | "end_date" | "close_date" | undefined;
+  private orderBy:
+    | "start_date"
+    | "end_date"
+    | "close_date"
+    | "visibility"
+    | undefined;
   private order: NonNullable<RouteItem["query"]>["order"] | undefined;
 
   private start: NonNullable<NonNullable<RouteItem["query"]>["start"]> = 0;
@@ -33,12 +38,24 @@ class RouteItem extends UserRoute<{
     this.filterBy = query.filterBy || {};
   }
 
+  private getVisibility(campaign: {
+    applied: boolean;
+    start_date: string;
+    freeSpots?: number;
+  }): "candidate" | "unavailable" | "available" {
+    if (campaign.applied) return "candidate";
+    if (new Date(campaign.start_date) <= new Date() || campaign.freeSpots === 0)
+      return "unavailable";
+    return "available";
+  }
+
   private setOrderBy() {
     const { orderBy } = this.getQuery();
     if (!orderBy) return;
     if (orderBy === "start_date") this.orderBy = "start_date";
     if (orderBy === "end_date") this.orderBy = "end_date";
     if (orderBy === "close_date") this.orderBy = "close_date";
+    if (orderBy === "visibility") this.orderBy = "visibility";
   }
 
   private setOrder() {
@@ -69,9 +86,9 @@ class RouteItem extends UserRoute<{
   }
 
   private async getCampaigns() {
-    const results = await this.getCampaignsQuery();
+    const campaigns = await this.getCampaignsQuery();
 
-    if (!results.length) {
+    if (!campaigns.length) {
       throw Error("no data found");
     }
 
@@ -80,7 +97,7 @@ class RouteItem extends UserRoute<{
         await this.enhanceWithTargetRules(
           await this.enhanceWithLinkedPages(
             await this.enhanceWithCampaignType(
-              await this.enhanceCampaignsWithApplication(results)
+              await this.enhanceCampaignsWithApplication(campaigns)
             )
           )
         )
@@ -91,7 +108,7 @@ class RouteItem extends UserRoute<{
       throw Error("no data found");
     }
 
-    return items
+    const results = items
       .filter((campaign) => {
         if (this.filterByAccepted()) return campaign.accepted;
         else
@@ -113,15 +130,75 @@ class RouteItem extends UserRoute<{
         manual_link: cp.manual_link,
         preview_link: cp.preview_link,
         applied: cp.applied == 1,
-        ...(cp.freeSpots && cp.totalSpots
-          ? {
-              visibility: {
-                freeSpots: cp.freeSpots,
-                totalSpots: cp.totalSpots,
-              },
-            }
-          : {}),
+        visibility: {
+          type: this.getVisibility({
+            applied: cp.applied == 1,
+            start_date: cp.start_date,
+            freeSpots: cp.freeSpots,
+          }),
+          ...(cp.freeSpots !== undefined ? { freeSpots: cp.freeSpots } : {}),
+          ...(cp.totalSpots !== undefined ? { totalSpots: cp.totalSpots } : {}),
+        },
       }));
+
+    if (this.orderBy === "visibility") {
+      results.sort((a, b) => {
+        const {
+          type: typeA,
+          freeSpots: freeSpotsA,
+          totalSpots: totalSpotsA,
+        } = a.visibility;
+        const {
+          type: typeB,
+          freeSpots: freeSpotsB,
+          totalSpots: totalSpotsB,
+        } = b.visibility;
+        const startA = new Date(a.dates.start);
+        const startB = new Date(b.dates.start);
+
+        // Helper function to calculate ratio
+        const ratio = (freeSpots?: number, totalSpots?: number) =>
+          freeSpots !== undefined && totalSpots !== undefined
+            ? freeSpots / totalSpots
+            : Infinity;
+
+        if (typeA === "available" && typeB === "available") {
+          const hasSpotsA =
+            freeSpotsA !== undefined && totalSpotsA !== undefined;
+          const hasSpotsB =
+            freeSpotsB !== undefined && totalSpotsB !== undefined;
+
+          if (hasSpotsA && hasSpotsB) {
+            // Both have spots: sort by ratio
+            return (
+              ratio(freeSpotsA, totalSpotsA) - ratio(freeSpotsB, totalSpotsB)
+            );
+          } else if (hasSpotsA && !hasSpotsB) {
+            // A has spots, B doesn't
+            return -1;
+          } else if (!hasSpotsA && hasSpotsB) {
+            // B has spots, A doesn't
+            return 1;
+          } else {
+            // Neither have spots: sort by start date
+            return startA.getTime() - startB.getTime();
+          }
+        } else if (typeA === "available" && typeB !== "available") {
+          return -1; // "available" campaigns come first
+        } else if (typeA !== "available" && typeB === "available") {
+          return 1; // "available" campaigns come first
+        } else if (typeA === "candidate" && typeB === "unavailable") {
+          return -1; // "candidate" comes before "unavailable"
+        } else if (typeA === "unavailable" && typeB === "candidate") {
+          return 1; // "candidate" comes before "unavailable"
+        } else {
+          // Both are "unavailable" or "candidate": sort by start date
+          return startA.getTime() - startB.getTime();
+        }
+      });
+    }
+
+    return results;
   }
 
   private async getCampaignsQuery() {
@@ -184,10 +261,15 @@ class RouteItem extends UserRoute<{
       query.where("status_id", 1);
     }
 
-    query.orderBy(
-      this.orderBy || "wp_appq_evd_campaign.id",
-      this.orderBy ? this.order || "DESC" : "ASC"
-    );
+    if (this.orderBy) {
+      if (this.orderBy === "visibility") {
+        query.orderBy("start_date", this.order || "DESC");
+      } else {
+        query.orderBy(this.orderBy, this.order || "DESC");
+      }
+    } else {
+      query.orderBy("wp_appq_evd_campaign.id", "ASC");
+    }
 
     return query;
   }
@@ -372,7 +454,7 @@ class RouteItem extends UserRoute<{
       );
       return {
         ...campaign,
-        ...(applicationSpot
+        ...(applicationSpot && applicationSpot.cap >= 0
           ? {
               freeSpots:
                 applicationSpot.cap - (validApplicationsCount?.count || 0),

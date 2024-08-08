@@ -5,7 +5,11 @@ class CandidateDevices implements CandidateData {
   private campaignId: number;
   private candidateIds: number[];
   private filters?: { os?: string[] };
-  private show: "onlyAccepted" | "onlyCandidates" | "all" = "all";
+  private show:
+    | "onlyAccepted"
+    | "onlyCandidates"
+    | "all"
+    | "candidatesAndExcluded" = "all";
 
   private _devices:
     | {
@@ -36,7 +40,7 @@ class CandidateDevices implements CandidateData {
     campaignId: number;
     candidateIds: number[];
     filters?: { os?: string[] };
-    show: "onlyAccepted" | "onlyCandidates" | "all";
+    show: "onlyAccepted" | "onlyCandidates" | "all" | "candidatesAndExcluded";
   }) {
     this.candidateIds = candidateIds;
     this.filters = filters;
