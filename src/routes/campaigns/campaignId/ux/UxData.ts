@@ -1,5 +1,4 @@
 import { tryber } from "@src/features/database";
-import { mapToDistribution } from "@src/features/s3/mapToDistribution";
 
 export default class UxData {
   private _data:
