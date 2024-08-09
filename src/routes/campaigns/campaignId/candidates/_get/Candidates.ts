@@ -2,13 +2,17 @@ import { tryber } from "@src/features/database";
 
 class Candidates {
   private campaign_id: number;
-  private show: "onlyAccepted" | "onlyCandidates" | "all" = "all";
+  private show:
+    | "onlyAccepted"
+    | "onlyCandidates"
+    | "all"
+    | "candidatesAndExcluded" = "all";
   constructor({
     campaign_id,
     show,
   }: {
     campaign_id: number;
-    show: "onlyAccepted" | "onlyCandidates" | "all";
+    show: "onlyAccepted" | "onlyCandidates" | "all" | "candidatesAndExcluded";
   }) {
     this.campaign_id = campaign_id;
     this.show = show;
@@ -29,7 +33,8 @@ class Candidates {
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_profile"),
         "name",
-        "surname"
+        "surname",
+        "accepted"
       )
       .where("campaign_id", this.campaign_id)
       .where("name", "<>", "Deleted User")
@@ -40,9 +45,19 @@ class Candidates {
       query.where("accepted", 1);
     } else if (this.show === "onlyCandidates") {
       query.where("accepted", 0);
+    } else if (this.show === "candidatesAndExcluded") {
+      query.whereIn("accepted", [0, -1]);
     }
 
-    return await query;
+    return (await query).map((candidate) => ({
+      ...candidate,
+      status:
+        candidate.accepted === 1
+          ? ("selected" as const)
+          : candidate.accepted === 0
+          ? ("candidate" as const)
+          : ("excluded" as const),
+    }));
   }
 }
 

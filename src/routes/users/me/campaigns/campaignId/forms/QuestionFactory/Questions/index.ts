@@ -28,6 +28,10 @@ class Question<T> {
   async insertData(item: { campaignId: number; data: any }): Promise<void> {
     return;
   }
+
+  async isScreenedOut(item: { data: any }) {
+    return false;
+  }
 }
 
 export default Question;

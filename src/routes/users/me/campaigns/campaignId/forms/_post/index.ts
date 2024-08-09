@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS: post-users-me-campaigns-campaignId-forms */
 
+import { tryber } from "@src/features/database";
 import CampaignApplications from "@src/features/db/class/CampaignApplications";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import Experience from "@src/features/db/class/Experience";
@@ -140,8 +141,8 @@ class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     try {
-      await this.handleForm();
-      await this.applyToCampaign();
+      const isScreenedOut = await this.handleForm();
+      await this.applyToCampaign({ isScreenedOut });
       await this.addExperiencePoints();
     } catch (e) {
       this.setError(403, e as OpenapiError);
@@ -150,12 +151,12 @@ class RouteItem extends UserRoute<{
     this.setSuccess(200, {});
   }
 
-  private async applyToCampaign() {
-    await this.db.applications.insert({
+  private async applyToCampaign({ isScreenedOut }: { isScreenedOut: boolean }) {
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: this.campaignId,
       user_id: this.getWordpressId(),
       devices: this.deviceId.toString(),
-      accepted: 0,
+      accepted: isScreenedOut ? -1 : 0,
     });
   }
 
@@ -174,6 +175,7 @@ class RouteItem extends UserRoute<{
   private async handleForm() {
     const questionItems = await this.getQuestionItems();
     await this.checkQuestionValidity(questionItems);
+    let isScreenedOut = false;
     for (const field of this.form) {
       if (questionItems.hasOwnProperty(field.question)) {
         const question = questionItems[field.question];
@@ -181,8 +183,14 @@ class RouteItem extends UserRoute<{
           campaignId: this.campaignId,
           data: field,
         });
+        if (!isScreenedOut) {
+          isScreenedOut = await question.isScreenedOut({
+            data: field,
+          });
+        }
       }
     }
+    return isScreenedOut;
   }
 
   private async checkQuestionValidity(questionItems: {
