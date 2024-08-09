@@ -74,8 +74,6 @@ export default class Route extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    await this.addCookieSign();
-
     this.setSuccess(200, {
       visible: this.draft.data?.visible || 0,
       goal: this.draft.data?.goal || "",
