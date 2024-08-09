@@ -93,7 +93,6 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         campaign_id: 10,
         value: 3,
         comment: "test",
-        version: 1,
       },
       {
         id: 2,
@@ -101,7 +100,6 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         campaign_id: 20,
         value: 1,
         comment: "test other cp",
-        version: 1,
       },
     ]);
   });

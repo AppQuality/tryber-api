@@ -80,19 +80,16 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         id: 1,
         campaign_id: 10,
         question: "Question 1",
-        version: 1,
       },
       {
         id: 2,
         campaign_id: 10,
         question: "Question 2",
-        version: 1,
       },
       {
         id: 3,
         campaign_id: 20,
         question: "Question 1 - Campaign 20",
-        version: 1,
       },
     ]);
     await tryber.tables.UxCampaignSentiments.do().insert([
@@ -102,7 +99,6 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         value: 3,
         comment: "Comment Sentiment 1",
         cluster_id: 1,
-        version: 1,
       },
       {
         id: 2,
@@ -110,7 +106,6 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         value: 5,
         comment: "Comment Sentiment 2",
         cluster_id: 1,
-        version: 1,
       },
       {
         id: 3,
@@ -118,7 +113,6 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         value: 3,
         comment: "Comment Sentiment 1 - Campaign 20",
         cluster_id: 2,
-        version: 1,
       },
     ]);
   });

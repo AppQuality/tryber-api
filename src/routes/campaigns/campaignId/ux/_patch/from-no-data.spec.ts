@@ -112,28 +112,6 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
       })
     );
   });
-  it("Should insert data as version 1", async () => {
-    await request(app)
-      .patch("/campaigns/10/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        sentiments: [],
-        questions: [],
-        methodology,
-        visible: 0,
-      });
-    const data = await tryber.tables.UxCampaignData.do()
-      .select()
-      .where({ campaign_id: 10 });
-    expect(data).toHaveLength(1);
-    expect(data[0]).toEqual(
-      expect.objectContaining({
-        version: 1,
-      })
-    );
-  });
 
   it("Should insert a question", async () => {
     await request(app)

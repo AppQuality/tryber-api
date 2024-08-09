@@ -35,7 +35,6 @@ describe("PATCH /campaigns/{campaignId}/ux - permissions and logging statuses", 
     await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
-      version: 1,
     });
   });
   afterAll(async () => {

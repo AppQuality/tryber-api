@@ -80,22 +80,18 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       {
         campaign_id: 10,
         question: "Why the world is round?",
-        version: 1,
       },
       {
         campaign_id: 10,
         question: "How many stars are in the sky?",
-        version: 1,
       },
       {
         campaign_id: 20,
         question: "How many stars are in the universe?",
-        version: 1,
       },
       {
         campaign_id: 20,
         question: "Be or not to be?",
-        version: 1,
       },
     ]);
     await tryber.tables.UxCampaignSentiments.do().insert([
@@ -104,28 +100,24 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         campaign_id: 10,
         value: 1,
         comment: "Low Comment cluster1",
-        version: 1,
       },
       {
         cluster_id: 2,
         campaign_id: 10,
         value: 5,
         comment: "High Comment cluster2",
-        version: 1,
       },
       {
         cluster_id: 1,
         campaign_id: 2,
         value: 5,
         comment: "Medium Comment cluster1",
-        version: 2,
       },
       {
         cluster_id: 1,
         campaign_id: 20,
         value: 5,
         comment: "Medium Comment cluster1",
-        version: 1,
       },
     ]);
   });
@@ -143,7 +135,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       await tryber.tables.UxCampaignData.do().insert([
         {
           campaign_id: 20,
-          version: 2,
           published: 0,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
@@ -152,7 +143,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         },
         {
           campaign_id: 10,
-          version: 1,
           published: 0,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
@@ -275,7 +265,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       await tryber.tables.UxCampaignData.do().insert([
         {
           campaign_id: 20,
-          version: 2,
           published: 1,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
@@ -284,7 +273,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         },
         {
           campaign_id: 10,
-          version: 1,
           published: 1,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",

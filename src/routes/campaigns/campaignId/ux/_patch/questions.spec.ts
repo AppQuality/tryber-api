@@ -74,12 +74,10 @@ describe("PATCH /campaigns/{campaignId}/ux - questions", () => {
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
         campaign_id: 10,
-        version: 1,
         question: "Is there life on universe?",
       },
       {
         campaign_id: 20,
-        version: 1,
         question: "Is there life on galaxy?",
       },
     ]);
