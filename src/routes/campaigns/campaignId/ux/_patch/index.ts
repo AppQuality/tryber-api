@@ -80,7 +80,7 @@ export default class PatchUx extends UserRoute<{
         body.methodology ||
         body.sentiments ||
         body.questions ||
-        body.visible)
+        typeof body.visible !== "undefined")
     ) {
       await this.update();
     }

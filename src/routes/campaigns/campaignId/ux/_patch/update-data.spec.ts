@@ -336,6 +336,26 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
     );
     expect(actualData?.published).not.toEqual(data[0].published);
   });
+
+  it("Should allow setting visible to 0", async () => {
+    await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        visible: 1,
+      });
+    await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({
+        visible: 0,
+      });
+    const campaign = await tryber.tables.UxCampaignData.do()
+      .select()
+      .where({ campaign_id: 10 })
+      .first();
+    expect(campaign?.published).toEqual(0);
+  });
   it("Should return 500 if send a sentiment value greater than 5 or lower then 1", async () => {
     const responseValue6 = await request(app)
       .patch("/campaigns/10/ux")
