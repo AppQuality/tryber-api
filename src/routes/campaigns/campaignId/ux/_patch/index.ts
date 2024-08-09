@@ -12,7 +12,6 @@ export default class PatchUx extends UserRoute<{
 }> {
   private campaignId: number;
   private data: UxData | undefined;
-  private version: number = 0;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -22,9 +21,7 @@ export default class PatchUx extends UserRoute<{
   protected async init() {
     await super.init();
     this.data = new UxData(this.campaignId);
-    await this.data.lastPublished();
-    if (!this.data.data) await this.data.lastDraft();
-    this.version = this.data.version || 1;
+    await this.data.getLast();
   }
 
   protected async filter() {
@@ -97,7 +94,6 @@ export default class PatchUx extends UserRoute<{
 
     await this.updateQuestions();
     await this.updateSentiments();
-    await this.updateVisibleStatus();
   }
 
   private async insertNewUxData() {
@@ -127,8 +123,7 @@ export default class PatchUx extends UserRoute<{
       goal: body.goal,
       users: body.usersNumber,
       campaign_id: this.campaignId,
-      version: 1,
-      published: 0,
+      published: body.visible,
       methodology_type: body.methodology.type,
       methodology_description: body.methodology.description,
     });
@@ -155,13 +150,16 @@ export default class PatchUx extends UserRoute<{
         users: body.usersNumber,
       };
     }
+    if ("visible" in body) {
+      uxDataToUpdate = {
+        ...uxDataToUpdate,
+        published: body.visible,
+      };
+    }
+    if (Object.keys(uxDataToUpdate).length === 0) return;
     await tryber.tables.UxCampaignData.do()
       .update({
         ...uxDataToUpdate,
-        version: this.version,
-      })
-      .where({
-        version: this.version,
       })
       .where({ campaign_id: this.campaignId });
   }
@@ -199,7 +197,6 @@ export default class PatchUx extends UserRoute<{
           value: item.value,
           comment: item.comment,
           cluster_id: item.clusterId,
-          version: this.version,
         });
       }
     }
@@ -219,20 +216,8 @@ export default class PatchUx extends UserRoute<{
         await tryber.tables.UxCampaignQuestions.do().insert({
           campaign_id: this.campaignId,
           question: item.name,
-          version: this.version,
         });
       }
-    }
-  }
-
-  private async updateVisibleStatus() {
-    const body = this.getBody();
-    if ("visible" in body) {
-      await tryber.tables.UxCampaignData.do()
-        .update({
-          published: body.visible,
-        })
-        .where("campaign_id", this.campaignId);
     }
   }
 }
