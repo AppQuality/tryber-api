@@ -1,18 +1,6 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
-import { getSignedCookie } from "@src/features/s3/cookieSign";
 import request from "supertest";
-
-jest.mock("@src/features/s3/cookieSign");
-const mockedGetSignedCookie = jest.mocked(getSignedCookie, true);
-
-mockedGetSignedCookie.mockImplementation(({ url }) => {
-  return Promise.resolve({
-    "CloudFront-Policy": "policy",
-    "CloudFront-Signature": "signature",
-    "CloudFront-Key-Pair-Id": "keypairid",
-  });
-});
 
 const campaign = {
   platform_id: 1,
@@ -61,16 +49,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         subtitle: "",
       },
     ]);
-    await tryber.tables.UxCampaignData.do().insert([
-      {
-        campaign_id: 1,
-        published: 0,
-        methodology_description: "Methodology description",
-        methodology_type: "qualitative",
-        goal: "Goal",
-        users: 10,
-      },
-    ]);
     await tryber.tables.UxCampaignInsights.do().insert([
       {
         id: 1,
@@ -80,7 +58,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 1,
         cluster_ids: "0",
         order: 2,
-        finding_id: 10,
         enabled: 1,
       },
       {
@@ -91,7 +68,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 2,
         cluster_ids: "1",
         order: 1,
-        finding_id: 11,
         enabled: 1,
       },
       {
@@ -102,7 +78,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 2,
         cluster_ids: "1,2",
         order: 1,
-        finding_id: 12,
         enabled: 1,
       },
       {
@@ -113,7 +88,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 3,
         cluster_ids: "0",
         order: 0,
-        finding_id: 13,
         enabled: 0,
       },
       {
@@ -124,7 +98,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 3,
         cluster_ids: "3",
         order: 0,
-        finding_id: 14,
         enabled: 1,
       },
       {
@@ -135,7 +108,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 3,
         cluster_ids: "1,3",
         order: 0,
-        finding_id: 15,
         enabled: 1,
       },
       {
@@ -146,7 +118,6 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         severity_id: 3,
         cluster_ids: "0",
         order: 0,
-        finding_id: 16,
         enabled: 1,
       },
     ]);
@@ -171,9 +142,7 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
       },
     ]);
   });
-  afterAll(async () => {
-    await tryber.tables.UxCampaignData.do().delete();
-  });
+
   describe("Not published", () => {
     beforeAll(async () => {
       await tryber.tables.UxCampaignData.do().insert([
