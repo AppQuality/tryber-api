@@ -72,23 +72,6 @@ export default class PatchUx extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const body = this.getBody();
-    if (
-      body &&
-      (body.goal ||
-        body.usersNumber ||
-        body.methodology ||
-        body.sentiments ||
-        body.questions ||
-        typeof body.visible !== "undefined")
-    ) {
-      await this.update();
-    }
-
-    return this.setSuccess(200, {});
-  }
-
-  private async update() {
     if (!this.data?.data) {
       await this.insertNewUxData();
     } else {
@@ -98,6 +81,7 @@ export default class PatchUx extends UserRoute<{
     await this.updateQuestions();
     await this.updateSentiments();
     await this.updateVisibleStatus();
+    return this.setSuccess(200, {});
   }
 
   private async insertNewUxData() {
