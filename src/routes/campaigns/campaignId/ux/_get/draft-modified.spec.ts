@@ -30,7 +30,7 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
-describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
+describe("GET /campaigns/{campaignId}/ux - draft modified", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, campaign_type_id: 10 },
@@ -68,36 +68,11 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert([
-      {
-        campaign_id: 1,
-        version: 1,
-        title: "Test Insight",
-        description: "Test Description",
-        severity_id: 1,
-        cluster_ids: "1",
-        order: 0,
-        finding_id: 10,
-        enabled: 1,
-      },
-      {
-        campaign_id: 1,
-        version: 2,
-        title: "Test Modified",
-        description: "Test Description",
-        severity_id: 1,
-        cluster_ids: "1",
-        order: 0,
-        finding_id: 20,
-        enabled: 1,
-      },
-    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
   });
 
   it("Should return status published if there are published campaign data and data are not equal to last draft", async () => {
@@ -108,7 +83,7 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - insight", () => {
   });
 });
 
-describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
+describe("GET /campaigns/{campaignId}/ux - draft modified", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 1, campaign_type_id: 10 },
@@ -146,42 +121,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert([
-      {
-        id: 1,
-        campaign_id: 1,
-        version: 1,
-        title: "Test Insight",
-        description: "Test Description",
-        severity_id: 1,
-        cluster_ids: "1",
-        order: 0,
-        finding_id: 10,
-        enabled: 1,
-      },
-      {
-        id: 2,
-        campaign_id: 1,
-        version: 2,
-        title: "Test Insight",
-        description: "Test Description",
-        severity_id: 1,
-        cluster_ids: "1",
-        order: 0,
-        finding_id: 20,
-        enabled: 1,
-      },
-    ]);
-
-    await tryber.tables.UxCampaignVideoParts.do().insert({
-      id: 1,
-      insight_id: 1,
-      start: 0,
-      end: 10,
-      order: 0,
-      media_id: 1,
-      description: "Test Description",
-    });
     await tryber.tables.WpAppqUserTaskMedia.do().insert({
       id: 1,
       campaign_task_id: 1,
@@ -190,15 +129,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
       tester_id: 1,
     });
 
-    await tryber.tables.UxCampaignVideoParts.do().insert({
-      id: 2,
-      insight_id: 2,
-      start: 0,
-      end: 100,
-      order: 0,
-      media_id: 1,
-      description: "Test Description",
-    });
     await tryber.tables.WpAppqUserTaskMedia.do().insert({
       id: 2,
       campaign_task_id: 1,
@@ -211,8 +141,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - video part", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
-    await tryber.tables.UxCampaignVideoParts.do().delete();
     await tryber.tables.WpAppqUserTaskMedia.do().delete();
   });
 
@@ -261,23 +189,11 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - ux data", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-      finding_id: 10,
-      enabled: 1,
-    });
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
   });
 
   it("Should return methodology", async () => {
@@ -365,17 +281,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-      finding_id: 10,
-      enabled: 1,
-    });
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
         id: 1,
@@ -413,7 +318,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - questions", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
   });
   it("Should return questions of last draft version", async () => {
@@ -470,17 +374,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
         users: 100,
       },
     ]);
-    await tryber.tables.UxCampaignInsights.do().insert({
-      campaign_id: 1,
-      version: 1,
-      title: "Test Insight",
-      description: "Test Description",
-      severity_id: 1,
-      cluster_ids: "1",
-      order: 0,
-      finding_id: 10,
-      enabled: 1,
-    });
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
       {
         id: 1,
@@ -548,7 +441,6 @@ describe("GET /campaigns/{campaignId}/ux - draft modified - sentiments", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.UxCampaignInsights.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();

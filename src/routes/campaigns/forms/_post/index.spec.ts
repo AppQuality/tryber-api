@@ -416,7 +416,7 @@ async function checkValidFieldWithOptions({
       {
         question,
         type,
-        options,
+        options: options.map((value) => ({ value })),
       },
     ],
   };

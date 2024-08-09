@@ -35,55 +35,12 @@ export default class PatchUx extends UserRoute<{
       return this.setNoAccessError();
     }
 
-    if (await this.isThereNonExistingMediaInBody()) {
-      this.setError(400, new OpenapiError(`Media not found`));
-      return false;
-    }
-
     if (this.invalidSentimentsValues()) {
       this.setError(500, new OpenapiError(`Sentiment values are invalid`));
       throw new OpenapiError(`Sentiment values are invalid`);
     }
 
-    if (this.thereAreInvalidFindingIds()) {
-      this.setError(500, new OpenapiError(`Insight not found`));
-      throw new OpenapiError(`Insights with id not found`);
-    }
-
     return true;
-  }
-
-  private async isThereNonExistingMediaInBody() {
-    const body = this.getBody();
-    if (!("status" in body)) {
-      const { insights } = body;
-      if (insights) {
-        const videoParts = insights.flatMap((i) => i.videoParts || []);
-        const mediaIds = videoParts.map((v) => v.mediaId);
-        const media = await tryber.tables.WpAppqUserTaskMedia.do()
-          .select()
-          .whereIn("id", mediaIds);
-        if ([...new Set(media)].length !== [...new Set(mediaIds)].length) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private thereAreInvalidFindingIds() {
-    const body = this.getBody();
-    if ("status" in body) return false;
-    const { insights } = body;
-    const toUpdate = insights.filter((i) => i.id);
-    const currentInsights = this.lastDraft?.findings || [];
-    const currentInsightIds = currentInsights.map((i) => i.id);
-
-    const notFoundIds = toUpdate
-      .map((i) => i.id)
-      .filter((id) => !currentInsightIds.includes(id as number));
-
-    return notFoundIds.length > 0;
   }
 
   private invalidSentimentsValues() {
@@ -136,7 +93,6 @@ export default class PatchUx extends UserRoute<{
     }
 
     await this.updateUxData();
-    await this.updateInsights();
     await this.updateQuestions();
     await this.updateSentiments();
   }
@@ -170,13 +126,6 @@ export default class PatchUx extends UserRoute<{
         version: this.version,
       })
       .where({ campaign_id: this.campaignId });
-  }
-
-  private async updateInsights() {
-    await this.removeFindings();
-
-    await this.insertNewFindings();
-    await this.updateExistingFindings();
   }
 
   private async updateQuestions() {
@@ -326,155 +275,6 @@ export default class PatchUx extends UserRoute<{
     }
   }
 
-  private async removeFindings() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { insights } = body;
-
-    const toUpdate = insights.filter((i) => i.id);
-    const currentInsights = this.lastDraft?.findings || [];
-    const currentInsightIds = currentInsights.map((i) => i.id);
-
-    const toRemove = currentInsightIds.filter(
-      (id) => !toUpdate.map((i) => i.id).includes(id as number)
-    );
-
-    if (toRemove.length) {
-      await tryber.tables.UxCampaignInsights.do()
-        .update("enabled", 0)
-        .whereIn(
-          "id",
-          currentInsightIds.filter(
-            (id) => !toUpdate.map((i) => i.id).includes(id as number)
-          )
-        );
-
-      await tryber.tables.UxCampaignVideoParts.do()
-        .delete()
-        .whereIn(
-          "insight_id",
-          currentInsightIds.filter(
-            (id) => !toUpdate.map((i) => i.id).includes(id as number)
-          )
-        );
-    }
-  }
-
-  private async insertNewFindings() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { insights } = body;
-
-    const toInsert = insights.filter((i) => !i.id);
-    if (toInsert.length) {
-      for (const item of toInsert) {
-        const maxFindingId = await tryber.tables.UxCampaignInsights.do()
-          .max("finding_id", { as: "max" })
-          .first();
-
-        const insight = await tryber.tables.UxCampaignInsights.do()
-          .insert({
-            campaign_id: this.campaignId,
-            cluster_ids:
-              item.clusterIds === "all" ? "0" : item.clusterIds.join(","),
-            description: item.description,
-            order: item.order,
-            severity_id: item.severityId,
-            title: item.title,
-            version: this.version,
-            finding_id: maxFindingId?.max ? maxFindingId?.max + 1 : 1,
-          })
-          .returning("id");
-        if (item.videoParts && item.videoParts.length) {
-          const insightId = insight[0].id ?? insight[0];
-          await tryber.tables.UxCampaignVideoParts.do().insert(
-            item.videoParts.map((v) => ({
-              start: v.start,
-              end: v.end,
-              media_id: v.mediaId,
-              description: v.description,
-              order: v.order,
-              insight_id: insightId,
-            }))
-          );
-        }
-      }
-    }
-  }
-
-  private async updateExistingFindings() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { insights } = body;
-    const updatedFindings = insights.filter((i) => i.id);
-
-    if (updatedFindings.length) {
-      for (const item of updatedFindings) {
-        await tryber.tables.UxCampaignInsights.do()
-          .update({
-            cluster_ids:
-              item.clusterIds === "all" ? "0" : item.clusterIds.join(","),
-            description: item.description,
-            order: item.order,
-            severity_id: item.severityId,
-            title: item.title,
-            version: this.version,
-          })
-          .where({
-            id: item.id,
-          });
-
-        const newVideoParts = item.videoParts.filter((i) => !i.id);
-
-        if (newVideoParts.length) {
-          await tryber.tables.UxCampaignVideoParts.do().insert(
-            newVideoParts.map((v) => ({
-              start: v.start,
-              end: v.end,
-              media_id: v.mediaId,
-              description: v.description,
-              order: v.order,
-              insight_id: item.id,
-            }))
-          );
-        }
-        const updatedVideoParts = item.videoParts.filter((i) => i.id);
-
-        const currentVideoParts = (this.lastDraft?.findings || []).flatMap(
-          (f) => (f.id == item.id && f.videoParts ? f.videoParts : [])
-        );
-
-        const currentVideoPartIds = currentVideoParts.map((i) => i.id);
-        const updatedVideoPartsIds = updatedVideoParts.map((i) => i.id);
-
-        const toRemove = currentVideoPartIds.filter(
-          (id) => !updatedVideoPartsIds.includes(id as number)
-        );
-
-        if (toRemove.length) {
-          await tryber.tables.UxCampaignVideoParts.do()
-            .delete()
-            .whereIn("id", toRemove);
-        }
-
-        for (const videoPart of updatedVideoParts) {
-          await tryber.tables.UxCampaignVideoParts.do()
-            .update({
-              start: videoPart.start,
-              end: videoPart.end,
-              media_id: videoPart.mediaId,
-              description: videoPart.description,
-              order: videoPart.order,
-              insight_id: item.id,
-            })
-            .where({
-              id: videoPart.id,
-            });
-        }
-      }
-    }
-  }
-
   private async publish() {
     const draftData = this.lastDraft?.data;
     if (!draftData) {
@@ -483,7 +283,6 @@ export default class PatchUx extends UserRoute<{
     }
 
     await this.publishData();
-    await this.publishInsight();
     await this.publishQuestions();
     await this.publishSentiments();
     this.version++;
@@ -549,44 +348,6 @@ export default class PatchUx extends UserRoute<{
           cluster_id: sentiment.cluster.id,
           comment: sentiment.comment,
           version: this.version,
-        });
-      }
-    }
-  }
-
-  private async publishInsight() {
-    const draftData = this.lastDraft?.data;
-    if (!draftData) throw new OpenapiError("No draft found");
-
-    let findingOrder = 0;
-    for (const insight of draftData.findings) {
-      const insertedInsight = await tryber.tables.UxCampaignInsights.do()
-        .insert({
-          campaign_id: this.campaignId,
-          cluster_ids:
-            insight.clusters === "all"
-              ? "0"
-              : insight.clusters.map((c) => c.id).join(","),
-          description: insight.description,
-          order: findingOrder++,
-          severity_id: insight.severity.id,
-          title: insight.title,
-          version: this.version + 1,
-          finding_id: insight.findingId,
-        })
-        .returning("id");
-
-      const insertedInsightId = insertedInsight[0].id ?? insertedInsight[0];
-
-      let videoPartOrder = 0;
-      for (const videoPart of insight.videoParts) {
-        await tryber.tables.UxCampaignVideoParts.do().insert({
-          start: videoPart.start,
-          end: videoPart.end,
-          media_id: videoPart.mediaId,
-          description: videoPart.description,
-          order: videoPartOrder++,
-          insight_id: insertedInsightId,
         });
       }
     }
