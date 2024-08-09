@@ -28,7 +28,7 @@ const campaign = {
   project_id: 1,
   campaign_type_id: 1,
 };
-describe("With draft only", () => {
+describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
@@ -64,7 +64,7 @@ describe("With draft only", () => {
     await tryber.tables.UxCampaignData.do().insert([
       {
         campaign_id: 1,
-        version: 1,
+        version: 2,
         published: 0,
         methodology_description: "Methodology description",
         methodology_type: "qualitative",
@@ -76,7 +76,7 @@ describe("With draft only", () => {
       {
         id: 1,
         campaign_id: 1,
-        version: 1,
+        version: 2,
         title: "Finding cluster all",
         description: "Finding description",
         severity_id: 1,
@@ -88,7 +88,7 @@ describe("With draft only", () => {
       {
         id: 2,
         campaign_id: 1,
-        version: 1,
+        version: 2,
         title: "Finding cluster 1",
         description: "Finding description",
         severity_id: 2,
@@ -100,7 +100,7 @@ describe("With draft only", () => {
       {
         id: 3,
         campaign_id: 1,
-        version: 1,
+        version: 2,
         title: "Finding cluster 1,2",
         description: "Finding description",
         severity_id: 2,
@@ -112,7 +112,7 @@ describe("With draft only", () => {
       {
         id: 4,
         campaign_id: 1,
-        version: 1,
+        version: 2,
         title: "Finding disabled",
         description: "Finding description",
         severity_id: 3,
@@ -124,7 +124,7 @@ describe("With draft only", () => {
       {
         id: 5,
         campaign_id: 1,
-        version: 1,
+        version: 2,
         title: "Finding deleted cluster",
         description: "Insight description",
         severity_id: 3,
@@ -136,7 +136,7 @@ describe("With draft only", () => {
       {
         id: 6,
         campaign_id: 1,
-        version: 1,
+        version: 2,
         title: "Finding mixed clusters 1,3 (3 is deleted)",
         description: "Insight description",
         severity_id: 3,
@@ -148,7 +148,7 @@ describe("With draft only", () => {
       {
         id: 7,
         campaign_id: 2,
-        version: 1,
+        version: 2,
         title: "Finding other cp",
         description: "Insight description",
         severity_id: 3,
@@ -161,21 +161,21 @@ describe("With draft only", () => {
     await tryber.tables.UxCampaignSentiments.do().insert([
       {
         campaign_id: 1,
-        version: 1,
+        version: 2,
         cluster_id: 1,
         value: 1,
         comment: "Comment 1",
       },
       {
         campaign_id: 1,
-        version: 1,
+        version: 2,
         cluster_id: 2,
         value: 5,
         comment: "Comment 2",
       },
       {
         campaign_id: 1,
-        version: 1,
+        version: 2,
         cluster_id: 3, //deleted cluster
         value: 4,
         comment: "Comment 3",
@@ -183,48 +183,121 @@ describe("With draft only", () => {
     ]);
   });
   afterAll(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.WpAppqUsecaseCluster.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.UxCampaignSentiments.do().delete();
+  });
+  describe("Not published", () => {
+    beforeAll(async () => {
+      await tryber.tables.UxCampaignData.do().insert([
+        {
+          campaign_id: 1,
+          version: 2,
+          published: 0,
+          methodology_description: "Methodology description",
+          methodology_type: "qualitative",
+          goal: "Goal",
+          users: 10,
+        },
+      ]);
+    });
+    afterAll(async () => {
+      await tryber.tables.UxCampaignData.do().delete();
+    });
+
+    it("Should return the sentiments if exist the cluster", async () => {
+      const response = await request(app)
+        .get(`/campaigns/1/ux`)
+        .set("Authorization", "Bearer admin");
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("sentiments");
+      expect(response.body.sentiments).toHaveLength(2);
+
+      expect(response.body.sentiments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            cluster: {
+              id: 1,
+              name: "Cluster 1",
+            },
+            value: 1,
+            comment: "Comment 1",
+          }),
+          expect.objectContaining({
+            cluster: {
+              id: 2,
+              name: "Cluster 2",
+            },
+            value: 5,
+            comment: "Comment 2",
+          }),
+          expect.not.objectContaining({
+            cluster: {
+              id: 2,
+              name: "Cluster 3",
+            },
+            value: 4,
+            comment: "Comment 3",
+          }),
+        ])
+      );
+    });
   });
 
-  it("Should return the sentiments if exist the cluster", async () => {
-    const response = await request(app)
-      .get(`/campaigns/1/ux`)
-      .set("Authorization", "Bearer admin");
+  describe("Published", () => {
+    beforeAll(async () => {
+      await tryber.tables.UxCampaignData.do().insert([
+        {
+          campaign_id: 1,
+          version: 2,
+          published: 1,
+          methodology_description: "Methodology description",
+          methodology_type: "qualitative",
+          goal: "Goal",
+          users: 10,
+        },
+      ]);
+    });
+    afterAll(async () => {
+      await tryber.tables.UxCampaignData.do().delete();
+    });
 
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty("sentiments");
-    expect(response.body.sentiments).toHaveLength(2);
+    it("Should return the sentiments if exist the cluster", async () => {
+      const response = await request(app)
+        .get(`/campaigns/1/ux`)
+        .set("Authorization", "Bearer admin");
 
-    expect(response.body.sentiments).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          cluster: {
-            id: 1,
-            name: "Cluster 1",
-          },
-          value: 1,
-          comment: "Comment 1",
-        }),
-        expect.objectContaining({
-          cluster: {
-            id: 2,
-            name: "Cluster 2",
-          },
-          value: 5,
-          comment: "Comment 2",
-        }),
-        expect.not.objectContaining({
-          cluster: {
-            id: 2,
-            name: "Cluster 3",
-          },
-          value: 4,
-          comment: "Comment 3",
-        }),
-      ])
-    );
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("sentiments");
+      expect(response.body.sentiments).toHaveLength(2);
+
+      expect(response.body.sentiments).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            cluster: {
+              id: 1,
+              name: "Cluster 1",
+            },
+            value: 1,
+            comment: "Comment 1",
+          }),
+          expect.objectContaining({
+            cluster: {
+              id: 2,
+              name: "Cluster 2",
+            },
+            value: 5,
+            comment: "Comment 2",
+          }),
+          expect.not.objectContaining({
+            cluster: {
+              id: 2,
+              name: "Cluster 3",
+            },
+            value: 4,
+            comment: "Comment 3",
+          }),
+        ])
+      );
+    });
   });
 });

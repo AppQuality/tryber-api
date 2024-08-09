@@ -2819,12 +2819,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                    enum:
-                      - draft
-                      - published
-                      - draft-modified
                   goal:
                     type: string
                   usersNumber:
@@ -2884,105 +2878,18 @@ paths:
                       required:
                         - id
                         - name
+                  visible:
+                    type: integer
+                    minimum: 0
+                    maximum: 1
                 required:
-                  - status
                   - goal
                   - usersNumber
                   - sentiments
                   - methodology
                   - questions
-              examples:
-                example-qualitative:
-                  value:
-                    status: draft
-                    goal: The Research Goal
-                    usersNumber: 10
-                    questions:
-                      - id: 1
-                        name: Why the world exists?
-                      - id: 1
-                        name: How the world exists?
-                    methodology:
-                      name: Usability Test
-                      description: Methodology Description
-                      type: qualitative
-                    sentiments:
-                      - id: 1
-                        value: 5
-                        comment: Top rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                      - id: 2
-                        value: 1
-                        comment: Bad rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                example-quantitative:
-                  value:
-                    status: draft
-                    goal: The Research Goal
-                    usersNumber: 10
-                    questions:
-                      - id: 1
-                        name: Why the world exists?
-                      - id: 1
-                        name: How the world exists?
-                    methodology:
-                      name: Usability Test
-                      description: Methodology Description
-                      type: quantitative
-                    sentiments:
-                      - id: 1
-                        value: 5
-                        comment: Top rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                      - id: 2
-                        value: 1
-                        comment: Bad rating
-                        cluster:
-                          id: 1
-                          name: Cluster1
-                ux-campaign-draft-NO-insights:
-                  value:
-                    status: draft
-                    sentiments: []
-                    questions: []
-                    goal: The Research Goal
-                    usersNumber: 10
-                    methodology:
-                      name: UX Challenge
-                      description: UX Challenge
-                      type: qualitative
-                ux-campaign-draft-with-insights:
-                  value:
-                    status: draft
-                    goal: this is goal
-                    usersNumber: 10
-                    methodology:
-                      name: UX Challenge
-                      description: UX Challenge
-                      type: qualitative
-                    sentiments: []
-                    questions:
-                      - id: 1
-                        name: question 1
-                      - id: 2
-                        name: question 2
-                ux-campaign-draft-modified:
-                  value:
-                    status: draft-modified
-                    goal: this is goal
-                    usersNumber: 0
-                    methodology:
-                      name: UX Challenge
-                      description: UX Challenge
-                      type: qualitative
-                    sentiments: []
-                    questions: []
+                  - visible
+              examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3084,69 +2991,79 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - properties:
-                    goal:
-                      type: string
-                    usersNumber:
-                      type: integer
-                    sentiments:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          clusterId:
-                            type: integer
-                          value:
-                            type: integer
-                          comment:
-                            type: string
-                            maxLength: 100
-                        required:
-                          - clusterId
-                          - value
-                          - comment
-                    methodology:
-                      type: object
-                      required:
-                        - type
-                        - description
-                      properties:
-                        type:
-                          type: string
-                          enum:
-                            - qualitative
-                            - quantitative
-                            - quali-quantitative
-                        description:
-                          type: string
-                    questions:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                          name:
-                            type: string
-                        required:
-                          - name
-                  required:
-                    - goal
-                    - usersNumber
-                    - sentiments
-                    - methodology
-                    - questions
-                - properties:
-                    status:
-                      type: string
-                      enum:
-                        - publish
-                  required:
-                    - status
               type: object
+              x-examples:
+                Example 1:
+                  goal: this is the goal
+                  usersNumber: 5
+                  methodology:
+                    description: Methodology Description
+                    type: quantitative
+                  sentiments:
+                    - clusterId: 0
+                      value: 4
+                      comment: comment
+                    - id: 1
+                      clusterId: 0
+                      value: 5
+                      comment: comment
+                  questions:
+                    - name: why?
+                    - id: 2
+                      name: what?
+                    - id: 3
+                      name: when?
+                    - id: 4
+                      name: how?
+                    - id: 5
+                      name: who?
+              properties:
+                goal:
+                  type: string
+                usersNumber:
+                  type: integer
+                visible:
+                  type: integer
+                  minimum: 0
+                  maximum: 1
+                methodology:
+                  type: object
+                  properties:
+                    description:
+                      type: string
+                    type:
+                      type: string
+                  required:
+                    - description
+                    - type
+                sentiments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      clusterId:
+                        type: integer
+                      value:
+                        type: integer
+                      comment:
+                        type: string
+                      id:
+                        type: integer
+                    required:
+                      - clusterId
+                      - value
+                      - comment
+                questions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      id:
+                        type: integer
+                    required:
+                      - name
             examples:
               edit-insight-and-videopart:
                 value:
@@ -3198,9 +3115,6 @@ paths:
                     - id: 4
                       name: how?
                     - name: who?
-              publish:
-                value:
-                  status: publish
         description: ''
   /campaigns/forms:
     post:
@@ -3763,24 +3677,14 @@ paths:
                       type: string
                     customRoles:
                       type: array
-                      x-stoplight:
-                        id: 2d3889y7ey2kq
                       items:
-                        x-stoplight:
-                          id: 9co5gffc2hn6i
                         type: object
                         properties:
                           roleId:
                             type: integer
-                            x-stoplight:
-                              id: zd1kwwa615imc
                           userIds:
                             type: array
-                            x-stoplight:
-                              id: ytdjdr4x7fwp5
                             items:
-                              x-stoplight:
-                                id: n1rh2j7oemn08
                               type: integer
                         required:
                           - roleId
@@ -9547,8 +9451,6 @@ paths:
                     type: integer
                   message:
                     type: string
-                    x-stoplight:
-                      id: 8a0ic1hhs5mpz
                     enum:
                       - HOOK_FAILED
                 required:
@@ -9566,8 +9468,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: y5n0dny2hhlc8
       security:
         - JWT: []
       requestBody:
@@ -9593,8 +9493,6 @@ paths:
                           type: integer
                         campaign:
                           type: integer
-                          x-stoplight:
-                            id: 8os8pe07l1htz
   '/dossiers/{campaign}':
     parameters:
       - name: campaign
@@ -9753,8 +9651,6 @@ paths:
                         type: integer
                       cap:
                         type: integer
-                        x-stoplight:
-                          id: yzv1ppm6f5kq7
                   countries:
                     type: array
                     minItems: 1
@@ -9807,8 +9703,6 @@ paths:
                         type: string
                   notes:
                     type: string
-                    x-stoplight:
-                      id: nep7qag1smkcp
                 required:
                   - id
                   - title
@@ -10067,20 +9961,14 @@ paths:
                           type: string
                         type:
                           type: object
-                          x-stoplight:
-                            id: jmjdmy2wzbrvx
                           required:
                             - id
                             - name
                           properties:
                             id:
                               type: integer
-                              x-stoplight:
-                                id: qlltod4as9yce
                             name:
                               type: string
-                              x-stoplight:
-                                id: lokz0tin3f5ad
                       required:
                         - id
                         - name
@@ -10451,21 +10339,13 @@ components:
           description: True if you applied on this Campaign
         visibility:
           type: object
-          x-stoplight:
-            id: z9vo6su8stzvn
           properties:
             freeSpots:
               type: integer
-              x-stoplight:
-                id: qy6n5oa4quk52
             totalSpots:
               type: integer
-              x-stoplight:
-                id: 1jumwi4cvp91d
             type:
               type: string
-              x-stoplight:
-                id: o8jt4lts5ij18
               enum:
                 - available
                 - unavailable
@@ -11068,8 +10948,6 @@ components:
               type: integer
             cap:
               type: integer
-              x-stoplight:
-                id: dv3yqv5k8gpv6
         countries:
           type: array
           items:
@@ -11086,8 +10964,6 @@ components:
           type: integer
         notes:
           type: string
-          x-stoplight:
-            id: xmrb08t4qc2fv
       required:
         - project
         - testType
