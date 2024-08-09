@@ -31,8 +31,8 @@ export default class UxData {
 
   constructor(private campaignId: number) {}
 
-  private async getOne({ published }: { published: 0 | 1 }) {
-    const data = await this.getUxData({ published });
+  private async getOne() {
+    const data = await this.getUxData();
 
     if (!data) return { data: undefined };
 
@@ -64,10 +64,10 @@ export default class UxData {
       .where("ux_campaign_sentiments.value", "<", 6);
   }
 
-  private async getUxData({ published }: { published: number }) {
+  private async getUxData() {
     return await tryber.tables.UxCampaignData.do()
       .select()
-      .where({ published: published, campaign_id: this.campaignId })
+      .where({ campaign_id: this.campaignId })
       .first();
   }
 
@@ -85,21 +85,8 @@ export default class UxData {
       .where({ campaign_id: this.campaignId });
   }
 
-  public async lastPublished() {
-    const { data, clusters, questions, sentiments } = await this.getOne({
-      published: 1,
-    });
-
-    if (clusters) this._clusters = clusters;
-    if (questions) this._questions = questions;
-    if (sentiments) this._sentiments = sentiments;
-    this._data = data;
-  }
-
-  public async lastDraft() {
-    const { data, clusters, questions, sentiments } = await this.getOne({
-      published: 0,
-    });
+  public async getLast() {
+    const { data, clusters, questions, sentiments } = await this.getOne();
 
     if (!data) return;
     this._data = data;

@@ -25,8 +25,7 @@ export default class Route extends UserRoute<{
   protected async init(): Promise<void> {
     await super.init();
     const item = new UxData(this.campaignId);
-    await item.lastPublished();
-    if (!item.data) await item.lastDraft();
+    await item.getLast();
 
     this._draft = item;
   }

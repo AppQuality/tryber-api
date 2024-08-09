@@ -21,8 +21,7 @@ export default class PatchUx extends UserRoute<{
   protected async init() {
     await super.init();
     this.data = new UxData(this.campaignId);
-    await this.data.lastPublished();
-    if (!this.data.data) await this.data.lastDraft();
+    await this.data.getLast();
   }
 
   protected async filter() {
