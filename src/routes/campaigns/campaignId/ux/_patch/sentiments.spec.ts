@@ -128,7 +128,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
     );
   });
 
-  it("Should add sentiments", async () => {
+  it("Should update sentiments", async () => {
     await request(app)
       .patch("/campaigns/10/ux")
       .send({
@@ -142,7 +142,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
           {
             comment: "New Sentiment 2 comment",
             value: 5,
-            clusterId: 1,
+            clusterId: 2,
           },
         ],
       })
@@ -163,7 +163,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         expect.objectContaining({
           value: 5,
           comment: "New Sentiment 2 comment",
-          cluster_id: 1,
+          cluster_id: 2,
         }),
       ])
     );

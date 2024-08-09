@@ -25,16 +25,6 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 10 },
     ]);
-    await tryber.tables.WpAppqUserTaskMedia.do().insert([
-      {
-        id: 1,
-        campaign_task_id: 1,
-        user_task_id: 1,
-        tester_id: 1,
-        location:
-          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      },
-    ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
       {
         id: 1,
@@ -53,7 +43,6 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
 

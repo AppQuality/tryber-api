@@ -52,14 +52,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         subtitle: "Subtitle 3",
       },
     ]);
-    await tryber.tables.WpAppqUserTaskMedia.do().insert({
-      id: 1,
-      campaign_task_id: 1,
-      user_task_id: 1,
-      location:
-        "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4",
-      tester_id: 1,
-    });
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
         campaign_id: 10,
@@ -109,7 +101,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
-    await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
   });

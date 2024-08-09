@@ -2,9 +2,6 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-jest.mock("@src/features/checkUrl", () => ({
-  checkUrl: jest.fn().mockImplementation(() => true),
-}));
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
@@ -49,20 +46,9 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         campaign_id: 20,
       },
     ]);
-    await tryber.tables.WpAppqUserTaskMedia.do().insert([
-      {
-        id: 1,
-        campaign_task_id: 1,
-        user_task_id: 1,
-        tester_id: 1,
-        location:
-          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      },
-    ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
   beforeEach(async () => {
@@ -105,14 +91,14 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         campaign_id: 10,
         value: 5,
         comment: "Comment Sentiment 2",
-        cluster_id: 1,
+        cluster_id: 2,
       },
       {
         id: 3,
         campaign_id: 20,
         value: 3,
         comment: "Comment Sentiment 1 - Campaign 20",
-        cluster_id: 2,
+        cluster_id: 3,
       },
     ]);
   });
