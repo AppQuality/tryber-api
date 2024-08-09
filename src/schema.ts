@@ -701,6 +701,8 @@ export interface components {
       visibility?: {
         freeSpots?: number;
         totalSpots?: number;
+        /** @enum {string} */
+        type?: "available" | "unavailable" | "candidate";
       };
     };
     CampaignRequired: {
@@ -799,21 +801,21 @@ export interface components {
       short_name?: string;
     } & (
       | {
-          /** @enum {string} */
-          type: "text";
+          type: components["schemas"]["PreselectionQuestionSimple"];
         }
       | {
-          /** @enum {string} */
-          type: "multiselect" | "select" | "radio";
-          options: string[];
+          type: components["schemas"]["PreselectionQuestionMultiple"];
+          options?: {
+            value: string;
+            isInvalid?: boolean;
+          }[];
         }
       | {
-          type: string;
-          options?: number[];
-        }
-      | {
-          /** @enum {string} */
-          type: "gender" | "phone_number" | "address";
+          type: components["schemas"]["PreselectionQuestionCuf"];
+          options?: {
+            value: number;
+            isInvalid?: boolean;
+          }[];
         }
     );
     /** Project */
@@ -939,6 +941,18 @@ export interface components {
       productType?: number;
       notes?: string;
     };
+    /**
+     * PreselectionQuestionSimple
+     * @enum {string}
+     */
+    PreselectionQuestionSimple: "gender" | "text" | "phone_number" | "address";
+    /**
+     * PreselectionQuestionMultiple
+     * @enum {string}
+     */
+    PreselectionQuestionMultiple: "multiselect" | "select" | "radio";
+    /** PreselectionQuestionCuf */
+    PreselectionQuestionCuf: string;
   };
   responses: {
     /** A user */
@@ -1425,7 +1439,11 @@ export interface operations {
         /** Array with min and max */
         filterByAge?: unknown;
         /** Show accepted/candidates or both */
-        show?: "onlyAccepted" | "onlyCandidates" | "all";
+        show?:
+          | "onlyAccepted"
+          | "onlyCandidates"
+          | "all"
+          | "candidatesAndExcluded";
       };
     };
     responses: {
@@ -1458,6 +1476,8 @@ export interface operations {
                 title?: string;
                 value?: string;
               }[];
+              /** @enum {string} */
+              status?: "candidate" | "excluded" | "selected";
             }[];
           } & components["schemas"]["PaginationData"];
         };
@@ -3081,7 +3101,12 @@ export interface operations {
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
         /** The field for item order */
-        orderBy?: "name" | "start_date" | "end_date" | "close_date";
+        orderBy?:
+          | "name"
+          | "start_date"
+          | "end_date"
+          | "close_date"
+          | "visibility";
       };
     };
     responses: {
@@ -3280,7 +3305,9 @@ export interface operations {
       /** OK */
       200: {
         content: {
-          "application/json": (components["schemas"]["PreselectionFormQuestion"] & {
+          "application/json": ({
+            question: string;
+            short_name?: string;
             value?:
               | number
               | {
@@ -3294,7 +3321,19 @@ export interface operations {
               error?: string;
             };
             id: number;
-          })[];
+          } & (
+            | {
+                type: components["schemas"]["PreselectionQuestionSimple"];
+              }
+            | {
+                type: components["schemas"]["PreselectionQuestionMultiple"];
+                options: string[];
+              }
+            | {
+                type: components["schemas"]["PreselectionQuestionCuf"];
+                options?: number[];
+              }
+          ))[];
         };
       };
       403: components["responses"]["NotAuthorized"];

@@ -14,6 +14,7 @@ type PreselectionFormFieldsType = {
     | "address"
     | `cuf_${number}`;
   options: string;
+  invalid_options: string;
   question: string;
   priority: number;
 };
@@ -26,6 +27,7 @@ class PreselectionFormFieldsObject {
   options: PreselectionFormFieldsType["options"];
   question: PreselectionFormFieldsType["question"];
   priority: PreselectionFormFieldsType["priority"];
+  invalid_options: PreselectionFormFieldsType["invalid_options"];
 
   constructor(item: PreselectionFormFieldsType) {
     this.id = item.id;
@@ -35,6 +37,7 @@ class PreselectionFormFieldsObject {
     this.options = item.options;
     this.question = item.question;
     this.priority = item.priority;
+    this.invalid_options = item.invalid_options;
   }
 
   public getOptions(): string[] | number[] {
@@ -63,6 +66,7 @@ class Table extends Database<{
             "options",
             "question",
             "priority",
+            "invalid_options",
           ],
     });
   }

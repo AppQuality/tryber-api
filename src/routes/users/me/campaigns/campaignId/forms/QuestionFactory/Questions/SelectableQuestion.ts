@@ -96,6 +96,32 @@ class SelectableQuestion extends Question<{
   private isMultiple() {
     return this.question.type === "multiselect";
   }
+
+  async isScreenedOut(item: { data: any }) {
+    if (!this.question.invalid_options) return false;
+    if (this.isSingle()) {
+      return this.isSingleScreenedOut(item.data);
+    } else if (this.isMultiple()) {
+      return this.isMultipleScreenedOut(item.data);
+    }
+    return false;
+  }
+
+  private isSingleScreenedOut(data: any) {
+    const value = data.value.serialized;
+    return this.question.invalid_options.includes(value);
+  }
+
+  private isMultipleScreenedOut(data: any) {
+    const value = data.value.serialized;
+    for (const v of value) {
+      if (this.question.invalid_options.includes(v)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 export default SelectableQuestion;

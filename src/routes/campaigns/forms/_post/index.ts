@@ -2,8 +2,6 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
-import Campaigns from "@src/features/db/class/Campaigns";
-import PreselectionForms from "@src/features/db/class/PreselectionForms";
 import UserRoute from "@src/features/routes/UserRoute";
 import FieldCreator from "../FieldCreator";
 
@@ -12,17 +10,9 @@ export default class RouteItem extends UserRoute<{
   body: StoplightOperations["post-campaigns-forms"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number | undefined;
-  private db: {
-    forms: PreselectionForms;
-    campaigns: Campaigns;
-  };
 
   constructor(options: RouteItem["configuration"]) {
     super(options);
-    this.db = {
-      forms: new PreselectionForms(),
-      campaigns: new Campaigns(),
-    };
     const body = this.getBody();
     if (body.campaign) {
       this.campaignId = body.campaign;
@@ -57,7 +47,7 @@ export default class RouteItem extends UserRoute<{
       const fields = await this.createFields(form.id);
       this.setSuccess(201, {
         ...form,
-        fields,
+        fields: fields,
       });
     } catch (e) {
       const error = e as OpenapiError;
@@ -138,16 +128,36 @@ export default class RouteItem extends UserRoute<{
     const results = [];
     let i = 1;
     for (const field of body.fields) {
+      const options =
+        "options" in field && field.options
+          ? (field.options as { isInvalid: boolean; value: string | number }[])
+          : undefined;
       const item = new FieldCreator({
         formId: formId,
         question: field.question,
         short_name: field.short_name,
         type: field.type,
-        options: field.hasOwnProperty("options") ? field.options : undefined,
+        options:
+          "options" in field && field.options
+            ? field.options.map((o) => o.value)
+            : undefined,
+        invalid_options: options
+          ? options
+              .filter(
+                (o): o is { isInvalid: true; value: number } => o.isInvalid
+              )
+              .map((o) => o.value)
+          : undefined,
         priority: i++,
       });
       try {
-        results.push(await item.create());
+        const result = await item.create();
+        results.push({
+          ...result,
+          options: result.options
+            ? result.options.map((o: number | string) => ({ value: o }))
+            : undefined,
+        });
       } catch (e) {
         throw {
           status_code: 406,

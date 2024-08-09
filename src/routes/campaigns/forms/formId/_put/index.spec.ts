@@ -1,8 +1,8 @@
-import app from "@src/app";
-import request from "supertest";
-import { tryber } from "@src/features/database";
 import PreselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import PreselectionFormFields from "@src/__mocks__/mockedDb/preselectionFormFields";
+import app from "@src/app";
+import { tryber } from "@src/features/database";
+import request from "supertest";
 
 const basicCampaign = {
   title: "Test Campaign",
@@ -47,13 +47,13 @@ const sampleBodyWithFields = {
     {
       id: 3,
       type: "cuf_2",
-      options: [1, 2],
+      options: [{ value: 1 }, { value: 2 }],
       question: "My select cuf question",
     },
     {
       id: 4,
       type: "select",
-      options: ["option1", "option2"],
+      options: [{ value: "option1" }, { value: "option2" }],
       question: "My select question",
     },
   ],

@@ -152,6 +152,19 @@ class CufMultiselectQuestion extends Question<{
       )
     );
   }
+
+  async isScreenedOut(item: { data: any }) {
+    if (!this.question.invalid_options) return false;
+    const values = item.data.value.id;
+    if (this.options.length === 0 || this.isNoneOfTheAbove(values))
+      return false;
+    for (const v of values) {
+      if (this.question.invalid_options.includes(v)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 export default CufMultiselectQuestion;
