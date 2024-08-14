@@ -24,12 +24,12 @@ export default class SingleCampaignRoute extends CampaignRoute<{
   }
 
   private async getClusters() {
-    const clusters = await tryber.tables.WpAppqUsecaseCluster.do()
+    const clusters = await tryber.tables.WpAppqCampaignTask.do()
       .select(
-        tryber.ref("id").withSchema("wp_appq_usecase_cluster"),
-        tryber.ref("title").withSchema("wp_appq_usecase_cluster").as("name")
+        "id",
+        tryber.ref("title").withSchema("wp_appq_campaign_task").as("name")
       )
-      .where("wp_appq_usecase_cluster.campaign_id", this.cp_id);
+      .where("campaign_id", this.cp_id);
 
     if (clusters === undefined) return [];
 
