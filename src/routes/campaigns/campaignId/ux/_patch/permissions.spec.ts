@@ -2,9 +2,6 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-jest.mock("@src/features/checkUrl", () => ({
-  checkUrl: jest.fn().mockImplementation(() => true),
-}));
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
@@ -35,7 +32,6 @@ describe("PATCH /campaigns/{campaignId}/ux - permissions and logging statuses", 
     await tryber.tables.WpAppqEvdCampaign.do().insert([{ ...campaign, id: 1 }]);
     await tryber.tables.UxCampaignData.do().insert({
       campaign_id: 1,
-      version: 1,
     });
   });
   afterAll(async () => {

@@ -1,22 +1,6 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
-import { getSignedCookie } from "@src/features/s3/cookieSign";
 import request from "supertest";
-
-jest.mock("@src/features/checkUrl", () => ({
-  checkUrl: jest.fn().mockImplementation(() => true),
-}));
-
-jest.mock("@src/features/s3/cookieSign");
-const mockedGetSignedCookie = jest.mocked(getSignedCookie, true);
-
-mockedGetSignedCookie.mockImplementation(({ url }) => {
-  return Promise.resolve({
-    "CloudFront-Policy": "policy",
-    "CloudFront-Signature": "signature",
-    "CloudFront-Key-Pair-Id": "keypairid",
-  });
-});
 
 const campaign = {
   title: "Test Campaign",
@@ -93,7 +77,6 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         campaign_id: 10,
         value: 3,
         comment: "test",
-        version: 1,
       },
       {
         id: 2,
@@ -101,7 +84,6 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         campaign_id: 20,
         value: 1,
         comment: "test other cp",
-        version: 1,
       },
     ]);
   });
@@ -146,7 +128,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
     );
   });
 
-  it("Should add sentiments", async () => {
+  it("Should update sentiments", async () => {
     await request(app)
       .patch("/campaigns/10/ux")
       .send({
@@ -160,7 +142,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
           {
             comment: "New Sentiment 2 comment",
             value: 5,
-            clusterId: 1,
+            clusterId: 2,
           },
         ],
       })
@@ -181,7 +163,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         expect.objectContaining({
           value: 5,
           comment: "New Sentiment 2 comment",
-          cluster_id: 1,
+          cluster_id: 2,
         }),
       ])
     );
