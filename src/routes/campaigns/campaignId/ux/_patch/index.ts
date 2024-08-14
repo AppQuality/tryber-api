@@ -173,19 +173,28 @@ export default class PatchUx extends UserRoute<{
   private async insertNewSentiments() {
     const body = this.getBody();
     const { sentiments } = body;
+    const clusters_ids = await this.getClustersIds();
 
-    if (sentiments && sentiments.length) {
+    if (clusters_ids.length && sentiments && sentiments.length) {
       for (const item of sentiments) {
-        await tryber.tables.UxCampaignSentiments.do().insert({
-          campaign_id: this.campaignId,
-          value: item.value,
-          comment: item.comment,
-          cluster_id: item.clusterId,
-        });
+        if (clusters_ids.includes(item.clusterId)) {
+          await tryber.tables.UxCampaignSentiments.do().insert({
+            campaign_id: this.campaignId,
+            value: item.value,
+            comment: item.comment,
+            cluster_id: item.clusterId,
+          });
+        }
       }
     }
   }
 
+  private async getClustersIds() {
+    const ids = await tryber.tables.WpAppqCampaignTask.do().select("id").where({
+      campaign_id: this.campaignId,
+    });
+    return ids.map((c) => c.id) || [];
+  }
   private async removeQuestions() {
     await tryber.tables.UxCampaignQuestions.do()
       .delete()

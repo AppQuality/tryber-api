@@ -15,6 +15,16 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
+const cluster = {
+  simple_title: "Cluster title",
+  content: "Cluster content",
+  jf_code: "jf_code",
+  jf_text: "jf_text",
+  is_required: 1,
+  info: "Cluster info",
+  prefix: "prefix",
+};
+
 const methodology = {
   type: "qualitative",
   description: "Methodology Description",
@@ -26,30 +36,30 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
       { ...campaign, id: 10 },
       { ...campaign, id: 20 },
     ]);
-    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+    await tryber.tables.WpAppqCampaignTask.do().insert([
       {
+        ...cluster,
         id: 1,
         title: "Cluster 1",
-        subtitle: "Subtitle 1",
         campaign_id: 10,
       },
       {
+        ...cluster,
         id: 2,
         title: "Cluster 2",
-        subtitle: "Subtitle 2",
         campaign_id: 10,
       },
       {
+        ...cluster,
         id: 3,
         title: "Cluster 3",
-        subtitle: "Subtitle 3",
         campaign_id: 20,
       },
     ]);
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+    await tryber.tables.WpAppqCampaignTask.do().delete();
   });
   beforeEach(async () => {
     await tryber.tables.UxCampaignData.do().insert({

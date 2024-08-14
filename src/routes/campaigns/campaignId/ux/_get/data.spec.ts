@@ -14,6 +14,16 @@ const campaign = {
   project_id: 1,
   customer_title: "Test Customer",
 };
+
+const cluster = {
+  simple_title: "Cluster title",
+  content: "Cluster content",
+  jf_code: "jf_code",
+  jf_text: "jf_text",
+  is_required: 1,
+  info: "Cluster info",
+  prefix: "prefix",
+};
 describe("GET /campaigns/{campaignId}/ux - data", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
@@ -32,24 +42,24 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         description: "Ux Description",
       },
     ]);
-    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+    await tryber.tables.WpAppqCampaignTask.do().insert([
       {
+        ...cluster,
         id: 1,
         campaign_id: 10,
         title: "Test Cluster",
-        subtitle: "Subtitle 1",
       },
       {
+        ...cluster,
         id: 2,
         campaign_id: 10,
         title: "Test Cluster 2",
-        subtitle: "Subtitle 2",
       },
       {
+        ...cluster,
         id: 3,
         campaign_id: 2,
         title: "Test Cluster 3",
-        subtitle: "Subtitle 3",
       },
     ]);
     await tryber.tables.UxCampaignQuestions.do().insert([
@@ -100,7 +110,7 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+    await tryber.tables.WpAppqCampaignTask.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
   });
