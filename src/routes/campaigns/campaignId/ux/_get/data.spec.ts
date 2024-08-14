@@ -1,22 +1,6 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
-import { getSignedCookie } from "@src/features/s3/cookieSign";
 import request from "supertest";
-
-jest.mock("@src/features/checkUrl", () => ({
-  checkUrl: jest.fn().mockImplementation(() => true),
-}));
-
-jest.mock("@src/features/s3/cookieSign");
-const mockedGetSignedCookie = jest.mocked(getSignedCookie, true);
-
-mockedGetSignedCookie.mockImplementation(({ url }) => {
-  return Promise.resolve({
-    "CloudFront-Policy": "policy",
-    "CloudFront-Signature": "signature",
-    "CloudFront-Key-Pair-Id": "keypairid",
-  });
-});
 
 const campaign = {
   title: "Test Campaign",
@@ -68,34 +52,22 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         subtitle: "Subtitle 3",
       },
     ]);
-    await tryber.tables.WpAppqUserTaskMedia.do().insert({
-      id: 1,
-      campaign_task_id: 1,
-      user_task_id: 1,
-      location:
-        "https://s3.eu-west-1.amazonaws.com/appq.static/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4",
-      tester_id: 1,
-    });
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
         campaign_id: 10,
         question: "Why the world is round?",
-        version: 1,
       },
       {
         campaign_id: 10,
         question: "How many stars are in the sky?",
-        version: 1,
       },
       {
         campaign_id: 20,
         question: "How many stars are in the universe?",
-        version: 1,
       },
       {
         campaign_id: 20,
         question: "Be or not to be?",
-        version: 1,
       },
     ]);
     await tryber.tables.UxCampaignSentiments.do().insert([
@@ -104,28 +76,24 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         campaign_id: 10,
         value: 1,
         comment: "Low Comment cluster1",
-        version: 1,
       },
       {
         cluster_id: 2,
         campaign_id: 10,
         value: 5,
         comment: "High Comment cluster2",
-        version: 1,
       },
       {
         cluster_id: 1,
         campaign_id: 2,
         value: 5,
         comment: "Medium Comment cluster1",
-        version: 2,
       },
       {
         cluster_id: 1,
         campaign_id: 20,
         value: 5,
         comment: "Medium Comment cluster1",
-        version: 1,
       },
     ]);
   });
@@ -133,7 +101,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
-    await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.UxCampaignQuestions.do().delete();
     await tryber.tables.UxCampaignSentiments.do().delete();
   });
@@ -143,7 +110,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       await tryber.tables.UxCampaignData.do().insert([
         {
           campaign_id: 20,
-          version: 2,
           published: 0,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
@@ -152,7 +118,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         },
         {
           campaign_id: 10,
-          version: 1,
           published: 0,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
@@ -275,7 +240,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
       await tryber.tables.UxCampaignData.do().insert([
         {
           campaign_id: 20,
-          version: 2,
           published: 1,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",
@@ -284,7 +248,6 @@ describe("GET /campaigns/{campaignId}/ux - data", () => {
         },
         {
           campaign_id: 10,
-          version: 1,
           published: 1,
           methodology_description: "Ux Description DATA",
           methodology_type: "qualitative",

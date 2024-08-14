@@ -1,22 +1,6 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
-import { getSignedCookie } from "@src/features/s3/cookieSign";
 import request from "supertest";
-
-jest.mock("@src/features/checkUrl", () => ({
-  checkUrl: jest.fn().mockImplementation(() => true),
-}));
-
-jest.mock("@src/features/s3/cookieSign");
-const mockedGetSignedCookie = jest.mocked(getSignedCookie, true);
-
-mockedGetSignedCookie.mockImplementation(({ url }) => {
-  return Promise.resolve({
-    "CloudFront-Policy": "policy",
-    "CloudFront-Signature": "signature",
-    "CloudFront-Key-Pair-Id": "keypairid",
-  });
-});
 
 const campaign = {
   title: "Test Campaign",
@@ -74,12 +58,10 @@ describe("PATCH /campaigns/{campaignId}/ux - questions", () => {
     await tryber.tables.UxCampaignQuestions.do().insert([
       {
         campaign_id: 10,
-        version: 1,
         question: "Is there life on universe?",
       },
       {
         campaign_id: 20,
-        version: 1,
         question: "Is there life on galaxy?",
       },
     ]);

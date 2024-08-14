@@ -2,9 +2,6 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-jest.mock("@src/features/checkUrl", () => ({
-  checkUrl: jest.fn().mockImplementation(() => true),
-}));
 const campaign = {
   title: "Test Campaign",
   platform_id: 1,
@@ -28,16 +25,6 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 10 },
     ]);
-    await tryber.tables.WpAppqUserTaskMedia.do().insert([
-      {
-        id: 1,
-        campaign_task_id: 1,
-        user_task_id: 1,
-        tester_id: 1,
-        location:
-          "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      },
-    ]);
     await tryber.tables.WpAppqUsecaseCluster.do().insert([
       {
         id: 1,
@@ -56,7 +43,6 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
-    await tryber.tables.WpAppqUserTaskMedia.do().delete();
     await tryber.tables.WpAppqUsecaseCluster.do().delete();
   });
 
@@ -109,28 +95,6 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
     expect(data[0]).toEqual(
       expect.objectContaining({
         published: 1,
-      })
-    );
-  });
-  it("Should insert data as version 1", async () => {
-    await request(app)
-      .patch("/campaigns/10/ux")
-      .set("Authorization", "Bearer admin")
-      .send({
-        goal: "Test Goal",
-        usersNumber: 5,
-        sentiments: [],
-        questions: [],
-        methodology,
-        visible: 0,
-      });
-    const data = await tryber.tables.UxCampaignData.do()
-      .select()
-      .where({ campaign_id: 10 });
-    expect(data).toHaveLength(1);
-    expect(data[0]).toEqual(
-      expect.objectContaining({
-        version: 1,
       })
     );
   });

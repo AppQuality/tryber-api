@@ -1,5 +1,4 @@
 import { tryber } from "@src/features/database";
-import { mapToDistribution } from "@src/features/s3/mapToDistribution";
 
 export default class UxData {
   private _data:
@@ -10,7 +9,6 @@ export default class UxData {
         goal: string;
         methodology_type: string;
         methodology_description: string;
-        version: number;
         published: number;
       }
     | undefined;
@@ -19,7 +17,6 @@ export default class UxData {
     id: number;
     campaign_id: number;
     question: string;
-    version: number;
   }[] = [];
 
   private _sentiments: {
@@ -34,21 +31,21 @@ export default class UxData {
 
   constructor(private campaignId: number) {}
 
-  private async getOne({ published }: { published: 0 | 1 }) {
-    const data = await this.getUxData({ published });
+  private async getOne() {
+    const data = await this.getUxData();
 
     if (!data) return { data: undefined };
 
     const clusters = await this.getClusters();
 
-    const questions = await this.getQuestions({ version: data.version });
+    const questions = await this.getQuestions();
 
-    const sentiments = await this.getSentiments({ version: data.version });
+    const sentiments = await this.getSentiments();
 
     return { data, clusters, questions, sentiments };
   }
 
-  private async getSentiments({ version }: { version: number }) {
+  private async getSentiments() {
     return await tryber.tables.UxCampaignSentiments.do()
       .select(
         tryber.ref("id").withSchema("ux_campaign_sentiments"),
@@ -64,16 +61,13 @@ export default class UxData {
       )
       .where("ux_campaign_sentiments.campaign_id", this.campaignId)
       .where("ux_campaign_sentiments.value", ">", 0)
-      .where("ux_campaign_sentiments.value", "<", 6)
-      .where({ version })
-      .orderBy("version", "DESC");
+      .where("ux_campaign_sentiments.value", "<", 6);
   }
 
-  private async getUxData({ published }: { published: number }) {
+  private async getUxData() {
     return await tryber.tables.UxCampaignData.do()
       .select()
-      .where({ published: published, campaign_id: this.campaignId })
-      .orderBy("version", "desc")
+      .where({ campaign_id: this.campaignId })
       .first();
   }
 
@@ -85,29 +79,14 @@ export default class UxData {
       });
   }
 
-  private async getQuestions({ version }: { version: number }) {
+  private async getQuestions() {
     return await tryber.tables.UxCampaignQuestions.do()
       .select()
-      .where({ campaign_id: this.campaignId })
-      .where({ version })
-      .orderBy("version", "DESC");
+      .where({ campaign_id: this.campaignId });
   }
 
-  public async lastPublished() {
-    const { data, clusters, questions, sentiments } = await this.getOne({
-      published: 1,
-    });
-
-    if (clusters) this._clusters = clusters;
-    if (questions) this._questions = questions;
-    if (sentiments) this._sentiments = sentiments;
-    this._data = data;
-  }
-
-  public async lastDraft() {
-    const { data, clusters, questions, sentiments } = await this.getOne({
-      published: 0,
-    });
+  public async getLast() {
+    const { data, clusters, questions, sentiments } = await this.getOne();
 
     if (!data) return;
     this._data = data;
@@ -117,13 +96,9 @@ export default class UxData {
     if (sentiments) this._sentiments = sentiments;
   }
 
-  get version() {
-    return this._data?.version;
-  }
-
   get data() {
     if (!this._data) return null;
-    const { id: i, version: v, published: p, ...data } = this._data;
+    const { id: i, published: p, ...data } = this._data;
     return {
       ...data,
       visible: p,
