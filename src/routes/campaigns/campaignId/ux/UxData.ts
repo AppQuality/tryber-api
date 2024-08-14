@@ -55,8 +55,8 @@ export default class UxData {
         tryber.ref("comment").withSchema("ux_campaign_sentiments")
       )
       .join(
-        "wp_appq_usecase_cluster",
-        "wp_appq_usecase_cluster.id",
+        "wp_appq_campaign_task",
+        "wp_appq_campaign_task.id",
         "ux_campaign_sentiments.cluster_id"
       )
       .where("ux_campaign_sentiments.campaign_id", this.campaignId)
@@ -72,7 +72,7 @@ export default class UxData {
   }
 
   private async getClusters() {
-    return await tryber.tables.WpAppqUsecaseCluster.do()
+    return await tryber.tables.WpAppqCampaignTask.do()
       .select("id", tryber.ref("title").as("name"))
       .where({
         campaign_id: this.campaignId,

@@ -16,6 +16,15 @@ const campaign = {
   project_id: 1,
   campaign_type_id: 1,
 };
+const cluster = {
+  simple_title: "Cluster title",
+  content: "Cluster content",
+  jf_code: "jf_code",
+  jf_text: "jf_text",
+  is_required: 1,
+  info: "Cluster info",
+  prefix: "prefix",
+};
 describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
@@ -35,18 +44,18 @@ describe("GET /campaigns/{campaignId}/ux - deleted clusters", () => {
         category_id: 1,
       },
     ]);
-    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+    await tryber.tables.WpAppqCampaignTask.do().insert([
       {
+        ...cluster,
         id: 1,
         campaign_id: 1,
         title: "Cluster 1",
-        subtitle: "",
       },
       {
+        ...cluster,
         id: 2,
         campaign_id: 1,
         title: "Cluster 2",
-        subtitle: "",
       },
     ]);
     await tryber.tables.UxCampaignInsights.do().insert([

@@ -2,6 +2,16 @@ import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 
+const cluster = {
+  simple_title: "Cluster title",
+  content: "Cluster content",
+  jf_code: "jf_code",
+  jf_text: "jf_text",
+  is_required: 1,
+  info: "Cluster info",
+  prefix: "prefix",
+};
+
 beforeAll(async () => {
   await tryber.tables.WpAppqEvdCampaign.do().insert([
     {
@@ -34,18 +44,18 @@ beforeAll(async () => {
     },
   ]);
 
-  await tryber.tables.WpAppqUsecaseCluster.do().insert([
+  await tryber.tables.WpAppqCampaignTask.do().insert([
     {
+      ...cluster,
       id: 10,
       campaign_id: 1,
       title: "Cluster10 title",
-      subtitle: "Cluster10 subtitle",
     },
     {
+      ...cluster,
       id: 20,
       campaign_id: 2,
       title: "Cluster20 title",
-      subtitle: "Cluster20 subtitle",
     },
   ]);
 });
@@ -151,7 +161,7 @@ describe("GET /campaigns/:campaignId/clusters", () => {
 
 describe("GET /campaigns/:campaignId/clusters - there are no clusters", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+    await tryber.tables.WpAppqCampaignTask.do().delete();
   });
   it("Should return items array", async () => {
     const response = await request(app)

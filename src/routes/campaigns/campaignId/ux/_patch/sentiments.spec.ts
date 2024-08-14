@@ -15,6 +15,16 @@ const campaign = {
   customer_title: "Test Customer",
 };
 
+const cluster = {
+  simple_title: "Cluster title",
+  content: "Cluster content",
+  jf_code: "jf_code",
+  jf_text: "jf_text",
+  is_required: 1,
+  info: "Cluster info",
+  prefix: "prefix",
+};
+
 const requestBody = {
   goal: "Test Goal",
   usersNumber: 5,
@@ -48,18 +58,24 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
       name: "UX Generic",
       category_id: 1,
     });
-    await tryber.tables.WpAppqUsecaseCluster.do().insert([
+    await tryber.tables.WpAppqCampaignTask.do().insert([
       {
+        ...cluster,
         id: 1,
         campaign_id: 10,
         title: "Cluster 1",
-        subtitle: "Subtitle 1",
       },
       {
+        ...cluster,
         id: 2,
         campaign_id: 20,
         title: "Cluster 1",
-        subtitle: "Subtitle 1",
+      },
+      {
+        ...cluster,
+        id: 3,
+        campaign_id: 10,
+        title: "Cluster 3",
       },
     ]);
   });
@@ -67,7 +83,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.UxCampaignData.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
-    await tryber.tables.WpAppqUsecaseCluster.do().delete();
+    await tryber.tables.WpAppqCampaignTask.do().delete();
   });
   beforeEach(async () => {
     await tryber.tables.UxCampaignSentiments.do().insert([
@@ -142,7 +158,7 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
           {
             comment: "New Sentiment 2 comment",
             value: 5,
-            clusterId: 2,
+            clusterId: 3,
           },
         ],
       })
@@ -163,7 +179,53 @@ describe("PATCH /campaigns/{campaignId}/ux - sentiments", () => {
         expect.objectContaining({
           value: 5,
           comment: "New Sentiment 2 comment",
-          cluster_id: 2,
+          cluster_id: 3,
+        }),
+      ])
+    );
+  });
+
+  it("Should update only sentiments with existing cluster_id", async () => {
+    await request(app)
+      .patch("/campaigns/10/ux")
+      .send({
+        ...requestBody,
+        sentiments: [
+          {
+            comment: "New  Sentiment 1 comment",
+            value: 2,
+            clusterId: 1,
+          },
+          {
+            comment: "New Sentiment 1 comment",
+            value: 5,
+            clusterId: 3,
+          },
+          {
+            comment: "Sentiment wrong cluster_id",
+            value: 5,
+            clusterId: 999,
+          },
+        ],
+      })
+      .set("Authorization", "Bearer admin");
+    const sentiments = await tryber.tables.UxCampaignSentiments.do()
+      .where({
+        campaign_id: 10,
+      })
+      .select();
+    expect(sentiments.length).toEqual(2);
+    expect(sentiments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          value: 2,
+          comment: "New  Sentiment 1 comment",
+          cluster_id: 1,
+        }),
+        expect.objectContaining({
+          value: 5,
+          comment: "New Sentiment 1 comment",
+          cluster_id: 3,
         }),
       ])
     );
