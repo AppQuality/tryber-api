@@ -33,12 +33,30 @@ export default class PatchUx extends UserRoute<{
       return this.setNoAccessError();
     }
 
+    if (!this.isBodyValid()) {
+      this.setError(400, new OpenapiError(`Body is invalid`));
+      return false;
+    }
+
     if (this.invalidSentimentsValues()) {
       this.setError(500, new OpenapiError(`Sentiment values are invalid`));
       throw new OpenapiError(`Sentiment values are invalid`);
     }
 
     return true;
+  }
+
+  private isBodyValid() {
+    const body = this.getBody();
+    return (
+      body &&
+      (body.goal ||
+        body.usersNumber ||
+        body.methodology ||
+        body.sentiments ||
+        body.questions ||
+        typeof body.visible !== "undefined")
+    );
   }
 
   private invalidSentimentsValues() {
@@ -69,23 +87,6 @@ export default class PatchUx extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const body = this.getBody();
-    if (
-      body &&
-      (body.goal ||
-        body.usersNumber ||
-        body.methodology ||
-        body.sentiments ||
-        body.questions ||
-        body.visible)
-    ) {
-      await this.update();
-    }
-
-    return this.setSuccess(200, {});
-  }
-
-  private async update() {
     if (!this.data?.data) {
       await this.insertNewUxData();
     } else {
@@ -94,6 +95,7 @@ export default class PatchUx extends UserRoute<{
 
     await this.updateQuestions();
     await this.updateSentiments();
+    return this.setSuccess(200, {});
   }
 
   private async insertNewUxData() {

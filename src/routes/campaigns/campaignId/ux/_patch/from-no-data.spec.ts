@@ -262,4 +262,18 @@ describe("PATCH /campaigns/{campaignId}/ux - if no data insert ux data", () => {
       })
     );
   });
+
+  it("Should raise an error if body is empty", async () => {
+    const response = await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({});
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: "Body is invalid",
+      })
+    );
+  });
 });
