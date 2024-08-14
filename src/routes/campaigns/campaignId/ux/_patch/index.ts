@@ -77,9 +77,7 @@ export default class PatchUx extends UserRoute<{
 
     await this.updateQuestions();
     await this.updateSentiments();
-    await this.updateVisibleStatus();
     return this.setSuccess(200, {});
-
   }
 
   private async insertNewUxData() {
