@@ -336,6 +336,7 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
       .first();
     expect(campaign?.published).toEqual(0);
   });
+
   it("Should return 500 if send a sentiment value greater than 5 or lower then 1", async () => {
     const responseValue6 = await request(app)
       .patch("/campaigns/10/ux")
@@ -363,5 +364,19 @@ describe("PATCH /campaigns/{campaignId}/ux - update data", () => {
         ],
       });
     expect(responseValue0.status).toBe(500);
+  });
+
+  it("Should raise an error if body is empty", async () => {
+    const response = await request(app)
+      .patch("/campaigns/10/ux")
+      .set("Authorization", "Bearer admin")
+      .send({});
+
+    expect(response.status).toEqual(400);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: "Body is invalid",
+      })
+    );
   });
 });
