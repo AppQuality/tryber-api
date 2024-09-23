@@ -11,8 +11,7 @@ export default class PatchUx extends UserRoute<{
   body: StoplightOperations["patch-campaigns-campaign-ux"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number;
-  private lastDraft: UxData | undefined;
-  private version: number = 0;
+  private data: UxData | undefined;
 
   constructor(config: RouteClassConfiguration) {
     super(config);
@@ -21,9 +20,8 @@ export default class PatchUx extends UserRoute<{
 
   protected async init() {
     await super.init();
-    this.lastDraft = new UxData(this.campaignId);
-    await this.lastDraft.lastDraft();
-    this.version = this.lastDraft.version || 0;
+    this.data = new UxData(this.campaignId);
+    await this.data.getLast();
   }
 
   protected async filter() {
@@ -35,6 +33,11 @@ export default class PatchUx extends UserRoute<{
       return this.setNoAccessError();
     }
 
+    if (!this.isBodyValid()) {
+      this.setError(400, new OpenapiError(`Body is invalid`));
+      return false;
+    }
+
     if (this.invalidSentimentsValues()) {
       this.setError(500, new OpenapiError(`Sentiment values are invalid`));
       throw new OpenapiError(`Sentiment values are invalid`);
@@ -43,13 +46,26 @@ export default class PatchUx extends UserRoute<{
     return true;
   }
 
+  private isBodyValid() {
+    const body = this.getBody();
+    return (
+      body &&
+      (body.goal ||
+        body.usersNumber ||
+        body.methodology ||
+        body.sentiments ||
+        body.questions ||
+        typeof body.visible !== "undefined")
+    );
+  }
+
   private invalidSentimentsValues() {
     const body = this.getBody();
-    if ("status" in body) return false;
     const { sentiments } = body;
-    for (const s of sentiments) {
-      if (s.value < 0 || s.value > 5) return true;
-    }
+
+    if (!sentiments) return false;
+
+    return sentiments.some((s) => s.value < 1 || s.value > 5);
   }
 
   private setNoAccessError() {
@@ -71,283 +87,146 @@ export default class PatchUx extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const body = this.getBody();
-
-    if ("status" in body) {
-      if (body.status === "publish") {
-        await this.publish();
-      }
+    if (!this.data?.data) {
+      await this.insertNewUxData();
     } else {
-      await this.update();
+      await this.updateUxData();
     }
 
+    await this.updateQuestions();
+    await this.updateSentiments();
     return this.setSuccess(200, {});
   }
 
-  private async update() {
+  private async insertNewUxData() {
     const body = this.getBody();
-    if ("status" in body) return;
 
-    if (!this.lastDraft?.data) {
-      await this.insertFirstVersion();
+    if (
+      !body.methodology ||
+      !body.methodology.type ||
+      !body.methodology.description
+    ) {
+      this.setError(400, new OpenapiError("Methodology is required"));
+      throw new OpenapiError("Methodology is required");
     }
-
-    await this.updateUxData();
-    await this.updateQuestions();
-    await this.updateSentiments();
-  }
-
-  private async insertFirstVersion() {
-    const body = this.getBody();
-    if ("status" in body) return;
+    if (!body.goal) {
+      this.setError(400, new OpenapiError("Goal is required"));
+      throw new OpenapiError("Goal is required");
+    }
+    if (!("usersNumber" in body)) {
+      this.setError(400, new OpenapiError("Users number is required"));
+      throw new OpenapiError("Users number is required");
+    }
+    if (!("visible" in body)) {
+      this.setError(400, new OpenapiError("Visible status is required"));
+      throw new OpenapiError("Visible status is required");
+    }
     await tryber.tables.UxCampaignData.do().insert({
       goal: body.goal,
       users: body.usersNumber,
       campaign_id: this.campaignId,
-      version: 1,
-      published: 0,
+      published: body.visible,
       methodology_type: body.methodology.type,
       methodology_description: body.methodology.description,
     });
-    this.version = 1;
   }
 
   private async updateUxData() {
     const body = this.getBody();
-    if ("status" in body) return;
-    await tryber.tables.UxCampaignData.do()
-      .update({
-        goal: body.goal,
-        users: body.usersNumber,
+
+    let uxDataToUpdate = {};
+    if (body.methodology)
+      uxDataToUpdate = {
         methodology_type: body.methodology.type,
         methodology_description: body.methodology.description,
-      })
-      .where({
-        version: this.version,
+      };
+    if (body.goal) {
+      uxDataToUpdate = {
+        ...uxDataToUpdate,
+        goal: body.goal,
+      };
+    }
+    if (body.usersNumber) {
+      uxDataToUpdate = {
+        ...uxDataToUpdate,
+        users: body.usersNumber,
+      };
+    }
+    if ("visible" in body) {
+      uxDataToUpdate = {
+        ...uxDataToUpdate,
+        published: body.visible,
+      };
+    }
+    if (Object.keys(uxDataToUpdate).length === 0) return;
+    await tryber.tables.UxCampaignData.do()
+      .update({
+        ...uxDataToUpdate,
       })
       .where({ campaign_id: this.campaignId });
   }
 
   private async updateQuestions() {
-    await this.removeQuestions();
-    await this.insertNewQuestions();
-    await this.updateExistingQuestions();
+    const body = this.getBody();
+    if ("questions" in body) {
+      await this.removeQuestions();
+      await this.insertNewQuestions();
+    }
   }
 
   private async updateSentiments() {
-    await this.removeSentiments();
-    await this.insertNewSentiments();
-    await this.updateExistingSentiments();
+    const body = this.getBody();
+    if ("sentiments" in body) {
+      await this.removeSentiments();
+      await this.insertNewSentiments();
+    }
   }
 
   private async removeSentiments() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { sentiments } = body;
-    const toUpdate = sentiments.filter((s) => s.id);
-    const currentSentiments = this.lastDraft?.sentiments || [];
-    const currentSentimentsIds = currentSentiments.map((i) => i.id);
-
-    const toRemove = currentSentimentsIds.filter(
-      (id) => !toUpdate.map((i) => i.id).includes(id as number)
-    );
-
-    if (toRemove.length) {
-      await tryber.tables.UxCampaignSentiments.do()
-        .delete()
-        .whereIn(
-          "id",
-          currentSentimentsIds.filter(
-            (id) => !toUpdate.map((i) => i.id).includes(id as number)
-          )
-        );
-    }
+    await tryber.tables.UxCampaignSentiments.do()
+      .delete()
+      .where("campaign_id", this.campaignId);
   }
 
   private async insertNewSentiments() {
     const body = this.getBody();
-    if ("status" in body) return;
     const { sentiments } = body;
+    const clusters_ids = await this.getClustersIds();
 
-    if (sentiments.length) {
-      const toInsert = sentiments.filter((i) => !i.id);
-      if (toInsert.length) {
-        for (const item of toInsert) {
-          await tryber.tables.UxCampaignSentiments.do()
-            .insert({
-              campaign_id: this.campaignId,
-              value: item.value,
-              comment: item.comment,
-              cluster_id: item.clusterId,
-              version: this.version,
-            })
-            .returning("id");
+    if (clusters_ids.length && sentiments && sentiments.length) {
+      for (const item of sentiments) {
+        if (clusters_ids.includes(item.clusterId)) {
+          await tryber.tables.UxCampaignSentiments.do().insert({
+            campaign_id: this.campaignId,
+            value: item.value,
+            comment: item.comment,
+            cluster_id: item.clusterId,
+          });
         }
       }
     }
   }
 
-  private async updateExistingSentiments() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { sentiments } = body;
-    if (sentiments.length) {
-      const updatedSentiments = sentiments.filter((i) => i.id);
-
-      if (updatedSentiments.length) {
-        for (const item of updatedSentiments) {
-          await tryber.tables.UxCampaignSentiments.do()
-            .update({
-              value: item.value,
-              cluster_id: item.clusterId,
-              comment: item.comment,
-              version: this.version,
-            })
-            .where({
-              id: item.id,
-            });
-        }
-      }
-    }
+  private async getClustersIds() {
+    const ids = await tryber.tables.WpAppqCampaignTask.do().select("id").where({
+      campaign_id: this.campaignId,
+    });
+    return ids.map((c) => c.id) || [];
   }
-
   private async removeQuestions() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { questions } = body;
-
-    const toUpdate = questions.filter((i) => i.id);
-    const currentQuestions = this.lastDraft?.questions || [];
-    const currentQuestionsIds = currentQuestions.map((i) => i.id);
-
-    const toRemove = currentQuestionsIds.filter(
-      (id) => !toUpdate.map((i) => i.id).includes(id as number)
-    );
-
-    if (toRemove.length) {
-      await tryber.tables.UxCampaignQuestions.do()
-        .delete()
-        .whereIn(
-          "id",
-          currentQuestionsIds.filter(
-            (id) => !toUpdate.map((i) => i.id).includes(id as number)
-          )
-        );
-    }
+    await tryber.tables.UxCampaignQuestions.do()
+      .delete()
+      .where("campaign_id", this.campaignId);
   }
 
   private async insertNewQuestions() {
     const body = this.getBody();
-    if ("status" in body) return;
     const { questions } = body;
-
-    const toInsert = questions.filter((i) => !i.id);
-    if (toInsert.length) {
-      for (const item of toInsert) {
-        await tryber.tables.UxCampaignQuestions.do()
-          .insert({
-            campaign_id: this.campaignId,
-            question: item.name,
-            version: this.version,
-          })
-          .returning("id");
-      }
-    }
-  }
-
-  private async updateExistingQuestions() {
-    const body = this.getBody();
-    if ("status" in body) return;
-    const { questions } = body;
-    const updatedQuestions = questions.filter((i) => i.id);
-
-    if (updatedQuestions.length) {
-      for (const item of updatedQuestions) {
-        await tryber.tables.UxCampaignQuestions.do()
-          .update({
-            question: item.name,
-            version: this.version,
-          })
-          .where({
-            id: item.id,
-          });
-      }
-    }
-  }
-
-  private async publish() {
-    const draftData = this.lastDraft?.data;
-    if (!draftData) {
-      this.setError(400, new OpenapiError("No draft found"));
-      throw new OpenapiError("No draft found");
-    }
-
-    await this.publishData();
-    await this.publishQuestions();
-    await this.publishSentiments();
-    this.version++;
-  }
-
-  private async publishData() {
-    await tryber.tables.UxCampaignData.do()
-      .update({
-        published: 1,
-      })
-      .where({
-        campaign_id: this.campaignId,
-        version: this.version,
-      });
-
-    await tryber.tables.UxCampaignData.do().insert({
-      goal: this.lastDraft?.data?.goal,
-      users: this.lastDraft?.data?.users,
-      campaign_id: this.campaignId,
-      version: this.version + 1,
-      methodology_description: this.lastDraft?.data?.methodology_description,
-      methodology_type: this.lastDraft?.data?.methodology_type,
-      published: 0,
-    });
-  }
-
-  private async publishQuestions() {
-    if (this.lastDraft?.questions.length) {
-      await tryber.tables.UxCampaignQuestions.do()
-        .update({
-          version: this.version + 1,
-        })
-        .where({
-          campaign_id: this.campaignId,
-          version: this.version,
-        });
-
-      for (const question of this.lastDraft?.questions || []) {
+    if (questions && questions.length) {
+      for (const item of questions) {
         await tryber.tables.UxCampaignQuestions.do().insert({
           campaign_id: this.campaignId,
-          question: question.name,
-          version: this.version,
-        });
-      }
-    }
-  }
-
-  private async publishSentiments() {
-    if (this.lastDraft?.sentiments.length) {
-      await tryber.tables.UxCampaignSentiments.do()
-        .update({
-          version: this.version + 1,
-        })
-        .where({
-          campaign_id: this.campaignId,
-          version: this.version,
-        });
-
-      for (const sentiment of this.lastDraft?.sentiments || []) {
-        await tryber.tables.UxCampaignSentiments.do().insert({
-          campaign_id: this.campaignId,
-          value: sentiment.value,
-          cluster_id: sentiment.cluster.id,
-          comment: sentiment.comment,
-          version: this.version,
+          question: item.name,
         });
       }
     }
