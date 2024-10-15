@@ -18,7 +18,7 @@ describe("Route PUT /users/me/languages/", () => {
       .expect(404);
   });
 
-  it("Should return 404 if languages does not exist", async () => {
+  /*it("Should return 404 if languages does not exist", async () => {
     const response = await request(app)
       .put("/users/me/languages/")
       .send([3, 69])
@@ -29,21 +29,21 @@ describe("Route PUT /users/me/languages/", () => {
       id: 1,
       message: "Bad request: lang_id not found.",
     });
-  });
+  });*/
 
   it("Should return 200 if user is logged", async () => {
     const response = await request(app)
       .put("/users/me/languages/")
-      .send([3, 5])
+      .send(["English", "Arabic"])
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 3,
+          name: "English",
         }),
         expect.objectContaining({
-          id: 5,
+          name: "Arabic",
         }),
       ])
     );

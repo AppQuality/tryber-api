@@ -8,7 +8,7 @@ export default class UserLanguagesRoute extends UserRoute<{
   response: StoplightOperations["put-users-me-languages"]["responses"]["200"]["content"]["application/json"];
   body: StoplightOperations["put-users-me-languages"]["requestBody"]["content"]["application/json"];
 }> {
-  private languages: number[] | undefined;
+  private languages: string[] | undefined;
 
   private constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -18,7 +18,7 @@ export default class UserLanguagesRoute extends UserRoute<{
     }
   }
 
-  protected async filter() {
+  /* protected async filter() {
     if (await this.desiredLanguagesDoesNotExist()) return false;
     return true;
   }
@@ -26,7 +26,7 @@ export default class UserLanguagesRoute extends UserRoute<{
   protected async desiredLanguagesDoesNotExist() {
     if (!this.languages) return false;
 
-    const availableLanguagesIds = await this.getAvailableLanguages();
+   const availableLanguagesIds = await this.getAvailableLanguages();
 
     const everyLanguageExists = this.languages.every((nl) =>
       availableLanguagesIds.includes(nl)
@@ -39,14 +39,19 @@ export default class UserLanguagesRoute extends UserRoute<{
 
     return false;
   }
+    */
 
   protected async prepare() {
     await this.insertNewLanguages();
 
-    this.setSuccess(200, await this.getUserLanguages());
+    const userLanguages = await this.getUserLanguages();
+    this.setSuccess(
+      200,
+      userLanguages.map((lang) => ({ name: lang.language_name }))
+    );
   }
 
-  protected async getAvailableLanguages() {
+  /* protected async getAvailableLanguages() {
     const languages = await tryber.tables.WpAppqLang.do().select(
       "id",
       tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
@@ -54,19 +59,11 @@ export default class UserLanguagesRoute extends UserRoute<{
 
     if (!languages.length) throw Error("No languages");
     return languages.map((l) => l.id);
-  }
+  }*/
 
   protected async getUserLanguages() {
     const testerLanguages = await tryber.tables.WpAppqProfileHasLang.do()
-      .select(
-        tryber.ref("id").withSchema("wp_appq_lang").as("id"),
-        tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
-      )
-      .join(
-        "wp_appq_lang",
-        "wp_appq_lang.id",
-        "wp_appq_profile_has_lang.language_id"
-      )
+      .select("language_name")
       .where({ profile_id: this.getTesterId() });
 
     return testerLanguages;
@@ -77,7 +74,11 @@ export default class UserLanguagesRoute extends UserRoute<{
     if (!this.languages || !this.languages.length) return undefined;
 
     const values = this.languages.map((nl) => {
-      return { language_id: nl, profile_id: this.getTesterId() };
+      return {
+        language_id: -1,
+        language_name: nl,
+        profile_id: this.getTesterId(),
+      };
     });
 
     await tryber.tables.WpAppqProfileHasLang.do().insert(values);
