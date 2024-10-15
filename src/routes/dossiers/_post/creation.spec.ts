@@ -88,13 +88,13 @@ describe("Route POST /dossiers", () => {
       },
     ]);
 
-    await tryber.tables.WpAppqLang.do().insert([
+    /* await tryber.tables.WpAppqLang.do().insert([
       {
         id: 1,
         display_name: "Test Language",
         lang_code: "te-ST",
       },
-    ]);
+    ]);*/
   });
 
   afterAll(async () => {
@@ -632,7 +632,7 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({
         ...baseRequest,
-        languages: [1],
+        languages: ["English"],
       });
 
     expect(response.status).toBe(201);
@@ -648,8 +648,7 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.body).toHaveProperty("languages");
     expect(getResponse.body.languages).toHaveLength(1);
     expect(getResponse.body.languages[0]).toEqual({
-      id: 1,
-      name: "Test Language",
+      name: "English",
     });
   });
 

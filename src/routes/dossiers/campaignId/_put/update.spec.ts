@@ -91,10 +91,10 @@ describe("Route POST /dossiers", () => {
       },
     ]);
 
-    await tryber.tables.WpAppqLang.do().insert([
+    /* await tryber.tables.WpAppqLang.do().insert([
       { id: 1, display_name: "Test Language", lang_code: "TL" },
       { id: 2, display_name: "Other Language", lang_code: "OL" },
-    ]);
+    ]); */
 
     await tryber.tables.Browsers.do().insert([
       { id: 1, name: "Test Browser" },
@@ -429,7 +429,11 @@ describe("Route POST /dossiers", () => {
       ]);
 
       await tryber.tables.CampaignDossierDataLanguages.do().insert([
-        { campaign_dossier_data_id: 1, language_id: 2 },
+        {
+          campaign_dossier_data_id: 1,
+          language_id: 2,
+          language_name: "Afrikaans",
+        },
       ]);
       await tryber.tables.CampaignDossierDataBrowsers.do().insert([
         { campaign_dossier_data_id: 1, browser_id: 2 },
@@ -620,7 +624,7 @@ describe("Route POST /dossiers", () => {
         .set("authorization", "Bearer admin")
         .send({
           ...baseRequest,
-          languages: [1],
+          languages: ["Afrikaans"],
         });
 
       const responseGet = await request(app)
@@ -631,8 +635,7 @@ describe("Route POST /dossiers", () => {
       expect(responseGet.body).toHaveProperty("languages");
       expect(responseGet.body.languages).toHaveLength(1);
       expect(responseGet.body.languages[0]).toEqual({
-        id: 1,
-        name: "Test Language",
+        name: "Afrikaans",
       });
     });
 

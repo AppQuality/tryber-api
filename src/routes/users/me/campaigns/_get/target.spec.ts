@@ -53,25 +53,13 @@ describe("GET /users/me/campaigns - target", () => {
     await tryber.tables.CampaignDossierDataLanguages.do().insert({
       campaign_dossier_data_id: 1,
       language_id: 1,
+      language_name: "English",
     });
 
     await tryber.tables.CampaignDossierDataCountries.do().insert({
       campaign_dossier_data_id: 1,
       country_code: "IT",
     });
-
-    await tryber.tables.WpAppqLang.do().insert([
-      {
-        id: 1,
-        display_name: "English",
-        lang_code: "en",
-      },
-      {
-        id: 2,
-        display_name: "Italian",
-        lang_code: "it",
-      },
-    ]);
   });
 
   afterAll(async () => {
@@ -94,6 +82,7 @@ describe("GET /users/me/campaigns - target", () => {
       await tryber.tables.WpAppqProfileHasLang.do().insert({
         profile_id: 1,
         language_id: 1,
+        language_name: "English",
       });
     });
     afterAll(async () => {
@@ -123,6 +112,7 @@ describe("GET /users/me/campaigns - target", () => {
       await tryber.tables.WpAppqProfileHasLang.do().insert({
         profile_id: 1,
         language_id: 2,
+        language_name: "Arabic",
       });
     });
     afterAll(async () => {
@@ -150,6 +140,7 @@ describe("GET /users/me/campaigns - target", () => {
       await tryber.tables.WpAppqProfileHasLang.do().insert({
         profile_id: 1,
         language_id: 2,
+        language_name: "Afrikaans",
       });
     });
     afterAll(async () => {
