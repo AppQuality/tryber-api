@@ -5421,10 +5421,6 @@ paths:
                       properties:
                         name:
                           type: string
-                        id:
-                          type: number
-                          x-stoplight:
-                            id: v3xokd8t6zodk
                   onboarding_completed:
                     type: boolean
                   additional:
