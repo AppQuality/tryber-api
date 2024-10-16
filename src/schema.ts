@@ -2863,7 +2863,6 @@ export interface operations {
               gross: components["schemas"]["Currency"];
             };
             languages?: {
-              id?: number;
               name?: string;
             }[];
             onboarding_completed?: boolean;
