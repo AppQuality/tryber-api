@@ -6,13 +6,12 @@ import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 import CustomUserFieldsExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationListData } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentListData } from "@src/__mocks__/mockedDb/employmentList";
-import { data as languageListData } from "@src/__mocks__/mockedDb/languageList";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertificationData } from "@src/__mocks__/mockedDb/testerCertification";
-import { data as testerLanguageData } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 
@@ -77,14 +76,7 @@ const education1 = {
   id: 1,
   display_name: "Phd",
 };
-const lang1 = {
-  id: 1,
-  display_name: "Italian",
-};
-const testerFullLang1 = {
-  profile_id: testerFull.id,
-  language_id: lang1.id,
-};
+
 const cufText = {
   //cuf
   id: 1,
@@ -223,8 +215,11 @@ describe("Route GET users-me-full-fields", () => {
     );
     await employmentListData.employment1(employment1);
     await sqlite3.insert("wp_appq_education", education1);
-    await languageListData.lenguage1(lang1);
-    await sqlite3.insert("wp_appq_profile_has_lang", testerFullLang1);
+    await tryber.tables.WpAppqProfileHasLang.do().insert({
+      language_id: 1,
+      language_name: "Italian",
+      profile_id: testerFull.id,
+    });
     //insert cuf_text
     await CustomUserFields.insert(cufText);
     await sqlite3.insert("wp_appq_custom_user_field_data", cufTextVal);
@@ -258,8 +253,6 @@ describe("Route GET users-me-full-fields", () => {
       await testerCertificationData.drop();
       await employmentListData.drop();
       await educationListData.drop();
-      await languageListData.drop();
-      await testerLanguageData.drop();
       await CustomUserFields.clear();
       await CustomUserFieldsData.clear();
       await CustomUserFieldsExtras.clear();
@@ -334,15 +327,13 @@ describe("Route GET users-me-full-fields", () => {
     expect(response.body).toHaveProperty("languages");
     expect(response.body).toHaveProperty("role");
     expect(response.body.languages[0]).toMatchObject({
-      id: lang1.id,
-      name: lang1.display_name,
+      name: "Italian",
     });
     expect(Array.isArray(response.body.languages)).toBe(true);
     const langs = response.body
       .languages as StoplightOperations["get-users-me"]["responses"]["200"]["content"]["application/json"]["languages"];
     if (Array.isArray(langs)) {
       langs.forEach((l) => {
-        expect(l).toHaveProperty("id");
         expect(l).toHaveProperty("name");
       });
     }
