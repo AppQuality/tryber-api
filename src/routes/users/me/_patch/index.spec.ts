@@ -9,14 +9,13 @@ import CustomUserFieldsData from "@src/__mocks__/mockedDb/customUserFieldsData";
 import CustomUserFieldExtras from "@src/__mocks__/mockedDb/customUserFieldsExtra";
 import { data as educationsList } from "@src/__mocks__/mockedDb/educationList";
 import { data as employmentsList } from "@src/__mocks__/mockedDb/employmentList";
-import { data as languagesList } from "@src/__mocks__/mockedDb/languageList";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import { data as testerCertifications } from "@src/__mocks__/mockedDb/testerCertification";
-import { data as testerLanguages } from "@src/__mocks__/mockedDb/testerLanguage";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
+import { tryber } from "@src/features/database";
 
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
@@ -46,8 +45,12 @@ describe("Route PATCH users-me", () => {
       });
       await employmentsList.employment1({ display_name: "UNGUESS Tester" });
       await educationsList.education1({ display_name: "Phd" });
-      await languagesList.lenguage1({ display_name: "Sicilian" });
-      await testerLanguages.assignLanguage();
+      await tryber.tables.WpAppqProfileHasLang.do().insert({
+        profile_id: 1,
+        language_id: 1,
+        language_name: "English",
+      });
+
       //insert cuf_text
       await CustomUserFields.insert({
         name: "Username Tetris",
@@ -114,8 +117,7 @@ describe("Route PATCH users-me", () => {
     await testerCertifications.drop();
     await employmentsList.drop();
     await educationsList.drop();
-    await languagesList.drop();
-    await testerLanguages.drop();
+    await tryber.tables.WpAppqProfileHasLang.do().delete();
     await CustomUserFields.clear();
     await CustomUserFieldsData.clear();
     await CustomUserFieldExtras.clear();
@@ -206,8 +208,11 @@ describe("Route PATCH users-me accepted fields", () => {
       });
       await educationsList.education1({ display_name: "Phd" });
       await educationsList.education1({ id: 2, display_name: "Phd Professor" });
-      await languagesList.lenguage1({ display_name: "Sicilian" });
-      await testerLanguages.assignLanguage();
+      await tryber.tables.WpAppqProfileHasLang.do().insert({
+        profile_id: 1,
+        language_id: 1,
+        language_name: "English",
+      });
       //insert cuf_text
       await CustomUserFields.insert({
         name: "Username Tetris",
@@ -274,8 +279,7 @@ describe("Route PATCH users-me accepted fields", () => {
     await testerCertifications.drop();
     await employmentsList.drop();
     await educationsList.drop();
-    await languagesList.drop();
-    await testerLanguages.drop();
+    await tryber.tables.WpAppqProfileHasLang.do().delete();
     await CustomUserFields.clear();
     await CustomUserFieldsData.clear();
     await CustomUserFieldExtras.clear();
