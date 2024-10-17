@@ -357,7 +357,7 @@ class RouteItem extends UserRoute<{
 
     const allowedLanguages =
       await tryber.tables.CampaignDossierDataLanguages.do()
-        .select("campaign_id", "language_id")
+        .select("campaign_id", "language_name")
         .join(
           "campaign_dossier_data",
           "campaign_dossier_data.id",
@@ -386,7 +386,7 @@ class RouteItem extends UserRoute<{
 
       const languages = allowedLanguages
         .filter((l) => l.campaign_id === campaign.id)
-        .map((l) => l.language_id);
+        .map((l) => l.language_name);
       const countries = allowedCountries
         .filter((l) => l.campaign_id === campaign.id)
         .map((l) => l.country_code);
@@ -468,7 +468,7 @@ class RouteItem extends UserRoute<{
   private async filterByTargetRules<T>(
     campaigns: (T & {
       targetRules?: {
-        languages?: number[];
+        languages?: string[];
         countries?: string[];
       };
     })[]

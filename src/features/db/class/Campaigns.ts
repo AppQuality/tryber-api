@@ -62,7 +62,7 @@ class CampaignObject {
   private async getTargetRules() {
     const allowedLanguages =
       await tryber.tables.CampaignDossierDataLanguages.do()
-        .select("campaign_id", "language_id")
+        .select("campaign_id", "language_name")
         .join(
           "campaign_dossier_data",
           "campaign_dossier_data.id",
@@ -80,7 +80,7 @@ class CampaignObject {
         )
         .where("campaign_dossier_data.campaign_id", this.id);
     return {
-      languages: allowedLanguages.map((l) => l.language_id),
+      languages: allowedLanguages.map((l) => l.language_name),
       countries: allowedCountries.map((c) => c.country_code),
     };
   }

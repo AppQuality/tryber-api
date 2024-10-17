@@ -17,6 +17,7 @@ describe("GET users/me/campaigns/:campaignId/forms - logged user", () => {
     await tryber.tables.WpAppqProfileHasLang.do().insert({
       profile_id: 1,
       language_id: 1,
+      language_name: "Italian",
     });
   });
   afterAll(async () => {
@@ -163,6 +164,7 @@ describe("GET users/me/campaigns/:campaignId/forms - logged user", () => {
         await tryber.tables.CampaignDossierDataLanguages.do().insert({
           campaign_dossier_data_id: 1,
           language_id: 1,
+          language_name: "Italian",
         });
         await tryber.tables.CampaignDossierDataCountries.do().insert({
           campaign_dossier_data_id: 1,
@@ -185,6 +187,7 @@ describe("GET users/me/campaigns/:campaignId/forms - logged user", () => {
         await tryber.tables.CampaignDossierDataLanguages.do().insert({
           campaign_dossier_data_id: 1,
           language_id: 19,
+          language_name: "Afrikaans",
         });
         await tryber.tables.CampaignDossierDataCountries.do().insert({
           campaign_dossier_data_id: 1,
