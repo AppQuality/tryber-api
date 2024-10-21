@@ -19,7 +19,7 @@ export default async (
     const res = await db.query(query);
     if (!res.length) return {};
     const translations: {
-      [key: string]: { en: string; it: string; es: string };
+      [key: string]: { en: string; it: string; es: string; fr: string };
     } = {};
     const pages: string[] = [];
     res.forEach((r: { object_id: string; description: string }) => {
@@ -32,6 +32,9 @@ export default async (
       }
       if (translations[r.object_id].es) {
         pages.push(translations[r.object_id].es);
+      }
+      if (translations[r.object_id].fr) {
+        pages.push(translations[r.object_id].fr);
       }
     });
 
@@ -48,6 +51,7 @@ export default async (
         : false;
     });
     Object.keys(translations).map((t) => {
+      // EN
       const englishPermalink = permalinks[translations[t].en];
       if (translations[t].en && englishPermalink && englishPermalink.length) {
         translations[t].en = englishPermalink;
@@ -55,6 +59,7 @@ export default async (
         translations[t].en = "#";
       }
 
+      // IT
       const italianPermalink = permalinks[translations[t].it];
       if (translations[t].it && italianPermalink && italianPermalink.length) {
         translations[t].it = "/it" + italianPermalink;
@@ -68,6 +73,7 @@ export default async (
         }
       }
 
+      // ES
       const spanishPermalink = permalinks[translations[t].es];
       if (translations[t].es && spanishPermalink && spanishPermalink.length) {
         translations[t].es = "/es" + spanishPermalink;
@@ -77,6 +83,19 @@ export default async (
           translations[t].es = englishPermalink;
         } else {
           translations[t].es = "#";
+        }
+      }
+
+      // FR
+      const frenchPermalink = permalinks[translations[t].fr];
+      if (translations[t].fr && frenchPermalink && frenchPermalink.length) {
+        translations[t].fr = "/fr" + frenchPermalink;
+      } else {
+        // If FR trans is not present, put EN trans if present
+        if (translations[t].en && englishPermalink && englishPermalink.length) {
+          translations[t].fr = englishPermalink;
+        } else {
+          translations[t].fr = "#";
         }
       }
     });
