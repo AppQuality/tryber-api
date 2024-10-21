@@ -64,9 +64,9 @@ describe("GET /users/me/campaigns ", () => {
     beforeAll(() => {
       (resolvePermalinks as jest.Mock).mockImplementation(() => {
         return {
-          1: { en: "#", it: "it/test1", es: "es/test1" },
-          2: { en: "#", it: "#", es: "#" },
-          3: { en: "en/test3", it: "it/test3", es: "es/test3" },
+          1: { en: "#", it: "it/test1", es: "es/test1", fr: "fr/test1" },
+          2: { en: "#", it: "#", es: "#", fr: "#" },
+          3: { en: "en/test3", it: "it/test3", es: "es/test3", fr: "fr/test3" },
         };
       });
       candidature.insert({
@@ -141,9 +141,9 @@ describe("GET /users/me/campaigns ", () => {
     beforeAll(() => {
       (resolvePermalinks as jest.Mock).mockImplementation(() => {
         return {
-          1: { en: "#", it: "it/test1", es: "es/test1" },
-          2: { en: "#", it: "#", es: "#" },
-          3: { en: "en/test3", it: "it/test3", es: "es/test3" },
+          1: { en: "#", it: "it/test1", es: "es/test1", fr: "fr/test1" },
+          2: { en: "#", it: "#", es: "#", fr: "#" },
+          3: { en: "en/test3", it: "it/test3", es: "es/test3", fr: "fr/test3" },
         };
       });
     });
