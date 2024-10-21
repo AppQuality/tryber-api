@@ -27,10 +27,10 @@ describe("GET /users/me/campaigns - filters", () => {
     ]);
     (resolvePermalinks as jest.Mock).mockImplementation(() => {
       return {
-        1: { en: "en/test1", it: "it/test1", es: "es/test1" },
-        2: { en: "en/test2", it: "it/test2", es: "es/test2" },
-        3: { en: "en/test3", it: "it/test3", es: "es/test3" },
-        4: { en: "en/test4", it: "it/test4", es: "es/test4" },
+        1: { en: "en/test1", it: "it/test1", es: "es/test1", fr: "fr/test1" },
+        2: { en: "en/test2", it: "it/test2", es: "es/test2", fr: "fr/test2" },
+        3: { en: "en/test3", it: "it/test3", es: "es/test3", fr: "fr/test3" },
+        4: { en: "en/test4", it: "it/test4", es: "es/test4", fr: "fr/test4" },
       };
     });
     const basicCampaignObject = {
