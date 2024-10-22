@@ -11,8 +11,8 @@ describe("GET /users/me/campaigns - pagination ", () => {
   beforeAll(async () => {
     (resolvePermalinks as jest.Mock).mockImplementation(() => {
       return {
-        1: { en: "en/test1", it: "it/test1", es: "es/test1" },
-        2: { en: "en/test2", it: "it/test2", es: "es/test2" },
+        1: { en: "en/test1", it: "it/test1", es: "es/test1", fr: "fr/test1" },
+        2: { en: "en/test2", it: "it/test2", es: "es/test2", fr: "fr/test2" },
       };
     });
 
