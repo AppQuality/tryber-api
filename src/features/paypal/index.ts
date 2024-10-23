@@ -5,7 +5,7 @@ import debugMessage from "../debugMessage";
 
 dotenv.config();
 
-const DEFAULT_RETRIES = 10;
+const DEFAULT_RETRIES = 30;
 
 class Paypal {
   clientId: string;
@@ -222,7 +222,7 @@ class Paypal {
       }
       debugMessage(res.data.batch_header);
       await new Promise((resolve) =>
-        setTimeout(resolve, 500 * 2 ** (DEFAULT_RETRIES - retries))
+        setTimeout(resolve, (DEFAULT_RETRIES + 1 - retries) * 500)
       );
       return this.waitForCompletion(requestUrl, retries - 1);
     } catch (error) {
