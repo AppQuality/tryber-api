@@ -5,6 +5,8 @@ import debugMessage from "../debugMessage";
 
 dotenv.config();
 
+const DEFAULT_RETRIES = 10;
+
 class Paypal {
   clientId: string;
   secret: string;
@@ -197,7 +199,7 @@ class Paypal {
 
   private async waitForCompletion(
     requestUrl: string,
-    retries = 10
+    retries = DEFAULT_RETRIES
   ): Promise<AxiosResponse["data"]> {
     let token;
     if (retries === 0) throw Error("Max retries reached");
@@ -219,7 +221,9 @@ class Paypal {
         return res.data;
       }
       debugMessage(res.data.batch_header);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) =>
+        setTimeout(resolve, (DEFAULT_RETRIES + 1 - retries) * 500)
+      );
       return this.waitForCompletion(requestUrl, retries - 1);
     } catch (error) {
       throw error;
