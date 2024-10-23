@@ -222,7 +222,7 @@ class Paypal {
       }
       debugMessage(res.data.batch_header);
       await new Promise((resolve) =>
-        setTimeout(resolve, (DEFAULT_RETRIES + 1 - retries) * 500)
+        setTimeout(resolve, 500 * 2 ** (DEFAULT_RETRIES - retries))
       );
       return this.waitForCompletion(requestUrl, retries - 1);
     } catch (error) {
