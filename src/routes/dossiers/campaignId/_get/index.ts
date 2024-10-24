@@ -158,6 +158,13 @@ export default class RouteItem extends UserRoute<{
 
     const targetLanguages = dossierData
       ? await tryber.tables.CampaignDossierDataLanguages.do()
+          .select("language_id")
+          .select("language_name")
+          .where("campaign_dossier_data_id", dossierData.dossier_id)
+      : [];
+
+    /*  const targetLanguagesQuery1 = dossierData
+      ? await tryber.tables.CampaignDossierDataLanguages.do()
           .join(
             "wp_appq_lang",
             "wp_appq_lang.id",
@@ -165,9 +172,12 @@ export default class RouteItem extends UserRoute<{
           )
           .select("language_id")
           .select("display_name")
+          .select("language_name")
           .where("campaign_dossier_data_id", dossierData.dossier_id)
       : [];
 
+    console.log("targetLanguages", targetLanguages);
+*/
     const targetBrowsers = dossierData
       ? await tryber.tables.CampaignDossierDataBrowsers.do()
           .join(
@@ -310,8 +320,7 @@ export default class RouteItem extends UserRoute<{
         }),
         ...(this.campaign.languages.length > 0 && {
           languages: this.campaign.languages?.map((item) => ({
-            id: item.language_id,
-            name: item.display_name,
+            name: item.language_name,
           })),
         }),
         ...(this.campaign.browsers.length > 0 && {

@@ -228,7 +228,8 @@ export default class RouteItem extends UserRoute<{
     await tryber.tables.CampaignDossierDataLanguages.do().insert(
       languages.map((lang) => ({
         campaign_dossier_data_id: dossierId,
-        language_id: lang,
+        language_id: -1,
+        language_name: lang,
       }))
     );
   }

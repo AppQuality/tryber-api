@@ -328,10 +328,12 @@ describe("Route GET /dossiers/:id", () => {
         {
           campaign_dossier_data_id: 100,
           language_id: 1,
+          language_name: "English",
         },
         {
           campaign_dossier_data_id: 100,
           language_id: 2,
+          language_name: "Arabic",
         },
       ]);
 
@@ -476,10 +478,9 @@ describe("Route GET /dossiers/:id", () => {
       expect(response.body.languages).toHaveLength(2);
       expect(response.body.languages).toEqual(
         expect.arrayContaining([
-          { id: 1, name: "English" },
+          { name: "English" },
           {
-            id: 2,
-            name: "Italiano",
+            name: "Arabic",
           },
         ])
       );

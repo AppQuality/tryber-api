@@ -1250,8 +1250,6 @@ paths:
                                     type: string
                             status:
                               type: string
-                              x-stoplight:
-                                id: 3f1wy22lgngzn
                               enum:
                                 - candidate
                                 - excluded
@@ -5364,6 +5362,8 @@ paths:
                     wp_user_id: 0
                     role: string
                     is_verified: true
+                required:
+                  - id
                 properties:
                   username:
                     type: string
@@ -5396,29 +5396,27 @@ paths:
                     type: number
                   booty:
                     type: object
+                    required:
+                      - gross
                     properties:
                       net:
                         $ref: '#/components/schemas/Currency'
                       gross:
                         $ref: '#/components/schemas/Currency'
-                    required:
-                      - gross
                   pending_booty:
                     type: object
+                    required:
+                      - gross
                     properties:
                       net:
                         $ref: '#/components/schemas/Currency'
                       gross:
                         $ref: '#/components/schemas/Currency'
-                    required:
-                      - gross
                   languages:
                     type: array
                     items:
                       type: object
                       properties:
-                        id:
-                          type: integer
                         name:
                           type: string
                   onboarding_completed:
@@ -5436,24 +5434,24 @@ paths:
                     type: string
                   education:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: number
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   profession:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: number
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   certifications:
                     oneOf:
                       - type: array
@@ -5472,16 +5470,14 @@ paths:
                     type: number
                   booty_threshold:
                     type: object
+                    required:
+                      - value
+                      - isOver
                     properties:
                       value:
                         type: number
                       isOver:
                         type: boolean
-                    required:
-                      - value
-                      - isOver
-                required:
-                  - id
               examples:
                 booty_net:
                   value:
@@ -6938,12 +6934,8 @@ paths:
                     - properties:
                         question:
                           type: string
-                          x-stoplight:
-                            id: ir6xgrpexauf5
                         short_name:
                           type: string
-                          x-stoplight:
-                            id: bl9s0k131fjp4
                         value:
                           oneOf:
                             - type: integer
@@ -6986,11 +6978,7 @@ paths:
                               $ref: '#/components/schemas/PreselectionQuestionMultiple'
                             options:
                               type: array
-                              x-stoplight:
-                                id: 3eqfw8hp0j217
                               items:
-                                x-stoplight:
-                                  id: u67gsrnn8bhvb
                                 type: string
                           required:
                             - type
@@ -7002,11 +6990,7 @@ paths:
                               $ref: '#/components/schemas/PreselectionQuestionCuf'
                             options:
                               type: array
-                              x-stoplight:
-                                id: ilyb6ci3tao5c
                               items:
-                                x-stoplight:
-                                  id: 511phg4idvt3g
                                 type: number
                           required:
                             - type
@@ -8080,14 +8064,11 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - name
                 properties:
-                  id:
-                    type: string
                   name:
                     type: string
-                required:
-                  - id
-                  - name
               examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -8099,8 +8080,8 @@ paths:
             schema:
               type: object
               properties:
-                languageId:
-                  type: integer
+                language_name:
+                  type: string
       tags:
         - User
       description: Add one of the languages to your profile
@@ -8117,8 +8098,6 @@ paths:
                 items:
                   type: object
                   properties:
-                    id:
-                      type: integer
                     name:
                       type: string
         '403':
@@ -8129,7 +8108,7 @@ paths:
             schema:
               type: array
               items:
-                type: integer
+                type: string
             examples:
               Example 1:
                 value:
@@ -9530,6 +9509,18 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - id
+                  - title
+                  - startDate
+                  - endDate
+                  - closeDate
+                  - customer
+                  - project
+                  - testType
+                  - deviceList
+                  - csm
+                  - phase
                 properties:
                   id:
                     type: integer
@@ -9586,14 +9577,14 @@ paths:
                     type: array
                     items:
                       type: object
+                      required:
+                        - id
+                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
                   csm:
                     type: object
                     required:
@@ -9611,16 +9602,20 @@ paths:
                       properties:
                         role:
                           type: object
+                          required:
+                            - id
+                            - name
                           properties:
                             id:
                               type: integer
                             name:
                               type: string
+                        user:
+                          type: object
                           required:
                             - id
                             - name
-                        user:
-                          type: object
+                            - surname
                           properties:
                             id:
                               type: integer
@@ -9628,10 +9623,6 @@ paths:
                               type: string
                             surname:
                               type: string
-                          required:
-                            - id
-                            - name
-                            - surname
                   description:
                     type: string
                   productLink:
@@ -9661,36 +9652,33 @@ paths:
                     type: array
                     items:
                       type: object
+                      required:
+                        - name
                       properties:
-                        id:
-                          type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
                   browsers:
                     type: array
                     items:
                       type: object
+                      required:
+                        - id
+                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
                   productType:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: number
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   phase:
                     type: object
                     required:
@@ -9703,18 +9691,6 @@ paths:
                         type: string
                   notes:
                     type: string
-                required:
-                  - id
-                  - title
-                  - startDate
-                  - endDate
-                  - closeDate
-                  - customer
-                  - project
-                  - testType
-                  - deviceList
-                  - csm
-                  - phase
               examples:
                 Example 1:
                   value:
@@ -10574,21 +10550,13 @@ components:
                   $ref: '#/components/schemas/PreselectionQuestionMultiple'
                 options:
                   type: array
-                  x-stoplight:
-                    id: xdbut0hjezieh
                   items:
-                    x-stoplight:
-                      id: cln0chyj7s107
                     type: object
                     properties:
                       value:
                         type: string
-                        x-stoplight:
-                          id: ifhnncm4ap0l8
                       isInvalid:
                         type: boolean
-                        x-stoplight:
-                          id: 6imsh5mbep30d
                     required:
                       - value
               required:
@@ -10598,21 +10566,13 @@ components:
                   $ref: '#/components/schemas/PreselectionQuestionCuf'
                 options:
                   type: array
-                  x-stoplight:
-                    id: 98p0edyoy9t49
                   items:
-                    x-stoplight:
-                      id: lri0oems0d8by
                     type: object
                     properties:
                       value:
                         type: number
-                        x-stoplight:
-                          id: hrwvvg2r2jm4v
                       isInvalid:
                         type: boolean
-                        x-stoplight:
-                          id: wiocd6n2pq0z5
                     required:
                       - value
               required:
@@ -10888,6 +10848,12 @@ components:
           browsers:
             - 0
           productType: 0
+      required:
+        - project
+        - testType
+        - title
+        - startDate
+        - deviceList
       properties:
         project:
           type: integer
@@ -10921,14 +10887,14 @@ components:
           type: array
           items:
             type: object
+            required:
+              - role
+              - user
             properties:
               role:
                 type: integer
               user:
                 type: integer
-            required:
-              - role
-              - user
         description:
           type: string
         productLink:
@@ -10955,7 +10921,7 @@ components:
         languages:
           type: array
           items:
-            type: integer
+            type: string
         browsers:
           type: array
           items:
@@ -10964,16 +10930,8 @@ components:
           type: integer
         notes:
           type: string
-      required:
-        - project
-        - testType
-        - title
-        - startDate
-        - deviceList
     PreselectionQuestionSimple:
       title: PreselectionQuestionSimple
-      x-stoplight:
-        id: huxuwdbvi0pep
       type: string
       enum:
         - gender
@@ -10982,8 +10940,6 @@ components:
         - address
     PreselectionQuestionMultiple:
       title: PreselectionQuestionMultiple
-      x-stoplight:
-        id: op7khbr8grgql
       type: string
       enum:
         - multiselect
@@ -10991,8 +10947,6 @@ components:
         - radio
     PreselectionQuestionCuf:
       title: PreselectionQuestionCuf
-      x-stoplight:
-        id: 5diemuprwjolx
       type: string
       pattern: '^cuf_[0-9]*$'
   securitySchemes:
