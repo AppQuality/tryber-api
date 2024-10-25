@@ -18,29 +18,6 @@ export default class UserLanguagesRoute extends UserRoute<{
     }
   }
 
-  /* protected async filter() {
-    if (await this.desiredLanguagesDoesNotExist()) return false;
-    return true;
-  }
-
-  protected async desiredLanguagesDoesNotExist() {
-    if (!this.languages) return false;
-
-   const availableLanguagesIds = await this.getAvailableLanguages();
-
-    const everyLanguageExists = this.languages.every((nl) =>
-      availableLanguagesIds.includes(nl)
-    );
-
-    if (!everyLanguageExists) {
-      this.setError(404, new OpenapiError(`Bad request: lang_id not found.`));
-      return true;
-    }
-
-    return false;
-  }
-    */
-
   protected async prepare() {
     await this.insertNewLanguages();
 
@@ -50,16 +27,6 @@ export default class UserLanguagesRoute extends UserRoute<{
       userLanguages.map((lang) => ({ name: lang.language_name }))
     );
   }
-
-  /* protected async getAvailableLanguages() {
-    const languages = await tryber.tables.WpAppqLang.do().select(
-      "id",
-      tryber.ref("display_name").withSchema("wp_appq_lang").as("name")
-    );
-
-    if (!languages.length) throw Error("No languages");
-    return languages.map((l) => l.id);
-  }*/
 
   protected async getUserLanguages() {
     const testerLanguages = await tryber.tables.WpAppqProfileHasLang.do()

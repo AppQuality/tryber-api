@@ -20,13 +20,6 @@ const useBasicData = () => {
       user_email: "tester@example.com",
       user_pass: "pass",
     });
-    /*await tryber.tables.WpAppqLang.do().insert([
-      { id: 1, display_name: "Italiano", lang_code: "it" },
-      { id: 2, display_name: "English", lang_code: "en" },
-      { id: 3, display_name: "Itialian (Sicilian)", lang_code: "it-sc" },
-      { id: 4, display_name: "Arabic", lang_code: "ar" },
-      { id: 5, display_name: "Hindi", lang_code: "hi" },
-    ]);*/
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
