@@ -16,6 +16,7 @@ export default async (
         accepted: 1,
         selected_device: selectedDevice,
         accepted_date: tryber.fn.now(),
+        results: 0,
       })
       .where("user_id", wpId)
       .where("campaign_id", campaignId);
