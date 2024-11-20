@@ -246,6 +246,13 @@ export default class RouteItem extends UserRoute<{
       .insert({
         title: this.getBody().title.tester,
         platform_id: 0,
+        /* start_date:
+          this.getBody().startDate?.toString().slice(0, 19).replace("T", " ") ||
+          "",
+        end_date:
+          this.getEndDate()?.toString().slice(0, 19).replace("T", " ") || "",
+        close_date:
+          this.getCloseDate()?.toString().slice(0, 19).replace("T", " ") || "",*/
         start_date: this.getBody().startDate,
         end_date: this.getEndDate(),
         close_date: this.getCloseDate(),
@@ -330,7 +337,8 @@ export default class RouteItem extends UserRoute<{
       await tryber.tables.CampaignDossierDataLanguages.do().insert(
         languages.map((language) => ({
           campaign_dossier_data_id: dossierId,
-          language_id: language,
+          language_id: -1,
+          language_name: language,
         }))
       );
     }
