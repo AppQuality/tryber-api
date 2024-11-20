@@ -4,7 +4,7 @@ import countryList from "i18n-iso-countries";
 export class UserTargetChecker {
   private testerId: number;
 
-  private userLanguages: number[] = [];
+  private userLanguages: string[] = [];
   private userCountry: string = "";
 
   constructor({ testerId }: { testerId: number }) {
@@ -19,9 +19,9 @@ export class UserTargetChecker {
 
   private async initUserLanguages() {
     this.userLanguages = await tryber.tables.WpAppqProfileHasLang.do()
-      .select("language_id")
+      .select("language_name")
       .where("profile_id", this.testerId)
-      .then((res) => res.map((r) => r.language_id));
+      .then((res) => res.map((r) => r.language_name));
   }
 
   private async initUserCountries() {
@@ -34,7 +34,7 @@ export class UserTargetChecker {
     this.userCountry = countryCode || "";
   }
 
-  inTarget(targetRules: { languages?: number[]; countries?: string[] }) {
+  inTarget(targetRules: { languages?: string[]; countries?: string[] }) {
     if (Object.keys(targetRules).length === 0) return true;
     const { languages, countries } = targetRules;
 

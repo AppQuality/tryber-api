@@ -1,6 +1,6 @@
 import app from "@src/app";
-import request from "supertest";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 const profile = {
   id: 1,
   wp_user_id: 1,
@@ -58,6 +58,7 @@ const authorizedPostCandidate = async ({
     .send({ tester_id: tester, device })
     .set("authorization", `Bearer tester olp {"appq_tester_selection":[1]}`);
 };
+
 const authorizedPostMultiCandidate = async (
   list: {
     tester: number;
@@ -194,6 +195,39 @@ describe("POST /campaigns/{campaignId}/candidates", () => {
     expect(candidatures.length).toBe(2);
     expect(candidatures[0].accepted_date).not.toBeNull();
     expect(candidatures[1].accepted_date).not.toBeNull();
+  });
+});
+
+describe("POST /campaigns/{campaignId}/candidates - user deselected", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      { ...profile, id: 100, wp_user_id: 100 },
+    ]);
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+      user_id: 100,
+      campaign_id: 1,
+      accepted: 0,
+      results: -1,
+    });
+  });
+  afterEach(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().delete().where({ id: 100 });
+    await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .delete()
+      .where({ user_id: 100 });
+  });
+
+  it("Should select with results=0 if user is deselected", async () => {
+    await authorizedPostCandidate({ tester: 100 });
+    const candidature = await getCandidature({ tester: 100, campaign: 1 });
+    expect(candidature).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          user_id: 100,
+          results: 0,
+        }),
+      ])
+    );
   });
 });
 
