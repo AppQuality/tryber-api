@@ -1,8 +1,3 @@
-import { createCpExperiential } from "./createCpExperiential";
-import { createCpFunctional } from "./createCpFunctional";
-import { createDemoProject } from "./createDemoProject";
-import { workspaceExist } from "./workspaceExist";
-
 async function createDemoEnvironment({ workspaceId }: { workspaceId: number }) {
   const sourceCpIdFunctional = 7916;
   const sourceCpIdExperiential = 7961;

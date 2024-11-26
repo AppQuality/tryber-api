@@ -28,9 +28,9 @@ class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     const customer = await this.createCustomer();
-    if (customer && customer.id) {
-      await createDemoEnvironment({ workspaceId: customer.id });
-    }
+    // if (customer && customer.id) {
+    //   await createDemoEnvironment({ workspaceId: customer.id });
+    // }
 
     return this.setSuccess(201, customer);
   }
@@ -39,7 +39,7 @@ class RouteItem extends UserRoute<{
     const customer = await tryber.tables.WpAppqCustomer.do()
       .insert({
         company: this.getBody().name,
-        pm_id: 0,
+        pm_id: this.getTesterId(),
       })
       .returning("id");
     const id = customer[0].id ?? customer[0];
