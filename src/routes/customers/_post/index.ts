@@ -3,6 +3,7 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import { createDemoEnvironment } from "./createDemoEnvironment";
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-customers"]["responses"]["200"]["content"]["application/json"];
@@ -27,6 +28,10 @@ class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     const customer = await this.createCustomer();
+    if (customer && customer.id) {
+      await createDemoEnvironment({ workspaceId: customer.id });
+    }
+
     return this.setSuccess(201, customer);
   }
 
