@@ -3,8 +3,36 @@ import { tryber } from "@src/features/database";
 import request from "supertest";
 
 describe("POST /customers", () => {
+  beforeEach(async () => {
+    jest.mock("axios");
+    const axios = require("axios");
+    axios.post.mockImplementation(async (url: string) => {
+      if (url.includes("authenticate")) {
+        return {
+          data: {
+            token: "token",
+          },
+        };
+      } else if (url.includes("workspaces")) {
+        const newCustomer = await tryber.tables.WpAppqCustomer.do()
+          .insert({
+            company: "New Customer",
+            pm_id: 1,
+          })
+          .returning("id");
+        return {
+          data: {
+            id: newCustomer[0].id,
+            name: "New Customer",
+          },
+        };
+      }
+    });
+  });
+
   afterEach(async () => {
     await tryber.tables.WpAppqCustomer.do().delete();
+    jest.clearAllMocks();
   });
 
   it("Should answer 403 if not logged in", () => {
@@ -54,7 +82,7 @@ describe("POST /customers", () => {
 
     const customers = getResponse.body;
     expect(customers).toHaveLength(1);
-    expect(customers[0].id).toBe(id);
     expect(customers[0].name).toBe(name);
+    expect(customers[0].id).toBe(id);
   });
 });

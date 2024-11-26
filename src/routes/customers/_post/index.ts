@@ -1,9 +1,8 @@
 /** OPENAPI-CLASS : post-customers */
 
 import OpenapiError from "@src/features/OpenapiError";
-import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
-import { createDemoEnvironment } from "./createDemoEnvironment";
+import { unguessPostCustomer } from "./unguessPostCustomer";
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-customers"]["responses"]["200"]["content"]["application/json"];
@@ -27,27 +26,12 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const customer = await this.createCustomer();
-    // if (customer && customer.id) {
-    //   await createDemoEnvironment({ workspaceId: customer.id });
-    // }
+    const customer = await unguessPostCustomer({
+      company: this.getBody().name,
+      userId: this.getTesterId(),
+    });
 
     return this.setSuccess(201, customer);
-  }
-
-  private async createCustomer() {
-    const customer = await tryber.tables.WpAppqCustomer.do()
-      .insert({
-        company: this.getBody().name,
-        pm_id: this.getTesterId(),
-      })
-      .returning("id");
-    const id = customer[0].id ?? customer[0];
-
-    return {
-      id: id,
-      name: this.getBody().name,
-    };
   }
 }
 
