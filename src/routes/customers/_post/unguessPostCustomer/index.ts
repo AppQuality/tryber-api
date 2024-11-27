@@ -1,16 +1,24 @@
-import axios from "axios";
 import config from "@src/config";
 const { basePath, username, password } = config.unguessApi || {};
 
 async function authenticateUnguess(): Promise<string> {
   try {
-    const response = await axios.post(`${basePath}/authenticate`, {
-      username,
-      password,
+    const response = await fetch(`${basePath}/authenticate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
     });
 
-    if (response.data && response.data.token) {
-      return response.data.token;
+    if (!response.ok) {
+      throw new Error(`Authentication failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data && data.token) {
+      return data.token;
     } else {
       throw new Error("Authentication failed: Token not found");
     }
@@ -26,18 +34,23 @@ async function postCustomerUnguess(
   userId: number
 ): Promise<{ id: number; name: string }> {
   try {
-    const response = await axios.post(
-      `${basePath}/workspaces`,
-      { company, pm_id: userId },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response.data;
+    const response = await fetch(`${basePath}/workspaces`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ company, pm_id: userId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error posting customer data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error("Error posting customer data", error);
+    console.error("Error posting customer data:", error);
     throw error;
   }
 }
