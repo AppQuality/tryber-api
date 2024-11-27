@@ -2,7 +2,8 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
-import { unguessPostCustomer } from "./unguessPostCustomer";
+import Unguess from "@src/features/class/Unguess";
+import config from "@src/config";
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-customers"]["responses"]["200"]["content"]["application/json"];
@@ -26,12 +27,26 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const customer = await unguessPostCustomer({
-      company: this.getBody().name,
-      userId: this.getTesterId(),
-    });
+    const customer = await this.postCustomerUnguessApi();
 
     return this.setSuccess(201, customer);
+  }
+
+  private async postCustomerUnguessApi() {
+    const { basePath, username, password } = config.unguessApi || {};
+
+    const unguess = new Unguess(basePath || "", username || "", password || "");
+
+    try {
+      const customer = await unguess.postCustomer({
+        userId: this.getTesterId(),
+        name: this.getBody().name,
+      });
+      console.log("Customer created:", customer);
+      return customer;
+    } catch (error) {
+      console.error("Error creating customer:", error);
+    }
   }
 }
 
