@@ -42,7 +42,6 @@ class RouteItem extends UserRoute<{
         userId: this.getTesterId(),
         name: this.getBody().name,
       });
-      console.log("Customer created:", customer);
       return customer;
     } catch (error) {
       console.error("Error creating customer:", error);
