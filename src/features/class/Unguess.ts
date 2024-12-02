@@ -1,12 +1,15 @@
+import config from "@src/config";
+
 class Unguess {
   private baseUrl: string;
   private username: string;
   private password: string;
 
-  constructor(baseUrl: string, username: string, password: string) {
-    this.baseUrl = baseUrl;
-    this.username = username;
-    this.password = password;
+  constructor() {
+    const { basePath, username, password } = config.unguessApi || {};
+    this.baseUrl = basePath || "";
+    this.username = username || "";
+    this.password = password || "";
   }
 
   /**

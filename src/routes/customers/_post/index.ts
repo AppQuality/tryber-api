@@ -3,7 +3,6 @@
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 import Unguess from "@src/features/class/Unguess";
-import config from "@src/config";
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-customers"]["responses"]["200"]["content"]["application/json"];
@@ -19,6 +18,7 @@ class RouteItem extends UserRoute<{
       this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
+
     return true;
   }
 
@@ -33,9 +33,7 @@ class RouteItem extends UserRoute<{
   }
 
   private async postCustomerUnguessApi() {
-    const { basePath, username, password } = config.unguessApi || {};
-
-    const unguess = new Unguess(basePath || "", username || "", password || "");
+    const unguess = new Unguess();
 
     try {
       const customer = await unguess.postCustomer({
