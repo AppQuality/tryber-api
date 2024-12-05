@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS : post-customers */
 
 import OpenapiError from "@src/features/OpenapiError";
-import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import Unguess from "@src/features/class/Unguess";
 
 class RouteItem extends UserRoute<{
   response: StoplightOperations["post-customers"]["responses"]["200"]["content"]["application/json"];
@@ -18,6 +18,7 @@ class RouteItem extends UserRoute<{
       this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
+
     return true;
   }
 
@@ -26,23 +27,23 @@ class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const customer = await this.createCustomer();
+    const customer = await this.postCustomerUnguessApi();
+
     return this.setSuccess(201, customer);
   }
 
-  private async createCustomer() {
-    const customer = await tryber.tables.WpAppqCustomer.do()
-      .insert({
-        company: this.getBody().name,
-        pm_id: 0,
-      })
-      .returning("id");
-    const id = customer[0].id ?? customer[0];
+  private async postCustomerUnguessApi() {
+    const unguess = new Unguess();
 
-    return {
-      id: id,
-      name: this.getBody().name,
-    };
+    try {
+      const customer = await unguess.postCustomer({
+        userId: this.getTesterId(),
+        name: this.getBody().name,
+      });
+      return customer;
+    } catch (error) {
+      console.error("Error creating customer:", error);
+    }
   }
 }
 

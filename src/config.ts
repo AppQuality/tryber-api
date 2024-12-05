@@ -32,6 +32,11 @@ const config: {
     private: string;
   };
   GOOGLE_API_KEY: string;
+  unguessApi?: {
+    basePath?: string;
+    username?: string;
+    password?: string;
+  };
 } = {
   port: process.env.PORT || "3000",
   apiRoot: false,
@@ -59,6 +64,11 @@ const config: {
   },
   CROWD_URL: process.env.CROWD_URL || "https://tryber.me/",
   GOOGLE_API_KEY: process.env.GOOGLE_API_KEY || "",
+  unguessApi: {
+    basePath: process.env.UNGUESS_API_ROOT || "",
+    username: process.env.UNGUESS_API_USERNAME || "",
+    password: process.env.UNGUESS_API_PASSWORD || "",
+  },
 };
 
 if (process.env.SSL_CHAIN && process.env.SSL_PRIVATE) {
