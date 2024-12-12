@@ -111,11 +111,15 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for
     await tryber.tables.WpAppqAdditionalBugTypes.do().insert([
       {
         campaign_id: 2,
-        bug_type_id: 2,
+        bug_type_id: 2, // Crash - enabled
       },
       {
         campaign_id: 1,
-        bug_type_id: 1,
+        bug_type_id: 1, // Typo - enabled
+      },
+      {
+        campaign_id: 1,
+        bug_type_id: 3, // Atomic - disabled
       },
     ]);
   });
@@ -127,7 +131,17 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for
       .get("/users/me/campaigns/1")
       .set("Authorization", "Bearer tester");
     expect(response.body).toMatchObject({
-      bugTypes: { valid: ["TYPO"], invalid: ["CRASH"] },
+      bugTypes: { valid: ["TYPO", "ATOMIC"], invalid: ["CRASH"] },
+    });
+  });
+  it("Should return selected bug types also if type are disabled", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toMatchObject({
+      bugTypes: {
+        valid: expect.arrayContaining(["ATOMIC"]),
+      },
     });
   });
 });

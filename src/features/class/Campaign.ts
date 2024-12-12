@@ -105,55 +105,37 @@ class Campaign {
         .select("bug_type_id")
         .where({ campaign_id: this.id })
     ).map((c) => c.bug_type_id);
-    const types = await getTypes();
+    const enabledTypes = await getEnabledTypes();
     if (!customTypes.length) {
       return {
-        valid: types.filter(isValidBugType),
+        valid: enabledTypes,
         invalid: [],
       };
     }
+    const allTypes = await getAllTypes();
     return {
-      valid: types
-        .filter((s) => customTypes.includes(s.id))
-        .filter(isValidBugType),
-      invalid: types
-        .filter((s) => !customTypes.includes(s.id))
-        .filter(isValidBugType),
+      valid: allTypes.filter((s) => customTypes.includes(s.id)),
+      invalid: enabledTypes.filter((s) => !customTypes.includes(s.id)),
     };
 
-    async function getTypes(): Promise<{ id: number; name: string }[]> {
+    async function getEnabledTypes(): Promise<{ id: number; name: string }[]> {
       return (
         await tryber.tables.WpAppqEvdBugType.do()
           .select(["id", "name"])
           .where({ is_enabled: 1 })
-      ).map((s: typeof types[0]) => ({
+      ).map((s: typeof enabledTypes[0]) => ({
         ...s,
         name: s.name.toUpperCase(),
       }));
     }
 
-    function isValidBugType(item: { id: number; name: string }): item is {
-      id: number;
-      name:
-        | "CRASH"
-        | "GRAPHIC"
-        | "MALFUNCTION"
-        | "OTHER"
-        | "PERFORMANCE"
-        | "SECURITY"
-        | "TYPO"
-        | "USABILITY";
-    } {
-      return [
-        "CRASH",
-        "GRAPHIC",
-        "MALFUNCTION",
-        "OTHER",
-        "PERFORMANCE",
-        "SECURITY",
-        "TYPO",
-        "USABILITY",
-      ].includes(item.name);
+    async function getAllTypes(): Promise<{ id: number; name: string }[]> {
+      return (
+        await tryber.tables.WpAppqEvdBugType.do().select(["id", "name"])
+      ).map((s: typeof enabledTypes[0]) => ({
+        ...s,
+        name: s.name.toUpperCase(),
+      }));
     }
   }
 
