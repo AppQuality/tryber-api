@@ -108,6 +108,11 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set fo
 describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for a specific CP", () => {
   useBasicData();
   beforeAll(async () => {
+    await tryber.tables.WpAppqEvdBugType.do().insert([
+      { id: 30, name: "Corrupted", is_enabled: 1 },
+      { id: 40, name: "Persistent", is_enabled: 0 },
+    ]);
+
     await tryber.tables.WpAppqAdditionalBugTypes.do().insert([
       {
         campaign_id: 2,
@@ -121,6 +126,10 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for
         campaign_id: 1,
         bug_type_id: 3, // Atomic - disabled
       },
+      {
+        campaign_id: 1,
+        bug_type_id: 30, // Corrupted - enabled
+      },
     ]);
   });
   afterAll(async () => {
@@ -131,7 +140,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for
       .get("/users/me/campaigns/1")
       .set("Authorization", "Bearer tester");
     expect(response.body).toMatchObject({
-      bugTypes: { valid: ["TYPO", "ATOMIC"], invalid: ["CRASH"] },
+      bugTypes: { valid: ["TYPO", "ATOMIC", "CORRUPTED"], invalid: ["CRASH"] },
     });
   });
   it("Should return selected bug types also if type are disabled", async () => {
@@ -141,6 +150,41 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - custom bug types set for
     expect(response.body).toMatchObject({
       bugTypes: {
         valid: expect.arrayContaining(["ATOMIC"]),
+      },
+    });
+  });
+  it("Should return not-standard (enabled  and disabled) custom bug TYPE as valid", async () => {
+    // insert not-standard bug type
+    // standard bug type: CRASH, GRAPHIC, MALFUNCTION, OTHER, PERFORMANCE, SECURITY, TYPO, USABILITY
+    const standard = [
+      "CRASH",
+      "GRAPHIC",
+      "MALFUNCTION",
+      "OTHER",
+      "PERFORMANCE",
+      "SECURITY",
+      "TYPO",
+      "USABILITY",
+    ];
+    const noStandardCustomTypes = (
+      await tryber.tables.WpAppqEvdBugType.do()
+        .select("name")
+        .join(
+          "wp_appq_additional_bug_types",
+          "wp_appq_evd_bug_type.id",
+          "wp_appq_additional_bug_types.bug_type_id"
+        )
+        .where("wp_appq_additional_bug_types.campaign_id", 1)
+    )
+      .map((type) => type.name.toUpperCase())
+      .filter((type) => !standard.includes(type));
+
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toMatchObject({
+      bugTypes: {
+        valid: expect.arrayContaining(noStandardCustomTypes),
       },
     });
   });
