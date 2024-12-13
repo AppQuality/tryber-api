@@ -42,8 +42,10 @@ jest.mock("@src/features/getMimetypeFromS3");
 describe("Route POST a bug to a specific campaign", () => {
   useBasicData();
   beforeEach(async () => {
-    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
-    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 2, name: "HIGH" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert([
+      { id: 1, name: "LOW" },
+      { id: 2, name: "HIGH" },
+    ]);
     await tryber.tables.WpAppqEvdBugReplicability.do().insert({
       id: 1,
       name: "Once",
@@ -52,13 +54,10 @@ describe("Route POST a bug to a specific campaign", () => {
       id: 2,
       name: "Sometimes",
     });
-    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
-    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 2, name: "Typo" });
-    await tryber.tables.WpAppqEvdBugType.do().insert({
-      id: 3,
-      name: "Other",
-      is_enabled: 0,
-    });
+    await tryber.tables.WpAppqEvdBugType.do().insert([
+      { id: 1, name: "Crash", is_enabled: 1 },
+      { id: 3, name: "Other", is_enabled: 0 },
+    ]);
     await tryber.tables.WpAppqEvdPlatform.do().insert({
       id: 1,
       name: "Android",
@@ -72,69 +71,73 @@ describe("Route POST a bug to a specific campaign", () => {
       main_release: 1,
       version_family: 1,
     });
-    await tryber.tables.WpCrowdAppqDevice.do().insert({
-      id: 1,
-      enabled: 1,
-      id_profile: 1,
-      manufacturer: "Acer",
-      model: "Iconia A1",
-      platform_id: 1,
-      os_version_id: 798,
-      form_factor: "Tablet",
-      source_id: 950,
-    });
-    await tryber.tables.WpCrowdAppqDevice.do().insert({
-      id: 2,
-      enabled: 1,
-      id_profile: 1,
-      manufacturer: "Acer",
-      model: "Iconia A1",
-      platform_id: 1,
-      os_version_id: 798,
-      form_factor: "Tablet",
-      source_id: 950,
-    });
-    await tryber.tables.WpCrowdAppqDevice.do().insert({
-      id: 3,
-      enabled: 1,
-      id_profile: 1,
-      manufacturer: "Acer",
-      model: "Iconia A1",
-      platform_id: 1,
-      os_version_id: 798,
-      form_factor: "PC",
-      source_id: 950,
-      pc_type: "Notebook",
-    });
-    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert({
-      id: 1,
-      slug: "codice-cliente",
-      type: "regex",
-      title: "Codice cliente",
-      error_message: "",
-      validation: "^[0-9a-zA-Z]+$",
-      cp_id: 1,
-    });
-    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert({
-      id: 2,
-      slug: "nome-banca",
-      type: "select",
-      validation: "intesa; etruria; sanpaolo",
-      title: "Nome banca",
-      error_message: "",
-      cp_id: 1,
-    });
+    await tryber.tables.WpCrowdAppqDevice.do().insert([
+      {
+        id: 1,
+        enabled: 1,
+        id_profile: 1,
+        manufacturer: "Acer",
+        model: "Iconia A1",
+        platform_id: 1,
+        os_version_id: 798,
+        form_factor: "Tablet",
+        source_id: 950,
+      },
+      {
+        id: 2,
+        enabled: 1,
+        id_profile: 1,
+        manufacturer: "Acer",
+        model: "Iconia A1",
+        platform_id: 1,
+        os_version_id: 798,
+        form_factor: "Tablet",
+        source_id: 950,
+      },
+      {
+        id: 3,
+        enabled: 1,
+        id_profile: 1,
+        manufacturer: "Acer",
+        model: "Iconia A1",
+        platform_id: 1,
+        os_version_id: 798,
+        form_factor: "PC",
+        source_id: 950,
+        pc_type: "Notebook",
+      },
+    ]);
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert([
+      {
+        id: 1,
+        slug: "codice-cliente",
+        type: "regex",
+        title: "Codice cliente",
+        error_message: "",
+        validation: "^[0-9a-zA-Z]+$",
+        cp_id: 1,
+      },
+      {
+        id: 2,
+        slug: "nome-banca",
+        type: "select",
+        validation: "intesa; etruria; sanpaolo",
+        title: "Nome banca",
+        error_message: "",
+        cp_id: 1,
+      },
+    ]);
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdSeverity.do().delete();
+    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
     await tryber.tables.WpAppqEvdBugReplicability.do().delete();
+    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
     await tryber.tables.WpAppqEvdBugType.do().delete();
+    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
     await tryber.tables.WpAppqEvdPlatform.do().delete();
     await tryber.tables.WpAppqOs.do().delete();
     await tryber.tables.WpCrowdAppqDevice.do().delete();
-    await tryber.tables.WpAppqAdditionalBugSeverities.do().delete();
-    await tryber.tables.WpAppqAdditionalBugReplicabilities.do().delete();
-    await tryber.tables.WpAppqAdditionalBugTypes.do().delete();
     await tryber.tables.WpAppqEvdBug.do().delete();
     await tryber.tables.WpAppqEvdBugMedia.do().delete();
     await tryber.tables.WpCrowdAppqDevice.do().delete();
@@ -182,7 +185,6 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Usecase 100 not found for CP1.`,
     });
   });
-
   it("Should answer 403 if a user sends a bug to a usecase for another group", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
@@ -195,7 +197,6 @@ describe("Route POST a bug to a specific campaign", () => {
       message: `Usecase 6 not found for CP4.`,
     });
   });
-
   it("Should answer 200 if a user sends a usecase that has all groups", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
@@ -203,7 +204,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .send({ ...bug, usecase: 7 });
     expect(response.status).toBe(200);
   });
-
   it("Should answer 200 if a user sends a lastSeenDate with another timezone", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/4/bugs")
@@ -211,7 +211,6 @@ describe("Route POST a bug to a specific campaign", () => {
       .send({ ...bug, lastSeen: "2023-03-16T07:56:16.000-03:00", usecase: 7 });
     expect(response.status).toBe(200);
   });
-  //
   it("Should answer 403 if a user sends a bug with a device that's not the candidate one", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
@@ -379,6 +378,46 @@ describe("Route POST a bug to a specific campaign", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("type", "CRASH");
   });
+  it("Should return 200 if send an existent (and enabled) bug TYPE on wp_appq_evd_bug_type", async () => {
+    const bugTypes = (
+      await tryber.tables.WpAppqEvdBugType.do()
+        .select("name")
+        .where({ is_enabled: 1 })
+    ).map((type) => type.name);
+
+    for (const bugType of bugTypes) {
+      const response = await request(app)
+        .post("/users/me/campaigns/1/bugs")
+        .set("authorization", "Bearer tester")
+        .send({ ...bug, type: bugType.toUpperCase() });
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("type", bugType.toUpperCase());
+    }
+  });
+  it("Should return 200 if send a not-standard (and enabled) bug TYPE on wp_appq_evd_bug_type", async () => {
+    // insert not-standard bug type
+    // standard bug type: CRASH, GRAPHIC, MALFUNCTION, OTHER, PERFORMANCE, SECURITY, TYPO, USABILITY
+    await tryber.tables.WpAppqEvdBugType.do().insert([
+      { name: "Corrupted", is_enabled: 1 },
+      { name: "Persistent", is_enabled: 1 },
+      { name: "Supersecurity", is_enabled: 1 },
+    ]);
+    const bugTypes = (
+      await tryber.tables.WpAppqEvdBugType.do()
+        .select("name")
+        .where({ is_enabled: 1 })
+    ).map((type) => type.name);
+
+    for (const bugType of bugTypes) {
+      const response = await request(app)
+        .post("/users/me/campaigns/1/bugs")
+        .set("authorization", "Bearer tester")
+        .send({ ...bug, type: bugType.toUpperCase() });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("type", bugType.toUpperCase());
+    }
+  });
   it("Should update INTERNALID if a user sends a valid bug", async () => {
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
@@ -465,23 +504,26 @@ describe("Route POST a bug to a specific campaign", () => {
     ]);
   });
 });
-
 describe("Route POST a bug to a specific campaign - with custom type", () => {
   useBasicData();
   beforeEach(async () => {
-    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 1, name: "LOW" });
-    await tryber.tables.WpAppqEvdSeverity.do().insert({ id: 2, name: "HIGH" });
+    await tryber.tables.WpAppqEvdSeverity.do().insert([
+      { id: 1, name: "LOW" },
+      { id: 2, name: "HIGH" },
+    ]);
     await tryber.tables.WpAppqEvdBugReplicability.do().insert({
       id: 1,
       name: "Once",
     });
-    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 1, name: "Crash" });
-    await tryber.tables.WpAppqEvdBugType.do().insert({ id: 2, name: "Typo" });
-    await tryber.tables.WpAppqEvdBugType.do().insert({
-      id: 3,
-      name: "Other",
-      is_enabled: 0,
-    });
+    await tryber.tables.WpAppqEvdBugType.do().insert([
+      { id: 1, name: "Crash" },
+      { id: 2, name: "Typo" },
+      { id: 3, name: "Other", is_enabled: 0 },
+    ]);
+    await tryber.tables.WpAppqAdditionalBugTypes.do().insert([
+      { bug_type_id: 3, campaign_id: 1 },
+      { bug_type_id: 1, campaign_id: 1 },
+    ]);
 
     await tryber.tables.WpAppqEvdPlatform.do().insert({
       id: 1,
@@ -496,7 +538,6 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       main_release: 1,
       version_family: 1,
     });
-
     await tryber.tables.WpCrowdAppqDevice.do().insert({
       id: 1,
       enabled: 1,
@@ -507,20 +548,6 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       os_version_id: 798,
       form_factor: "Tablet",
       source_id: 950,
-    });
-
-    await tryber.tables.WpAppqAdditionalBugSeverities.do().insert({
-      bug_severity_id: 1,
-      campaign_id: 1,
-    });
-
-    await tryber.tables.WpAppqAdditionalBugTypes.do().insert({
-      bug_type_id: 1,
-      campaign_id: 1,
-    });
-    await tryber.tables.WpAppqAdditionalBugTypes.do().insert({
-      bug_type_id: 3,
-      campaign_id: 1,
     });
   });
   afterEach(async () => {
@@ -549,7 +576,8 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("type", "CRASH");
   });
-  it("Should answer 403 if a user sends a unaccepted bug-type on CP", async () => {
+  it("Should answer 403 if a user sends a non-existent bug-type on CP", async () => {
+    // non-existent bug type means that the bug type is not on wp_appq_additional_bug_types neither on wp_appq_evd_bug_type
     const response = await request(app)
       .post("/users/me/campaigns/1/bugs")
       .set("authorization", "Bearer tester")
@@ -561,8 +589,18 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       message: `BugType TYPO is not accepted from CP1.`,
     });
   });
+  it("Should answer 200 if a user sends custom bug-type disabled but exist as custom type", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send({
+        ...bug,
+        type: "OTHER",
+      });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("type", "OTHER");
+  });
 });
-
 describe("Route POST a bug to a specific campaign - with custom severities", () => {
   useBasicData();
   beforeEach(async () => {
@@ -642,7 +680,6 @@ describe("Route POST a bug to a specific campaign - with custom severities", () 
     });
   });
 });
-
 describe("Route POST a bug to a specific campaign - with custom replicability", () => {
   useBasicData();
   beforeEach(async () => {
@@ -767,7 +804,6 @@ describe("Route POST a bug to a specific campaign - with user has not devices", 
     expect(response.status).toBe(403);
   });
 });
-
 describe("Route POST a bug to a specific campaign - with invalid additional fields", () => {
   useBasicData();
   beforeEach(async () => {
