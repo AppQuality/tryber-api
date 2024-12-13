@@ -3219,16 +3219,7 @@ export interface operations {
             severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
             /** @enum {string} */
             replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
-            /** @enum {string} */
-            type:
-              | "CRASH"
-              | "GRAPHIC"
-              | "MALFUNCTION"
-              | "OTHER"
-              | "PERFORMANCE"
-              | "SECURITY"
-              | "TYPO"
-              | "USABILITY";
+            type: string;
             notes: string;
             usecase: string;
             device: components["schemas"]["UserDevice"];
@@ -3254,16 +3245,7 @@ export interface operations {
           severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
           /** @enum {string} */
           replicability: "ONCE" | "SOMETIMES" | "ALWAYS";
-          /** @enum {string} */
-          type:
-            | "CRASH"
-            | "GRAPHIC"
-            | "MALFUNCTION"
-            | "OTHER"
-            | "PERFORMANCE"
-            | "SECURITY"
-            | "TYPO"
-            | "USABILITY";
+          type: string;
           notes: string;
           lastSeen: string;
           usecase: number;
