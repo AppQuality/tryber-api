@@ -106,12 +106,14 @@ class Campaign {
         .where({ campaign_id: this.id })
     ).map((c) => c.bug_type_id);
     const enabledTypes = await getEnabledTypes();
+    // If no custom bug types are set, return all enabled types
     if (!customTypes.length) {
       return {
         valid: enabledTypes,
         invalid: [],
       };
     }
+    // Else, return the custom bug types (also disabled types if selected)
     const allTypes = await getAllTypes();
     return {
       valid: allTypes.filter((s) => customTypes.includes(s.id)),
