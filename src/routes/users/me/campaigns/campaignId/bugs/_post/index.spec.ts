@@ -394,6 +394,26 @@ describe("Route POST a bug to a specific campaign", () => {
       expect(response.body).toHaveProperty("type", bugType.toUpperCase());
     }
   });
+  it("Should return an error if send an existent (disabled) bug TYPE on wp_appq_evd_bug_type", async () => {
+    const bugTypes = (
+      await tryber.tables.WpAppqEvdBugType.do()
+        .select("name")
+        .where({ is_enabled: 0 })
+    ).map((type) => type.name);
+
+    for (const bugType of bugTypes) {
+      const response = await request(app)
+        .post("/users/me/campaigns/1/bugs")
+        .set("authorization", "Bearer tester")
+        .send({ ...bug, type: bugType.toUpperCase() });
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        element: "bugs",
+        id: 1,
+        message: `BugType ${bugType.toUpperCase()} is not accepted from CP1.`,
+      });
+    }
+  });
   it("Should return 200 if send a not-standard (and enabled) bug TYPE on wp_appq_evd_bug_type", async () => {
     // insert not-standard bug type
     // standard bug type: CRASH, GRAPHIC, MALFUNCTION, OTHER, PERFORMANCE, SECURITY, TYPO, USABILITY
@@ -599,6 +619,31 @@ describe("Route POST a bug to a specific campaign - with custom type", () => {
       });
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("type", "OTHER");
+  });
+  it("Should return an error if a user sends a bug-type not included as custom", async () => {
+    const customBugTypeIds = await tryber.tables.WpAppqAdditionalBugTypes.do()
+      .select("bug_type_id")
+      .where({ campaign_id: 1 });
+    const unselectedBugType = await tryber.tables.WpAppqEvdBugType.do()
+      .select("name")
+      .whereNotIn(
+        "id",
+        customBugTypeIds.map((c) => c.bug_type_id)
+      )
+      .first();
+    const response = await request(app)
+      .post("/users/me/campaigns/1/bugs")
+      .set("authorization", "Bearer tester")
+      .send({
+        ...bug,
+        type: unselectedBugType?.name.toLocaleUpperCase(),
+      });
+    expect(response.status).toBe(403);
+    expect(response.body).toEqual({
+      element: "bugs",
+      id: 1,
+      message: `BugType ${unselectedBugType?.name.toLocaleUpperCase()} is not accepted from CP1.`,
+    });
   });
 });
 describe("Route POST a bug to a specific campaign - with custom severities", () => {
