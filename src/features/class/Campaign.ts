@@ -105,36 +105,30 @@ class Campaign {
         .select("bug_type_id")
         .where({ campaign_id: this.id })
     ).map((c) => c.bug_type_id);
-    const enabledTypes = await getEnabledTypes();
+    const allTypes = await getAllTypes();
     // If no custom bug types are set, return all enabled types
     if (!customTypes.length) {
       return {
-        valid: enabledTypes,
+        valid: allTypes.filter((t) => t.is_enabled),
         invalid: [],
       };
     }
     // Else, return the custom bug types (also disabled types if selected)
-    const allTypes = await getAllTypes();
     return {
       valid: allTypes.filter((s) => customTypes.includes(s.id)),
-      invalid: enabledTypes.filter((s) => !customTypes.includes(s.id)),
+      invalid: allTypes.filter(
+        (s) => s.is_enabled && !customTypes.includes(s.id)
+      ),
     };
 
-    async function getEnabledTypes(): Promise<{ id: number; name: string }[]> {
+    async function getAllTypes() {
       return (
-        await tryber.tables.WpAppqEvdBugType.do()
-          .select(["id", "name"])
-          .where({ is_enabled: 1 })
-      ).map((s: typeof enabledTypes[0]) => ({
-        ...s,
-        name: s.name.toUpperCase(),
-      }));
-    }
-
-    async function getAllTypes(): Promise<{ id: number; name: string }[]> {
-      return (
-        await tryber.tables.WpAppqEvdBugType.do().select(["id", "name"])
-      ).map((s: typeof enabledTypes[0]) => ({
+        await tryber.tables.WpAppqEvdBugType.do().select([
+          "id",
+          "name",
+          "is_enabled",
+        ])
+      ).map((s) => ({
         ...s,
         name: s.name.toUpperCase(),
       }));
