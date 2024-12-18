@@ -105,55 +105,33 @@ class Campaign {
         .select("bug_type_id")
         .where({ campaign_id: this.id })
     ).map((c) => c.bug_type_id);
-    const types = await getTypes();
+    const allTypes = await getAllTypes();
+    // If no custom bug types are set, return all enabled types
     if (!customTypes.length) {
       return {
-        valid: types.filter(isValidBugType),
+        valid: allTypes.filter((t) => t.is_enabled),
         invalid: [],
       };
     }
+    // Else, return the custom bug types (also disabled types if selected)
     return {
-      valid: types
-        .filter((s) => customTypes.includes(s.id))
-        .filter(isValidBugType),
-      invalid: types
-        .filter((s) => !customTypes.includes(s.id))
-        .filter(isValidBugType),
+      valid: allTypes.filter((s) => customTypes.includes(s.id)),
+      invalid: allTypes.filter(
+        (s) => s.is_enabled && !customTypes.includes(s.id)
+      ),
     };
 
-    async function getTypes(): Promise<{ id: number; name: string }[]> {
+    async function getAllTypes() {
       return (
-        await tryber.tables.WpAppqEvdBugType.do()
-          .select(["id", "name"])
-          .where({ is_enabled: 1 })
-      ).map((s: typeof types[0]) => ({
+        await tryber.tables.WpAppqEvdBugType.do().select([
+          "id",
+          "name",
+          "is_enabled",
+        ])
+      ).map((s) => ({
         ...s,
         name: s.name.toUpperCase(),
       }));
-    }
-
-    function isValidBugType(item: { id: number; name: string }): item is {
-      id: number;
-      name:
-        | "CRASH"
-        | "GRAPHIC"
-        | "MALFUNCTION"
-        | "OTHER"
-        | "PERFORMANCE"
-        | "SECURITY"
-        | "TYPO"
-        | "USABILITY";
-    } {
-      return [
-        "CRASH",
-        "GRAPHIC",
-        "MALFUNCTION",
-        "OTHER",
-        "PERFORMANCE",
-        "SECURITY",
-        "TYPO",
-        "USABILITY",
-      ].includes(item.name);
     }
   }
 
