@@ -6666,15 +6666,6 @@ paths:
                       - ALWAYS
                   type:
                     type: string
-                    enum:
-                      - CRASH
-                      - GRAPHIC
-                      - MALFUNCTION
-                      - OTHER
-                      - PERFORMANCE
-                      - SECURITY
-                      - TYPO
-                      - USABILITY
                   notes:
                     type: string
                   usecase:
@@ -6764,15 +6755,6 @@ paths:
                     - ALWAYS
                 type:
                   type: string
-                  enum:
-                    - CRASH
-                    - GRAPHIC
-                    - MALFUNCTION
-                    - OTHER
-                    - PERFORMANCE
-                    - SECURITY
-                    - TYPO
-                    - USABILITY
                 notes:
                   type: string
                 lastSeen:
