@@ -116,7 +116,6 @@ export default class RouteItem extends UserRoute<{
   private async updateCampaign() {
     const { os, form_factor } = await this.getDevices();
 
-    console.log(typeof this.getBody().target?.cap);
     await tryber.tables.WpAppqEvdCampaign.do()
       .update({
         title: this.getBody().title.tester,

@@ -229,7 +229,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("start_date", "2021-08-24T14:15:22Z");
+    expect(campaign).toHaveProperty("start_date", "2021-08-24 14:15:22");
   });
 
   it("Should create a campaign with the specified end date ", async () => {
@@ -250,7 +250,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("end_date", "2021-08-20T14:15:22Z");
+    expect(campaign).toHaveProperty("end_date", "2021-08-20 14:15:22");
   });
 
   it("Should create a campaign with the specified close date ", async () => {
@@ -271,7 +271,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("close_date", "2021-08-20T14:15:22Z");
+    expect(campaign).toHaveProperty("close_date", "2021-08-20 14:15:22");
   });
 
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {
@@ -292,7 +292,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("end_date", "2021-08-27T14:15:22Z");
+    expect(campaign).toHaveProperty("end_date", "2021-08-27 14:15:22");
   });
 
   it("Should create a campaign with the close date as start date + 14 if left unspecified", async () => {
@@ -313,7 +313,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("close_date", "2021-09-03T14:15:22Z");
+    expect(campaign).toHaveProperty("close_date", "2021-09-03 14:15:22");
   });
 
   it("Should create a campaign with current user as pm_id if left unspecified", async () => {
