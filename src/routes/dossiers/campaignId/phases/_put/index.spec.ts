@@ -64,7 +64,6 @@ describe("Route PUT /dossiers/:id/phases", () => {
         start_date: "2021-01-01T00:00:00.000Z",
         end_date: "2021-12-31T00:00:00.000Z",
         close_date: "2022-01-01T00:00:00.000Z",
-        customer_id: 1,
         project_id: 1,
         phase_id: 1,
         os: "",

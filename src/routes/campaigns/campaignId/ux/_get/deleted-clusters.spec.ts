@@ -12,7 +12,6 @@ const campaign = {
   close_date: "2021-01-01",
   title: "Campaign 1",
   customer_title: "Customer 1",
-  customer_id: 1,
   project_id: 1,
   campaign_type_id: 1,
 };

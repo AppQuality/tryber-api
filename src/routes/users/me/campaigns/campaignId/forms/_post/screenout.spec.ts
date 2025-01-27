@@ -28,7 +28,6 @@ describe("POST users/me/campaigns/:campaignId/forms - screenout", () => {
       page_manual_id: 1,
       pm_id: 1,
       project_id: 1,
-      customer_id: 1,
     });
     await tryber.tables.WpAppqCustomUserField.do().insert({
       id: 1,

@@ -22,7 +22,6 @@ const basicCampaign = {
   page_preview_id: 0,
   status_id: 1,
   platform_id: 1,
-  customer_id: 1,
   project_id: 1,
 };
 

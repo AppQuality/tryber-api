@@ -65,7 +65,6 @@ beforeAll(async () => {
       title: "Test Campaign",
       start_date: "2020-01-01",
       end_date: "2020-01-01",
-      customer_id: 1,
       page_preview_id: 1,
       page_manual_id: 1,
       pm_id: 1,

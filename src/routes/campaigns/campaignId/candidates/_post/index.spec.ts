@@ -25,7 +25,6 @@ beforeEach(async () => {
     page_manual_id: 0,
     page_preview_id: 0,
     platform_id: 1,
-    customer_id: 1,
     project_id: 1,
   });
   await tryber.tables.WpAppqEvdProfile.do().insert([

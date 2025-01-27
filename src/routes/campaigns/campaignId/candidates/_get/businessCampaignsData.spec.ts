@@ -15,7 +15,6 @@ describe("GET /campaigns/:campaignId/candidates - business Campaigns ", () => {
       customer_title: "Customer",
       page_manual_id: 1,
       page_preview_id: 1,
-      customer_id: 1,
       pm_id: 1,
       project_id: 1,
     };

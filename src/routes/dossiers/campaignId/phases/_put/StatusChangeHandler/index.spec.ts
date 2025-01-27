@@ -14,7 +14,6 @@ describe("StatusChangeHandler", () => {
       end_date: "2019-08-24T14:15:22Z",
       page_manual_id: 1,
       page_preview_id: 1,
-      customer_id: 1,
       project_id: 1,
     };
     await tryber.tables.WpAppqEvdCampaign.do().insert([

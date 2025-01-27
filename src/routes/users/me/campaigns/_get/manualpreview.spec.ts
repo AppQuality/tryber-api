@@ -25,7 +25,6 @@ describe("GET /users/me/campaigns ", () => {
       is_public: 1,
       pm_id: 1,
       platform_id: 1,
-      customer_id: 1,
       project_id: 1,
       phase_id: 20,
       customer_title: "Customer title",

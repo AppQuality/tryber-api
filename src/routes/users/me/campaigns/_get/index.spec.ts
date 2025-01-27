@@ -36,7 +36,6 @@ describe("GET /users/me/campaigns", () => {
       os: "1",
       platform_id: 1,
       pm_id: 1,
-      customer_id: 1,
       project_id: 1,
       customer_title: "Customer",
     };

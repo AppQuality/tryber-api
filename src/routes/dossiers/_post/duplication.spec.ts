@@ -59,7 +59,6 @@ describe("Route POST /dossiers - duplication", () => {
       customer_title: "Origin Campaign",
       page_manual_id: 1,
       page_preview_id: 2,
-      customer_id: 1,
       project_id: 1,
       pm_id: 1,
     });

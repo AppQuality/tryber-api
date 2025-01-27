@@ -258,7 +258,6 @@ export default class RouteItem extends UserRoute<{
         close_date: this.getCloseDate(),
         page_preview_id: 0,
         page_manual_id: 0,
-        customer_id: 0,
         description: "",
         pm_id: this.getCsmId(),
         project_id: this.getBody().project,

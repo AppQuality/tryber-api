@@ -59,7 +59,6 @@ describe("Route PUT /dossiers/:id", () => {
       page_manual_id: 0,
       page_preview_id: 0,
       pm_id: 1,
-      customer_id: 0,
     });
   });
   afterEach(async () => {

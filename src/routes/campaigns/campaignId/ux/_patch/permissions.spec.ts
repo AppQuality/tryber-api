@@ -10,7 +10,6 @@ const campaign = {
   pm_id: 1,
   page_manual_id: 1,
   page_preview_id: 1,
-  customer_id: 1,
   project_id: 1,
   customer_title: "Test Customer",
 };

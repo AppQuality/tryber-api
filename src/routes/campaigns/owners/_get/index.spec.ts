@@ -5,7 +5,6 @@ const campaign = {
   title: "Campaign 1",
   project_id: 1,
   customer_title: "Customer 1",
-  customer_id: 1,
   platform_id: 1,
   start_date: "2020-01-01",
   end_date: "2020-01-01",

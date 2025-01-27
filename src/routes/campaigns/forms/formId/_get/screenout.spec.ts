@@ -12,7 +12,6 @@ describe("GET /campaigns/forms/{formId} - screenout data", () => {
       end_date: "2021-01-01",
       page_manual_id: 1,
       page_preview_id: 1,
-      customer_id: 1,
       pm_id: 1,
       project_id: 1,
       customer_title: "My campaign",
