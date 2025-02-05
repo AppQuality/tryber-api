@@ -265,7 +265,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("start_date", "2021-08-24T14:15:22Z");
+    expect(campaign).toHaveProperty("start_date", "2021-08-24 14:15:22");
   });
 
   it("Should update the campaign with the specified end date ", async () => {
@@ -286,7 +286,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("end_date", "2021-08-20T14:15:22Z");
+    expect(campaign).toHaveProperty("end_date", "2021-08-20 14:15:22");
   });
 
   it("Should update the campaign with the specified close date ", async () => {
@@ -307,7 +307,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("close_date", "2021-08-20T14:15:22Z");
+    expect(campaign).toHaveProperty("close_date", "2021-08-20 14:15:22");
   });
 
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
@@ -328,7 +328,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("end_date", "2019-08-24T14:15:22Z");
+    expect(campaign).toHaveProperty("end_date", "2019-08-24 14:15:22");
   });
 
   it("Should leave the close date of the campaign unedited if left unspecified", async () => {
@@ -349,7 +349,7 @@ describe("Route POST /dossiers", () => {
       .where({ id })
       .first();
 
-    expect(campaign).toHaveProperty("close_date", "2019-08-25T14:15:22Z");
+    expect(campaign).toHaveProperty("close_date", "2019-08-25 14:15:22");
   });
 
   it("Should update the campaign with current user as pm_id", async () => {
@@ -614,7 +614,6 @@ describe("Route POST /dossiers", () => {
       const responseGet = await request(app)
         .get("/dossiers/1")
         .set("authorization", "Bearer admin");
-      console.log(responseGet.body);
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("countries", ["DE", "FR"]);
     });
@@ -630,7 +629,6 @@ describe("Route POST /dossiers", () => {
       const responseGet = await request(app)
         .get("/dossiers/1")
         .set("authorization", "Bearer admin");
-      console.log(responseGet.body);
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("languages");
       expect(responseGet.body.languages).toHaveLength(1);

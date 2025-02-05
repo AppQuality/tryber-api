@@ -116,13 +116,16 @@ export default class RouteItem extends UserRoute<{
   private async updateCampaign() {
     const { os, form_factor } = await this.getDevices();
 
-    console.log(typeof this.getBody().target?.cap);
     await tryber.tables.WpAppqEvdCampaign.do()
       .update({
         title: this.getBody().title.tester,
-        start_date: this.getBody().startDate,
-        end_date: this.getEndDate(),
-        close_date: this.getCloseDate(),
+        start_date:
+          this.getBody().startDate?.toString().slice(0, 19).replace("T", " ") ||
+          "",
+        end_date:
+          this.getEndDate()?.toString().slice(0, 19).replace("T", " ") || "",
+        close_date:
+          this.getCloseDate()?.toString().slice(0, 19).replace("T", " ") || "",
         pm_id: this.getBody().csm ?? this.getTesterId(),
         project_id: this.getBody().project,
         campaign_type_id: this.getBody().testType,
