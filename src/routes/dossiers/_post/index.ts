@@ -246,16 +246,13 @@ export default class RouteItem extends UserRoute<{
       .insert({
         title: this.getBody().title.tester,
         platform_id: 0,
-        /* start_date:
+        start_date:
           this.getBody().startDate?.toString().slice(0, 19).replace("T", " ") ||
           "",
         end_date:
           this.getEndDate()?.toString().slice(0, 19).replace("T", " ") || "",
         close_date:
-          this.getCloseDate()?.toString().slice(0, 19).replace("T", " ") || "",*/
-        start_date: this.getBody().startDate,
-        end_date: this.getEndDate(),
-        close_date: this.getCloseDate(),
+          this.getCloseDate()?.toString().slice(0, 19).replace("T", " ") || "",
         page_preview_id: 0,
         page_manual_id: 0,
         customer_id: 0,
