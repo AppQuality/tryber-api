@@ -293,6 +293,15 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/quotations": {
+    post: operations["post-dossiers-campaign-quotations"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/education": {
     /** Get all education levels */
     get: operations["get-education"];
@@ -2617,6 +2626,36 @@ export interface operations {
       content: {
         "application/json": {
           phase: number;
+        };
+      };
+    };
+  };
+  "post-dossiers-campaign-quotations": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        content: {
+          "application/json": {
+            id?: number;
+          };
+        };
+      };
+      /** Not Found */
+      404: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          quote: number;
+          applicant_id: number;
+          plan_id: number;
+          note?: string;
         };
       };
     };

@@ -3229,6 +3229,18 @@ paths:
                       - id: 89
                         question: 'What''s your [profile question]?'
                         type: gender
+                Example 1:
+                  value:
+                    id: 0
+                    name: string
+                    campaign:
+                      id: 0
+                      name: string
+                    fields:
+                      - id: 0
+                        question: string
+                        short_name: string
+                        type: gender
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4514,6 +4526,57 @@ paths:
                 - phase
       security:
         - JWT: []
+  '/dossiers/{campaign}/quotations':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: ''
+      operationId: post-dossiers-campaign-quotations
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+        '404':
+          description: Not Found
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quote:
+                  type: number
+                applicant_id:
+                  type: integer
+                plan_id:
+                  type: integer
+                note:
+                  type: string
+              required:
+                - quote
+                - applicant_id
+                - plan_id
+            examples:
+              Example 1:
+                value:
+                  quote: 0
+                  applicant_id: 0
+                  plan_id: 0
+                  note: string
+        description: ''
   /education:
     get:
       summary: Get all education levels
@@ -10753,6 +10816,11 @@ components:
               required:
                 - type
       type: object
+      x-examples:
+        Example 1:
+          question: string
+          short_name: string
+          type: gender
     PreselectionQuestionCuf:
       title: PreselectionQuestionCuf
       type: string
