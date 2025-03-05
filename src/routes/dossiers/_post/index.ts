@@ -9,7 +9,7 @@ import crypto from "crypto";
 import { serialize } from "php-serialize";
 import { unserialize } from "php-unserialize";
 
-export default class RouteItem extends UserRoute<{
+export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
 }> {
