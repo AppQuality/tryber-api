@@ -4118,6 +4118,8 @@ export interface operations {
             testers?: number;
             campaign?: number;
           };
+        } & {
+          skipPagesAndTasks?: number;
         };
       };
     };

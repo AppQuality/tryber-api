@@ -9454,6 +9454,55 @@ paths:
                           type: integer
                         campaign:
                           type: integer
+                - type: object
+                  properties:
+                    skipPagesAndTasks:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
+                      default: 0
+            examples:
+              Example 1:
+                value:
+                  project: 0
+                  testType: 0
+                  title:
+                    customer: string
+                    tester: string
+                  startDate: '2019-08-24T14:15:22Z'
+                  endDate: '2019-08-24T14:15:22Z'
+                  closeDate: '2019-08-24T14:15:22Z'
+                  deviceList:
+                    - 0
+                  csm: 0
+                  roles:
+                    - role: 0
+                      user: 0
+                  description: string
+                  productLink: string
+                  goal: string
+                  outOfScope: string
+                  deviceRequirements: string
+                  target:
+                    notes: string
+                    size: 0
+                    cap: 0
+                  countries:
+                    - st
+                  languages:
+                    - string
+                  browsers:
+                    - 0
+                  productType: 0
+                  notes: string
+                  duplicate:
+                    fields: 0
+                    useCases: 0
+                    mailMerges: 0
+                    pages: 0
+                    testers: 0
+                    campaign: 0
+                  skipPagesAndTasks: 0
   '/dossiers/{campaign}':
     parameters:
       - name: campaign

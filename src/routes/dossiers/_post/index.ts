@@ -9,7 +9,7 @@ import crypto from "crypto";
 import { serialize } from "php-serialize";
 import { unserialize } from "php-unserialize";
 
-export default class RouteItem extends UserRoute<{
+export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
 }> {
@@ -137,11 +137,15 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const { skipPagesAndTasks } = this.getBody();
+
     try {
       const campaignId = await this.createCampaign();
       await this.linkRolesToCampaign(campaignId);
 
-      await this.generateLinkedData(campaignId);
+      if (!skipPagesAndTasks) {
+        await this.generateLinkedData(campaignId);
+      }
 
       const webhook = new WebhookTrigger({
         type: "campaign_created",
@@ -370,7 +374,6 @@ export default class RouteItem extends UserRoute<{
 
   private async generateLinkedData(campaignId: number) {
     const apiTrigger = new WordpressJsonApiTrigger(campaignId);
-
     await apiTrigger.generateTasks();
 
     if (this.duplicate.fieldsFrom) await this.duplicateFields(campaignId);
