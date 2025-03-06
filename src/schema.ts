@@ -2652,7 +2652,7 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          quote: number;
+          quote: string;
           notes?: string;
         };
       };

@@ -4558,7 +4558,7 @@ paths:
               type: object
               properties:
                 quote:
-                  type: number
+                  type: string
                 notes:
                   type: string
               required:
@@ -4566,7 +4566,7 @@ paths:
             examples:
               Example 1:
                 value:
-                  quote: 0
+                  quote: '11000'
                   notes: string
         description: ''
   /education:
