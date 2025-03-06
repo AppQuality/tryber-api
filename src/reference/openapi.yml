@@ -4547,8 +4547,6 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: u3cyiiuyob8gt
         '404':
           description: Not Found
       security:
