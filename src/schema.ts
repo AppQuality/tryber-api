@@ -2653,8 +2653,7 @@ export interface operations {
       content: {
         "application/json": {
           quote: number;
-          applicant_id: number;
-          note?: string;
+          notes?: string;
         };
       };
     };

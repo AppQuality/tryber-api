@@ -4547,6 +4547,8 @@ paths:
                 properties:
                   id:
                     type: integer
+                    x-stoplight:
+                      id: u3cyiiuyob8gt
         '404':
           description: Not Found
       security:
@@ -4559,19 +4561,15 @@ paths:
               properties:
                 quote:
                   type: number
-                applicant_id:
-                  type: integer
-                note:
+                notes:
                   type: string
               required:
                 - quote
-                - applicant_id
             examples:
               Example 1:
                 value:
                   quote: 0
-                  applicant_id: 0
-                  note: string
+                  notes: string
         description: ''
   /education:
     get:
