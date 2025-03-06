@@ -87,7 +87,7 @@ export default class RouteItem extends UserRoute<{
       .insert({
         created_by: this.configuration.request.user.testerId,
         status: "pending",
-        estimated_cost: `€${quote}`,
+        estimated_cost: quote,
         config: plan.config,
         plan_id: plan.id,
         ...(notes ? { notes } : {}),

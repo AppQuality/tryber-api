@@ -39,7 +39,7 @@ const plan = {
 };
 
 const baseRequest = {
-  quote: 1900.69,
+  quote: "1900.69",
   applicant_id: 1,
 };
 
@@ -187,7 +187,7 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       .where({ id: response.body.id })
       .first();
     expect(quote).toEqual(
-      expect.objectContaining({ estimated_cost: `€${baseRequest.quote}` })
+      expect.objectContaining({ estimated_cost: baseRequest.quote })
     );
   });
 
@@ -222,7 +222,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       .post("/dossiers/80/quotations")
       .set("authorization", "Bearer admin")
       .send({ ...baseRequest, notes: "Test note" });
-    console.log(response.body);
     expect(response.status).toBe(201);
     const quote = await tryber.tables.CpReqQuotations.do()
       .select()
