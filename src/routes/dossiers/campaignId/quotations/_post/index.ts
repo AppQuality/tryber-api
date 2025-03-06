@@ -38,7 +38,6 @@ export default class RouteItem extends UserRoute<{
 
   private async doesNotHaveAccessToCampaign() {
     return this.configuration.request.user.role !== "administrator";
-    // return !this.hasAccessToCampaign(this.campaignId);
   }
 
   private async campaignNotExists() {
@@ -89,7 +88,6 @@ export default class RouteItem extends UserRoute<{
         created_by: this.configuration.request.user.testerId,
         status: "pending",
         estimated_cost: `€${quote}`,
-        //quoted_by_id: 1, //TODO: want we to track who quoted the price?
         config: plan.config,
         plan_id: plan.id,
         ...(notes ? { notes } : {}),
@@ -103,10 +101,7 @@ export default class RouteItem extends UserRoute<{
   }
   protected async prepare(): Promise<void> {
     try {
-      const quote_id = this.setSuccess(
-        201,
-        await this.createPendingQuotation()
-      );
+      this.setSuccess(201, await this.createPendingQuotation());
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
