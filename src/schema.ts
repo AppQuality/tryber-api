@@ -2654,7 +2654,6 @@ export interface operations {
         "application/json": {
           quote: number;
           applicant_id: number;
-          plan_id: number;
           note?: string;
         };
       };
