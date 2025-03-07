@@ -78,7 +78,7 @@ export default class RouteItem extends UserRoute<{
     return plan;
   }
 
-  protected async createPendingQuotation() {
+  protected async createQuotation() {
     const plan = await this.getPlan();
     if (!plan) throw new Error("Plan does not exist");
 
@@ -86,7 +86,7 @@ export default class RouteItem extends UserRoute<{
     const pendingQuotation = await tryber.tables.CpReqQuotations.do()
       .insert({
         created_by: this.configuration.request.user.testerId,
-        status: "pending",
+        status: (await this.isFromQuotedTemplate()) ? "pending" : "proposed",
         estimated_cost: quote,
         config: plan.config,
         plan_id: plan.id,
@@ -101,9 +101,20 @@ export default class RouteItem extends UserRoute<{
   }
   protected async prepare(): Promise<void> {
     try {
-      this.setSuccess(201, await this.createPendingQuotation());
+      this.setSuccess(201, await this.createQuotation());
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async isFromQuotedTemplate() {
+    const plan = await this.getPlan();
+    const templatePrice = await tryber.tables.CpReqTemplates.do()
+      .select(tryber.ref("price").withSchema("cp_req_templates"))
+      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
+      .where("cp_req_plans.id", plan?.id)
+      .first();
+
+    return templatePrice?.price !== null;
   }
 }

@@ -30,12 +30,25 @@ const config = {
   project_id: 12345,
 };
 
+const notQuotedTemplate = {
+  id: 66,
+  name: "Test Template",
+  description: "Test Description",
+  config: JSON.stringify(config),
+};
+const quotedTemplate = {
+  ...notQuotedTemplate,
+  id: 67,
+  price: 1900.69,
+};
+
 const plan = {
   id: 19,
   name: "Test Plan",
   description: "Test Description",
   config: JSON.stringify(config),
   created_by: 1,
+  template_id: notQuotedTemplate.id,
 };
 
 const baseRequest = {
@@ -66,6 +79,10 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       employment_id: 1,
       education_id: 1,
     });
+    await tryber.tables.CpReqTemplates.do().insert([
+      notQuotedTemplate,
+      quotedTemplate,
+    ]);
     await tryber.tables.CpReqPlans.do().insert([
       {
         ...plan,
@@ -74,11 +91,17 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         ...plan,
         id: 20,
       },
+      {
+        ...plan,
+        id: 22,
+        template_id: quotedTemplate.id,
+      },
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 80, plan_id: plan.id },
-      { ...campaign, id: 81, plan_id: 20 },
-      { ...campaign, id: 85, plan_id: undefined },
+      { ...campaign, id: 80, plan_id: plan.id }, // plan from Not quoted template
+      { ...campaign, id: 81, plan_id: 20 }, // Not exist plan
+      { ...campaign, id: 85, plan_id: undefined }, // plan_id is null
+      { ...campaign, id: 90, plan_id: 22 }, // plan from Quoted template
     ]);
   });
 
@@ -89,6 +112,7 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
   afterAll(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.CpReqPlans.do().delete();
+    await tryber.tables.CpReqTemplates.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -191,19 +215,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
     );
   });
 
-  it("Should insert the quote in status = pending", async () => {
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-    const quote = await tryber.tables.CpReqQuotations.do()
-      .select()
-      .where({ id: response.body.id })
-      .first();
-    expect(quote).toEqual(expect.objectContaining({ status: "pending" }));
-  });
-
   it("Should insert the applicant id", async () => {
     const response = await request(app)
       .post("/dossiers/80/quotations")
@@ -228,5 +239,33 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       .where({ id: response.body.id })
       .first();
     expect(quote).toEqual(expect.objectContaining({ notes: "Test note" }));
+  });
+
+  describe("status evaluation", () => {
+    it("Should insert the quote in status = pending if plan is based on not quoted template", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(201);
+      const quote = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quote).toEqual(expect.objectContaining({ status: "proposed" }));
+    });
+
+    it("Should insert the quote in status = proposed if plan is based on quoted template", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(201);
+      const quote = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quote).toEqual(expect.objectContaining({ status: "pending" }));
+    });
   });
 });
