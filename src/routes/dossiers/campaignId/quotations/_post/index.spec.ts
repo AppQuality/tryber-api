@@ -268,4 +268,43 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       expect(quote).toEqual(expect.objectContaining({ status: "pending" }));
     });
   });
+
+  describe("Case: quotation already exist", () => {
+    it("Should return an error if the quotation already exist", async () => {
+      await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      const response2ndAttempt = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response2ndAttempt.status).toBe(400);
+      expect(response2ndAttempt.body).toEqual(
+        expect.objectContaining({ message: "Plan already quoted" })
+      );
+    });
+    it("Should not insert a quotaion if plan quotation already exist", async () => {
+      await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      const quotationsBefore2ndAttempt =
+        await tryber.tables.CpReqQuotations.do().select();
+
+      await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      const quotationsAfter2ndAttempt =
+        await tryber.tables.CpReqQuotations.do().select();
+
+      expect(quotationsAfter2ndAttempt.length).toBe(
+        quotationsBefore2ndAttempt.length
+      );
+    });
+  });
 });

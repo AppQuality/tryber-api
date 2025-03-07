@@ -33,6 +33,11 @@ export default class RouteItem extends UserRoute<{
       return false;
     }
 
+    if (await this.planIsAlreadyQuoted()) {
+      this.setError(400, new OpenapiError("Plan already quoted"));
+      return false;
+    }
+
     return true;
   }
 
@@ -99,6 +104,16 @@ export default class RouteItem extends UserRoute<{
       throw new Error("Error creating quotation");
     return quotation;
   }
+
+  private async planIsAlreadyQuoted() {
+    const plan = await this.getPlan();
+    const quotedQuotation = await tryber.tables.CpReqQuotations.do()
+      .select()
+      .where("plan_id", plan?.id)
+      .first();
+    return quotedQuotation ? true : false;
+  }
+
   protected async prepare(): Promise<void> {
     try {
       this.setSuccess(201, await this.createQuotation());
