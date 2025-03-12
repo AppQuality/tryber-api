@@ -14,6 +14,7 @@ const importPages = async (from: number, to: number) => {
   const manual = new ManualPageImporter({
     campaignId: from,
     pageId: page_manual_id,
+    withTranslations: true,
   });
   const newManId = await manual.createPage();
   await tryber.tables.WpAppqEvdCampaign.do()
@@ -27,6 +28,7 @@ const importPages = async (from: number, to: number) => {
   const preview = new PreviewPageImporter({
     campaignId: from,
     pageId: page_preview_id,
+    withTranslations: true,
   });
   const newPrevId = await preview.createPage();
   await tryber.tables.WpAppqEvdCampaign.do()

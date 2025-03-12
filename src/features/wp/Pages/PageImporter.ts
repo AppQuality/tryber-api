@@ -5,14 +5,24 @@ import { serialize, unserialize } from "php-serialize";
 export class PageImporter {
   private oldCampaignId: number = 0;
   protected fromId: number = 0;
+  private withTranslations: boolean = false;
 
   private newId: number = 0;
 
   private translations: { [key: string]: number } = {};
 
-  constructor({ campaignId, pageId }: { campaignId: number; pageId: number }) {
+  constructor({
+    campaignId,
+    pageId,
+    withTranslations,
+  }: {
+    campaignId: number;
+    pageId: number;
+    withTranslations?: boolean;
+  }) {
     this.oldCampaignId = campaignId;
     this.fromId = pageId;
+    this.withTranslations = withTranslations ?? false;
   }
 
   async createPage() {
@@ -52,7 +62,9 @@ export class PageImporter {
     const newId = newPage[0].ID ?? newPage[0];
     this.newId = newId;
 
-    await this.linkTranslations();
+    if (this.withTranslations) {
+      await this.linkTranslations();
+    }
     return newId;
   }
 
