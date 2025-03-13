@@ -201,7 +201,11 @@ class Transferwise {
     let twoFactorAuthHeader;
     let response;
     try {
-      response = await this.request("POST", ` `, { type: "BALANCE" });
+      response = await this.request(
+        "POST",
+        `/v3/profiles/${profileId}/transfers/${transferId}/payments`,
+        { type: "BALANCE" }
+      );
     } catch (error) {
       const res = error as AxiosError;
       if (
