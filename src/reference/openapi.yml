@@ -10085,6 +10085,61 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
+  '/dossiers/{campaign}/manual':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    post:
+      summary: Create the manual
+      operationId: post-dossiers-campaign-manual
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                importFrom:
+                  type: integer
+                  x-stoplight:
+                    id: gf6dy4ke154ct
+              required:
+                - importFrom
+  '/dossiers/{campaign}/preview':
+    parameters:
+      - $ref: '#/components/parameters/campaign'
+    post:
+      summary: ''
+      operationId: post-dossiers-campaign-preview
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                importFrom:
+                  type: integer
+                  x-stoplight:
+                    id: h4jhe86n6v4fq
+              required:
+                - importFrom
 components:
   schemas:
     AdditionalField:
