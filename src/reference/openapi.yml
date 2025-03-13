@@ -10033,6 +10033,11 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
       security:
         - JWT: []
       requestBody:
@@ -10056,6 +10061,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
       security:
         - JWT: []
       requestBody:
