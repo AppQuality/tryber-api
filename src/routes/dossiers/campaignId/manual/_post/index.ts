@@ -3,6 +3,7 @@
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
+import { ManualPageImporter } from "@src/features/wp/Pages/ManualPageImporter";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["post-dossiers-campaign-manual"]["responses"]["200"]["content"]["application/json"];
@@ -10,25 +11,28 @@ export default class RouteItem extends UserRoute<{
   body: StoplightOperations["post-dossiers-campaign-manual"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number;
+  private campaignIdToImport: number;
   private accessibleCampaigns: true | number[] = this.campaignOlps
     ? this.campaignOlps
     : [];
-  private _campaign?: { id: number };
+  private _campaignToImport?: { id: number; page_manual_id: number };
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     this.campaignId = Number(this.getParameters().campaign);
+    const body = this.getBody();
+    this.campaignIdToImport = body.importFrom;
   }
 
-  get campaign() {
-    if (!this._campaign) throw new Error("Campaign not loaded");
-    return this._campaign;
+  get campaignToImport() {
+    if (!this._campaignToImport) throw new Error("Campaign not loaded");
+    return this._campaignToImport;
   }
 
   protected async init() {
-    this._campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("id")
-      .where("id", this.campaignId)
+    this._campaignToImport = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id", "page_manual_id")
+      .where("id", this.campaignIdToImport)
       .first();
   }
 
@@ -55,7 +59,12 @@ export default class RouteItem extends UserRoute<{
 
   private async campaignDoesNotExists() {
     try {
-      this.campaign;
+      const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("id")
+        .where("id", this.campaignId)
+        .first();
+      if (!campaign) return true;
+      this.campaignToImport;
       return false;
     } catch (error) {
       return true;
@@ -63,6 +72,23 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
+    try {
+      const manual = new ManualPageImporter({
+        campaignId: this.campaignToImport.id,
+        pageId: this.campaignToImport.page_manual_id,
+        withTranslations: true,
+      });
+      const newManId = await manual.createPage();
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({
+          page_manual_id: newManId,
+        })
+        .where("id", this.campaignId);
+      await manual.updateTitleWithCampaignId(this.campaignId);
+      await manual.updateMetaWithCampaignId(this.campaignId);
+    } catch (error) {
+      console.log(error);
+    }
     this.setSuccess(200, {});
   }
 }

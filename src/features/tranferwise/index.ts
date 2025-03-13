@@ -1,7 +1,6 @@
 import { AxiosError } from "@googlemaps/google-maps-services-js/node_modules/axios";
 import axios from "axios";
 import dotenv from "dotenv";
-
 import signRequest from "./signRequest";
 import stringToUuid from "./stringToUuid";
 
@@ -202,11 +201,7 @@ class Transferwise {
     let twoFactorAuthHeader;
     let response;
     try {
-      response = await this.request(
-        "POST",
-        `/v3/profiles/${profileId}/transfers/${transferId}/payments`,
-        { type: "BALANCE" }
-      );
+      response = await this.request("POST", ` `, { type: "BALANCE" });
     } catch (error) {
       const res = error as AxiosError;
       if (
