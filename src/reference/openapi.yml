@@ -4561,13 +4561,19 @@ paths:
                   type: string
                 notes:
                   type: string
-              required:
-                - quote
             examples:
-              Example 1:
+              notes-and-quotation:
                 value:
                   quote: '11000'
                   notes: string
+              only-notes:
+                value:
+                  notes: string
+              only-quotaion:
+                value:
+                  quote: string
+              empty:
+                value: {}
         description: ''
   /education:
     get:
