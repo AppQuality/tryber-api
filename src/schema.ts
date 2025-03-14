@@ -591,6 +591,24 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/manual": {
+    post: operations["post-dossiers-campaign-manual"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
+  "/dossiers/{campaign}/preview": {
+    post: operations["post-dossiers-campaign-preview"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
 }
 
 export interface components {
@@ -4369,6 +4387,52 @@ export interface operations {
       content: {
         "application/json": {
           phase: number;
+        };
+      };
+    };
+  };
+  "post-dossiers-campaign-manual": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          importFrom: number;
+        };
+      };
+    };
+  };
+  "post-dossiers-campaign-preview": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          importFrom: number;
         };
       };
     };
