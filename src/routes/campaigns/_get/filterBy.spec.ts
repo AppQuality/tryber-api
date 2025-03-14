@@ -311,4 +311,16 @@ describe("GET /campaigns", () => {
     expect(response.body.items).toHaveLength(2);
     expect(response.body.total).toBe(2);
   });
+  describe("Filter campaigns for quotation-table on dossier", () => {
+    it("Should return only campaigns having a quotation of a specific customer", async () => {
+      const response = await request(app)
+        .get(
+          "/campaigns?fields=id,title,startDate,phase,quote&filterBy[customer]=1&filterBy[hasQuote]"
+        )
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+      console.log(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body.items).toHaveLength(1);
+    });
+  });
 });
