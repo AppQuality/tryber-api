@@ -155,7 +155,7 @@ describe("GET /campaigns", () => {
         status_id: 1,
         campaign_type_id: 1,
         plan_id: 15, // plan from quoted template
-        quote_id: 50, // TODO
+        quote_id: 50,
       },
       {
         ...campaign,
@@ -177,7 +177,7 @@ describe("GET /campaigns", () => {
         status_id: 2,
         campaign_type_id: 2,
         plan_id: 16, // plan from unquoted template
-        quote_id: 55, // TODO
+        quote_id: 55,
       },
     ]);
   });
