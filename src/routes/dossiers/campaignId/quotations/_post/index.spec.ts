@@ -172,15 +172,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       expect(response.body).toEqual({ id: expect.any(Number) });
     });
 
-    it("Should return the quotation id", async () => {
-      const response = await request(app)
-        .post("/dossiers/80/quotations")
-        .set("authorization", "Bearer admin")
-        .send(baseRequest);
-      expect(response.status).toBe(201);
-      expect(response.body).toEqual({ id: expect.any(Number) });
-    });
-
     it("Should answer 201 if user is admin", async () => {
       const response = await request(app)
         .post("/dossiers/80/quotations")

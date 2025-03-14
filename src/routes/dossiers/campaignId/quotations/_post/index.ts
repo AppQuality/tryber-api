@@ -10,8 +10,6 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["post-dossiers-campaign-quotations"]["parameters"]["path"];
 }> {
   private campaignId: number;
-  private price: string | undefined = undefined;
-  private status: "pending" | "proposed" | undefined = undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
