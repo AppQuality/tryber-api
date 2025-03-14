@@ -72,23 +72,19 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare() {
-    try {
-      const manual = new ManualPageImporter({
-        campaignId: this.campaignToImport.id,
-        pageId: this.campaignToImport.page_manual_id,
-        withTranslations: true,
-      });
-      const newManId = await manual.createPage();
-      await tryber.tables.WpAppqEvdCampaign.do()
-        .update({
-          page_manual_id: newManId,
-        })
-        .where("id", this.campaignId);
-      await manual.updateTitleWithCampaignId(this.campaignId);
-      await manual.updateMetaWithCampaignId(this.campaignId);
-    } catch (error) {
-      console.log(error);
-    }
+    const manual = new ManualPageImporter({
+      campaignId: this.campaignToImport.id,
+      pageId: this.campaignToImport.page_manual_id,
+      withTranslations: true,
+    });
+    const newManId = await manual.createPage();
+    await tryber.tables.WpAppqEvdCampaign.do()
+      .update({
+        page_manual_id: newManId,
+      })
+      .where("id", this.campaignId);
+    await manual.updateTitleWithCampaignId(this.campaignId);
+    await manual.updateMetaWithCampaignId(this.campaignId);
     this.setSuccess(200, {});
   }
 }
