@@ -22,7 +22,7 @@ export default class RouteItem extends UserRoute<{
 
   protected async filter() {
     if (!(await super.filter())) return false;
-    await this.loadData();
+
     const { quote } = this.getBody();
 
     if (this.doesNotHaveAccessToCampaign()) {
@@ -42,7 +42,7 @@ export default class RouteItem extends UserRoute<{
       this.setError(400, new OpenapiError("Plan already quoted"));
       return false;
     }
-    if (this.planIsFromQuotedTemplate === false && !quote) {
+    if (!this.isQuotedTemplate() && !quote) {
       this.setError(400, new OpenapiError("Quote required"));
       return false;
     }
@@ -56,7 +56,7 @@ export default class RouteItem extends UserRoute<{
     return cp?.id ? false : true;
   }
 
-  private async loadData() {
+  protected async init() {
     this.plan = await tryber.tables.CpReqPlans.do()
       .select(
         tryber.ref("id").withSchema("cp_req_plans"),
@@ -81,9 +81,6 @@ export default class RouteItem extends UserRoute<{
       .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
       .where("cp_req_plans.id", this.plan?.id)
       .first();
-    if (this.template?.price) {
-      this.planIsFromQuotedTemplate = true;
-    }
 
     const planQuote = await tryber.tables.CpReqQuotations.do()
       .select("id")
@@ -91,6 +88,10 @@ export default class RouteItem extends UserRoute<{
       .andWhereNot("status", "rejected")
       .first();
     this.planIsQuoted = planQuote?.id ? true : false;
+  }
+
+  private isQuotedTemplate() {
+    return !!this.template?.price;
   }
 
   private doesNotHaveAccessToCampaign() {
@@ -126,19 +127,28 @@ export default class RouteItem extends UserRoute<{
 
   private async evaluatePrice() {
     const { quote } = this.getBody();
-    if (this.planIsFromQuotedTemplate) {
-      return quote ? quote : this.template?.price;
-    } else if (quote) {
-      return quote;
-    }
+
+    return quote ?? this.template?.price;
   }
 
   private async evaluateStatus() {
     const { quote } = this.getBody();
-    if (this.planIsFromQuotedTemplate && this.template?.price) {
-      return quote && quote !== this.template?.price ? "proposed" : "pending";
-    } else if (quote) {
+
+    /**
+     * If it's not a quoted template,
+     * the status is always pending. We can safely assume that a quote exists.
+     */
+    if (!this.isQuotedTemplate) {
       return "proposed";
     }
+
+    /**
+     * If it's a quoted template,
+     * the status is proposed if the quote is different from the template price.
+     */
+    if (!quote) return "pending";
+    if (quote !== this.template?.price) return "proposed";
+
+    return "pending";
   }
 }
