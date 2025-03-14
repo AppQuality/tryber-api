@@ -56,6 +56,7 @@ class RouteItem extends UserRoute<{
       value: number[] | "empty";
     }[];
     phase?: number[];
+    hasQuote?: boolean;
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -132,6 +133,9 @@ class RouteItem extends UserRoute<{
         const phaseIds = (query.filterBy as any).phase.split(",").map(Number);
         this.filterBy.phase = phaseIds;
       }
+      if (Object.keys(query.filterBy as any).includes("hasQuote")) {
+        this.filterBy.hasQuote = true;
+      }
     }
   }
 
@@ -194,7 +198,6 @@ class RouteItem extends UserRoute<{
     }
 
     query.orderBy(this.orderBy, this.order);
-
     const results: {
       id?: number;
       name?: string;
@@ -504,6 +507,9 @@ class RouteItem extends UserRoute<{
           this.filterBy.phase
         );
       }
+      if (this.filterBy.hasQuote) {
+        query = query.whereNotNull("wp_appq_evd_campaign.quote_id");
+      }
     });
   }
 
@@ -608,6 +614,7 @@ class RouteItem extends UserRoute<{
       }
     });
   }
+
   private addStatusTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("status")) {
@@ -615,6 +622,7 @@ class RouteItem extends UserRoute<{
       }
     });
   }
+
   private addTypeTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("type")) {
