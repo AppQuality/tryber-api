@@ -2,33 +2,32 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-const config = {
-  modules: [
-    {
-      type: "title",
-      output: "plan title",
-      variant: "default",
+const requiredModules = [
+  {
+    type: "title",
+    output: "plan title",
+    variant: "default",
+  },
+  {
+    type: "dates",
+    output: {
+      start: "2025-03-12T23:00:00.000",
     },
-    {
-      type: "dates",
-      output: {
-        start: "2025-03-12T23:00:00.000",
+    variant: "default",
+  },
+  {
+    type: "tasks",
+    variant: "default",
+    output: [
+      {
+        kind: "video",
+        title: "string",
       },
-      variant: "default",
-    },
-    {
-      type: "tasks",
-      variant: "default",
-      output: [
-        {
-          kind: "video",
-          title: "string",
-        },
-      ],
-    },
-  ],
-  project_id: 12345,
-};
+    ],
+  },
+];
+
+const config = { modules: requiredModules };
 
 const notQuotedTemplate = {
   id: 66,
@@ -39,7 +38,7 @@ const notQuotedTemplate = {
 const quotedTemplate = {
   ...notQuotedTemplate,
   id: 67,
-  price: 1900.69,
+  price: "1900.69",
 };
 
 const plan = {
@@ -49,12 +48,14 @@ const plan = {
   config: JSON.stringify(config),
   created_by: 1,
   template_id: notQuotedTemplate.id,
+  project_id: 12345,
 };
 
 const baseRequest = {
   quote: "1900.69",
   applicant_id: 1,
 };
+const customer_id = 54321;
 
 const campaign = {
   project_id: 1,
@@ -67,11 +68,17 @@ const campaign = {
   page_manual_id: 1,
   page_preview_id: 1,
   pm_id: 1,
-  customer_id: 1,
+  customer_id,
 };
 
 describe("Route POST /dossiers/:campaignId/quotations", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqProject.do().insert({
+      id: plan.project_id,
+      display_name: "project",
+      customer_id,
+      edited_by: 1,
+    });
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
       wp_user_id: 1,
@@ -85,14 +92,14 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
     ]);
     await tryber.tables.CpReqPlans.do().insert([
       {
-        ...plan,
+        ...plan, // plan from unquoted template
       },
       {
-        ...plan,
+        ...plan, // plan from unquoted template
         id: 20,
       },
       {
-        ...plan,
+        ...plan, // plan from quoted template
         id: 22,
         template_id: quotedTemplate.id,
       },
@@ -143,13 +150,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       expect.objectContaining({ message: "No access to campaign" })
     );
   });
-  it("Should answer 201 if user is admin", async () => {
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-  });
 
   it("Should answer 404 if plan does not exists", async () => {
     const response = await request(app)
@@ -162,87 +162,33 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
     );
   });
 
-  it("Should return the quotation id", async () => {
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-    expect(response.body).toEqual({ id: expect.any(Number) });
-  });
-  it("Should add a new quotation if data are valid", async () => {
-    const quotationBefore = await tryber.tables.CpReqQuotations.do().select();
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-    const quotationAfter = await tryber.tables.CpReqQuotations.do().select();
-    expect(quotationAfter.length).toBe(quotationBefore.length + 1);
-  });
-  it("Should return correct quote id", async () => {
-    const quotationBefore = await tryber.tables.CpReqQuotations.do().select();
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-    const quotationAfter = await tryber.tables.CpReqQuotations.do().select();
-    expect(quotationBefore).toEqual(
-      expect.not.arrayContaining([
-        expect.objectContaining({ id: response.body.id }),
-      ])
-    );
-    expect(quotationAfter).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ id: response.body.id }),
-      ])
-    );
-  });
+  describe("Quote creation", () => {
+    it("Should return the quotation id", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ id: expect.any(Number) });
+    });
 
-  it("Should insert correct quote", async () => {
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-    const quote = await tryber.tables.CpReqQuotations.do()
-      .select()
-      .where({ id: response.body.id })
-      .first();
-    expect(quote).toEqual(
-      expect.objectContaining({ estimated_cost: baseRequest.quote })
-    );
-  });
+    it("Should return the quotation id", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(201);
+      expect(response.body).toEqual({ id: expect.any(Number) });
+    });
 
-  it("Should insert the applicant id", async () => {
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(201);
-    const quote = await tryber.tables.CpReqQuotations.do()
-      .select()
-      .where({ id: response.body.id })
-      .first();
-    expect(quote).toEqual(expect.objectContaining({ created_by: 1 }));
-  });
-
-  it("Should insert the the note if send it", async () => {
-    const response = await request(app)
-      .post("/dossiers/80/quotations")
-      .set("authorization", "Bearer admin")
-      .send({ ...baseRequest, notes: "Test note" });
-    expect(response.status).toBe(201);
-    const quote = await tryber.tables.CpReqQuotations.do()
-      .select()
-      .where({ id: response.body.id })
-      .first();
-    expect(quote).toEqual(expect.objectContaining({ notes: "Test note" }));
-  });
-
-  describe("status evaluation", () => {
-    it("Should insert the quote in status = pending if plan is based on not quoted template", async () => {
+    it("Should answer 201 if user is admin", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(201);
+    });
+    it("Should insert correct quote", async () => {
       const response = await request(app)
         .post("/dossiers/80/quotations")
         .set("authorization", "Bearer admin")
@@ -252,12 +198,33 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         .select()
         .where({ id: response.body.id })
         .first();
-      expect(quote).toEqual(expect.objectContaining({ status: "proposed" }));
+      expect(quote).toEqual(
+        expect.objectContaining({ estimated_cost: baseRequest.quote })
+      );
+    });
+    it("Should return correct quote id", async () => {
+      const quotationBefore = await tryber.tables.CpReqQuotations.do().select();
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(201);
+      const quotationAfter = await tryber.tables.CpReqQuotations.do().select();
+      expect(quotationBefore).toEqual(
+        expect.not.arrayContaining([
+          expect.objectContaining({ id: response.body.id }),
+        ])
+      );
+      expect(quotationAfter).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: response.body.id }),
+        ])
+      );
     });
 
-    it("Should insert the quote in status = proposed if plan is based on quoted template", async () => {
+    it("Should insert the applicant id", async () => {
       const response = await request(app)
-        .post("/dossiers/90/quotations")
+        .post("/dossiers/80/quotations")
         .set("authorization", "Bearer admin")
         .send(baseRequest);
       expect(response.status).toBe(201);
@@ -265,7 +232,188 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         .select()
         .where({ id: response.body.id })
         .first();
-      expect(quote).toEqual(expect.objectContaining({ status: "pending" }));
+      expect(quote).toEqual(expect.objectContaining({ created_by: 1 }));
+    });
+
+    it("Should insert the the note if send it", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, notes: "Test note" });
+      expect(response.status).toBe(201);
+      const quote = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quote).toEqual(expect.objectContaining({ notes: "Test note" }));
+    });
+  });
+  describe("Case: plan from unquoted template", () => {
+    it("Should return an error if send empty object", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send({});
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual(
+        expect.objectContaining({ message: "Quote required" })
+      );
+    });
+
+    it("Should not create quotation if send empty object", async () => {
+      const quotationBefore = await tryber.tables.CpReqQuotations.do().select();
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send({});
+      expect(response.status).toBe(400);
+      const quotationAfter = await tryber.tables.CpReqQuotations.do().select();
+      expect(quotationAfter.length).toBe(quotationBefore.length);
+    });
+
+    it("Should create quotation with notes if send notes", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ quote: "1200 stars", notes: "quote notes" });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ notes: "quote notes" })
+      );
+    });
+
+    it("Should create quotation with correct price if send a quote", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ quote: "2999 oranges" });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ estimated_cost: "2999 oranges" })
+      );
+    });
+    it("Should create quotation with status proposed if send a quote", async () => {
+      const response = await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ quote: quotedTemplate.price });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ status: "proposed" })
+      );
+    });
+  });
+
+  describe("Case: plan from quoted template", () => {
+    it("Should return 201 if send empty object", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({});
+      expect(response.status).toBe(201);
+    });
+
+    it("Should create quotation if send empty object", async () => {
+      const quotationBefore = await tryber.tables.CpReqQuotations.do().select();
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({});
+      expect(response.status).toBe(201);
+      const quotationAfter = await tryber.tables.CpReqQuotations.do().select();
+      expect(quotationAfter.length).toBe(quotationBefore.length + 1);
+    });
+    it("Should create quotation with price from template if send empty object", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({});
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ estimated_cost: quotedTemplate.price })
+      );
+    });
+    it("Should create quotation with status pending if send empty object", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({});
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(expect.objectContaining({ status: "pending" }));
+    });
+    it("Should create quotation with notes if send notes", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ notes: "quote notes" });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ notes: "quote notes" })
+      );
+    });
+    it("Should create quotation with status proposed if send a different quote", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ quote: "2999 oranges" });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ status: "proposed" })
+      );
+    });
+    it("Should create quotation with correct price if send a different quote", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ quote: "2999 oranges" });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(
+        expect.objectContaining({ estimated_cost: "2999 oranges" })
+      );
+    });
+    it("Should create quotation with status pending if send a same quote", async () => {
+      const response = await request(app)
+        .post("/dossiers/90/quotations")
+        .set("authorization", "Bearer admin")
+        .send({ quote: quotedTemplate.price });
+      expect(response.status).toBe(201);
+      const quotation = await tryber.tables.CpReqQuotations.do()
+        .select()
+        .where({ id: response.body.id })
+        .first();
+      expect(quotation).toEqual(expect.objectContaining({ status: "pending" }));
     });
   });
 

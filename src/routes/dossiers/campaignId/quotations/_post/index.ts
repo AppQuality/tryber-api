@@ -10,6 +10,8 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["post-dossiers-campaign-quotations"]["parameters"]["path"];
 }> {
   private campaignId: number;
+  private price: string | undefined = undefined;
+  private status: "pending" | "proposed" | undefined = undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -18,6 +20,8 @@ export default class RouteItem extends UserRoute<{
 
   protected async filter() {
     if (!(await super.filter())) return false;
+
+    const { quote } = this.getBody();
 
     if (await this.doesNotHaveAccessToCampaign()) {
       this.setError(401, new OpenapiError("No access to campaign"));
@@ -35,6 +39,11 @@ export default class RouteItem extends UserRoute<{
 
     if (await this.planIsAlreadyQuoted()) {
       this.setError(400, new OpenapiError("Plan already quoted"));
+      return false;
+    }
+
+    if ((await this.isFromQuotedTemplate()) === false && !quote) {
+      this.setError(400, new OpenapiError("Quote required"));
       return false;
     }
 
@@ -91,8 +100,8 @@ export default class RouteItem extends UserRoute<{
     const pendingQuotation = await tryber.tables.CpReqQuotations.do()
       .insert({
         created_by: this.configuration.request.user.testerId,
-        status: (await this.isFromQuotedTemplate()) ? "pending" : "proposed",
-        estimated_cost: quote,
+        status: await this.evaluateStatus(),
+        estimated_cost: await this.evaluatePrice(),
         config: plan.config,
         plan_id: plan.id,
         ...(notes ? { notes } : {}),
@@ -122,6 +131,50 @@ export default class RouteItem extends UserRoute<{
     }
   }
 
+  private async evaluatePrice() {
+    const { quote } = this.getBody();
+
+    if (await this.isFromQuotedTemplate()) {
+      if (quote) {
+        return quote;
+      }
+      const template = await tryber.tables.CpReqTemplates.do()
+        .select(tryber.ref("price").withSchema("cp_req_templates"))
+        .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
+        .where("cp_req_plans.id", (await this.getPlan())?.id)
+        .first();
+      if (template && template.price.length > 0) {
+        return template.price;
+      }
+    } else if (quote && quote.length > 0) {
+      return quote;
+    }
+    throw new OpenapiError("Error on evaluating price");
+  }
+  private async evaluateStatus() {
+    const { quote } = this.getBody();
+    if (await this.isFromQuotedTemplate()) {
+      const quotedPrice = await this.getQuotedPrice();
+      if (quote) {
+        return quote !== quotedPrice ? "proposed" : "pending";
+      } else if (await this.isFromQuotedTemplate()) {
+        return "pending";
+      }
+    } else if (quote) return "proposed";
+
+    throw new OpenapiError("Error on evaluating status");
+  }
+
+  private async getQuotedPrice() {
+    const plan = await this.getPlan();
+    const quotedPrice = await tryber.tables.CpReqTemplates.do()
+      .select(tryber.ref("price").withSchema("cp_req_templates"))
+      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
+      .where("cp_req_plans.id", plan?.id)
+      .first();
+    return quotedPrice?.price;
+  }
+
   private async isFromQuotedTemplate() {
     const plan = await this.getPlan();
     const templatePrice = await tryber.tables.CpReqTemplates.do()
@@ -129,6 +182,7 @@ export default class RouteItem extends UserRoute<{
       .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
       .where("cp_req_plans.id", plan?.id)
       .first();
+    console.log(templatePrice);
 
     return templatePrice?.price !== null;
   }
