@@ -180,7 +180,6 @@ export default class RouteItem extends UserRoute<{
       .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
       .where("cp_req_plans.id", plan?.id)
       .first();
-    console.log(templatePrice);
 
     return templatePrice?.price !== null;
   }
