@@ -99,7 +99,7 @@ export default class RouteItem extends UserRoute<{
 
   protected async createQuotation() {
     if (!this.plan) throw new Error("Plan does not exist");
-    const { quote, notes } = this.getBody();
+    const { notes } = this.getBody();
     const pendingQuotation = await tryber.tables.CpReqQuotations.do()
       .insert({
         created_by: this.configuration.request.user.testerId,
