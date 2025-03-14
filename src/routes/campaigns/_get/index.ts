@@ -5,20 +5,21 @@ import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
 
 const ACCEPTABLE_FIELDS = [
-  "id" as const,
-  "title" as const,
-  "startDate" as const,
-  "endDate" as const,
   "csm" as const,
   "customer" as const,
   "customerTitle" as const,
-  "project" as const,
-  "visibility" as const,
-  "resultType" as const,
-  "status" as const,
-  "type" as const,
+  "endDate" as const,
+  "id" as const,
   "phase" as const,
+  "project" as const,
+  "quote" as const,
+  "resultType" as const,
   "roles" as const,
+  "startDate" as const,
+  "status" as const,
+  "title" as const,
+  "type" as const,
+  "visibility" as const,
 ];
 
 type CampaignSelect = ReturnType<typeof tryber.tables.WpAppqEvdCampaign.do>;
@@ -55,6 +56,7 @@ class RouteItem extends UserRoute<{
       value: number[] | "empty";
     }[];
     phase?: number[];
+    hasQuote?: boolean;
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
@@ -131,6 +133,9 @@ class RouteItem extends UserRoute<{
         const phaseIds = (query.filterBy as any).phase.split(",").map(Number);
         this.filterBy.phase = phaseIds;
       }
+      if (Object.keys(query.filterBy as any).includes("hasQuote")) {
+        this.filterBy.hasQuote = true;
+      }
     }
   }
 
@@ -182,6 +187,7 @@ class RouteItem extends UserRoute<{
     this.addVisibilityTo(query);
     this.addResultTypeTo(query);
     this.addPhaseTo(query);
+    this.addQuotationTo(query);
 
     if (this.limit) {
       query.limit(this.limit);
@@ -192,7 +198,6 @@ class RouteItem extends UserRoute<{
     }
 
     query.orderBy(this.orderBy, this.order);
-
     const results: {
       id?: number;
       name?: string;
@@ -213,6 +218,9 @@ class RouteItem extends UserRoute<{
       resultType?: -1 | 0 | 1;
       phase_id?: number;
       phase_name?: string;
+      quote_id?: number;
+      quote_status?: string;
+      quote_price?: string;
     }[] = await query;
 
     const withRoles = this.addRoles(results);
@@ -339,6 +347,16 @@ class RouteItem extends UserRoute<{
       ...(this.fields.includes("roles") && {
         roles: campaign.roles,
       }),
+      ...(this.fields.includes("quote") &&
+        campaign.quote_id &&
+        campaign.quote_status &&
+        campaign.quote_price && {
+          quote: {
+            id: campaign.quote_id || 0,
+            status: campaign.quote_status || "",
+            price: campaign.quote_price || "",
+          },
+        }),
     }));
   }
 
@@ -489,6 +507,9 @@ class RouteItem extends UserRoute<{
           this.filterBy.phase
         );
       }
+      if (this.filterBy.hasQuote) {
+        query = query.whereNotNull("wp_appq_evd_campaign.quote_id");
+      }
     });
   }
 
@@ -593,6 +614,7 @@ class RouteItem extends UserRoute<{
       }
     });
   }
+
   private addStatusTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("status")) {
@@ -600,6 +622,7 @@ class RouteItem extends UserRoute<{
       }
     });
   }
+
   private addTypeTo(query: CampaignSelect) {
     query.modify((query) => {
       if (this.fields.includes("type")) {
@@ -645,6 +668,24 @@ class RouteItem extends UserRoute<{
           .select(
             tryber.ref("campaign_phase.id").as("phase_id"),
             tryber.ref("campaign_phase.name").as("phase_name")
+          );
+      }
+    });
+  }
+
+  private addQuotationTo(query: CampaignSelect) {
+    query.modify((query) => {
+      if (this.fields.includes("quote")) {
+        query
+          .leftJoin(
+            "cp_req_quotations",
+            "cp_req_quotations.id",
+            "wp_appq_evd_campaign.quote_id"
+          )
+          .select(
+            tryber.ref("cp_req_quotations.id").as("quote_id"),
+            tryber.ref("cp_req_quotations.status").as("quote_status"),
+            tryber.ref("cp_req_quotations.estimated_cost").as("quote_price")
           );
       }
     });
