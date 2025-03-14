@@ -95,10 +95,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         ...plan, // plan from unquoted template
       },
       {
-        ...plan, // plan from unquoted template
-        id: 20,
-      },
-      {
         ...plan, // plan from quoted template
         id: 22,
         template_id: quotedTemplate.id,
@@ -106,7 +102,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 80, plan_id: plan.id }, // plan from Not quoted template
-      { ...campaign, id: 81, plan_id: 20 }, // Not exist plan
       { ...campaign, id: 85, plan_id: undefined }, // plan_id is null
       { ...campaign, id: 90, plan_id: 22 }, // plan from Quoted template
     ]);
@@ -134,6 +129,8 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       .post("/dossiers/89/quotations")
       .set("authorization", "Bearer admin")
       .send(baseRequest);
+    console.log(response.body);
+
     expect(response.status).toBe(404);
     expect(response.body).toEqual(
       expect.objectContaining({ message: "Campaign does not exist" })
@@ -424,12 +421,36 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         expect.objectContaining({ message: "Plan already quoted" })
       );
     });
-    it("Should not insert a quotaion if plan quotation already exist", async () => {
+    it("Should not insert a quotaion if plan quotation not rejected already exist", async () => {
       await request(app)
         .post("/dossiers/80/quotations")
         .set("authorization", "Bearer admin")
         .send(baseRequest);
 
+      const quotationsBefore2ndAttempt =
+        await tryber.tables.CpReqQuotations.do().select();
+      console.log(quotationsBefore2ndAttempt);
+      await request(app)
+        .post("/dossiers/80/quotations")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      const quotationsAfter2ndAttempt =
+        await tryber.tables.CpReqQuotations.do().select();
+
+      expect(quotationsAfter2ndAttempt.length).toBe(
+        quotationsBefore2ndAttempt.length
+      );
+    });
+
+    it("Should insert a quotaion if plan quotation rejected already exist", async () => {
+      await tryber.tables.CpReqQuotations.do().insert({
+        created_by: 1,
+        status: "rejected",
+        estimated_cost: "1000",
+        config: plan.config,
+        plan_id: plan.id,
+      });
       const quotationsBefore2ndAttempt =
         await tryber.tables.CpReqQuotations.do().select();
 
@@ -442,7 +463,7 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         await tryber.tables.CpReqQuotations.do().select();
 
       expect(quotationsAfter2ndAttempt.length).toBe(
-        quotationsBefore2ndAttempt.length
+        quotationsBefore2ndAttempt.length + 1
       );
     });
   });

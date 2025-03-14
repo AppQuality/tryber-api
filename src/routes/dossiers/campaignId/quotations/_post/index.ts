@@ -10,6 +10,10 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["post-dossiers-campaign-quotations"]["parameters"]["path"];
 }> {
   private campaignId: number;
+  private plan?: { id: number; config: string };
+  private template?: { id: number; config: string; price: string | undefined };
+  private planIsFromQuotedTemplate: boolean = false;
+  private planIsQuoted: boolean = false;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -18,64 +22,42 @@ export default class RouteItem extends UserRoute<{
 
   protected async filter() {
     if (!(await super.filter())) return false;
-
+    await this.loadData();
     const { quote } = this.getBody();
 
-    if (await this.doesNotHaveAccessToCampaign()) {
+    if (this.doesNotHaveAccessToCampaign()) {
       this.setError(401, new OpenapiError("No access to campaign"));
       return false;
     }
 
-    if (await this.campaignNotExists()) {
+    if (await this.campaignNotExist()) {
       this.setError(404, new OpenapiError("Campaign does not exist"));
       return false;
     }
-    if (await this.planNotExists()) {
+    if (!this.plan) {
       this.setError(404, new OpenapiError("Plan does not exist"));
       return false;
     }
-
-    if (await this.planIsAlreadyQuoted()) {
+    if (this.planIsQuoted) {
       this.setError(400, new OpenapiError("Plan already quoted"));
       return false;
     }
-
-    if ((await this.isFromQuotedTemplate()) === false && !quote) {
+    if (this.planIsFromQuotedTemplate === false && !quote) {
       this.setError(400, new OpenapiError("Quote required"));
       return false;
     }
-
     return true;
   }
-
-  private async doesNotHaveAccessToCampaign() {
-    return this.configuration.request.user.role !== "administrator";
-  }
-
-  private async campaignNotExists() {
-    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select()
-      .where({
-        id: this.campaignId,
-      })
+  private async campaignNotExist() {
+    const cp = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id")
+      .where({ id: this.campaignId })
       .first();
-    return !campaign;
+    return cp?.id ? false : true;
   }
 
-  private async planNotExists() {
-    const plan = await tryber.tables.CpReqPlans.do()
-      .select(tryber.ref("*").withSchema("cp_req_plans"))
-      .join(
-        "wp_appq_evd_campaign",
-        "wp_appq_evd_campaign.plan_id",
-        "cp_req_plans.id"
-      )
-      .where("wp_appq_evd_campaign.id", this.campaignId)
-      .first();
-    return !plan;
-  }
-  private async getPlan() {
-    const plan = await tryber.tables.CpReqPlans.do()
+  private async loadData() {
+    this.plan = await tryber.tables.CpReqPlans.do()
       .select(
         tryber.ref("id").withSchema("cp_req_plans"),
         tryber.ref("config").withSchema("cp_req_plans")
@@ -87,41 +69,54 @@ export default class RouteItem extends UserRoute<{
       )
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
-    return plan;
+
+    if (!this.plan) return;
+
+    this.template = await tryber.tables.CpReqTemplates.do()
+      .select(
+        tryber.ref("id").withSchema("cp_req_templates"),
+        tryber.ref("config").withSchema("cp_req_templates"),
+        tryber.ref("price").withSchema("cp_req_templates")
+      )
+      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
+      .where("cp_req_plans.id", this.plan?.id)
+      .first();
+    if (this.template?.price) {
+      this.planIsFromQuotedTemplate = true;
+    }
+
+    const planQuote = await tryber.tables.CpReqQuotations.do()
+      .select("id")
+      .where({ plan_id: this.plan?.id })
+      .andWhereNot("status", "rejected")
+      .first();
+    this.planIsQuoted = planQuote?.id ? true : false;
+  }
+
+  private doesNotHaveAccessToCampaign() {
+    return this.configuration.request.user.role !== "administrator";
   }
 
   protected async createQuotation() {
-    const plan = await this.getPlan();
-    if (!plan) throw new Error("Plan does not exist");
-
+    if (!this.plan) throw new Error("Plan does not exist");
     const { quote, notes } = this.getBody();
     const pendingQuotation = await tryber.tables.CpReqQuotations.do()
       .insert({
         created_by: this.configuration.request.user.testerId,
         status: await this.evaluateStatus(),
         estimated_cost: await this.evaluatePrice(),
-        config: plan.config,
-        plan_id: plan.id,
+        config: this.plan.config,
+        plan_id: this.plan.id,
         ...(notes ? { notes } : {}),
       })
       .returning("id");
-
     const quotation = { id: pendingQuotation[0].id ?? pendingQuotation[0] };
     if (!quotation || !quotation.id)
       throw new Error("Error creating quotation");
     return quotation;
   }
 
-  private async planIsAlreadyQuoted() {
-    const plan = await this.getPlan();
-    const quotedQuotation = await tryber.tables.CpReqQuotations.do()
-      .select()
-      .where("plan_id", plan?.id)
-      .first();
-    return quotedQuotation ? true : false;
-  }
-
-  protected async prepare(): Promise<void> {
+  protected async prepare() {
     try {
       this.setSuccess(201, await this.createQuotation());
     } catch (e) {
@@ -131,56 +126,19 @@ export default class RouteItem extends UserRoute<{
 
   private async evaluatePrice() {
     const { quote } = this.getBody();
-
-    if (await this.isFromQuotedTemplate()) {
-      if (quote) {
-        return quote;
-      }
-      const template = await tryber.tables.CpReqTemplates.do()
-        .select(tryber.ref("price").withSchema("cp_req_templates"))
-        .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
-        .where("cp_req_plans.id", (await this.getPlan())?.id)
-        .first();
-      if (template && template.price.length > 0) {
-        return template.price;
-      }
-    } else if (quote && quote.length > 0) {
+    if (this.planIsFromQuotedTemplate) {
+      return quote ? quote : this.template?.price;
+    } else if (quote) {
       return quote;
     }
-    throw new OpenapiError("Error on evaluating price");
   }
+
   private async evaluateStatus() {
     const { quote } = this.getBody();
-    if (await this.isFromQuotedTemplate()) {
-      const quotedPrice = await this.getQuotedPrice();
-      if (quote) {
-        return quote !== quotedPrice ? "proposed" : "pending";
-      } else if (await this.isFromQuotedTemplate()) {
-        return "pending";
-      }
-    } else if (quote) return "proposed";
-
-    throw new OpenapiError("Error on evaluating status");
-  }
-
-  private async getQuotedPrice() {
-    const plan = await this.getPlan();
-    const quotedPrice = await tryber.tables.CpReqTemplates.do()
-      .select(tryber.ref("price").withSchema("cp_req_templates"))
-      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
-      .where("cp_req_plans.id", plan?.id)
-      .first();
-    return quotedPrice?.price;
-  }
-
-  private async isFromQuotedTemplate() {
-    const plan = await this.getPlan();
-    const templatePrice = await tryber.tables.CpReqTemplates.do()
-      .select(tryber.ref("price").withSchema("cp_req_templates"))
-      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
-      .where("cp_req_plans.id", plan?.id)
-      .first();
-
-    return templatePrice?.price !== null;
+    if (this.planIsFromQuotedTemplate && this.template?.price) {
+      return quote && quote !== this.template?.price ? "proposed" : "pending";
+    } else if (quote) {
+      return "proposed";
+    }
   }
 }
