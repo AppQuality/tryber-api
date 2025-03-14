@@ -11,10 +11,36 @@ const campaign = {
   page_manual_id: 1,
   customer_id: 1,
   pm_id: 1,
-  project_id: 1,
+  project_id: 99,
   customer_title: "",
   campaign_pts: 200,
 };
+const requiredModules = [
+  {
+    type: "title" as const,
+    variant: "primary",
+    output: "Project Kickoff",
+  },
+  {
+    type: "dates" as const,
+    variant: "default",
+    output: {
+      start: "2025-01-01",
+    },
+  },
+  {
+    type: "tasks" as const,
+    variant: "default",
+    output: [
+      {
+        kind: "bug" as const,
+        title: "Task bug",
+      },
+    ],
+  },
+];
+const quotedTemplateId = 90;
+const unquotedTemplateId = 91;
 describe("GET /campaigns", () => {
   beforeAll(async () => {
     await tryber.tables.CampaignPhase.do().insert([
@@ -31,7 +57,7 @@ describe("GET /campaigns", () => {
     ]);
     await tryber.tables.WpAppqProject.do().insert([
       {
-        id: 1,
+        id: campaign.project_id,
         display_name: "Project 1",
         customer_id: 1,
         edited_by: 1,
@@ -63,6 +89,63 @@ describe("GET /campaigns", () => {
       { id: 1, name: "CampaignType 1", type: 0, category_id: 1 }, // type 0 -> quality
       { id: 2, name: "CampaignType 2", type: 1, category_id: 1 }, // type 1 -> experience
     ]);
+    await tryber.tables.CpReqTemplates.do().insert([
+      {
+        id: quotedTemplateId,
+        name: "Template Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+        price: "1000",
+      },
+      {
+        id: unquotedTemplateId,
+        name: "Template Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+      },
+    ]);
+    await tryber.tables.CpReqPlans.do().insert([
+      {
+        id: 15,
+        name: "Plan Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+        project_id: campaign.project_id,
+        template_id: quotedTemplateId,
+      },
+      {
+        id: 16,
+        name: "Plan Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+        project_id: campaign.project_id,
+        template_id: unquotedTemplateId,
+      },
+    ]);
+    await tryber.tables.CpReqQuotations.do().insert([
+      {
+        id: 50,
+        plan_id: 15,
+        estimated_cost: "2 kilotons",
+        status: "confirmed",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+      },
+      {
+        id: 55,
+        plan_id: 16,
+        estimated_cost: "3000 electronvolts",
+        status: "proposed",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+      },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         ...campaign,
@@ -71,6 +154,8 @@ describe("GET /campaigns", () => {
         customer_title: "C First campaign",
         status_id: 1,
         campaign_type_id: 1,
+        plan_id: 15, // plan from quoted template
+        quote_id: 50, // TODO
       },
       {
         ...campaign,
@@ -91,6 +176,8 @@ describe("GET /campaigns", () => {
         project_id: 0,
         status_id: 2,
         campaign_type_id: 2,
+        plan_id: 16, // plan from unquoted template
+        quote_id: 55, // TODO
       },
     ]);
   });
@@ -113,7 +200,7 @@ describe("GET /campaigns", () => {
           endDate: "2023-01-14 10:10:10",
           customerTitle: "C First campaign",
           csm: { id: 1, name: "name", surname: "surname" },
-          project: { id: 1, name: "Project 1" },
+          project: { id: campaign.project_id, name: "Project 1" },
           customer: { id: 1, name: "Company 1" },
           status: "running",
           type: { name: "CampaignType 1", area: "quality" },
@@ -121,6 +208,7 @@ describe("GET /campaigns", () => {
           resultType: "bug",
           phase: { id: 1, name: "Draft" },
           roles: [],
+          quote: { id: 50, price: "2 kilotons", status: "confirmed" },
         },
         {
           id: 3,
@@ -137,6 +225,7 @@ describe("GET /campaigns", () => {
           resultType: "bug",
           phase: { id: 1, name: "Draft" },
           roles: [],
+          quote: { id: 55, price: "3000 electronvolts", status: "proposed" },
         },
       ])
     );
@@ -197,7 +286,7 @@ describe("GET /campaigns", () => {
     expect(response.body.items).toEqual(
       expect.arrayContaining([
         {
-          project: { id: 1, name: "Project 1" },
+          project: { id: campaign.project_id, name: "Project 1" },
         },
         {
           project: { name: "N.D." },
@@ -293,6 +382,28 @@ describe("GET /campaigns", () => {
         {
           id: 3,
           type: { name: "CampaignType 2", area: "experience" },
+        },
+      ])
+    );
+  });
+
+  it("Should retrun campaigns id,quote if fields is set with id,quote", async () => {
+    const response = await request(app)
+      .get("/campaigns?fields=quote,id")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1,2,3]}');
+    expect(response.body.items.length).toBe(3);
+    expect(response.body.items).toEqual(
+      expect.arrayContaining([
+        {
+          id: 1,
+          quote: { id: 50, price: "2 kilotons", status: "confirmed" },
+        },
+        {
+          id: 2,
+        },
+        {
+          id: 3,
+          quote: { id: 55, price: "3000 electronvolts", status: "proposed" },
         },
       ])
     );
