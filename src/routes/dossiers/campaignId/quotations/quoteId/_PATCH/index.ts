@@ -1,0 +1,104 @@
+/** OPENAPI-CLASS: patch-dossiers-campaign-quotations-quote */
+
+import OpenapiError from "@src/features/OpenapiError";
+import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
+
+export default class RouteItem extends UserRoute<{
+  response: StoplightOperations["patch-dossiers-campaign-quotations-quote"]["responses"]["200"]["content"]["application/json"];
+  body: StoplightOperations["patch-dossiers-campaign-quotations-quote"]["requestBody"]["content"]["application/json"];
+  parameters: StoplightOperations["patch-dossiers-campaign-quotations-quote"]["parameters"]["path"];
+}> {
+  private campaignId: number;
+  private quoteId: number;
+
+  constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
+    this.campaignId = Number(this.getParameters().campaign);
+    this.quoteId = Number(this.getParameters().quote);
+  }
+
+  private async getQuote() {
+    return await tryber.tables.CpReqQuotations.do()
+      .select(
+        tryber.ref("id").withSchema("cp_req_quotations"),
+        tryber.ref("estimated_cost").withSchema("cp_req_quotations"),
+        tryber.ref("status").withSchema("cp_req_quotations")
+      )
+      .where("cp_req_quotations.id", this.quoteId)
+      .andWhereNot("cp_req_quotations.status", "approved")
+      .join("cp_req_plans", "cp_req_plans.id", "cp_req_quotations.plan_id")
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_evd_campaign.plan_id",
+        "cp_req_plans.id"
+      )
+      .andWhere("wp_appq_evd_campaign.id", this.campaignId)
+      .first();
+  }
+
+  protected async filter() {
+    if (!(await super.filter())) return false;
+
+    if (await this.campaignNotExist()) {
+      this.setError(404, new OpenapiError("Campaign does not exist"));
+      return false;
+    }
+
+    if (this.doesNotHaveAccessToCampaign()) {
+      this.setError(401, new OpenapiError("No access to campaign"));
+      return false;
+    }
+
+    if (!(await this.getQuote())) {
+      this.setError(404, new OpenapiError("Quotation does not exist"));
+      return false;
+    }
+
+    return true;
+  }
+  private async campaignNotExist() {
+    const cp = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("id")
+      .where({ id: this.campaignId })
+      .first();
+    return cp?.id ? false : true;
+  }
+
+  private doesNotHaveAccessToCampaign() {
+    return this.configuration.request.user.role !== "administrator";
+  }
+
+  protected async prepare() {
+    try {
+      await this.patchQuote();
+      this.setSuccess(200, {});
+    } catch (e) {
+      this.setError(500, e as OpenapiError);
+    }
+  }
+
+  private async patchQuote() {
+    const quote = await this.getQuote();
+    if (!quote) throw new Error("Quotation does not exist");
+    const actualAmount = quote.estimated_cost;
+
+    let updatingAmount = false;
+    const { amount: incomingAmount } = this.getBody();
+    if (incomingAmount && incomingAmount !== actualAmount) {
+      updatingAmount = true;
+    }
+
+    const query = tryber.tables.CpReqQuotations.do().where({
+      id: this.quoteId,
+    });
+
+    if (quote.status === "pending" && !updatingAmount)
+      query.update({ status: "approved" });
+
+    if (updatingAmount)
+      query.update({ status: "proposed", estimated_cost: incomingAmount });
+
+    await query;
+  }
+}
