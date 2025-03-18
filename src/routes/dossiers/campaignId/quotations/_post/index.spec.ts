@@ -181,12 +181,21 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         .set("authorization", "Bearer admin")
         .send(baseRequest);
       expect(response.status).toBe(201);
-      const quote = await tryber.tables.CpReqQuotations.do()
-        .select()
-        .where({ id: response.body.id })
-        .first();
-      expect(quote).toEqual(
-        expect.objectContaining({ estimated_cost: baseRequest.quote })
+      const newData = await request(app)
+        .get(`/campaigns/?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.body).toEqual(
+        expect.objectContaining({
+          items: expect.arrayContaining([
+            expect.objectContaining({
+              quote: expect.objectContaining({
+                id: response.body.id,
+                status: "proposed",
+                price: baseRequest.quote,
+              }),
+            }),
+          ]),
+        })
       );
     });
     it("Should return correct quote id", async () => {

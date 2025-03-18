@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: post-dossiers-campaign-quotations */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
@@ -118,10 +118,22 @@ export default class RouteItem extends UserRoute<{
 
   protected async prepare() {
     try {
-      this.setSuccess(201, await this.createQuotation());
+      const quotation = await this.createQuotation();
+
+      await this.linkToCampaign(quotation.id);
+
+      this.setSuccess(201, quotation);
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async linkToCampaign(quoteId: number) {
+    await tryber.tables.WpAppqEvdCampaign.do()
+      .update({
+        quote_id: quoteId,
+      })
+      .where({ id: this.campaignId });
   }
 
   private async evaluatePrice() {
