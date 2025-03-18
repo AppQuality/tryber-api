@@ -12,7 +12,6 @@ export default class RouteItem extends UserRoute<{
   private campaignId: number;
   private plan?: { id: number; config: string };
   private template?: { id: number; config: string; price: string | undefined };
-  private planIsFromQuotedTemplate: boolean = false;
   private planIsQuoted: boolean = false;
 
   constructor(configuration: RouteClassConfiguration) {
