@@ -1331,6 +1331,11 @@ export interface operations {
                   surname: string;
                 };
               }[];
+              quote?: {
+                id: number;
+                price: string;
+                status: string;
+              };
             }[];
           } & components["schemas"]["PaginationData"];
         };

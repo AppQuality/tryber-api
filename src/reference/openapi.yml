@@ -802,7 +802,64 @@ paths:
                                 required:
                                   - role
                                   - user
+                            quote:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                price:
+                                  type: string
+                                status:
+                                  type: string
+                              required:
+                                - id
+                                - price
+                                - status
                   - $ref: '#/components/schemas/PaginationData'
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 0
+                        name: string
+                        customerTitle: string
+                        startDate: string
+                        endDate: string
+                        status: running
+                        visibility: admin
+                        resultType: bug
+                        csm:
+                          id: 0
+                          name: string
+                          surname: string
+                        customer:
+                          id: 0
+                          name: string
+                        type:
+                          name: string
+                          area: quality
+                        project:
+                          id: 0
+                          name: string
+                        phase:
+                          id: 0
+                          name: string
+                        roles:
+                          - role:
+                              id: 0
+                              name: string
+                            user:
+                              id: 0
+                              name: string
+                              surname: string
+                        quote:
+                          id: 0
+                          price: string
+                          status: string
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
