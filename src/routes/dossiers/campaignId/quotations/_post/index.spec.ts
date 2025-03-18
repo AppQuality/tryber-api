@@ -129,7 +129,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
       .post("/dossiers/89/quotations")
       .set("authorization", "Bearer admin")
       .send(baseRequest);
-    console.log(response.body);
 
     expect(response.status).toBe(404);
     expect(response.body).toEqual(
@@ -429,7 +428,6 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
 
       const quotationsBefore2ndAttempt =
         await tryber.tables.CpReqQuotations.do().select();
-      console.log(quotationsBefore2ndAttempt);
       await request(app)
         .post("/dossiers/80/quotations")
         .set("authorization", "Bearer admin")
