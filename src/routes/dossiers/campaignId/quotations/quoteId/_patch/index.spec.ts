@@ -134,7 +134,6 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 80, plan_id: plan.id }, // plan from Not quoted template
-      { ...campaign, id: 90, plan_id: 22 }, // plan from Quoted template
       { ...campaign, id: 99, plan_id: 25 },
     ]);
   });
@@ -221,107 +220,213 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
   });
 
   describe("PATCH a pending quotation", () => {
+    beforeEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().insert([
+        {
+          ...campaign,
+          id: 180,
+          plan_id: plan.id,
+          quote_id: quotationPending.id,
+        }, // plan from Not quoted template
+      ]);
+    });
+    afterEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().delete();
+    });
     it("Should answer 200", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationPending.id}`)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
         .set("authorization", "Bearer admin")
         .send(baseRequest);
       expect(response.status).toBe(200);
     });
     it("Should update status to approved if send empty body", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationPending.id}`)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
         .set("authorization", "Bearer admin")
         .send(baseRequest);
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("status")
-        .where({ id: quotationPending.id })
-        .first();
-      expect(updatedQuotation).toEqual({ status: "approved" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationPending.id,
+              status: "approved",
+            }),
+          }),
+        ])
+      );
     });
     it("Should update status to approved if send same amount of current quotation", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationPending.id}`)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
         .set("authorization", "Bearer admin")
         .send({ amount: quotationPending.estimated_cost });
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("status")
-        .where({ id: quotationPending.id })
-        .first();
-      expect(updatedQuotation).toEqual({ status: "approved" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationPending.id,
+              status: "approved",
+            }),
+          }),
+        ])
+      );
     });
 
     it("Should update status to proposed if send different amount of current quotation", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationPending.id}`)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
         .set("authorization", "Bearer admin")
         .send({ amount: "2000 oranges" });
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("status")
-        .where({ id: quotationPending.id })
-        .first();
-      expect(updatedQuotation).toEqual({ status: "proposed" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationPending.id,
+              status: "proposed",
+            }),
+          }),
+        ])
+      );
     });
     it("Should update amount if send different amount of current quotation", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationPending.id}`)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
         .set("authorization", "Bearer admin")
         .send({ amount: "2000 oranges" });
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("estimated_cost")
-        .where({ id: quotationPending.id })
-        .first();
-      expect(updatedQuotation).toEqual({ estimated_cost: "2000 oranges" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationPending.id,
+              price: "2000 oranges",
+            }),
+          }),
+        ])
+      );
     });
   });
   describe("PATCH a proposed quotation", () => {
+    beforeEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().insert([
+        {
+          ...campaign,
+          id: 200,
+          plan_id: plan.id,
+          quote_id: quotationProposed.id,
+        }, // plan from Not quoted template
+      ]);
+    });
+    afterEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().delete();
+    });
     it("Should answer 200", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationProposed.id}`)
+        .patch(`/dossiers/200/quotations/${quotationProposed.id}`)
         .set("authorization", "Bearer admin")
         .send(baseRequest);
       expect(response.status).toBe(200);
     });
     it("Should not update status if send empty body", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationProposed.id}`)
+        .patch(`/dossiers/200/quotations/${quotationProposed.id}`)
         .set("authorization", "Bearer admin")
         .send(baseRequest);
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("status")
-        .where({ id: quotationProposed.id })
-        .first();
-      expect(updatedQuotation).toEqual({ status: "proposed" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationProposed.id,
+              status: quotationProposed.status,
+            }),
+          }),
+        ])
+      );
     });
 
     it("Should not update status if send different amount of current quotation", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationProposed.id}`)
+        .patch(`/dossiers/200/quotations/${quotationProposed.id}`)
         .set("authorization", "Bearer admin")
         .send({ amount: "2000 oranges" });
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("status")
-        .where({ id: quotationProposed.id })
-        .first();
-      expect(updatedQuotation).toEqual({ status: "proposed" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationProposed.id,
+              status: quotationProposed.status,
+            }),
+          }),
+        ])
+      );
     });
     it("Should update amount if send different amount of current quotation", async () => {
       const response = await request(app)
-        .patch(`/dossiers/80/quotations/${quotationProposed.id}`)
+        .patch(`/dossiers/200/quotations/${quotationProposed.id}`)
         .set("authorization", "Bearer admin")
         .send({ amount: "2000 oranges" });
       expect(response.status).toBe(200);
-      const updatedQuotation = await tryber.tables.CpReqQuotations.do()
-        .select("estimated_cost")
-        .where({ id: quotationProposed.id })
-        .first();
-      expect(updatedQuotation).toEqual({ estimated_cost: "2000 oranges" });
+
+      const newData = await request(app)
+        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
+        .set("authorization", "Bearer admin");
+      expect(newData.status).toBe(200);
+
+      expect(newData.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: quotationProposed.id,
+              price: "2000 oranges",
+            }),
+          }),
+        ])
+      );
     });
   });
 });
