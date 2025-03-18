@@ -302,6 +302,16 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/quotations/{quote}": {
+    patch: operations["patch-dossiers-campaign-quotations-quote"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        quote: string;
+      };
+    };
+  };
   "/education": {
     /** Get all education levels */
     get: operations["get-education"];
@@ -2677,6 +2687,32 @@ export interface operations {
         "application/json": {
           quote?: string;
           notes?: string;
+        };
+      };
+    };
+  };
+  "patch-dossiers-campaign-quotations-quote": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        quote: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          amount?: string;
         };
       };
     };
