@@ -4578,8 +4578,6 @@ paths:
               properties:
                 amount:
                   type: string
-                  x-stoplight:
-                    id: rj57v67w13ryv
             examples:
               Example 1:
                 value:
