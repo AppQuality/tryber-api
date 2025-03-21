@@ -56,30 +56,44 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async init() {
-    this.plan = await tryber.tables.CpReqPlans.do()
+    const data = await tryber.tables.CpReqPlans.do()
       .select(
         tryber.ref("id").withSchema("cp_req_plans"),
-        tryber.ref("config").withSchema("cp_req_plans")
+        tryber.ref("config").withSchema("cp_req_plans"),
+        tryber.ref("id").withSchema("cp_req_templates").as("template_id"),
+        tryber
+          .ref("config")
+          .withSchema("cp_req_templates")
+          .as("template_config"),
+        tryber.ref("price").withSchema("cp_req_templates")
       )
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.plan_id",
         "cp_req_plans.id"
       )
+      .leftJoin(
+        "cp_req_templates",
+        "cp_req_templates.id",
+        "cp_req_plans.template_id"
+      )
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
 
-    if (!this.plan) return;
+    if (!data) return;
 
-    this.template = await tryber.tables.CpReqTemplates.do()
-      .select(
-        tryber.ref("id").withSchema("cp_req_templates"),
-        tryber.ref("config").withSchema("cp_req_templates"),
-        tryber.ref("price").withSchema("cp_req_templates")
-      )
-      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
-      .where("cp_req_plans.id", this.plan?.id)
-      .first();
+    this.plan = {
+      id: data.id,
+      config: data.config,
+    };
+
+    if (data.template_id) {
+      this.template = {
+        id: data.template_id,
+        config: data.template_config,
+        price: data.price,
+      };
+    }
 
     const planQuote = await tryber.tables.CpReqQuotations.do()
       .select("id")
