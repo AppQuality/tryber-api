@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: post-dossiers-campaign-quotations */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
@@ -12,7 +12,6 @@ export default class RouteItem extends UserRoute<{
   private campaignId: number;
   private plan?: { id: number; config: string };
   private template?: { id: number; config: string; price: string | undefined };
-  private planIsFromQuotedTemplate: boolean = false;
   private planIsQuoted: boolean = false;
 
   constructor(configuration: RouteClassConfiguration) {
@@ -57,30 +56,44 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async init() {
-    this.plan = await tryber.tables.CpReqPlans.do()
+    const data = await tryber.tables.CpReqPlans.do()
       .select(
         tryber.ref("id").withSchema("cp_req_plans"),
-        tryber.ref("config").withSchema("cp_req_plans")
+        tryber.ref("config").withSchema("cp_req_plans"),
+        tryber.ref("id").withSchema("cp_req_templates").as("template_id"),
+        tryber
+          .ref("config")
+          .withSchema("cp_req_templates")
+          .as("template_config"),
+        tryber.ref("price").withSchema("cp_req_templates")
       )
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.plan_id",
         "cp_req_plans.id"
       )
+      .leftJoin(
+        "cp_req_templates",
+        "cp_req_templates.id",
+        "cp_req_plans.template_id"
+      )
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
 
-    if (!this.plan) return;
+    if (!data) return;
 
-    this.template = await tryber.tables.CpReqTemplates.do()
-      .select(
-        tryber.ref("id").withSchema("cp_req_templates"),
-        tryber.ref("config").withSchema("cp_req_templates"),
-        tryber.ref("price").withSchema("cp_req_templates")
-      )
-      .join("cp_req_plans", "cp_req_plans.template_id", "cp_req_templates.id")
-      .where("cp_req_plans.id", this.plan?.id)
-      .first();
+    this.plan = {
+      id: data.id,
+      config: data.config,
+    };
+
+    if (data.template_id) {
+      this.template = {
+        id: data.template_id,
+        config: data.template_config,
+        price: data.price,
+      };
+    }
 
     const planQuote = await tryber.tables.CpReqQuotations.do()
       .select("id")
@@ -119,10 +132,22 @@ export default class RouteItem extends UserRoute<{
 
   protected async prepare() {
     try {
-      this.setSuccess(201, await this.createQuotation());
+      const quotation = await this.createQuotation();
+
+      await this.linkToCampaign(quotation.id);
+
+      this.setSuccess(201, quotation);
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async linkToCampaign(quoteId: number) {
+    await tryber.tables.WpAppqEvdCampaign.do()
+      .update({
+        quote_id: quoteId,
+      })
+      .where({ id: this.campaignId });
   }
 
   private async evaluatePrice() {
