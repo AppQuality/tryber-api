@@ -352,32 +352,15 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
       const response = await request(app)
         .patch(`/dossiers/200/quotations/${quotationProposed.id}`)
         .set("authorization", "Bearer admin")
-        .send(baseRequest);
+        .send({ amount: "2000 oranges" });
       expect(response.status).toBe(200);
     });
-    it("Should not update status if send empty body", async () => {
+    it("Should return an error if send empty body on a proposed quote", async () => {
       const response = await request(app)
         .patch(`/dossiers/200/quotations/${quotationProposed.id}`)
         .set("authorization", "Bearer admin")
         .send(baseRequest);
-      expect(response.status).toBe(200);
-
-      const newData = await request(app)
-        .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
-        .set("authorization", "Bearer admin");
-      expect(newData.status).toBe(200);
-
-      expect(newData.body).toHaveProperty(
-        "items",
-        expect.arrayContaining([
-          expect.objectContaining({
-            quote: expect.objectContaining({
-              id: quotationProposed.id,
-              status: quotationProposed.status,
-            }),
-          }),
-        ])
-      );
+      expect(response.status).toBe(400);
     });
 
     it("Should not update status if send different amount of current quotation", async () => {

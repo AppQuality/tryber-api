@@ -59,6 +59,14 @@ export default class RouteItem extends UserRoute<{
       return false;
     }
 
+    if (
+      (await this.getQuote())?.status !== "pending" &&
+      !this.getBody().amount
+    ) {
+      this.setError(400, new OpenapiError("Amount required"));
+      return false;
+    }
+
     return true;
   }
   private async campaignNotExist() {
