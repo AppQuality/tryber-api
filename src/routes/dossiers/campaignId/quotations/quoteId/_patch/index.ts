@@ -11,6 +11,7 @@ export default class RouteItem extends UserRoute<{
 }> {
   private campaignId: number;
   private quoteId: number;
+  private quote?: { id: number; estimated_cost: string; status: string };
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -19,7 +20,8 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getQuote() {
-    return await tryber.tables.CpReqQuotations.do()
+    if (this.quote) return this.quote;
+    this.quote = await tryber.tables.CpReqQuotations.do()
       .select(
         tryber.ref("id").withSchema("cp_req_quotations"),
         tryber.ref("estimated_cost").withSchema("cp_req_quotations"),
@@ -35,6 +37,8 @@ export default class RouteItem extends UserRoute<{
       )
       .andWhere("wp_appq_evd_campaign.id", this.campaignId)
       .first();
+
+    return this.quote;
   }
 
   protected async filter() {
