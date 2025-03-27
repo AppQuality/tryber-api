@@ -47,6 +47,7 @@ const quotation = {
   id: 1,
   created_by: 1,
   status: "proposed",
+  status_changed_by: 1,
   estimated_cost: "1999",
   plan_id: plan.id,
   config: plan.config,
@@ -74,6 +75,8 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       { ...campaign, id: 80 }, // plan from Not quoted template
     ]);
+    await tryber.seeds().campaign_statuses();
+    await tryber.tables.CpReqPlans.do().insert(plan);
   });
 
   afterAll(async () => {
@@ -81,6 +84,7 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.CpReqTemplates.do().delete();
     await tryber.tables.WpAppqProject.do().delete();
+    await tryber.tables.CpReqPlans.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -111,17 +115,61 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
     );
   });
 
-  describe("GET history from unquoted template", () => {
+  describe("GET history dossier quotes", () => {
     beforeEach(async () => {
+      await tryber.tables.CpReqQuotations.do().insert([
+        {
+          ...quotation,
+          id: 180,
+          plan_id: plan.id,
+          status: "pending",
+          estimated_cost: "10mln of apples",
+        },
+        {
+          ...quotation,
+          id: 190,
+          plan_id: plan.id,
+          status: "rejected",
+          estimated_cost: "12mln of bananas",
+        },
+        {
+          ...quotation,
+          id: 200,
+          plan_id: plan.id,
+          status: "rejected",
+          estimated_cost: "99M og passion fruits",
+        },
+      ]);
       await tryber.tables.WpAppqEvdCampaign.do().insert([
         {
           ...campaign,
           id: 180,
-        }, // plan from Not quoted template
+          title: "Test Campaign 180",
+          plan_id: plan.id,
+          phase_id: 1, // Draft
+          quote_id: 180,
+        },
+        {
+          ...campaign,
+          id: 190,
+          title: "Test Campaign 190",
+          plan_id: plan.id,
+          phase_id: 50, // Closing
+          quote_id: 190,
+        },
+        {
+          ...campaign,
+          id: 200,
+          title: "Test Campaign 200",
+          plan_id: plan.id,
+          phase_id: 50, // Closing
+          quote_id: 200,
+        },
       ]);
     });
     afterEach(async () => {
       await tryber.tables.WpAppqEvdCampaign.do().delete();
+      await tryber.tables.CpReqQuotations.do().delete();
     });
     it("Should answer 200", async () => {
       const response = await request(app)
@@ -130,95 +178,71 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
 
       expect(response.status).toBe(200);
     });
-    // it("Should update status to approved if send empty body", async () => {
-    //   const response = await request(app)
-    //     .get(`/dossiers/180/quotesHistory`)
-    //     .set("authorization", "Bearer admin")
+    it("Should return array of items", async () => {
+      const response = await request(app)
+        .get(`/dossiers/180/quotesHistory`)
+        .set("authorization", "Bearer admin");
 
-    //   expect(response.status).toBe(200);
+      expect(response.status).toBe(200);
 
-    //   const newData = await request(app)
-    //     .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
-    //     .set("authorization", "Bearer admin");
-    //   expect(newData.status).toBe(200);
-    //   expect(newData.body).toHaveProperty(
-    //     "items",
-    //     expect.arrayContaining([
-    //       expect.objectContaining({
-    //         quote: expect.objectContaining({
-    //           id: quotationPending.id,
-    //           status: "approved",
-    //         }),
-    //       }),
-    //     ])
-    //   );
-    // });
-    // it("Should update status to approved if send same amount of current quotation", async () => {
-    //   const response = await request(app)
-    //     .get(`/dossiers/180/quotesHistory`)
-    //     .set("authorization", "Bearer admin");
-    //   expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("items");
+      expect(response.body.items).toBeInstanceOf(Array);
+    });
+    it("Should return items with campaignData", async () => {
+      const response = await request(app)
+        .get(`/dossiers/180/quotesHistory`)
+        .set("authorization", "Bearer admin");
 
-    //   const newData = await request(app)
-    //     .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
-    //     .set("authorization", "Bearer admin");
-    //   expect(newData.status).toBe(200);
-    //   expect(newData.body).toHaveProperty(
-    //     "items",
-    //     expect.arrayContaining([
-    //       expect.objectContaining({
-    //         quote: expect.objectContaining({
-    //           id: quotationPending.id,
-    //           status: "approved",
-    //         }),
-    //       }),
-    //     ])
-    //   );
-    // });
+      expect(response.status).toBe(200);
 
-    // it("Should update status to proposed if send different amount of current quotation", async () => {
-    //   const response = await request(app)
-    //     .get(`/dossiers/180/quotesHistory`)
-    //     .set("authorization", "Bearer admin")
-    //   expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            campaign: expect.objectContaining({
+              id: 190,
+              title: "Test Campaign 190",
+              phase_id: 50,
+              phase_name: "Closing",
+            }),
+          }),
+          expect.objectContaining({
+            campaign: expect.objectContaining({
+              id: 200,
+              title: "Test Campaign 200",
+              phase_id: 50,
+              phase_name: "Closing",
+            }),
+          }),
+        ])
+      );
+    });
+    it("Should return items with quoteData", async () => {
+      const response = await request(app)
+        .get(`/dossiers/180/quotesHistory`)
+        .set("authorization", "Bearer admin");
 
-    //   const newData = await request(app)
-    //     .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
-    //     .set("authorization", "Bearer admin");
-    //   expect(newData.status).toBe(200);
-    //   expect(newData.body).toHaveProperty(
-    //     "items",
-    //     expect.arrayContaining([
-    //       expect.objectContaining({
-    //         quote: expect.objectContaining({
-    //           id: quotationPending.id,
-    //           status: "proposed",
-    //         }),
-    //       }),
-    //     ])
-    //   );
-    // });
-    // it("Should update amount if send different amount of current quotation", async () => {
-    //   const response = await request(app)
-    //     .get(`/dossiers/180/quotesHistory`)
-    //     .set("authorization", "Bearer admin")
-    //   expect(response.status).toBe(200);
+      expect(response.status).toBe(200);
 
-    //   const newData = await request(app)
-    //     .get(`/campaigns?fields=quote&filterBy[hasQuote]`)
-    //     .set("authorization", "Bearer admin");
-    //   expect(newData.status).toBe(200);
-    //   expect(newData.body).toHaveProperty(
-    //     "items",
-    //     expect.arrayContaining([
-    //       expect.objectContaining({
-    //         quote: expect.objectContaining({
-    //           id: quotationPending.id,
-    //           price: "2000 oranges",
-    //         }),
-    //       }),
-    //     ])
-    //   );
-    // });
+      expect(response.body).toHaveProperty(
+        "items",
+        expect.arrayContaining([
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: 190,
+              amount: "12mln of bananas",
+              status: "rejected",
+            }),
+          }),
+          expect.objectContaining({
+            quote: expect.objectContaining({
+              id: 200,
+              amount: "99M og passion fruits",
+              status: "rejected",
+            }),
+          }),
+        ])
+      );
+    });
   });
 });
