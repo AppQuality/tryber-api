@@ -20,8 +20,7 @@ COPY . .
 RUN yarn global add npm-run-all
 RUN yarn build
 
-
-FROM node:18-alpine3.16 AS web
+FROM node:18.17.1-alpine AS web
 
 COPY --from=base /dist /app/build
 COPY package*.json /app/
