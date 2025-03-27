@@ -74,7 +74,7 @@ const quotation = {
   created_by: 1,
   status: "proposed",
   estimated_cost: "1999",
-  plan_id: plan.id,
+  generated_from_plan: plan.id,
   config: plan.config,
 };
 const quotationapproved = {
@@ -85,7 +85,7 @@ const quotationapproved = {
 const quotationOtherCp = {
   ...quotation,
   id: 123,
-  plan_id: 25,
+  generated_from_plan: 25,
 };
 const quotationPending = {
   ...quotation,
@@ -132,10 +132,6 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
         template_id: quotedTemplate.id,
       },
     ]);
-    await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 80, plan_id: plan.id }, // plan from Not quoted template
-      { ...campaign, id: 99, plan_id: 25 },
-    ]);
   });
 
   beforeEach(async () => {
@@ -158,65 +154,77 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
     await tryber.tables.CpReqTemplates.do().delete();
   });
 
-  it("Should answer 403 if not logged in", async () => {
-    const response = await request(app)
-      .patch("/dossiers/80/quotations/1234")
-      .send(baseRequest);
-    expect(response.status).toBe(403);
-  });
+  describe("Errors", () => {
+    beforeEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().insert([
+        { ...campaign, id: 80, plan_id: plan.id }, // plan from Not quoted template
+        { ...campaign, id: 99, plan_id: 25 },
+      ]);
+    });
+    afterEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().delete();
+    });
 
-  it("Should answer 404 if campaign does not exists", async () => {
-    const response = await request(app)
-      .patch(`/dossiers/999/quotations/${quotation.id}`)
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
+    it("Should answer 403 if not logged in", async () => {
+      const response = await request(app)
+        .patch("/dossiers/80/quotations/1234")
+        .send(baseRequest);
+      expect(response.status).toBe(403);
+    });
 
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual(
-      expect.objectContaining({ message: "Campaign does not exist" })
-    );
-  });
+    it("Should answer 404 if campaign does not exists", async () => {
+      const response = await request(app)
+        .patch(`/dossiers/999/quotations/${quotation.id}`)
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
 
-  it("Should answer 401 if not admin", async () => {
-    const response = await request(app)
-      .patch("/dossiers/80/quotations/1234")
-      .set("authorization", "Bearer tester")
-      .send(baseRequest);
-    expect(response.status).toBe(401);
-    expect(response.body).toEqual(
-      expect.objectContaining({ message: "No access to campaign" })
-    );
-  });
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual(
+        expect.objectContaining({ message: "Campaign does not exist" })
+      );
+    });
 
-  it("Should answer 404 if quote does not exists", async () => {
-    const response = await request(app)
-      .patch("/dossiers/80/quotations/9999999999")
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual(
-      expect.objectContaining({ message: "Quotation does not exist" })
-    );
-  });
-  it("Should answer 404 if quote is approved", async () => {
-    const response = await request(app)
-      .patch(`/dossiers/80/quotations/${quotationapproved.id}`)
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual(
-      expect.objectContaining({ message: "Quotation does not exist" })
-    );
-  });
-  it("Should answer 404 if quote is of another campaign", async () => {
-    const response = await request(app)
-      .patch(`/dossiers/80/quotations/${quotationOtherCp.id}`)
-      .set("authorization", "Bearer admin")
-      .send(baseRequest);
-    expect(response.status).toBe(404);
-    expect(response.body).toEqual(
-      expect.objectContaining({ message: "Quotation does not exist" })
-    );
+    it("Should answer 401 if not admin", async () => {
+      const response = await request(app)
+        .patch("/dossiers/80/quotations/1234")
+        .set("authorization", "Bearer tester")
+        .send(baseRequest);
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual(
+        expect.objectContaining({ message: "No access to campaign" })
+      );
+    });
+
+    it("Should answer 404 if quote does not exists", async () => {
+      const response = await request(app)
+        .patch("/dossiers/80/quotations/9999999999")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual(
+        expect.objectContaining({ message: "Quotation does not exist" })
+      );
+    });
+    it("Should answer 404 if quote is approved", async () => {
+      const response = await request(app)
+        .patch(`/dossiers/80/quotations/${quotationapproved.id}`)
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual(
+        expect.objectContaining({ message: "Quotation does not exist" })
+      );
+    });
+    it("Should answer 404 if quote is of another campaign", async () => {
+      const response = await request(app)
+        .patch(`/dossiers/80/quotations/${quotationOtherCp.id}`)
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual(
+        expect.objectContaining({ message: "Quotation does not exist" })
+      );
+    });
   });
 
   describe("PATCH a pending quotation", () => {

@@ -116,7 +116,7 @@ export default class RouteItem extends UserRoute<{
         status: await this.evaluateStatus(),
         estimated_cost: await this.evaluatePrice(),
         config: this.plan.config,
-        plan_id: this.plan.id,
+        generated_from_plan: this.plan.id,
         ...(notes ? { notes } : {}),
       })
       .returning("id");

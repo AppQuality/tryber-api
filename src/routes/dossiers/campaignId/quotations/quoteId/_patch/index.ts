@@ -29,11 +29,10 @@ export default class RouteItem extends UserRoute<{
       )
       .where("cp_req_quotations.id", this.quoteId)
       .andWhereNot("cp_req_quotations.status", "approved")
-      .join("cp_req_plans", "cp_req_plans.id", "cp_req_quotations.plan_id")
       .join(
         "wp_appq_evd_campaign",
-        "wp_appq_evd_campaign.plan_id",
-        "cp_req_plans.id"
+        "wp_appq_evd_campaign.quote_id",
+        "cp_req_quotations.id"
       )
       .andWhere("wp_appq_evd_campaign.id", this.campaignId)
       .first();

@@ -456,7 +456,7 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         status: "rejected",
         estimated_cost: "1000",
         config: plan.config,
-        plan_id: plan.id,
+        generated_from_plan: plan.id,
       });
       const quotationsBefore2ndAttempt =
         await tryber.tables.CpReqQuotations.do().select();

@@ -127,7 +127,7 @@ describe("GET /campaigns", () => {
     await tryber.tables.CpReqQuotations.do().insert([
       {
         id: 50,
-        plan_id: 15,
+        generated_from_plan: 15,
         estimated_cost: "2 kilotons",
         status: "confirmed",
         config: JSON.stringify({
@@ -136,7 +136,7 @@ describe("GET /campaigns", () => {
       },
       {
         id: 55,
-        plan_id: 16,
+        generated_from_plan: 16,
         estimated_cost: "3000 electronvolts",
         status: "proposed",
         config: JSON.stringify({
