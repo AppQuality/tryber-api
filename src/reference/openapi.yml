@@ -4625,6 +4625,10 @@ paths:
                               type: integer
                         quote:
                           type: object
+                          required:
+                            - id
+                            - amount
+                            - status
                           properties:
                             id:
                               type: integer
@@ -4637,12 +4641,9 @@ paths:
                                 - proposed
                                 - approved
                                 - rejected
-                          required:
-                            - id
-                            - amount
-                            - status
                       required:
                         - campaign
+                        - quote
                 required:
                   - items
               examples:

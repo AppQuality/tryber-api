@@ -2744,7 +2744,7 @@ export interface operations {
                 title: string;
                 phase_id: number;
               };
-              quote?: {
+              quote: {
                 id: number;
                 amount: string;
                 /** @enum {string} */
