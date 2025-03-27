@@ -2742,6 +2742,7 @@ export interface operations {
               campaign: {
                 id: number;
                 title: string;
+                phase_id: number;
               };
               quote?: {
                 id: number;

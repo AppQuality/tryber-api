@@ -4615,11 +4615,14 @@ paths:
                           required:
                             - id
                             - title
+                            - phase_id
                           properties:
                             id:
                               type: integer
                             title:
                               type: string
+                            phase_id:
+                              type: integer
                         quote:
                           type: object
                           properties:
@@ -4649,6 +4652,7 @@ paths:
                       - campaign:
                           id: 0
                           title: string
+                          phase_id: 2
                         quote:
                           id: 0
                           amount: string
