@@ -1,4 +1,4 @@
-FROM node:18.17.1-alpine3.16 AS node
+FROM node:18.17.1-alpine AS node
 FROM alpine:3.16 as base
 
 COPY --from=node /usr/lib /usr/lib
