@@ -59,6 +59,7 @@ export default class RouteItem extends UserRoute<{
     const data = await tryber.tables.CpReqPlans.do()
       .select(
         tryber.ref("id").withSchema("cp_req_plans"),
+        tryber.ref("quote_id").withSchema("wp_appq_evd_campaign"),
         tryber.ref("config").withSchema("cp_req_plans"),
         tryber.ref("id").withSchema("cp_req_templates").as("template_id"),
         tryber
@@ -95,12 +96,7 @@ export default class RouteItem extends UserRoute<{
       };
     }
 
-    const planQuote = await tryber.tables.CpReqQuotations.do()
-      .select("id")
-      .where({ plan_id: this.plan?.id })
-      .andWhereNot("status", "rejected")
-      .first();
-    this.planIsQuoted = planQuote?.id ? true : false;
+    this.planIsQuoted = data?.quote_id ? true : false;
   }
 
   private isQuotedTemplate() {
