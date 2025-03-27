@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: patch-dossiers-campaign-quotations-quote */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
@@ -54,16 +54,19 @@ export default class RouteItem extends UserRoute<{
       return false;
     }
 
-    if (!(await this.getQuote())) {
+    const quote = await this.getQuote();
+    if (!quote) {
       this.setError(404, new OpenapiError("Quotation does not exist"));
       return false;
     }
 
-    if (
-      (await this.getQuote())?.status !== "pending" &&
-      !this.getBody().amount
-    ) {
+    if (quote.status !== "pending" && !this.getBody().amount) {
       this.setError(400, new OpenapiError("Amount required"));
+      return false;
+    }
+
+    if (quote.status === "rejected") {
+      this.setError(403, new OpenapiError("Can't update rejected quotation"));
       return false;
     }
 
