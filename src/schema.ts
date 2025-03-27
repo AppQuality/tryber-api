@@ -2743,6 +2743,7 @@ export interface operations {
                 id: number;
                 title: string;
                 phase_id: number;
+                phase_name: string;
               };
               quote: {
                 id: number;

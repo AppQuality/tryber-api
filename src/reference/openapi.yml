@@ -4616,6 +4616,7 @@ paths:
                             - id
                             - title
                             - phase_id
+                            - phase_name
                           properties:
                             id:
                               type: integer
@@ -4623,6 +4624,8 @@ paths:
                               type: string
                             phase_id:
                               type: integer
+                            phase_name:
+                              type: string
                         quote:
                           type: object
                           required:
@@ -4654,6 +4657,7 @@ paths:
                           id: 0
                           title: string
                           phase_id: 2
+                          phase_name: Closing
                         quote:
                           id: 0
                           amount: string
