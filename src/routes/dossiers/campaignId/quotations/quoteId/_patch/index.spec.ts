@@ -412,4 +412,31 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
       );
     });
   });
+
+  describe("PATCH a refused quotation", () => {
+    beforeEach(async () => {
+      await tryber.tables.CpReqQuotations.do().insert([
+        { ...quotation, id: 123456, status: "rejected" },
+      ]);
+      await tryber.tables.WpAppqEvdCampaign.do().insert([
+        {
+          ...campaign,
+          id: 200,
+          plan_id: plan.id,
+          quote_id: 123456,
+        }, // plan from Not quoted template
+      ]);
+    });
+    afterEach(async () => {
+      await tryber.tables.CpReqQuotations.do().delete();
+      await tryber.tables.WpAppqEvdCampaign.do().delete();
+    });
+    it("Should answer 403", async () => {
+      const response = await request(app)
+        .patch(`/dossiers/200/quotations/123456`)
+        .set("authorization", "Bearer admin")
+        .send({ amount: "2000 oranges" });
+      expect(response.status).toBe(403);
+    });
+  });
 });
