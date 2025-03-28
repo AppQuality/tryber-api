@@ -92,6 +92,39 @@ export default class RouteItem extends UserRoute<{
     }
   }
 
+  private async approveQuote() {
+    await tryber.tables.CpReqQuotations.do()
+      .where({
+        id: this.quoteId,
+      })
+      .update({ status: "approved" });
+    const planId = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("plan_id")
+      .where({ id: this.campaignId })
+      .first();
+    if (!planId) return;
+
+    await tryber.tables.CpReqPlans.do()
+      .where({
+        id: planId.plan_id,
+      })
+      .update({ status: "approved" });
+
+    await tryber.tables.WpAppqEvdCampaign.do()
+      .where({
+        id: this.campaignId,
+      })
+      .update({ phase_id: 10 });
+  }
+
+  private async proposeQuote({ incomingAmount }: { incomingAmount?: string }) {
+    await tryber.tables.CpReqQuotations.do()
+      .where({
+        id: this.quoteId,
+      })
+      .update({ status: "proposed", estimated_cost: incomingAmount });
+  }
+
   private async patchQuote() {
     const quote = await this.getQuote();
     if (!quote) throw new Error("Quotation does not exist");
@@ -103,16 +136,12 @@ export default class RouteItem extends UserRoute<{
       updatingAmount = true;
     }
 
-    const query = tryber.tables.CpReqQuotations.do().where({
-      id: this.quoteId,
-    });
+    if (quote.status === "pending" && !updatingAmount) {
+      await this.approveQuote();
+    }
 
-    if (quote.status === "pending" && !updatingAmount)
-      query.update({ status: "approved" });
-
-    if (updatingAmount)
-      query.update({ status: "proposed", estimated_cost: incomingAmount });
-
-    await query;
+    if (updatingAmount) {
+      await this.proposeQuote({ incomingAmount });
+    }
   }
 }

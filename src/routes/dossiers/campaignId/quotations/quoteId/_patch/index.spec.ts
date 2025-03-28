@@ -56,12 +56,13 @@ const baseRequest = {};
 const customer_id = 54321;
 
 const campaign = {
-  project_id: 1,
+  project_id: plan.project_id,
   campaign_type_id: 1,
   title: "Test Campaign 80",
   customer_title: "Test Customer Campaign 80",
   start_date: "2019-08-24T14:15:22Z",
   end_date: "2019-08-24T14:15:22Z",
+  close_date: "2019-08-24T14:15:22Z",
   platform_id: 1,
   page_manual_id: 1,
   page_preview_id: 1,
@@ -100,11 +101,17 @@ const quotationProposed = {
 
 describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
   beforeAll(async () => {
+    await tryber.seeds().campaign_statuses();
     await tryber.tables.WpAppqProject.do().insert({
       id: plan.project_id,
       display_name: "project",
       customer_id,
       edited_by: 1,
+    });
+    await tryber.tables.WpAppqCustomer.do().insert({
+      id: customer_id,
+      company: "Test Customer",
+      pm_id: 1,
     });
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
@@ -132,6 +139,11 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
         template_id: quotedTemplate.id,
       },
     ]);
+    await tryber.tables.WpAppqCampaignType.do().insert({
+      id: 1,
+      name: "Test Campaign Type",
+      category_id: 1,
+    });
   });
 
   beforeEach(async () => {
@@ -149,6 +161,9 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
   });
 
   afterAll(async () => {
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.WpAppqProject.do().delete();
+    await tryber.tables.WpAppqCustomer.do().delete();
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.CpReqPlans.do().delete();
     await tryber.tables.CpReqTemplates.do().delete();
@@ -239,6 +254,7 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
       ]);
     });
     afterEach(async () => {
+      await tryber.tables.CampaignDossierData.do().delete();
       await tryber.tables.WpAppqEvdCampaign.do().delete();
     });
     it("Should answer 200", async () => {
@@ -292,6 +308,40 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
             }),
           }),
         ])
+      );
+    });
+
+    it("Should update plan status to approved if send same amount of current quotation", async () => {
+      const response = await request(app)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
+        .set("authorization", "Bearer admin")
+        .send({ amount: quotationPending.estimated_cost });
+      expect(response.status).toBe(200);
+
+      const data = await tryber.tables.CpReqPlans.do()
+        .select("status")
+        .where({ id: plan.id })
+        .first();
+      if (!data) throw new Error("Plan not found");
+      expect(data.status).toBe("approved");
+    });
+
+    it("Should campaign phase to confirmed if send same amount of current quotation", async () => {
+      await request(app)
+        .patch(`/dossiers/180/quotations/${quotationPending.id}`)
+        .set("authorization", "Bearer admin")
+        .send({ amount: quotationPending.estimated_cost });
+
+      const response = await request(app)
+        .get(`/dossiers/180/`)
+        .set("authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty(
+        "phase",
+        expect.objectContaining({
+          id: 10,
+          name: "Confirmed",
+        })
       );
     });
 
@@ -354,6 +404,7 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
       ]);
     });
     afterEach(async () => {
+      await tryber.tables.CampaignDossierData.do().delete();
       await tryber.tables.WpAppqEvdCampaign.do().delete();
     });
     it("Should answer 200", async () => {
