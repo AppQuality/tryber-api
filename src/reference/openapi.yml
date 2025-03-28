@@ -4586,6 +4586,84 @@ paths:
                 value: {}
         description: ''
       description: ''
+  '/dossiers/{campaign}/quotesHistory':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: ''
+      operationId: get-dossiers-campaign-quotes-history
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        campaign:
+                          type: object
+                          required:
+                            - id
+                            - title
+                            - phase_id
+                            - phase_name
+                          properties:
+                            id:
+                              type: integer
+                            title:
+                              type: string
+                            phase_id:
+                              type: integer
+                            phase_name:
+                              type: string
+                        quote:
+                          type: object
+                          required:
+                            - id
+                            - amount
+                            - status
+                          properties:
+                            id:
+                              type: integer
+                            amount:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - pending
+                                - proposed
+                                - approved
+                                - rejected
+                      required:
+                        - campaign
+                        - quote
+                required:
+                  - items
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - campaign:
+                          id: 0
+                          title: string
+                          phase_id: 2
+                          phase_name: Closing
+                        quote:
+                          id: 0
+                          amount: string
+                          status: pending
+      security:
+        - JWT: []
   /education:
     get:
       summary: Get all education levels

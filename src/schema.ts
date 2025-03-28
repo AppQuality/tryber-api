@@ -312,6 +312,15 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/quotesHistory": {
+    get: operations["get-dossiers-campaign-quotes-history"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/education": {
     /** Get all education levels */
     get: operations["get-education"];
@@ -2713,6 +2722,37 @@ export interface operations {
       content: {
         "application/json": {
           amount?: string;
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign-quotes-history": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              campaign: {
+                id: number;
+                title: string;
+                phase_id: number;
+                phase_name: string;
+              };
+              quote: {
+                id: number;
+                amount: string;
+                /** @enum {string} */
+                status: "pending" | "proposed" | "approved" | "rejected";
+              };
+            }[];
+          };
         };
       };
     };
