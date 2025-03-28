@@ -77,7 +77,7 @@ export default class RouteItem extends UserRoute<{
         tryber.ref("phase_id").withSchema("wp_appq_evd_campaign"),
         tryber.ref("name").withSchema("campaign_phase").as("phase_name")
       )
-      .where("cp_req_quotations.plan_id", planId)
+      .where("cp_req_quotations.generated_from_plan", planId)
       .andWhereNot("cp_req_quotations.status", "pending")
       .andWhereNot("cp_req_quotations.status", "proposed")
       .join(
@@ -85,7 +85,6 @@ export default class RouteItem extends UserRoute<{
         "wp_appq_evd_campaign.quote_id",
         "cp_req_quotations.id"
       )
-
       .join(
         "campaign_phase",
         "campaign_phase.id",

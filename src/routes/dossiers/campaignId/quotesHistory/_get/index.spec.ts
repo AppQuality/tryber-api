@@ -49,7 +49,7 @@ const quotation = {
   status: "proposed",
   status_changed_by: 1,
   estimated_cost: "1999",
-  plan_id: plan.id,
+  generated_from_plan: plan.id,
   config: plan.config,
 };
 
@@ -76,7 +76,7 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
       { ...campaign, id: 80 }, // plan from Not quoted template
     ]);
     await tryber.seeds().campaign_statuses();
-    await tryber.tables.CpReqPlans.do().insert(plan);
+    await tryber.tables.CpReqPlans.do().insert([plan, { ...plan, id: 300 }]);
   });
 
   afterAll(async () => {
@@ -121,21 +121,28 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
         {
           ...quotation,
           id: 180,
-          plan_id: plan.id,
+          generated_from_plan: plan.id,
           status: "pending",
           estimated_cost: "10mln of apples",
         },
         {
           ...quotation,
           id: 190,
-          plan_id: plan.id,
+          generated_from_plan: plan.id,
           status: "rejected",
           estimated_cost: "12mln of bananas",
         },
         {
           ...quotation,
           id: 200,
-          plan_id: plan.id,
+          generated_from_plan: plan.id,
+          status: "rejected",
+          estimated_cost: "99M og passion fruits",
+        },
+        {
+          ...quotation,
+          id: 300,
+          generated_from_plan: 300,
           status: "rejected",
           estimated_cost: "99M og passion fruits",
         },
@@ -153,7 +160,6 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
           ...campaign,
           id: 190,
           title: "Test Campaign 190",
-          plan_id: plan.id,
           phase_id: 50, // Closing
           quote_id: 190,
         },
@@ -161,9 +167,15 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
           ...campaign,
           id: 200,
           title: "Test Campaign 200",
-          plan_id: plan.id,
           phase_id: 50, // Closing
           quote_id: 200,
+        },
+        {
+          ...campaign,
+          id: 300,
+          title: "Test Campaign 300",
+          phase_id: 50, // Closing
+          quote_id: 300,
         },
       ]);
     });
