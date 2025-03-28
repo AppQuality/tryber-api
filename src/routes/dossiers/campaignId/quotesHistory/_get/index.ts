@@ -2,15 +2,18 @@
 
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import UserRoute from "@src/features/routes/UserRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 type PlanStatus =
   StoplightOperations["get-dossiers-campaign-quotes-history"]["responses"]["200"]["content"]["application/json"]["items"][number]["quote"]["status"];
 
-export default class RouteItem extends UserRoute<{
+export default class RouteItem extends CampaignRoute<{
   response: StoplightOperations["get-dossiers-campaign-quotes-history"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-dossiers-campaign-quotes-history"]["parameters"]["path"];
 }> {
   private campaignId: number;
+  private accessibleCampaigns: true | number[] = this.campaignOlps
+    ? this.campaignOlps
+    : [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -20,11 +23,6 @@ export default class RouteItem extends UserRoute<{
   protected async filter() {
     if (!(await super.filter())) return false;
 
-    if (await this.campaignNotExist()) {
-      this.setError(404, new OpenapiError("Campaign does not exist"));
-      return false;
-    }
-
     if (this.doesNotHaveAccessToCampaign()) {
       this.setError(401, new OpenapiError("No access to campaign"));
       return false;
@@ -33,7 +31,7 @@ export default class RouteItem extends UserRoute<{
     return true;
   }
 
-  private async getDossierPlandId() {
+  private async getDossierPlanId() {
     const cp = await tryber.tables.WpAppqEvdCampaign.do()
       .select("plan_id")
       .where({ id: this.campaignId })
@@ -41,16 +39,11 @@ export default class RouteItem extends UserRoute<{
     return cp?.plan_id;
   }
 
-  private async campaignNotExist() {
-    const cp = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("id")
-      .where({ id: this.campaignId })
-      .first();
-    return cp?.id ? false : true;
-  }
-
   private doesNotHaveAccessToCampaign() {
-    return this.configuration.request.user.role !== "administrator";
+    if (this.accessibleCampaigns === true) return false;
+    if (Array.isArray(this.accessibleCampaigns))
+      return !this.accessibleCampaigns.includes(this.campaignId);
+    return true;
   }
 
   protected async prepare() {
@@ -64,7 +57,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getItems() {
-    const planId = await this.getDossierPlandId();
+    const planId = await this.getDossierPlanId();
     if (!planId) return [];
 
     const quotes = await tryber.tables.CpReqQuotations.do()
@@ -78,8 +71,6 @@ export default class RouteItem extends UserRoute<{
         tryber.ref("name").withSchema("campaign_phase").as("phase_name")
       )
       .where("cp_req_quotations.generated_from_plan", planId)
-      .andWhereNot("cp_req_quotations.status", "pending")
-      .andWhereNot("cp_req_quotations.status", "proposed")
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.quote_id",
