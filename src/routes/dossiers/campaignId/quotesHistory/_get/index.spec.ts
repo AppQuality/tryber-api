@@ -2,63 +2,12 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-const config = { modules: [] };
-
-const notQuotedTemplate = {
-  id: 66,
-  name: "Test Template",
-  description: "Test Description",
-  config: JSON.stringify(config),
-};
-const quotedTemplate = {
-  ...notQuotedTemplate,
-  id: 67,
-  price: "1900.69",
-};
-
-const plan = {
-  id: 19,
-  name: "Test Plan",
-  description: "Test Description",
-  config: JSON.stringify(config),
-  created_by: 1,
-  template_id: notQuotedTemplate.id,
-  project_id: 12345,
-  status: "pending_review",
-};
-
-const customer_id = 54321;
-
-const campaign = {
-  project_id: 1,
-  campaign_type_id: 1,
-  title: "Test Campaign 80",
-  customer_title: "Test Customer Campaign 80",
-  start_date: "2019-08-24T14:15:22Z",
-  end_date: "2019-08-24T14:15:22Z",
-  platform_id: 1,
-  page_manual_id: 1,
-  page_preview_id: 1,
-  pm_id: 1,
-  customer_id,
-};
-
-const quotation = {
-  id: 1,
-  created_by: 1,
-  status: "proposed",
-  status_changed_by: 1,
-  estimated_cost: "1999",
-  generated_from_plan: plan.id,
-  config: plan.config,
-};
-
 describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqProject.do().insert({
-      id: plan.project_id,
+      id: 12345,
       display_name: "project",
-      customer_id,
+      customer_id: 54321,
       edited_by: 1,
     });
     await tryber.tables.WpAppqEvdProfile.do().insert({
@@ -68,15 +17,51 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
       employment_id: 1,
       education_id: 1,
     });
-    await tryber.tables.CpReqTemplates.do().insert([
-      notQuotedTemplate,
-      quotedTemplate,
-    ]);
-    await tryber.tables.WpAppqEvdCampaign.do().insert([
-      { ...campaign, id: 80 }, // plan from Not quoted template
-    ]);
+    await tryber.tables.CpReqTemplates.do().insert({
+      id: 66,
+      name: "Test Template",
+      description: "Test Description",
+      config: JSON.stringify({ modules: [] }),
+    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert(
+      {
+        id: 80,
+        project_id: 1,
+        campaign_type_id: 1,
+        title: "Test Campaign 80",
+        customer_title: "Test Customer Campaign 80",
+        start_date: "2019-08-24T14:15:22Z",
+        end_date: "2019-08-24T14:15:22Z",
+        platform_id: 1,
+        page_manual_id: 1,
+        page_preview_id: 1,
+        pm_id: 1,
+        customer_id: 54321,
+      } // plan from Not quoted template
+    );
     await tryber.seeds().campaign_statuses();
-    await tryber.tables.CpReqPlans.do().insert([plan, { ...plan, id: 300 }]);
+    await tryber.tables.CpReqPlans.do().insert([
+      {
+        id: 19,
+        name: "Test Plan",
+        description: "Test Description",
+        config: JSON.stringify({ modules: [] }),
+        created_by: 1,
+        template_id: 66,
+        project_id: 12345,
+        status: "pending_review",
+      },
+      {
+        id: 300,
+        name: "Test Plan",
+        description: "Test Description",
+        config: JSON.stringify({ modules: [] }),
+        created_by: 1,
+        template_id: 66,
+        project_id: 12345,
+        status: "pending_review",
+      },
+    ]);
   });
 
   afterAll(async () => {
@@ -116,26 +101,48 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
   });
 
   describe("GET history dossier quotes", () => {
+    const campaign = {
+      project_id: 1,
+      campaign_type_id: 1,
+      title: "Test Campaign 80",
+      customer_title: "Test Customer Campaign 80",
+      start_date: "2019-08-24T14:15:22Z",
+      end_date: "2019-08-24T14:15:22Z",
+      platform_id: 1,
+      page_manual_id: 1,
+      page_preview_id: 1,
+      pm_id: 1,
+      customer_id: 54321,
+    };
+
+    const quotation = {
+      created_by: 1,
+      status: "proposed",
+      status_changed_by: 1,
+      estimated_cost: "1999",
+      generated_from_plan: 19,
+      config: JSON.stringify({ modules: [] }),
+    };
     beforeEach(async () => {
       await tryber.tables.CpReqQuotations.do().insert([
         {
           ...quotation,
           id: 180,
-          generated_from_plan: plan.id,
+          generated_from_plan: 19,
           status: "pending",
           estimated_cost: "10mln of apples",
         },
         {
           ...quotation,
           id: 190,
-          generated_from_plan: plan.id,
+          generated_from_plan: 19,
           status: "rejected",
           estimated_cost: "12mln of bananas",
         },
         {
           ...quotation,
           id: 200,
-          generated_from_plan: plan.id,
+          generated_from_plan: 19,
           status: "rejected",
           estimated_cost: "99M og passion fruits",
         },
@@ -152,7 +159,7 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
           ...campaign,
           id: 180,
           title: "Test Campaign 180",
-          plan_id: plan.id,
+          plan_id: 19,
           phase_id: 1, // Draft
           quote_id: 180,
         },
@@ -199,6 +206,7 @@ describe("Route GET /dossiers/:campaignId/quotesHistory", () => {
 
       expect(response.body).toHaveProperty("items");
       expect(response.body.items).toBeInstanceOf(Array);
+      expect(response.body.items.length).toBe(2);
     });
     it("Should return items with campaignData", async () => {
       const response = await request(app)
