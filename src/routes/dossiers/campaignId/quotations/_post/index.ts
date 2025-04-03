@@ -141,7 +141,7 @@ export default class RouteItem extends UserRoute<{
      * If it's not a quoted template,
      * the status is always pending. We can safely assume that a quote exists.
      */
-    if (!this.isQuotedTemplate) {
+    if (!this.isQuotedTemplate()) {
       return "proposed";
     }
 
