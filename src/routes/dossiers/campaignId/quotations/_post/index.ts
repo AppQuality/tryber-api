@@ -10,8 +10,7 @@ export default class RouteItem extends UserRoute<{
   parameters: StoplightOperations["post-dossiers-campaign-quotations"]["parameters"]["path"];
 }> {
   private campaignId: number;
-  private plan?: { id: number; config: string };
-  private template?: { id: number; config: string; price: string | undefined };
+  private plan?: { id: number; config: string; price?: string };
   private planIsQuoted: boolean = false;
 
   constructor(configuration: RouteClassConfiguration) {
@@ -61,22 +60,12 @@ export default class RouteItem extends UserRoute<{
         tryber.ref("id").withSchema("cp_req_plans"),
         tryber.ref("quote_id").withSchema("wp_appq_evd_campaign"),
         tryber.ref("config").withSchema("cp_req_plans"),
-        tryber.ref("id").withSchema("cp_req_templates").as("template_id"),
-        tryber
-          .ref("config")
-          .withSchema("cp_req_templates")
-          .as("template_config"),
-        tryber.ref("price").withSchema("cp_req_templates")
+        tryber.ref("price").withSchema("cp_req_plans").as("price")
       )
       .join(
         "wp_appq_evd_campaign",
         "wp_appq_evd_campaign.plan_id",
         "cp_req_plans.id"
-      )
-      .leftJoin(
-        "cp_req_templates",
-        "cp_req_templates.id",
-        "cp_req_plans.template_id"
       )
       .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
@@ -86,21 +75,14 @@ export default class RouteItem extends UserRoute<{
     this.plan = {
       id: data.id,
       config: data.config,
+      price: data.price,
     };
-
-    if (data.template_id) {
-      this.template = {
-        id: data.template_id,
-        config: data.template_config,
-        price: data.price,
-      };
-    }
 
     this.planIsQuoted = data?.quote_id ? true : false;
   }
 
   private isQuotedTemplate() {
-    return !!this.template?.price;
+    return !!this.plan?.price;
   }
 
   private doesNotHaveAccessToCampaign() {
@@ -149,7 +131,7 @@ export default class RouteItem extends UserRoute<{
   private async evaluatePrice() {
     const { quote } = this.getBody();
 
-    return quote ?? this.template?.price;
+    return quote ?? this.plan?.price;
   }
 
   private async evaluateStatus() {
@@ -168,7 +150,7 @@ export default class RouteItem extends UserRoute<{
      * the status is proposed if the quote is different from the template price.
      */
     if (!quote) return "pending";
-    if (quote !== this.template?.price) return "proposed";
+    if (quote !== this.plan?.price) return "proposed";
 
     return "pending";
   }
