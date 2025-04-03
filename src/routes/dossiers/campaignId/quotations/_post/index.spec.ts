@@ -98,6 +98,7 @@ describe("Route POST /dossiers/:campaignId/quotations", () => {
         ...plan, // plan from quoted template
         id: 22,
         template_id: quotedTemplate.id,
+        price: quotedTemplate.price,
       },
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
