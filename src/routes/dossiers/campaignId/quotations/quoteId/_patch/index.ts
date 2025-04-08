@@ -2,9 +2,9 @@
 
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import UserRoute from "@src/features/routes/UserRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
-export default class RouteItem extends UserRoute<{
+export default class RouteItem extends CampaignRoute<{
   response: StoplightOperations["patch-dossiers-campaign-quotations-quote"]["responses"]["200"]["content"]["application/json"];
   body: StoplightOperations["patch-dossiers-campaign-quotations-quote"]["requestBody"]["content"]["application/json"];
   parameters: StoplightOperations["patch-dossiers-campaign-quotations-quote"]["parameters"]["path"];
@@ -12,6 +12,9 @@ export default class RouteItem extends UserRoute<{
   private campaignId: number;
   private quoteId: number;
   private quote?: { id: number; estimated_cost: string; status: string };
+  private accessibleCampaigns: true | number[] = this.campaignOlps
+    ? this.campaignOlps
+    : [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -42,11 +45,6 @@ export default class RouteItem extends UserRoute<{
 
   protected async filter() {
     if (!(await super.filter())) return false;
-
-    if (await this.campaignNotExist()) {
-      this.setError(404, new OpenapiError("Campaign does not exist"));
-      return false;
-    }
 
     if (this.doesNotHaveAccessToCampaign()) {
       this.setError(401, new OpenapiError("No access to campaign"));
@@ -80,7 +78,10 @@ export default class RouteItem extends UserRoute<{
   }
 
   private doesNotHaveAccessToCampaign() {
-    return this.configuration.request.user.role !== "administrator";
+    if (this.accessibleCampaigns === true) return false;
+    if (Array.isArray(this.accessibleCampaigns))
+      return !this.accessibleCampaigns.includes(this.campaignId);
+    return true;
   }
 
   protected async prepare() {
