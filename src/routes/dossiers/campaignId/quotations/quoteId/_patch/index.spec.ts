@@ -187,15 +187,15 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
       expect(response.status).toBe(403);
     });
 
-    it("Should answer 404 if campaign does not exists", async () => {
+    it("Should answer 400 if campaign does not exists", async () => {
       const response = await request(app)
         .patch(`/dossiers/999/quotations/${quotation.id}`)
         .set("authorization", "Bearer admin")
         .send(baseRequest);
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(400);
       expect(response.body).toEqual(
-        expect.objectContaining({ message: "Campaign does not exist" })
+        expect.objectContaining({ message: "Campaign not found" })
       );
     });
 

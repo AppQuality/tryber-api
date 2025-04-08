@@ -2,9 +2,9 @@
 
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import UserRoute from "@src/features/routes/UserRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
-export default class RouteItem extends UserRoute<{
+export default class RouteItem extends CampaignRoute<{
   response: StoplightOperations["post-dossiers-campaign-quotations"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers-campaign-quotations"]["requestBody"]["content"]["application/json"];
   parameters: StoplightOperations["post-dossiers-campaign-quotations"]["parameters"]["path"];
@@ -12,6 +12,9 @@ export default class RouteItem extends UserRoute<{
   private campaignId: number;
   private plan?: { id: number; config: string; price?: string };
   private planIsQuoted: boolean = false;
+  private accessibleCampaigns: true | number[] = this.campaignOlps
+    ? this.campaignOlps
+    : [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -86,7 +89,10 @@ export default class RouteItem extends UserRoute<{
   }
 
   private doesNotHaveAccessToCampaign() {
-    return this.configuration.request.user.role !== "administrator";
+    if (this.accessibleCampaigns === true) return false;
+    if (Array.isArray(this.accessibleCampaigns))
+      return !this.accessibleCampaigns.includes(this.campaignId);
+    return true;
   }
 
   protected async createQuotation() {
