@@ -19,6 +19,32 @@ const campaign = {
   customer_title: "",
   campaign_pts: 200,
 };
+const requiredModules = [
+  {
+    type: "title" as const,
+    variant: "primary",
+    output: "Project Kickoff",
+  },
+  {
+    type: "dates" as const,
+    variant: "default",
+    output: {
+      start: "2025-01-01",
+    },
+  },
+  {
+    type: "tasks" as const,
+    variant: "default",
+    output: [
+      {
+        kind: "bug" as const,
+        title: "Task bug",
+      },
+    ],
+  },
+];
+const quotedTemplateId = 90;
+const unquotedTemplateId = 91;
 describe("GET /campaigns", () => {
   beforeAll(async () => {
     await tryber.tables.CampaignPhase.do().insert([
@@ -41,6 +67,83 @@ describe("GET /campaigns", () => {
         category_id: 1,
       },
     ]);
+    await tryber.tables.WpAppqProject.do().insert([
+      {
+        id: 1,
+        display_name: "Project 1",
+        customer_id: 1,
+        edited_by: 1,
+      },
+      {
+        id: 2,
+        display_name: "Project 2",
+        customer_id: 2,
+        edited_by: 1,
+      },
+      {
+        id: 3,
+        display_name: "Project 3",
+        customer_id: 3,
+        edited_by: 1,
+      },
+    ]);
+    await tryber.tables.CpReqTemplates.do().insert([
+      {
+        id: quotedTemplateId,
+        name: "Template Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+        price: "1000",
+      },
+      {
+        id: unquotedTemplateId,
+        name: "Template Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+      },
+    ]);
+    await tryber.tables.CpReqPlans.do().insert([
+      {
+        id: 15,
+        name: "Plan Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+        project_id: campaign.project_id,
+        template_id: quotedTemplateId,
+      },
+      {
+        id: 16,
+        name: "Plan Name",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+        project_id: 2,
+        template_id: unquotedTemplateId,
+      },
+    ]);
+    await tryber.tables.CpReqQuotations.do().insert([
+      {
+        id: 50,
+        generated_from_plan: 15,
+        estimated_cost: "2 kilotons",
+        status: "confirmed",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+      },
+      {
+        id: 55,
+        generated_from_plan: 16,
+        estimated_cost: "3000 electronvolts",
+        status: "proposed",
+        config: JSON.stringify({
+          modules: requiredModules,
+        }),
+      },
+    ]);
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
         id: 1,
@@ -52,38 +155,17 @@ describe("GET /campaigns", () => {
         employment_id: 1,
       },
     ]);
-    await tryber.tables.WpAppqProject.do().insert([
-      {
-        id: 1,
-        display_name: "Project 1",
-        customer_id: 1,
-        edited_by: 1,
-      },
-    ]);
-    await tryber.tables.WpAppqProject.do().insert([
-      {
-        id: 2,
-        display_name: "Project 2",
-        customer_id: 2,
-        edited_by: 1,
-      },
-    ]);
-    await tryber.tables.WpAppqProject.do().insert([
-      {
-        id: 3,
-        display_name: "Project 3",
-        customer_id: 3,
-        edited_by: 1,
-      },
-    ]);
+
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         ...campaign,
         id: 1,
         title: "First campaign",
-        project_id: 1,
         status_id: 1,
         campaign_type_id: 1,
+        project_id: 1,
+        plan_id: 15,
+        quote_id: 50,
       },
       {
         ...campaign,
@@ -103,6 +185,8 @@ describe("GET /campaigns", () => {
         project_id: 2,
         status_id: 2,
         campaign_type_id: 3,
+        plan_id: 16,
+        quote_id: 55,
       },
     ]);
   });
@@ -211,6 +295,14 @@ describe("GET /campaigns", () => {
     );
   });
 
+  it("Should return only campaigns having a quotation if filterBy is set", async () => {
+    const response = await request(app)
+      .get("/campaigns?filterBy[hasQuote]")
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+    expect(response.body.items).toHaveLength(2);
+  });
+
   it("Should return total based on filter", async () => {
     const response = await request(app)
       .get("/campaigns?filterBy[type]=1,3&limit=10")
@@ -218,5 +310,17 @@ describe("GET /campaigns", () => {
     expect(response.status).toBe(200);
     expect(response.body.items).toHaveLength(2);
     expect(response.body.total).toBe(2);
+  });
+  describe("Filter campaigns for quotation-table on dossier", () => {
+    it("Should return only campaigns having a quotation of a specific customer", async () => {
+      const response = await request(app)
+        .get(
+          "/campaigns?fields=id,title,startDate,phase,quote&filterBy[customer]=1&filterBy[hasQuote]"
+        )
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+      console.log(response.body);
+      expect(response.status).toBe(200);
+      expect(response.body.items).toHaveLength(1);
+    });
   });
 });

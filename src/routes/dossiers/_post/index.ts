@@ -1,15 +1,13 @@
 /** OPENAPI-CLASS: post-dossiers */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
+import { importPages } from "@src/features/wp/Pages/importPages";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
-import crypto from "crypto";
-import { serialize } from "php-serialize";
-import { unserialize } from "php-unserialize";
 
-export default class RouteItem extends UserRoute<{
+export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
 }> {
@@ -137,11 +135,15 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const { skipPagesAndTasks } = this.getBody();
+
     try {
       const campaignId = await this.createCampaign();
       await this.linkRolesToCampaign(campaignId);
 
-      await this.generateLinkedData(campaignId);
+      if (!skipPagesAndTasks) {
+        await this.generateLinkedData(campaignId);
+      }
 
       const webhook = new WebhookTrigger({
         type: "campaign_created",
@@ -370,7 +372,6 @@ export default class RouteItem extends UserRoute<{
 
   private async generateLinkedData(campaignId: number) {
     const apiTrigger = new WordpressJsonApiTrigger(campaignId);
-
     await apiTrigger.generateTasks();
 
     if (this.duplicate.fieldsFrom) await this.duplicateFields(campaignId);
@@ -476,200 +477,10 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async duplicatePages(campaignId: number) {
-    if (!this.duplicate.pagesFrom) return;
+    const pagesFrom = this.duplicate.pagesFrom;
+    if (!pagesFrom) return;
 
-    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("page_manual_id", "page_preview_id")
-      .where("id", this.duplicate.pagesFrom);
-
-    if (!campaign.length) return;
-
-    const { page_manual_id, page_preview_id } = campaign[0];
-
-    const manualId = await this.duplicatePage({
-      pageId: page_manual_id,
-      campaignId,
-    });
-
-    if (manualId) {
-      await tryber.tables.WpAppqEvdCampaign.do()
-        .update({
-          page_manual_id: manualId,
-        })
-        .where("id", campaignId);
-    }
-
-    const previewId = await this.duplicatePage({
-      pageId: page_preview_id,
-      campaignId,
-    });
-
-    if (previewId) {
-      await tryber.tables.WpAppqEvdCampaign.do()
-        .update({
-          page_preview_id: previewId,
-        })
-        .where("id", campaignId);
-    }
-
-    if (manualId || previewId) {
-      const defaultLanguage = await this.getDefaultLanguage();
-      if (!defaultLanguage) return;
-      const languages = await this.getPolylangLanguages();
-      if (manualId) {
-        const manualTranslations: { [key: string]: number } = {
-          [defaultLanguage]: manualId,
-        };
-        const parsedTranslations = await this.getPageTranslationIds({
-          pageId: page_manual_id,
-          defaultLanguage,
-        });
-        for (const t in parsedTranslations) {
-          const transId = await this.duplicatePage({
-            pageId: parsedTranslations[t],
-            campaignId,
-          });
-          if (transId) manualTranslations[t] = transId;
-        }
-        await this.createPolylangTranslations({
-          id: manualId,
-          translations: manualTranslations,
-          languages,
-        });
-        for (const transId of Object.values(manualTranslations)) {
-          await tryber.tables.WpPostmeta.do()
-            .update({
-              meta_value: campaignId.toString(),
-            })
-            .where("meta_key", "man_campaign_id")
-            .where("post_id", transId);
-        }
-      }
-
-      if (previewId) {
-        const previewTranslations: { [key: string]: number } = {
-          [defaultLanguage]: previewId,
-        };
-        const parsedTranslations = await this.getPageTranslationIds({
-          pageId: page_preview_id,
-          defaultLanguage,
-        });
-        for (const t in parsedTranslations) {
-          const transId = await this.duplicatePage({
-            pageId: parsedTranslations[t],
-            campaignId,
-          });
-          if (transId) previewTranslations[t] = transId;
-        }
-        await this.createPolylangTranslations({
-          id: previewId,
-          translations: previewTranslations,
-          languages,
-        });
-        for (const transId of Object.values(previewTranslations)) {
-          await tryber.tables.WpPostmeta.do()
-            .update({
-              meta_value: campaignId.toString(),
-            })
-            .where("meta_key", "preview_campaign_id")
-            .where("post_id", transId);
-        }
-      }
-    }
-  }
-
-  private async createPolylangTranslations({
-    id,
-    translations,
-    languages,
-  }: {
-    id: number;
-    translations: { [key: string]: number };
-    languages: { [key: string]: any };
-  }) {
-    const term_name = crypto
-      .createHash("md5")
-      .update(id.toString())
-      .digest("hex");
-    const term = await tryber.tables.WpTerms.do()
-      .insert({
-        name: `pll_${term_name}`,
-        slug: `pll_${term_name}`,
-      })
-      .returning("term_id");
-
-    const term_id = term[0].term_id ?? term[0];
-
-    await tryber.tables.WpTermTaxonomy.do().insert({
-      term_id: term_id,
-      term_taxonomy_id: term_id,
-      taxonomy: "post_translations",
-      description: serialize(translations),
-    });
-
-    for (const trans of Object.keys(translations)) {
-      const transId = translations[trans];
-      const langId = trans in languages ? languages[trans] : false;
-      if (langId) {
-        await tryber.tables.WpTermRelationships.do().insert({
-          object_id: transId,
-          term_taxonomy_id: langId,
-        });
-        await tryber.tables.WpTermRelationships.do().insert({
-          object_id: transId,
-          term_taxonomy_id: term_id,
-        });
-      }
-    }
-  }
-
-  private async duplicatePage({
-    pageId,
-    campaignId,
-  }: {
-    pageId: number;
-    campaignId: number;
-  }) {
-    if (!this.duplicate.pagesFrom) return;
-
-    const page = await tryber.tables.WpPosts.do()
-      .select()
-      .where("ID", pageId)
-      .first();
-
-    if (!page) return null;
-
-    const { ID, ...rest } = page;
-    const newPage = await tryber.tables.WpPosts.do()
-      .insert({
-        ...rest,
-        post_title: rest.post_title.replace(
-          this.duplicate.pagesFrom.toString(),
-          campaignId.toString()
-        ),
-        post_name: "",
-        post_status: "draft",
-      })
-      .returning("ID");
-
-    const meta = await tryber.tables.WpPostmeta.do()
-      .select()
-      .where("post_id", ID);
-
-    if (meta.length) {
-      await tryber.tables.WpPostmeta.do().insert(
-        meta.map((metaItem) => {
-          const { meta_id, ...rest } = metaItem;
-          return {
-            ...rest,
-            post_id: newPage[0].ID ?? newPage[0],
-          };
-        })
-      );
-    }
-
-    const newId = newPage[0].ID ?? newPage[0];
-    return newId;
+    await importPages(pagesFrom, campaignId);
   }
 
   private async duplicateTesters(campaignId: number) {
@@ -695,73 +506,6 @@ export default class RouteItem extends UserRoute<{
         campaign_id: campaignId,
       }))
     );
-  }
-
-  private async getDefaultLanguage() {
-    const polylangOptions = await tryber.tables.WpOptions.do()
-      .select("option_value")
-      .where("option_name", "polylang")
-      .first();
-
-    if (!polylangOptions) return false;
-    let parsedOptions: { [key: string]: any } = {};
-    try {
-      parsedOptions = unserialize(polylangOptions.option_value);
-    } catch (e) {
-      return false;
-    }
-    if (!("default_lang" in parsedOptions)) return false;
-    return parsedOptions.default_lang;
-  }
-
-  private async getPolylangLanguages() {
-    const languages = await tryber.tables.WpTermTaxonomy.do()
-      .select("term_id", "description")
-      .where("taxonomy", "language");
-
-    let parsedLanguages: { [key: string]: number } = {};
-    for (const language of languages) {
-      try {
-        const lang = unserialize(language.description);
-        if ("locale" in lang)
-          parsedLanguages[lang.locale.split("_")[0]] = language.term_id;
-      } catch (e) {
-        continue;
-      }
-    }
-    return parsedLanguages;
-  }
-
-  private async getPageTranslationIds({
-    pageId,
-    defaultLanguage,
-  }: {
-    pageId: number;
-    defaultLanguage: string;
-  }) {
-    const translations = await tryber.tables.WpTermRelationships.do()
-      .select("object_id", "description")
-      .join(
-        "wp_term_taxonomy",
-        "wp_term_taxonomy.term_taxonomy_id",
-        "wp_term_relationships.term_taxonomy_id"
-      )
-      .where("object_id", pageId)
-      .where("taxonomy", "post_translations")
-      .first();
-
-    if (!translations) return {};
-
-    let parsedTranslations: { [key: string]: any } = {};
-    try {
-      parsedTranslations = unserialize(translations.description);
-    } catch (e) {
-      return;
-    }
-
-    if (defaultLanguage in parsedTranslations)
-      delete parsedTranslations[defaultLanguage];
-    return parsedTranslations;
   }
 
   private async assignOlps(campaignId: number) {

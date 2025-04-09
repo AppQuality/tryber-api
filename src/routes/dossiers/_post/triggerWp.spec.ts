@@ -79,6 +79,17 @@ describe("Route POST /dossiers - duplication", () => {
     ).toHaveBeenCalledTimes(1);
   });
 
+  it("Should not call WordpressJsonApiTrigger if send skiPagesAndTasks = 1", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({ ...baseRequest, skipPagesAndTasks: 1 })
+      .set("Authorization", "Bearer admin");
+
+    expect(response.status).toBe(201);
+
+    expect(WordpressJsonApiTrigger).toHaveBeenCalledTimes(0);
+  });
+
   it("Should post to wordpress if pages is not duplicated", async () => {
     const response = await request(app)
       .post("/dossiers")

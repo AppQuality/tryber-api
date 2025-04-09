@@ -570,6 +570,47 @@ paths:
                   password: my-strong-password
         description: A JSON containing username and password
       parameters: []
+  /browsers:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+              examples:
+                Example 1:
+                  value:
+                    results:
+                      - id: 1
+                        name: Chrome
+                      - id: 2
+                        name: Firefox
+                      - id: 3
+                        name: Safari
+                      - id: 4
+                        name: Edge
+                      - id: 100
+                        name: Other
+      operationId: get-browsers
   /campaigns:
     post:
       summary: Create a new Campaign
@@ -761,7 +802,64 @@ paths:
                                 required:
                                   - role
                                   - user
+                            quote:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                price:
+                                  type: string
+                                status:
+                                  type: string
+                              required:
+                                - id
+                                - price
+                                - status
                   - $ref: '#/components/schemas/PaginationData'
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 0
+                        name: string
+                        customerTitle: string
+                        startDate: string
+                        endDate: string
+                        status: running
+                        visibility: admin
+                        resultType: bug
+                        csm:
+                          id: 0
+                          name: string
+                          surname: string
+                        customer:
+                          id: 0
+                          name: string
+                        type:
+                          name: string
+                          area: quality
+                        project:
+                          id: 0
+                          name: string
+                        phase:
+                          id: 0
+                          name: string
+                        roles:
+                          - role:
+                              id: 0
+                              name: string
+                            user:
+                              id: 0
+                              name: string
+                              surname: string
+                        quote:
+                          id: 0
+                          price: string
+                          status: string
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3155,38 +3253,17 @@ paths:
                   - id
                   - name
               examples:
-                Basic Example:
+                Example 1:
                   value:
-                    id: 15
-                    name: My form
+                    id: 0
+                    name: string
+                    campaign:
+                      id: 0
+                      name: string
                     fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
+                      - id: 0
+                        question: string
+                        short_name: string
                         type: gender
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -3242,13 +3319,13 @@ paths:
             examples:
               Example 1:
                 value:
-                  name: Form1
+                  name: string
                   fields:
-                    - question: Write your name?
-                      short_name: name
-                      type: text
-                  campaign: 1
-                  creationDate: '2024-02-23 12:15:12'
+                    - question: string
+                      short_name: string
+                      type: gender
+                  campaign: 0
+                  creationDate: string
       description: ''
     parameters: []
     get:
@@ -3295,18 +3372,16 @@ paths:
                   - start
                   - size
               examples:
-                example-1:
+                Example 1:
                   value:
                     results:
-                      - id: 1
-                        name: Form Name
-                        campaign: 1
-                      - id: 2
-                        name: Form without Campaign
-                    limit: 10
+                      - id: 0
+                        name: string
+                        campaign: 0
+                    limit: 0
                     start: 0
-                    size: 2
-                    total: 2
+                    size: 0
+                    total: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3368,80 +3443,17 @@ paths:
                   - name
                   - fields
               examples:
-                Basic Example:
+                Example 1:
                   value:
-                    id: 15
-                    name: My form
-                    fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 12234
-                        question: 'What''s your [radio question]?'
-                        type: radio
-                        options:
-                          - 'Yes'
-                          - 'No'
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
-                        type: gender
-                Basic Example with linked Campaign:
-                  value:
-                    id: 15
+                    id: 0
                     name: My form
                     campaign:
-                      id: 1
-                      name: My campaign
+                      id: 0
+                      name: string
                     fields:
-                      - id: 3
-                        question: 'What''s your [custom question]?'
-                        type: text
-                      - id: 12
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 9
-                        question: 'What''s your [custom selectable question]?'
-                        type: select
-                        options:
-                          - Option1
-                          - Option2
-                      - id: 24
-                        question: 'What''s your [cuf text question]?'
-                        type: cuf_1
-                      - id: 29
-                        question: 'What''s your [cuf select question]?'
-                        type: cuf_12
-                        options:
-                          - 1
-                          - 5
-                          - 14
-                      - id: 89
-                        question: 'What''s your [profile question]?'
+                      - id: 0
+                        question: string
+                        short_name: string
                         type: gender
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -3524,6 +3536,19 @@ paths:
                   - id
                   - name
                   - fields
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+                    name: string
+                    fields:
+                      - id: 0
+                        question: string
+                        short_name: string
+                        type: gender
+                    campaign:
+                      id: 0
+                      name: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -3586,38 +3611,14 @@ paths:
                 - name
                 - fields
             examples:
-              Basic Example:
+              Example 1:
                 value:
-                  name: My form
-                  campaign: 2
+                  name: string
+                  campaign: 0
                   fields:
-                    - id: 3
-                      question: 'What''s your [custom question]?'
-                      type: text
-                    - id: 12
-                      question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - id: 9
-                      question: 'What''s your [custom selectable question]?'
-                      type: select
-                      options:
-                        - Option1
-                        - Option2
-                    - id: 24
-                      question: 'What''s your [cuf text question]?'
-                      type: cuf_1
-                    - id: 29
-                      question: 'What''s your [cuf select question]?'
-                      type: cuf_12
-                      options:
-                        - 1
-                        - 5
-                        - 9
-                        - 14
-                    - question: 'What''s your [profile question]?'
+                    - id: 0
+                      question: string
+                      short_name: string
                       type: gender
       description: ''
   /campaigns/owners:
@@ -3694,8 +3695,12 @@ paths:
               examples:
                 Example 1:
                   value:
-                    - id: 1
-                      name: Type 1
+                    - id: 0
+                      name: string
+                      customRoles:
+                        - roleId: 0
+                          userIds:
+                            - 0
           description: ''
       operationId: get-campaign-types
       description: ''
@@ -3834,6 +3839,72 @@ paths:
                 properties:
                   id:
                     type: integer
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+  '/customers/{customer}/projects':
+    parameters:
+      - schema:
+          type: string
+        name: customer
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+      operationId: get-customers-customer-projects
+      description: ''
+      security:
+        - JWT: []
+    post:
+      summary: ''
+      operationId: post-customers-customer-projects
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
                   name:
                     type: string
                 required:
@@ -4007,6 +4078,592 @@ paths:
         name: device_type
         in: path
         required: true
+  /dossiers:
+    parameters: []
+    post:
+      summary: ''
+      operationId: post-dossiers
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  message:
+                    type: string
+                    enum:
+                      - HOOK_FAILED
+                required:
+                  - id
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                Example 2:
+                  value:
+                    id: 0
+                    message: HOOK_FAILED
+        '206':
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/DossierCreationData'
+                - type: object
+                  properties:
+                    duplicate:
+                      type: object
+                      properties:
+                        fields:
+                          type: integer
+                        useCases:
+                          type: integer
+                        mailMerges:
+                          type: integer
+                        pages:
+                          type: integer
+                        testers:
+                          type: integer
+                        campaign:
+                          type: integer
+                - type: object
+                  properties:
+                    skipPagesAndTasks:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
+                      default: 0
+            examples:
+              Example 1:
+                value:
+                  project: 0
+                  testType: 0
+                  title:
+                    customer: string
+                    tester: string
+                  startDate: '2019-08-24T14:15:22Z'
+                  endDate: '2019-08-24T14:15:22Z'
+                  closeDate: '2019-08-24T14:15:22Z'
+                  deviceList:
+                    - 0
+                  csm: 0
+                  roles:
+                    - role: 0
+                      user: 0
+                  description: string
+                  productLink: string
+                  goal: string
+                  outOfScope: string
+                  deviceRequirements: string
+                  target:
+                    notes: string
+                    size: 0
+                    cap: 0
+                  countries:
+                    - st
+                  languages:
+                    - string
+                  browsers:
+                    - 0
+                  productType: 0
+                  notes: string
+                  duplicate:
+                    fields: 0
+                    useCases: 0
+                    mailMerges: 0
+                    pages: 0
+                    testers: 0
+                    campaign: 0
+                  skipPagesAndTasks: 0
+  '/dossiers/{campaign}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    put:
+      summary: ''
+      operationId: put-dossiers-campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      description: ''
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DossierCreationData'
+    get:
+      summary: ''
+      operationId: get-dossiers-campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - title
+                  - startDate
+                  - endDate
+                  - closeDate
+                  - customer
+                  - project
+                  - testType
+                  - deviceList
+                  - csm
+                  - phase
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: object
+                    required:
+                      - customer
+                      - tester
+                    properties:
+                      customer:
+                        type: string
+                      tester:
+                        type: string
+                  startDate:
+                    type: string
+                    format: date-time
+                  endDate:
+                    type: string
+                    format: date-time
+                  closeDate:
+                    type: string
+                    format: date-time
+                  customer:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  project:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  testType:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  deviceList:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                  csm:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        role:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                        user:
+                          type: object
+                          required:
+                            - id
+                            - name
+                            - surname
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            surname:
+                              type: string
+                  description:
+                    type: string
+                  productLink:
+                    type: string
+                  goal:
+                    type: string
+                  outOfScope:
+                    type: string
+                  deviceRequirements:
+                    type: string
+                  target:
+                    type: object
+                    properties:
+                      notes:
+                        type: string
+                      size:
+                        type: integer
+                      cap:
+                        type: integer
+                  countries:
+                    type: array
+                    minItems: 1
+                    uniqueItems: true
+                    items:
+                      $ref: '#/components/schemas/CountryCode'
+                  languages:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                      properties:
+                        name:
+                          type: string
+                  browsers:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                  productType:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                  phase:
+                    type: object
+                    required:
+                      - id
+                      - name
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                  notes:
+                    type: string
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title:
+                      customer: Customer Title
+                      tester: Tester Title
+                    startDate: '2019-08-24T14:15:22Z'
+                    endDate: '2019-08-24T14:15:22Z'
+                    closeDate: '2019-08-24T14:15:22Z'
+                    customer:
+                      id: 1
+                      name: My Customer
+                    project:
+                      id: 1
+                      name: My Project
+                    testType:
+                      id: 1
+                      name: Bughunting
+                    deviceList:
+                      - id: 1
+                        name: Android
+                    csm:
+                      id: 1
+                      name: Name Surname
+                    phase:
+                      id: 1
+                      name: name
+                    roles:
+                      - role:
+                          id: 1
+                          name: PM
+                        user:
+                          id: 1
+                          name: Name
+                          surname: Surname
+      security:
+        - JWT: []
+  '/dossiers/{campaign}/phases':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    put:
+      summary: Your PUT endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                required:
+                  - id
+                  - name
+      operationId: put-dossiers-campaign-phases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phase:
+                  type: integer
+              required:
+                - phase
+      security:
+        - JWT: []
+  '/dossiers/{campaign}/quotations':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    post:
+      summary: ''
+      operationId: post-dossiers-campaign-quotations
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+        '404':
+          description: Not Found
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quote:
+                  type: string
+                notes:
+                  type: string
+            examples:
+              notes-and-quotation:
+                value:
+                  quote: '11000'
+                  notes: string
+              only-notes:
+                value:
+                  notes: string
+              only-quotaion:
+                value:
+                  quote: string
+              empty:
+                value: {}
+        description: ''
+  '/dossiers/{campaign}/quotations/{quote}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+      - schema:
+          type: string
+        name: quote
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: patch-dossiers-campaign-quotations-quote
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters: []
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: string
+            examples:
+              Example 1:
+                value:
+                  amount: string
+              Example 2:
+                value: {}
+        description: ''
+      description: ''
+  '/dossiers/{campaign}/quotesHistory':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: ''
+      operationId: get-dossiers-campaign-quotes-history
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        campaign:
+                          type: object
+                          required:
+                            - id
+                            - title
+                            - phase_id
+                            - phase_name
+                          properties:
+                            id:
+                              type: integer
+                            title:
+                              type: string
+                            phase_id:
+                              type: integer
+                            phase_name:
+                              type: string
+                        quote:
+                          type: object
+                          required:
+                            - id
+                            - amount
+                            - status
+                          properties:
+                            id:
+                              type: integer
+                            amount:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                                - pending
+                                - proposed
+                                - approved
+                                - rejected
+                      required:
+                        - campaign
+                        - quote
+                required:
+                  - items
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - campaign:
+                          id: 0
+                          title: string
+                          phase_id: 2
+                          phase_name: Closing
+                        quote:
+                          id: 0
+                          amount: string
+                          status: pending
+      security:
+        - JWT: []
   /education:
     get:
       summary: Get all education levels
@@ -5084,6 +5741,46 @@ paths:
       description: delete a specific payment request
       security:
         - JWT: []
+  /phases:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        type:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                      required:
+                        - id
+                        - name
+                        - type
+                required:
+                  - results
+      operationId: get-phases
+      security:
+        - JWT: []
   /popups:
     get:
       summary: Get all popups
@@ -5215,6 +5912,45 @@ paths:
       tags:
         - Admin
       description: Edit your popup with a new content or new rules
+  /productTypes:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                required:
+                  - results
+              examples:
+                Example 1:
+                  value:
+                    results:
+                      - id: 1
+                        name: Website / Webapp
+                      - id: 2
+                        name: Mobile App
+                      - id: 100
+                        name: Other
+      operationId: get-productTypes
+      description: ''
+    parameters: []
   /users:
     get:
       summary: Get all users
@@ -5339,6 +6075,49 @@ paths:
         '404':
           description: Not Found
       description: ''
+  '/users/by-role/{role}':
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        surname:
+                          type: string
+                      required:
+                        - id
+                        - name
+                        - surname
+                required:
+                  - results
+      operationId: get-users-by-role-role
+      security:
+        - JWT: []
+    parameters:
+      - schema:
+          type: string
+          enum:
+            - tester_lead
+            - quality_leader
+            - ux_researcher
+            - assistants
+        name: role
+        in: path
+        required: true
   /users/me:
     get:
       summary: Get your user data
@@ -8094,9 +8873,9 @@ paths:
             examples:
               Example 1:
                 value:
-                  - 46
-                  - 61
-                  - 120
+                  - '46'
+                  - '61'
+                  - '120'
       description: Edit your spoken languages
       security:
         - JWT: []
@@ -9395,76 +10174,12 @@ paths:
       operationId: get-users-me-rank-list
       security:
         - JWT: []
-  /dossiers:
-    parameters: []
-    post:
-      summary: ''
-      operationId: post-dossiers
-      responses:
-        '201':
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  message:
-                    type: string
-                    enum:
-                      - HOOK_FAILED
-                required:
-                  - id
-              examples:
-                Example 1:
-                  value:
-                    id: 1
-        '206':
-          description: Partial Content
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              allOf:
-                - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
-                    duplicate:
-                      type: object
-                      properties:
-                        fields:
-                          type: integer
-                        useCases:
-                          type: integer
-                        mailMerges:
-                          type: integer
-                        pages:
-                          type: integer
-                        testers:
-                          type: integer
-                        campaign:
-                          type: integer
-  '/dossiers/{campaign}':
+  '/dossiers/{campaign}/manual':
     parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    put:
-      summary: ''
-      operationId: put-dossiers-campaign
+      - $ref: '#/components/parameters/campaign'
+    post:
+      summary: Create the manual
+      operationId: post-dossiers-campaign-manual
       responses:
         '200':
           description: OK
@@ -9473,279 +10188,26 @@ paths:
               schema:
                 type: object
                 properties: {}
-      description: ''
       security:
         - JWT: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DossierCreationData'
-    get:
-      summary: ''
-      operationId: get-dossiers-campaign
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - id
-                  - title
-                  - startDate
-                  - endDate
-                  - closeDate
-                  - customer
-                  - project
-                  - testType
-                  - deviceList
-                  - csm
-                  - phase
-                properties:
-                  id:
-                    type: integer
-                  title:
-                    type: object
-                    required:
-                      - customer
-                      - tester
-                    properties:
-                      customer:
-                        type: string
-                      tester:
-                        type: string
-                  startDate:
-                    type: string
-                    format: date-time
-                  endDate:
-                    type: string
-                    format: date-time
-                  closeDate:
-                    type: string
-                    format: date-time
-                  customer:
-                    type: object
-                    required:
-                      - id
-                      - name
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                  project:
-                    type: object
-                    required:
-                      - id
-                      - name
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                  testType:
-                    type: object
-                    required:
-                      - id
-                      - name
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                  deviceList:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - id
-                        - name
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                  csm:
-                    type: object
-                    required:
-                      - id
-                      - name
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                  roles:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        role:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                        user:
-                          type: object
-                          required:
-                            - id
-                            - name
-                            - surname
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                            surname:
-                              type: string
-                  description:
-                    type: string
-                  productLink:
-                    type: string
-                  goal:
-                    type: string
-                  outOfScope:
-                    type: string
-                  deviceRequirements:
-                    type: string
-                  target:
-                    type: object
-                    properties:
-                      notes:
-                        type: string
-                      size:
-                        type: integer
-                      cap:
-                        type: integer
-                  countries:
-                    type: array
-                    minItems: 1
-                    uniqueItems: true
-                    items:
-                      $ref: '#/components/schemas/CountryCode'
-                  languages:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - name
-                      properties:
-                        name:
-                          type: string
-                  browsers:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - id
-                        - name
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                  productType:
-                    type: object
-                    required:
-                      - id
-                      - name
-                    properties:
-                      id:
-                        type: number
-                      name:
-                        type: string
-                  phase:
-                    type: object
-                    required:
-                      - id
-                      - name
-                    properties:
-                      id:
-                        type: integer
-                      name:
-                        type: string
-                  notes:
-                    type: string
-              examples:
-                Example 1:
-                  value:
-                    id: 1
-                    title:
-                      customer: Customer Title
-                      tester: Tester Title
-                    startDate: '2019-08-24T14:15:22Z'
-                    endDate: '2019-08-24T14:15:22Z'
-                    customer:
-                      id: 1
-                      name: My Customer
-                    project:
-                      id: 1
-                      name: My Project
-                    testType:
-                      id: 1
-                      name: Bughunting
-                    deviceList:
-                      - id: 1
-                        name: Android
-                    csm:
-                      id: 1
-                      name: Name Surname
-                    roles:
-                      - role:
-                          id: 1
-                          name: PM
-                        user:
-                          id: 1
-                          name: Name
-                          surname: Surname
-      security:
-        - JWT: []
-  '/customers/{customer}/projects':
+              type: object
+              properties:
+                importFrom:
+                  type: integer
+                  x-stoplight:
+                    id: gf6dy4ke154ct
+              required:
+                - importFrom
+  '/dossiers/{campaign}/preview':
     parameters:
-      - schema:
-          type: string
-        name: customer
-        in: path
-        required: true
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                required:
-                  - results
-      operationId: get-customers-customer-projects
-      description: ''
-      security:
-        - JWT: []
+      - $ref: '#/components/parameters/campaign'
     post:
       summary: ''
-      operationId: post-customers-customer-projects
+      operationId: post-dossiers-campaign-preview
       responses:
         '200':
           description: OK
@@ -9753,14 +10215,6 @@ paths:
             application/json:
               schema:
                 type: object
-                properties:
-                  id:
-                    type: number
-                  name:
-                    type: string
-                required:
-                  - id
-                  - name
       security:
         - JWT: []
       requestBody:
@@ -9769,212 +10223,12 @@ paths:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-              required:
-                - name
-  '/users/by-role/{role}':
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                        surname:
-                          type: string
-                      required:
-                        - id
-                        - name
-                        - surname
-                required:
-                  - results
-      operationId: get-users-by-role-role
-      security:
-        - JWT: []
-    parameters:
-      - schema:
-          type: string
-          enum:
-            - tester_lead
-            - quality_leader
-            - ux_researcher
-            - assistants
-        name: role
-        in: path
-        required: true
-  /browsers:
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                required:
-                  - results
-              examples:
-                Example 1:
-                  value:
-                    results:
-                      - id: 1
-                        name: Chrome
-                      - id: 2
-                        name: Firefox
-                      - id: 3
-                        name: Safari
-                      - id: 4
-                        name: Edge
-                      - id: 100
-                        name: Other
-      operationId: get-browsers
-  /productTypes:
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                      required:
-                        - id
-                        - name
-                required:
-                  - results
-              examples:
-                Example 1:
-                  value:
-                    results:
-                      - id: 1
-                        name: Website / Webapp
-                      - id: 2
-                        name: Mobile App
-                      - id: 100
-                        name: Other
-      operationId: get-productTypes
-      description: ''
-    parameters: []
-  /phases:
-    get:
-      summary: Your GET endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  results:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                        type:
-                          type: object
-                          required:
-                            - id
-                            - name
-                          properties:
-                            id:
-                              type: integer
-                            name:
-                              type: string
-                      required:
-                        - id
-                        - name
-                        - type
-                required:
-                  - results
-      operationId: get-phases
-      security:
-        - JWT: []
-  '/dossiers/{campaign}/phases':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    put:
-      summary: Your PUT endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: integer
-                  name:
-                    type: string
-                required:
-                  - id
-                  - name
-      operationId: put-dossiers-campaign-phases
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                phase:
+                importFrom:
                   type: integer
+                  x-stoplight:
+                    id: h4jhe86n6v4fq
               required:
-                - phase
-      security:
-        - JWT: []
+                - importFrom
 components:
   schemas:
     AdditionalField:
@@ -10369,6 +10623,11 @@ components:
         - area
         - institute
         - achievement_date
+    CountryCode:
+      title: CountryCode
+      type: string
+      x-examples:
+        Example 1: string
     CustomUserFieldsData:
       title: CustomUserFieldsData
       type: object
@@ -10422,6 +10681,123 @@ components:
       required:
         - value
         - currency
+    DossierCreationData:
+      type: object
+      x-examples:
+        Example 1:
+          project: 0
+          testType: 0
+          title:
+            customer: string
+            tester: string
+          startDate: '2019-08-24T14:15:22Z'
+          endDate: '2019-08-24T14:15:22Z'
+          closeDate: '2019-08-24T14:15:22Z'
+          deviceList:
+            - 0
+          csm: 0
+          roles:
+            - role: 0
+              user: 0
+          description: string
+          productLink: string
+          goal: string
+          outOfScope: string
+          deviceRequirements: string
+          target:
+            notes: string
+            size: 0
+            cap: 0
+          countries:
+            - st
+          languages:
+            - string
+          browsers:
+            - 0
+          productType: 0
+          notes: string
+      required:
+        - project
+        - testType
+        - title
+        - startDate
+        - deviceList
+      properties:
+        project:
+          type: integer
+        testType:
+          type: integer
+        title:
+          type: object
+          required:
+            - customer
+          properties:
+            customer:
+              type: string
+            tester:
+              type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        closeDate:
+          type: string
+          format: date-time
+        deviceList:
+          type: array
+          items:
+            type: integer
+        csm:
+          type: integer
+        roles:
+          type: array
+          items:
+            type: object
+            required:
+              - role
+              - user
+            properties:
+              role:
+                type: integer
+              user:
+                type: integer
+        description:
+          type: string
+        productLink:
+          type: string
+        goal:
+          type: string
+        outOfScope:
+          type: string
+        deviceRequirements:
+          type: string
+        target:
+          type: object
+          properties:
+            notes:
+              type: string
+            size:
+              type: integer
+            cap:
+              type: integer
+        countries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryCode'
+        languages:
+          type: array
+          items:
+            type: string
+        browsers:
+          type: array
+          items:
+            type: integer
+        productType:
+          type: integer
+        notes:
+          type: string
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:
@@ -10449,6 +10825,14 @@ components:
         - non-italian
         - vat
         - company
+    Gender:
+      type: string
+      title: Gender
+      enum:
+        - male
+        - female
+        - not-specified
+        - other
     LevelDefinition:
       title: LevelDefinition
       type: object
@@ -10511,6 +10895,21 @@ components:
           items:
             type: integer
         - type: boolean
+    PaginationData:
+      title: PaginationData
+      type: object
+      properties:
+        start:
+          type: integer
+        limit:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+      required:
+        - start
+        - size
     PreselectionFormQuestion:
       title: PreselectionFormQuestion
       allOf:
@@ -10560,6 +10959,30 @@ components:
               required:
                 - type
       type: object
+      x-examples:
+        Example 1:
+          question: string
+          short_name: string
+          type: gender
+    PreselectionQuestionCuf:
+      title: PreselectionQuestionCuf
+      type: string
+      pattern: '^cuf_[0-9]*$'
+    PreselectionQuestionMultiple:
+      title: PreselectionQuestionMultiple
+      type: string
+      enum:
+        - multiselect
+        - select
+        - radio
+    PreselectionQuestionSimple:
+      title: PreselectionQuestionSimple
+      type: string
+      enum:
+        - gender
+        - text
+        - phone_number
+        - address
     Project:
       title: Project
       type: object
@@ -10599,6 +11022,13 @@ components:
       properties:
         name:
           type: string
+    ProspectStatus:
+      title: ProspectStatus
+      type: string
+      enum:
+        - draft
+        - confirmed
+        - done
     RankingItem:
       type: object
       properties:
@@ -10761,176 +11191,6 @@ components:
         - id
         - device
         - operating_system
-    Gender:
-      type: string
-      title: Gender
-      enum:
-        - male
-        - female
-        - not-specified
-        - other
-    PaginationData:
-      title: PaginationData
-      type: object
-      properties:
-        start:
-          type: integer
-        limit:
-          type: integer
-        size:
-          type: integer
-        total:
-          type: integer
-      required:
-        - start
-        - size
-    ProspectStatus:
-      title: ProspectStatus
-      type: string
-      enum:
-        - draft
-        - confirmed
-        - done
-    CountryCode:
-      title: CountryCode
-      type: string
-      pattern: '^[A-Z][A-Z]$'
-      minLength: 2
-      maxLength: 2
-    DossierCreationData:
-      type: object
-      x-examples:
-        Example 1:
-          project: 0
-          testType: 0
-          title:
-            customer: string
-            tester: string
-          startDate: '2019-08-24T14:15:22Z'
-          endDate: '2019-08-24T14:15:22Z'
-          closeDate: '2019-08-24T14:15:22Z'
-          deviceList:
-            - 0
-          csm: 0
-          roles:
-            - role: 0
-              user: 0
-          description: string
-          productLink: string
-          goal: string
-          outOfScope: string
-          deviceRequirements: string
-          target:
-            notes: string
-            size: 0
-          countries:
-            - st
-          languages:
-            - 0
-          browsers:
-            - 0
-          productType: 0
-      required:
-        - project
-        - testType
-        - title
-        - startDate
-        - deviceList
-      properties:
-        project:
-          type: integer
-        testType:
-          type: integer
-        title:
-          type: object
-          required:
-            - customer
-          properties:
-            customer:
-              type: string
-            tester:
-              type: string
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
-        closeDate:
-          type: string
-          format: date-time
-        deviceList:
-          type: array
-          items:
-            type: integer
-        csm:
-          type: integer
-        roles:
-          type: array
-          items:
-            type: object
-            required:
-              - role
-              - user
-            properties:
-              role:
-                type: integer
-              user:
-                type: integer
-        description:
-          type: string
-        productLink:
-          type: string
-        goal:
-          type: string
-        outOfScope:
-          type: string
-        deviceRequirements:
-          type: string
-        target:
-          type: object
-          properties:
-            notes:
-              type: string
-            size:
-              type: integer
-            cap:
-              type: integer
-        countries:
-          type: array
-          items:
-            $ref: '#/components/schemas/CountryCode'
-        languages:
-          type: array
-          items:
-            type: string
-        browsers:
-          type: array
-          items:
-            type: integer
-        productType:
-          type: integer
-        notes:
-          type: string
-    PreselectionQuestionSimple:
-      title: PreselectionQuestionSimple
-      type: string
-      enum:
-        - gender
-        - text
-        - phone_number
-        - address
-    PreselectionQuestionMultiple:
-      title: PreselectionQuestionMultiple
-      type: string
-      enum:
-        - multiselect
-        - select
-        - radio
-    PreselectionQuestionCuf:
-      title: PreselectionQuestionCuf
-      type: string
-      pattern: '^cuf_[0-9]*$'
   securitySchemes:
     JWT:
       type: http
