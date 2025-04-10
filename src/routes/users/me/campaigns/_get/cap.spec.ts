@@ -53,6 +53,7 @@ describe("GET /users/me/campaigns - cap", () => {
       campaign_id: 1,
       created_by: 1,
       updated_by: 1,
+      link: "",
     });
 
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert([

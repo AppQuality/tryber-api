@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: put-dossiers-campaign */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
@@ -161,15 +161,14 @@ export default class RouteItem extends UserRoute<{
         campaign_id: this.campaignId,
         created_by: this.getTesterId(),
         updated_by: this.getTesterId(),
+        link: "",
       });
     }
 
     await tryber.tables.CampaignDossierData.do()
       .update({
         description: this.getBody().description,
-        ...(this.getBody().productLink && {
-          link: this.getBody().productLink,
-        }),
+        link: this.getBody().productLink || "",
         goal: this.getBody().goal,
         out_of_scope: this.getBody().outOfScope,
         target_audience: this.getBody().target?.notes,

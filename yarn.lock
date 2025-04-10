@@ -28,10 +28,10 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.42.27":
-  version "0.42.27"
-  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.42.27.tgz#91a2e35e10ba1c7d5e4fa8c12f99a631f2ea6f00"
-  integrity sha512-+khjkXkQYPzRe+Nrfnr6QNoxarnSI6miZTjDZof3KoX2erKAv/F2QFfWnAlEeK8UkMDJQx14LmFFCjoU72O8sA==
+"@appquality/tryber-database@^0.44.0":
+  version "0.44.0"
+  resolved "https://registry.npmjs.org/@appquality/tryber-database/-/tryber-database-0.44.0.tgz#cac013386883c3bdc6940abdee69ac534d248cf7"
+  integrity sha512-5jUmbWu71phpASv19WLbO9dRHdgEiuVDyw9ECAaOS5o8GMZJLLD1G+O4Ev3vSQ335BphWsvubw9y8nVJUH+GQA==
   dependencies:
     better-sqlite3 "^8.1.0"
     knex "^2.5.1"
@@ -1925,13 +1925,13 @@ bath-es5@^3.0.3:
   resolved "https://registry.npmjs.org/bath-es5/-/bath-es5-3.0.3.tgz"
   integrity sha512-PdCioDToH3t84lP40kUFCKWCOCH389Dl1kbC8FGoqOwamxsmqxxnJSXdkTOsPoNHXjem4+sJ+bbNoQm5zeCqxg==
 
-better-sqlite3@^7.5.0:
-  version "7.5.0"
-  resolved "https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-7.5.0.tgz"
-  integrity sha512-6FdG9DoytYGDhLW7VWW1vxjEz7xHkqK6LnaUQYA8d6GHNgZhu9PFX2xwKEEnSBRoT1J4PjTUPeg217ShxNmuPg==
+better-sqlite3@^11.9.1:
+  version "11.9.1"
+  resolved "https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-11.9.1.tgz#0540da2f2ce24cbd766bb35db412f4be2c75b8bb"
+  integrity sha512-Ba0KR+Fzxh2jDRhdg6TSH0SJGzb8C0aBY4hR8w8madIdIzzC6Y1+kx5qR6eS1Z+Gy20h6ZU28aeyg0z1VIrShQ==
   dependencies:
     bindings "^1.5.0"
-    prebuild-install "^7.0.0"
+    prebuild-install "^7.1.1"
 
 better-sqlite3@^8.1.0:
   version "8.7.0"
@@ -4728,11 +4728,6 @@ nanomatch@^1.2.9:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
-napi-build-utils@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/napi-build-utils/-/napi-build-utils-1.0.2.tgz"
-  integrity sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==
-
 napi-build-utils@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/napi-build-utils/-/napi-build-utils-2.0.0.tgz#13c22c0187fcfccce1461844136372a47ddc027e"
@@ -5121,24 +5116,6 @@ posix-character-classes@^0.1.0:
   version "0.1.1"
   resolved "https://registry.npmjs.org/posix-character-classes/-/posix-character-classes-0.1.1.tgz"
   integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
-
-prebuild-install@^7.0.0:
-  version "7.1.1"
-  resolved "https://registry.npmjs.org/prebuild-install/-/prebuild-install-7.1.1.tgz"
-  integrity sha512-jAXscXWMcCK8GgCoHOfIr0ODh5ai8mj63L2nWrjuAgXE6tDyYGnx4/8o/rCgU+B4JSyZBKbeZqzhtwtC3ovxjw==
-  dependencies:
-    detect-libc "^2.0.0"
-    expand-template "^2.0.3"
-    github-from-package "0.0.0"
-    minimist "^1.2.3"
-    mkdirp-classic "^0.5.3"
-    napi-build-utils "^1.0.1"
-    node-abi "^3.3.0"
-    pump "^3.0.0"
-    rc "^1.2.7"
-    simple-get "^4.0.0"
-    tar-fs "^2.0.0"
-    tunnel-agent "^0.6.0"
 
 prebuild-install@^7.1.1:
   version "7.1.3"

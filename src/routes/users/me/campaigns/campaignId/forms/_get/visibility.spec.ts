@@ -1,8 +1,8 @@
+import app from "@src/app";
+import { tryber } from "@src/features/database";
 import campaign from "@src/__mocks__/mockedDb/campaign";
 import preselectionForms from "@src/__mocks__/mockedDb/preselectionForm";
 import profile from "@src/__mocks__/mockedDb/profile";
-import app from "@src/app";
-import { tryber } from "@src/features/database";
 import request from "supertest";
 
 describe("GET users/me/campaigns/:campaignId/forms - logged user", () => {
@@ -150,6 +150,7 @@ describe("GET users/me/campaigns/:campaignId/forms - logged user", () => {
         campaign_id: 1,
         created_by: 1,
         updated_by: 1,
+        link: "",
       });
     });
 
