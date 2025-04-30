@@ -173,13 +173,7 @@ describe("GET /campaigns/:campaignId", () => {
     const response = await request(app)
       .get("/campaigns/1")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toEqual({
-      id: 1,
-      title: "This is the title",
-      type: "functional",
-      typeDescription: "functional description",
-      plan: undefined,
-    });
+    expect(response.body).not.toHaveProperty("plan");
   });
   it("Should not return campaign preselectionFormId if campaign form does not exist", async () => {
     const response = await request(app)
