@@ -24,6 +24,7 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       title: await this.getCampaignTitle(),
       ...(await this.getCampaignType()),
       preselectionFormId: await this.getCampaignFormId(),
+      plan: await this.getCampaignPlan(),
     });
   }
 
@@ -34,6 +35,27 @@ export default class SingleCampaignRoute extends CampaignRoute<{
       .first();
     if (campaignTitle === undefined) return "";
     return campaignTitle.title;
+  }
+
+  private async getCampaignPlan() {
+    const campaignPlan = await tryber.tables.CpReqPlans.do()
+      .select(
+        tryber.ref("id").withSchema("cp_req_plans"),
+        tryber.ref("name").withSchema("cp_req_plans")
+      )
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_evd_campaign.plan_id",
+        "cp_req_plans.id"
+      )
+      .where("wp_appq_evd_campaign.id", this.cp_id)
+      .first();
+
+    if (campaignPlan === undefined) return undefined;
+    return {
+      id: campaignPlan.id,
+      name: campaignPlan.name,
+    };
   }
 
   private async getCampaignFormId() {

@@ -1397,6 +1397,10 @@ export interface operations {
             type: string;
             typeDescription: string;
             preselectionFormId?: number;
+            plan?: {
+              id: number;
+              name: string;
+            };
           };
         };
       };

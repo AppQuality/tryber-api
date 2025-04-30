@@ -4,6 +4,31 @@ import request from "supertest";
 
 describe("GET /campaigns/:campaignId", () => {
   beforeAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().insert({
+      id: 1,
+      wp_user_id: 1,
+      email: "user@example.com",
+      employment_id: 1,
+      education_id: 1,
+    });
+    await tryber.tables.WpAppqProject.do().insert({
+      display_name: "Test Project",
+      id: 15,
+      customer_id: 15,
+      edited_by: 1,
+    });
+    await tryber.tables.CpReqTemplates.do().insert({
+      id: 30,
+      name: "Template 30",
+      config: "{}",
+    });
+    await tryber.tables.CpReqPlans.do().insert({
+      id: 2,
+      name: "Form CP2",
+      config: "{}",
+      created_by: 1,
+      project_id: 15,
+    });
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         id: 1,
@@ -34,6 +59,7 @@ describe("GET /campaigns/:campaignId", () => {
         customer_title: "",
         campaign_pts: 200,
         campaign_type_id: 9,
+        plan_id: 2,
       },
     ]);
     await tryber.tables.WpAppqCampaignType.do().insert([
@@ -66,9 +92,13 @@ describe("GET /campaigns/:campaignId", () => {
     ]);
   });
   afterAll(async () => {
+    await tryber.tables.WpAppqEvdProfile.do().delete();
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqCampaignPreselectionForm.do().delete();
+    await tryber.tables.WpAppqProject.do().delete();
+    await tryber.tables.CpReqTemplates.do().delete();
+    await tryber.tables.CpReqPlans.do().delete();
   });
   it("Should return 400 if campaign does not exist", async () => {
     const response = await request(app)
@@ -129,16 +159,26 @@ describe("GET /campaigns/:campaignId", () => {
       .set("Authorization", "Bearer admin");
     expect(response.body).toHaveProperty("preselectionFormId", 20);
   });
+  it("Should return plan if exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/2")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).toHaveProperty("plan");
+    expect(response.body.plan).toMatchObject({
+      id: 2,
+      name: "Form CP2",
+    });
+  });
+  it("Should not return plan if campaign plan does not exist", async () => {
+    const response = await request(app)
+      .get("/campaigns/1")
+      .set("Authorization", "Bearer admin");
+    expect(response.body).not.toHaveProperty("plan");
+  });
   it("Should not return campaign preselectionFormId if campaign form does not exist", async () => {
     const response = await request(app)
       .get("/campaigns/1")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toEqual({
-      id: 1,
-      title: "This is the title",
-      type: "functional",
-      typeDescription: "functional description",
-      preselectionFormId: undefined,
-    });
+    expect(response.body).not.toHaveProperty("preselectionFormId");
   });
 });
