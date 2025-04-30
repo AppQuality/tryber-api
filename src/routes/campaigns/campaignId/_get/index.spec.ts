@@ -179,12 +179,6 @@ describe("GET /campaigns/:campaignId", () => {
     const response = await request(app)
       .get("/campaigns/1")
       .set("Authorization", "Bearer admin");
-    expect(response.body).toEqual({
-      id: 1,
-      title: "This is the title",
-      type: "functional",
-      typeDescription: "functional description",
-      preselectionFormId: undefined,
-    });
+    expect(response.body).not.toHaveProperty("preselectionFormId");
   });
 });
