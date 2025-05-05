@@ -47,6 +47,7 @@ describe("GET /users/me/campaigns - target", () => {
       id: 1,
       campaign_id: 1,
       created_by: 1,
+      link: "",
       updated_by: 1,
     });
 

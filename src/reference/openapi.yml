@@ -927,6 +927,16 @@ paths:
                     type: string
                   preselectionFormId:
                     type: integer
+                  plan:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - name
                 required:
                   - id
                   - title
@@ -946,6 +956,16 @@ paths:
                     type: Campaign Type
                     typeDescription: Campaign DescriptionType
                     preselectionFormId: 69
+                campaign_with_plan:
+                  value:
+                    id: 0
+                    title: string
+                    type: string
+                    typeDescription: string
+                    preselectionFormId: 0
+                    plan:
+                      id: 0
+                      name: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
