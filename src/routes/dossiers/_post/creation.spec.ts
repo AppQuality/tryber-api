@@ -116,6 +116,7 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.CampaignDossierDataBrowsers.do().delete();
     await tryber.tables.CampaignDossierDataLanguages.do().delete();
     await tryber.tables.CampaignDossierDataCountries.do().delete();
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
   });
 
   it("Should create a campaign", async () => {
@@ -272,6 +273,63 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("close_date", "2021-08-20 14:15:22");
+  });
+
+  it("Should create a campaign with the specified additional fields", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        additionals: [
+          {
+            name: "Regex Field",
+            slug: "regex-field",
+            error: "Regex error",
+            type: "text",
+            regex: "^[a-zA-Z0-9]+$",
+          },
+          {
+            name: "Select Field",
+            slug: "select-field",
+            error: "Select error",
+            type: "select",
+            showInStats: true,
+            options: ["Option 1", "Option 2"],
+          },
+        ],
+      });
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const fields = await tryber.tables.WpAppqCampaignAdditionalFields.do()
+      .select()
+      .where("cp_id", id);
+
+    expect(fields).toHaveLength(2);
+    expect(fields).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          cp_id: id,
+          title: "Regex Field",
+          slug: "regex-field",
+          type: "regex",
+          validation: "^[a-zA-Z0-9]+$",
+          error_message: "Regex error",
+          stats: 0,
+        }),
+        expect.objectContaining({
+          cp_id: id,
+          title: "Select Field",
+          slug: "select-field",
+          type: "select",
+          validation: "Option 1;Option 2",
+          error_message: "Select error",
+          stats: 1,
+        }),
+      ])
+    );
   });
 
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {
