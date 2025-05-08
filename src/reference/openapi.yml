@@ -10829,6 +10829,14 @@ components:
                     x-stoplight:
                       id: h3ll753yh9e2x
               - $ref: '#/components/schemas/CampaignAdditionalField'
+        bugTypes:
+          type: array
+          x-stoplight:
+            id: b3tzoarrt5ir1
+          items:
+            x-stoplight:
+              id: grb3h65cr8pmi
+            type: number
       required:
         - project
         - testType
