@@ -292,6 +292,8 @@ export default class PostDossiers extends UserRoute<{
       await this.createCampaignMeta(campaignId);
     }
 
+    await this.createAdditionals(campaignId);
+
     const dossier = await tryber.tables.CampaignDossierData.do()
       .insert({
         campaign_id: campaignId,
@@ -351,6 +353,26 @@ export default class PostDossiers extends UserRoute<{
     }
 
     return campaignId;
+  }
+
+  private async createAdditionals(campaignId: number) {
+    const { additionals } = this.getBody();
+    if (!additionals || !additionals.length) return;
+
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert(
+      additionals.map((additional) => ({
+        cp_id: campaignId,
+        type: additional.type === "text" ? "regex" : "select",
+        slug: additional.slug,
+        title: additional.name,
+        validation:
+          additional.type === "text"
+            ? additional.regex
+            : additional.options.join(";"),
+        error_message: additional.error,
+        stats: additional.showInStats ? 1 : 0,
+      }))
+    );
   }
 
   private async linkRolesToCampaign(campaignId: number) {
