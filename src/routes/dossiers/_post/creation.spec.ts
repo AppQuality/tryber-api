@@ -17,6 +17,7 @@ const baseRequest = {
 
 describe("Route POST /dossiers", () => {
   beforeAll(async () => {
+    await tryber.seeds().bug_types();
     await tryber.tables.CampaignPhase.do().insert([
       { id: 1, name: "Test Phase", type_id: 1 },
     ]);
@@ -330,6 +331,69 @@ describe("Route POST /dossiers", () => {
         }),
       ])
     );
+  });
+
+  it("Should create a campaign with the specified bug types", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        bugTypes: [1, 2, 3],
+      });
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const bugTypes = await tryber.tables.WpAppqAdditionalBugTypes.do()
+      .select()
+      .where("campaign_id", id);
+
+    expect(bugTypes).toHaveLength(3);
+    expect(bugTypes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          bug_type_id: 1,
+        }),
+        expect.objectContaining({
+          bug_type_id: 2,
+        }),
+        expect.objectContaining({
+          bug_type_id: 3,
+        }),
+      ])
+    );
+  });
+
+  it("Should create a campaign with default bug types if no specific bug types are selected", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+      });
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const bugTypes = await tryber.tables.WpAppqAdditionalBugTypes.do()
+      .select()
+      .where("campaign_id", id);
+
+    expect(bugTypes).toHaveLength(0);
+  });
+
+  it("Should throw an error if invalid bugtype is sent", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        bugTypes: [100],
+      });
+    expect(response.status).toBe(406);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
   });
 
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {

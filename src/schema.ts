@@ -833,6 +833,7 @@ export interface components {
       additionals?: ({
         showInStats?: boolean;
       } & components["schemas"]["CampaignAdditionalField"])[];
+      bugTypes?: number[];
     };
     /** FiscalBirthCity */
     FiscalBirthCity:
