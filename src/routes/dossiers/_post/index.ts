@@ -44,6 +44,10 @@ export default class PostDossiers extends UserRoute<{
       this.setError(406, new OpenapiError("Invalid roles submitted"));
       return false;
     }
+    if (await this.invalidBugTypesSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid bug types submitted"));
+      return false;
+    }
     if (!(await this.projectExists())) {
       this.setError(400, new OpenapiError("Project does not exist"));
       return false;
@@ -101,6 +105,17 @@ export default class PostDossiers extends UserRoute<{
       .select()
       .whereIn("id", userIds);
     if (usersExist.length !== userIds.length) return true;
+    return false;
+  }
+
+  private async invalidBugTypesSubmitted() {
+    const { bugTypes } = this.getBody();
+    if (!bugTypes || !bugTypes.length) return false;
+    const bugTypeIds = [...new Set(bugTypes)];
+    const bugTypesExist = await tryber.tables.WpAppqEvdBugType.do()
+      .select()
+      .whereIn("id", bugTypeIds);
+    if (bugTypesExist.length !== bugTypeIds.length) return true;
     return false;
   }
 
@@ -292,6 +307,9 @@ export default class PostDossiers extends UserRoute<{
       await this.createCampaignMeta(campaignId);
     }
 
+    await this.createAdditionals(campaignId);
+    await this.setBugTypes(campaignId);
+
     const dossier = await tryber.tables.CampaignDossierData.do()
       .insert({
         campaign_id: campaignId,
@@ -351,6 +369,38 @@ export default class PostDossiers extends UserRoute<{
     }
 
     return campaignId;
+  }
+
+  private async createAdditionals(campaignId: number) {
+    const { additionals } = this.getBody();
+    if (!additionals || !additionals.length) return;
+
+    await tryber.tables.WpAppqCampaignAdditionalFields.do().insert(
+      additionals.map((additional) => ({
+        cp_id: campaignId,
+        type: additional.type === "text" ? "regex" : "select",
+        slug: additional.slug,
+        title: additional.name,
+        validation:
+          additional.type === "text"
+            ? additional.regex
+            : additional.options.join(";"),
+        error_message: additional.error,
+        stats: additional.showInStats ? 1 : 0,
+      }))
+    );
+  }
+
+  private async setBugTypes(campaignId: number) {
+    const { bugTypes } = this.getBody();
+    if (!bugTypes || !bugTypes.length) return;
+
+    await tryber.tables.WpAppqAdditionalBugTypes.do().insert(
+      bugTypes.map((bugType) => ({
+        campaign_id: campaignId,
+        bug_type_id: bugType,
+      }))
+    );
   }
 
   private async linkRolesToCampaign(campaignId: number) {

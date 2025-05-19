@@ -830,6 +830,10 @@ export interface components {
       browsers?: number[];
       productType?: number;
       notes?: string;
+      additionals?: ({
+        showInStats?: boolean;
+      } & components["schemas"]["CampaignAdditionalField"])[];
+      bugTypes?: number[];
     };
     /** FiscalBirthCity */
     FiscalBirthCity:

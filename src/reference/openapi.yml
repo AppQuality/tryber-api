@@ -10736,12 +10736,6 @@ components:
             - 0
           productType: 0
           notes: string
-      required:
-        - project
-        - testType
-        - title
-        - startDate
-        - deviceList
       properties:
         project:
           type: integer
@@ -10775,14 +10769,14 @@ components:
           type: array
           items:
             type: object
-            required:
-              - role
-              - user
             properties:
               role:
                 type: integer
               user:
                 type: integer
+            required:
+              - role
+              - user
         description:
           type: string
         productLink:
@@ -10818,6 +10812,37 @@ components:
           type: integer
         notes:
           type: string
+        additionals:
+          x-stoplight:
+            id: prsjf310wgcw1
+          type: array
+          items:
+            x-stoplight:
+              id: 05yh361c4m134
+            allOf:
+              - type: object
+                x-stoplight:
+                  id: ob87gktp597p8
+                properties:
+                  showInStats:
+                    type: boolean
+                    x-stoplight:
+                      id: h3ll753yh9e2x
+              - $ref: '#/components/schemas/CampaignAdditionalField'
+        bugTypes:
+          type: array
+          x-stoplight:
+            id: b3tzoarrt5ir1
+          items:
+            x-stoplight:
+              id: grb3h65cr8pmi
+            type: number
+      required:
+        - project
+        - testType
+        - title
+        - startDate
+        - deviceList
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:
