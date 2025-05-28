@@ -1248,29 +1248,17 @@ paths:
                 properties:
                   id:
                     type: integer
-                    x-stoplight:
-                      id: utbatwwjj3tlb
                   title:
                     type: string
-                    x-stoplight:
-                      id: myjpsehhwo2jt
                   description:
                     type: string
-                    x-stoplight:
-                      id: dnwdy9p6z3oz5
                   actual_result:
                     type: string
-                    x-stoplight:
-                      id: l553hx4la0wyb
                   expected_result:
                     type: string
-                    x-stoplight:
-                      id: 0ix5wkgvk9m87
                   severity:
                     $ref: '#/components/schemas/BugSeverity'
                   replicability:
-                    x-stoplight:
-                      id: j9j9nnjxwr0xt
                     required:
                       - id
                       - name
@@ -1278,15 +1266,9 @@ paths:
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: 5otpywx1mlylg
                       name:
                         type: string
-                        x-stoplight:
-                          id: 67xeb9966jhve
                   type:
-                    x-stoplight:
-                      id: yr7u7k2zdyx27
                     required:
                       - id
                       - name
@@ -1294,22 +1276,14 @@ paths:
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: lsqiq7udjw8qc
                       name:
                         type: string
-                        x-stoplight:
-                          id: 3rmsfzyl8fx6s
                   status:
                     $ref: '#/components/schemas/BugStatus'
                   reason:
                     type: string
-                    x-stoplight:
-                      id: l1um12dxgmn1d
                   usecase:
                     type: object
-                    x-stoplight:
-                      id: hl1pbww2k8exa
                     required:
                       - id
                       - title
@@ -1317,29 +1291,17 @@ paths:
                     properties:
                       id:
                         type: integer
-                        x-stoplight:
-                          id: hv8jk4qu2ydun
                       title:
                         type: string
-                        x-stoplight:
-                          id: djzx2g3ljy0du
                       description:
                         type: string
-                        x-stoplight:
-                          id: c3pcx58ayzupf
                   media:
                     type: array
-                    x-stoplight:
-                      id: 2bbuws368fg9w
                     items:
-                      x-stoplight:
-                        id: vxvlkngktwl7b
                       type: object
                       properties:
                         id:
                           type: integer
-                          x-stoplight:
-                            id: pjv1ygnysg4hg
                       required:
                         - id
                 required:
@@ -10440,8 +10402,6 @@ paths:
               properties:
                 importFrom:
                   type: integer
-                  x-stoplight:
-                    id: gf6dy4ke154ct
               required:
                 - importFrom
   '/dossiers/{campaign}/preview':
@@ -10467,8 +10427,6 @@ paths:
               properties:
                 importFrom:
                   type: integer
-                  x-stoplight:
-                    id: h4jhe86n6v4fq
               required:
                 - importFrom
 components:
@@ -11035,29 +10993,17 @@ components:
         notes:
           type: string
         additionals:
-          x-stoplight:
-            id: prsjf310wgcw1
           type: array
           items:
-            x-stoplight:
-              id: 05yh361c4m134
             allOf:
               - type: object
-                x-stoplight:
-                  id: ob87gktp597p8
                 properties:
                   showInStats:
                     type: boolean
-                    x-stoplight:
-                      id: h3ll753yh9e2x
               - $ref: '#/components/schemas/CampaignAdditionalField'
         bugTypes:
           type: array
-          x-stoplight:
-            id: b3tzoarrt5ir1
           items:
-            x-stoplight:
-              id: grb3h65cr8pmi
             type: number
       required:
         - project
