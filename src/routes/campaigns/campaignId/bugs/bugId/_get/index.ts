@@ -54,7 +54,8 @@ export default class Route extends CampaignRoute<{
         name: bug.status_name,
         description: bug.status_description || "",
       },
-      reason: bug.note || "",
+      note: bug.note || "",
+      reason: bug.status_reason || "",
       usecase: {
         id: bug.uc_id || 0,
         title: bug.uc_title || "",
@@ -78,6 +79,7 @@ export default class Route extends CampaignRoute<{
           .withSchema("wp_appq_evd_bug_status")
           .as("status_description"),
         tryber.ref("note").withSchema("wp_appq_evd_bug"),
+        tryber.ref("status_reason").withSchema("wp_appq_evd_bug"),
         tryber.ref("bug_replicability_id").withSchema("wp_appq_evd_bug"),
         tryber.ref("bug_type_id").withSchema("wp_appq_evd_bug"),
         tryber.ref("severity_id").withSchema("wp_appq_evd_bug"),
