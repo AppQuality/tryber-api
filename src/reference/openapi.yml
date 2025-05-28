@@ -1247,38 +1247,115 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: string
+                    type: integer
                     x-stoplight:
                       id: utbatwwjj3tlb
-              examples:
-                Example 1:
-                  value:
+                  title:
+                    type: string
+                    x-stoplight:
+                      id: myjpsehhwo2jt
+                  description:
+                    type: string
+                    x-stoplight:
+                      id: dnwdy9p6z3oz5
+                  actual_result:
+                    type: string
+                    x-stoplight:
+                      id: l553hx4la0wyb
+                  expected_result:
+                    type: string
+                    x-stoplight:
+                      id: 0ix5wkgvk9m87
+                  severity:
+                    $ref: '#/components/schemas/BugSeverity'
+                  replicability:
+                    x-stoplight:
+                      id: j9j9nnjxwr0xt
+                    required:
+                      - id
+                      - name
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: 5otpywx1mlylg
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: 67xeb9966jhve
+                  type:
+                    x-stoplight:
+                      id: yr7u7k2zdyx27
+                    required:
+                      - id
+                      - name
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: lsqiq7udjw8qc
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: 3rmsfzyl8fx6s
+                  status:
+                    $ref: '#/components/schemas/BugStatus'
+                  reason:
+                    type: string
+                    x-stoplight:
+                      id: l1um12dxgmn1d
+                  usecase:
+                    type: object
+                    x-stoplight:
+                      id: hl1pbww2k8exa
+                    required:
+                      - id
+                      - title
+                      - description
+                    properties:
+                      id:
+                        type: integer
+                        x-stoplight:
+                          id: hv8jk4qu2ydun
+                      title:
+                        type: string
+                        x-stoplight:
+                          id: djzx2g3ljy0du
+                      description:
+                        type: string
+                        x-stoplight:
+                          id: c3pcx58ayzupf
+                  media:
+                    type: array
+                    x-stoplight:
+                      id: 2bbuws368fg9w
                     items:
-                      - id: 0
-                        title: string
-                        internalId: string
-                        status:
-                          id: 0
-                          name: string
-                        type:
-                          id: 0
-                          name: string
-                        severity:
-                          id: 0
-                          name: string
-                        tester:
-                          id: 0
-                        tags:
-                          - id: 0
-                            name: string
-                        duplication: father
-                        isFavourite: true
-                        created: string
-                        updated: string
-                    start: 0
-                    limit: 0
-                    size: 0
-                    total: 0
+                      x-stoplight:
+                        id: vxvlkngktwl7b
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: pjv1ygnysg4hg
+                      required:
+                        - id
+                required:
+                  - id
+                  - title
+                  - description
+                  - actual_result
+                  - expected_result
+                  - severity
+                  - replicability
+                  - type
+                  - status
+                  - reason
+                  - usecase
+                  - media
+              examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
