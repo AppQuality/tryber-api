@@ -1217,6 +1217,73 @@ paths:
           name: orderBy
           description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
         - $ref: '#/components/parameters/filterBy'
+  '/campaigns/{campaign}/bugs/{bugId}':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+      - schema:
+          type: string
+        name: bugId
+        in: path
+        required: true
+    get:
+      summary: Get a specific Campaign Bug
+      tags:
+        - Campaign
+      operationId: get-campaigns-single-bug
+      description: 'Get single bug of a Campaign if you have access to it '
+      security:
+        - JWT: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    x-stoplight:
+                      id: utbatwwjj3tlb
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 0
+                        title: string
+                        internalId: string
+                        status:
+                          id: 0
+                          name: string
+                        type:
+                          id: 0
+                          name: string
+                        severity:
+                          id: 0
+                          name: string
+                        tester:
+                          id: 0
+                        tags:
+                          - id: 0
+                            name: string
+                        duplication: father
+                        isFavourite: true
+                        created: string
+                        updated: string
+                    start: 0
+                    limit: 0
+                    size: 0
+                    total: 0
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      parameters: []
   '/campaigns/{campaign}/candidates':
     parameters:
       - name: campaign
