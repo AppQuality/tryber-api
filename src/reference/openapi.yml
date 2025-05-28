@@ -1282,6 +1282,8 @@ paths:
                     $ref: '#/components/schemas/BugStatus'
                   reason:
                     type: string
+                  note:
+                    type: string
                   usecase:
                     type: object
                     required:
@@ -1315,36 +1317,10 @@ paths:
                   - type
                   - status
                   - reason
+                  - note
                   - usecase
                   - media
-              examples:
-                Example 1:
-                  value:
-                    id: 0
-                    title: string
-                    description: string
-                    actual_result: string
-                    expected_result: string
-                    severity:
-                      id: 0
-                      name: string
-                    replicability:
-                      id: 0
-                      name: string
-                    type:
-                      id: 0
-                      name: string
-                    status:
-                      id: 0
-                      name: string
-                      description: string
-                    reason: string
-                    usecase:
-                      id: 0
-                      title: string
-                      description: string
-                    media:
-                      - id: 0
+              examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -10388,6 +10364,8 @@ paths:
               properties:
                 importFrom:
                   type: integer
+                  x-stoplight:
+                    id: gf6dy4ke154ct
               required:
                 - importFrom
   '/dossiers/{campaign}/preview':
@@ -10413,6 +10391,8 @@ paths:
               properties:
                 importFrom:
                   type: integer
+                  x-stoplight:
+                    id: h4jhe86n6v4fq
               required:
                 - importFrom
 components:
@@ -10979,17 +10959,29 @@ components:
         notes:
           type: string
         additionals:
+          x-stoplight:
+            id: prsjf310wgcw1
           type: array
           items:
+            x-stoplight:
+              id: 05yh361c4m134
             allOf:
               - type: object
+                x-stoplight:
+                  id: ob87gktp597p8
                 properties:
                   showInStats:
                     type: boolean
+                    x-stoplight:
+                      id: h3ll753yh9e2x
               - $ref: '#/components/schemas/CampaignAdditionalField'
         bugTypes:
           type: array
+          x-stoplight:
+            id: b3tzoarrt5ir1
           items:
+            x-stoplight:
+              id: grb3h65cr8pmi
             type: number
       required:
         - project
