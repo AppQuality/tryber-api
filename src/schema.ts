@@ -1554,7 +1554,30 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            id?: string;
+            id: number;
+            title: string;
+            description: string;
+            actual_result: string;
+            expected_result: string;
+            severity: components["schemas"]["BugSeverity"];
+            replicability: {
+              id: number;
+              name: string;
+            };
+            type: {
+              id: number;
+              name: string;
+            };
+            status: components["schemas"]["BugStatus"];
+            reason: string;
+            usecase: {
+              id: number;
+              title: string;
+              description: string;
+            };
+            media: {
+              id: number;
+            }[];
           };
         };
       };
