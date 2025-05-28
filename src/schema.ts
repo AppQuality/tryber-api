@@ -1534,6 +1534,7 @@ export interface operations {
             };
             status: components["schemas"]["BugStatus"];
             reason: string;
+            note: string;
             usecase: {
               id: number;
               title: string;
