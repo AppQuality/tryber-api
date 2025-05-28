@@ -1355,7 +1355,34 @@ paths:
                   - reason
                   - usecase
                   - media
-              examples: {}
+              examples:
+                Example 1:
+                  value:
+                    id: 0
+                    title: string
+                    description: string
+                    actual_result: string
+                    expected_result: string
+                    severity:
+                      id: 0
+                      name: string
+                    replicability:
+                      id: 0
+                      name: string
+                    type:
+                      id: 0
+                      name: string
+                    status:
+                      id: 0
+                      name: string
+                      description: string
+                    reason: string
+                    usecase:
+                      id: 0
+                      title: string
+                      description: string
+                    media:
+                      - id: 0
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
