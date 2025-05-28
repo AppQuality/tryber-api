@@ -33,25 +33,25 @@ export default class Route extends CampaignRoute<{
 
     this.setSuccess(200, {
       id: bug.id,
-      title: bug.title,
-      description: bug.description,
-      actual_result: bug.current_result,
-      expected_result: bug.expected_result,
+      title: bug.title || "",
+      description: bug.description || "",
+      actual_result: bug.current_result || "",
+      expected_result: bug.expected_result || "",
       severity: {
         id: bug.severity_id,
-        name: bug.severity,
+        name: bug.severity || "",
       },
       replicability: {
         id: bug.bug_replicability_id,
-        name: bug.replicability,
+        name: bug.replicability || "",
       },
       type: {
         id: bug.bug_type_id,
-        name: bug.type,
+        name: bug.type || "",
       },
       status: {
         id: bug.status_id,
-        name: bug.status_name,
+        name: bug.status_name || "",
         description: bug.status_description || "",
       },
       note: bug.note || "",
