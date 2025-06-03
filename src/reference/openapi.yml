@@ -4168,6 +4168,12 @@ paths:
                       minimum: 0
                       maximum: 1
                       default: 0
+                - type: object
+                  properties:
+                    visibilityCriteria:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/CustomUserFieldsDataOption'
             examples:
               Example 1:
                 value:

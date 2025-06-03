@@ -2543,6 +2543,8 @@ export interface operations {
           };
         } & {
           skipPagesAndTasks?: number;
+        } & {
+          visibilityCriteria?: components["schemas"]["CustomUserFieldsDataOption"][];
         };
       };
     };
