@@ -389,7 +389,7 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({
         ...baseRequest,
-        bugTypes: [1000],
+        bugTypes: [11111],
       });
     expect(response.status).toBe(406);
     expect(response.body).toHaveProperty("id");
