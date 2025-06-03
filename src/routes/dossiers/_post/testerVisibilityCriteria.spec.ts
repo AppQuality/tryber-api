@@ -90,6 +90,7 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     await tryber.tables.WpAppqCampaignType.do().delete();
     await tryber.tables.WpAppqEvdPlatform.do().delete();
     await tryber.tables.WpAppqCustomUserField.do().delete();
+    await tryber.tables.WpAppqCustomUserFieldExtras.do().delete();
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -98,7 +99,7 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     await tryber.tables.CampaignDossierDataCountries.do().delete();
     await tryber.tables.CampaignDossierDataLanguages.do().delete();
     await tryber.tables.WpAppqCampaignAdditionalFields.do().delete();
-
+    await tryber.tables.CampaignDossierDataCuf.do().delete();
     jest.clearAllMocks();
   });
 
@@ -119,7 +120,6 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
         ],
       })
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
 
     expect(response.status).toBe(406);
     expect(response.body).toMatchObject({
@@ -144,11 +144,30 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
         ],
       })
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
 
     expect(response.status).toBe(406);
     expect(response.body).toMatchObject({
       message: "Invalid Custom User Field submitted",
     });
+  });
+
+  it("Should return 201 if send valid cuf", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({
+        ...baseRequest,
+        visibilityCriteria: [
+          {
+            id: 10, // Existing CUF ID
+            name: "Test CUF 1 Value 1",
+          }, // Existing CUF Extras
+          {
+            id: 20, // Existing CUF ID
+            name: "Test CUF 2 Value 1",
+          }, // Existing CUF Extras
+        ],
+      })
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(201);
   });
 });
