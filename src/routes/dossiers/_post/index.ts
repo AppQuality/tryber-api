@@ -399,16 +399,16 @@ export default class PostDossiers extends UserRoute<{
       );
     }
 
-    // const visibilityCriteria = this.getBody().visibilityCriteria;
-    // if (visibilityCriteria?.length) {
-    //   await tryber.tables.CampaignDossierDataCustomUserFields.do().insert(
-    //     visibilityCriteria.map((cuf) => ({
-    //       campaign_dossier_data_id: dossierId,
-    //       cuf_id: cuf.id,
-    //       cuf_value_id: cuf.name,
-    //     }))
-    //   );
-    // }
+    const visibilityCriteria = this.getBody().visibilityCriteria;
+    if (visibilityCriteria?.length) {
+      await tryber.tables.CampaignDossierDataCuf.do().insert(
+        visibilityCriteria.map((cuf) => ({
+          campaign_dossier_data_id: dossierId,
+          cuf_id: cuf.cuf_id,
+          cuf_value_id: cuf.cuf_value_id,
+        }))
+      );
+    }
 
     return campaignId;
   }

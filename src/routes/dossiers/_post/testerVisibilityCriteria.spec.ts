@@ -171,39 +171,42 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     expect(response.status).toBe(201);
   });
 
-  // it("Should add cuf if send valid cuf", async () => {
-  //   const response = await request(app)
-  //     .post("/dossiers")
-  //     .send({
-  //       ...baseRequest,
-  //       visibilityCriteria: [
-  //         {
-  //           id: 10, // Existing CUF ID
-  //           name: "Test CUF 1 Value 1",
-  //         }, // Existing CUF Extras
-  //         {
-  //           id: 20, // Existing CUF ID
-  //           name: "Test CUF 2 Value 1",
-  //         }, // Existing CUF Extras
-  //       ],
-  //     })
-  //     .set("Authorization", "Bearer admin");
+  it("Should add cuf if send valid cuf", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .send({
+        ...baseRequest,
+        visibilityCriteria: [
+          {
+            cuf_id: 10, // Existing CUF ID
+            cuf_value_id: 100, // Existing CUF Value ID
+          }, // Existing CUF Extras
+          {
+            cuf_id: 20, // Existing CUF ID
+            cuf_value_id: 200, // Existing CUF Value ID
+          }, // Existing CUF Extras
+        ],
+      })
+      .set("Authorization", "Bearer admin");
 
-  //   const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do().select(
-  //     "cuf_id", "cuf_value_id"
-  //   )
-  //     .join("campaign_dossier_data", "campaign_dossier_data_cuf.campaign_dossier_data_id", "campaign_dossier_data.id")
-  //     .where("campaign_dossier_data.campaign_id", response.body.id);
+    const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do()
+      .select("cuf_id", "cuf_value_id")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data_cuf.campaign_dossier_data_id",
+        "campaign_dossier_data.id"
+      )
+      .where("campaign_dossier_data.campaign_id", response.body.id);
 
-  //   expect(dossierCuf).toHaveLength(2);
+    expect(dossierCuf).toHaveLength(2);
 
-  //   expect(dossierCuf[0]).toMatchObject({
-  //     cuf_id: 10,
-  //     cuf_value_id: 100, // Test CUF 1 Value 1
-  //   });
-  //   expect(dossierCuf[1]).toMatchObject({
-  //     cuf_id: 20,
-  //     cuf_value_id: 200, // Test CUF 2 Value 1
-  //   });
-  // });
+    expect(dossierCuf[0]).toMatchObject({
+      cuf_id: 10,
+      cuf_value_id: 100, // Test CUF 1 Value 1
+    });
+    expect(dossierCuf[1]).toMatchObject({
+      cuf_id: 20,
+      cuf_value_id: 200, // Test CUF 2 Value 1
+    });
+  });
 });
