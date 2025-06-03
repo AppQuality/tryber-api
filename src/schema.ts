@@ -2544,7 +2544,10 @@ export interface operations {
         } & {
           skipPagesAndTasks?: number;
         } & {
-          visibilityCriteria?: components["schemas"]["CustomUserFieldsDataOption"][];
+          visibilityCriteria?: {
+            cuf_id: number;
+            cuf_value_id: number;
+          }[];
         };
       };
     };

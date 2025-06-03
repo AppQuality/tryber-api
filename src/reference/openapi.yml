@@ -4173,7 +4173,15 @@ paths:
                     visibilityCriteria:
                       type: array
                       items:
-                        $ref: '#/components/schemas/CustomUserFieldsDataOption'
+                        type: object
+                        properties:
+                          cuf_id:
+                            type: integer
+                          cuf_value_id:
+                            type: integer
+                        required:
+                          - cuf_id
+                          - cuf_value_id
             examples:
               Example 1:
                 value:
