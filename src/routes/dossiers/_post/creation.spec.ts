@@ -389,11 +389,10 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({
         ...baseRequest,
-        bugTypes: [100],
+        bugTypes: [11111],
       });
     expect(response.status).toBe(406);
     expect(response.body).toHaveProperty("id");
-    const id = response.body.id;
   });
 
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {

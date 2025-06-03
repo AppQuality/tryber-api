@@ -2543,6 +2543,11 @@ export interface operations {
           };
         } & {
           skipPagesAndTasks?: number;
+        } & {
+          visibilityCriteria?: {
+            cuf_id: number;
+            cuf_value_id: number;
+          }[];
         };
       };
     };

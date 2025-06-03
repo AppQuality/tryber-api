@@ -4168,6 +4168,20 @@ paths:
                       minimum: 0
                       maximum: 1
                       default: 0
+                - type: object
+                  properties:
+                    visibilityCriteria:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          cuf_id:
+                            type: integer
+                          cuf_value_id:
+                            type: integer
+                        required:
+                          - cuf_id
+                          - cuf_value_id
             examples:
               Example 1:
                 value:
