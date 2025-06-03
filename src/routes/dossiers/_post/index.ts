@@ -130,8 +130,8 @@ export default class PostDossiers extends UserRoute<{
     const { visibilityCriteria } = this.getBody();
     if (!visibilityCriteria || !visibilityCriteria.length) return false;
 
-    const cufIds = [...new Set(visibilityCriteria.map((cuf) => cuf.id))];
-    const cufValues = visibilityCriteria.map((cuf) => cuf.name);
+    const cufIds = [...new Set(visibilityCriteria.map((cuf) => cuf.cuf_id))];
+    const cufValuesIds = visibilityCriteria.map((cuf) => cuf.cuf_value_id);
     const cufExist = await tryber.tables.WpAppqCustomUserField.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_custom_user_field"),
@@ -143,7 +143,7 @@ export default class PostDossiers extends UserRoute<{
         "wp_appq_custom_user_field_extras.custom_user_field_id"
       )
       .whereIn("wp_appq_custom_user_field.id", cufIds)
-      .whereIn("wp_appq_custom_user_field_extras.name", cufValues)
+      .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
       .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
 
     if (visibilityCriteria.length !== cufExist.length) return true;
@@ -398,6 +398,17 @@ export default class PostDossiers extends UserRoute<{
         }))
       );
     }
+
+    // const visibilityCriteria = this.getBody().visibilityCriteria;
+    // if (visibilityCriteria?.length) {
+    //   await tryber.tables.CampaignDossierDataCustomUserFields.do().insert(
+    //     visibilityCriteria.map((cuf) => ({
+    //       campaign_dossier_data_id: dossierId,
+    //       cuf_id: cuf.id,
+    //       cuf_value_id: cuf.name,
+    //     }))
+    //   );
+    // }
 
     return campaignId;
   }
