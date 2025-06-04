@@ -156,7 +156,7 @@ export default class Route extends CampaignRoute<{
       : statuses.map((data) => ({
           status: data.name || "",
           reason: data.status_reason || "",
-          date: data.bug_rev_creation || "",
+          date: data.bug_rev_creation.toString() || "",
         }));
   }
 }
