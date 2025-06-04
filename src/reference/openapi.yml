@@ -1259,20 +1259,20 @@ paths:
                   severity:
                     $ref: '#/components/schemas/BugSeverity'
                   replicability:
+                    type: object
                     required:
                       - id
                       - name
-                    type: object
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
                   type:
+                    type: object
                     required:
                       - id
                       - name
-                    type: object
                     properties:
                       id:
                         type: integer
@@ -1306,6 +1306,21 @@ paths:
                           type: integer
                       required:
                         - id
+                  status_history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                        reason:
+                          type: string
+                        date:
+                          type: string
+                      required:
+                        - status
+                        - reason
+                        - date
                 required:
                   - id
                   - title
@@ -1320,6 +1335,7 @@ paths:
                   - note
                   - usecase
                   - media
+                  - status_history
               examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'

@@ -1579,6 +1579,11 @@ export interface operations {
             media: {
               id: number;
             }[];
+            status_history: {
+              status: string;
+              reason: string;
+              date: string;
+            }[];
           };
         };
       };
