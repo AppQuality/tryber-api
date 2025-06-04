@@ -381,6 +381,18 @@ class RouteItem extends UserRoute<{
           campaignsWithTarget.map((c) => c.id)
         );
 
+    const allowedCufs = await tryber.tables.CampaignDossierDataCuf.do()
+      .select("campaign_id", "cuf_id", "cuf_value_id")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_cuf.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
     return campaigns.map((campaign) => {
       if (campaign.visibility_type !== 4) return campaign;
 
@@ -390,12 +402,27 @@ class RouteItem extends UserRoute<{
       const countries = allowedCountries
         .filter((l) => l.campaign_id === campaign.id)
         .map((l) => l.country_code);
+      const cufs = allowedCufs
+        .filter((l) => l.campaign_id === campaign.id)
+        .reduce((acc: Record<number, number[]>, cur) => {
+          if (!acc[cur.cuf_id]) acc[cur.cuf_id] = [];
+          acc[cur.cuf_id].push(cur.cuf_value_id);
+          return acc;
+        }, {});
 
       return {
         ...campaign,
         targetRules: {
           ...(languages.length ? { languages } : {}),
           ...(countries.length ? { countries } : {}),
+          ...(Object.keys(cufs).length
+            ? {
+                cufs: Object.keys(cufs).map((id) => ({
+                  id: parseInt(id),
+                  values: cufs[parseInt(id)],
+                })),
+              }
+            : {}),
         },
       };
     });
@@ -470,6 +497,7 @@ class RouteItem extends UserRoute<{
       targetRules?: {
         languages?: string[];
         countries?: string[];
+        cufs?: { id: number; values: (string | number)[] }[];
       };
     })[]
   ) {
