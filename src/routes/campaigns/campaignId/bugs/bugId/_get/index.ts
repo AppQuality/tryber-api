@@ -62,6 +62,7 @@ export default class Route extends CampaignRoute<{
         description: bug.uc_content || "",
       },
       media: await this.getMedia(),
+      status_history: await this.getStatusHistory(),
     });
   }
 
@@ -134,5 +135,28 @@ export default class Route extends CampaignRoute<{
     return await tryber.tables.WpAppqEvdBugMedia.do()
       .select("id")
       .where("bug_id", this.bug_id);
+  }
+
+  protected async getStatusHistory() {
+    const statuses = await tryber.tables.WpAppqEvdBugRev.do()
+      .select(
+        tryber.ref("status_reason").withSchema("wp_appq_evd_bug_rev"),
+        tryber.ref("bug_rev_creation").withSchema("wp_appq_evd_bug_rev"),
+        tryber.ref("name").withSchema("wp_appq_evd_bug_status")
+      )
+      .join(
+        "wp_appq_evd_bug_status",
+        "wp_appq_evd_bug_rev.status_id",
+        "wp_appq_evd_bug_status.id"
+      )
+      .where("bug_id", this.bug_id);
+
+    return !statuses.length
+      ? []
+      : statuses.map((data) => ({
+          status: data.name || "",
+          reason: data.status_reason || "",
+          date: data.bug_rev_creation || "",
+        }));
   }
 }
