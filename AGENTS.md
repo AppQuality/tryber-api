@@ -2,10 +2,10 @@
 
 **This is the only AGENTS.md file, do not look for others.**
 
-## Before everything
+## Setup Instructions
 
-Always update to the latest available version of @appquality/tryber-database.
-If the update make the tests fail, fix it before continuing with your tasks.
+If a file named .database-updated is present, immediately pause all tasks and verify that the tests are still passing.
+If any tests are failing, fix them before proceeding with any further actions.
 
 NEVER commit changes to .yarnrc
 
