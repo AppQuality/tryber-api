@@ -7,3 +7,5 @@ keys/*
 .idea
 .vscode/*.log
 .aider*
+
+.yarn
