@@ -1,8 +1,7 @@
 /** OPENAPI-CLASS: get-campaigns-forms */
 
-import UserRoute from "@src/features/routes/UserRoute";
 import { tryber } from "@src/features/database";
-import { Knex } from "knex";
+import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms"]["responses"][200]["content"]["application/json"];
@@ -77,13 +76,18 @@ export default class RouteItem extends UserRoute<{
     return typeof total === "number" ? total : parseInt(total);
   }
 
-  private applySearch(query: Knex.QueryBuilder) {
+  private applySearch<
+    T extends ReturnType<
+      ReturnType<
+        typeof tryber.tables.WpAppqCampaignPreselectionForm.do
+      >["count"]
+    >
+  >(query: T) {
     if (!this.searchBy || !this.search) return;
     const search = this.search;
     query.where((builder) => {
-      this.searchBy!.forEach((field, index) => {
-        const method = index === 0 ? "where" : "orWhere";
-        (builder as any)[method](field, "like", `%${search}%`);
+      this.searchBy!.forEach((field) => {
+        builder.orWhereLike(field, `%${search}%`);
       });
     });
   }
