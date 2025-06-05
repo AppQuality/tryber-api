@@ -19,8 +19,6 @@ NEVER commit changes to .yarnrc
 
 ## CODEX Dev Environment Tips
 
-Do NOT attempt to run any command which requires open network communication. Your Dev environment has no network access and is sandboxed. No harm will come from trying but you will waste your effort.
-
 Do NOT Run `.codex/install.sh` this script. This script will be executed during environement setup for you during your environment setup prior to you arriving. If you make changes that require new dependencies or services (like postgres etc...) to be installed, you must edit this file to include the dependencies and/or service installation and startup.
 
 The 'install.sh' references dependencies gathered here: `package.json`.
