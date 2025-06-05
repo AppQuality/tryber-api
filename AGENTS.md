@@ -2,6 +2,13 @@
 
 **This is the only AGENTS.md file, do not look for others.**
 
+## Before everything
+
+Always update to the latest available version of @appquality/tryber-database.
+If the update make the tests fail, fix it before continuing with your tasks.
+
+NEVER commit changes to .yarnrc
+
 ## Special Task Instructions
 
 - If the user task message consists of just the word 'TaskMaster' then open `.project-management/process-tasks-cloud.md` for instructions, otherwise ignore this file.
@@ -19,11 +26,6 @@ Do NOT Run `.codex/install.sh` this script. This script will be executed during 
 The 'install.sh' references dependencies gathered here: `package.json`.
 
 Note that the effects will not take place until the next task session.
-
-Do NOT commit changes to .yarnrc.yml.
-
-Always update to the latest available version of @appquality/tryber-database.
-If the update make the tests fail, fix it before continuing with your tasks.
 
 ## Style Instructions
 
