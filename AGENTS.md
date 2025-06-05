@@ -36,6 +36,7 @@ npx prettier --ignore-unknown --write
 
 ## Testing Instructions
 
+Run the tests only when a ts, js or json file is changed. NEVER run if only md files are changed.
 Run tests with `yarn test`. Any tests that require network connectivity should either be ignored and not run, -or- have network test path that shunts to a success when network connectivity can't be demonstrated so failed tests in this scenario don't confuse the codex agent progress.
 
 ## CHANGELOG.md Instructions
