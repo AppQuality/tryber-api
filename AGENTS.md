@@ -20,7 +20,10 @@ The 'install.sh' references dependencies gathered here: `package.json`.
 
 Note that the effects will not take place until the next task session.
 
-Do NOT commit changes to .yarnrc.yml
+Do NOT commit changes to .yarnrc.yml.
+
+Always update to the latest available version of @appquality/tryber-database.
+If the update make the tests fail, fix it before continuing with your tasks.
 
 ## Style Instructions
 
