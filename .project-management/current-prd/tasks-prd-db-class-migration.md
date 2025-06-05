@@ -50,6 +50,7 @@ features/wp
 
 - `src/routes/campaigns/forms/_get/index.ts` - migrated to use `tryber` instead of db class
 - `src/routes/campaigns/campaignId/forms/_get/index.ts` - migrated to use `tryber`
+- `src/routes/users/me/campaigns/campaignId/compatible_devices/_get/index.ts` - migrated to use `tryber`
 - Modules in `src/features` and `src/routes` that rely on deprecated classes
 - Test files associated with the above modules
 
@@ -64,6 +65,7 @@ features/wp
 - [ ] 2.0 Refactor identified modules to use `tryber` queries via `src/features/database.ts`
 - [x] 2.1 Refactor `src/routes/campaigns/forms/_get/index.ts` to use `tryber`
 - [x] 2.2 Refactor `src/routes/campaigns/campaignId/forms/_get/index.ts` to use `tryber`
+- [x] 2.3 Refactor `src/routes/users/me/campaigns/campaignId/compatible_devices/_get/index.ts` to use `tryber`
 - [ ] 3.0 Update or create tests to cover the refactored code
 - [x] 3.1 Update tests for `src/routes/campaigns/campaignId/forms/_get/index.ts`
 - [ ] 4.0 Remove deprecated classes once all references are migrated
