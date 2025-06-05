@@ -40,6 +40,7 @@ features/wp
 - `src/features/db/class/*` - Deprecated database classes to be replaced
 - `src/features/database.ts` - Knex connection instance (`tryber`)
 - Various modules under `src/` importing from `src/features/db/class`
+- `.project-management/current-prd/tasks-prd-db-class-migration.md` - Task list for DB class migration
 
 ### Proposed New Files
 
@@ -57,8 +58,27 @@ features/wp
 
 ## Tasks
 
-- [ ] 1.0 Inventory current usage of classes from `src/features/db/class`
+- [x] 1.0 Inventory current usage of classes from `src/features/db/class`
 - [ ] 2.0 Refactor identified modules to use `tryber` queries via `src/features/database.ts`
 - [ ] 3.0 Update or create tests to cover the refactored code
 - [ ] 4.0 Remove deprecated classes once all references are migrated
 - [ ] 5.0 Run full test suite and verify no regressions
+
+### Task 1.0 Inventory Results
+
+- `src/routes/campaigns/forms/_get/index.ts`
+- `src/routes/campaigns/campaignId/forms/_get/index.ts`
+- `src/routes/campaigns/campaignId/candidates/_post/index.ts`
+- `src/routes/users/me/campaigns/campaignId/compatible_devices/_get/index.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/_get/index.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/_post/index.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/index.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/index.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/AddressQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/CufMultiSelectQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/CufSelectableQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/CufTextQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/GenderQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/PhoneQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/SelectableQuestion.ts`
+- `src/routes/users/me/campaigns/campaignId/forms/QuestionFactory/Questions/SimpleTextQuestion.ts`
