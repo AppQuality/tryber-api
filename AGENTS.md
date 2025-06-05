@@ -4,6 +4,7 @@
 
 ## Setup Instructions
 
+The install script will update the database package if needed. Always keep the most recent version of @appquality/tryber-database in the package.json and yarn.lock.
 If a file named .database-updated is present, immediately pause all tasks and verify that the tests are still passing.
 If any tests are failing, fix them before proceeding with any further actions.
 
