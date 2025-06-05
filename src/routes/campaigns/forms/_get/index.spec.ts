@@ -1,5 +1,5 @@
-import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import app from "@src/app";
+import preselectionForm from "@src/__mocks__/mockedDb/preselectionForm";
 import request from "supertest";
 describe("GET /campaigns/forms ", () => {
   beforeAll(async () => {
@@ -244,6 +244,7 @@ describe("GET /campaigns/forms ", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
+    console.log(response.body);
     expect(response.body.results[0]).toMatchObject({
       id: 3,
       name: "Form Name3 with campaign Id",

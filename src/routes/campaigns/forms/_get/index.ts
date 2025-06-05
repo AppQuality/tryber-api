@@ -1,13 +1,12 @@
 /** OPENAPI-CLASS: get-campaigns-forms */
 
+import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
-import PreselectionForms from "@src/features/db/class/PreselectionForms";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-campaigns-forms"]["responses"][200]["content"]["application/json"];
   query: StoplightOperations["get-campaigns-forms"]["parameters"]["query"];
 }> {
-  private db: { forms: PreselectionForms };
   private limit: number | undefined;
   private start: number;
   private searchBy: ("name" | "campaign_id")[] | undefined;
@@ -15,7 +14,6 @@ export default class RouteItem extends UserRoute<{
 
   constructor(config: RouteClassConfiguration) {
     super(config);
-    this.db = { forms: new PreselectionForms(["id", "name", "campaign_id"]) };
     const query = this.getQuery();
     this.limit = parseInt(query.limit as unknown as string) || undefined;
     this.start = parseInt((query.start as unknown as string) || "0");
@@ -51,37 +49,47 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getForms() {
-    const results = await this.db.forms.query({
-      limit: this.limit,
-      where: this.getWhere(),
-      orderBy: [{ field: "id", order: "DESC" }],
-      offset: this.start,
-    });
-    return results.map((form) => {
-      return {
-        id: form.id,
-        name: form.name,
-        campaign: form.campaign_id !== null ? form.campaign_id : undefined,
-      };
-    });
+    const query = tryber.tables.WpAppqCampaignPreselectionForm.do()
+      .select("id", "name", "campaign_id")
+      .orderBy("id", "DESC")
+      .offset(this.start);
+
+    if (this.limit) query.limit(this.limit);
+    this.applySearch(query);
+
+    const results = await query;
+    return results.map((form) => ({
+      id: form.id,
+      name: form.name,
+      campaign: form.campaign_id !== null ? form.campaign_id : undefined,
+    }));
   }
 
   private async getTotal() {
-    const results = await this.db.forms.query({ where: this.getWhere() });
-    return this.limit ? results.length : undefined;
+    if (this.limit === undefined) return undefined;
+    const query = tryber.tables.WpAppqCampaignPreselectionForm.do().count({
+      count: "id",
+    });
+    this.applySearch(query);
+    const result = await query;
+    const total = result[0].count as number | string;
+    return typeof total === "number" ? total : parseInt(total);
   }
 
-  private getWhere() {
-    if (!this.searchBy || !this.search) return undefined;
-    const searchFields = this.searchBy;
+  private applySearch<
+    T extends ReturnType<
+      ReturnType<
+        typeof tryber.tables.WpAppqCampaignPreselectionForm.do
+      >["count"]
+    >
+  >(query: T) {
+    if (!this.searchBy || !this.search) return;
     const search = this.search;
-    const orQuery: PreselectionForms["where"][number] = searchFields.map(
-      (searchField) => {
-        return { [searchField]: "%" + search + "%", isLike: true };
-      }
-    );
-
-    return [orQuery];
+    query.where((builder) => {
+      this.searchBy!.forEach((field) => {
+        builder.orWhereLike(field, `%${search}%`);
+      });
+    });
   }
   private isSearchByAcceptable(searchField: string) {
     return ["name", "campaign_id"].includes(searchField);
