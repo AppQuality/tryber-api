@@ -37,14 +37,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@appquality/tryber-database@npm:^0.44.6":
-  version: 0.44.6
-  resolution: "@appquality/tryber-database@npm:0.44.6"
+"@appquality/tryber-database@npm:0.44.17":
+  version: 0.44.17
+  resolution: "@appquality/tryber-database@npm:0.44.17"
   dependencies:
     better-sqlite3: "npm:^8.1.0"
     knex: "npm:^2.5.1"
     mysql: "npm:^2.18.1"
-  checksum: 10c0/c3161a23ccac091bdb3de3c4c3ee9610b70f82241945271b4d1108d4ec29d2f9ca7057abae4bda6d5268f051b66093884e14092b0e2b67e45d2b85e3301b4046
+  checksum: 10c0/1950d9dc25e5f548b5824c22fe4d77016af9bcc9239e39288b0145d0419a66fb10a9ce28a1c814127e57a13a5bcf4e7c032f84d4e76e6d86895ced5ff87c759c
   languageName: node
   linkType: hard
 
@@ -7362,7 +7362,7 @@ __metadata:
   resolution: "new-api@workspace:."
   dependencies:
     "@appquality/jest-extract": "npm:^1.3.0"
-    "@appquality/tryber-database": "npm:^0.44.6"
+    "@appquality/tryber-database": "npm:0.44.17"
     "@appquality/wp-auth": "npm:^1.0.7"
     "@googlemaps/google-maps-services-js": "npm:^3.3.7"
     "@sendgrid/mail": "npm:^7.6.0"
