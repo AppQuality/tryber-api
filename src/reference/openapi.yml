@@ -624,6 +624,11 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
         '403':
           description: Forbidden
           content:
