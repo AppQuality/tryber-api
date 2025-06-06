@@ -1310,7 +1310,7 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          id: number;
+          status_id: number;
         };
       };
     };
