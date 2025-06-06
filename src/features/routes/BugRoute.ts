@@ -36,9 +36,9 @@ export default class BugRoute<
     const bug = await this.initBug();
 
     if (!bug) {
-      this.setError(400, new OpenapiError("Campaign not found"));
+      this.setError(400, new OpenapiError("Bug not found"));
 
-      throw new Error("Campaign not found");
+      throw new Error("Bug not found");
     }
 
     this.bug = bug;
