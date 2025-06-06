@@ -64,4 +64,14 @@ describe("PATCH /bugs/{BugId}/status", () => {
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(200);
   });
+  it("Should answer 400 if bug does not exist", async () => {
+    const response = await request(app)
+      .patch("/bugs/999/status")
+      .send({ status_id: 3 })
+      .set("Authorization", " Bearer admin");
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      message: "Bug not found",
+    });
+  });
 });
