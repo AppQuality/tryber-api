@@ -611,6 +611,33 @@ paths:
                       - id: 100
                         name: Other
       operationId: get-browsers
+  '/bugs/{bugId}/status':
+    parameters:
+      - schema:
+          type: string
+        name: bugId
+        in: path
+        required: true
+    patch:
+      summary: ''
+      operationId: patch-bugs-bugId-status
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+              required:
+                - id
+      security:
+        - JWT: []
   /campaigns:
     post:
       summary: Create a new Campaign
