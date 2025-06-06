@@ -642,10 +642,10 @@ paths:
             schema:
               type: object
               properties:
-                id:
+                status_id:
                   type: integer
               required:
-                - id
+                - status_id
       security:
         - JWT: []
   /campaigns:
