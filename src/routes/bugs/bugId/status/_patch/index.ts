@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS : patch-bugs-bugId-status */
 
+import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import BugRoute from "@src/features/routes/BugRoute";
 
@@ -20,6 +21,7 @@ class PatchBugStatusRoute extends BugRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    await this.updateBugStatus();
     return this.setSuccess(200, {});
   }
 
@@ -28,6 +30,15 @@ class PatchBugStatusRoute extends BugRoute<{
     const { status_id } = this.getBody();
 
     return statuses.find((status) => status.id === status_id) === undefined;
+  }
+  private async updateBugStatus() {
+    const { status_id } = this.getBody();
+
+    if (this.bug?.status_id === status_id) return;
+
+    await tryber.tables.WpAppqEvdBug.do()
+      .update({ status_id })
+      .where({ id: this.bug_id });
   }
 }
 
