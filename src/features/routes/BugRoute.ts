@@ -12,7 +12,7 @@ export default class BugRoute<
   }
 > extends AdminRoute<T> {
   protected bug_id: number;
-  protected bug: Awaited<ReturnType<typeof this.initBug>>;
+  protected bug: Awaited<ReturnType<typeof this.initBug>> | undefined;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -49,6 +49,7 @@ export default class BugRoute<
       .select()
       .where({ id: this.bug_id })
       .first();
+    if (!bug) throw this.setError(400, new OpenapiError("Bug not found"));
     return bug;
   }
 
