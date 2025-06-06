@@ -74,4 +74,14 @@ describe("PATCH /bugs/{BugId}/status", () => {
       message: "Bug not found",
     });
   });
+  it("Should answer 403 if status does not exist", async () => {
+    const response = await request(app)
+      .patch("/bugs/10/status")
+      .send({ status_id: 999 })
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(403);
+    expect(response.body).toMatchObject({
+      message: "Invalid Bug status",
+    });
+  });
 });
