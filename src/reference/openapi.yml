@@ -626,6 +626,11 @@ paths:
           description: OK
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
       requestBody:
         content:
           application/json:
