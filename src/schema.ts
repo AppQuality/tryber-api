@@ -36,6 +36,14 @@ export interface paths {
   "/browsers": {
     get: operations["get-browsers"];
   };
+  "/bugs/{bugId}/status": {
+    patch: operations["patch-bugs-bugId-status"];
+    parameters: {
+      path: {
+        bugId: string;
+      };
+    };
+  };
   "/campaigns": {
     /** Get all the Campaigns you have access to */
     get: operations["get-campaigns"];
@@ -1275,6 +1283,26 @@ export interface operations {
               name: string;
             }[];
           };
+        };
+      };
+    };
+  };
+  "patch-bugs-bugId-status": {
+    parameters: {
+      path: {
+        bugId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Forbidden */
+      403: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          id: number;
         };
       };
     };
