@@ -1295,7 +1295,11 @@ export interface operations {
     };
     responses: {
       /** OK */
-      200: unknown;
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
       /** Forbidden */
       403: {
         content: {
