@@ -196,6 +196,15 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/usecases": {
+    get: operations["get-campaigns-campaign-usecases"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/ux": {
     /** Get the data of a UseCase in a Campaign */
     get: operations["get-campaigns-campaign-ux"];
@@ -2129,6 +2138,24 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["TaskOptional"];
       };
+    };
+  };
+  "get-campaigns-campaign-usecases": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["Task"][];
+        };
+      };
+      /** Forbidden */
+      403: unknown;
     };
   };
   /** Get the data of a UseCase in a Campaign */

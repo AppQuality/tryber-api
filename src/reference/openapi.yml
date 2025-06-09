@@ -3076,6 +3076,28 @@ paths:
         description: The data to edit in the UseCase linked to the Campaign
       security:
         - JWT: []
+  '/campaigns/{campaign}/usecases':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+        description: A campaign id
+    get:
+      summary: Get all Usecases of a specific Campaign
+      operationId: get-campaigns-campaign-usecases
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '403':
+          description: Forbidden
   '/campaigns/{campaign}/ux':
     parameters:
       - name: campaign
@@ -10394,8 +10416,6 @@ paths:
               properties:
                 importFrom:
                   type: integer
-                  x-stoplight:
-                    id: gf6dy4ke154ct
               required:
                 - importFrom
   '/dossiers/{campaign}/preview':
@@ -10421,8 +10441,6 @@ paths:
               properties:
                 importFrom:
                   type: integer
-                  x-stoplight:
-                    id: h4jhe86n6v4fq
               required:
                 - importFrom
 components:
@@ -10989,29 +11007,17 @@ components:
         notes:
           type: string
         additionals:
-          x-stoplight:
-            id: prsjf310wgcw1
           type: array
           items:
-            x-stoplight:
-              id: 05yh361c4m134
             allOf:
               - type: object
-                x-stoplight:
-                  id: ob87gktp597p8
                 properties:
                   showInStats:
                     type: boolean
-                    x-stoplight:
-                      id: h3ll753yh9e2x
               - $ref: '#/components/schemas/CampaignAdditionalField'
         bugTypes:
           type: array
-          x-stoplight:
-            id: b3tzoarrt5ir1
           items:
-            x-stoplight:
-              id: grb3h65cr8pmi
             type: number
       required:
         - project
