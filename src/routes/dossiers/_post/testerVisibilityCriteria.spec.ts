@@ -108,16 +108,18 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       .post("/dossiers")
       .send({
         ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 999, // Non-existent CUF ID
-            cuf_value_id: 999, // Non-existent CUF Value ID
-          },
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          },
-        ],
+        visibilityCriteria: {
+          cuf: [
+            {
+              cuf_id: 999, // Non-existent CUF ID
+              cuf_value_id: 999, // Non-existent CUF Value ID
+            },
+            {
+              cuf_id: 10, // Existing CUF ID
+              cuf_value_id: 100, // Existing CUF Value ID
+            },
+          ],
+        },
       })
       .set("Authorization", "Bearer admin");
 
@@ -132,16 +134,18 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       .post("/dossiers")
       .send({
         ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 30, // Existing CUF ID with type 'text'
-            cuf_value_id: 300, // Non-existent CUF Value ID
-          },
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          }, // Existing CUF Extras
-        ],
+        visibilityCriteria: {
+          cuf: [
+            {
+              cuf_id: 30, // Existing CUF ID with type 'text'
+              cuf_value_id: 300, // Non-existent CUF Value ID
+            },
+            {
+              cuf_id: 10, // Existing CUF ID
+              cuf_value_id: 100, // Existing CUF Value ID
+            }, // Existing CUF Extras
+          ],
+        },
       })
       .set("Authorization", "Bearer admin");
 
@@ -156,16 +160,18 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       .post("/dossiers")
       .send({
         ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          }, // Existing CUF Extras
-          {
-            cuf_id: 20, // Existing CUF ID
-            cuf_value_id: 200, // Existing CUF Value ID
-          }, // Existing CUF Extras
-        ],
+        visibilityCriteria: {
+          cuf: [
+            {
+              cuf_id: 10, // Existing CUF ID
+              cuf_value_id: 100, // Existing CUF Value ID
+            }, // Existing CUF Extras
+            {
+              cuf_id: 20, // Existing CUF ID
+              cuf_value_id: 200, // Existing CUF Value ID
+            }, // Existing CUF Extras
+          ],
+        },
       })
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(201);
@@ -176,16 +182,18 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       .post("/dossiers")
       .send({
         ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          }, // Existing CUF Extras
-          {
-            cuf_id: 20, // Existing CUF ID
-            cuf_value_id: 200, // Existing CUF Value ID
-          }, // Existing CUF Extras
-        ],
+        visibilityCriteria: {
+          cuf: [
+            {
+              cuf_id: 10, // Existing CUF ID
+              cuf_value_id: 100, // Existing CUF Value ID
+            }, // Existing CUF Extras
+            {
+              cuf_id: 20, // Existing CUF ID
+              cuf_value_id: 200, // Existing CUF Value ID
+            }, // Existing CUF Extras
+          ],
+        },
       })
       .set("Authorization", "Bearer admin");
 
@@ -209,4 +217,59 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       cuf_value_id: 200, // Test CUF 2 Value 1
     });
   });
+
+  // describe("Visibility Criteria - Age criterias", () => {
+  //   afterEach(async () => {
+  //     await tryber.tables.CampaignDossierDataAge.do().delete();
+  //   });
+
+  //   it("Should add dossier age ranges if sent", async () => {
+
+  //     const response = await request(app)
+  //       .post("/dossiers")
+  //       .send({
+  //         ...baseRequest,
+  //         visibilityCriteria: [
+  //           {
+  //             cuf_id: 10, // Existing CUF ID
+  //             cuf_value_id: 100, // Existing CUF Value ID
+  //           },
+  //           {
+
+  //             age_ranges: [
+  //               {
+  //                 min: 18,
+  //                 max: 25,
+  //               },
+  //               {
+  //                 min: 26,
+  //                 max: 35,
+  //               },
+  //             ],
+  //           }
+  //         ],
+  //       })
+  //       .set("Authorization", "Bearer admin");
+
+  //     const dossierAge = await tryber.tables.CampaignDossierDataAge.do()
+  //       .select("min", "max")
+  //       .join(
+  //         "campaign_dossier_data",
+  //         "campaign_dossier_data_age.campaign_dossier_data_id",
+  //         "campaign_dossier_data.id"
+  //       )
+  //       .where("campaign_dossier_data.campaign_id", response.body.id);
+
+  //     expect(dossierAge).toHaveLength(2);
+
+  //     expect(dossierAge[0]).toMatchObject({
+  //       min: 18,
+  //       max: 25,
+  //     });
+  //     expect(dossierAge[1]).toMatchObject({
+  //       min: 26,
+  //       max: 35,
+  //     });
+  //   });
+  // })
 });
