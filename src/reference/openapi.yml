@@ -4341,6 +4341,18 @@ paths:
                             type: integer
                           cuf_value_id:
                             type: integer
+                          age_ranges:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                min:
+                                  type: integer
+                                max:
+                                  type: integer
+                              required:
+                                - min
+                                - max
                         required:
                           - cuf_id
                           - cuf_value_id

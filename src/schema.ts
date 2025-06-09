@@ -2646,6 +2646,10 @@ export interface operations {
           visibilityCriteria?: {
             cuf_id: number;
             cuf_value_id: number;
+            age_ranges?: {
+              min: number;
+              max: number;
+            }[];
           }[];
         };
       };
