@@ -2644,13 +2644,15 @@ export interface operations {
           skipPagesAndTasks?: number;
         } & {
           visibilityCriteria?: {
-            cuf_id: number;
-            cuf_value_id: number;
+            cuf?: {
+              cuf_id: number;
+              cuf_value_id: number;
+            }[];
             age_ranges?: {
               min: number;
               max: number;
             }[];
-          }[];
+          };
         };
       };
     };
