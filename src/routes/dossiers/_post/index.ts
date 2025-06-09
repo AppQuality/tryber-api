@@ -406,12 +406,23 @@ export default class PostDossiers extends UserRoute<{
     const visibilityCriteria = this.getBody().visibilityCriteria;
 
     const cufs = visibilityCriteria?.cuf || [];
-    if (cufs?.length) {
+    if (cufs?.length > 0) {
       await tryber.tables.CampaignDossierDataCuf.do().insert(
         cufs.map((cuf) => ({
           campaign_dossier_data_id: dossierId,
           cuf_id: cuf.cuf_id,
           cuf_value_id: cuf.cuf_value_id,
+        }))
+      );
+    }
+
+    const ageRanges = visibilityCriteria?.age_ranges || [];
+    if (ageRanges?.length > 0) {
+      await tryber.tables.CampaignDossierDataAge.do().insert(
+        ageRanges.map((ageRange) => ({
+          campaign_dossier_data_id: dossierId,
+          max: ageRange.max,
+          min: ageRange.min,
         }))
       );
     }
