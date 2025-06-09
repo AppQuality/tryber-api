@@ -2951,30 +2951,6 @@ paths:
         description: The data to edit in the UseCase linked to the Campaign
       security:
         - JWT: []
-  '/campaigns/{campaign}/usecases':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-        description: A campaign id
-    get:
-      summary: Get all Usecases of a specific Campaign
-      operationId: get-campaigns-campaign-usecases
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Task'
-        '403':
-          description: Forbidden
-      security:
-        - JWT: []
   '/campaigns/{campaign}/ux':
     parameters:
       - name: campaign
