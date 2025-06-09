@@ -3098,6 +3098,8 @@ paths:
                   $ref: '#/components/schemas/Task'
         '403':
           description: Forbidden
+      security:
+        - JWT: []
   '/campaigns/{campaign}/ux':
     parameters:
       - name: campaign
