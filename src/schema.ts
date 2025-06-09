@@ -72,6 +72,17 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/bugs/{bugId}": {
+    /** Get single bug of a Campaign if you have access to it */
+    get: operations["get-campaigns-single-bug"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        bugId: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/candidates": {
     get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -1523,6 +1534,57 @@ export interface operations {
               updated: string;
             }[];
           } & components["schemas"]["PaginationData"];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get single bug of a Campaign if you have access to it */
+  "get-campaigns-single-bug": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        bugId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            title: string;
+            description: string;
+            actual_result: string;
+            expected_result: string;
+            severity: components["schemas"]["BugSeverity"];
+            replicability: {
+              id: number;
+              name: string;
+            };
+            type: {
+              id: number;
+              name: string;
+            };
+            status: components["schemas"]["BugStatus"];
+            reason: string;
+            note: string;
+            usecase: {
+              id: number;
+              title: string;
+              description: string;
+            };
+            media: {
+              id: number;
+            }[];
+            status_history: {
+              status: string;
+              reason: string;
+              date: string;
+            }[];
+          };
         };
       };
       403: components["responses"]["NotAuthorized"];
