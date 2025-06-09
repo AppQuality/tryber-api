@@ -7,6 +7,7 @@ import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 
+const MIN_TESTER_AGE = 14;
 export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
@@ -69,6 +70,10 @@ export default class PostDossiers extends UserRoute<{
         406,
         new OpenapiError("Invalid Custom User Field submitted")
       );
+      return false;
+    }
+    if (this.invalidAgeRangeSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid age range submitted"));
       return false;
     }
 
@@ -150,6 +155,25 @@ export default class PostDossiers extends UserRoute<{
       .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
 
     if (cufs.length !== cufExist.length) return true;
+    return false;
+  }
+
+  private invalidAgeRangeSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+    const ageRanges = visibilityCriteria?.age_ranges || [];
+    if (!ageRanges || !ageRanges.length) return false;
+
+    for (const ageRange of ageRanges) {
+      if (
+        typeof ageRange.min !== "number" ||
+        typeof ageRange.max !== "number" ||
+        ageRange.min < MIN_TESTER_AGE ||
+        ageRange.max < MIN_TESTER_AGE ||
+        ageRange.min > ageRange.max
+      ) {
+        return true;
+      }
+    }
     return false;
   }
 

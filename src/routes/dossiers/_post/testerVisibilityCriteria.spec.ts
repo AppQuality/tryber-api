@@ -265,5 +265,30 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
         max: 35,
       });
     });
+
+    it("Should return en error if send invalid age ranges ", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            age_ranges: [
+              {
+                min: -10,
+                max: 25,
+              },
+              {
+                min: 26,
+                max: 35,
+              },
+            ],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid age range submitted",
+      });
+    });
   });
 });
