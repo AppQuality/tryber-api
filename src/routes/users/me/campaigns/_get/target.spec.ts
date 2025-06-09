@@ -156,4 +156,94 @@ describe("GET /users/me/campaigns - target", () => {
       expect(response.status).toBe(404);
     });
   });
+
+  describe("Target by CUF", () => {
+    beforeAll(async () => {
+      await tryber.tables.CampaignDossierDataCuf.do().insert({
+        campaign_dossier_data_id: 1,
+        cuf_id: 1,
+        cuf_value_id: 1,
+      });
+      await tryber.tables.WpAppqCustomUserField.do().insert({
+        id: 1,
+        name: "CUF",
+        type: "select",
+        slug: "cuf",
+        placeholder: "Select CUF",
+        extras: "",
+        custom_user_field_group_id: 0,
+        enabled: 1,
+        allow_other: 0,
+        options: "",
+      });
+    });
+    afterAll(async () => {
+      await tryber.tables.CampaignDossierDataCuf.do().delete();
+      await tryber.tables.WpAppqCustomUserField.do().delete();
+    });
+
+    describe("Tester with CUF", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+        await tryber.tables.WpAppqCustomUserFieldData.do().insert({
+          custom_user_field_id: 1,
+          profile_id: 1,
+          value: "1",
+          candidate: 0,
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+        await tryber.tables.WpAppqCustomUserFieldData.do().delete();
+      });
+
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+      });
+    });
+
+    describe("Tester without CUF", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+      it("Should not show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(404);
+      });
+    });
+  });
 });

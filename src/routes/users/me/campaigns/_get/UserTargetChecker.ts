@@ -6,6 +6,7 @@ export class UserTargetChecker {
 
   private userLanguages: string[] = [];
   private userCountry: string = "";
+  private userCufs: Record<number, string[]> = {};
 
   constructor({ testerId }: { testerId: number }) {
     this.testerId = testerId;
@@ -15,6 +16,7 @@ export class UserTargetChecker {
   async init() {
     await this.initUserLanguages();
     await this.initUserCountries();
+    await this.initUserCufs();
   }
 
   private async initUserLanguages() {
@@ -34,9 +36,29 @@ export class UserTargetChecker {
     this.userCountry = countryCode || "";
   }
 
-  inTarget(targetRules: { languages?: string[]; countries?: string[] }) {
+  private async initUserCufs() {
+    const cufs = await tryber.tables.WpAppqCustomUserFieldData.do()
+      .select("custom_user_field_id", "value")
+      .where("profile_id", this.testerId);
+
+    this.userCufs = {};
+    cufs.forEach(
+      (cuf: { custom_user_field_id: number; value: string | number }) => {
+        const id = cuf.custom_user_field_id;
+        const value = String(cuf.value);
+        if (!this.userCufs[id]) this.userCufs[id] = [];
+        this.userCufs[id].push(value);
+      }
+    );
+  }
+
+  inTarget(targetRules: {
+    languages?: string[];
+    countries?: string[];
+    cufs?: { id: number; values: (string | number)[] }[];
+  }) {
     if (Object.keys(targetRules).length === 0) return true;
-    const { languages, countries } = targetRules;
+    const { languages, countries, cufs } = targetRules;
 
     if (
       languages &&
@@ -52,6 +74,19 @@ export class UserTargetChecker {
       !countries.includes(this.userCountry)
     ) {
       return false;
+    }
+
+    if (cufs && cufs.length) {
+      for (const cuf of cufs) {
+        const userValues = this.userCufs[cuf.id] || [];
+        if (!userValues.length) return false;
+        if (
+          cuf.values.length &&
+          !cuf.values.some((v) => userValues.includes(String(v)))
+        ) {
+          return false;
+        }
+      }
     }
 
     return true;
