@@ -405,6 +405,18 @@ class RouteItem extends UserRoute<{
         campaignsWithTarget.map((c) => c.id)
       );
 
+    const allowedGenders = await tryber.tables.CampaignDossierDataGender.do()
+      .select("campaign_id", "gender")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_gender.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
     return campaigns.map((campaign) => {
       if (campaign.visibility_type !== 4) return campaign;
 
@@ -424,12 +436,23 @@ class RouteItem extends UserRoute<{
       const ageData = allowedAges.find((a) => a.campaign_id === campaign.id);
       const age = ageData ? { min: ageData.min, max: ageData.max } : undefined;
 
+      const genders =
+        allowedGenders.length > 0
+          ? allowedGenders.reduce((acc, g) => {
+              if (g.campaign_id === campaign.id) {
+                acc.push(g.gender);
+              }
+              return acc;
+            }, [] as number[])
+          : [1, 0, -1];
+
       return {
         ...campaign,
         targetRules: {
           ...(languages.length ? { languages } : {}),
           ...(countries.length ? { countries } : {}),
           ...(age ? { age } : {}),
+          ...(genders.length ? { genders } : {}),
           ...(Object.keys(cufs).length
             ? {
                 cufs: Object.keys(cufs).map((id) => ({
@@ -514,6 +537,7 @@ class RouteItem extends UserRoute<{
         countries?: string[];
         cufs?: { id: number; values: (string | number)[] }[];
         age?: { min?: number; max?: number };
+        genders?: number[];
       };
     })[]
   ) {
