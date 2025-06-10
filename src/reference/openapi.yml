@@ -1245,6 +1245,21 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - id
+                  - title
+                  - description
+                  - actual_result
+                  - expected_result
+                  - severity
+                  - replicability
+                  - type
+                  - status
+                  - reason
+                  - note
+                  - usecase
+                  - media
+                  - status_history
                 properties:
                   id:
                     type: integer
@@ -1301,15 +1316,24 @@ paths:
                     type: array
                     items:
                       type: object
+                      required:
+                        - id
+                        - url
                       properties:
                         id:
                           type: integer
-                      required:
-                        - id
+                        url:
+                          type: string
+                          x-stoplight:
+                            id: 4x8i5g5niwhdz
                   status_history:
                     type: array
                     items:
                       type: object
+                      required:
+                        - status
+                        - reason
+                        - date
                       properties:
                         status:
                           type: string
@@ -1317,25 +1341,6 @@ paths:
                           type: string
                         date:
                           type: string
-                      required:
-                        - status
-                        - reason
-                        - date
-                required:
-                  - id
-                  - title
-                  - description
-                  - actual_result
-                  - expected_result
-                  - severity
-                  - replicability
-                  - type
-                  - status
-                  - reason
-                  - note
-                  - usecase
-                  - media
-                  - status_history
               examples: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
