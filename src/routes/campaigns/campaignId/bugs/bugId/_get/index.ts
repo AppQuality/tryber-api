@@ -1,3 +1,4 @@
+import { getPresignedUrl } from "./../../../../../../features/s3/presignUrl/index";
 /** OPENAPI-CLASS: get-campaigns-single-bug */
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
@@ -61,7 +62,7 @@ export default class Route extends CampaignRoute<{
         title: bug.uc_title || "",
         description: bug.uc_content || "",
       },
-      media: await this.getMedia(),
+      media: (await this.getMedia()) ?? [],
       status_history: await this.getStatusHistory(),
     });
   }
@@ -136,11 +137,11 @@ export default class Route extends CampaignRoute<{
       .select("id", "location", "type")
       .where("bug_id", this.bug_id);
 
-    const enhancedMedia = media.map((item) => ({
+    const enhancedMedia = media.map(async (item) => ({
       id: item.id,
-      url: item.location || "",
+      url: (await getPresignedUrl(item.location)) || "",
     }));
-    return enhancedMedia.length ? enhancedMedia : [];
+    return await Promise.all(enhancedMedia);
   }
 
   protected async getStatusHistory() {
