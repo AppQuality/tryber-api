@@ -319,6 +319,36 @@ describe("GET /users/me/campaigns - target", () => {
         expect(response.status).toBe(404);
       });
     });
+    describe("Campaign without required age value", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          birth_date: "2000-01-01",
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.CampaignDossierDataAge.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+      });
+    });
   });
 
   describe("Target by gender", () => {
