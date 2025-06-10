@@ -434,7 +434,9 @@ class RouteItem extends UserRoute<{
           return acc;
         }, {});
       const ageData = allowedAges.find((a) => a.campaign_id === campaign.id);
-      const age = ageData ? { min: ageData.min, max: ageData.max } : undefined;
+      const age = ageData
+        ? { min: ageData.min, max: ageData.max }
+        : { min: 0, max: 999 };
 
       const genders =
         allowedGenders.length > 0
