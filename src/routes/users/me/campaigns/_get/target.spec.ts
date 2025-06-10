@@ -264,12 +264,6 @@ describe("GET /users/me/campaigns - target", () => {
           language_id: 1,
           language_name: "English",
         });
-        await tryber.tables.WpAppqCustomUserFieldData.do().insert({
-          custom_user_field_id: 1,
-          profile_id: 1,
-          value: "1",
-          candidate: 0,
-        });
         await tryber.tables.CampaignDossierDataAge.do().insert({
           campaign_dossier_data_id: 1,
           max: 100,
@@ -280,7 +274,6 @@ describe("GET /users/me/campaigns - target", () => {
         await tryber.tables.WpAppqEvdProfile.do().delete();
         await tryber.tables.CampaignDossierDataAge.do().delete();
         await tryber.tables.WpAppqProfileHasLang.do().delete();
-        await tryber.tables.WpAppqCustomUserFieldData.do().delete();
       });
 
       it("Should show the campaign", async () => {
@@ -307,12 +300,6 @@ describe("GET /users/me/campaigns - target", () => {
           language_id: 1,
           language_name: "English",
         });
-        await tryber.tables.WpAppqCustomUserFieldData.do().insert({
-          custom_user_field_id: 1,
-          profile_id: 1,
-          value: "1",
-          candidate: 0,
-        });
         await tryber.tables.CampaignDossierDataAge.do().insert({
           campaign_dossier_data_id: 1,
           max: 200,
@@ -323,7 +310,6 @@ describe("GET /users/me/campaigns - target", () => {
         await tryber.tables.WpAppqEvdProfile.do().delete();
         await tryber.tables.CampaignDossierDataAge.do().delete();
         await tryber.tables.WpAppqProfileHasLang.do().delete();
-        await tryber.tables.WpAppqCustomUserFieldData.do().delete();
       });
 
       it("Should not show the campaign", async () => {
@@ -331,6 +317,112 @@ describe("GET /users/me/campaigns - target", () => {
           .get("/users/me/campaigns")
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(404);
+      });
+    });
+  });
+
+  describe("Target by gender", () => {
+    describe("Tester with right gender value", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().insert({
+          campaign_dossier_data_id: 1,
+          gender: 1,
+        });
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          sex: 1, // male
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().delete();
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+      });
+    });
+
+    describe("Tester with unwanted gender value", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().insert([
+          {
+            campaign_dossier_data_id: 1,
+            gender: 1,
+          },
+          {
+            campaign_dossier_data_id: 1,
+            gender: 2,
+          },
+        ]);
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          sex: -1, // non-binary
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().delete();
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+      it("Should not show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(404);
+      });
+    });
+
+    describe("Campaign without explicit required gender", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          sex: 0, // female
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().delete();
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
       });
     });
   });
