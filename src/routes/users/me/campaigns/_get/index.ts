@@ -433,10 +433,10 @@ class RouteItem extends UserRoute<{
           acc[cur.cuf_id].push(cur.cuf_value_id);
           return acc;
         }, {});
-      const ageData = allowedAges.find((a) => a.campaign_id === campaign.id);
-      const age = ageData
-        ? { min: ageData.min, max: ageData.max }
-        : { min: 0, max: 999 };
+      const ageMap = new Map(
+        allowedAges.map((a) => [a.campaign_id, { min: a.min, max: a.max }])
+      );
+      const age = ageMap.get(campaign.id) || { min: 0, max: 999 };
 
       const genders =
         allowedGenders.length > 0
