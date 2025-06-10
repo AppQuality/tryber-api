@@ -133,7 +133,7 @@ describe("Route PUT /dossiers/:id", () => {
       .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
   });
-  describe("Should set visibility criteria if sent - gender criteria", () => {
+  describe("Should set visibility criteria if sent - age criteria", () => {
     afterEach(async () => {
       await tryber.tables.CampaignDossierDataAge.do().delete();
     });
