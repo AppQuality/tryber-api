@@ -248,22 +248,28 @@ describe("GET /users/me/campaigns - target", () => {
   });
 
   describe("Target by age", () => {
+    beforeAll(async () => {
+      await tryber.tables.WpAppqEvdProfile.do().insert({
+        id: 1,
+        wp_user_id: 1,
+        email: "",
+        education_id: 1,
+        employment_id: 1,
+        country: "Italy",
+        birth_date: "2000-01-01",
+      });
+      await tryber.tables.WpAppqProfileHasLang.do().insert({
+        profile_id: 1,
+        language_id: 1,
+        language_name: "English",
+      });
+    });
+    afterAll(async () => {
+      await tryber.tables.WpAppqEvdProfile.do().delete();
+      await tryber.tables.WpAppqProfileHasLang.do().delete();
+    });
     describe("Tester with right age value", () => {
       beforeAll(async () => {
-        await tryber.tables.WpAppqEvdProfile.do().insert({
-          id: 1,
-          wp_user_id: 1,
-          email: "",
-          education_id: 1,
-          employment_id: 1,
-          country: "Italy",
-          birth_date: "2000-01-01",
-        });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
         await tryber.tables.CampaignDossierDataAge.do().insert({
           campaign_dossier_data_id: 1,
           max: 100,
@@ -271,9 +277,7 @@ describe("GET /users/me/campaigns - target", () => {
         });
       });
       afterAll(async () => {
-        await tryber.tables.WpAppqEvdProfile.do().delete();
         await tryber.tables.CampaignDossierDataAge.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
       });
 
       it("Should show the campaign", async () => {
@@ -286,20 +290,6 @@ describe("GET /users/me/campaigns - target", () => {
 
     describe("Tester with wrong age value", () => {
       beforeAll(async () => {
-        await tryber.tables.WpAppqEvdProfile.do().insert({
-          id: 1,
-          wp_user_id: 1,
-          email: "",
-          education_id: 1,
-          employment_id: 1,
-          country: "Italy",
-          birth_date: "2000-01-01",
-        });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
         await tryber.tables.CampaignDossierDataAge.do().insert({
           campaign_dossier_data_id: 1,
           max: 200,
@@ -307,9 +297,7 @@ describe("GET /users/me/campaigns - target", () => {
         });
       });
       afterAll(async () => {
-        await tryber.tables.WpAppqEvdProfile.do().delete();
         await tryber.tables.CampaignDossierDataAge.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
       });
 
       it("Should not show the campaign", async () => {
@@ -320,28 +308,6 @@ describe("GET /users/me/campaigns - target", () => {
       });
     });
     describe("Campaign without required age value", () => {
-      beforeAll(async () => {
-        await tryber.tables.WpAppqEvdProfile.do().insert({
-          id: 1,
-          wp_user_id: 1,
-          email: "",
-          education_id: 1,
-          employment_id: 1,
-          country: "Italy",
-          birth_date: "2000-01-01",
-        });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
-      });
-      afterAll(async () => {
-        await tryber.tables.WpAppqEvdProfile.do().delete();
-        await tryber.tables.CampaignDossierDataAge.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
-      });
-
       it("Should show the campaign", async () => {
         const response = await request(app)
           .get("/users/me/campaigns")
