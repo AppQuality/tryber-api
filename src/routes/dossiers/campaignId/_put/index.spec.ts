@@ -64,6 +64,7 @@ describe("Route PUT /dossiers/:id", () => {
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.CampaignDossierData.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -131,5 +132,63 @@ describe("Route PUT /dossiers/:id", () => {
       .send(baseRequest)
       .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
+  });
+  describe("Should set visibility criteria if sent - gender criteria", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataAge.do().delete();
+    });
+    it("Should answer 200 if send age visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            age_ranges: [
+              { min: 19, max: 25 },
+              { min: 26, max: 30 },
+            ],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add age ranges if sent and not yet in campaign", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibility_criteria: {
+            age_ranges: [
+              {
+                min: 18,
+                max: 25,
+              },
+              {
+                min: 26,
+                max: 35,
+              },
+            ],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierAge = await tryber.tables.CampaignDossierDataAge.do()
+        .select("min", "max")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_age.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierAge).toHaveLength(2);
+
+      expect(dossierAge[0]).toMatchObject({
+        min: 18,
+        max: 25,
+      });
+      expect(dossierAge[1]).toMatchObject({
+        min: 26,
+        max: 35,
+      });
+    });
   });
 });

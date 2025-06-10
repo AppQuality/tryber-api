@@ -144,9 +144,14 @@ export default class RouteItem extends UserRoute<{
 
     await this.updateCampaignDossierData();
 
+    await this.updateTesterVisibilityCriteria();
+  }
+
+  private async updateTesterVisibilityCriteria() {
     await this.updateCampaignDossierDataCountries();
     await this.updateCampaignDossierDataLanguages();
     await this.updateCampaignDossierDataBrowsers();
+    await this.updateCampaignDossierDataAge();
   }
 
   private async updateCampaignDossierData() {
@@ -257,6 +262,32 @@ export default class RouteItem extends UserRoute<{
       browsers.map((browser) => ({
         campaign_dossier_data_id: dossierId,
         browser_id: browser,
+      }))
+    );
+  }
+
+  private async updateCampaignDossierDataAge() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataAge.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const ageRanges = this.getBody().visibility_criteria?.age_ranges;
+    if (!ageRanges || ageRanges.length < 1) return;
+
+    await tryber.tables.CampaignDossierDataAge.do().insert(
+      ageRanges.map((range) => ({
+        campaign_dossier_data_id: dossierId,
+        min: range.min,
+        max: range.max,
       }))
     );
   }
