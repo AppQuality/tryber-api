@@ -324,7 +324,7 @@ describe("GET /users/me/campaigns - target", () => {
         await tryber.tables.WpAppqCustomUserFieldData.do().delete();
       });
 
-      it("Should show the campaign", async () => {
+      it("Should not show the campaign", async () => {
         const response = await request(app)
           .get("/users/me/campaigns")
           .set("Authorization", "Bearer tester");
