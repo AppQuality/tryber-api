@@ -245,7 +245,9 @@ describe("GET /users/me/campaigns - target", () => {
         expect(response.status).toBe(404);
       });
     });
+  });
 
+  describe("Target by age", () => {
     describe("Tester with right age value", () => {
       beforeAll(async () => {
         await tryber.tables.WpAppqEvdProfile.do().insert({
