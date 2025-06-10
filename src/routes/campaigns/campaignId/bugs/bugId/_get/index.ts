@@ -132,9 +132,14 @@ export default class Route extends CampaignRoute<{
   }
 
   protected async getMedia() {
-    return await tryber.tables.WpAppqEvdBugMedia.do()
-      .select("id")
+    const media = await tryber.tables.WpAppqEvdBugMedia.do()
+      .select("id", "location", "type")
       .where("bug_id", this.bug_id);
+
+    const enhancedMedia = media.map((item) => ({
+      id: item.id,
+      url: item.location || "",
+    }));
   }
 
   protected async getStatusHistory() {
