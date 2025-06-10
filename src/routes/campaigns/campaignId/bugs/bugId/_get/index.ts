@@ -140,6 +140,7 @@ export default class Route extends CampaignRoute<{
       id: item.id,
       url: item.location || "",
     }));
+    return enhancedMedia.length ? enhancedMedia : [];
   }
 
   protected async getStatusHistory() {
