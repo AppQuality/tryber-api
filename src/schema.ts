@@ -2753,7 +2753,14 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DossierCreationData"];
+        "application/json": components["schemas"]["DossierCreationData"] & {
+          visibility_criteria?: {
+            age_ranges?: {
+              min: number;
+              max: number;
+            }[];
+          };
+        };
       };
     };
   };
