@@ -605,5 +605,47 @@ describe("Route GET /dossiers/:id", () => {
         ]);
       });
     });
+    describe("With visibility criteria - Cuf", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataCuf.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            cuf_id: 10,
+            cuf_value_id: 110,
+          },
+          {
+            campaign_dossier_data_id: 100,
+            cuf_id: 10,
+            cuf_value_id: 120,
+          },
+          {
+            campaign_dossier_data_id: 100,
+            cuf_id: 20,
+            cuf_value_id: 210,
+          },
+        ]);
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataCuf.do().delete();
+      });
+      it("Should return age visibility criteria Cuf", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("cuf", [
+          {
+            cufId: 10,
+            cufValueIds: [110, 120],
+          },
+          {
+            cufId: 20,
+            cufValueIds: [210],
+          },
+        ]);
+      });
+    });
   });
 });

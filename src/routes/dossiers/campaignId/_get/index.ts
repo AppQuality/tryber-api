@@ -344,6 +344,7 @@ export default class RouteItem extends UserRoute<{
         visibilityCriteria: {
           ageRanges: await this.getVisibilityCriteriaAge(),
           gender: await this.getVisibilityCriteriaGender(),
+          cuf: await this.getVisibilityCriteriaCuf(),
         },
       });
     } catch (e) {
@@ -373,6 +374,27 @@ export default class RouteItem extends UserRoute<{
       if (g.gender === 2) genderList.push("other");
     }
     return genderList;
+  }
+
+  private async getVisibilityCriteriaCuf() {
+    const cufs = await tryber.tables.CampaignDossierDataCuf.do()
+      .select("cuf_id", "cuf_value_id")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!cufs || cufs.length < 1) return undefined;
+
+    let cufValues = [];
+    for (const cuf of cufs) {
+      const existingCuf = cufValues.find((item) => item.cufId === cuf.cuf_id);
+      if (existingCuf) {
+        existingCuf.cufValueIds.push(cuf.cuf_value_id);
+      } else {
+        cufValues.push({
+          cufId: cuf.cuf_id,
+          cufValueIds: [cuf.cuf_value_id],
+        });
+      }
+    }
+    return cufValues;
   }
 
   private formatDate(dateTime: string) {
