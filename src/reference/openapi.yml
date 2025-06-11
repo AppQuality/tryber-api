@@ -10954,6 +10954,8 @@ components:
               type: integer
             cap:
               type: integer
+            genderQuote:
+              type: string
         countries:
           type: array
           items:
