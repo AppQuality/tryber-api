@@ -603,7 +603,7 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({
         ...baseRequest,
-        target: { genderQuote: "gender quotes: 100% elicopters" },
+        target: { genderQuote: "gender quotes: 100% female" },
       });
 
     expect(response.status).toBe(201);
@@ -617,7 +617,7 @@ describe("Route POST /dossiers", () => {
     expect(dossierData).toHaveLength(1);
     expect(dossierData[0]).toHaveProperty(
       "gender_quote",
-      "gender quotes: 100% elicopters"
+      "gender quotes: 100% female"
     );
   });
 
