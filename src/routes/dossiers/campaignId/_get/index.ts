@@ -140,6 +140,7 @@ export default class RouteItem extends UserRoute<{
         "target_devices",
         "product_type_id",
         "notes",
+        "gender_quote",
         tryber.ref("name").withSchema("product_types").as("product_type_name")
       )
       .leftJoin(
@@ -306,6 +307,9 @@ export default class RouteItem extends UserRoute<{
             }),
             ...(typeof this.campaign.cap !== "undefined" && {
               cap: this.campaign.cap,
+            }),
+            ...(typeof this.campaign.gender_quote !== "undefined" && {
+              genderQuote: this.campaign.gender_quote || "",
             }),
           },
         }),

@@ -185,6 +185,9 @@ export default class RouteItem extends UserRoute<{
         target_devices: this.getBody().deviceRequirements,
         notes: this.getBody().notes,
         updated_by: this.getTesterId(),
+        ...(typeof this.getBody().target?.genderQuote !== "undefined" && {
+          gender_quote: this.getBody().target?.genderQuote,
+        }),
       })
       .where({
         campaign_id: this.campaignId,
