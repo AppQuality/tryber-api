@@ -843,6 +843,7 @@ export interface components {
         notes?: string;
         size?: number;
         cap?: number;
+        genderQuote?: string;
       };
       countries?: components["schemas"]["CountryCode"][];
       languages?: string[];
@@ -2708,6 +2709,7 @@ export interface operations {
               notes?: string;
               size?: number;
               cap?: number;
+              genderQuote?: string;
             };
             countries?: components["schemas"]["CountryCode"][];
             languages?: {
