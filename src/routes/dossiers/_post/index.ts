@@ -326,6 +326,7 @@ export default class PostDossiers extends UserRoute<{
         created_by: this.getTesterId(),
         updated_by: this.getTesterId(),
         notes: this.getBody().notes,
+        gender_quote: this.getBody().target?.genderQuote || "",
       })
       .returning("id");
 

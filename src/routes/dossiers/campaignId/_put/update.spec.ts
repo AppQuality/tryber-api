@@ -421,6 +421,7 @@ describe("Route POST /dossiers", () => {
         product_type_id: 2,
         created_by: 100,
         updated_by: 100,
+        gender_quote: "genderQuote 10% female, 90% male",
       });
 
       await tryber.tables.CampaignDossierDataCountries.do().insert([
@@ -708,6 +709,27 @@ describe("Route POST /dossiers", () => {
       expect(responseGet.status).toBe(200);
       expect(responseGet.body).toHaveProperty("target");
       expect(responseGet.body.target).toHaveProperty("cap", 10);
+    });
+    it("Should update the gender quote in the dossier data", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+          target: {
+            genderQuote: "new genderQuote 100% female",
+          },
+        });
+
+      const responseGet = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(responseGet.status).toBe(200);
+      expect(responseGet.body).toHaveProperty("target");
+      expect(responseGet.body.target).toHaveProperty(
+        "genderQuote",
+        "new genderQuote 100% female"
+      );
     });
     it("Should update the cap to 0 in the dossier data", async () => {
       await request(app)
