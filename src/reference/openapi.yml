@@ -4431,6 +4431,10 @@ paths:
                             required:
                               - min
                               - max
+                        gender:
+                          type: array
+                          items:
+                            type: string
     get:
       summary: ''
       operationId: get-dossiers-campaign

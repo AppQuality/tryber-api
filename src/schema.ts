@@ -2759,6 +2759,7 @@ export interface operations {
               min: number;
               max: number;
             }[];
+            gender?: string[];
           };
         };
       };
