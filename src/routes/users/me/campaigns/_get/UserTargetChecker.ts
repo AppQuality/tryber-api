@@ -117,8 +117,13 @@ export class UserTargetChecker {
       }
     }
 
-    if (age && age.max && age.min) {
-      if (this.userAge < age.min || this.userAge > age.max) return false;
+    if (
+      age &&
+      age.max !== undefined &&
+      age.min !== undefined &&
+      (this.userAge < age.min || this.userAge > age.max)
+    ) {
+      return false;
     }
 
     if (genders && !genders.includes(this.userGender)) {
