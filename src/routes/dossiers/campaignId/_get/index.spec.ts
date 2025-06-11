@@ -543,5 +543,38 @@ describe("Route GET /dossiers/:id", () => {
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("id", 1);
     });
+    describe("With visibility criteria - Age", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataAge.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            min: 18,
+            max: 35,
+          },
+          {
+            campaign_dossier_data_id: 100,
+            min: 36,
+            max: 50,
+          },
+        ]);
+      });
+
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataAge.do().delete();
+      });
+
+      it("Should return age visibility criteria age", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("ageRanges", [
+          { min: 18, max: 35 },
+          { min: 36, max: 50 },
+        ]);
+      });
+    });
   });
 });

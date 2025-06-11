@@ -341,10 +341,22 @@ export default class RouteItem extends UserRoute<{
               name: this.campaign.product_type_name,
             },
           }),
+        visibilityCriteria: {
+          ageRanges: await this.getVisibilityCriteriaAge(),
+        },
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async getVisibilityCriteriaAge() {
+    const ageRanges = await tryber.tables.CampaignDossierDataAge.do()
+      .select("min", "max")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!ageRanges || ageRanges.length < 1) return undefined;
+
+    return ageRanges;
   }
 
   private formatDate(dateTime: string) {
