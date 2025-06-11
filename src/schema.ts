@@ -2642,6 +2642,11 @@ export interface operations {
           };
         } & {
           skipPagesAndTasks?: number;
+        } & {
+          visibilityCriteria?: {
+            cuf_id: number;
+            cuf_value_id: number;
+          }[];
         };
       };
     };
@@ -2750,7 +2755,15 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DossierCreationData"];
+        "application/json": components["schemas"]["DossierCreationData"] & {
+          visibility_criteria?: {
+            age_ranges?: {
+              min: number;
+              max: number;
+            }[];
+            gender?: string[];
+          };
+        };
       };
     };
   };

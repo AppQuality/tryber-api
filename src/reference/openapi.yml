@@ -4330,6 +4330,20 @@ paths:
                       minimum: 0
                       maximum: 1
                       default: 0
+                - type: object
+                  properties:
+                    visibilityCriteria:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          cuf_id:
+                            type: integer
+                          cuf_value_id:
+                            type: integer
+                        required:
+                          - cuf_id
+                          - cuf_value_id
             examples:
               Example 1:
                 value:
@@ -4398,7 +4412,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DossierCreationData'
+              allOf:
+                - $ref: '#/components/schemas/DossierCreationData'
+                - type: object
+                  properties:
+                    visibility_criteria:
+                      type: object
+                      properties:
+                        age_ranges:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              min:
+                                type: integer
+                              max:
+                                type: integer
+                            required:
+                              - min
+                              - max
+                        gender:
+                          type: array
+                          items:
+                            type: string
     get:
       summary: ''
       operationId: get-dossiers-campaign

@@ -393,7 +393,6 @@ describe("Route POST /dossiers", () => {
       });
     expect(response.status).toBe(406);
     expect(response.body).toHaveProperty("id");
-    const id = response.body.id;
   });
 
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {

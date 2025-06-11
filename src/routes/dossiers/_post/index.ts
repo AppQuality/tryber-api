@@ -64,6 +64,13 @@ export default class PostDossiers extends UserRoute<{
       this.setError(400, new OpenapiError("Invalid campaign to duplicate"));
       return false;
     }
+    if (await this.invalidCufSubmitted()) {
+      this.setError(
+        406,
+        new OpenapiError("Invalid Custom User Field submitted")
+      );
+      return false;
+    }
 
     return true;
   }
@@ -116,6 +123,30 @@ export default class PostDossiers extends UserRoute<{
       .select()
       .whereIn("id", bugTypeIds);
     if (bugTypesExist.length !== bugTypeIds.length) return true;
+    return false;
+  }
+
+  private async invalidCufSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+    if (!visibilityCriteria || !visibilityCriteria.length) return false;
+
+    const cufIds = [...new Set(visibilityCriteria.map((cuf) => cuf.cuf_id))];
+    const cufValuesIds = visibilityCriteria.map((cuf) => cuf.cuf_value_id);
+    const cufExist = await tryber.tables.WpAppqCustomUserField.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_custom_user_field"),
+        tryber.ref("name").withSchema("wp_appq_custom_user_field_extras")
+      )
+      .join(
+        "wp_appq_custom_user_field_extras",
+        "wp_appq_custom_user_field.id",
+        "wp_appq_custom_user_field_extras.custom_user_field_id"
+      )
+      .whereIn("wp_appq_custom_user_field.id", cufIds)
+      .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
+      .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
+
+    if (visibilityCriteria.length !== cufExist.length) return true;
     return false;
   }
 
@@ -365,6 +396,17 @@ export default class PostDossiers extends UserRoute<{
         browsers.map((browser) => ({
           campaign_dossier_data_id: dossierId,
           browser_id: browser,
+        }))
+      );
+    }
+
+    const visibilityCriteria = this.getBody().visibilityCriteria;
+    if (visibilityCriteria?.length) {
+      await tryber.tables.CampaignDossierDataCuf.do().insert(
+        visibilityCriteria.map((cuf) => ({
+          campaign_dossier_data_id: dossierId,
+          cuf_id: cuf.cuf_id,
+          cuf_value_id: cuf.cuf_value_id,
         }))
       );
     }
