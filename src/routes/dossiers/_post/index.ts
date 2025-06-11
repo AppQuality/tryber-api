@@ -396,6 +396,7 @@ export default class PostDossiers extends UserRoute<{
       created_by: this.getTesterId(),
     });
 
+    // TODO: move countries, languages, browsers, into visibility criteria
     const countries = this.getBody().countries;
     if (countries?.length) {
       await tryber.tables.CampaignDossierDataCountries.do().insert(
@@ -449,6 +450,19 @@ export default class PostDossiers extends UserRoute<{
           min: ageRange.min,
         }))
       );
+    }
+
+    const genders = visibilityCriteria?.gender || [];
+    if (genders?.length > 0) {
+      for (const g of genders) {
+        const genderValue = g === "male" ? 1 : g === "female" ? 0 : null;
+        if (genderValue !== null) {
+          await tryber.tables.CampaignDossierDataGender.do().insert({
+            campaign_dossier_data_id: dossierId,
+            gender: genderValue,
+          });
+        }
+      }
     }
 
     return campaignId;

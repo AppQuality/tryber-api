@@ -83,8 +83,6 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     ]);
   });
 
-  beforeEach(async () => {});
-
   afterAll(async () => {
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
@@ -288,6 +286,42 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       expect(response.status).toBe(406);
       expect(response.body).toMatchObject({
         message: "Invalid age range submitted",
+      });
+    });
+  });
+
+  describe("Visibility Criteria - Gender criterias", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataGender.do().delete();
+    });
+
+    it("Should add dossier gender criteria if sent", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            gender: ["male", "female"],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      const dossierGender = await tryber.tables.CampaignDossierDataGender.do()
+        .select("gender")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_gender.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+
+      expect(dossierGender).toHaveLength(2);
+
+      expect(dossierGender[0]).toMatchObject({
+        gender: 0,
+      });
+      expect(dossierGender[1]).toMatchObject({
+        gender: 1,
       });
     });
   });
