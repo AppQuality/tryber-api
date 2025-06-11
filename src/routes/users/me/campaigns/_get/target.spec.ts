@@ -50,17 +50,6 @@ describe("GET /users/me/campaigns - target", () => {
       link: "",
       updated_by: 1,
     });
-
-    await tryber.tables.CampaignDossierDataLanguages.do().insert({
-      campaign_dossier_data_id: 1,
-      language_id: 1,
-      language_name: "English",
-    });
-
-    await tryber.tables.CampaignDossierDataCountries.do().insert({
-      campaign_dossier_data_id: 1,
-      country_code: "IT",
-    });
   });
 
   afterAll(async () => {
@@ -70,90 +59,131 @@ describe("GET /users/me/campaigns - target", () => {
     jest.resetAllMocks();
   });
 
-  describe("Tester in target", () => {
+  describe("Target by language", () => {
     beforeAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().insert({
-        id: 1,
-        wp_user_id: 1,
-        email: "",
-        education_id: 1,
-        employment_id: 1,
-        country: "Italy",
-      });
-      await tryber.tables.WpAppqProfileHasLang.do().insert({
-        profile_id: 1,
+      await tryber.tables.CampaignDossierDataLanguages.do().insert({
+        campaign_dossier_data_id: 1,
         language_id: 1,
         language_name: "English",
       });
     });
     afterAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().delete();
-      await tryber.tables.WpAppqProfileHasLang.do().delete();
+      await tryber.tables.CampaignDossierDataLanguages.do().delete();
     });
-    it("Should show the campaign", async () => {
-      const response = await request(app)
-        .get("/users/me/campaigns")
-        .set("Authorization", "Bearer tester");
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("results");
-      expect(Array.isArray(response.body.results)).toBe(true);
-      expect(response.body.results.length).toBe(1);
+    describe("Tester with right language", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 1,
+          language_name: "English",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("results");
+        expect(Array.isArray(response.body.results)).toBe(true);
+        expect(response.body.results.length).toBe(1);
+      });
+    });
+    describe("Tester with wrong language", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+        });
+        await tryber.tables.WpAppqProfileHasLang.do().insert({
+          profile_id: 1,
+          language_id: 2,
+          language_name: "Arabic",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+        await tryber.tables.WpAppqProfileHasLang.do().delete();
+      });
+      it("Should not show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        console.log(response.body);
+        expect(response.status).toBe(404);
+      });
     });
   });
-  describe("Tester partially in target", () => {
+
+  describe("Target by country", () => {
     beforeAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().insert({
-        id: 1,
-        wp_user_id: 1,
-        email: "",
-        education_id: 1,
-        employment_id: 1,
-        country: "Italy",
-      });
-      await tryber.tables.WpAppqProfileHasLang.do().insert({
-        profile_id: 1,
-        language_id: 2,
-        language_name: "Arabic",
+      await tryber.tables.CampaignDossierDataCountries.do().insert({
+        campaign_dossier_data_id: 1,
+        country_code: "IT",
       });
     });
     afterAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().delete();
-      await tryber.tables.WpAppqProfileHasLang.do().delete();
+      await tryber.tables.CampaignDossierDataCountries.do().delete();
     });
-    it("Should not show the campaign", async () => {
-      const response = await request(app)
-        .get("/users/me/campaigns")
-        .set("Authorization", "Bearer tester");
-
-      expect(response.status).toBe(404);
-    });
-  });
-  describe("Tester not in target", () => {
-    beforeAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().insert({
-        id: 1,
-        wp_user_id: 1,
-        email: "",
-        education_id: 1,
-        employment_id: 1,
-        country: "France",
+    describe("Tester in target country", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+        });
       });
-      await tryber.tables.WpAppqProfileHasLang.do().insert({
-        profile_id: 1,
-        language_id: 2,
-        language_name: "Afrikaans",
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+      });
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("results");
+        expect(Array.isArray(response.body.results)).toBe(true);
+        expect(response.body.results.length).toBe(1);
       });
     });
-    afterAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().delete();
-      await tryber.tables.WpAppqProfileHasLang.do().delete();
-    });
-    it("Should show the campaign", async () => {
-      const response = await request(app)
-        .get("/users/me/campaigns")
-        .set("Authorization", "Bearer tester");
-
-      expect(response.status).toBe(404);
+    describe("Tester not in target country", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "France",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+      });
+      it("Should not show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", " Bearer tester");
+        expect(response.status).toBe(404);
+      });
     });
   });
 
@@ -228,15 +258,9 @@ describe("GET /users/me/campaigns - target", () => {
           employment_id: 1,
           country: "Italy",
         });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
       });
       afterAll(async () => {
         await tryber.tables.WpAppqEvdProfile.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
       });
       it("Should not show the campaign", async () => {
         const response = await request(app)
@@ -258,24 +282,12 @@ describe("GET /users/me/campaigns - target", () => {
         country: "Italy",
         birth_date: "2000-01-01",
       });
-      await tryber.tables.WpAppqProfileHasLang.do().insert({
-        profile_id: 1,
-        language_id: 1,
-        language_name: "English",
-      });
     });
     afterAll(async () => {
       await tryber.tables.WpAppqEvdProfile.do().delete();
-      await tryber.tables.WpAppqProfileHasLang.do().delete();
     });
     describe("Tester with right age value", () => {
-      beforeAll(async () => {
-        await tryber.tables.CampaignDossierDataAge.do().insert({
-          campaign_dossier_data_id: 1,
-          max: 100,
-          min: 23,
-        });
-      });
+      beforeAll(async () => {});
       afterAll(async () => {
         await tryber.tables.CampaignDossierDataAge.do().delete();
       });
@@ -333,16 +345,10 @@ describe("GET /users/me/campaigns - target", () => {
           country: "Italy",
           sex: 1, // male
         });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
       });
       afterAll(async () => {
         await tryber.tables.CampaignDossierDataGender.do().delete();
         await tryber.tables.WpAppqEvdProfile.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
       });
       it("Should show the campaign", async () => {
         const response = await request(app)
@@ -373,16 +379,10 @@ describe("GET /users/me/campaigns - target", () => {
           country: "Italy",
           sex: -1, // non-binary
         });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
       });
       afterAll(async () => {
         await tryber.tables.CampaignDossierDataGender.do().delete();
         await tryber.tables.WpAppqEvdProfile.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
       });
       it("Should not show the campaign", async () => {
         const response = await request(app)
@@ -403,16 +403,10 @@ describe("GET /users/me/campaigns - target", () => {
           country: "Italy",
           sex: 0, // female
         });
-        await tryber.tables.WpAppqProfileHasLang.do().insert({
-          profile_id: 1,
-          language_id: 1,
-          language_name: "English",
-        });
       });
       afterAll(async () => {
         await tryber.tables.CampaignDossierDataGender.do().delete();
         await tryber.tables.WpAppqEvdProfile.do().delete();
-        await tryber.tables.WpAppqProfileHasLang.do().delete();
       });
       it("Should show the campaign", async () => {
         const response = await request(app)
