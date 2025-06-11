@@ -840,7 +840,7 @@ describe("Route POST /dossiers", () => {
     });
   });
 
-  describe("Should set visibility criteria if sent - gender criteria", () => {
+  describe("Should set visibility criteria if sent - Age criteria", () => {
     beforeEach(async () => {
       await tryber.tables.CampaignDossierDataAge.do().insert([
         { campaign_dossier_data_id: 1, min: 18, max: 35 },
@@ -900,6 +900,52 @@ describe("Route POST /dossiers", () => {
       expect(dossierAge[1]).toMatchObject({
         min: 26,
         max: 35,
+      });
+    });
+  });
+  describe("Should set visibility criteria if sent - Gender criteria", () => {
+    beforeEach(async () => {
+      await tryber.tables.CampaignDossierDataGender.do().insert([
+        { campaign_dossier_data_id: 1, gender: 0 },
+      ]);
+    });
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataGender.do().delete();
+    });
+    it("Should answer 200 if replace gender visibility criteria with sent data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            gender: ["male"],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add gender if sent and not yet in campaign", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibility_criteria: {
+            gender: ["male"],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierGender = await tryber.tables.CampaignDossierDataGender.do()
+        .select("gender")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_gender.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierGender).toHaveLength(1);
+
+      expect(dossierGender[0]).toMatchObject({
+        gender: 1,
       });
     });
   });

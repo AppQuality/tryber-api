@@ -152,6 +152,7 @@ export default class RouteItem extends UserRoute<{
     await this.updateCampaignDossierDataLanguages();
     await this.updateCampaignDossierDataBrowsers();
     await this.updateCampaignDossierDataAge();
+    await this.updateCampaignDossierDataGender();
   }
 
   private async updateCampaignDossierData() {
@@ -290,6 +291,34 @@ export default class RouteItem extends UserRoute<{
         max: range.max,
       }))
     );
+  }
+
+  private async updateCampaignDossierDataGender() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataGender.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const genders = this.getBody().visibility_criteria?.gender;
+    if (!genders || genders.length < 1) return;
+
+    for (const g of genders) {
+      const genderValue = g === "male" ? 1 : g === "female" ? 0 : null;
+      if (genderValue !== null) {
+        await tryber.tables.CampaignDossierDataGender.do().insert({
+          campaign_dossier_data_id: dossierId,
+          gender: genderValue,
+        });
+      }
+    }
   }
 
   private async linkRolesToCampaign() {

@@ -191,4 +191,48 @@ describe("Route PUT /dossiers/:id", () => {
       });
     });
   });
+  describe("Should set visibility criteria if sent - gender criteria", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataGender.do().delete();
+    });
+    it("Should answer 200 if send gender visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            gender: ["male", "female"],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add gender if sent and not yet in campaign", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibility_criteria: {
+            gender: ["male", "female"],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierGender = await tryber.tables.CampaignDossierDataGender.do()
+        .select("gender")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_gender.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierGender).toHaveLength(2);
+
+      expect(dossierGender[0]).toMatchObject({
+        gender: 0, // female
+      });
+      expect(dossierGender[1]).toMatchObject({
+        gender: 1, // male
+      });
+    });
+  });
 });
