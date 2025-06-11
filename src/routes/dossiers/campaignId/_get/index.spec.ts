@@ -576,5 +576,34 @@ describe("Route GET /dossiers/:id", () => {
         ]);
       });
     });
+    describe("With visibility criteria - Gender", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            gender: 1, // 1 for male
+          },
+          {
+            campaign_dossier_data_id: 100,
+            gender: 0, // 2 for female
+          },
+        ]);
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().delete();
+      });
+      it("Should return age visibility criteria gender", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("gender", [
+          "female",
+          "male",
+        ]);
+      });
+    });
   });
 });

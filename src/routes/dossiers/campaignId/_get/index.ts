@@ -343,6 +343,7 @@ export default class RouteItem extends UserRoute<{
           }),
         visibilityCriteria: {
           ageRanges: await this.getVisibilityCriteriaAge(),
+          gender: await this.getVisibilityCriteriaGender(),
         },
       });
     } catch (e) {
@@ -357,6 +358,21 @@ export default class RouteItem extends UserRoute<{
     if (!ageRanges || ageRanges.length < 1) return undefined;
 
     return ageRanges;
+  }
+
+  private async getVisibilityCriteriaGender() {
+    const genders = await tryber.tables.CampaignDossierDataGender.do()
+      .select("gender")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!genders || genders.length < 1) return undefined;
+    let genderList = [];
+    for (const g of genders) {
+      if (g.gender === -1) genderList.push("not_specified");
+      if (g.gender === 0) genderList.push("female");
+      if (g.gender === 1) genderList.push("male");
+      if (g.gender === 2) genderList.push("other");
+    }
+    return genderList;
   }
 
   private formatDate(dateTime: string) {
