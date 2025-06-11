@@ -4412,7 +4412,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DossierCreationData'
+              allOf:
+                - $ref: '#/components/schemas/DossierCreationData'
+                - type: object
+                  properties:
+                    visibility_criteria:
+                      type: object
+                      properties:
+                        age_ranges:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              min:
+                                type: integer
+                              max:
+                                type: integer
+                            required:
+                              - min
+                              - max
+                        gender:
+                          type: array
+                          items:
+                            type: string
     get:
       summary: ''
       operationId: get-dossiers-campaign
