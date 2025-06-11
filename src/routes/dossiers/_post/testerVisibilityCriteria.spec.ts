@@ -83,8 +83,6 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     ]);
   });
 
-  beforeEach(async () => {});
-
   afterAll(async () => {
     await tryber.tables.WpAppqProject.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
@@ -103,110 +101,228 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     jest.clearAllMocks();
   });
 
-  it("Should return an error if sending a CUF that does not exist", async () => {
-    const response = await request(app)
-      .post("/dossiers")
-      .send({
-        ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 999, // Non-existent CUF ID
-            cuf_value_id: 999, // Non-existent CUF Value ID
+  describe("Visibility Criteria - Cuf", () => {
+    it("Should return an error if sending a CUF that does not exist", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              {
+                cuf_id: 999, // Non-existent CUF ID
+                cuf_value_id: 999, // Non-existent CUF Value ID
+              },
+              {
+                cuf_id: 10, // Existing CUF ID
+                cuf_value_id: 100, // Existing CUF Value ID
+              },
+            ],
           },
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          },
-        ],
-      })
-      .set("Authorization", "Bearer admin");
+        })
+        .set("Authorization", "Bearer admin");
 
-    expect(response.status).toBe(406);
-    expect(response.body).toMatchObject({
-      message: "Invalid Custom User Field submitted",
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid Custom User Field submitted",
+      });
+    });
+
+    it("Should return an error if the CUF type is other than 'select' and 'multiselect'", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              {
+                cuf_id: 30, // Existing CUF ID with type 'text'
+                cuf_value_id: 300, // Non-existent CUF Value ID
+              },
+              {
+                cuf_id: 10, // Existing CUF ID
+                cuf_value_id: 100, // Existing CUF Value ID
+              }, // Existing CUF Extras
+            ],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid Custom User Field submitted",
+      });
+    });
+
+    it("Should return 201 if send valid cuf", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              {
+                cuf_id: 10, // Existing CUF ID
+                cuf_value_id: 100, // Existing CUF Value ID
+              }, // Existing CUF Extras
+              {
+                cuf_id: 20, // Existing CUF ID
+                cuf_value_id: 200, // Existing CUF Value ID
+              }, // Existing CUF Extras
+            ],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(201);
+    });
+
+    it("Should add cuf if send valid cuf", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              {
+                cuf_id: 10, // Existing CUF ID
+                cuf_value_id: 100, // Existing CUF Value ID
+              }, // Existing CUF Extras
+              {
+                cuf_id: 20, // Existing CUF ID
+                cuf_value_id: 200, // Existing CUF Value ID
+              }, // Existing CUF Extras
+            ],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do()
+        .select("cuf_id", "cuf_value_id")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_cuf.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+
+      expect(dossierCuf).toHaveLength(2);
+
+      expect(dossierCuf[0]).toMatchObject({
+        cuf_id: 10,
+        cuf_value_id: 100, // Test CUF 1 Value 1
+      });
+      expect(dossierCuf[1]).toMatchObject({
+        cuf_id: 20,
+        cuf_value_id: 200, // Test CUF 2 Value 1
+      });
     });
   });
 
-  it("Should return an error if the CUF type is other than 'select' and 'multiselect'", async () => {
-    const response = await request(app)
-      .post("/dossiers")
-      .send({
-        ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 30, // Existing CUF ID with type 'text'
-            cuf_value_id: 300, // Non-existent CUF Value ID
+  describe("Visibility Criteria - Age criterias", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataAge.do().delete();
+    });
+
+    it("Should add dossier age ranges if sent", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            age_ranges: [
+              {
+                min: 18,
+                max: 25,
+              },
+              {
+                min: 26,
+                max: 35,
+              },
+            ],
           },
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          }, // Existing CUF Extras
-        ],
-      })
-      .set("Authorization", "Bearer admin");
+        })
+        .set("Authorization", "Bearer admin");
 
-    expect(response.status).toBe(406);
-    expect(response.body).toMatchObject({
-      message: "Invalid Custom User Field submitted",
+      const dossierAge = await tryber.tables.CampaignDossierDataAge.do()
+        .select("min", "max")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_age.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+
+      expect(dossierAge).toHaveLength(2);
+
+      expect(dossierAge[0]).toMatchObject({
+        min: 18,
+        max: 25,
+      });
+      expect(dossierAge[1]).toMatchObject({
+        min: 26,
+        max: 35,
+      });
+    });
+
+    it("Should return en error if send invalid age ranges ", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            age_ranges: [
+              {
+                min: -10,
+                max: 25,
+              },
+              {
+                min: 26,
+                max: 35,
+              },
+            ],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid age range submitted",
+      });
     });
   });
 
-  it("Should return 201 if send valid cuf", async () => {
-    const response = await request(app)
-      .post("/dossiers")
-      .send({
-        ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          }, // Existing CUF Extras
-          {
-            cuf_id: 20, // Existing CUF ID
-            cuf_value_id: 200, // Existing CUF Value ID
-          }, // Existing CUF Extras
-        ],
-      })
-      .set("Authorization", "Bearer admin");
-    expect(response.status).toBe(201);
-  });
-
-  it("Should add cuf if send valid cuf", async () => {
-    const response = await request(app)
-      .post("/dossiers")
-      .send({
-        ...baseRequest,
-        visibilityCriteria: [
-          {
-            cuf_id: 10, // Existing CUF ID
-            cuf_value_id: 100, // Existing CUF Value ID
-          }, // Existing CUF Extras
-          {
-            cuf_id: 20, // Existing CUF ID
-            cuf_value_id: 200, // Existing CUF Value ID
-          }, // Existing CUF Extras
-        ],
-      })
-      .set("Authorization", "Bearer admin");
-
-    const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do()
-      .select("cuf_id", "cuf_value_id")
-      .join(
-        "campaign_dossier_data",
-        "campaign_dossier_data_cuf.campaign_dossier_data_id",
-        "campaign_dossier_data.id"
-      )
-      .where("campaign_dossier_data.campaign_id", response.body.id);
-
-    expect(dossierCuf).toHaveLength(2);
-
-    expect(dossierCuf[0]).toMatchObject({
-      cuf_id: 10,
-      cuf_value_id: 100, // Test CUF 1 Value 1
+  describe("Visibility Criteria - Gender criterias", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataGender.do().delete();
     });
-    expect(dossierCuf[1]).toMatchObject({
-      cuf_id: 20,
-      cuf_value_id: 200, // Test CUF 2 Value 1
+
+    it("Should add dossier gender criteria if sent", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            gender: ["male", "female"],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      const dossierGender = await tryber.tables.CampaignDossierDataGender.do()
+        .select("gender")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_gender.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+
+      expect(dossierGender).toHaveLength(2);
+
+      expect(dossierGender[0]).toMatchObject({
+        gender: 0,
+      });
+      expect(dossierGender[1]).toMatchObject({
+        gender: 1,
+      });
     });
   });
 });

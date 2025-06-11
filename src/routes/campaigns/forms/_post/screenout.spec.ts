@@ -206,7 +206,6 @@ describe("POST /campaigns/forms/ - screenout", () => {
         "authorization",
         `Bearer tester capability ["manage_preselection_forms"]`
       );
-    console.log(response.body);
     expect(response.status).toBe(201);
     const { id } = response.body;
 

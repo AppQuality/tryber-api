@@ -7,6 +7,7 @@ import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 
+const MIN_TESTER_AGE = 14;
 export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
@@ -71,6 +72,10 @@ export default class PostDossiers extends UserRoute<{
       );
       return false;
     }
+    if (this.invalidAgeRangeSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid age range submitted"));
+      return false;
+    }
 
     return true;
   }
@@ -128,10 +133,13 @@ export default class PostDossiers extends UserRoute<{
 
   private async invalidCufSubmitted() {
     const { visibilityCriteria } = this.getBody();
-    if (!visibilityCriteria || !visibilityCriteria.length) return false;
+    if (!visibilityCriteria?.cuf || !visibilityCriteria.cuf.length)
+      return false;
 
-    const cufIds = [...new Set(visibilityCriteria.map((cuf) => cuf.cuf_id))];
-    const cufValuesIds = visibilityCriteria.map((cuf) => cuf.cuf_value_id);
+    const cufs = visibilityCriteria.cuf;
+
+    const cufIds = [...new Set(cufs.map((cuf) => cuf.cuf_id))];
+    const cufValuesIds = cufs.map((cuf) => cuf.cuf_value_id);
     const cufExist = await tryber.tables.WpAppqCustomUserField.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_custom_user_field"),
@@ -146,7 +154,26 @@ export default class PostDossiers extends UserRoute<{
       .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
       .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
 
-    if (visibilityCriteria.length !== cufExist.length) return true;
+    if (cufs.length !== cufExist.length) return true;
+    return false;
+  }
+
+  private invalidAgeRangeSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+    const ageRanges = visibilityCriteria?.age_ranges || [];
+    if (!ageRanges || !ageRanges.length) return false;
+
+    for (const ageRange of ageRanges) {
+      if (
+        typeof ageRange.min !== "number" ||
+        typeof ageRange.max !== "number" ||
+        ageRange.min < MIN_TESTER_AGE ||
+        ageRange.max < MIN_TESTER_AGE ||
+        ageRange.min > ageRange.max
+      ) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -369,6 +396,7 @@ export default class PostDossiers extends UserRoute<{
       created_by: this.getTesterId(),
     });
 
+    // TODO: move countries, languages, browsers, into visibility criteria
     const countries = this.getBody().countries;
     if (countries?.length) {
       await tryber.tables.CampaignDossierDataCountries.do().insert(
@@ -401,14 +429,40 @@ export default class PostDossiers extends UserRoute<{
     }
 
     const visibilityCriteria = this.getBody().visibilityCriteria;
-    if (visibilityCriteria?.length) {
+
+    const cufs = visibilityCriteria?.cuf || [];
+    if (cufs?.length > 0) {
       await tryber.tables.CampaignDossierDataCuf.do().insert(
-        visibilityCriteria.map((cuf) => ({
+        cufs.map((cuf) => ({
           campaign_dossier_data_id: dossierId,
           cuf_id: cuf.cuf_id,
           cuf_value_id: cuf.cuf_value_id,
         }))
       );
+    }
+
+    const ageRanges = visibilityCriteria?.age_ranges || [];
+    if (ageRanges?.length > 0) {
+      await tryber.tables.CampaignDossierDataAge.do().insert(
+        ageRanges.map((ageRange) => ({
+          campaign_dossier_data_id: dossierId,
+          max: ageRange.max,
+          min: ageRange.min,
+        }))
+      );
+    }
+
+    const genders = visibilityCriteria?.gender || [];
+    if (genders?.length > 0) {
+      for (const g of genders) {
+        const genderValue = g === "male" ? 1 : g === "female" ? 0 : null;
+        if (genderValue !== null) {
+          await tryber.tables.CampaignDossierDataGender.do().insert({
+            campaign_dossier_data_id: dossierId,
+            gender: genderValue,
+          });
+        }
+      }
     }
 
     return campaignId;

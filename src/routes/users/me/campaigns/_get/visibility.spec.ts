@@ -117,7 +117,6 @@ describe("GET /users/me/campaigns - visibility", () => {
       .get("/users/me/campaigns")
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    console.log(response.body);
     const campaign = response.body.results.find((c: any) => c.id === 1);
     expect(campaign.visibility).toHaveProperty("type", "candidate");
   });

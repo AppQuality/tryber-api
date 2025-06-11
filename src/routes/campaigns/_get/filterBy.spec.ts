@@ -318,7 +318,6 @@ describe("GET /campaigns", () => {
           "/campaigns?fields=id,title,startDate,phase,quote&filterBy[customer]=1&filterBy[hasQuote]"
         )
         .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-      console.log(response.body);
       expect(response.status).toBe(200);
       expect(response.body.items).toHaveLength(1);
     });

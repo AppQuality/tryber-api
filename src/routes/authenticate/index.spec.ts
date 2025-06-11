@@ -39,8 +39,6 @@ describe("POST /authenticate", () => {
       password: "1234",
     });
 
-    console.log(response.body);
-
     expect(response.status).toBe(401);
   });
 
