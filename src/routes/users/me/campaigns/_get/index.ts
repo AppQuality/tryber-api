@@ -393,6 +393,34 @@ class RouteItem extends UserRoute<{
         campaignsWithTarget.map((c) => c.id)
       );
 
+    const allowedAges = await tryber.tables.CampaignDossierDataAge.do()
+      .select("campaign_id", "min", "max")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_age.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const allowedGenders = await tryber.tables.CampaignDossierDataGender.do()
+      .select("campaign_id", "gender")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_gender.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const ageMap = new Map(
+      allowedAges.map((a) => [a.campaign_id, { min: a.min, max: a.max }])
+    );
+
     return campaigns.map((campaign) => {
       if (campaign.visibility_type !== 4) return campaign;
 
@@ -410,11 +438,25 @@ class RouteItem extends UserRoute<{
           return acc;
         }, {});
 
+      const age = ageMap.get(campaign.id) || { min: 0, max: 999 };
+
+      const genders =
+        allowedGenders.length > 0
+          ? allowedGenders.reduce((acc, g) => {
+              if (g.campaign_id === campaign.id) {
+                acc.push(g.gender);
+              }
+              return acc;
+            }, [] as number[])
+          : [1, 0, -1, 2];
+
       return {
         ...campaign,
         targetRules: {
           ...(languages.length ? { languages } : {}),
           ...(countries.length ? { countries } : {}),
+          ...(age ? { age } : {}),
+          ...(genders.length ? { genders } : {}),
           ...(Object.keys(cufs).length
             ? {
                 cufs: Object.keys(cufs).map((id) => ({
@@ -498,6 +540,8 @@ class RouteItem extends UserRoute<{
         languages?: string[];
         countries?: string[];
         cufs?: { id: number; values: (string | number)[] }[];
+        age?: { min?: number; max?: number };
+        genders?: number[];
       };
     })[]
   ) {

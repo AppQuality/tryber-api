@@ -7,6 +7,8 @@ export class UserTargetChecker {
   private userLanguages: string[] = [];
   private userCountry: string = "";
   private userCufs: Record<number, string[]> = {};
+  private userAge: number = -1;
+  private userGender: number = -1;
 
   constructor({ testerId }: { testerId: number }) {
     this.testerId = testerId;
@@ -17,6 +19,8 @@ export class UserTargetChecker {
     await this.initUserLanguages();
     await this.initUserCountries();
     await this.initUserCufs();
+    await this.initUserAge();
+    await this.initUserGender();
   }
 
   private async initUserLanguages() {
@@ -52,13 +56,37 @@ export class UserTargetChecker {
     );
   }
 
+  private async initUserAge() {
+    try {
+      const age = await tryber.tables.WpAppqEvdProfile.do()
+        .select("birth_date")
+        .where("id", this.testerId);
+
+      this.userAge =
+        new Date().getFullYear() - new Date(age[0].birth_date).getFullYear();
+    } catch (error) {
+      this.userAge = -1;
+    }
+  }
+
+  private async initUserGender() {
+    const gender = await tryber.tables.WpAppqEvdProfile.do()
+      .select("sex")
+      .where("id", this.testerId)
+      .first();
+
+    this.userGender = !gender ? -1 : gender.sex;
+  }
+
   inTarget(targetRules: {
     languages?: string[];
     countries?: string[];
     cufs?: { id: number; values: (string | number)[] }[];
+    age?: { min?: number; max?: number };
+    genders?: number[];
   }) {
     if (Object.keys(targetRules).length === 0) return true;
-    const { languages, countries, cufs } = targetRules;
+    const { languages, countries, cufs, age, genders } = targetRules;
 
     if (
       languages &&
@@ -87,6 +115,14 @@ export class UserTargetChecker {
           return false;
         }
       }
+    }
+
+    if (age && age.max && age.min) {
+      if (this.userAge < age.min || this.userAge > age.max) return false;
+    }
+
+    if (genders && !genders.includes(this.userGender)) {
+      return false;
     }
 
     return true;
