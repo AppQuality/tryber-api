@@ -87,7 +87,6 @@ describe("GET /campaigns/{cid}/bugs/{bid}", () => {
     const response = await request(app)
       .get("/campaigns/100/bugs/100")
       .set("Authorization", "Bearer admin");
-    console.log(response.body);
     expect(response.status).toBe(200);
   });
 

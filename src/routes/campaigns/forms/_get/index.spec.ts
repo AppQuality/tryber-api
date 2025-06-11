@@ -59,7 +59,6 @@ describe("GET /campaigns/forms ", () => {
     expect(response.body).toHaveProperty("results");
     expect(Array.isArray(response.body.results)).toBe(true);
     expect(response.body.results.length).toBe(5);
-    console.log(response.body.results);
     expect(response.body.results[0]).toMatchObject({
       id: 5,
       name: "Form Name5 with campaign Id",

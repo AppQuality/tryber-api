@@ -82,7 +82,6 @@ describe("Route PUT /dossiers/:id", () => {
       .put("/dossiers/1")
       .set("authorization", "Bearer tester")
       .send(baseRequest);
-    console.log(response.body);
     expect(response.status).toBe(403);
   });
 
