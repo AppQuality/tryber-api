@@ -4644,15 +4644,15 @@ paths:
                         items:
                           type: object
                           properties:
-                            cuf_id:
+                            cufId:
                               type: integer
-                            cuf_value_ids:
+                            cufValueIds:
                               type: array
                               items:
                                 type: integer
                           required:
-                            - cuf_id
-                            - cuf_value_ids
+                            - cufId
+                            - cufValueIds
                       ageRanges:
                         type: array
                         items:

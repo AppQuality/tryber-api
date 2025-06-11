@@ -2742,8 +2742,8 @@ export interface operations {
             notes?: string;
             visibilityCriteria?: {
               cuf?: {
-                cuf_id: number;
-                cuf_value_ids: number[];
+                cufId: number;
+                cufValueIds: number[];
               }[];
               ageRanges?: {
                 min: number;
