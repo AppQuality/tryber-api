@@ -2709,6 +2709,7 @@ export interface operations {
               notes?: string;
               size?: number;
               cap?: number;
+              genderQuote?: string;
             };
             countries?: components["schemas"]["CountryCode"][];
             languages?: {

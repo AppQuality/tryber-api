@@ -4409,18 +4409,6 @@ paths:
             application/json:
               schema:
                 type: object
-                required:
-                  - id
-                  - title
-                  - startDate
-                  - endDate
-                  - closeDate
-                  - customer
-                  - project
-                  - testType
-                  - deviceList
-                  - csm
-                  - phase
                 properties:
                   id:
                     type: integer
@@ -4477,14 +4465,14 @@ paths:
                     type: array
                     items:
                       type: object
-                      required:
-                        - id
-                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
+                      required:
+                        - id
+                        - name
                   csm:
                     type: object
                     required:
@@ -4502,20 +4490,16 @@ paths:
                       properties:
                         role:
                           type: object
-                          required:
-                            - id
-                            - name
                           properties:
                             id:
                               type: integer
                             name:
                               type: string
-                        user:
-                          type: object
                           required:
                             - id
                             - name
-                            - surname
+                        user:
+                          type: object
                           properties:
                             id:
                               type: integer
@@ -4523,6 +4507,10 @@ paths:
                               type: string
                             surname:
                               type: string
+                          required:
+                            - id
+                            - name
+                            - surname
                   description:
                     type: string
                   productLink:
@@ -4542,6 +4530,8 @@ paths:
                         type: integer
                       cap:
                         type: integer
+                      genderQuote:
+                        type: string
                   countries:
                     type: array
                     minItems: 1
@@ -4552,33 +4542,33 @@ paths:
                     type: array
                     items:
                       type: object
-                      required:
-                        - name
                       properties:
                         name:
                           type: string
+                      required:
+                        - name
                   browsers:
                     type: array
                     items:
                       type: object
-                      required:
-                        - id
-                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
+                      required:
+                        - id
+                        - name
                   productType:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: number
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   phase:
                     type: object
                     required:
@@ -4591,6 +4581,18 @@ paths:
                         type: string
                   notes:
                     type: string
+                required:
+                  - id
+                  - title
+                  - startDate
+                  - endDate
+                  - closeDate
+                  - customer
+                  - project
+                  - testType
+                  - deviceList
+                  - csm
+                  - phase
               examples:
                 Example 1:
                   value:
