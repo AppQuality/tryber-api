@@ -2743,7 +2743,7 @@ export interface operations {
             visibilityCriteria?: {
               cuf?: {
                 cuf_id: number;
-                cuf_value_id: number;
+                cuf_value_ids: number[];
               }[];
               ageRanges?: {
                 min: number;
