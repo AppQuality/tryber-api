@@ -4359,6 +4359,10 @@ paths:
                             required:
                               - min
                               - max
+                        gender:
+                          type: array
+                          items:
+                            type: string
             examples:
               Example 1:
                 value:
