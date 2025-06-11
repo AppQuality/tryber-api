@@ -448,7 +448,7 @@ class RouteItem extends UserRoute<{
               }
               return acc;
             }, [] as number[])
-          : [1, 0, -1];
+          : [1, 0, -1, 2];
 
       return {
         ...campaign,
