@@ -1,5 +1,5 @@
-import { getPresignedUrl } from "./../../../../../../features/s3/presignUrl/index";
 /** OPENAPI-CLASS: get-campaigns-single-bug */
+import { getPresignedUrl } from "./../../../../../../features/s3/presignUrl/index";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
