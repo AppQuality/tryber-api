@@ -137,11 +137,12 @@ export default class Route extends CampaignRoute<{
       .select("id", "location", "type")
       .where("bug_id", this.bug_id);
 
-    const enhancedMedia = media.map(async (item) => ({
-      id: item.id,
-      url: (await getPresignedUrl(item.location)) || "",
-    }));
-    return await Promise.all(enhancedMedia);
+    return await Promise.all(
+      media.map(async (item) => ({
+        id: item.id,
+        url: (await getPresignedUrl(item.location)) || "",
+      }))
+    );
   }
 
   protected async getStatusHistory() {
