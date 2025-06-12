@@ -341,10 +341,63 @@ export default class RouteItem extends UserRoute<{
               name: this.campaign.product_type_name,
             },
           }),
+        visibilityCriteria: {
+          ageRanges: await this.getVisibilityCriteriaAge(),
+          gender: await this.getVisibilityCriteriaGender(),
+          cuf: await this.getVisibilityCriteriaCuf(),
+        },
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async getVisibilityCriteriaAge() {
+    if (!this.campaign.dossier_id) return undefined;
+    const ageRanges = await tryber.tables.CampaignDossierDataAge.do()
+      .select("min", "max")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!ageRanges || ageRanges.length < 1) return undefined;
+
+    return ageRanges;
+  }
+
+  private async getVisibilityCriteriaGender() {
+    if (!this.campaign.dossier_id) return undefined;
+    const genders = await tryber.tables.CampaignDossierDataGender.do()
+      .select("gender")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!genders || genders.length < 1) return undefined;
+    let genderList = [];
+    for (const g of genders) {
+      if (g.gender === -1) genderList.push("not_specified");
+      if (g.gender === 0) genderList.push("female");
+      if (g.gender === 1) genderList.push("male");
+      if (g.gender === 2) genderList.push("other");
+    }
+    return genderList;
+  }
+
+  private async getVisibilityCriteriaCuf() {
+    if (!this.campaign.dossier_id) return undefined;
+    const cufs = await tryber.tables.CampaignDossierDataCuf.do()
+      .select("cuf_id", "cuf_value_id")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!cufs || cufs.length < 1) return undefined;
+
+    let cufValues = [];
+    for (const cuf of cufs) {
+      const existingCuf = cufValues.find((item) => item.cufId === cuf.cuf_id);
+      if (existingCuf) {
+        existingCuf.cufValueIds.push(cuf.cuf_value_id);
+      } else {
+        cufValues.push({
+          cufId: cuf.cuf_id,
+          cufValueIds: [cuf.cuf_value_id],
+        });
+      }
+    }
+    return cufValues;
   }
 
   private formatDate(dateTime: string) {

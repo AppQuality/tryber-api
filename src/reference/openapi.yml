@@ -4636,6 +4636,39 @@ paths:
                         type: string
                   notes:
                     type: string
+                  visibilityCriteria:
+                    type: object
+                    properties:
+                      cuf:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            cufId:
+                              type: integer
+                            cufValueIds:
+                              type: array
+                              items:
+                                type: integer
+                          required:
+                            - cufId
+                            - cufValueIds
+                      ageRanges:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            min:
+                              type: integer
+                            max:
+                              type: integer
+                          required:
+                            - min
+                            - max
+                      gender:
+                        type: array
+                        items:
+                          type: string
                 required:
                   - id
                   - title

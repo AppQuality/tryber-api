@@ -2740,6 +2740,17 @@ export interface operations {
               name: string;
             };
             notes?: string;
+            visibilityCriteria?: {
+              cuf?: {
+                cufId: number;
+                cufValueIds: number[];
+              }[];
+              ageRanges?: {
+                min: number;
+                max: number;
+              }[];
+              gender?: string[];
+            };
           };
         };
       };

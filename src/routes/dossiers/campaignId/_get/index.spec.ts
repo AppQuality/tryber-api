@@ -276,7 +276,6 @@ describe("Route GET /dossiers/:id", () => {
     const response = await request(app)
       .get("/dossiers/1")
       .set("authorization", "Bearer admin");
-
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("phase");
     expect(response.body.phase).toHaveProperty("id", 1);
@@ -542,6 +541,110 @@ describe("Route GET /dossiers/:id", () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty("id", 1);
+    });
+    describe("With visibility criteria - Age", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataAge.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            min: 18,
+            max: 35,
+          },
+          {
+            campaign_dossier_data_id: 100,
+            min: 36,
+            max: 50,
+          },
+        ]);
+      });
+
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataAge.do().delete();
+      });
+
+      it("Should return age visibility criteria age", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("ageRanges", [
+          { min: 18, max: 35 },
+          { min: 36, max: 50 },
+        ]);
+      });
+    });
+    describe("With visibility criteria - Gender", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            gender: 1, // 1 for male
+          },
+          {
+            campaign_dossier_data_id: 100,
+            gender: 0, // 2 for female
+          },
+        ]);
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataGender.do().delete();
+      });
+      it("Should return age visibility criteria gender", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("gender", [
+          "female",
+          "male",
+        ]);
+      });
+    });
+    describe("With visibility criteria - Cuf", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataCuf.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            cuf_id: 10,
+            cuf_value_id: 110,
+          },
+          {
+            campaign_dossier_data_id: 100,
+            cuf_id: 10,
+            cuf_value_id: 120,
+          },
+          {
+            campaign_dossier_data_id: 100,
+            cuf_id: 20,
+            cuf_value_id: 210,
+          },
+        ]);
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataCuf.do().delete();
+      });
+      it("Should return age visibility criteria Cuf", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("cuf", [
+          {
+            cufId: 10,
+            cufValueIds: [110, 120],
+          },
+          {
+            cufId: 20,
+            cufValueIds: [210],
+          },
+        ]);
+      });
     });
   });
 });
