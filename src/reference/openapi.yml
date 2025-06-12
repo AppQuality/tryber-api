@@ -4454,6 +4454,20 @@ paths:
                           type: array
                           items:
                             type: string
+                        cuf:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              cuf_id:
+                                type: integer
+                              cuf_value_ids:
+                                type: array
+                                items:
+                                  type: integer
+                            required:
+                              - cuf_id
+                              - cuf_value_ids
     get:
       summary: ''
       operationId: get-dossiers-campaign

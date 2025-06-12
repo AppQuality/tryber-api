@@ -55,6 +55,13 @@ export default class RouteItem extends UserRoute<{
       this.setError(400, new OpenapiError("Invalid devices"));
       return false;
     }
+    if (await this.invalidCufSubmitted()) {
+      this.setError(
+        406,
+        new OpenapiError("Invalid Custom User Field submitted")
+      );
+      return false;
+    }
 
     return true;
   }
@@ -153,6 +160,7 @@ export default class RouteItem extends UserRoute<{
     await this.updateCampaignDossierDataBrowsers();
     await this.updateCampaignDossierDataAge();
     await this.updateCampaignDossierDataGender();
+    await this.updateCampaignDossierDataCuf();
   }
 
   private async updateCampaignDossierData() {
@@ -323,6 +331,36 @@ export default class RouteItem extends UserRoute<{
       }
     }
   }
+  private async updateCampaignDossierDataCuf() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataCuf.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const cufs = this.getBody().visibility_criteria?.cuf;
+    if (!cufs || cufs.length < 1) return;
+
+    for (const cuf of cufs) {
+      const cufValueIds = cuf.cuf_value_ids;
+      if (cufValueIds.length > 0) {
+        await tryber.tables.CampaignDossierDataCuf.do().insert(
+          cuf.cuf_value_ids.map((c) => ({
+            campaign_dossier_data_id: dossierId,
+            cuf_id: cuf.cuf_id,
+            cuf_value_id: c,
+          }))
+        );
+      }
+    }
+  }
 
   private async linkRolesToCampaign() {
     await this.cleanupCurrentRoles();
@@ -434,5 +472,31 @@ export default class RouteItem extends UserRoute<{
     const form_factor = devices.map((device) => device.form_factor);
 
     return { os, form_factor };
+  }
+  private async invalidCufSubmitted() {
+    const { visibility_criteria } = this.getBody();
+    if (!visibility_criteria?.cuf || !visibility_criteria.cuf.length)
+      return false;
+
+    const cufs = visibility_criteria.cuf;
+
+    const cufIds = [...new Set(cufs.map((cuf) => cuf.cuf_id))];
+    const cufValuesIds = cufs.map((cuf) => cuf.cuf_value_ids).flat();
+    const cufExist = await tryber.tables.WpAppqCustomUserField.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_custom_user_field"),
+        tryber.ref("name").withSchema("wp_appq_custom_user_field_extras")
+      )
+      .join(
+        "wp_appq_custom_user_field_extras",
+        "wp_appq_custom_user_field.id",
+        "wp_appq_custom_user_field_extras.custom_user_field_id"
+      )
+      .whereIn("wp_appq_custom_user_field.id", cufIds)
+      .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
+      .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
+
+    if (cufValuesIds.length !== cufExist.length) return true;
+    return false;
   }
 }
