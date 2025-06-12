@@ -141,7 +141,7 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibilityCriteria: {
+          visibility_criteria: {
             age_ranges: [
               { min: 19, max: 25 },
               { min: 26, max: 30 },
@@ -199,7 +199,7 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibilityCriteria: {
+          visibility_criteria: {
             gender: ["male", "female"],
           },
         })
@@ -232,6 +232,119 @@ describe("Route PUT /dossiers/:id", () => {
       expect(dossierGender[1]).toMatchObject({
         gender: 1, // male
       });
+    });
+  });
+  describe("Should set visibility criteria if sent - cuf criteria", () => {
+    beforeEach(async () => {
+      await tryber.tables.WpAppqCustomUserField.do().insert([
+        {
+          id: 10,
+          name: "CUF10",
+          slug: "cuf10",
+          placeholder: "CUF10 Placeholder",
+          extras: "",
+          custom_user_field_group_id: 1,
+          type: "select",
+        },
+        {
+          id: 20,
+          name: "CUF20",
+          slug: "cuf20",
+          placeholder: "CUF20 Placeholder",
+          extras: "",
+          custom_user_field_group_id: 1,
+          type: "multiselect",
+        },
+      ]);
+      await tryber.tables.WpAppqCustomUserFieldExtras.do().insert([
+        { id: 100, custom_user_field_id: 10, name: "CUF10 Extra1" },
+        { id: 101, custom_user_field_id: 10, name: "CUF10 Extra2" },
+        { id: 200, custom_user_field_id: 20, name: "CUF20 Extra1" },
+        { id: 201, custom_user_field_id: 20, name: "CUF20 Extra2" },
+      ]);
+    });
+
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataCuf.do().delete();
+      await tryber.tables.WpAppqCustomUserField.do().delete();
+      await tryber.tables.WpAppqCustomUserFieldExtras.do().delete();
+    });
+    it("Should return an error if send invalid cuf as cuf visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibility_criteria: {
+            cuf: [
+              { cuf_id: 10, cuf_value_ids: [100, 101] },
+              { cuf_id: 30, cuf_value_ids: [300, 301] },
+            ],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid Custom User Field submitted",
+      });
+    });
+    it("Should answer 200 if send valid cuf visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibility_criteria: {
+            cuf: [
+              { cuf_id: 10, cuf_value_ids: [100, 101] },
+              { cuf_id: 20, cuf_value_ids: [200, 201] },
+            ],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add cuf if sent valid cuf", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibility_criteria: {
+            cuf: [
+              { cuf_id: 10, cuf_value_ids: [100, 101] },
+              { cuf_id: 20, cuf_value_ids: [200, 201] },
+            ],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do()
+        .select("cuf_id", "cuf_value_id")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_cuf.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierCuf).toHaveLength(4);
+
+      expect(dossierCuf).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            cuf_id: 10,
+            cuf_value_id: 100,
+          }),
+          expect.objectContaining({
+            cuf_id: 10,
+            cuf_value_id: 101,
+          }),
+          expect.objectContaining({
+            cuf_id: 20,
+            cuf_value_id: 200,
+          }),
+          expect.objectContaining({
+            cuf_id: 20,
+            cuf_value_id: 201,
+          }),
+        ])
+      );
     });
   });
 });
