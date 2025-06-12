@@ -353,6 +353,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getVisibilityCriteriaAge() {
+    if (!this.campaign.dossier_id) return undefined;
     const ageRanges = await tryber.tables.CampaignDossierDataAge.do()
       .select("min", "max")
       .where("campaign_dossier_data_id", this.campaign.dossier_id);
@@ -362,6 +363,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getVisibilityCriteriaGender() {
+    if (!this.campaign.dossier_id) return undefined;
     const genders = await tryber.tables.CampaignDossierDataGender.do()
       .select("gender")
       .where("campaign_dossier_data_id", this.campaign.dossier_id);
@@ -377,6 +379,7 @@ export default class RouteItem extends UserRoute<{
   }
 
   private async getVisibilityCriteriaCuf() {
+    if (!this.campaign.dossier_id) return undefined;
     const cufs = await tryber.tables.CampaignDossierDataCuf.do()
       .select("cuf_id", "cuf_value_id")
       .where("campaign_dossier_data_id", this.campaign.dossier_id);

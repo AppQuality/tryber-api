@@ -276,7 +276,7 @@ describe("Route GET /dossiers/:id", () => {
     const response = await request(app)
       .get("/dossiers/1")
       .set("authorization", "Bearer admin");
-
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("phase");
     expect(response.body.phase).toHaveProperty("id", 1);
