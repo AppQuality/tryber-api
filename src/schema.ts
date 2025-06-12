@@ -1590,6 +1590,8 @@ export interface operations {
             };
             media: {
               id: number;
+              url: string;
+              type: string;
             }[];
             status_history: {
               status: string;
