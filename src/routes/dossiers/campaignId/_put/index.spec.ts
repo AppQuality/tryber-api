@@ -141,8 +141,8 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
-            age_ranges: [
+          visibilityCriteria: {
+            ageRanges: [
               { min: 19, max: 25 },
               { min: 26, max: 30 },
             ],
@@ -156,8 +156,8 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
-            age_ranges: [
+          visibilityCriteria: {
+            ageRanges: [
               {
                 min: 18,
                 max: 25,
@@ -180,14 +180,18 @@ describe("Route PUT /dossiers/:id", () => {
         .where("campaign_dossier_data.campaign_id", response.body.id);
       expect(dossierAge).toHaveLength(2);
 
-      expect(dossierAge[0]).toMatchObject({
-        min: 18,
-        max: 25,
-      });
-      expect(dossierAge[1]).toMatchObject({
-        min: 26,
-        max: 35,
-      });
+      expect(dossierAge).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            min: 18,
+            max: 25,
+          }),
+          expect.objectContaining({
+            min: 26,
+            max: 35,
+          }),
+        ])
+      );
     });
   });
   describe("Should set visibility criteria if sent - gender criteria", () => {
@@ -199,8 +203,8 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
-            gender: ["male", "female"],
+          visibilityCriteria: {
+            gender: [1, 0],
           },
         })
         .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
@@ -211,8 +215,8 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
-            gender: ["male", "female"],
+          visibilityCriteria: {
+            gender: [1, 0],
           },
         })
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
@@ -226,12 +230,16 @@ describe("Route PUT /dossiers/:id", () => {
         .where("campaign_dossier_data.campaign_id", response.body.id);
       expect(dossierGender).toHaveLength(2);
 
-      expect(dossierGender[0]).toMatchObject({
-        gender: 0, // female
-      });
-      expect(dossierGender[1]).toMatchObject({
-        gender: 1, // male
-      });
+      expect(dossierGender).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            gender: 0,
+          }),
+          expect.objectContaining({
+            gender: 1,
+          }),
+        ])
+      );
     });
   });
   describe("Should set visibility criteria if sent - cuf criteria", () => {
@@ -274,10 +282,10 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
+          visibilityCriteria: {
             cuf: [
-              { cuf_id: 10, cuf_value_ids: [100, 101] },
-              { cuf_id: 30, cuf_value_ids: [300, 301] },
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 30, cufValueIds: [300, 301] },
             ],
           },
         })
@@ -292,10 +300,10 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
+          visibilityCriteria: {
             cuf: [
-              { cuf_id: 10, cuf_value_ids: [100, 101] },
-              { cuf_id: 20, cuf_value_ids: [200, 201] },
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 20, cufValueIds: [200, 201] },
             ],
           },
         })
@@ -307,10 +315,10 @@ describe("Route PUT /dossiers/:id", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
+          visibilityCriteria: {
             cuf: [
-              { cuf_id: 10, cuf_value_ids: [100, 101] },
-              { cuf_id: 20, cuf_value_ids: [200, 201] },
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 20, cufValueIds: [200, 201] },
             ],
           },
         })
