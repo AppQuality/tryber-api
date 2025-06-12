@@ -140,6 +140,7 @@ export default class Route extends CampaignRoute<{
     return await Promise.all(
       media.map(async (item) => ({
         id: item.id,
+        type: item.type || "",
         url: (await getPresignedUrl(item.location)) || "",
       }))
     );
