@@ -147,15 +147,6 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
   });
 
   beforeEach(async () => {
-    await tryber.tables.CampaignDossierData.do().insert([
-      {
-        id: 180,
-        campaign_id: 180,
-        link: "https://example.com/campaign/180",
-        created_by: 11111,
-        updated_by: 11111,
-      },
-    ]);
     await tryber.tables.CpReqQuotations.do().insert([
       quotation,
       quotationapproved,
@@ -167,7 +158,6 @@ describe("Route PATCH /dossiers/:campaignId/quotations/:quoteId", () => {
 
   afterEach(async () => {
     await tryber.tables.CpReqQuotations.do().delete();
-    await tryber.tables.CampaignDossierData.do().delete();
   });
 
   afterAll(async () => {
