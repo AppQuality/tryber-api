@@ -1319,6 +1319,7 @@ paths:
                       required:
                         - id
                         - url
+                        - type
                       properties:
                         id:
                           type: integer
@@ -1326,6 +1327,10 @@ paths:
                           type: string
                           x-stoplight:
                             id: 4x8i5g5niwhdz
+                        type:
+                          type: string
+                          x-stoplight:
+                            id: zl48ts9ip7u6z
                   status_history:
                     type: array
                     items:
