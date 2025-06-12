@@ -138,8 +138,8 @@ export default class PostDossiers extends UserRoute<{
 
     const cufs = visibilityCriteria.cuf;
 
-    const cufIds = [...new Set(cufs.map((cuf) => cuf.cuf_id))];
-    const cufValuesIds = cufs.map((cuf) => cuf.cuf_value_id);
+    const cufIds = [...new Set(cufs.map((cuf) => cuf.cufId))];
+    const cufValuesIds = cufs.map((cuf) => cuf.cufValueIds).flat();
     const cufExist = await tryber.tables.WpAppqCustomUserField.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_custom_user_field"),
@@ -154,13 +154,13 @@ export default class PostDossiers extends UserRoute<{
       .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
       .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
 
-    if (cufs.length !== cufExist.length) return true;
+    if (cufValuesIds.length !== cufExist.length) return true;
     return false;
   }
 
   private invalidAgeRangeSubmitted() {
     const { visibilityCriteria } = this.getBody();
-    const ageRanges = visibilityCriteria?.age_ranges || [];
+    const ageRanges = visibilityCriteria?.ageRanges || [];
     if (!ageRanges || !ageRanges.length) return false;
 
     for (const ageRange of ageRanges) {
@@ -432,22 +432,27 @@ export default class PostDossiers extends UserRoute<{
 
     const cufs = visibilityCriteria?.cuf || [];
     if (cufs?.length > 0) {
-      await tryber.tables.CampaignDossierDataCuf.do().insert(
-        cufs.map((cuf) => ({
-          campaign_dossier_data_id: dossierId,
-          cuf_id: cuf.cuf_id,
-          cuf_value_id: cuf.cuf_value_id,
-        }))
-      );
+      for (const cuf of cufs) {
+        const cufValueIds = cuf.cufValueIds;
+        if (cufValueIds.length > 0) {
+          await tryber.tables.CampaignDossierDataCuf.do().insert(
+            cuf.cufValueIds.map((c) => ({
+              campaign_dossier_data_id: dossierId,
+              cuf_id: cuf.cufId,
+              cuf_value_id: c,
+            }))
+          );
+        }
+      }
     }
 
-    const ageRanges = visibilityCriteria?.age_ranges || [];
+    const ageRanges = visibilityCriteria?.ageRanges || [];
     if (ageRanges?.length > 0) {
       await tryber.tables.CampaignDossierDataAge.do().insert(
-        ageRanges.map((ageRange) => ({
+        ageRanges.map((range) => ({
           campaign_dossier_data_id: dossierId,
-          max: ageRange.max,
-          min: ageRange.min,
+          max: range.max,
+          min: range.min,
         }))
       );
     }
@@ -455,11 +460,10 @@ export default class PostDossiers extends UserRoute<{
     const genders = visibilityCriteria?.gender || [];
     if (genders?.length > 0) {
       for (const g of genders) {
-        const genderValue = g === "male" ? 1 : g === "female" ? 0 : null;
-        if (genderValue !== null) {
+        if (g !== null) {
           await tryber.tables.CampaignDossierDataGender.do().insert({
             campaign_dossier_data_id: dossierId,
-            gender: genderValue,
+            gender: g,
           });
         }
       }

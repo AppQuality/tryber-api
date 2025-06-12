@@ -595,13 +595,12 @@ describe("Route GET /dossiers/:id", () => {
         const response = await request(app)
           .get("/dossiers/1")
           .set("authorization", "Bearer admin");
-
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("visibilityCriteria");
-        expect(response.body.visibilityCriteria).toHaveProperty("gender", [
-          "female",
-          "male",
-        ]);
+        expect(response.body.visibilityCriteria).toHaveProperty(
+          "gender",
+          [0, 1]
+        );
       });
     });
     describe("With visibility criteria - Cuf", () => {

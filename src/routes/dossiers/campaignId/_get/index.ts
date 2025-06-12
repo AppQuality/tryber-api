@@ -368,14 +368,8 @@ export default class RouteItem extends UserRoute<{
       .select("gender")
       .where("campaign_dossier_data_id", this.campaign.dossier_id);
     if (!genders || genders.length < 1) return undefined;
-    let genderList = [];
-    for (const g of genders) {
-      if (g.gender === -1) genderList.push("not_specified");
-      if (g.gender === 0) genderList.push("female");
-      if (g.gender === 1) genderList.push("male");
-      if (g.gender === 2) genderList.push("other");
-    }
-    return genderList;
+
+    return genders.map((g) => Number(g.gender));
   }
 
   private async getVisibilityCriteriaCuf() {

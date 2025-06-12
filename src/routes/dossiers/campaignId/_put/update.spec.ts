@@ -877,7 +877,7 @@ describe("Route POST /dossiers", () => {
         .send({
           ...baseRequest,
           visibilityCriteria: {
-            age_ranges: [
+            ageRanges: [
               { min: 19, max: 25 },
               { min: 26, max: 30 },
             ],
@@ -891,8 +891,8 @@ describe("Route POST /dossiers", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
-            age_ranges: [
+          visibilityCriteria: {
+            ageRanges: [
               {
                 min: 18,
                 max: 25,
@@ -915,14 +915,12 @@ describe("Route POST /dossiers", () => {
         .where("campaign_dossier_data.campaign_id", response.body.id);
       expect(dossierAge).toHaveLength(2);
 
-      expect(dossierAge[0]).toMatchObject({
-        min: 18,
-        max: 25,
-      });
-      expect(dossierAge[1]).toMatchObject({
-        min: 26,
-        max: 35,
-      });
+      expect(dossierAge).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ min: 18, max: 25 }),
+          expect.objectContaining({ min: 26, max: 35 }),
+        ])
+      );
     });
   });
   describe("Should set visibility criteria if sent - Gender criteria", () => {
@@ -940,7 +938,7 @@ describe("Route POST /dossiers", () => {
         .send({
           ...baseRequest,
           visibilityCriteria: {
-            gender: ["male"],
+            gender: [1],
           },
         })
         .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
@@ -951,8 +949,8 @@ describe("Route POST /dossiers", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
-            gender: ["male"],
+          visibilityCriteria: {
+            gender: [1],
           },
         })
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
@@ -1026,10 +1024,10 @@ describe("Route POST /dossiers", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
+          visibilityCriteria: {
             cuf: [
-              { cuf_id: 10, cuf_value_ids: [100, 101] },
-              { cuf_id: 40, cuf_value_ids: [400, 401] },
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 40, cufValueIds: [400, 401] },
             ],
           },
         })
@@ -1044,10 +1042,10 @@ describe("Route POST /dossiers", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
+          visibilityCriteria: {
             cuf: [
-              { cuf_id: 10, cuf_value_ids: [100, 101] },
-              { cuf_id: 20, cuf_value_ids: [200, 201] },
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 20, cufValueIds: [200, 201] },
             ],
           },
         })
@@ -1059,10 +1057,10 @@ describe("Route POST /dossiers", () => {
         .put("/dossiers/1")
         .send({
           ...baseRequest,
-          visibility_criteria: {
+          visibilityCriteria: {
             cuf: [
-              { cuf_id: 10, cuf_value_ids: [100, 101] },
-              { cuf_id: 20, cuf_value_ids: [200, 201] },
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 20, cufValueIds: [200, 201] },
             ],
           },
         })

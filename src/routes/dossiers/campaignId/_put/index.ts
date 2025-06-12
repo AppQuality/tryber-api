@@ -292,7 +292,7 @@ export default class RouteItem extends UserRoute<{
       .delete()
       .where("campaign_dossier_data_id", dossierId);
 
-    const ageRanges = this.getBody().visibility_criteria?.age_ranges;
+    const ageRanges = this.getBody().visibilityCriteria?.ageRanges;
     if (!ageRanges || ageRanges.length < 1) return;
 
     await tryber.tables.CampaignDossierDataAge.do().insert(
@@ -318,15 +318,14 @@ export default class RouteItem extends UserRoute<{
       .delete()
       .where("campaign_dossier_data_id", dossierId);
 
-    const genders = this.getBody().visibility_criteria?.gender;
+    const genders = this.getBody().visibilityCriteria?.gender;
     if (!genders || genders.length < 1) return;
 
     for (const g of genders) {
-      const genderValue = g === "male" ? 1 : g === "female" ? 0 : null;
-      if (genderValue !== null) {
+      if (g !== null) {
         await tryber.tables.CampaignDossierDataGender.do().insert({
           campaign_dossier_data_id: dossierId,
-          gender: genderValue,
+          gender: g,
         });
       }
     }
@@ -345,16 +344,16 @@ export default class RouteItem extends UserRoute<{
       .delete()
       .where("campaign_dossier_data_id", dossierId);
 
-    const cufs = this.getBody().visibility_criteria?.cuf;
+    const cufs = this.getBody().visibilityCriteria?.cuf;
     if (!cufs || cufs.length < 1) return;
 
     for (const cuf of cufs) {
-      const cufValueIds = cuf.cuf_value_ids;
+      const cufValueIds = cuf.cufValueIds;
       if (cufValueIds.length > 0) {
         await tryber.tables.CampaignDossierDataCuf.do().insert(
-          cuf.cuf_value_ids.map((c) => ({
+          cuf.cufValueIds.map((c) => ({
             campaign_dossier_data_id: dossierId,
-            cuf_id: cuf.cuf_id,
+            cuf_id: cuf.cufId,
             cuf_value_id: c,
           }))
         );
@@ -474,14 +473,14 @@ export default class RouteItem extends UserRoute<{
     return { os, form_factor };
   }
   private async invalidCufSubmitted() {
-    const { visibility_criteria } = this.getBody();
-    if (!visibility_criteria?.cuf || !visibility_criteria.cuf.length)
+    const { visibilityCriteria } = this.getBody();
+    if (!visibilityCriteria?.cuf || !visibilityCriteria.cuf.length)
       return false;
 
-    const cufs = visibility_criteria.cuf;
+    const cufs = visibilityCriteria.cuf;
 
-    const cufIds = [...new Set(cufs.map((cuf) => cuf.cuf_id))];
-    const cufValuesIds = cufs.map((cuf) => cuf.cuf_value_ids).flat();
+    const cufIds = [...new Set(cufs.map((cuf) => cuf.cufId))];
+    const cufValuesIds = cufs.map((cuf) => cuf.cufValueIds).flat();
     const cufExist = await tryber.tables.WpAppqCustomUserField.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_custom_user_field"),

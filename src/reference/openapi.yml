@@ -4330,39 +4330,6 @@ paths:
                       minimum: 0
                       maximum: 1
                       default: 0
-                - type: object
-                  properties:
-                    visibilityCriteria:
-                      type: object
-                      properties:
-                        cuf:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              cuf_id:
-                                type: integer
-                              cuf_value_id:
-                                type: integer
-                            required:
-                              - cuf_id
-                              - cuf_value_id
-                        age_ranges:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              min:
-                                type: integer
-                              max:
-                                type: integer
-                            required:
-                              - min
-                              - max
-                        gender:
-                          type: array
-                          items:
-                            type: string
             examples:
               Example 1:
                 value:
@@ -4431,43 +4398,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
-                    visibility_criteria:
-                      type: object
-                      properties:
-                        age_ranges:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              min:
-                                type: integer
-                              max:
-                                type: integer
-                            required:
-                              - min
-                              - max
-                        gender:
-                          type: array
-                          items:
-                            type: string
-                        cuf:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              cuf_id:
-                                type: integer
-                              cuf_value_ids:
-                                type: array
-                                items:
-                                  type: integer
-                            required:
-                              - cuf_id
-                              - cuf_value_ids
+              $ref: '#/components/schemas/DossierCreationData'
     get:
       summary: ''
       operationId: get-dossiers-campaign
@@ -4682,7 +4613,7 @@ paths:
                       gender:
                         type: array
                         items:
-                          type: string
+                          type: integer
                 required:
                   - id
                   - title
@@ -11089,6 +11020,39 @@ components:
           type: array
           items:
             type: number
+        visibilityCriteria:
+          type: object
+          properties:
+            cuf:
+              type: array
+              items:
+                type: object
+                properties:
+                  cufId:
+                    type: integer
+                  cufValueIds:
+                    type: array
+                    items:
+                      type: integer
+                required:
+                  - cufId
+                  - cufValueIds
+            gender:
+              type: array
+              items:
+                type: integer
+            ageRanges:
+              type: array
+              items:
+                type: object
+                properties:
+                  min:
+                    type: integer
+                  max:
+                    type: integer
+                required:
+                  - min
+                  - max
       required:
         - project
         - testType
