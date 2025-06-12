@@ -2780,6 +2780,10 @@ export interface operations {
               max: number;
             }[];
             gender?: string[];
+            cuf?: {
+              cuf_id: number;
+              cuf_value_ids: number[];
+            }[];
           };
         };
       };
