@@ -1,4 +1,5 @@
 import app from "@src/app";
+import { tryber } from "@src/features/database";
 import sqlite3 from "@src/features/sqlite";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
 import { data as bugs } from "@src/__mocks__/mockedDb/bug";
@@ -15,7 +16,6 @@ import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
-import { tryber } from "@src/features/database";
 
 describe("Route PATCH users-me", () => {
   beforeAll(async () => {
@@ -456,6 +456,18 @@ describe("Route PATCH users-me accepted fields", () => {
       .set("Authorization", `Bearer tester`);
     expect(responseGet2.status).toBe(200);
     expect(responsePatch.body.city).toBe("Ummary");
+  });
+  it("Should set province if a valid city is sent", async () => {
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ city: "Crema" });
+
+    const user = await tryber.tables.WpAppqEvdProfile.do()
+      .select("province")
+      .where("id", 1)
+      .first();
+    expect(user?.province).toBe("CR");
   });
   it("Should return tryber with new COUNTRY if send a new COUNTRY", async () => {
     const responseGet1 = await request(app)

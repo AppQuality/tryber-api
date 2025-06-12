@@ -1,9 +1,9 @@
 /** OPENAPI-ROUTE: patch-users-me */
 
 import * as db from "@src/features/db";
+import { CITIES_ATTRIBUTES } from "comuni-province-regioni/lib/city";
 import { Context } from "openapi-backend";
 import { CheckPassword, HashPassword } from "wordpress-hash-node";
-
 import escapeCharacters from "../../../../features/escapeCharacters";
 import getUserData from "../_get/getUserData";
 
@@ -125,6 +125,14 @@ export default async (
     if (Object.keys(req.body).includes("city")) {
       profileSets.push("city = ?");
       profileUpdateData.push(escapeCharacters(req.body.city));
+      const cityAttributes = Object.values(CITIES_ATTRIBUTES).find(
+        (c) =>
+          req.body.city && c.name.toLowerCase() === req.body.city.toLowerCase()
+      );
+      if (cityAttributes) {
+        profileSets.push("province = ?");
+        profileUpdateData.push(cityAttributes.province);
+      }
     }
     if (Object.keys(req.body).includes("password")) {
       if (!Object.keys(req.body).includes("oldPassword")) {
