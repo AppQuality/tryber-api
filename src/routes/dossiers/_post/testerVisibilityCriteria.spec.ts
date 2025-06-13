@@ -335,4 +335,75 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
       );
     });
   });
+
+  describe("Visibility Criteria - Province criterias", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().delete();
+    });
+
+    it("Should add dossier provinces if sent", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            provinces: ["AV", "BN"],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      const dossierProvince =
+        await tryber.tables.CampaignDossierDataProvince.do()
+          .select("province")
+          .join(
+            "campaign_dossier_data",
+            "campaign_dossier_data_province.campaign_dossier_data_id",
+            "campaign_dossier_data.id"
+          )
+          .where("campaign_dossier_data.campaign_id", response.body.id);
+
+      expect(dossierProvince).toHaveLength(2);
+
+      expect(dossierProvince).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ province: "AV" }),
+          expect.objectContaining({ province: "BN" }),
+        ])
+      );
+    });
+
+    it("Should return an error if duplicate provinces are sent", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            provinces: ["MI", "mi"],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid provinces submitted",
+      });
+    });
+
+    it("Should return an error if an unknown province is sent", async () => {
+      const response = await request(app)
+        .post("/dossiers")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            provinces: ["MI", "XX"],
+          },
+        })
+        .set("Authorization", "Bearer admin");
+
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid provinces submitted",
+      });
+    });
+  });
 });
