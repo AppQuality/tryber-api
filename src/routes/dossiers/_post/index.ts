@@ -5,9 +5,16 @@ import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
+import Province from "comuni-province-regioni/lib/province";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 
 const MIN_TESTER_AGE = 14;
+
+const VALID_PROVINCE_CODES = Object.values(Province).map((p) => String(p));
+
+const isValidProvinceCode = (code: string): boolean => {
+  return VALID_PROVINCE_CODES.includes(code);
+};
 export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
@@ -74,6 +81,10 @@ export default class PostDossiers extends UserRoute<{
     }
     if (this.invalidAgeRangeSubmitted()) {
       this.setError(406, new OpenapiError("Invalid age range submitted"));
+      return false;
+    }
+    if (this.invalidProvincesSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid provinces submitted"));
       return false;
     }
 
@@ -175,6 +186,17 @@ export default class PostDossiers extends UserRoute<{
       }
     }
     return false;
+  }
+
+  private invalidProvincesSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+
+    const provinces = visibilityCriteria?.provinces || [];
+    if (!provinces || provinces.length === 0) return false;
+
+    const upperProvince = provinces.map((p) => String(p).toUpperCase());
+    if (new Set(upperProvince).size !== provinces.length) return true;
+    return upperProvince.some((p) => p.length !== 2 || !isValidProvinceCode(p));
   }
 
   private async projectExists(): Promise<boolean> {
@@ -466,6 +488,16 @@ export default class PostDossiers extends UserRoute<{
             gender: g,
           });
         }
+      }
+    }
+
+    const provinces = visibilityCriteria?.provinces || [];
+    if (provinces.length > 0) {
+      for (const p of provinces) {
+        await tryber.tables.CampaignDossierDataProvince.do().insert({
+          campaign_dossier_data_id: dossierId,
+          province: p.toUpperCase(),
+        });
       }
     }
 

@@ -864,6 +864,7 @@ export interface components {
           min: number;
           max: number;
         }[];
+        provinces?: string[];
       };
     };
     /** FiscalBirthCity */
