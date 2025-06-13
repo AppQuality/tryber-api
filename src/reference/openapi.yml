@@ -10929,6 +10929,12 @@ components:
             - 0
           productType: 0
           notes: string
+      required:
+        - project
+        - testType
+        - title
+        - startDate
+        - deviceList
       properties:
         project:
           type: integer
@@ -10962,14 +10968,14 @@ components:
           type: array
           items:
             type: object
+            required:
+              - role
+              - user
             properties:
               role:
                 type: integer
               user:
                 type: integer
-            required:
-              - role
-              - user
         description:
           type: string
         productLink:
@@ -11027,6 +11033,9 @@ components:
               type: array
               items:
                 type: object
+                required:
+                  - cufId
+                  - cufValueIds
                 properties:
                   cufId:
                     type: integer
@@ -11034,9 +11043,6 @@ components:
                     type: array
                     items:
                       type: integer
-                required:
-                  - cufId
-                  - cufValueIds
             gender:
               type: array
               items:
@@ -11045,20 +11051,22 @@ components:
               type: array
               items:
                 type: object
+                required:
+                  - min
+                  - max
                 properties:
                   min:
                     type: integer
                   max:
                     type: integer
-                required:
-                  - min
-                  - max
-      required:
-        - project
-        - testType
-        - title
-        - startDate
-        - deviceList
+            provinces:
+              type: array
+              x-stoplight:
+                id: kn2b2gds71riu
+              items:
+                x-stoplight:
+                  id: 30ck8k6bun7aw
+                type: string
     FiscalBirthCity:
       title: FiscalBirthCity
       oneOf:
