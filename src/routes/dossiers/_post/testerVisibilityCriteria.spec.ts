@@ -336,7 +336,7 @@ describe("Route POST /dossiers - visibility criteria for testers", () => {
     });
   });
 
-  describe("Visibility Criteria - Province criterias", () => {
+  describe("Visibility Criteria - Province criteria", () => {
     afterEach(async () => {
       await tryber.tables.CampaignDossierDataProvince.do().delete();
     });
