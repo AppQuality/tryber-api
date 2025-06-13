@@ -21,7 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@appquality/tryber-database": "^0.44.20",
+    "@appquality/tryber-database": "^0.44.21",
     "@appquality/wp-auth": "^1.0.7",
     "@googlemaps/google-maps-services-js": "^3.3.7",
     "@sendgrid/mail": "^7.6.0",
@@ -31,6 +31,7 @@
     "axios": "^0.25.0",
     "body-parser": "^1.19.1",
     "codice-fiscale-js": "^2.3.13",
+    "comuni-province-regioni": "^0.4.3",
     "connect-busboy": "^1.0.0",
     "core-js": "^3.6.5",
     "cors": "^2.8.5",
