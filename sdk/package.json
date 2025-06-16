@@ -1,0 +1,21 @@
+{
+  "name": "@appquality/tryber-api-sdk",
+  "version": "1.0.0",
+  "description": "SDK TypeScript generato da openapi.yml per Tryber API.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "swagger-typescript-api generate -p ../src/reference/openapi.yml -o src --modular --http-client fetch && tsc",
+    "prepublishOnly": "yarn build"
+  },
+  "author": "Unguess",
+  "license": "MIT",
+  "devDependencies": {
+    "openapi-typescript": "^5.1.1",
+    "swagger-typescript-api": "^13.2.2",
+    "typescript": "^4.6.3"
+  }
+}
