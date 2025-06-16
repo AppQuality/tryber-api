@@ -59,16 +59,20 @@ export class UserTargetChecker {
   }
 
   private async initUserAge() {
-    try {
-      const age = await tryber.tables.WpAppqEvdProfile.do()
-        .select("birth_date")
-        .where("id", this.testerId);
+    const profile = await tryber.tables.WpAppqEvdProfile.do()
+      .select("birth_date")
+      .where("id", this.testerId)
+      .first();
+    if (!profile) return;
 
-      this.userAge =
-        new Date().getFullYear() - new Date(age[0].birth_date).getFullYear();
-    } catch (error) {
-      this.userAge = -1;
-    }
+    const birthdate = new Date(profile.birth_date);
+    const today = new Date();
+    if (isNaN(birthdate.getTime()) || birthdate > today) return;
+
+    const msPerYear = 1000 * 60 * 60 * 24 * 365.2425;
+    this.userAge = Math.floor(
+      (today.getTime() - birthdate.getTime()) / msPerYear
+    );
   }
 
   private async initUserGender() {
