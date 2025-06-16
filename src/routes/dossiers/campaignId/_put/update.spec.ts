@@ -969,6 +969,52 @@ describe("Route POST /dossiers", () => {
       });
     });
   });
+
+  describe("Should set visibility criteria if sent - Province criteria", () => {
+    beforeEach(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().insert([
+        { campaign_dossier_data_id: 1, province: "MI" },
+      ]);
+    });
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().delete();
+    });
+    it("Should answer 200 if replace province visibility criteria with sent data", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            provinces: ["RM", "PA"],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add province if sent and not yet in campaign", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            provinces: ["RM", "PA"],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("visibilityCriteria");
+      expect(response.body.visibilityCriteria).toHaveProperty(
+        "province",
+        expect.arrayContaining(["RM", "PA"])
+      );
+      expect(response.body.visibilityCriteria.province).toHaveLength(2);
+    });
+  });
   describe("Should set visibility criteria if sent - Cuf criteria", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqCustomUserField.do().insert([

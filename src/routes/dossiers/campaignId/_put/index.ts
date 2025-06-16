@@ -161,6 +161,7 @@ export default class RouteItem extends UserRoute<{
     await this.updateCampaignDossierDataAge();
     await this.updateCampaignDossierDataGender();
     await this.updateCampaignDossierDataCuf();
+    await this.updateCampaignDossierDataProvince();
   }
 
   private async updateCampaignDossierData() {
@@ -328,6 +329,35 @@ export default class RouteItem extends UserRoute<{
           gender: g,
         });
       }
+    }
+  }
+  private async updateCampaignDossierDataProvince() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataProvince.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const provinces = this.getBody().visibilityCriteria?.provinces;
+    if (!provinces || provinces.length < 1) return;
+
+    try {
+      await tryber.tables.CampaignDossierDataProvince.do().insert(
+        provinces.map((province) => ({
+          campaign_dossier_data_id: dossierId,
+          province: province,
+        }))
+      );
+    } catch (e) {
+      console.error("Error inserting provinces:", e);
+      console.error(e.message);
     }
   }
   private async updateCampaignDossierDataCuf() {
