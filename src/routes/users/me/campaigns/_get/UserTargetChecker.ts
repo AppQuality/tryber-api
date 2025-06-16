@@ -64,8 +64,14 @@ export class UserTargetChecker {
         .select("birth_date")
         .where("id", this.testerId);
 
-      this.userAge =
-        new Date().getFullYear() - new Date(age[0].birth_date).getFullYear();
+      const birthDate = new Date(age[0].birth_date);
+      const today = new Date();
+      let years = today.getFullYear() - birthDate.getFullYear();
+      const month = today.getMonth() - birthDate.getMonth();
+      if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+        years--;
+      }
+      this.userAge = years;
     } catch (error) {
       this.userAge = -1;
     }
