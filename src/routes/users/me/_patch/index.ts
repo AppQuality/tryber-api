@@ -129,10 +129,8 @@ export default async (
         (c) =>
           req.body.city && c.name.toLowerCase() === req.body.city.toLowerCase()
       );
-      if (cityAttributes) {
-        profileSets.push("province = ?");
-        profileUpdateData.push(cityAttributes.province);
-      }
+      profileSets.push("province = ?");
+      profileUpdateData.push(cityAttributes ? cityAttributes.province : "");
     }
     if (Object.keys(req.body).includes("password")) {
       if (!Object.keys(req.body).includes("oldPassword")) {
