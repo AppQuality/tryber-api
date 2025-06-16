@@ -348,17 +348,12 @@ export default class RouteItem extends UserRoute<{
     const provinces = this.getBody().visibilityCriteria?.provinces;
     if (!provinces || provinces.length < 1) return;
 
-    try {
-      await tryber.tables.CampaignDossierDataProvince.do().insert(
-        provinces.map((province) => ({
-          campaign_dossier_data_id: dossierId,
-          province: province,
-        }))
-      );
-    } catch (e) {
-      console.error("Error inserting provinces:", e);
-      console.error(e.message);
-    }
+    await tryber.tables.CampaignDossierDataProvince.do().insert(
+      provinces.map((province) => ({
+        campaign_dossier_data_id: dossierId,
+        province: province,
+      }))
+    );
   }
   private async updateCampaignDossierDataCuf() {
     const dossier = await tryber.tables.CampaignDossierData.do()
