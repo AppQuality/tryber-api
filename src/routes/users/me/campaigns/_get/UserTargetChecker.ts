@@ -65,6 +65,10 @@ export class UserTargetChecker {
         .where("id", this.testerId);
 
       const birthDate = new Date(age[0].birth_date);
+      if (isNaN(birthDate.getTime())) {
+        this.userAge = -1;
+        return;
+      }
       const today = new Date();
       let years = today.getFullYear() - birthDate.getFullYear();
       const month = today.getMonth() - birthDate.getMonth();
