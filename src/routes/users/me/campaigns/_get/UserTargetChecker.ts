@@ -9,6 +9,7 @@ export class UserTargetChecker {
   private userCufs: Record<number, string[]> = {};
   private userAge: number = -1;
   private userGender: number = -1;
+  private userProvince: string = "";
 
   constructor({ testerId }: { testerId: number }) {
     this.testerId = testerId;
@@ -17,7 +18,7 @@ export class UserTargetChecker {
 
   async init() {
     await this.initUserLanguages();
-    await this.initUserCountries();
+    await this.initUserProfileData();
     await this.initUserCufs();
     await this.initUserAge();
     await this.initUserGender();
@@ -30,14 +31,15 @@ export class UserTargetChecker {
       .then((res) => res.map((r) => r.language_name));
   }
 
-  private async initUserCountries() {
-    const country = await tryber.tables.WpAppqEvdProfile.do()
-      .select("country")
+  private async initUserProfileData() {
+    const profile = await tryber.tables.WpAppqEvdProfile.do()
+      .select("country", "province")
       .where("id", this.testerId)
-      .then((res) => (res.length ? res[0].country : ""));
+      .first();
 
-    const countryCode = countryList.getAlpha2Code(country, "en");
+    const countryCode = countryList.getAlpha2Code(profile?.country || "", "en");
     this.userCountry = countryCode || "";
+    this.userProvince = profile?.province || "";
   }
 
   private async initUserCufs() {
@@ -81,12 +83,13 @@ export class UserTargetChecker {
   inTarget(targetRules: {
     languages?: string[];
     countries?: string[];
+    provinces?: string[];
     cufs?: { id: number; values: (string | number)[] }[];
     age?: { min?: number; max?: number };
     genders?: number[];
   }) {
     if (Object.keys(targetRules).length === 0) return true;
-    const { languages, countries, cufs, age, genders } = targetRules;
+    const { languages, countries, cufs, age, genders, provinces } = targetRules;
 
     if (
       languages &&
@@ -100,6 +103,14 @@ export class UserTargetChecker {
       countries &&
       countries.length &&
       !countries.includes(this.userCountry)
+    ) {
+      return false;
+    }
+
+    if (
+      provinces &&
+      provinces.length &&
+      !provinces.includes(this.userProvince)
     ) {
       return false;
     }

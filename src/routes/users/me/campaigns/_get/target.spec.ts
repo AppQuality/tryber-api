@@ -187,6 +187,65 @@ describe("GET /users/me/campaigns - target", () => {
     });
   });
 
+  describe("Target by province", () => {
+    beforeAll(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().insert({
+        campaign_dossier_data_id: 1,
+        province: "MI",
+      });
+    });
+    afterAll(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().delete();
+    });
+    describe("Tester in target province", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          province: "MI",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+      });
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("results");
+        expect(Array.isArray(response.body.results)).toBe(true);
+        expect(response.body.results.length).toBe(1);
+      });
+    });
+    describe("Tester not in target province", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          province: "TO",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+      });
+      it("Should not show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", " Bearer tester");
+        expect(response.status).toBe(404);
+      });
+    });
+  });
+
   describe("Target by CUF", () => {
     beforeAll(async () => {
       await tryber.tables.CampaignDossierDataCuf.do().insert({

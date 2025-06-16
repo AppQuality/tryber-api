@@ -1,6 +1,5 @@
-import UserRoute from "@src/features/routes/UserRoute";
-
 import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 import { UserTargetChecker } from "./UserTargetChecker";
 
@@ -381,6 +380,19 @@ class RouteItem extends UserRoute<{
           campaignsWithTarget.map((c) => c.id)
         );
 
+    const allowedProvinces =
+      await tryber.tables.CampaignDossierDataProvince.do()
+        .select("campaign_id", "province")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data.id",
+          "campaign_dossier_data_province.campaign_dossier_data_id"
+        )
+        .whereIn(
+          "campaign_dossier_data.campaign_id",
+          campaignsWithTarget.map((c) => c.id)
+        );
+
     const allowedCufs = await tryber.tables.CampaignDossierDataCuf.do()
       .select("campaign_id", "cuf_id", "cuf_value_id")
       .join(
@@ -424,6 +436,9 @@ class RouteItem extends UserRoute<{
     return campaigns.map((campaign) => {
       if (campaign.visibility_type !== 4) return campaign;
 
+      const provinces = allowedProvinces
+        .filter((l) => l.campaign_id === campaign.id)
+        .map((l) => l.province);
       const languages = allowedLanguages
         .filter((l) => l.campaign_id === campaign.id)
         .map((l) => l.language_name);
@@ -455,6 +470,7 @@ class RouteItem extends UserRoute<{
         targetRules: {
           ...(languages.length ? { languages } : {}),
           ...(countries.length ? { countries } : {}),
+          ...(provinces.length ? { provinces } : {}),
           ...(age ? { age } : {}),
           ...(genders.length ? { genders } : {}),
           ...(Object.keys(cufs).length
@@ -539,6 +555,7 @@ class RouteItem extends UserRoute<{
       targetRules?: {
         languages?: string[];
         countries?: string[];
+        provinces?: string[];
         cufs?: { id: number; values: (string | number)[] }[];
         age?: { min?: number; max?: number };
         genders?: number[];
