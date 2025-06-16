@@ -469,7 +469,7 @@ describe("Route PATCH users-me accepted fields", () => {
       .first();
     expect(user?.province).toBe("CR");
   });
-  it("Should note set province if a invalid city is sent", async () => {
+  it("Should unset province if a invalid city is sent", async () => {
     const responsePatch = await request(app)
       .patch(`/users/me`)
       .set("Authorization", `Bearer tester`)
@@ -479,7 +479,7 @@ describe("Route PATCH users-me accepted fields", () => {
       .select("province")
       .where("id", 1)
       .first();
-    expect(user?.province).toBeNull();
+    expect(user?.province).toBe("");
   });
   it("Should return tryber with new COUNTRY if send a new COUNTRY", async () => {
     const responseGet1 = await request(app)
