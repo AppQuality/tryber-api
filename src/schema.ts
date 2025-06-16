@@ -2750,6 +2750,7 @@ export interface operations {
                 cufValueIds: number[];
               }[];
               gender?: number[];
+              province?: string[];
             };
           };
         };

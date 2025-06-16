@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: get-dossiers-campaign */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
@@ -163,22 +163,6 @@ export default class RouteItem extends UserRoute<{
           .select("language_name")
           .where("campaign_dossier_data_id", dossierData.dossier_id)
       : [];
-
-    /*  const targetLanguagesQuery1 = dossierData
-      ? await tryber.tables.CampaignDossierDataLanguages.do()
-          .join(
-            "wp_appq_lang",
-            "wp_appq_lang.id",
-            "campaign_dossier_data_languages.language_id"
-          )
-          .select("language_id")
-          .select("display_name")
-          .select("language_name")
-          .where("campaign_dossier_data_id", dossierData.dossier_id)
-      : [];
-
-    console.log("targetLanguages", targetLanguages);
-*/
     const targetBrowsers = dossierData
       ? await tryber.tables.CampaignDossierDataBrowsers.do()
           .join(
@@ -345,6 +329,7 @@ export default class RouteItem extends UserRoute<{
           ageRanges: await this.getVisibilityCriteriaAge(),
           gender: await this.getVisibilityCriteriaGender(),
           cuf: await this.getVisibilityCriteriaCuf(),
+          province: await this.getVisibilityCriteriaProvince(),
         },
       });
     } catch (e) {
@@ -370,6 +355,15 @@ export default class RouteItem extends UserRoute<{
     if (!genders || genders.length < 1) return undefined;
 
     return genders.map((g) => Number(g.gender));
+  }
+
+  private async getVisibilityCriteriaProvince() {
+    if (!this.campaign.dossier_id) return undefined;
+    const provinces = await tryber.tables.CampaignDossierDataProvince.do()
+      .select("province")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!provinces || provinces.length < 1) return undefined;
+    return provinces.map((p) => p.province);
   }
 
   private async getVisibilityCriteriaCuf() {

@@ -645,5 +645,35 @@ describe("Route GET /dossiers/:id", () => {
         ]);
       });
     });
+
+    describe("With visibility criteria - Province", () => {
+      beforeAll(async () => {
+        await tryber.tables.CampaignDossierDataProvince.do().insert([
+          {
+            campaign_dossier_data_id: 100,
+            province: "MI",
+          },
+          {
+            campaign_dossier_data_id: 100,
+            province: "PA",
+          },
+        ]);
+      });
+      afterAll(async () => {
+        await tryber.tables.CampaignDossierDataProvince.do().delete();
+      });
+      it("Should return age visibility criteria Cuf", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("visibilityCriteria");
+        expect(response.body.visibilityCriteria).toHaveProperty("province", [
+          "MI",
+          "PA",
+        ]);
+      });
+    });
   });
 });
