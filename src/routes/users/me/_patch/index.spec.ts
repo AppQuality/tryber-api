@@ -469,6 +469,18 @@ describe("Route PATCH users-me accepted fields", () => {
       .first();
     expect(user?.province).toBe("CR");
   });
+  it("Should set province for edge case bolzano", async () => {
+    const responsePatch = await request(app)
+      .patch(`/users/me`)
+      .set("Authorization", `Bearer tester`)
+      .send({ city: "Bolzano" });
+
+    const user = await tryber.tables.WpAppqEvdProfile.do()
+      .select("province")
+      .where("id", 1)
+      .first();
+    expect(user?.province).toBe("BZ");
+  });
   it("Should unset province if a invalid city is sent", async () => {
     const responsePatch = await request(app)
       .patch(`/users/me`)

@@ -127,7 +127,12 @@ export default async (
       profileUpdateData.push(escapeCharacters(req.body.city));
       const cityAttributes = Object.values(CITIES_ATTRIBUTES).find(
         (c) =>
-          req.body.city && c.name.toLowerCase() === req.body.city.toLowerCase()
+          req.body.city &&
+          (c.name.toLowerCase() === req.body.city.toLowerCase() ||
+            c.name
+              .toLowerCase()
+              .split("/")
+              .includes(req.body.city.toLowerCase()))
       );
       profileSets.push("province = ?");
       profileUpdateData.push(cityAttributes ? cityAttributes.province : "");
