@@ -296,13 +296,16 @@ export default class RouteItem extends UserRoute<{
     const ageRanges = this.getBody().visibilityCriteria?.ageRanges;
     if (!ageRanges || ageRanges.length < 1) return;
 
-    await tryber.tables.CampaignDossierDataAge.do().insert(
-      ageRanges.map((range) => ({
-        campaign_dossier_data_id: dossierId,
-        min: range.min,
-        max: range.max,
-      }))
-    );
+    await tryber.tables.CampaignDossierDataAge.do()
+      .insert(
+        ageRanges.map((range) => ({
+          campaign_dossier_data_id: dossierId,
+          min: range.min,
+          max: range.max,
+        }))
+      )
+      .onConflict(["campaign_dossier_data_id", "min", "max"])
+      .ignore();
   }
 
   private async updateCampaignDossierDataGender() {
