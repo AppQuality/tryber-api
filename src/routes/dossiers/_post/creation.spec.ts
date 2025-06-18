@@ -389,11 +389,10 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({
         ...baseRequest,
-        bugTypes: [100],
+        bugTypes: [1000],
       });
     expect(response.status).toBe(406);
     expect(response.body).toHaveProperty("id");
-    const id = response.body.id;
   });
 
   it("Should create a campaign with the end date as start date + 7 if left unspecified", async () => {
@@ -595,6 +594,30 @@ describe("Route POST /dossiers", () => {
       .where({ campaign_id: id });
     expect(dossierData).toHaveLength(1);
     expect(dossierData[0]).toHaveProperty("link", "https://example.com");
+  });
+
+  it("Should save genderQuote in the dossier data", async () => {
+    const response = await request(app)
+      .post("/dossiers")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        target: { genderQuote: "gender quotes: 100% female" },
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toHaveProperty("id");
+
+    const id = response.body.id;
+
+    const dossierData = await tryber.tables.CampaignDossierData.do()
+      .select()
+      .where({ campaign_id: id });
+    expect(dossierData).toHaveLength(1);
+    expect(dossierData[0]).toHaveProperty(
+      "gender_quote",
+      "gender quotes: 100% female"
+    );
   });
 
   it("Should save goal in the dossier data", async () => {

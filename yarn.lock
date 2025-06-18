@@ -28,10 +28,10 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.44.6":
-  version "0.44.6"
-  resolved "https://registry.npmjs.org/@appquality/tryber-database/-/tryber-database-0.44.6.tgz#7791c4f351c2e10ac26f1c297f2297356391c848"
-  integrity sha512-a0hnYnAjyEiygjsujg1O3DDO7uEBA3RsEBCpcrz2Ltwkjwbbi2OzqOtmW9cn58scYC10U3rst/pWz9NZvcBCXA==
+"@appquality/tryber-database@^0.44.21":
+  version "0.44.21"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.44.21.tgz#d47c9f204bc586a05fa0a90e0ebf0cca59251f8d"
+  integrity sha512-GHX19vCPNayqApesMZc4X4BXlF4VQKZ7tnswOA8kYAJ9RCiJ4zuwy56q4qQAkpYLgbkHUwev/xr9CFjotkt5xw==
   dependencies:
     better-sqlite3 "^8.1.0"
     knex "^2.5.1"
@@ -2311,6 +2311,11 @@ component-emitter@^1.2.1, component-emitter@^1.3.0:
   version "1.3.0"
   resolved "https://registry.npmjs.org/component-emitter/-/component-emitter-1.3.0.tgz"
   integrity sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==
+
+comuni-province-regioni@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.npmjs.org/comuni-province-regioni/-/comuni-province-regioni-0.4.3.tgz#287c312f1caac8cf8b770d6b707a7ca1e7b6f1d4"
+  integrity sha512-UhJmDaIUg5nDHiHAfIcMGX87E6f54z6UU538WQHeqTOA/BxjSz5ZQCsVclGRT9c801Fe3BLfD5uDoatvRbl9xg==
 
 concat-map@0.0.1:
   version "0.0.1"

@@ -5,8 +5,16 @@ import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
+import Province from "comuni-province-regioni/lib/province";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 
+const MIN_TESTER_AGE = 14;
+
+const VALID_PROVINCE_CODES = Object.values(Province).map((p) => String(p));
+
+const isValidProvinceCode = (code: string): boolean => {
+  return VALID_PROVINCE_CODES.includes(code);
+};
 export default class PostDossiers extends UserRoute<{
   response: StoplightOperations["post-dossiers"]["responses"]["201"]["content"]["application/json"];
   body: StoplightOperations["post-dossiers"]["requestBody"]["content"]["application/json"];
@@ -64,6 +72,21 @@ export default class PostDossiers extends UserRoute<{
       this.setError(400, new OpenapiError("Invalid campaign to duplicate"));
       return false;
     }
+    if (await this.invalidCufSubmitted()) {
+      this.setError(
+        406,
+        new OpenapiError("Invalid Custom User Field submitted")
+      );
+      return false;
+    }
+    if (this.invalidAgeRangeSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid age range submitted"));
+      return false;
+    }
+    if (this.invalidProvincesSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid provinces submitted"));
+      return false;
+    }
 
     return true;
   }
@@ -117,6 +140,63 @@ export default class PostDossiers extends UserRoute<{
       .whereIn("id", bugTypeIds);
     if (bugTypesExist.length !== bugTypeIds.length) return true;
     return false;
+  }
+
+  private async invalidCufSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+    if (!visibilityCriteria?.cuf || !visibilityCriteria.cuf.length)
+      return false;
+
+    const cufs = visibilityCriteria.cuf;
+
+    const cufIds = [...new Set(cufs.map((cuf) => cuf.cufId))];
+    const cufValuesIds = cufs.map((cuf) => cuf.cufValueIds).flat();
+    const cufExist = await tryber.tables.WpAppqCustomUserField.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_custom_user_field"),
+        tryber.ref("name").withSchema("wp_appq_custom_user_field_extras")
+      )
+      .join(
+        "wp_appq_custom_user_field_extras",
+        "wp_appq_custom_user_field.id",
+        "wp_appq_custom_user_field_extras.custom_user_field_id"
+      )
+      .whereIn("wp_appq_custom_user_field.id", cufIds)
+      .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
+      .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
+
+    if (cufValuesIds.length !== cufExist.length) return true;
+    return false;
+  }
+
+  private invalidAgeRangeSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+    const ageRanges = visibilityCriteria?.ageRanges || [];
+    if (!ageRanges || !ageRanges.length) return false;
+
+    for (const ageRange of ageRanges) {
+      if (
+        typeof ageRange.min !== "number" ||
+        typeof ageRange.max !== "number" ||
+        ageRange.min < MIN_TESTER_AGE ||
+        ageRange.max < MIN_TESTER_AGE ||
+        ageRange.min > ageRange.max
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private invalidProvincesSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+
+    const provinces = visibilityCriteria?.provinces || [];
+    if (!provinces || provinces.length === 0) return false;
+
+    const upperProvince = provinces.map((p) => String(p).toUpperCase());
+    if (new Set(upperProvince).size !== provinces.length) return true;
+    return upperProvince.some((p) => p.length !== 2 || !isValidProvinceCode(p));
   }
 
   private async projectExists(): Promise<boolean> {
@@ -326,6 +406,7 @@ export default class PostDossiers extends UserRoute<{
         created_by: this.getTesterId(),
         updated_by: this.getTesterId(),
         notes: this.getBody().notes,
+        gender_quote: this.getBody().target?.genderQuote || "",
       })
       .returning("id");
 
@@ -337,6 +418,7 @@ export default class PostDossiers extends UserRoute<{
       created_by: this.getTesterId(),
     });
 
+    // TODO: move countries, languages, browsers, into visibility criteria
     const countries = this.getBody().countries;
     if (countries?.length) {
       await tryber.tables.CampaignDossierDataCountries.do().insert(
@@ -366,6 +448,57 @@ export default class PostDossiers extends UserRoute<{
           browser_id: browser,
         }))
       );
+    }
+
+    const visibilityCriteria = this.getBody().visibilityCriteria;
+
+    const cufs = visibilityCriteria?.cuf || [];
+    if (cufs?.length > 0) {
+      for (const cuf of cufs) {
+        const cufValueIds = cuf.cufValueIds;
+        if (cufValueIds.length > 0) {
+          await tryber.tables.CampaignDossierDataCuf.do().insert(
+            cuf.cufValueIds.map((c) => ({
+              campaign_dossier_data_id: dossierId,
+              cuf_id: cuf.cufId,
+              cuf_value_id: c,
+            }))
+          );
+        }
+      }
+    }
+
+    const ageRanges = visibilityCriteria?.ageRanges || [];
+    if (ageRanges?.length > 0) {
+      await tryber.tables.CampaignDossierDataAge.do().insert(
+        ageRanges.map((range) => ({
+          campaign_dossier_data_id: dossierId,
+          max: range.max,
+          min: range.min,
+        }))
+      );
+    }
+
+    const genders = visibilityCriteria?.gender || [];
+    if (genders?.length > 0) {
+      for (const g of genders) {
+        if (g !== null) {
+          await tryber.tables.CampaignDossierDataGender.do().insert({
+            campaign_dossier_data_id: dossierId,
+            gender: g,
+          });
+        }
+      }
+    }
+
+    const provinces = visibilityCriteria?.provinces || [];
+    if (provinces.length > 0) {
+      for (const p of provinces) {
+        await tryber.tables.CampaignDossierDataProvince.do().insert({
+          campaign_dossier_data_id: dossierId,
+          province: p.toUpperCase(),
+        });
+      }
     }
 
     return campaignId;

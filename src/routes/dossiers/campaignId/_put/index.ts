@@ -55,6 +55,13 @@ export default class RouteItem extends UserRoute<{
       this.setError(400, new OpenapiError("Invalid devices"));
       return false;
     }
+    if (await this.invalidCufSubmitted()) {
+      this.setError(
+        406,
+        new OpenapiError("Invalid Custom User Field submitted")
+      );
+      return false;
+    }
 
     return true;
   }
@@ -144,9 +151,17 @@ export default class RouteItem extends UserRoute<{
 
     await this.updateCampaignDossierData();
 
+    await this.updateTesterVisibilityCriteria();
+  }
+
+  private async updateTesterVisibilityCriteria() {
     await this.updateCampaignDossierDataCountries();
     await this.updateCampaignDossierDataLanguages();
     await this.updateCampaignDossierDataBrowsers();
+    await this.updateCampaignDossierDataAge();
+    await this.updateCampaignDossierDataGender();
+    await this.updateCampaignDossierDataCuf();
+    await this.updateCampaignDossierDataProvince();
   }
 
   private async updateCampaignDossierData() {
@@ -179,6 +194,9 @@ export default class RouteItem extends UserRoute<{
         target_devices: this.getBody().deviceRequirements,
         notes: this.getBody().notes,
         updated_by: this.getTesterId(),
+        ...(typeof this.getBody().target?.genderQuote !== "undefined" && {
+          gender_quote: this.getBody().target?.genderQuote,
+        }),
       })
       .where({
         campaign_id: this.campaignId,
@@ -259,6 +277,116 @@ export default class RouteItem extends UserRoute<{
         browser_id: browser,
       }))
     );
+  }
+
+  private async updateCampaignDossierDataAge() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataAge.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const ageRanges = this.getBody().visibilityCriteria?.ageRanges;
+    if (!ageRanges || ageRanges.length < 1) return;
+
+    await tryber.tables.CampaignDossierDataAge.do()
+      .insert(
+        ageRanges.map((range) => ({
+          campaign_dossier_data_id: dossierId,
+          min: range.min,
+          max: range.max,
+        }))
+      )
+      .onConflict(["campaign_dossier_data_id", "min", "max"])
+      .ignore();
+  }
+
+  private async updateCampaignDossierDataGender() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataGender.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const genders = this.getBody().visibilityCriteria?.gender;
+    if (!genders || genders.length < 1) return;
+
+    for (const g of genders) {
+      if (g !== null) {
+        await tryber.tables.CampaignDossierDataGender.do().insert({
+          campaign_dossier_data_id: dossierId,
+          gender: g,
+        });
+      }
+    }
+  }
+  private async updateCampaignDossierDataProvince() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataProvince.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const provinces = this.getBody().visibilityCriteria?.provinces;
+    if (!provinces || provinces.length < 1) return;
+
+    await tryber.tables.CampaignDossierDataProvince.do().insert(
+      provinces.map((province) => ({
+        campaign_dossier_data_id: dossierId,
+        province: province,
+      }))
+    );
+  }
+  private async updateCampaignDossierDataCuf() {
+    const dossier = await tryber.tables.CampaignDossierData.do()
+      .select("id")
+      .where({
+        campaign_id: this.campaignId,
+      })
+      .first();
+    if (!dossier) return;
+
+    const dossierId = dossier.id;
+    await tryber.tables.CampaignDossierDataCuf.do()
+      .delete()
+      .where("campaign_dossier_data_id", dossierId);
+
+    const cufs = this.getBody().visibilityCriteria?.cuf;
+    if (!cufs || cufs.length < 1) return;
+
+    for (const cuf of cufs) {
+      const cufValueIds = cuf.cufValueIds;
+      if (cufValueIds.length > 0) {
+        await tryber.tables.CampaignDossierDataCuf.do().insert(
+          cuf.cufValueIds.map((c) => ({
+            campaign_dossier_data_id: dossierId,
+            cuf_id: cuf.cufId,
+            cuf_value_id: c,
+          }))
+        );
+      }
+    }
   }
 
   private async linkRolesToCampaign() {
@@ -371,5 +499,31 @@ export default class RouteItem extends UserRoute<{
     const form_factor = devices.map((device) => device.form_factor);
 
     return { os, form_factor };
+  }
+  private async invalidCufSubmitted() {
+    const { visibilityCriteria } = this.getBody();
+    if (!visibilityCriteria?.cuf || !visibilityCriteria.cuf.length)
+      return false;
+
+    const cufs = visibilityCriteria.cuf;
+
+    const cufIds = [...new Set(cufs.map((cuf) => cuf.cufId))];
+    const cufValuesIds = cufs.map((cuf) => cuf.cufValueIds).flat();
+    const cufExist = await tryber.tables.WpAppqCustomUserField.do()
+      .select(
+        tryber.ref("id").withSchema("wp_appq_custom_user_field"),
+        tryber.ref("name").withSchema("wp_appq_custom_user_field_extras")
+      )
+      .join(
+        "wp_appq_custom_user_field_extras",
+        "wp_appq_custom_user_field.id",
+        "wp_appq_custom_user_field_extras.custom_user_field_id"
+      )
+      .whereIn("wp_appq_custom_user_field.id", cufIds)
+      .whereIn("wp_appq_custom_user_field_extras.id", cufValuesIds)
+      .whereIn("wp_appq_custom_user_field.type", ["select", "multiselect"]);
+
+    if (cufValuesIds.length !== cufExist.length) return true;
+    return false;
   }
 }

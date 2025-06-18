@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS: get-dossiers-campaign */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class RouteItem extends UserRoute<{
@@ -140,6 +140,7 @@ export default class RouteItem extends UserRoute<{
         "target_devices",
         "product_type_id",
         "notes",
+        "gender_quote",
         tryber.ref("name").withSchema("product_types").as("product_type_name")
       )
       .leftJoin(
@@ -162,22 +163,6 @@ export default class RouteItem extends UserRoute<{
           .select("language_name")
           .where("campaign_dossier_data_id", dossierData.dossier_id)
       : [];
-
-    /*  const targetLanguagesQuery1 = dossierData
-      ? await tryber.tables.CampaignDossierDataLanguages.do()
-          .join(
-            "wp_appq_lang",
-            "wp_appq_lang.id",
-            "campaign_dossier_data_languages.language_id"
-          )
-          .select("language_id")
-          .select("display_name")
-          .select("language_name")
-          .where("campaign_dossier_data_id", dossierData.dossier_id)
-      : [];
-
-    console.log("targetLanguages", targetLanguages);
-*/
     const targetBrowsers = dossierData
       ? await tryber.tables.CampaignDossierDataBrowsers.do()
           .join(
@@ -307,6 +292,9 @@ export default class RouteItem extends UserRoute<{
             ...(typeof this.campaign.cap !== "undefined" && {
               cap: this.campaign.cap,
             }),
+            ...(typeof this.campaign.gender_quote !== "undefined" && {
+              genderQuote: this.campaign.gender_quote || "",
+            }),
           },
         }),
         ...(this.campaign.target_devices && {
@@ -337,10 +325,67 @@ export default class RouteItem extends UserRoute<{
               name: this.campaign.product_type_name,
             },
           }),
+        visibilityCriteria: {
+          ageRanges: await this.getVisibilityCriteriaAge(),
+          gender: await this.getVisibilityCriteriaGender(),
+          cuf: await this.getVisibilityCriteriaCuf(),
+          province: await this.getVisibilityCriteriaProvince(),
+        },
       });
     } catch (e) {
       this.setError(500, e as OpenapiError);
     }
+  }
+
+  private async getVisibilityCriteriaAge() {
+    if (!this.campaign.dossier_id) return undefined;
+    const ageRanges = await tryber.tables.CampaignDossierDataAge.do()
+      .select("min", "max")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!ageRanges || ageRanges.length < 1) return undefined;
+
+    return ageRanges;
+  }
+
+  private async getVisibilityCriteriaGender() {
+    if (!this.campaign.dossier_id) return undefined;
+    const genders = await tryber.tables.CampaignDossierDataGender.do()
+      .select("gender")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!genders || genders.length < 1) return undefined;
+
+    return genders.map((g) => Number(g.gender));
+  }
+
+  private async getVisibilityCriteriaProvince() {
+    if (!this.campaign.dossier_id) return undefined;
+    const provinces = await tryber.tables.CampaignDossierDataProvince.do()
+      .select("province")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!provinces || provinces.length < 1) return undefined;
+    return provinces.map((p) => p.province);
+  }
+
+  private async getVisibilityCriteriaCuf() {
+    if (!this.campaign.dossier_id) return undefined;
+    const cufs = await tryber.tables.CampaignDossierDataCuf.do()
+      .select("cuf_id", "cuf_value_id")
+      .where("campaign_dossier_data_id", this.campaign.dossier_id);
+    if (!cufs || cufs.length < 1) return undefined;
+
+    let cufValues = [];
+    for (const cuf of cufs) {
+      const existingCuf = cufValues.find((item) => item.cufId === cuf.cuf_id);
+      if (existingCuf) {
+        existingCuf.cufValueIds.push(cuf.cuf_value_id);
+      } else {
+        cufValues.push({
+          cufId: cuf.cuf_id,
+          cufValueIds: [cuf.cuf_value_id],
+        });
+      }
+    }
+    return cufValues;
   }
 
   private formatDate(dateTime: string) {

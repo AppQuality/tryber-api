@@ -661,7 +661,6 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
     const response = await request(app)
       .get("/users/me/pending_booty")
       .set("authorization", "Bearer tester");
-    console.log(response.body);
 
     expect(response.status).toBe(200);
     expect(response.body.results.map((el: { id: number }) => el.id)).toEqual(

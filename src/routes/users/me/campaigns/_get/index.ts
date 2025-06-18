@@ -1,6 +1,5 @@
-import UserRoute from "@src/features/routes/UserRoute";
-
 import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
 import { UserTargetChecker } from "./UserTargetChecker";
 
@@ -381,21 +380,107 @@ class RouteItem extends UserRoute<{
           campaignsWithTarget.map((c) => c.id)
         );
 
+    const allowedProvinces =
+      await tryber.tables.CampaignDossierDataProvince.do()
+        .select("campaign_id", "province")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data.id",
+          "campaign_dossier_data_province.campaign_dossier_data_id"
+        )
+        .whereIn(
+          "campaign_dossier_data.campaign_id",
+          campaignsWithTarget.map((c) => c.id)
+        );
+
+    const allowedCufs = await tryber.tables.CampaignDossierDataCuf.do()
+      .select("campaign_id", "cuf_id", "cuf_value_id")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_cuf.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const allowedAges = await tryber.tables.CampaignDossierDataAge.do()
+      .select("campaign_id", "min", "max")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_age.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const allowedGenders = await tryber.tables.CampaignDossierDataGender.do()
+      .select("campaign_id", "gender")
+      .join(
+        "campaign_dossier_data",
+        "campaign_dossier_data.id",
+        "campaign_dossier_data_gender.campaign_dossier_data_id"
+      )
+      .whereIn(
+        "campaign_dossier_data.campaign_id",
+        campaignsWithTarget.map((c) => c.id)
+      );
+
+    const ageMap = new Map(
+      allowedAges.map((a) => [a.campaign_id, { min: a.min, max: a.max }])
+    );
+
     return campaigns.map((campaign) => {
       if (campaign.visibility_type !== 4) return campaign;
 
+      const provinces = allowedProvinces
+        .filter((l) => l.campaign_id === campaign.id)
+        .map((l) => l.province);
       const languages = allowedLanguages
         .filter((l) => l.campaign_id === campaign.id)
         .map((l) => l.language_name);
       const countries = allowedCountries
         .filter((l) => l.campaign_id === campaign.id)
         .map((l) => l.country_code);
+      const cufs = allowedCufs
+        .filter((l) => l.campaign_id === campaign.id)
+        .reduce((acc: Record<number, number[]>, cur) => {
+          if (!acc[cur.cuf_id]) acc[cur.cuf_id] = [];
+          acc[cur.cuf_id].push(cur.cuf_value_id);
+          return acc;
+        }, {});
+
+      const age = ageMap.get(campaign.id) || { min: 0, max: 999 };
+
+      const genders =
+        allowedGenders.length > 0
+          ? allowedGenders.reduce((acc, g) => {
+              if (g.campaign_id === campaign.id) {
+                acc.push(g.gender);
+              }
+              return acc;
+            }, [] as number[])
+          : [1, 0, -1, 2];
 
       return {
         ...campaign,
         targetRules: {
           ...(languages.length ? { languages } : {}),
           ...(countries.length ? { countries } : {}),
+          ...(provinces.length ? { provinces } : {}),
+          ...(age ? { age } : {}),
+          ...(genders.length ? { genders } : {}),
+          ...(Object.keys(cufs).length
+            ? {
+                cufs: Object.keys(cufs).map((id) => ({
+                  id: parseInt(id),
+                  values: cufs[parseInt(id)],
+                })),
+              }
+            : {}),
         },
       };
     });
@@ -470,6 +555,10 @@ class RouteItem extends UserRoute<{
       targetRules?: {
         languages?: string[];
         countries?: string[];
+        provinces?: string[];
+        cufs?: { id: number; values: (string | number)[] }[];
+        age?: { min?: number; max?: number };
+        genders?: number[];
       };
     })[]
   ) {

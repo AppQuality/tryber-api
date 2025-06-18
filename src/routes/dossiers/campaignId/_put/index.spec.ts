@@ -64,6 +64,7 @@ describe("Route PUT /dossiers/:id", () => {
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.CampaignDossierData.do().delete();
   });
 
   it("Should answer 403 if not logged in", async () => {
@@ -81,7 +82,6 @@ describe("Route PUT /dossiers/:id", () => {
       .put("/dossiers/1")
       .set("authorization", "Bearer tester")
       .send(baseRequest);
-    console.log(response.body);
     expect(response.status).toBe(403);
   });
 
@@ -131,5 +131,228 @@ describe("Route PUT /dossiers/:id", () => {
       .send(baseRequest)
       .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
+  });
+  describe("Should set visibility criteria if sent - age criteria", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataAge.do().delete();
+    });
+    it("Should answer 200 if send age visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            ageRanges: [
+              { min: 19, max: 25 },
+              { min: 26, max: 30 },
+            ],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add age ranges if sent and not yet in campaign", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            ageRanges: [
+              {
+                min: 18,
+                max: 25,
+              },
+              {
+                min: 26,
+                max: 35,
+              },
+            ],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierAge = await tryber.tables.CampaignDossierDataAge.do()
+        .select("min", "max")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_age.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierAge).toHaveLength(2);
+
+      expect(dossierAge).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            min: 18,
+            max: 25,
+          }),
+          expect.objectContaining({
+            min: 26,
+            max: 35,
+          }),
+        ])
+      );
+    });
+  });
+  describe("Should set visibility criteria if sent - gender criteria", () => {
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataGender.do().delete();
+    });
+    it("Should answer 200 if send gender visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            gender: [1, 0],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add gender if sent and not yet in campaign", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            gender: [1, 0],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierGender = await tryber.tables.CampaignDossierDataGender.do()
+        .select("gender")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_gender.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierGender).toHaveLength(2);
+
+      expect(dossierGender).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            gender: 0,
+          }),
+          expect.objectContaining({
+            gender: 1,
+          }),
+        ])
+      );
+    });
+  });
+  describe("Should set visibility criteria if sent - cuf criteria", () => {
+    beforeEach(async () => {
+      await tryber.tables.WpAppqCustomUserField.do().insert([
+        {
+          id: 10,
+          name: "CUF10",
+          slug: "cuf10",
+          placeholder: "CUF10 Placeholder",
+          extras: "",
+          custom_user_field_group_id: 1,
+          type: "select",
+        },
+        {
+          id: 20,
+          name: "CUF20",
+          slug: "cuf20",
+          placeholder: "CUF20 Placeholder",
+          extras: "",
+          custom_user_field_group_id: 1,
+          type: "multiselect",
+        },
+      ]);
+      await tryber.tables.WpAppqCustomUserFieldExtras.do().insert([
+        { id: 100, custom_user_field_id: 10, name: "CUF10 Extra1" },
+        { id: 101, custom_user_field_id: 10, name: "CUF10 Extra2" },
+        { id: 200, custom_user_field_id: 20, name: "CUF20 Extra1" },
+        { id: 201, custom_user_field_id: 20, name: "CUF20 Extra2" },
+      ]);
+    });
+
+    afterEach(async () => {
+      await tryber.tables.CampaignDossierDataCuf.do().delete();
+      await tryber.tables.WpAppqCustomUserField.do().delete();
+      await tryber.tables.WpAppqCustomUserFieldExtras.do().delete();
+    });
+    it("Should return an error if send invalid cuf as cuf visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 30, cufValueIds: [300, 301] },
+            ],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(406);
+      expect(response.body).toMatchObject({
+        message: "Invalid Custom User Field submitted",
+      });
+    });
+    it("Should answer 200 if send valid cuf visibility criteria", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 20, cufValueIds: [200, 201] },
+            ],
+          },
+        })
+        .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      expect(response.status).toBe(200);
+    });
+    it("Should add cuf if sent valid cuf", async () => {
+      const response = await request(app)
+        .put("/dossiers/1")
+        .send({
+          ...baseRequest,
+          visibilityCriteria: {
+            cuf: [
+              { cufId: 10, cufValueIds: [100, 101] },
+              { cufId: 20, cufValueIds: [200, 201] },
+            ],
+          },
+        })
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do()
+        .select("cuf_id", "cuf_value_id")
+        .join(
+          "campaign_dossier_data",
+          "campaign_dossier_data_cuf.campaign_dossier_data_id",
+          "campaign_dossier_data.id"
+        )
+        .where("campaign_dossier_data.campaign_id", response.body.id);
+      expect(dossierCuf).toHaveLength(4);
+
+      expect(dossierCuf).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            cuf_id: 10,
+            cuf_value_id: 100,
+          }),
+          expect.objectContaining({
+            cuf_id: 10,
+            cuf_value_id: 101,
+          }),
+          expect.objectContaining({
+            cuf_id: 20,
+            cuf_value_id: 200,
+          }),
+          expect.objectContaining({
+            cuf_id: 20,
+            cuf_value_id: 201,
+          }),
+        ])
+      );
+    });
   });
 });
