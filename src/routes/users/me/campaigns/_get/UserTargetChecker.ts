@@ -89,7 +89,7 @@ export class UserTargetChecker {
     countries?: string[];
     provinces?: string[];
     cufs?: { id: number; values: (string | number)[] }[];
-    age?: { min?: number; max?: number };
+    age?: { min?: number; max?: number }[];
     genders?: number[];
   }) {
     if (Object.keys(targetRules).length === 0) return true;
@@ -132,8 +132,17 @@ export class UserTargetChecker {
       }
     }
 
-    if (age && age.max && age.min) {
-      if (this.userAge < age.min || this.userAge > age.max) return false;
+    if (age && age.length) {
+      if (
+        !age.some((ageRule) => {
+          if (!ageRule.min && !ageRule.max) return true;
+          const min = ageRule.min ?? -Infinity;
+          const max = ageRule.max ?? Infinity;
+          return this.userAge >= min && this.userAge <= max;
+        })
+      ) {
+        return false;
+      }
     }
 
     if (genders && !genders.includes(this.userGender)) {
