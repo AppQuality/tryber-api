@@ -429,8 +429,13 @@ class RouteItem extends UserRoute<{
         campaignsWithTarget.map((c) => c.id)
       );
 
-    const ageMap = new Map(
-      allowedAges.map((a) => [a.campaign_id, { min: a.min, max: a.max }])
+    const ages = allowedAges.reduce(
+      (acc: Record<number, { min: number; max: number }[]>, cur) => {
+        if (!acc[cur.campaign_id]) acc[cur.campaign_id] = [];
+        acc[cur.campaign_id].push({ min: cur.min, max: cur.max });
+        return acc;
+      },
+      {}
     );
 
     return campaigns.map((campaign) => {
@@ -453,7 +458,7 @@ class RouteItem extends UserRoute<{
           return acc;
         }, {});
 
-      const age = ageMap.get(campaign.id) || { min: 0, max: 999 };
+      const age = campaign.id in ages ? ages[campaign.id] : undefined;
 
       const genders =
         allowedGenders.length > 0
@@ -557,7 +562,7 @@ class RouteItem extends UserRoute<{
         countries?: string[];
         provinces?: string[];
         cufs?: { id: number; values: (string | number)[] }[];
-        age?: { min?: number; max?: number };
+        age?: { min?: number; max?: number }[];
         genders?: number[];
       };
     })[]
