@@ -458,8 +458,7 @@ class RouteItem extends UserRoute<{
           return acc;
         }, {});
 
-      const age =
-        campaign.id in ages ? ages[campaign.id] : [{ min: 0, max: 999 }];
+      const age = campaign.id in ages ? ages[campaign.id] : undefined;
 
       const genders =
         allowedGenders.length > 0
