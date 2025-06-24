@@ -44,17 +44,12 @@ class CandidateBhLevel implements CandidateData {
 
   async init() {
     const campaignAndBugsQuery = tryber.tables.WpAppqEvdBug.do()
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_bug.wp_user_id",
-        "wp_appq_evd_profile.wp_user_id"
-      )
-      .select(tryber.ref("id").withSchema("wp_appq_evd_profile"))
+      .select(tryber.ref("profile_id").withSchema("wp_appq_evd_bug").as("id"))
       .countDistinct({ campaigns: "campaign_id" })
       .count({ bug: tryber.ref("id").withSchema("wp_appq_evd_bug") })
       .where("status_id", 2)
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds)
-      .groupBy("wp_appq_evd_profile.id");
+      .whereIn("profile_id", this.candidateIds)
+      .groupBy("profile_id");
 
     const hasLevelOneCourseQuery = tryber.tables.WpAppqCourseTesterStatus.do()
       .join(
@@ -79,18 +74,13 @@ class CandidateBhLevel implements CandidateData {
       .whereIn("wp_appq_course_tester_status.tester_id", this.candidateIds);
 
     const bugsBySeverityQuery = tryber.tables.WpAppqEvdBug.do()
-      .join(
-        "wp_appq_evd_profile",
-        "wp_appq_evd_bug.wp_user_id",
-        "wp_appq_evd_profile.wp_user_id"
-      )
       .select(
-        tryber.ref("id").withSchema("wp_appq_evd_profile").as("tester_id"),
-        "severity_id"
+        "severity_id",
+        tryber.ref("profile_id").withSchema("wp_appq_evd_bug").as("tester_id")
       )
       .where("status_id", 2)
       .whereIn("severity_id", [3, 4])
-      .whereIn("wp_appq_evd_profile.id", this.candidateIds);
+      .whereIn("profile_id", this.candidateIds);
 
     const [
       campaignAndBugs,
