@@ -1868,20 +1868,12 @@ paths:
                 properties:
                   ai_status:
                     type: string
-                    x-stoplight:
-                      id: 6xg7jy1yzrqfv
                   ai_reason:
                     type: string
-                    x-stoplight:
-                      id: mpzlmy88ge3xt
                   score_percentage:
                     type: number
-                    x-stoplight:
-                      id: e89e8xn8l4evs
                   ai_notes:
                     type: string
-                    x-stoplight:
-                      id: 1is59rfbbc0mw
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
