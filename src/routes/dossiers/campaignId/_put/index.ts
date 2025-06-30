@@ -152,6 +152,32 @@ export default class RouteItem extends UserRoute<{
     await this.updateCampaignDossierData();
 
     await this.updateTesterVisibilityCriteria();
+
+    await this.updatePlanData();
+  }
+
+  private async updatePlanData() {
+    const plan = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("plan_id")
+      .where({
+        id: this.campaignId,
+      })
+      .first();
+    if (!plan || !plan.plan_id) return;
+
+    const project = await tryber.tables.WpAppqProject.do()
+      .select("id", "customer_id")
+      .where({
+        id: this.getBody().project,
+      })
+      .first();
+
+    if (!project || !project.customer_id) return;
+
+    await tryber.tables.CpReqPlans.do().update({
+      workspace_id: project.customer_id,
+      project_id: project.id,
+    });
   }
 
   private async updateTesterVisibilityCriteria() {
