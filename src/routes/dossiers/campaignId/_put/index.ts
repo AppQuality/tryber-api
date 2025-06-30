@@ -174,10 +174,14 @@ export default class RouteItem extends UserRoute<{
 
     if (!project || !project.customer_id) return;
 
-    await tryber.tables.CpReqPlans.do().update({
-      workspace_id: project.customer_id,
-      project_id: project.id,
-    });
+    await tryber.tables.CpReqPlans.do()
+      .update({
+        workspace_id: project.customer_id,
+        project_id: project.id,
+      })
+      .where({
+        id: plan.plan_id,
+      });
   }
 
   private async updateTesterVisibilityCriteria() {
