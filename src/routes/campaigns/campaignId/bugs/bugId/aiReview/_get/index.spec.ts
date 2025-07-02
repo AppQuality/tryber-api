@@ -17,6 +17,12 @@ const campaign_1 = {
   project_id: 1,
 };
 
+const campaign_2 = {
+  ...campaign_1,
+  id: campaign_1.id + 1,
+  customer_id: 1,
+};
+
 const bug_1 = {
   id: 12345,
   campaign_id: campaign_1.id,
@@ -31,6 +37,12 @@ const bug_1 = {
   bug_type_id: 1, // Crash
 };
 
+const bug_2 = {
+  ...bug_1,
+  id: bug_1.id + 1,
+  campaign_id: campaign_2.id,
+};
+
 const ai_review_1 = {
   ai_status: "approved",
   ai_reason: "Bug is valid",
@@ -42,8 +54,8 @@ const ai_review_1 = {
 
 describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdBug.do().insert(bug_1);
-    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign_1);
+    await tryber.tables.WpAppqEvdBug.do().insert([bug_1, bug_2]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([campaign_1, campaign_2]);
     await tryber.tables.WpAppqEvdBugStatus.do().insert({
       id: 2,
       name: "Approved",
@@ -126,5 +138,19 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
       ai_notes: ai_review_1.ai_notes,
       score_percentage: ai_review_1.score_percentage,
     });
+  });
+
+  it("Should answer 404 if there is no ai review data", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_2.id}/bugs/${bug_2.id}/aiReview`)
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(404);
+  });
+
+  it("Should answer 403 even if user tester has permissions to see campaign and bug (admin only endpoint)", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_2.id}/bugs/${bug_2.id}/aiReview`)
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(403);
   });
 });

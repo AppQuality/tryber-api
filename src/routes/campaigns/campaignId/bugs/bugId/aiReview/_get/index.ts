@@ -7,16 +7,13 @@ export default class Route extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-single-bug-ai-review"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-campaigns-single-bug-ai-review"]["parameters"]["path"];
 }> {
+  protected bug_id: number;
+
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const params = this.getParameters();
     this.bug_id = parseInt(params.bugId, 10);
-    if (isNaN(this.bug_id)) {
-      this.setError(400, new OpenapiError("Invalid bug id"));
-      throw new Error("Invalid bug id");
-    }
   }
-  protected bug_id: number;
 
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
@@ -25,13 +22,21 @@ export default class Route extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const bugAiReview = await this.getBugAiReview();
-    if (!bugAiReview) {
-      this.setError(404, new OpenapiError("Bug AI review not found"));
-      throw new Error("Bug AI review not found");
+    if (isNaN(this.bug_id)) {
+      return this.setError(400, new OpenapiError("Invalid bug id"));
     }
 
-    this.setSuccess(200, bugAiReview);
+    // Admin only
+    if (this.configuration.request.user.role === "tester") {
+      return this.setError(403, new OpenapiError("Unauthorized"));
+    }
+
+    const bugAiReview = await this.getBugAiReview();
+    if (!bugAiReview) {
+      return this.setError(404, new OpenapiError("Bug AI review not found"));
+    }
+
+    return this.setSuccess(200, bugAiReview);
   }
 
   protected async getBugAiReview() {
