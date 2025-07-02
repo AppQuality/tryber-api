@@ -10,7 +10,7 @@ export default class Route extends CampaignRoute<{
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const params = this.getParameters();
-    this.bug_id = parseInt(params.bugId);
+    this.bug_id = parseInt(params.bugId, 10);
     if (isNaN(this.bug_id)) {
       this.setError(400, new OpenapiError("Invalid bug id"));
       throw new Error("Invalid bug id");
