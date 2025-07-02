@@ -27,7 +27,7 @@ export default class Route extends CampaignRoute<{
     }
 
     // Admin only
-    if (this.configuration.request.user.role === "tester") {
+    if (this.configuration.request.user.role !== "administrator") {
       return this.setError(403, new OpenapiError("Unauthorized"));
     }
 
