@@ -1850,30 +1850,30 @@ paths:
               examples:
                 Example 1:
                   value:
-                    ai_status: need_review
                     ai_reason: 'The bug requires review because it impacts the functionality of a key feature on the homepage, specifically the ''Find a dealer'' section, which is essential for user navigation and experience.'
+                    ai_status: need_review
                     score_percentage: 54
                 Example 2:
                   value:
-                    ai_status: refused
-                    ai_reason: 'The bug has been refused due to language inconsistencies in the title and description, which do not align with the use case requirements for a clear and consistent registration process.'
-                    score_percentage: 31
                     ai_notes: ' The mixed language content creates confusion for users during registration.'
+                    ai_reason: 'The bug has been refused due to language inconsistencies in the title and description, which do not align with the use case requirements for a clear and consistent registration process.'
+                    ai_status: refused
+                    score_percentage: 31
               schema:
                 type: object
+                properties:
+                  ai_notes:
+                    type: string
+                  ai_reason:
+                    type: string
+                  ai_status:
+                    type: string
+                  score_percentage:
+                    type: number
                 required:
                   - ai_status
                   - ai_reason
                   - score_percentage
-                properties:
-                  ai_status:
-                    type: string
-                  ai_reason:
-                    type: string
-                  score_percentage:
-                    type: number
-                  ai_notes:
-                    type: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -1882,8 +1882,6 @@ paths:
         - JWT: []
       tags:
         - Campaign
-      x-stoplight:
-        id: yn4d95mynl1bj
     parameters:
       - name: campaign
         in: path
@@ -4483,7 +4481,6 @@ paths:
                   browsers:
                     type: array
                     items:
-                      type: object
                       properties:
                         id:
                           type: integer
@@ -4492,41 +4489,41 @@ paths:
                       required:
                         - id
                         - name
+                      type: object
                   closeDate:
                     type: string
                     format: date-time
                   countries:
                     type: array
-                    minItems: 1
-                    uniqueItems: true
                     items:
                       $ref: '#/components/schemas/CountryCode'
+                    minItems: 1
+                    uniqueItems: true
                   csm:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   customer:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   description:
                     type: string
                   deviceList:
                     type: array
                     items:
-                      type: object
                       properties:
                         id:
                           type: integer
@@ -4535,6 +4532,7 @@ paths:
                       required:
                         - id
                         - name
+                      type: object
                   deviceRequirements:
                     type: string
                   endDate:
@@ -4547,26 +4545,26 @@ paths:
                   languages:
                     type: array
                     items:
-                      type: object
                       properties:
                         name:
                           type: string
                       required:
                         - name
+                      type: object
                   notes:
                     type: string
                   outOfScope:
                     type: string
                   phase:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   productLink:
                     type: string
                   productType:
@@ -4581,18 +4579,17 @@ paths:
                       - name
                   project:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   roles:
                     type: array
                     items:
-                      type: object
                       properties:
                         role:
                           type: object
@@ -4617,6 +4614,7 @@ paths:
                             - id
                             - name
                             - surname
+                      type: object
                   startDate:
                     type: string
                     format: date-time
@@ -4633,31 +4631,30 @@ paths:
                         type: integer
                   testType:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   title:
                     type: object
-                    required:
-                      - customer
-                      - tester
                     properties:
                       customer:
                         type: string
                       tester:
                         type: string
+                    required:
+                      - customer
+                      - tester
                   visibilityCriteria:
                     type: object
                     properties:
                       ageRanges:
                         type: array
                         items:
-                          type: object
                           properties:
                             max:
                               type: integer
@@ -4666,10 +4663,10 @@ paths:
                           required:
                             - max
                             - min
+                          type: object
                       cuf:
                         type: array
                         items:
-                          type: object
                           properties:
                             cufId:
                               type: integer
@@ -4680,17 +4677,14 @@ paths:
                           required:
                             - cufId
                             - cufValueIds
+                          type: object
                       gender:
                         type: array
                         items:
                           type: integer
                       province:
                         type: array
-                        x-stoplight:
-                          id: pkx04gc0e3hk4
                         items:
-                          x-stoplight:
-                            id: v8sisrdtvzteo
                           type: string
                 required:
                   - closeDate
@@ -8100,8 +8094,6 @@ paths:
                           required:
                             - type
                             - options
-                          x-stoplight:
-                            id: age6qie67x6dt
                         - properties:
                             options:
                               type: array
@@ -8111,10 +8103,6 @@ paths:
                               $ref: '#/components/schemas/PreselectionQuestionCuf'
                           required:
                             - type
-                          x-stoplight:
-                            id: v6nzvavd1bbnh
-                      x-stoplight:
-                        id: 76ya1n62vrxoj
                   type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
