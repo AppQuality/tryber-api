@@ -24,10 +24,6 @@ class GetUsecasesRoute extends CampaignRoute<{
     return this.setSuccess(200, tasks);
   }
 
-  private isNotAdmin() {
-    return this.configuration.request.user.role !== "administrator";
-  }
-
   private async getUsecases() {
     const { campaign } = this.getParameters();
     const usecases = await tryber.tables.WpAppqCampaignTask.do()
