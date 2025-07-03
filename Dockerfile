@@ -24,6 +24,7 @@ FROM node:18.17.1-alpine AS web
 
 COPY --from=base /dist /app/build
 COPY package*.json /app/
+COPY yarn.lock /app/
 COPY --from=base /src/routes /app/src/routes
 COPY --from=base /.git/HEAD /app/.git/HEAD
 COPY --from=base /.git/refs /app/.git/refs
