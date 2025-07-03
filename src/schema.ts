@@ -106,6 +106,17 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/bugs/{bugId}/aiReview": {
+    /** Get ai review for a single bug of a Campaign if you have access to it */
+    get: operations["get-campaigns-single-bug-ai-review"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        bugId: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/candidates": {
     get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -1765,6 +1776,31 @@ export interface operations {
               id: number;
               title: string;
             };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get ai review for a single bug of a Campaign if you have access to it */
+  "get-campaigns-single-bug-ai-review": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        bugId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            ai_status: string;
+            ai_reason: string;
+            score_percentage: number;
+            ai_notes?: string;
           };
         };
       };

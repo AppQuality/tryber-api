@@ -28,10 +28,10 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.44.21":
-  version "0.44.21"
-  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.44.21.tgz#d47c9f204bc586a05fa0a90e0ebf0cca59251f8d"
-  integrity sha512-GHX19vCPNayqApesMZc4X4BXlF4VQKZ7tnswOA8kYAJ9RCiJ4zuwy56q4qQAkpYLgbkHUwev/xr9CFjotkt5xw==
+"@appquality/tryber-database@^0.44.24":
+  version "0.44.24"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.44.24.tgz#5ad269d582ba0c7424cea8b23bc198ec694cd297"
+  integrity sha512-frT3Bat/F9v6t5D0ETtDCJRTclFTmQhWH1KWRh0sGSzFnN6OGzlXw3qvQb+QcGwaYW82vMDoAFWQ2wrgXs25xw==
   dependencies:
     better-sqlite3 "^8.1.0"
     knex "^2.5.1"
@@ -1985,14 +1985,6 @@ body-parser@1.20.0, body-parser@^1.19.1:
     type-is "~1.6.18"
     unpipe "1.0.0"
 
-brace-expansion@^1.1.7:
-  version "1.1.11"
-  resolved "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.11.tgz"
-  integrity sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==
-  dependencies:
-    balanced-match "^1.0.0"
-    concat-map "0.0.1"
-
 brace-expansion@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.0.1.tgz"
@@ -2316,11 +2308,6 @@ comuni-province-regioni@^0.4.3:
   version "0.4.3"
   resolved "https://registry.npmjs.org/comuni-province-regioni/-/comuni-province-regioni-0.4.3.tgz#287c312f1caac8cf8b770d6b707a7ca1e7b6f1d4"
   integrity sha512-UhJmDaIUg5nDHiHAfIcMGX87E6f54z6UU538WQHeqTOA/BxjSz5ZQCsVclGRT9c801Fe3BLfD5uDoatvRbl9xg==
-
-concat-map@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz"
-  integrity sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=
 
 connect-busboy@^1.0.0:
   version "1.0.0"
@@ -4535,23 +4522,9 @@ mimic-response@^3.1.0:
   resolved "https://registry.npmjs.org/mimic-response/-/mimic-response-3.1.0.tgz"
   integrity sha512-z0yWI+4FDrrweS8Zmt4Ej5HdJmky15+L2e6Wgn3+iK5fWzb6T3fhNFq2+MeTRb064c6Wr4N/wv0DzQTjNzHNGQ==
 
-minimatch@^3.0.3, minimatch@^3.0.4, minimatch@^3.1.1:
-  version "3.1.2"
-  resolved "https://registry.npmjs.org/minimatch/-/minimatch-3.1.2.tgz"
-  integrity sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==
-  dependencies:
-    brace-expansion "^1.1.7"
-
-minimatch@^5.0.1:
-  version "5.1.0"
-  resolved "https://registry.npmjs.org/minimatch/-/minimatch-5.1.0.tgz"
-  integrity sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==
-  dependencies:
-    brace-expansion "^2.0.1"
-
-minimatch@^9.0.4:
+minimatch@^3.0.3, minimatch@^3.0.4, minimatch@^3.1.1, minimatch@^5.0.1, minimatch@^9.0.3, minimatch@^9.0.4:
   version "9.0.5"
-  resolved "https://registry.npmjs.org/minimatch/-/minimatch-9.0.5.tgz#d74f9dd6b57d83d8e98cfb82133b03978bc929e5"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.5.tgz#d74f9dd6b57d83d8e98cfb82133b03978bc929e5"
   integrity sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==
   dependencies:
     brace-expansion "^2.0.1"

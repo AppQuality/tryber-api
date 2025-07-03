@@ -1836,6 +1836,66 @@ paths:
         required: true
         schema:
           type: string
+  '/campaigns/{campaign}/bugs/{bugId}/aiReview':
+    get:
+      operationId: get-campaigns-single-bug-ai-review
+      summary: Get a specific Campaign Bug AI review
+      description: 'Get ai review for a single bug of a Campaign if you have access to it '
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    ai_status: need_review
+                    ai_reason: 'The bug requires review because it impacts the functionality of a key feature on the homepage, specifically the ''Find a dealer'' section, which is essential for user navigation and experience.'
+                    score_percentage: 54
+                Example 2:
+                  value:
+                    ai_status: refused
+                    ai_reason: 'The bug has been refused due to language inconsistencies in the title and description, which do not align with the use case requirements for a clear and consistent registration process.'
+                    score_percentage: 31
+                    ai_notes: ' The mixed language content creates confusion for users during registration.'
+              schema:
+                type: object
+                required:
+                  - ai_status
+                  - ai_reason
+                  - score_percentage
+                properties:
+                  ai_status:
+                    type: string
+                  ai_reason:
+                    type: string
+                  score_percentage:
+                    type: number
+                  ai_notes:
+                    type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags:
+        - Campaign
+      x-stoplight:
+        id: yn4d95mynl1bj
+    parameters:
+      - name: campaign
+        in: path
+        description: A campaign id
+        required: true
+        schema:
+          type: string
+      - name: bugId
+        in: path
+        required: true
+        schema:
+          type: string
   '/campaigns/{campaign}/candidates':
     get:
       operationId: get-campaigns-campaign-candidates
