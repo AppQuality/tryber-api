@@ -18,25 +18,28 @@ export default class Route extends CampaignRoute<{
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
 
+    if (isNaN(this.bug_id)) {
+      this.setError(400, new OpenapiError("Invalid bug id"));
+      return false;
+    }
+
+    // Admin and authorized only
+    if (!(await this.hasPermission())) {
+      this.setError(403, new OpenapiError("Unauthorized"));
+      return false;
+    }
+
     return true;
   }
 
   protected async prepare(): Promise<void> {
-    if (isNaN(this.bug_id)) {
-      return this.setError(400, new OpenapiError("Invalid bug id"));
-    }
-
-    // Admin only
-    if (this.configuration.request.user.role !== "administrator") {
-      return this.setError(403, new OpenapiError("Unauthorized"));
-    }
-
     const bugAiReview = await this.getBugAiReview();
     if (!bugAiReview) {
-      return this.setError(404, new OpenapiError("Bug AI review not found"));
+      this.setError(404, new OpenapiError("Bug AI review not found"));
+      return;
     }
 
-    return this.setSuccess(200, bugAiReview);
+    this.setSuccess(200, bugAiReview);
   }
 
   protected async getBugAiReview() {
@@ -46,5 +49,14 @@ export default class Route extends CampaignRoute<{
       .where("campaign_id", this.cp_id)
       .where("bug_id", this.bug_id)
       .first();
+  }
+
+  private async hasPermission() {
+    const user = this.configuration.request.user;
+    return (
+      user.role === "administrator" ||
+      this.hasAccessToCampaign(this.cp_id) ||
+      this.hasAccessToBugs(this.cp_id)
+    );
   }
 }
