@@ -19,8 +19,14 @@ const campaign_1 = {
 
 const campaign_2 = {
   ...campaign_1,
-  id: campaign_1.id + 1,
+  id: 2,
   customer_id: 1,
+};
+
+const campaign_3 = {
+  ...campaign_1,
+  id: 3,
+  customer_id: 2,
 };
 
 const bug_1 = {
@@ -43,6 +49,12 @@ const bug_2 = {
   campaign_id: campaign_2.id,
 };
 
+const bug_3 = {
+  ...bug_1,
+  id: bug_1.id + 2,
+  campaign_id: campaign_3.id,
+};
+
 const ai_review_1 = {
   ai_status: "approved",
   ai_reason: "Bug is valid",
@@ -54,8 +66,12 @@ const ai_review_1 = {
 
 describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdBug.do().insert([bug_1, bug_2]);
-    await tryber.tables.WpAppqEvdCampaign.do().insert([campaign_1, campaign_2]);
+    await tryber.tables.WpAppqEvdBug.do().insert([bug_1, bug_2, bug_3]);
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      campaign_1,
+      campaign_2,
+      campaign_3,
+    ]);
     await tryber.tables.WpAppqEvdBugStatus.do().insert({
       id: 2,
       name: "Approved",
@@ -93,6 +109,13 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });
+    await tryber.tables.AiBugReview.do().insert({
+      ...ai_review_1,
+      campaign_id: campaign_3.id,
+      bug_id: bug_3.id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
   });
 
   afterAll(async () => {
@@ -113,10 +136,17 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
     expect(response.status).toBe(403);
   });
 
-  it("Should answer 403 if user is not admin", async () => {
+  it("Should answer 403 if user is not admin and has not appq_campaign olp", async () => {
     const response = await request(app)
       .get(`/campaigns/${campaign_1.id}/bugs/${bug_1.id}/aiReview`)
-      .set("Authorization", "Bearer user");
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[2]}');
+    expect(response.status).toBe(403);
+  });
+
+  it("Should answer 403 if user is not admin and has not appq_bug olp", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_1.id}/bugs/${bug_1.id}/aiReview`)
+      .set("Authorization", 'Bearer tester olp {"appq_bug":[2]}');
     expect(response.status).toBe(403);
   });
 
@@ -124,6 +154,34 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
     const response = await request(app)
       .get(`/campaigns/${campaign_1.id}/bugs/${bug_1.id}/aiReview`)
       .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has permissions", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[3]}');
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has full campaign permission", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has bugs permission", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
+      .set("Authorization", 'Bearer tester olp {"appq_bug":[3]}');
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has full bugs permission", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
+      .set("Authorization", 'Bearer tester olp {"appq_bug":true}');
     expect(response.status).toBe(200);
   });
 
@@ -145,12 +203,5 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
       .get(`/campaigns/${campaign_2.id}/bugs/${bug_2.id}/aiReview`)
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(404);
-  });
-
-  it("Should answer 403 even if user tester has permissions to see campaign and bug (admin only endpoint)", async () => {
-    const response = await request(app)
-      .get(`/campaigns/${campaign_2.id}/bugs/${bug_2.id}/aiReview`)
-      .set("Authorization", "Bearer tester");
-    expect(response.status).toBe(403);
   });
 });
