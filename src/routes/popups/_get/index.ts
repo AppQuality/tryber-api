@@ -52,11 +52,6 @@ export default class Route extends UserRoute<{
     this.setSuccess(200, this.mapPopups(rows));
   }
 
-  protected isNotAdmin() {
-    if (this.configuration.request.user.role !== "administrator") return true;
-    return false;
-  }
-
   protected hasAccessToPopups() {
     return this.configuration.request.user.permission?.admin
       ?.appq_message_center;
