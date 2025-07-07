@@ -79,7 +79,7 @@ describe("GET /campaigns/{cid}/bugs/{bid}", () => {
   it("Should answer 403 if user is not admin", async () => {
     const response = await request(app)
       .get("/campaigns/100/bugs/100")
-      .set("Authorization", "Bearer user");
+      .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
 
