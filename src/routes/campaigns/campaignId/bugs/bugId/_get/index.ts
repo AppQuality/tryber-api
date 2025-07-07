@@ -18,16 +18,12 @@ export default class Route extends CampaignRoute<{
   }
   protected bug_id: number;
 
-  protected async filter() {
+  protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
 
-    const user = this.configuration.request.user;
+    if (!this.hasAccessToBugs(this.cp_id)) {
+      this.setError(403, new OpenapiError("Access denied"));
 
-    if (user.role !== "administrator") {
-      this.setError(
-        403,
-        new OpenapiError("You do not have permission to access this")
-      );
       return false;
     }
     return true;
