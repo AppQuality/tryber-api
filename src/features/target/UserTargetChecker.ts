@@ -313,12 +313,38 @@ export class UserTargetChecker {
         },
       ],
     });
+
     if (!campaigns.length || !campaigns[0].targetRules) {
       return 0;
     }
 
     const targetRules = campaigns[0].targetRules;
 
+    const testerIds = await this.filterTesterByCufs({
+      testerIds: await this.filterTesterByLanguages({
+        testerIds: await this.filterTesterByAge({
+          testerIds: await this.getFilteredProfileQuery({
+            targetRules,
+          }),
+          targetRules,
+        }),
+        targetRules,
+      }),
+      targetRules,
+    });
+
+    return testerIds.length;
+  }
+
+  private getFilteredProfileQuery({
+    targetRules,
+  }: {
+    targetRules: {
+      genders?: number[];
+      countries?: string[];
+      provinces?: string[];
+    };
+  }) {
     let query = tryber.tables.WpAppqEvdProfile.do()
       .select(tryber.ref("id").withSchema("wp_appq_evd_profile"))
       .where("wp_appq_evd_profile.blacklisted", 0)
@@ -343,75 +369,93 @@ export class UserTargetChecker {
       );
     }
 
-    let testerIds = await query;
+    return query;
+  }
 
-    if (targetRules.age) {
-      const testerIdsWithBirthDate = await tryber.tables.WpAppqEvdProfile.do()
-        .select("id", "birth_date")
-        .whereIn(
-          "id",
-          testerIds.map((t) => t.id)
-        );
-      testerIds = testerIdsWithBirthDate.filter((tester) => {
-        const targetAge = targetRules.age as NonNullable<
-          typeof targetRules.age
-        >;
-        const birthDate = new Date(tester.birth_date);
-        if (isNaN(birthDate.getTime())) return false; // Invalid date
+  private async filterTesterByAge({
+    testerIds,
+    targetRules,
+  }: {
+    testerIds: { id: number; birth_date?: string }[];
+    targetRules: { age?: { min?: number; max?: number }[] };
+  }) {
+    if (!targetRules.age || !targetRules.age.length) return testerIds;
 
-        const today = new Date();
-        const age = Math.floor(
-          (today.getTime() - birthDate.getTime()) /
-            (1000 * 60 * 60 * 24 * 365.2425)
-        );
+    if (!testerIds.length) return [];
 
-        return targetAge.some((ageRule) => {
-          const min = ageRule.min ?? -Infinity;
-          const max = ageRule.max ?? Infinity;
-          return age >= min && age <= max;
-        });
-      });
-      if (testerIds.length === 0) return 0;
-    }
+    const testerIdsWithBirthDate = await tryber.tables.WpAppqEvdProfile.do()
+      .select("id", "birth_date")
+      .whereIn(
+        "id",
+        testerIds.map((t) => t.id)
+      );
+    return testerIdsWithBirthDate.filter((tester) => {
+      const targetAge = targetRules.age as NonNullable<typeof targetRules.age>;
+      const birthDate = new Date(tester.birth_date);
+      if (isNaN(birthDate.getTime())) return false; // Invalid date
 
-    if (targetRules.languages) {
-      testerIds = await tryber.tables.WpAppqProfileHasLang.do()
-        .select(
-          tryber
-            .ref("profile_id")
-            .withSchema("wp_appq_profile_has_lang")
-            .as("id")
-        )
-        .whereIn(
-          "profile_id",
-          testerIds.map((t) => t.id)
-        )
-        .whereIn("language_name", targetRules.languages);
-    }
-
-    if (targetRules.cufs && targetRules.cufs.length) {
-      const cufRules = targetRules.cufs.reduce((acc, cuf) => {
-        acc[cuf.id] = cuf.values.map((v) => String(v));
-        return acc;
-      }, {} as Record<number, string[]>);
-
-      const query = tryber.tables.WpAppqCustomUserFieldData.do().select(
-        tryber
-          .ref("profile_id")
-          .withSchema("wp_appq_custom_user_field_data")
-          .as("id")
+      const today = new Date();
+      const age = Math.floor(
+        (today.getTime() - birthDate.getTime()) /
+          (1000 * 60 * 60 * 24 * 365.2425)
       );
 
-      Object.entries(cufRules).forEach(([cuf_id, cuf_values]) => {
-        query
-          .where("custom_user_field_id", cuf_id)
-          .whereIn("value", cuf_values);
+      return targetAge.some((ageRule) => {
+        const min = ageRule.min ?? -Infinity;
+        const max = ageRule.max ?? Infinity;
+        return age >= min && age <= max;
       });
+    });
+  }
 
-      testerIds = await query;
-      if (testerIds.length === 0) return 0;
-    }
+  private async filterTesterByLanguages({
+    testerIds,
+    targetRules,
+  }: {
+    testerIds: { id: number }[];
+    targetRules: { languages?: string[] };
+  }) {
+    if (!targetRules.languages || !targetRules.languages.length)
+      return testerIds;
 
-    return testerIds.length;
+    if (!testerIds.length) return [];
+    return await tryber.tables.WpAppqProfileHasLang.do()
+      .select(
+        tryber.ref("profile_id").withSchema("wp_appq_profile_has_lang").as("id")
+      )
+      .whereIn(
+        "profile_id",
+        testerIds.map((t) => t.id)
+      )
+      .whereIn("language_name", targetRules.languages);
+  }
+
+  private async filterTesterByCufs({
+    testerIds,
+    targetRules,
+  }: {
+    testerIds: { id: number }[];
+    targetRules: { cufs?: { id: number; values: (string | number)[] }[] };
+  }) {
+    if (!targetRules.cufs || !targetRules.cufs.length) return testerIds;
+
+    if (!testerIds.length) return [];
+    const cufRules = targetRules.cufs.reduce((acc, cuf) => {
+      acc[cuf.id] = cuf.values.map((v) => String(v));
+      return acc;
+    }, {} as Record<number, string[]>);
+
+    const query = tryber.tables.WpAppqCustomUserFieldData.do().select(
+      tryber
+        .ref("profile_id")
+        .withSchema("wp_appq_custom_user_field_data")
+        .as("id")
+    );
+
+    Object.entries(cufRules).forEach(([cuf_id, cuf_values]) => {
+      query.where("custom_user_field_id", cuf_id).whereIn("value", cuf_values);
+    });
+
+    return await query;
   }
 }
