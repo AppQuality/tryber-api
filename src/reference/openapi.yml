@@ -10498,6 +10498,31 @@ paths:
       security:
         - JWT: []
       tags: []
+  '/dossiers/{campaign}/availableTesters':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Get number of available testers for a target campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    x-stoplight:
+                      id: 9k6w9ktxn03bd
+      operationId: get-dossiers-campaign-availableTesters
+      security:
+        - JWT: []
 components:
   parameters:
     campaign:

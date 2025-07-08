@@ -667,6 +667,14 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/dossiers/{campaign}/availableTesters": {
+    get: operations["get-dossiers-campaign-availableTesters"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -1797,10 +1805,10 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            ai_status: string;
-            ai_reason: string;
-            score_percentage: number;
             ai_notes?: string;
+            ai_reason: string;
+            ai_status: string;
+            score_percentage: number;
           };
         };
       };
@@ -4721,6 +4729,23 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-dossiers-campaign-availableTesters": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            count?: number;
+          };
+        };
+      };
     };
   };
 }
