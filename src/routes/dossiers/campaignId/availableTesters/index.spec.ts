@@ -33,6 +33,10 @@ describe("Route PUT /dossiers/:id/availableTesters", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
+  afterEach(async () => {
+    await tryber.tables.WpAppqCpMeta.do().delete();
+  });
+
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).get("/dossiers/1/availableTesters");
     expect(response.status).toBe(403);

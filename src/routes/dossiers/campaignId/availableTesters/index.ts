@@ -70,27 +70,45 @@ export default class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     if (!this.shouldRefreshCache) {
-      const cachedValue = await tryber.tables.WpAppqCpMeta.do()
-        .select("meta_value")
-        .where("campaign_id", this.campaignId)
-        .whereIn("meta_key", [
-          "dossier_available_testers_count",
-          "dossier_available_testers_last_update",
-        ]);
-      if (cachedValue.length === 2) {
-        const [count, lastUpdate] = cachedValue.map((item) => item.meta_value);
+      const cachedValue = await this.getCachedValue();
+      if (cachedValue) {
         this.setSuccess(200, {
-          count: Number(count),
-          lastUpdate: new Date(lastUpdate).toISOString(),
+          count: cachedValue.count,
+          lastUpdate: cachedValue.lastUpdate,
         });
         return;
       }
     }
+
     const userTargetChecker = new UserTargetChecker();
     const count = await userTargetChecker.countAvailableTesters({
       campaignId: this.campaignId,
     });
+    await this.cacheValue(count);
 
+    this.setSuccess(200, {
+      count,
+      lastUpdate: new Date().toISOString(),
+    });
+  }
+
+  private async getCachedValue() {
+    const cachedValue = await tryber.tables.WpAppqCpMeta.do()
+      .select("meta_value")
+      .where("campaign_id", this.campaignId)
+      .whereIn("meta_key", [
+        "dossier_available_testers_count",
+        "dossier_available_testers_last_update",
+      ]);
+    if (cachedValue.length !== 2) return false;
+    const [count, lastUpdate] = cachedValue.map((item) => item.meta_value);
+    return {
+      count: Number(count),
+      lastUpdate: new Date(lastUpdate).toISOString(),
+    };
+  }
+
+  private async cacheValue(count: number) {
     await tryber.tables.WpAppqCpMeta.do()
       .delete()
       .where("campaign_id", this.campaignId)
@@ -110,10 +128,5 @@ export default class RouteItem extends UserRoute<{
         meta_value: new Date().toISOString(),
       },
     ]);
-
-    this.setSuccess(200, {
-      count,
-      lastUpdate: new Date().toISOString(),
-    });
   }
 }

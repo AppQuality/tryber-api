@@ -33,6 +33,10 @@ describe("Route PUT /dossiers/:id/availableTesters", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
+  afterEach(async () => {
+    await tryber.tables.WpAppqCpMeta.do().delete();
+  });
+
   describe("Gender", () => {
     beforeAll(async () => {
       await tryber.tables.CampaignDossierDataGender.do().insert({
