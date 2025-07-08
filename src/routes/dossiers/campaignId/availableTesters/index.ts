@@ -3,6 +3,7 @@
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
+import { UserTargetChecker } from "@src/features/target/UserTargetChecker";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-dossiers-campaign-availableTesters"]["responses"]["200"]["content"]["application/json"];
@@ -63,8 +64,14 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    const userTargetChecker = new UserTargetChecker();
+
+    const count = await userTargetChecker.countAvailableTesters({
+      campaignId: this.campaignId,
+    });
+
     this.setSuccess(200, {
-      count: 0,
+      count,
     });
   }
 }
