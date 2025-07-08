@@ -8,12 +8,17 @@ import { UserTargetChecker } from "@src/features/target/UserTargetChecker";
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["get-dossiers-campaign-availableTesters"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-dossiers-campaign-availableTesters"]["parameters"]["path"];
+  query: StoplightOperations["get-dossiers-campaign-availableTesters"]["parameters"]["query"];
 }> {
   private campaignId: number;
+  private shouldRefreshCache = false;
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     this.campaignId = Number(this.getParameters().campaign);
+    if (this.getQuery().refresh) {
+      this.shouldRefreshCache = true;
+    }
   }
 
   protected async filter() {
@@ -64,10 +69,47 @@ export default class RouteItem extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    if (!this.shouldRefreshCache) {
+      const cachedValue = await tryber.tables.WpAppqCpMeta.do()
+        .select("meta_value")
+        .where("campaign_id", this.campaignId)
+        .whereIn("meta_key", [
+          "dossier_available_testers_count",
+          "dossier_available_testers_last_update",
+        ]);
+      if (cachedValue.length === 2) {
+        const [count, lastUpdate] = cachedValue.map((item) => item.meta_value);
+        this.setSuccess(200, {
+          count: Number(count),
+          lastUpdate: new Date(lastUpdate).toISOString(),
+        });
+        return;
+      }
+    }
     const userTargetChecker = new UserTargetChecker();
     const count = await userTargetChecker.countAvailableTesters({
       campaignId: this.campaignId,
     });
+
+    await tryber.tables.WpAppqCpMeta.do()
+      .delete()
+      .where("campaign_id", this.campaignId)
+      .whereIn("meta_key", [
+        "dossier_available_testers_count",
+        "dossier_available_testers_last_update",
+      ]);
+    await tryber.tables.WpAppqCpMeta.do().insert([
+      {
+        campaign_id: this.campaignId,
+        meta_key: "dossier_available_testers_count",
+        meta_value: count.toString(),
+      },
+      {
+        campaign_id: this.campaignId,
+        meta_key: "dossier_available_testers_last_update",
+        meta_value: new Date().toISOString(),
+      },
+    ]);
 
     this.setSuccess(200, {
       count,
