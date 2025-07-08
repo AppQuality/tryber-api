@@ -65,13 +65,13 @@ export default class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     const userTargetChecker = new UserTargetChecker();
-
     const count = await userTargetChecker.countAvailableTesters({
       campaignId: this.campaignId,
     });
 
     this.setSuccess(200, {
       count,
+      lastUpdate: new Date().toISOString(),
     });
   }
 }

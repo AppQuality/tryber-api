@@ -314,6 +314,15 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/availableTesters": {
+    /**  */
+    get: operations["get-dossiers-campaign-availableTesters"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/dossiers/{campaign}/manual": {
     post: operations["post-dossiers-campaign-manual"];
     parameters: {
@@ -666,14 +675,6 @@ export interface paths {
   };
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
-  };
-  "/dossiers/{campaign}/availableTesters": {
-    get: operations["get-dossiers-campaign-availableTesters"];
-    parameters: {
-      path: {
-        campaign: string;
-      };
-    };
   };
 }
 
@@ -2822,6 +2823,29 @@ export interface operations {
       };
     };
   };
+  /**  */
+  "get-dossiers-campaign-availableTesters": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+      query: {
+        refresh?: "1" | "0";
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            count: number;
+            /** Format: date-time */
+            lastUpdate: string;
+          };
+        };
+      };
+    };
+  };
   "post-dossiers-campaign-manual": {
     parameters: {
       path: {
@@ -4729,23 +4753,6 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
-    };
-  };
-  "get-dossiers-campaign-availableTesters": {
-    parameters: {
-      path: {
-        campaign: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            count?: number;
-          };
-        };
-      };
     };
   };
 }

@@ -4726,6 +4726,44 @@ paths:
                 properties: {}
       security:
         - JWT: []
+  '/dossiers/{campaign}/availableTesters':
+    get:
+      operationId: get-dossiers-campaign-availableTesters
+      summary: Get number of available testers for a target campaign
+      description: '    '
+      parameters:
+        - name: refresh
+          in: query
+          schema:
+            type: string
+            enum:
+              - '1'
+              - '0'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                  lastUpdate:
+                    type: string
+                    format: date-time
+                required:
+                  - count
+                  - lastUpdate
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
   '/dossiers/{campaign}/manual':
     parameters:
       - $ref: '#/components/parameters/campaign'
@@ -10498,31 +10536,6 @@ paths:
       security:
         - JWT: []
       tags: []
-  '/dossiers/{campaign}/availableTesters':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    get:
-      summary: Get number of available testers for a target campaign
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    type: number
-                    x-stoplight:
-                      id: 9k6w9ktxn03bd
-      operationId: get-dossiers-campaign-availableTesters
-      security:
-        - JWT: []
 components:
   parameters:
     campaign:
