@@ -1752,8 +1752,8 @@ export interface operations {
             id: number;
             media: {
               id: number;
-              url: string;
               type: string;
+              url: string;
             }[];
             note: string;
             reason: string;

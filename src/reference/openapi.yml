@@ -1737,36 +1737,32 @@ paths:
                   media:
                     type: array
                     items:
-                      type: object
                       properties:
                         id:
                           type: integer
-                        url:
-                          type: string
-                          x-stoplight:
-                            id: axuw8dphn3zip
                         type:
                           type: string
-                          x-stoplight:
-                            id: ntac89fpfp1t3
+                        url:
+                          type: string
                       required:
                         - id
                         - url
                         - type
+                      type: object
                   note:
                     type: string
                   reason:
                     type: string
                   replicability:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   severity:
                     $ref: '#/components/schemas/BugSeverity'
                   status:
@@ -1774,7 +1770,6 @@ paths:
                   status_history:
                     type: array
                     items:
-                      type: object
                       properties:
                         date:
                           type: string
@@ -1786,24 +1781,21 @@ paths:
                         - date
                         - reason
                         - status
+                      type: object
                   title:
                     type: string
                   type:
                     type: object
-                    required:
-                      - id
-                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
+                    required:
+                      - id
+                      - name
                   usecase:
                     type: object
-                    required:
-                      - description
-                      - id
-                      - title
                     properties:
                       description:
                         type: string
@@ -1811,6 +1803,10 @@ paths:
                         type: integer
                       title:
                         type: string
+                    required:
+                      - description
+                      - id
+                      - title
                 required:
                   - actual_result
                   - description
