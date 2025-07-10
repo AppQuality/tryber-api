@@ -187,6 +187,65 @@ describe("GET /users/me/campaigns - target", () => {
     });
   });
 
+  describe("Target by province", () => {
+    beforeAll(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().insert({
+        campaign_dossier_data_id: 1,
+        province: "MI",
+      });
+    });
+    afterAll(async () => {
+      await tryber.tables.CampaignDossierDataProvince.do().delete();
+    });
+    describe("Tester in target province", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          province: "MI",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+      });
+      it("Should show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("results");
+        expect(Array.isArray(response.body.results)).toBe(true);
+        expect(response.body.results.length).toBe(1);
+      });
+    });
+    describe("Tester not in target province", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          province: "TO",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpAppqEvdProfile.do().delete();
+      });
+      it("Should not show the campaign", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns")
+          .set("Authorization", " Bearer tester");
+        expect(response.status).toBe(404);
+      });
+    });
+  });
+
   describe("Target by CUF", () => {
     beforeAll(async () => {
       await tryber.tables.CampaignDossierDataCuf.do().insert({
@@ -273,23 +332,48 @@ describe("GET /users/me/campaigns - target", () => {
 
   describe("Target by age", () => {
     beforeAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().insert({
-        id: 1,
-        wp_user_id: 1,
-        email: "",
-        education_id: 1,
-        employment_id: 1,
-        country: "Italy",
-        birth_date: "2000-01-01",
-      });
+      await tryber.tables.CampaignDossierDataAge.do().insert([
+        {
+          campaign_dossier_data_id: 1,
+          min: 20,
+          max: 27,
+        },
+        {
+          campaign_dossier_data_id: 1,
+          min: 29,
+          max: 30,
+        },
+        {
+          campaign_dossier_data_id: 1,
+          min: 50,
+          max: 60,
+        },
+      ]);
     });
     afterAll(async () => {
-      await tryber.tables.WpAppqEvdProfile.do().delete();
+      await tryber.tables.CampaignDossierDataAge.do().delete();
     });
     describe("Tester with right age value", () => {
-      beforeAll(async () => {});
+      beforeAll(async () => {
+        const today = new Date();
+        const birthDate = new Date(
+          today.getFullYear() - 29,
+          today.getMonth(),
+          today.getDate() - 1
+        );
+        const birthDateString = birthDate.toISOString().split("T")[0];
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          birth_date: birthDateString,
+        });
+      });
       afterAll(async () => {
-        await tryber.tables.CampaignDossierDataAge.do().delete();
+        await tryber.tables.WpAppqEvdProfile.do().delete();
       });
 
       it("Should show the campaign", async () => {
@@ -302,14 +386,25 @@ describe("GET /users/me/campaigns - target", () => {
 
     describe("Tester with wrong age value", () => {
       beforeAll(async () => {
-        await tryber.tables.CampaignDossierDataAge.do().insert({
-          campaign_dossier_data_id: 1,
-          max: 200,
-          min: 100,
+        const today = new Date();
+        const birthDate = new Date(
+          today.getFullYear() - 100,
+          today.getMonth(),
+          today.getDate() - 1
+        );
+        const birthDateString = birthDate.toISOString().split("T")[0];
+        await tryber.tables.WpAppqEvdProfile.do().insert({
+          id: 1,
+          wp_user_id: 1,
+          email: "",
+          education_id: 1,
+          employment_id: 1,
+          country: "Italy",
+          birth_date: birthDateString,
         });
       });
       afterAll(async () => {
-        await tryber.tables.CampaignDossierDataAge.do().delete();
+        await tryber.tables.WpAppqEvdProfile.do().delete();
       });
 
       it("Should not show the campaign", async () => {
@@ -317,14 +412,6 @@ describe("GET /users/me/campaigns - target", () => {
           .get("/users/me/campaigns")
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(404);
-      });
-    });
-    describe("Campaign without required age value", () => {
-      it("Should show the campaign", async () => {
-        const response = await request(app)
-          .get("/users/me/campaigns")
-          .set("Authorization", "Bearer tester");
-        expect(response.status).toBe(200);
       });
     });
   });

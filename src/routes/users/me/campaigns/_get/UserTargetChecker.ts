@@ -9,6 +9,7 @@ export class UserTargetChecker {
   private userCufs: Record<number, string[]> = {};
   private userAge: number = -1;
   private userGender: number = -1;
+  private userProvince: string = "";
 
   constructor({ testerId }: { testerId: number }) {
     this.testerId = testerId;
@@ -17,7 +18,7 @@ export class UserTargetChecker {
 
   async init() {
     await this.initUserLanguages();
-    await this.initUserCountries();
+    await this.initUserProfileData();
     await this.initUserCufs();
     await this.initUserAge();
     await this.initUserGender();
@@ -30,14 +31,15 @@ export class UserTargetChecker {
       .then((res) => res.map((r) => r.language_name));
   }
 
-  private async initUserCountries() {
-    const country = await tryber.tables.WpAppqEvdProfile.do()
-      .select("country")
+  private async initUserProfileData() {
+    const profile = await tryber.tables.WpAppqEvdProfile.do()
+      .select("country", "province")
       .where("id", this.testerId)
-      .then((res) => (res.length ? res[0].country : ""));
+      .first();
 
-    const countryCode = countryList.getAlpha2Code(country, "en");
+    const countryCode = countryList.getAlpha2Code(profile?.country || "", "en");
     this.userCountry = countryCode || "";
+    this.userProvince = profile?.province || "";
   }
 
   private async initUserCufs() {
@@ -57,16 +59,20 @@ export class UserTargetChecker {
   }
 
   private async initUserAge() {
-    try {
-      const age = await tryber.tables.WpAppqEvdProfile.do()
-        .select("birth_date")
-        .where("id", this.testerId);
+    const profile = await tryber.tables.WpAppqEvdProfile.do()
+      .select("birth_date")
+      .where("id", this.testerId)
+      .first();
+    if (!profile) return;
 
-      this.userAge =
-        new Date().getFullYear() - new Date(age[0].birth_date).getFullYear();
-    } catch (error) {
-      this.userAge = -1;
-    }
+    const birthdate = new Date(profile.birth_date);
+    const today = new Date();
+    if (isNaN(birthdate.getTime()) || birthdate > today) return;
+
+    const msPerYear = 1000 * 60 * 60 * 24 * 365.2425;
+    this.userAge = Math.floor(
+      (today.getTime() - birthdate.getTime()) / msPerYear
+    );
   }
 
   private async initUserGender() {
@@ -81,12 +87,13 @@ export class UserTargetChecker {
   inTarget(targetRules: {
     languages?: string[];
     countries?: string[];
+    provinces?: string[];
     cufs?: { id: number; values: (string | number)[] }[];
-    age?: { min?: number; max?: number };
+    age?: { min?: number; max?: number }[];
     genders?: number[];
   }) {
     if (Object.keys(targetRules).length === 0) return true;
-    const { languages, countries, cufs, age, genders } = targetRules;
+    const { languages, countries, cufs, age, genders, provinces } = targetRules;
 
     if (
       languages &&
@@ -104,6 +111,14 @@ export class UserTargetChecker {
       return false;
     }
 
+    if (
+      provinces &&
+      provinces.length &&
+      !provinces.includes(this.userProvince)
+    ) {
+      return false;
+    }
+
     if (cufs && cufs.length) {
       for (const cuf of cufs) {
         const userValues = this.userCufs[cuf.id] || [];
@@ -117,8 +132,17 @@ export class UserTargetChecker {
       }
     }
 
-    if (age && age.max && age.min) {
-      if (this.userAge < age.min || this.userAge > age.max) return false;
+    if (age && age.length) {
+      if (
+        !age.some((ageRule) => {
+          if (!ageRule.min && !ageRule.max) return true;
+          const min = ageRule.min ?? -Infinity;
+          const max = ageRule.max ?? Infinity;
+          return this.userAge >= min && this.userAge <= max;
+        })
+      ) {
+        return false;
+      }
     }
 
     if (genders && !genders.includes(this.userGender)) {

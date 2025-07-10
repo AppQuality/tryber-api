@@ -5,7 +5,7 @@ import request from "supertest";
 describe("GET /campaigns/{cid}/bugs/{bid}", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdBug.do().insert({
-      id: 100,
+      id: 101,
       campaign_id: 100,
       description: "This is a test bug",
       wp_user_id: 11111,
@@ -72,21 +72,28 @@ describe("GET /campaigns/{cid}/bugs/{bid}", () => {
   });
 
   it("Should answer 403 if user is not logged in", async () => {
-    const response = await request(app).get("/campaigns/100/bugs/100");
+    const response = await request(app).get("/campaigns/100/bugs/101");
     expect(response.status).toBe(403);
   });
 
   it("Should answer 403 if user is not admin", async () => {
     const response = await request(app)
-      .get("/campaigns/100/bugs/100")
-      .set("Authorization", "Bearer user");
+      .get("/campaigns/100/bugs/101")
+      .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
 
   it("Should answer 200 if user is admin", async () => {
     const response = await request(app)
-      .get("/campaigns/100/bugs/100")
+      .get("/campaigns/100/bugs/101")
       .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user is has olp permission", async () => {
+    const response = await request(app)
+      .get("/campaigns/100/bugs/101")
+      .set("Authorization", 'Bearer tester olp {"appq_bug":[100]}');
     expect(response.status).toBe(200);
   });
 
