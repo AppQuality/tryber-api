@@ -89,4 +89,17 @@ describe("GET /campaigns/{cid}/bugs/{bid}", () => {
       .set("Authorization", "Bearer admin");
     expect(response.status).toBe(200);
   });
+
+  it("Should answer 200 if user is has olp permission", async () => {
+    const response = await request(app)
+      .get("/campaigns/100/bugs/101")
+      .set("Authorization", 'Bearer tester olp {"appq_bug":[100]}');
+    expect(response.status).toBe(200);
+  });
+  it("Should answer 403 if tester has not olp permission", async () => {
+    const response = await request(app)
+      .get("/campaigns/100/bugs/101")
+      .set("Authorization", 'Bearer tester olp {"appq_bug":[90]}');
+    expect(response.status).toBe(403);
+  });
 });
