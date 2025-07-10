@@ -52,11 +52,6 @@ export default class Route extends CampaignRoute<{
   }
 
   private async hasPermission() {
-    const user = this.configuration.request.user;
-    return (
-      user.role === "administrator" ||
-      this.hasAccessToCampaign(this.cp_id) ||
-      this.hasAccessToBugs(this.cp_id)
-    );
+    return this.hasAccessToBugs(this.cp_id);
   }
 }

@@ -157,18 +157,18 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should answer 200 if user has permissions", async () => {
+  it("Should answer 403 if user has permissions", async () => {
     const response = await request(app)
       .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[3]}');
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(403);
   });
 
-  it("Should answer 200 if user has full campaign permission", async () => {
+  it("Should answer 403 if user has full campaign permission", async () => {
     const response = await request(app)
       .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
       .set("Authorization", 'Bearer tester olp {"appq_campaign":true}');
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(403);
   });
 
   it("Should answer 200 if user has bugs permission", async () => {
@@ -182,6 +182,16 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
     const response = await request(app)
       .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
       .set("Authorization", 'Bearer tester olp {"appq_bug":true}');
+    expect(response.status).toBe(200);
+  });
+
+  it("Should answer 200 if user has bugs permission and other olps", async () => {
+    const response = await request(app)
+      .get(`/campaigns/${campaign_3.id}/bugs/${bug_3.id}/aiReview`)
+      .set(
+        "Authorization",
+        'Bearer tester olp {"appq_bug":true,"appq_campaign":[3]}'
+      );
     expect(response.status).toBe(200);
   });
 
