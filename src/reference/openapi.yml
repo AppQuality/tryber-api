@@ -1740,8 +1740,14 @@ paths:
                       properties:
                         id:
                           type: integer
+                        type:
+                          type: string
+                        url:
+                          type: string
                       required:
                         - id
+                        - url
+                        - type
                       type: object
                   note:
                     type: string
@@ -1772,9 +1778,9 @@ paths:
                         status:
                           type: string
                       required:
-                        - status
-                        - reason
                         - date
+                        - reason
+                        - status
                       type: object
                   title:
                     type: string
@@ -1798,24 +1804,24 @@ paths:
                       title:
                         type: string
                     required:
+                      - description
                       - id
                       - title
-                      - description
                 required:
-                  - id
-                  - title
-                  - description
                   - actual_result
+                  - description
                   - expected_result
-                  - severity
-                  - replicability
-                  - type
-                  - status
-                  - reason
-                  - note
-                  - usecase
+                  - id
                   - media
+                  - note
+                  - reason
+                  - replicability
+                  - severity
+                  - status
                   - status_history
+                  - title
+                  - type
+                  - usecase
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
