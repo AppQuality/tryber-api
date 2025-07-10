@@ -106,6 +106,17 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/bugs/{bugId}/aiReview": {
+    /** Get ai review for a single bug of a Campaign if you have access to it */
+    get: operations["get-campaigns-single-bug-ai-review"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        bugId: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/candidates": {
     get: operations["get-campaigns-campaign-candidates"];
     /** The Tryber will be inserted as a candidate Tryber on a specific Campaign */
@@ -864,6 +875,7 @@ export interface components {
           cufValueIds: number[];
         }[];
         gender?: number[];
+        provinces?: string[];
       };
     };
     /** FiscalBirthCity */
@@ -1740,8 +1752,8 @@ export interface operations {
             id: number;
             media: {
               id: number;
-              type: string;
               url: string;
+              type: string;
             }[];
             note: string;
             reason: string;
@@ -1766,6 +1778,31 @@ export interface operations {
               id: number;
               title: string;
             };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  /** Get ai review for a single bug of a Campaign if you have access to it */
+  "get-campaigns-single-bug-ai-review": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+        bugId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            ai_notes?: string;
+            ai_reason: string;
+            ai_status: string;
+            score_percentage: number;
           };
         };
       };
@@ -2751,6 +2788,7 @@ export interface operations {
                 cufValueIds: number[];
               }[];
               gender?: number[];
+              province?: string[];
             };
           };
         };

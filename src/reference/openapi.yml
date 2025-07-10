@@ -1737,32 +1737,36 @@ paths:
                   media:
                     type: array
                     items:
+                      type: object
                       properties:
                         id:
                           type: integer
-                        type:
-                          type: string
                         url:
                           type: string
+                          x-stoplight:
+                            id: axuw8dphn3zip
+                        type:
+                          type: string
+                          x-stoplight:
+                            id: ntac89fpfp1t3
                       required:
                         - id
                         - url
                         - type
-                      type: object
                   note:
                     type: string
                   reason:
                     type: string
                   replicability:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   severity:
                     $ref: '#/components/schemas/BugSeverity'
                   status:
@@ -1770,6 +1774,7 @@ paths:
                   status_history:
                     type: array
                     items:
+                      type: object
                       properties:
                         date:
                           type: string
@@ -1778,24 +1783,27 @@ paths:
                         status:
                           type: string
                       required:
-                        - status
-                        - reason
                         - date
-                      type: object
+                        - reason
+                        - status
                   title:
                     type: string
                   type:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   usecase:
                     type: object
+                    required:
+                      - description
+                      - id
+                      - title
                     properties:
                       description:
                         type: string
@@ -1803,25 +1811,79 @@ paths:
                         type: integer
                       title:
                         type: string
-                    required:
-                      - id
-                      - title
-                      - description
                 required:
-                  - id
-                  - title
-                  - description
                   - actual_result
+                  - description
                   - expected_result
-                  - severity
-                  - replicability
-                  - type
-                  - status
-                  - reason
-                  - note
-                  - usecase
+                  - id
                   - media
+                  - note
+                  - reason
+                  - replicability
+                  - severity
+                  - status
                   - status_history
+                  - title
+                  - type
+                  - usecase
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags:
+        - Campaign
+    parameters:
+      - name: campaign
+        in: path
+        description: A campaign id
+        required: true
+        schema:
+          type: string
+      - name: bugId
+        in: path
+        required: true
+        schema:
+          type: string
+  '/campaigns/{campaign}/bugs/{bugId}/aiReview':
+    get:
+      operationId: get-campaigns-single-bug-ai-review
+      summary: Get a specific Campaign Bug AI review
+      description: 'Get ai review for a single bug of a Campaign if you have access to it '
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    ai_reason: 'The bug requires review because it impacts the functionality of a key feature on the homepage, specifically the ''Find a dealer'' section, which is essential for user navigation and experience.'
+                    ai_status: need_review
+                    score_percentage: 54
+                Example 2:
+                  value:
+                    ai_notes: ' The mixed language content creates confusion for users during registration.'
+                    ai_reason: 'The bug has been refused due to language inconsistencies in the title and description, which do not align with the use case requirements for a clear and consistent registration process.'
+                    ai_status: refused
+                    score_percentage: 31
+              schema:
+                type: object
+                properties:
+                  ai_notes:
+                    type: string
+                  ai_reason:
+                    type: string
+                  ai_status:
+                    type: string
+                  score_percentage:
+                    type: number
+                required:
+                  - ai_status
+                  - ai_reason
+                  - score_percentage
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4609,8 +4671,8 @@ paths:
                             min:
                               type: integer
                           required:
-                            - min
                             - max
+                            - min
                           type: object
                       cuf:
                         type: array
@@ -4630,18 +4692,22 @@ paths:
                         type: array
                         items:
                           type: integer
+                      province:
+                        type: array
+                        items:
+                          type: string
                 required:
-                  - id
-                  - title
-                  - startDate
-                  - endDate
                   - closeDate
-                  - customer
-                  - project
-                  - testType
-                  - deviceList
                   - csm
+                  - customer
+                  - deviceList
+                  - endDate
+                  - id
                   - phase
+                  - project
+                  - startDate
+                  - testType
+                  - title
       security:
         - JWT: []
     parameters:
@@ -8038,8 +8104,6 @@ paths:
                           required:
                             - type
                             - options
-                          x-stoplight:
-                            id: age6qie67x6dt
                         - properties:
                             options:
                               type: array
@@ -8049,10 +8113,6 @@ paths:
                               $ref: '#/components/schemas/PreselectionQuestionCuf'
                           required:
                             - type
-                          x-stoplight:
-                            id: v6nzvavd1bbnh
-                      x-stoplight:
-                        id: 76ya1n62vrxoj
                   type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -11117,6 +11177,10 @@ components:
               type: array
               items:
                 type: integer
+            provinces:
+              type: array
+              items:
+                type: string
       required:
         - project
         - testType
