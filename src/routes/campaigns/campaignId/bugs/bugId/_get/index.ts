@@ -24,7 +24,6 @@ export default class Route extends CampaignRoute<{
 
     if (!this.hasAccessToBugs(this.cp_id)) {
       this.setError(403, new OpenapiError("Access denied"));
-
       return false;
     }
     return true;

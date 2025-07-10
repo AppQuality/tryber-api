@@ -78,7 +78,7 @@ describe("GET /campaigns/{cid}/bugs/{bid}", () => {
 
   it("Should answer 403 if user is not admin", async () => {
     const response = await request(app)
-      .get("/campaigns/100/bugs/101")
+      .get("/campaigns/100/bugs/100")
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
@@ -96,67 +96,10 @@ describe("GET /campaigns/{cid}/bugs/{bid}", () => {
       .set("Authorization", 'Bearer tester olp {"appq_bug":[100]}');
     expect(response.status).toBe(200);
   });
-
-  // // It should answer 400 if campaign does not exist
-  // it("Should answer 400 if campaign does not exist", async () => {
-  //   const response = await request(app)
-  //     .get(`/campaigns/999999/bugs/${bug_1.id}`)
-  //     .set("Authorization", "Bearer user");
-  //   expect(response.status).toBe(400);
-  // });
-
-  // // It should answer 403 if the user has no permissions to see the campaign
-  // it("Should answer 403 if the user has no permissions to see the campaign", async () => {
-  //   const response = await request(app)
-  //     .get(`/campaigns/${campaign_2.id}/bugs/${bug_5_from_unknown.id}`)
-  //     .set("Authorization", "Bearer user");
-  //   expect(response.status).toBe(403);
-  // });
-
-  // // It should answer 200 with the campaign
-  // it("Should answer 200 with the bug", async () => {
-  //   const response = await request(app)
-  //     .get(`/campaigns/${campaign_1.id}/bugs/${bug_1.id}`)
-  //     .set("Authorization", "Bearer user");
-  //   expect(response.status).toBe(200);
-
-  //   expect(response.body).toEqual(
-  //     expect.objectContaining({
-  //       id: bug_1.id,
-  //       status: expect.objectContaining({
-  //         id: bug_1.status_id,
-  //         name: "Approved",
-  //       }),
-  //       severity: expect.objectContaining({
-  //         id: bug_1.severity_id,
-  //         name: "LOW",
-  //       }),
-  //       replicability: expect.objectContaining({
-  //         id: bug_1.bug_replicability_id,
-  //         name: "Sometimes",
-  //       }),
-  //       type: expect.objectContaining({
-  //         id: bug_1.bug_type_id,
-  //         name: "Crash",
-  //       }),
-  //     })
-  //   );
-
-  //   expect(response.body.media.length).toEqual(2);
-  // });
-
-  // // It should answer 400 if an invalid campaign id is provided
-  // it("Should answer 400 if an invalid campaign id is provided", async () => {
-  //   const response = await request(app)
-  //     .get(`/campaigns/invalid/bugs/${bug_1.id}`)
-  //     .set("Authorization", "Bearer user");
-  //   expect(response.status).toBe(400);
-  // });
-
-  // it("Should answer 400 if an invalid bug id is provided", async () => {
-  //   const response = await request(app)
-  //     .get(`/campaigns/${campaign_1.id}/bugs/invalid`)
-  //     .set("Authorization", "Bearer user");
-  //   expect(response.status).toBe(400);
-  // });
+  it("Should answer 403 if tester has not olp permission", async () => {
+    const response = await request(app)
+      .get("/campaigns/100/bugs/101")
+      .set("Authorization", 'Bearer tester olp {"appq_bug":[90]}');
+    expect(response.status).toBe(403);
+  });
 });
