@@ -1752,6 +1752,8 @@ export interface operations {
             id: number;
             media: {
               id: number;
+              type: string;
+              url: string;
             }[];
             note: string;
             reason: string;
@@ -1797,10 +1799,10 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            ai_status: string;
-            ai_reason: string;
-            score_percentage: number;
             ai_notes?: string;
+            ai_reason: string;
+            ai_status: string;
+            score_percentage: number;
           };
         };
       };

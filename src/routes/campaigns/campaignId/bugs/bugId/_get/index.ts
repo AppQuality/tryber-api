@@ -1,4 +1,5 @@
 /** OPENAPI-CLASS: get-campaigns-single-bug */
+import { getPresignedUrl } from "./../../../../../../features/s3/presignUrl/index";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
@@ -18,16 +19,11 @@ export default class Route extends CampaignRoute<{
   }
   protected bug_id: number;
 
-  protected async filter() {
+  protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
 
-    const user = this.configuration.request.user;
-
-    if (user.role !== "administrator") {
-      this.setError(
-        403,
-        new OpenapiError("You do not have permission to access this")
-      );
+    if (!this.hasAccessToBugs(this.cp_id)) {
+      this.setError(403, new OpenapiError("Access denied"));
       return false;
     }
     return true;
@@ -70,7 +66,7 @@ export default class Route extends CampaignRoute<{
         title: bug.uc_title || "",
         description: bug.uc_content || "",
       },
-      media: await this.getMedia(),
+      media: (await this.getMedia()) ?? [],
       status_history: await this.getStatusHistory(),
     });
   }
@@ -141,9 +137,17 @@ export default class Route extends CampaignRoute<{
   }
 
   protected async getMedia() {
-    return await tryber.tables.WpAppqEvdBugMedia.do()
-      .select("id")
+    const media = await tryber.tables.WpAppqEvdBugMedia.do()
+      .select("id", "location", "type")
       .where("bug_id", this.bug_id);
+
+    return await Promise.all(
+      media.map(async (item) => ({
+        id: item.id,
+        type: item.type || "",
+        url: (await getPresignedUrl(item.location)) || "",
+      }))
+    );
   }
 
   protected async getStatusHistory() {
