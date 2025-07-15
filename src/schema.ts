@@ -314,6 +314,15 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/availableTesters": {
+    /**  */
+    get: operations["get-dossiers-campaign-availableTesters"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/dossiers/{campaign}/manual": {
     post: operations["post-dossiers-campaign-manual"];
     parameters: {
@@ -2813,6 +2822,29 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": components["schemas"]["DossierCreationData"];
+      };
+    };
+  };
+  /**  */
+  "get-dossiers-campaign-availableTesters": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+      query: {
+        refresh?: "1" | "0";
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            count: number;
+            /** Format: date-time */
+            lastUpdate: string;
+          };
+        };
       };
     };
   };

@@ -1,5 +1,4 @@
-import { tryber } from "@src/features/database";
-import { UserTargetChecker } from "@src/routes/users/me/campaigns/_get/UserTargetChecker";
+import { UserTargetChecker } from "@src/features/target/UserTargetChecker";
 import Database from "./Database";
 import PageAccess from "./PageAccess";
 
@@ -44,6 +43,10 @@ class CampaignObject {
     this.os = item.os;
   }
 
+  get visibility_type() {
+    return this.is_public;
+  }
+
   get isPublic() {
     return this.is_public === 1;
   }
@@ -60,29 +63,15 @@ class CampaignObject {
   }
 
   private async getTargetRules() {
-    const allowedLanguages =
-      await tryber.tables.CampaignDossierDataLanguages.do()
-        .select("campaign_id", "language_name")
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.id",
-          "campaign_dossier_data_languages.campaign_dossier_data_id"
-        )
-        .where("campaign_dossier_data.campaign_id", this.id);
+    const userTargetChecker = new UserTargetChecker();
+    const campaigns = await userTargetChecker.enhanceCampaignsWithTargetRules({
+      campaigns: [this],
+    });
 
-    const allowedCountries =
-      await tryber.tables.CampaignDossierDataCountries.do()
-        .select("campaign_id", "country_code")
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.id",
-          "campaign_dossier_data_countries.campaign_dossier_data_id"
-        )
-        .where("campaign_dossier_data.campaign_id", this.id);
-    return {
-      languages: allowedLanguages.map((l) => l.language_name),
-      countries: allowedCountries.map((c) => c.country_code),
-    };
+    const campaign = campaigns[0];
+    if (!campaign || !campaign.targetRules) return undefined;
+    const targetRules = campaign.targetRules;
+    return targetRules;
   }
 
   public async testerHasAccess(testerId: number) {
@@ -98,12 +87,14 @@ class CampaignObject {
       return previewAccess.length > 0;
     }
     if (this.isTarget) {
-      const userTargetChecker = new UserTargetChecker({
-        testerId,
-      });
-      await userTargetChecker.init();
+      const userTargetChecker = new UserTargetChecker();
+      await userTargetChecker.initUser({ testerId });
 
-      return userTargetChecker.inTarget(await this.getTargetRules());
+      const targetRules = await this.getTargetRules();
+      await this.getTargetRules();
+
+      if (!targetRules) return true;
+      return userTargetChecker.inTarget(targetRules);
     }
     return false;
   }
