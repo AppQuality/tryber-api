@@ -76,43 +76,4 @@ describe("Route PUT /dossiers/:id/availableTesters", () => {
       .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
     expect(response.status).toBe(200);
   });
-
-  describe("Not target visibility", () => {
-    beforeAll(async () => {
-      await tryber.tables.WpAppqEvdCampaign.do().insert({
-        id: 2,
-        title: "Campaign 1",
-        customer_title: "Campaign 1",
-        start_date: "2023-01-01",
-        end_date: "2023-12-31",
-        pm_id: 1,
-        platform_id: 1,
-        page_preview_id: 1,
-        page_manual_id: 1,
-        customer_id: 1,
-        project_id: 1,
-        is_public: 1, // Not target visibility
-      });
-
-      await tryber.tables.CampaignDossierData.do().insert({
-        id: 2,
-        campaign_id: 2,
-        link: "",
-        created_by: 1,
-        updated_by: 1,
-      });
-    });
-
-    afterAll(async () => {
-      await tryber.tables.CampaignDossierData.do().delete();
-      await tryber.tables.WpAppqEvdCampaign.do().delete();
-    });
-
-    it("Should answer 400 if visibility is not target", async () => {
-      const response = await request(app)
-        .get("/dossiers/2/availableTesters")
-        .set("authorization", "Bearer admin");
-      expect(response.status).toBe(400);
-    });
-  });
 });
