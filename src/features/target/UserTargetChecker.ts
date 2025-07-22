@@ -445,17 +445,27 @@ export class UserTargetChecker {
       return acc;
     }, {} as Record<number, string[]>);
 
-    const query = tryber.tables.WpAppqCustomUserFieldData.do().select(
-      tryber
-        .ref("profile_id")
-        .withSchema("wp_appq_custom_user_field_data")
-        .as("id")
-    );
+    let validTesterIds = testerIds;
 
-    Object.entries(cufRules).forEach(([cuf_id, cuf_values]) => {
-      query.where("custom_user_field_id", cuf_id).whereIn("value", cuf_values);
-    });
+    for (const [cuf_id, cuf_values] of Object.entries(cufRules)) {
+      if (!cuf_values.length) continue;
+      if (!validTesterIds.length) return [];
 
-    return await query;
+      validTesterIds = await tryber.tables.WpAppqCustomUserFieldData.do()
+        .select(
+          tryber
+            .ref("profile_id")
+            .withSchema("wp_appq_custom_user_field_data")
+            .as("id")
+        )
+        .where("custom_user_field_id", parseInt(cuf_id))
+        .whereIn("value", cuf_values)
+        .whereIn(
+          "profile_id",
+          validTesterIds.map((t) => t.id)
+        );
+    }
+
+    return validTesterIds;
   }
 }
