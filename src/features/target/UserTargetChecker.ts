@@ -320,22 +320,16 @@ export class UserTargetChecker {
 
     const targetRules = campaigns[0].targetRules;
 
-    const one = await this.getFilteredProfileQuery({
-      targetRules,
-    });
-
-    const two = await this.filterTesterByAge({
-      testerIds: one,
-      targetRules,
-    });
-
-    const three = await this.filterTesterByLanguages({
-      testerIds: two,
-      targetRules,
-    });
-
     const testerIds = await this.filterTesterByCufs({
-      testerIds: three,
+      testerIds: await this.filterTesterByLanguages({
+        testerIds: await this.filterTesterByAge({
+          testerIds: await this.getFilteredProfileQuery({
+            targetRules,
+          }),
+          targetRules,
+        }),
+        targetRules,
+      }),
       targetRules,
     });
 
