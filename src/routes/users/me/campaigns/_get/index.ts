@@ -1,7 +1,7 @@
 import { tryber } from "@src/features/database";
 import UserRoute from "@src/features/routes/UserRoute";
+import { UserTargetChecker } from "@src/features/target/UserTargetChecker";
 import resolvePermalinks from "../../../../../features/wp/resolvePermalinks";
-import { UserTargetChecker } from "./UserTargetChecker";
 
 /** OPENAPI-CLASS: get-users-me-campaigns */
 
@@ -349,145 +349,9 @@ class RouteItem extends UserRoute<{
   private async enhanceWithTargetRules<T>(
     campaigns: (T & { id: number; visibility_type: number })[]
   ) {
-    const campaignsWithTarget = campaigns.filter(
-      (c) => c.visibility_type === 4
-    );
-    if (!campaignsWithTarget.length) return campaigns;
-
-    const allowedLanguages =
-      await tryber.tables.CampaignDossierDataLanguages.do()
-        .select("campaign_id", "language_name")
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.id",
-          "campaign_dossier_data_languages.campaign_dossier_data_id"
-        )
-        .whereIn(
-          "campaign_dossier_data.campaign_id",
-          campaignsWithTarget.map((c) => c.id)
-        );
-
-    const allowedCountries =
-      await tryber.tables.CampaignDossierDataCountries.do()
-        .select("campaign_id", "country_code")
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.id",
-          "campaign_dossier_data_countries.campaign_dossier_data_id"
-        )
-        .whereIn(
-          "campaign_dossier_data.campaign_id",
-          campaignsWithTarget.map((c) => c.id)
-        );
-
-    const allowedProvinces =
-      await tryber.tables.CampaignDossierDataProvince.do()
-        .select("campaign_id", "province")
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.id",
-          "campaign_dossier_data_province.campaign_dossier_data_id"
-        )
-        .whereIn(
-          "campaign_dossier_data.campaign_id",
-          campaignsWithTarget.map((c) => c.id)
-        );
-
-    const allowedCufs = await tryber.tables.CampaignDossierDataCuf.do()
-      .select("campaign_id", "cuf_id", "cuf_value_id")
-      .join(
-        "campaign_dossier_data",
-        "campaign_dossier_data.id",
-        "campaign_dossier_data_cuf.campaign_dossier_data_id"
-      )
-      .whereIn(
-        "campaign_dossier_data.campaign_id",
-        campaignsWithTarget.map((c) => c.id)
-      );
-
-    const allowedAges = await tryber.tables.CampaignDossierDataAge.do()
-      .select("campaign_id", "min", "max")
-      .join(
-        "campaign_dossier_data",
-        "campaign_dossier_data.id",
-        "campaign_dossier_data_age.campaign_dossier_data_id"
-      )
-      .whereIn(
-        "campaign_dossier_data.campaign_id",
-        campaignsWithTarget.map((c) => c.id)
-      );
-
-    const allowedGenders = await tryber.tables.CampaignDossierDataGender.do()
-      .select("campaign_id", "gender")
-      .join(
-        "campaign_dossier_data",
-        "campaign_dossier_data.id",
-        "campaign_dossier_data_gender.campaign_dossier_data_id"
-      )
-      .whereIn(
-        "campaign_dossier_data.campaign_id",
-        campaignsWithTarget.map((c) => c.id)
-      );
-
-    const ages = allowedAges.reduce(
-      (acc: Record<number, { min: number; max: number }[]>, cur) => {
-        if (!acc[cur.campaign_id]) acc[cur.campaign_id] = [];
-        acc[cur.campaign_id].push({ min: cur.min, max: cur.max });
-        return acc;
-      },
-      {}
-    );
-
-    return campaigns.map((campaign) => {
-      if (campaign.visibility_type !== 4) return campaign;
-
-      const provinces = allowedProvinces
-        .filter((l) => l.campaign_id === campaign.id)
-        .map((l) => l.province);
-      const languages = allowedLanguages
-        .filter((l) => l.campaign_id === campaign.id)
-        .map((l) => l.language_name);
-      const countries = allowedCountries
-        .filter((l) => l.campaign_id === campaign.id)
-        .map((l) => l.country_code);
-      const cufs = allowedCufs
-        .filter((l) => l.campaign_id === campaign.id)
-        .reduce((acc: Record<number, number[]>, cur) => {
-          if (!acc[cur.cuf_id]) acc[cur.cuf_id] = [];
-          acc[cur.cuf_id].push(cur.cuf_value_id);
-          return acc;
-        }, {});
-
-      const age = campaign.id in ages ? ages[campaign.id] : undefined;
-
-      const genders =
-        allowedGenders.length > 0
-          ? allowedGenders.reduce((acc, g) => {
-              if (g.campaign_id === campaign.id) {
-                acc.push(g.gender);
-              }
-              return acc;
-            }, [] as number[])
-          : [1, 0, -1, 2];
-
-      return {
-        ...campaign,
-        targetRules: {
-          ...(languages.length ? { languages } : {}),
-          ...(countries.length ? { countries } : {}),
-          ...(provinces.length ? { provinces } : {}),
-          ...(age ? { age } : {}),
-          ...(genders.length ? { genders } : {}),
-          ...(Object.keys(cufs).length
-            ? {
-                cufs: Object.keys(cufs).map((id) => ({
-                  id: parseInt(id),
-                  values: cufs[parseInt(id)],
-                })),
-              }
-            : {}),
-        },
-      };
+    const userTargetChecker = new UserTargetChecker();
+    return userTargetChecker.enhanceCampaignsWithTargetRules({
+      campaigns,
     });
   }
 
@@ -567,10 +431,10 @@ class RouteItem extends UserRoute<{
       };
     })[]
   ) {
-    const userTargetChecker = new UserTargetChecker({
+    const userTargetChecker = new UserTargetChecker();
+    await userTargetChecker.initUser({
       testerId: this.getTesterId(),
     });
-    await userTargetChecker.init();
     return campaigns.filter((campaign) => {
       if (!campaign.targetRules) {
         return true;
