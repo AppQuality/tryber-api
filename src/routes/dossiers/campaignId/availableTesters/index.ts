@@ -66,6 +66,7 @@ export default class RouteItem extends UserRoute<{
     }
 
     const userTargetChecker = new UserTargetChecker();
+
     const count = await userTargetChecker.countAvailableTesters({
       campaignId: this.campaignId,
     });
