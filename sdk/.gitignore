@@ -1,0 +1,3 @@
+# Ignora tutti i file nella cartella src, ma tieni .gitkeep
+src/*
+!src/.gitkeep
