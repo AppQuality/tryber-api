@@ -107,7 +107,7 @@ class CampaignObject {
     return new Date(this.start_date) >= new Date(today);
   }
 
-  public async isCampaignV2() {
+  public isCampaignV2() {
     return this.page_version === "v2";
   }
 
@@ -136,6 +136,7 @@ class Campaigns extends Database<{
             "end_date",
             "close_date",
             "os",
+            "page_version",
           ],
     });
   }
