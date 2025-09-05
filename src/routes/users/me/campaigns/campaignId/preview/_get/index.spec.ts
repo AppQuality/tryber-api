@@ -2,8 +2,13 @@ import app from "@src/app";
 import request from "supertest";
 import { tryber } from "@src/features/database";
 
+const initialConfig = require("@src/config");
 describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
   beforeAll(async () => {
+    jest.mock("@src/config", () => ({
+      testerLeaderCPV2: { name: "tlName", email: "tlEmail" },
+    }));
+
     await tryber.tables.WpAppqCampaignType.do().insert([
       {
         id: 1,
@@ -51,6 +56,8 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
     await tryber.tables.CampaignDossierData.do().delete();
+    // reset initial config
+    jest.mock("@src/config", () => initialConfig);
   });
 
   it("Should return 403 if user is not authenticated", async () => {
@@ -152,6 +159,19 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
           .get("/users/me/campaigns/1/preview")
           .set("Authorization", "Bearer tester");
         expect(response.body).toHaveProperty("campaignType", "Campaign Type 1");
+      });
+      it("Should return tester leader info ", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/preview")
+          .set("Authorization", "Bearer tester");
+        expect(response.body).toMatchObject(
+          expect.objectContaining({
+            tl: {
+              name: "tlName",
+              email: "tlEmail",
+            },
+          })
+        );
       });
     });
   });

@@ -4,6 +4,7 @@ import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
 import { tryber } from "@src/features/database";
+import config from "@src/config";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaigns-cid-preview"]["responses"]["200"]["content"]["application/json"];
@@ -108,8 +109,8 @@ class GetCampaignPreviewV2 extends UserRoute<{
       startDate: res.start_date,
       endDate: res.end_date,
       tl: {
-        name: "tlName",
-        email: "tlEmail",
+        name: config.testerLeaderCPV2.name,
+        email: config.testerLeaderCPV2.email,
       },
     };
   }
