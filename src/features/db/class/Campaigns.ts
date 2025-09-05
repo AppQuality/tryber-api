@@ -94,7 +94,6 @@ class CampaignObject {
       await userTargetChecker.initUser({ testerId });
 
       const targetRules = await this.getTargetRules();
-      await this.getTargetRules();
 
       if (!targetRules) return true;
       return userTargetChecker.inTarget(targetRules);
