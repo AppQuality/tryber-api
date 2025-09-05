@@ -553,6 +553,14 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/preview": {
+    get: operations["get-users-me-campaigns-cid-preview"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaignId}/media": {
     post: operations["post-users-me-campaigns-campaignId-media"];
     parameters: {
@@ -4006,6 +4014,32 @@ export interface operations {
           }[];
         };
       };
+    };
+  };
+  "get-users-me-campaigns-cid-preview": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            content: string;
+            campaignType: string;
+            startDate: string;
+            endDate: string;
+            tl?: {
+              name: string;
+              email: string;
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "post-users-me-campaigns-campaignId-media": {
