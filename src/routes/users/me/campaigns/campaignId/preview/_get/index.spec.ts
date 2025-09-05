@@ -4,18 +4,32 @@ import { tryber } from "@src/features/database";
 
 describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
   beforeAll(async () => {
-    await tryber.tables.WpAppqEvdProfile.do().insert({
-      id: 1,
-      wp_user_id: 1,
-      name: "John",
-      surname: "Doe",
-      email: "john.doe@example.com",
-      employment_id: 1,
-      education_id: 1,
-    });
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 1,
+        name: "Campaign Type 1",
+        category_id: 1,
+      },
+      {
+        id: 2,
+        name: "Campaign Type 2",
+        category_id: 1,
+      },
+    ]);
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 1,
+        wp_user_id: 1,
+        name: "John",
+        surname: "Doe",
+        email: "john.doe@example.com",
+        employment_id: 1,
+        education_id: 1,
+      },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       buildCampaignRow({ id: 1, version: "v2", isPublic: 4 }), // 4 = target group
-      buildCampaignRow({ id: 2, version: "v1", isPublic: 1 }), // 1 = public
+      buildCampaignRow({ id: 2, version: "v1", isPublic: 1, cp_type: 2 }), // 1 = public
     ]);
     await tryber.tables.CampaignDossierData.do().insert([
       {
@@ -26,6 +40,11 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         updated_by: 11111,
       },
     ]);
+    await tryber.tables.CampaignPreviews.do().insert({
+      id: 1,
+      campaign_id: 1,
+      content: "<html>Preview Content</html>",
+    });
   });
   afterAll(async () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
@@ -112,12 +131,28 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(200);
       });
-      // it("Should return preview data ", async () => {
-      //   const response = await request(app)
-      //     .get("/users/me/campaigns/1/preview")
-      //     .set("Authorization", "Bearer tester");
-      //   expect(response.status).toBe(200);
-      // });
+      it("Should return preview data ", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/preview")
+          .set("Authorization", "Bearer tester");
+        expect(response.body).toHaveProperty(
+          "content",
+          "<html>Preview Content</html>"
+        );
+      });
+      it("Should return start_date and end_date ", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/preview")
+          .set("Authorization", "Bearer tester");
+        expect(response.body).toHaveProperty("startDate", "2025-09-17");
+        expect(response.body).toHaveProperty("endDate", "2025-09-29");
+      });
+      it("Should return campaignType ", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/preview")
+          .set("Authorization", "Bearer tester");
+        expect(response.body).toHaveProperty("campaignType", "Campaign Type 1");
+      });
     });
   });
 });
@@ -126,22 +161,20 @@ function buildCampaignRow({
   id,
   version,
   isPublic,
+  cp_type,
 }: {
   id: number;
   version: "v1" | "v2";
   isPublic?: number;
+  cp_type?: number;
 }) {
   return {
     id,
     is_public: isPublic,
-    start_date: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0],
+    start_date: "2025-09-17",
     platform_id: 1,
     // new date il 5 days in the future
-    end_date: new Date(new Date().getTime() + 12 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .split("T")[0],
+    end_date: "2025-09-29",
     page_version: version,
     title: `Campaign ${id}`,
     customer_title: `Campaign ${id} Customer Title`,
@@ -150,5 +183,6 @@ function buildCampaignRow({
     customer_id: 1,
     pm_id: 11111,
     project_id: 1,
+    campaign_type_id: cp_type || 1,
   };
 }

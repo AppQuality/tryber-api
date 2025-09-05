@@ -3,6 +3,7 @@
 import UserRoute from "@src/features/routes/UserRoute";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
+import { tryber } from "@src/features/database";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaigns-cid-preview"]["responses"]["200"]["content"]["application/json"];
@@ -74,24 +75,43 @@ class GetCampaignPreviewV2 extends UserRoute<{
   }
 
   private async retrieveCampaignData() {
-    const results = await this.db.campaigns.query({
-      where: [{ id: this.campaignId }],
-    });
-    if (results.length === 0) {
+    const res = await tryber.tables.CampaignPreviews.do()
+      .select(
+        tryber.ref("content").withSchema("campaign_previews"),
+        tryber.ref("start_date").withSchema("wp_appq_evd_campaign"),
+        tryber.ref("end_date").withSchema("wp_appq_evd_campaign"),
+        tryber
+          .ref("name")
+          .withSchema("wp_appq_campaign_type")
+          .as("campaign_type")
+      )
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_evd_campaign.id",
+        "campaign_previews.campaign_id"
+      )
+      .join(
+        "wp_appq_campaign_type",
+        "wp_appq_campaign_type.id",
+        "wp_appq_evd_campaign.campaign_type_id"
+      )
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    if (!res) {
       throw new Error("Campaign not found");
     }
 
     return {
-      content: "content",
-      campaignType: "campaignType",
-      startDate: "startDate",
-      endDate: "endDate",
+      content: res.content,
+      campaignType: res.campaign_type,
+      startDate: res.start_date,
+      endDate: res.end_date,
       tl: {
         name: "tlName",
         email: "tlEmail",
       },
     };
-    // return results[0];
   }
 }
 
