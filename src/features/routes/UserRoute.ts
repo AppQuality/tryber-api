@@ -33,10 +33,6 @@ export default class UserRoute<T extends RouteClassTypes> extends Route<T> {
     return this.configuration.request.user.role !== "administrator";
   }
 
-  public isAdmin() {
-    return this.configuration.request.user.role === "administrator";
-  }
-
   protected hasCapability(capability: string) {
     return !!(this.capabilities && this.capabilities.includes(capability));
   }

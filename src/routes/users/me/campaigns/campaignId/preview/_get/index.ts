@@ -56,7 +56,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
   }
 
   private async hasAccess() {
-    if (this.isAdmin()) return true;
+    if (this.isNotAdmin() === false) return true;
 
     const campaign = await this.getCampaign();
     if (!campaign) return false;
