@@ -839,6 +839,7 @@ export interface components {
       additionals?: ({
         showInStats?: boolean;
       } & components["schemas"]["CampaignAdditionalField"])[];
+      autoApply?: boolean;
       browsers?: number[];
       bugTypes?: number[];
       /** Format: date-time */
