@@ -339,6 +339,10 @@ export default class PostDossiers extends UserRoute<{
 
     const campaignToDuplicate = await this.getCampaignToDuplicate();
 
+    const autoApply = await this.getHasAutoApplyFromCampaignType(
+      this.getBody().testType
+    );
+
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -361,6 +365,7 @@ export default class PostDossiers extends UserRoute<{
         os: os.join(","),
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
+        auto_apply: autoApply,
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
@@ -752,5 +757,17 @@ export default class PostDossiers extends UserRoute<{
     const form_factor = devices.map((device) => device.form_factor);
 
     return { os, form_factor };
+  }
+
+  private async getHasAutoApplyFromCampaignType(
+    typeId: number
+  ): Promise<number> {
+    const autoApply = await tryber.tables.WpAppqCampaignType.do()
+      .select("has_auto_apply")
+      .where("id", typeId)
+      .first();
+
+    if (!autoApply) return 0;
+    return autoApply.has_auto_apply ? 1 : 0;
   }
 }
