@@ -2717,6 +2717,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            autoApply: number;
             browsers?: {
               id: number;
               name: string;

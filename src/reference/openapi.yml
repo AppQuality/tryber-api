@@ -4448,6 +4448,7 @@ paths:
               examples:
                 Example 1:
                   value:
+                    autoApply: 1
                     closeDate: '2019-08-24T14:15:22Z'
                     csm:
                       id: 1
@@ -4484,6 +4485,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  autoApply:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
                   browsers:
                     type: array
                     items:
@@ -4704,6 +4709,7 @@ paths:
                   - startDate
                   - testType
                   - title
+                  - autoApply
       security:
         - JWT: []
     parameters:
