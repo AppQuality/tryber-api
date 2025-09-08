@@ -10549,6 +10549,105 @@ paths:
       security:
         - JWT: []
       tags: []
+  '/campaigns/{campaign}/payout_data':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    put:
+      summary: Your PUT endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/MissingParameters'
+        '403':
+          $ref: '#/components/responses/Authentication'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      operationId: put-campaigns-campaign-payout_data
+      x-stoplight:
+        id: k3vt4t9wdph9j
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaign_complete_bonus_pts:
+                  type: number
+                  x-stoplight:
+                    id: zaumt9u5pjz30
+                payout_limit:
+                  type: number
+                  x-stoplight:
+                    id: 3m29szamidkol
+                low_bug_payout:
+                  type: number
+                  x-stoplight:
+                    id: f5zb0uobgnrxa
+                medium_bug_payout:
+                  type: number
+                  x-stoplight:
+                    id: 1q6bjv64gw4es
+                high_but_payout:
+                  type: number
+                  x-stoplight:
+                    id: 43nq2jgpdjmqj
+                critical_bug_payout:
+                  type: number
+                  x-stoplight:
+                    id: 6vhuivgmfim3u
+                point_multiplier_low:
+                  type: number
+                  x-stoplight:
+                    id: epgq4s0yybo78
+                point_multiplier_medium:
+                  type: number
+                  x-stoplight:
+                    id: 9718axqucf8os
+                point_multiplier_high:
+                  type: number
+                  x-stoplight:
+                    id: hsnbtbdg07fat
+                point_multiplier_critical:
+                  type: number
+                  x-stoplight:
+                    id: bs7kchor8j7gr
+                point_multiplier_perfect:
+                  type: number
+                  x-stoplight:
+                    id: 13ar51lwxu2qv
+                point_multiplier_refused:
+                  type: number
+                  x-stoplight:
+                    id: 6we9h0bbz9xo3
+                campaign_complete_bonus_eur:
+                  type: number
+                  x-stoplight:
+                    id: mtjof3r453f7i
+                top_tester_bonus:
+                  type: number
+                  x-stoplight:
+                    id: rouqs80awx3s3
+                minimum_bugs:
+                  type: number
+                  x-stoplight:
+                    id: bhinef5w060k0
+                percent_usecases:
+                  type: number
+                  x-stoplight:
+                    id: lssip7pcjnhe1
 components:
   parameters:
     campaign:
