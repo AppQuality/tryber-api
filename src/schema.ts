@@ -2717,6 +2717,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            autoApply: number;
             browsers?: {
               id: number;
               name: string;
@@ -2799,7 +2800,6 @@ export interface operations {
               gender?: number[];
               province?: string[];
             };
-            autoApply: number;
           };
         };
       };
