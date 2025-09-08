@@ -4496,7 +4496,7 @@ paths:
                   - startDate
                   - testType
                   - title
-                  - hasAutoApply
+                  - autoApply
                 properties:
                   browsers:
                     type: array
@@ -4706,7 +4706,7 @@ paths:
                         type: array
                         items:
                           type: string
-                  hasAutoApply:
+                  autoApply:
                     type: integer
                     x-stoplight:
                       id: 427sff4rtkxbo
