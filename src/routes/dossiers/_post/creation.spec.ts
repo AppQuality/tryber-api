@@ -944,25 +944,12 @@ describe("Route POST /dossiers", () => {
 
       const dossierId = postResponse.body.id;
 
-      const campaignId = await tryber.tables.WpAppqEvdCampaign.do()
-        .select(
-          tryber.ref("id").as("campaign_id").withSchema("wp_appq_evd_campaign")
-        )
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.campaign_id",
-          "wp_appq_evd_campaign.id"
-        )
-        .where("campaign_dossier_data.id", dossierId)
-        .first();
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
 
-      const campaignAutoApplyValue = await tryber.tables.WpAppqEvdCampaign.do()
-        .select("wp_appq_evd_campaign.auto_apply")
-        .where("id", campaignId?.campaign_id)
-        .first();
-
-      expect(campaignAutoApplyValue).toBeDefined();
-      expect(campaignAutoApplyValue).toHaveProperty("auto_apply", 1);
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 1);
     });
 
     it("Should insert the default autoApply value", async () => {
@@ -976,25 +963,12 @@ describe("Route POST /dossiers", () => {
 
       const dossierId = postResponse.body.id;
 
-      const campaignId = await tryber.tables.WpAppqEvdCampaign.do()
-        .select(
-          tryber.ref("id").as("campaign_id").withSchema("wp_appq_evd_campaign")
-        )
-        .join(
-          "campaign_dossier_data",
-          "campaign_dossier_data.campaign_id",
-          "wp_appq_evd_campaign.id"
-        )
-        .where("campaign_dossier_data.id", dossierId)
-        .first();
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
 
-      const campaignAutoApplyValue = await tryber.tables.WpAppqEvdCampaign.do()
-        .select("wp_appq_evd_campaign.auto_apply")
-        .where("id", campaignId?.campaign_id)
-        .first();
-
-      expect(campaignAutoApplyValue).toBeDefined();
-      expect(campaignAutoApplyValue).toHaveProperty("auto_apply", 0);
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 0);
     });
   });
 });
