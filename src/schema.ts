@@ -2799,7 +2799,7 @@ export interface operations {
               gender?: number[];
               province?: string[];
             };
-            hasAutoApply: number;
+            autoApply: number;
           };
         };
       };
