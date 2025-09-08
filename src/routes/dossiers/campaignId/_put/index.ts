@@ -142,6 +142,7 @@ export default class RouteItem extends UserRoute<{
         ...(typeof this.getBody().target?.cap !== "undefined" && {
           desired_number_of_testers: this.getBody().target?.cap,
         }),
+        auto_apply: this.getBody().autoApply ? 1 : 0,
       })
       .where({
         id: this.campaignId,

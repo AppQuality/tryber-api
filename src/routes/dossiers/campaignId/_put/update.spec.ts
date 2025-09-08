@@ -11,6 +11,7 @@ const baseRequest = {
   },
   startDate: "2019-08-24T14:15:22Z",
   deviceList: [1],
+  autoApply: false,
 };
 
 describe("Route POST /dossiers", () => {
@@ -308,6 +309,27 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("close_date", "2021-08-20 14:15:22");
+  });
+
+  it("Should update the campaign with the auto apply flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApply: true,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("auto_apply", 1);
   });
 
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
