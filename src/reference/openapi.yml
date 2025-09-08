@@ -4475,6 +4475,7 @@ paths:
                           name: Name
                           surname: Surname
                     startDate: '2019-08-24T14:15:22Z'
+                    hasAutoApply: 1
                     testType:
                       id: 1
                       name: Bughunting
@@ -4483,62 +4484,75 @@ paths:
                       tester: Tester Title
               schema:
                 type: object
+                required:
+                  - closeDate
+                  - csm
+                  - customer
+                  - deviceList
+                  - endDate
+                  - id
+                  - phase
+                  - project
+                  - startDate
+                  - testType
+                  - title
+                  - hasAutoApply
                 properties:
                   browsers:
                     type: array
                     items:
+                      type: object
+                      required:
+                        - id
+                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
-                      type: object
                   closeDate:
                     type: string
                     format: date-time
                   countries:
                     type: array
-                    items:
-                      $ref: '#/components/schemas/CountryCode'
                     minItems: 1
                     uniqueItems: true
+                    items:
+                      $ref: '#/components/schemas/CountryCode'
                   csm:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   customer:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   description:
                     type: string
                   deviceList:
                     type: array
                     items:
+                      type: object
+                      required:
+                        - id
+                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
-                      type: object
                   deviceRequirements:
                     type: string
                   endDate:
@@ -4551,64 +4565,69 @@ paths:
                   languages:
                     type: array
                     items:
+                      type: object
+                      required:
+                        - name
                       properties:
                         name:
                           type: string
-                      required:
-                        - name
-                      type: object
                   notes:
                     type: string
                   outOfScope:
                     type: string
                   phase:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   productLink:
                     type: string
                   productType:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: number
                       name:
                         type: string
+                  project:
+                    type: object
                     required:
                       - id
                       - name
-                  project:
-                    type: object
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   roles:
                     type: array
                     items:
+                      type: object
                       properties:
                         role:
                           type: object
+                          required:
+                            - id
+                            - name
                           properties:
                             id:
                               type: integer
                             name:
                               type: string
+                        user:
+                          type: object
                           required:
                             - id
                             - name
-                        user:
-                          type: object
+                            - surname
                           properties:
                             id:
                               type: integer
@@ -4616,11 +4635,6 @@ paths:
                               type: string
                             surname:
                               type: string
-                          required:
-                            - id
-                            - name
-                            - surname
-                      type: object
                   startDate:
                     type: string
                     format: date-time
@@ -4637,42 +4651,46 @@ paths:
                         type: integer
                   testType:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   title:
                     type: object
+                    required:
+                      - customer
+                      - tester
                     properties:
                       customer:
                         type: string
                       tester:
                         type: string
-                    required:
-                      - customer
-                      - tester
                   visibilityCriteria:
                     type: object
                     properties:
                       ageRanges:
                         type: array
                         items:
+                          type: object
+                          required:
+                            - max
+                            - min
                           properties:
                             max:
                               type: integer
                             min:
                               type: integer
-                          required:
-                            - max
-                            - min
-                          type: object
                       cuf:
                         type: array
                         items:
+                          type: object
+                          required:
+                            - cufId
+                            - cufValueIds
                           properties:
                             cufId:
                               type: integer
@@ -4680,10 +4698,6 @@ paths:
                               type: array
                               items:
                                 type: integer
-                          required:
-                            - cufId
-                            - cufValueIds
-                          type: object
                       gender:
                         type: array
                         items:
@@ -4692,18 +4706,12 @@ paths:
                         type: array
                         items:
                           type: string
-                required:
-                  - closeDate
-                  - csm
-                  - customer
-                  - deviceList
-                  - endDate
-                  - id
-                  - phase
-                  - project
-                  - startDate
-                  - testType
-                  - title
+                  hasAutoApply:
+                    type: integer
+                    x-stoplight:
+                      id: 427sff4rtkxbo
+                    minimum: 0
+                    maximum: 1
       security:
         - JWT: []
     parameters:
