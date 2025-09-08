@@ -245,7 +245,7 @@ export default class RouteItem extends UserRoute<{
         endDate: this.formatDate(this.campaign.end_date),
         closeDate: this.formatDate(this.campaign.close_date),
         deviceList: this.campaign.devices,
-        hasAutoApply: this.campaign.auto_apply,
+        autoApply: this.campaign.auto_apply,
         csm: {
           id: this.campaign.pm_id,
           name: `${this.campaign.pm_name} ${this.campaign.pm_surname}`,

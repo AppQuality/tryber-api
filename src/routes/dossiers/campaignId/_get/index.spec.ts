@@ -684,7 +684,7 @@ describe("Route GET /dossiers/:id", () => {
           .set("authorization", "Bearer admin");
 
         expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty("hasAutoApply", 1);
+        expect(response.body).toHaveProperty("autoApply", 1);
       });
     });
   });
