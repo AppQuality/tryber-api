@@ -125,7 +125,7 @@ describe("Route POST /dossiers", () => {
       .post("/dossiers")
       .set("authorization", "Bearer admin")
       .send(baseRequest);
-
+    console.log(postResponse.body);
     expect(postResponse.status).toBe(201);
     expect(postResponse.body).toHaveProperty("id");
 

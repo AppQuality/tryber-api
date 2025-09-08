@@ -11230,7 +11230,6 @@ components:
         - startDate
         - testType
         - title
-        - autoApply
       x-examples:
         Example 1:
           autoApply: false
