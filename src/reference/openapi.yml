@@ -4335,6 +4335,7 @@ paths:
             examples:
               Example 1:
                 value:
+                  autoApply: false
                   browsers:
                     - 0
                   closeDate: '2019-08-24T14:15:22Z'
@@ -4448,6 +4449,7 @@ paths:
               examples:
                 Example 1:
                   value:
+                    autoApply: 1
                     closeDate: '2019-08-24T14:15:22Z'
                     csm:
                       id: 1
@@ -4484,6 +4486,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  autoApply:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
                   browsers:
                     type: array
                     items:
@@ -4704,6 +4710,7 @@ paths:
                   - startDate
                   - testType
                   - title
+                  - autoApply
       security:
         - JWT: []
     parameters:
@@ -11097,6 +11104,8 @@ components:
                     type: boolean
                 type: object
               - $ref: '#/components/schemas/CampaignAdditionalField'
+        autoApply:
+          type: boolean
         browsers:
           type: array
           items:
@@ -11190,8 +11199,8 @@ components:
                   min:
                     type: integer
                 required:
-                  - min
                   - max
+                  - min
                 type: object
             cuf:
               type: array
@@ -11216,13 +11225,14 @@ components:
               items:
                 type: string
       required:
+        - deviceList
         - project
+        - startDate
         - testType
         - title
-        - startDate
-        - deviceList
       x-examples:
         Example 1:
+          autoApply: false
           browsers:
             - 0
           closeDate: '2019-08-24T14:15:22Z'
