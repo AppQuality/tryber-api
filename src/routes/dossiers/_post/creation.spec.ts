@@ -46,6 +46,7 @@ describe("Route POST /dossiers", () => {
       name: "Test Type",
       description: "Test Description",
       category_id: 1,
+      has_auto_apply: 1,
     });
 
     await tryber.tables.WpAppqEvdPlatform.do().insert([
@@ -916,5 +917,58 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.status).toBe(200);
     expect(getResponse.body).toHaveProperty("target");
     expect(getResponse.body.target).toHaveProperty("cap", 0);
+  });
+
+  describe("Auto Apply", () => {
+    beforeEach(async () => {
+      // we add a new type without explicit autoApply value that defaults to 0
+      await tryber.tables.WpAppqCampaignType.do().insert({
+        id: 11,
+        name: "Test Type No Auto Apply",
+        description: "Test Description",
+        category_id: 1,
+      });
+    });
+
+    afterEach(async () => {
+      await tryber.tables.WpAppqCampaignType.do().delete();
+    });
+    it("Should insert the correct autoApply value for the campaign type", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", " Bearer admin")
+        .send(baseRequest);
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 1);
+    });
+
+    it("Should insert the default autoApply value", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", " Bearer admin")
+        .send({ ...baseRequest, testType: 11 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 0);
+    });
   });
 });
