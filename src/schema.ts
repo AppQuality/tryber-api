@@ -2068,7 +2068,7 @@ export interface operations {
             campaign_complete_bonus_eur?: number;
             campaign_pts?: number;
             critical_bug_payout?: number;
-            high_but_payout?: number;
+            high_bug_payout?: number;
             low_bug_payout?: number;
             medium_bug_payout?: number;
             minimum_bugs?: number;
@@ -2094,7 +2094,7 @@ export interface operations {
           campaign_complete_bonus_eur?: number;
           campaign_pts?: number;
           critical_bug_payout?: number;
-          high_but_payout?: number;
+          high_bug_payout?: number;
           low_bug_payout?: number;
           medium_bug_payout?: number;
           minimum_bugs?: number;
