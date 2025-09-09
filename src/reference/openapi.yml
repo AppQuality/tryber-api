@@ -10556,11 +10556,6 @@ paths:
         name: campaign
         in: path
         required: true
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
     put:
       summary: Your PUT endpoint
       tags: []
@@ -10584,10 +10579,6 @@ paths:
             schema:
               type: object
               properties:
-                campaign_complete_bonus_pts:
-                  type: number
-                  x-stoplight:
-                    id: zaumt9u5pjz30
                 payout_limit:
                   type: number
                   x-stoplight:
