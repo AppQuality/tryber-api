@@ -10639,6 +10639,10 @@ paths:
                   type: number
                   x-stoplight:
                     id: lssip7pcjnhe1
+                campaign_pts:
+                  type: number
+                  x-stoplight:
+                    id: ib42eg2l8iaxh
 components:
   parameters:
     campaign:
