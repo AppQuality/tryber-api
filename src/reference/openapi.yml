@@ -2969,9 +2969,11 @@ paths:
                 critical_bug_payout:
                   type: number
                   minimum: 0
-                high_but_payout:
+                high_bug_payout:
                   type: number
                   minimum: 0
+                  x-stoplight:
+                    id: odry7k61s3asz
                 low_bug_payout:
                   type: number
                   minimum: 0
