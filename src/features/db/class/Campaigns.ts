@@ -14,6 +14,7 @@ type CampaignType = {
   close_date: string;
   campaign_type_id: number;
   os: string;
+  page_version: "v1" | "v2";
 };
 
 class CampaignObject {
@@ -28,6 +29,7 @@ class CampaignObject {
   close_date: string;
   campaign_type_id: number;
   os: string;
+  page_version: "v1" | "v2";
 
   constructor(item: CampaignType) {
     this.id = item.id;
@@ -41,6 +43,7 @@ class CampaignObject {
     this.close_date = item.close_date;
     this.campaign_type_id = item.campaign_type_id;
     this.os = item.os;
+    this.page_version = item.page_version;
   }
 
   get visibility_type() {
@@ -91,7 +94,6 @@ class CampaignObject {
       await userTargetChecker.initUser({ testerId });
 
       const targetRules = await this.getTargetRules();
-      await this.getTargetRules();
 
       if (!targetRules) return true;
       return userTargetChecker.inTarget(targetRules);
@@ -102,6 +104,10 @@ class CampaignObject {
   public async isApplicationAvailable() {
     const today = new Date().toISOString().split(".")[0].replace("T", " ");
     return new Date(this.start_date) >= new Date(today);
+  }
+
+  public isCampaignV2() {
+    return this.page_version === "v2";
   }
 
   public isOsAccepted(os: number) {
@@ -129,6 +135,7 @@ class Campaigns extends Database<{
             "end_date",
             "close_date",
             "os",
+            "page_version",
           ],
     });
   }

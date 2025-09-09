@@ -1,5 +1,4 @@
 import * as db from "@src/features/db";
-import { Data } from "aws-sdk/clients/firehose";
 type Arrayable<T> = { [K in keyof T]: T[K] | T[K][] };
 
 type WhereConditions =

@@ -37,6 +37,10 @@ const config: {
     username?: string;
     password?: string;
   };
+  testerLeaderCPV2: {
+    name: string;
+    email: string;
+  };
 } = {
   port: process.env.PORT || "3000",
   apiRoot: false,
@@ -68,6 +72,10 @@ const config: {
     basePath: process.env.UNGUESS_API_ROOT || "",
     username: process.env.UNGUESS_API_USERNAME || "",
     password: process.env.UNGUESS_API_PASSWORD || "",
+  },
+  testerLeaderCPV2: {
+    name: process.env.TESTER_LEADER_NAME || "Unknown",
+    email: process.env.TESTER_LEADER_EMAIL || "Unknown",
   },
 };
 
