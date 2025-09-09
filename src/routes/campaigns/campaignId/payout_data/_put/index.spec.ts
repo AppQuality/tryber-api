@@ -514,7 +514,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
           const cpMeta = await tryber.tables.WpAppqCpMeta.do()
             .select("*")
             .where({ campaign_id: 1 });
-          expect(cpMeta.length).toBeGreaterThanOrEqual(15);
+          expect(cpMeta.length).toBeGreaterThanOrEqual(14);
           const cpMetaMap: { [key: string]: string } = {};
           cpMeta.forEach((meta) => {
             cpMetaMap[meta.meta_key] = meta.meta_value;

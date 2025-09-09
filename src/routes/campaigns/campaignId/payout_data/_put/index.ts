@@ -8,10 +8,9 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
   parameters: StoplightOperations["put-campaigns-campaign-payout_data"]["parameters"]["path"];
   body: StoplightOperations["put-campaigns-campaign-payout_data"]["requestBody"]["content"]["application/json"];
 }> {
-  private payoutDataKeys = [
+  private cpMetaPayoutDataKeys = [
     "campaign_complete_bonus_eur",
     "critical_bug_payout",
-    "campaign_pts",
     "high_bug_payout",
     "low_bug_payout",
     "medium_bug_payout",
@@ -26,6 +25,8 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
     "point_multiplier_refused",
     "top_tester_bonus",
   ] as const;
+
+  private cpPointsKey = "campaign_pts" as const;
 
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
@@ -77,7 +78,7 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
     }> = [];
     const response: { [key: string]: string | number | undefined } = {};
 
-    this.payoutDataKeys.forEach((key) => {
+    this.cpMetaPayoutDataKeys.forEach((key) => {
       if (Object.prototype.hasOwnProperty.call(body, key)) {
         const newMetaValue = String(body[key]);
         if (existingMetaMap[key] !== undefined) {
@@ -100,6 +101,7 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
         response[key] = body[key];
       }
     });
+
     // Perform inserts
     if (rowsToInsert.length > 0) {
       try {
@@ -121,17 +123,16 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
     }
 
     // update campaign points if campaign_pts is present in body
-    if (body.campaign_pts !== undefined) {
+    if (Object.prototype.hasOwnProperty.call(body, this.cpPointsKey)) {
       try {
         await tryber.tables.WpAppqEvdCampaign.do()
           .update({ campaign_pts: body.campaign_pts })
           .where({ id: this.cp_id });
-        response["campaign_pts"] = body.campaign_pts;
+        response[this.cpPointsKey] = body.campaign_pts;
       } catch (error) {
         console.error("Error updating campaign points:", error);
       }
     }
-
     return response;
     /*
     const rows = this.payoutDataKeys
@@ -177,7 +178,11 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
 
     // check if body contains invalid values
     if (
-      Object.keys(body).some((key) => !this.payoutDataKeys.includes(key as any))
+      Object.keys(body).some(
+        (key) =>
+          !this.cpMetaPayoutDataKeys.includes(key as any) &&
+          key !== this.cpPointsKey
+      )
     ) {
       this.setError(403, new OpenapiError("Invalid keys in body"));
       return false;
