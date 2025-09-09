@@ -2945,6 +2945,156 @@ paths:
         required: true
         schema:
           type: string
+  '/campaigns/{campaign}/payout_data':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: put-campaigns-campaign-payout_data
+      summary: Your PUT endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                campaign_complete_bonus_eur:
+                  type: number
+                  minimum: 0
+                campaign_pts:
+                  type: number
+                critical_bug_payout:
+                  type: number
+                  minimum: 0
+                high_but_payout:
+                  type: number
+                  minimum: 0
+                low_bug_payout:
+                  type: number
+                  minimum: 0
+                medium_bug_payout:
+                  type: number
+                  minimum: 0
+                minimum_bugs:
+                  type: number
+                  minimum: 0
+                payout_limit:
+                  type: number
+                  minimum: 0
+                percent_usecases:
+                  type: number
+                  maximum: 100
+                  minimum: 0
+                point_multiplier_critical:
+                  type: number
+                  minimum: 0
+                point_multiplier_high:
+                  type: number
+                  minimum: 0
+                point_multiplier_low:
+                  type: number
+                  minimum: 0
+                point_multiplier_medium:
+                  type: number
+                  minimum: 0
+                point_multiplier_perfect:
+                  type: number
+                  minimum: 0
+                point_multiplier_refused:
+                  type: number
+                  minimum: 0
+                top_tester_bonus:
+                  type: number
+                  minimum: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    campaign_complete_bonus_eur: 10
+                    campaign_pts: 200
+                    critical_bug_payout: 4
+                    high_but_payout: 3
+                    low_bug_payout: 1
+                    medium_bug_payout: 2
+                    minimum_bugs: 1
+                    payout_limit: 10
+                    percent_usecases: 50
+                    point_multiplier_critical: 4
+                    point_multiplier_high: 3
+                    point_multiplier_low: 1
+                    point_multiplier_medium: 2
+                    point_multiplier_perfect: 2
+                    point_multiplier_refused: 2
+                    top_tester_bonus: 10
+              schema:
+                type: object
+                properties:
+                  campaign_complete_bonus_eur:
+                    type: number
+                  campaign_pts:
+                    type: number
+                  critical_bug_payout:
+                    type: number
+                  high_but_payout:
+                    type: number
+                  low_bug_payout:
+                    type: number
+                  medium_bug_payout:
+                    type: number
+                  minimum_bugs:
+                    type: number
+                  payout_limit:
+                    type: number
+                  percent_usecases:
+                    type: number
+                  point_multiplier_critical:
+                    type: number
+                  point_multiplier_high:
+                    type: number
+                  point_multiplier_low:
+                    type: number
+                  point_multiplier_medium:
+                    type: number
+                  point_multiplier_perfect:
+                    type: number
+                  point_multiplier_refused:
+                    type: number
+                  top_tester_bonus:
+                    type: number
+                x-examples:
+                  Example 1:
+                    campaign_complete_bonus_eur: 150
+                    campaign_pts: 1000
+                    critical_bug_payout: 1000
+                    high_but_payout: 500
+                    low_bug_payout: 50
+                    medium_bug_payout: 200
+                    minimum_bugs: 10
+                    payout_limit: 5000
+                    percent_usecases: 80
+                    point_multiplier_critical: 5
+                    point_multiplier_high: 3
+                    point_multiplier_low: 1
+                    point_multiplier_medium: 2
+                    point_multiplier_perfect: 10
+                    point_multiplier_refused: 0
+                    top_tester_bonus: 300
+        '400':
+          $ref: '#/components/responses/MissingParameters'
+        '403':
+          $ref: '#/components/responses/Authentication'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
   '/campaigns/{campaign}/payouts':
     get:
       operationId: get-campaigns-campaign-payouts
@@ -10549,190 +10699,6 @@ paths:
       security:
         - JWT: []
       tags: []
-  '/campaigns/{campaign}/payout_data':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    put:
-      summary: Your PUT endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                x-examples:
-                  Example 1:
-                    payout_limit: 5000
-                    low_bug_payout: 50
-                    medium_bug_payout: 200
-                    high_but_payout: 500
-                    critical_bug_payout: 1000
-                    point_multiplier_low: 1
-                    point_multiplier_medium: 2
-                    point_multiplier_high: 3
-                    point_multiplier_critical: 5
-                    point_multiplier_perfect: 10
-                    point_multiplier_refused: 0
-                    campaign_complete_bonus_eur: 150
-                    top_tester_bonus: 300
-                    minimum_bugs: 10
-                    percent_usecases: 80
-                    campaign_pts: 1000
-                properties:
-                  payout_limit:
-                    type: number
-                  low_bug_payout:
-                    type: number
-                  medium_bug_payout:
-                    type: number
-                  high_but_payout:
-                    type: number
-                  critical_bug_payout:
-                    type: number
-                  point_multiplier_low:
-                    type: number
-                  point_multiplier_medium:
-                    type: number
-                  point_multiplier_high:
-                    type: number
-                  point_multiplier_critical:
-                    type: number
-                  point_multiplier_perfect:
-                    type: number
-                  point_multiplier_refused:
-                    type: number
-                  campaign_complete_bonus_eur:
-                    type: number
-                  top_tester_bonus:
-                    type: number
-                  minimum_bugs:
-                    type: number
-                  percent_usecases:
-                    type: number
-                  campaign_pts:
-                    type: number
-              examples:
-                Example 1:
-                  value:
-                    payout_limit: 10
-                    low_bug_payout: 1
-                    medium_bug_payout: 2
-                    high_but_payout: 3
-                    critical_bug_payout: 4
-                    point_multiplier_low: 1
-                    point_multiplier_medium: 2
-                    point_multiplier_high: 3
-                    point_multiplier_critical: 4
-                    point_multiplier_perfect: 2
-                    point_multiplier_refused: 2
-                    campaign_complete_bonus_eur: 10
-                    top_tester_bonus: 10
-                    minimum_bugs: 1
-                    percent_usecases: 50
-                    campaign_pts: 200
-        '400':
-          $ref: '#/components/responses/MissingParameters'
-        '403':
-          $ref: '#/components/responses/Authentication'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      operationId: put-campaigns-campaign-payout_data
-      x-stoplight:
-        id: k3vt4t9wdph9j
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                payout_limit:
-                  type: number
-                  x-stoplight:
-                    id: 3m29szamidkol
-                  minimum: 0
-                low_bug_payout:
-                  type: number
-                  x-stoplight:
-                    id: f5zb0uobgnrxa
-                  minimum: 0
-                medium_bug_payout:
-                  type: number
-                  x-stoplight:
-                    id: 1q6bjv64gw4es
-                  minimum: 0
-                high_but_payout:
-                  type: number
-                  x-stoplight:
-                    id: 43nq2jgpdjmqj
-                  minimum: 0
-                critical_bug_payout:
-                  type: number
-                  x-stoplight:
-                    id: 6vhuivgmfim3u
-                  minimum: 0
-                point_multiplier_low:
-                  type: number
-                  x-stoplight:
-                    id: epgq4s0yybo78
-                  minimum: 0
-                point_multiplier_medium:
-                  type: number
-                  x-stoplight:
-                    id: 9718axqucf8os
-                  minimum: 0
-                point_multiplier_high:
-                  type: number
-                  x-stoplight:
-                    id: hsnbtbdg07fat
-                  minimum: 0
-                point_multiplier_critical:
-                  type: number
-                  x-stoplight:
-                    id: bs7kchor8j7gr
-                  minimum: 0
-                point_multiplier_perfect:
-                  type: number
-                  x-stoplight:
-                    id: 13ar51lwxu2qv
-                  minimum: 0
-                point_multiplier_refused:
-                  type: number
-                  x-stoplight:
-                    id: 6we9h0bbz9xo3
-                  minimum: 0
-                campaign_complete_bonus_eur:
-                  type: number
-                  x-stoplight:
-                    id: mtjof3r453f7i
-                  minimum: 0
-                top_tester_bonus:
-                  type: number
-                  x-stoplight:
-                    id: rouqs80awx3s3
-                  minimum: 0
-                minimum_bugs:
-                  type: number
-                  x-stoplight:
-                    id: bhinef5w060k0
-                  minimum: 0
-                percent_usecases:
-                  type: number
-                  x-stoplight:
-                    id: lssip7pcjnhe1
-                  minimum: 0
-                  maximum: 100
-                campaign_pts:
-                  type: number
-                  x-stoplight:
-                    id: ib42eg2l8iaxh
 components:
   parameters:
     campaign:
