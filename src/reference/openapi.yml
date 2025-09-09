@@ -3020,7 +3020,7 @@ paths:
                     campaign_complete_bonus_eur: 10
                     campaign_pts: 200
                     critical_bug_payout: 4
-                    high_but_payout: 3
+                    high_bug_payout: 3
                     low_bug_payout: 1
                     medium_bug_payout: 2
                     minimum_bugs: 1
@@ -3035,6 +3035,24 @@ paths:
                     top_tester_bonus: 10
               schema:
                 type: object
+                x-examples:
+                  Example 1:
+                    campaign_complete_bonus_eur: 150
+                    campaign_pts: 1000
+                    critical_bug_payout: 1000
+                    high_but_payout: 500
+                    low_bug_payout: 50
+                    medium_bug_payout: 200
+                    minimum_bugs: 10
+                    payout_limit: 5000
+                    percent_usecases: 80
+                    point_multiplier_critical: 5
+                    point_multiplier_high: 3
+                    point_multiplier_low: 1
+                    point_multiplier_medium: 2
+                    point_multiplier_perfect: 10
+                    point_multiplier_refused: 0
+                    top_tester_bonus: 300
                 properties:
                   campaign_complete_bonus_eur:
                     type: number
@@ -3042,8 +3060,10 @@ paths:
                     type: number
                   critical_bug_payout:
                     type: number
-                  high_but_payout:
+                  high_bug_payout:
                     type: number
+                    x-stoplight:
+                      id: xvg75gy0jvarj
                   low_bug_payout:
                     type: number
                   medium_bug_payout:
@@ -3068,24 +3088,6 @@ paths:
                     type: number
                   top_tester_bonus:
                     type: number
-                x-examples:
-                  Example 1:
-                    campaign_complete_bonus_eur: 150
-                    campaign_pts: 1000
-                    critical_bug_payout: 1000
-                    high_but_payout: 500
-                    low_bug_payout: 50
-                    medium_bug_payout: 200
-                    minimum_bugs: 10
-                    payout_limit: 5000
-                    percent_usecases: 80
-                    point_multiplier_critical: 5
-                    point_multiplier_high: 3
-                    point_multiplier_low: 1
-                    point_multiplier_medium: 2
-                    point_multiplier_perfect: 10
-                    point_multiplier_refused: 0
-                    top_tester_bonus: 300
         '400':
           $ref: '#/components/responses/MissingParameters'
         '403':
