@@ -456,6 +456,92 @@ describe("GET /campaigns/campaignId/payouts", () => {
           expect(cpMeta?.meta_key).toBe("top_tester_bonus");
           expect(cpMeta?.meta_value).toBe("99");
         });
+
+        it("Should update multiple fields at once", async () => {
+          const response = await request(app)
+            .put("/campaigns/1/payout_data")
+            .set("Authorization", "Bearer admin")
+            .send({
+              campaign_complete_bonus_eur: 20,
+              campaign_pts: 500,
+              critical_bug_payout: 8,
+              high_bug_payout: 7,
+              low_bug_payout: 6,
+              medium_bug_payout: 5,
+              payout_limit: 400,
+              percent_usecases: 60,
+              point_multiplier_critical: 3,
+              point_multiplier_high: 4,
+              point_multiplier_low: 2,
+              point_multiplier_medium: 3,
+              point_multiplier_perfect: 6,
+              point_multiplier_refused: 1,
+              top_tester_bonus: 199,
+            });
+
+          expect(response.status).toBe(200);
+          expect(response.body).toHaveProperty("campaign_complete_bonus_eur");
+          expect(response.body).toHaveProperty("campaign_pts");
+          expect(response.body).toHaveProperty("critical_bug_payout");
+          expect(response.body).toHaveProperty("high_bug_payout");
+          expect(response.body).toHaveProperty("low_bug_payout");
+          expect(response.body).toHaveProperty("medium_bug_payout");
+          expect(response.body).toHaveProperty("payout_limit");
+          expect(response.body).toHaveProperty("percent_usecases");
+          expect(response.body).toHaveProperty("point_multiplier_critical");
+          expect(response.body).toHaveProperty("point_multiplier_high");
+          expect(response.body).toHaveProperty("point_multiplier_low");
+          expect(response.body).toHaveProperty("point_multiplier_medium");
+          expect(response.body).toHaveProperty("point_multiplier_perfect");
+          expect(response.body).toHaveProperty("point_multiplier_refused");
+          expect(response.body).toHaveProperty("top_tester_bonus");
+          expect(response.body.campaign_complete_bonus_eur).toBe(20);
+          expect(response.body.campaign_pts).toBe(500);
+          expect(response.body.critical_bug_payout).toBe(8);
+          expect(response.body.high_bug_payout).toBe(7);
+          expect(response.body.low_bug_payout).toBe(6);
+          expect(response.body.medium_bug_payout).toBe(5);
+          expect(response.body.payout_limit).toBe(400);
+          expect(response.body.percent_usecases).toBe(60);
+          expect(response.body.point_multiplier_critical).toBe(3);
+          expect(response.body.point_multiplier_high).toBe(4);
+          expect(response.body.point_multiplier_low).toBe(2);
+          expect(response.body.point_multiplier_medium).toBe(3);
+          expect(response.body.point_multiplier_perfect).toBe(6);
+          expect(response.body.point_multiplier_refused).toBe(1);
+          expect(response.body.top_tester_bonus).toBe(199);
+
+          const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+            .select("*")
+            .where({ campaign_id: 1 });
+          expect(cpMeta.length).toBeGreaterThanOrEqual(15);
+          const cpMetaMap: { [key: string]: string } = {};
+          cpMeta.forEach((meta) => {
+            cpMetaMap[meta.meta_key] = meta.meta_value;
+          });
+
+          expect(cpMetaMap["campaign_complete_bonus_eur"]).toBe("20");
+          expect(cpMetaMap["critical_bug_payout"]).toBe("8");
+          expect(cpMetaMap["high_bug_payout"]).toBe("7");
+          expect(cpMetaMap["low_bug_payout"]).toBe("6");
+          expect(cpMetaMap["medium_bug_payout"]).toBe("5");
+          expect(cpMetaMap["payout_limit"]).toBe("400");
+          expect(cpMetaMap["percent_usecases"]).toBe("60");
+          expect(cpMetaMap["point_multiplier_critical"]).toBe("3");
+          expect(cpMetaMap["point_multiplier_high"]).toBe("4");
+          expect(cpMetaMap["point_multiplier_low"]).toBe("2");
+          expect(cpMetaMap["point_multiplier_medium"]).toBe("3");
+          expect(cpMetaMap["point_multiplier_perfect"]).toBe("6");
+          expect(cpMetaMap["point_multiplier_refused"]).toBe("1");
+          expect(cpMetaMap["top_tester_bonus"]).toBe("199");
+
+          const pts = await tryber.tables.WpAppqEvdCampaign.do()
+            .select("campaign_pts")
+            .where({ id: 1 })
+            .first();
+          expect(pts).toBeDefined();
+          expect(pts?.campaign_pts).toBe(500);
+        });
       });
     });
   });
