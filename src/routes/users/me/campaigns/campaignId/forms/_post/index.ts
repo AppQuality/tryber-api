@@ -151,12 +151,21 @@ class RouteItem extends UserRoute<{
   }
 
   private async applyToCampaign() {
+    const status = await this.getAcceptedStatus();
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: this.campaignId,
       user_id: this.getWordpressId(),
       devices: this.deviceId.toString(),
-      accepted: await this.getAcceptedStatus(),
+      accepted: status,
+      ...(status === 1 ? { selected_device: this.getRandomDevice() } : {}),
     });
+  }
+
+  private getRandomDevice() {
+    if (this.deviceId === false) {
+      return 0;
+    }
+    return this.deviceId[0];
   }
 
   private async getAcceptedStatus() {
