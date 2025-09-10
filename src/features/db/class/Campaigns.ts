@@ -15,6 +15,7 @@ type CampaignType = {
   campaign_type_id: number;
   os: string;
   page_version: "v1" | "v2";
+  campaign_pts?: number;
 };
 
 class CampaignObject {
@@ -30,6 +31,7 @@ class CampaignObject {
   campaign_type_id: number;
   os: string;
   page_version: "v1" | "v2";
+  campaign_pts?: number;
 
   constructor(item: CampaignType) {
     this.id = item.id;
@@ -44,6 +46,7 @@ class CampaignObject {
     this.campaign_type_id = item.campaign_type_id;
     this.os = item.os;
     this.page_version = item.page_version;
+    this.campaign_pts = item.campaign_pts;
   }
 
   get visibility_type() {
@@ -136,6 +139,7 @@ class Campaigns extends Database<{
             "close_date",
             "os",
             "page_version",
+            "campaign_pts",
           ],
     });
   }
