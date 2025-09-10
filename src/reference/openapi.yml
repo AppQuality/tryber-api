@@ -8194,6 +8194,71 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}':
+    parameters:
+      - name: campaignId
+        in: path
+        description: the campaign id
+        required: true
+        schema:
+          type: string
+      - schema:
+          type: string
+        name: taskId
+        in: path
+        required: true
+    post:
+      operationId: post-users-me-campaigns-campaign-tasks-task
+      summary: Set a task completed by user
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                example-1:
+                  additional:
+                    - name: ''
+                      value: ''
+                  current: ''
+                  description: ''
+                  device: 1
+                  expected: ''
+                  media:
+                    - ''
+                    - ''
+                  notes: ''
+                  replicability: ONCE
+                  severity: LOW
+                  title: ''
+                  type: TYPO
+                  usecase: 1
+              required:
+                - status
+              properties:
+                status:
+                  x-stoplight:
+                    id: 72qnzzxtk9wyq
+                  enum:
+                    - completed
+            examples:
+              Example 1:
+                value:
+                  status: completed
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+        - User Token: []
+      x-stoplight:
+        id: ha0185a77sqwa
   '/users/me/campaigns/{campaignId}/devices':
     get:
       operationId: get-users-me-campaigns-campaignId-devices
