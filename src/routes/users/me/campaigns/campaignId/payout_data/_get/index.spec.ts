@@ -182,6 +182,27 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
           meta_key: "point_multiplier_high",
           meta_value: "10.45",
         },
+        {
+          campaign_id: 1,
+          meta_key: "point_multiplier_low",
+          meta_value: "11.50",
+        },
+        {
+          campaign_id: 1,
+          meta_key: "point_multiplier_medium",
+          meta_value: "12.55",
+        },
+        {
+          campaign_id: 1,
+          meta_key: "point_multiplier_perfect",
+          meta_value: "13.60",
+        },
+        {
+          campaign_id: 1,
+          meta_key: "point_multiplier_refused",
+          meta_value: "14.65",
+        },
+        { campaign_id: 1, meta_key: "top_tester_bonus", meta_value: "999.99" },
       ]);
     });
     afterEach(async () => {
@@ -259,6 +280,36 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
         .get("/users/me/campaigns/1/payout_data")
         .set("Authorization", "Bearer tester");
       expect(response.body).toHaveProperty("point_multiplier_high", 10.45);
+    });
+    it("Should return payout data with point_multiplier_low field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("point_multiplier_low", 11.5);
+    });
+    it("Should return payout data with point_multiplier_medium field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("point_multiplier_medium", 12.55);
+    });
+    it("Should return payout data with point_multiplier_perfect field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("point_multiplier_perfect", 13.6);
+    });
+    it("Should return payout data with point_multiplier_refused field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("point_multiplier_refused", 14.65);
+    });
+    it("Should return payout data with top_tester_bonus field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("top_tester_bonus", 999.99);
     });
   });
 });
