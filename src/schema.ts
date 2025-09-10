@@ -4065,11 +4065,15 @@ export interface operations {
         content: {
           "application/json": {
             campaignType: string;
+            cap?: {
+              free: number;
+              value: number;
+            };
             content: string;
             endDate: string;
             startDate: string;
             /** @enum {string} */
-            status?: "available" | "applied" | "excluded" | "selected";
+            status: "available" | "applied" | "excluded" | "selected";
             tl?: {
               email: string;
               name: string;

@@ -8359,6 +8359,16 @@ paths:
                 properties:
                   campaignType:
                     type: string
+                  cap:
+                    type: object
+                    properties:
+                      free:
+                        type: integer
+                      value:
+                        type: integer
+                    required:
+                      - value
+                      - free
                   content:
                     type: string
                   endDate:
@@ -8387,6 +8397,7 @@ paths:
                   - campaignType
                   - startDate
                   - endDate
+                  - status
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

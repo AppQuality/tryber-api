@@ -97,6 +97,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
       throw new Error("Campaign not found");
     }
 
+    const capacity = await this.getFreeSpots();
     return {
       content: await this.getContent(),
       campaignType: res.campaign_type,
@@ -107,6 +108,9 @@ class GetCampaignPreviewV2 extends UserRoute<{
         name: config.testerLeaderCPV2.name,
         email: config.testerLeaderCPV2.email,
       },
+      ...(capacity.cap > 0
+        ? { value: capacity.cap, freeSpots: capacity.freeSpots }
+        : {}),
     };
   }
 
@@ -138,6 +142,39 @@ class GetCampaignPreviewV2 extends UserRoute<{
     if (application.accepted === 1) return "selected" as const;
     if (application.accepted === -1) return "excluded" as const;
     return "applied" as const;
+  }
+
+  private async getFreeSpots() {
+    const applicationSpots = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(
+        tryber
+          .ref("desired_number_of_testers")
+          .withSchema("wp_appq_evd_campaign")
+          .as("cap")
+      )
+      .where("id", this.campaignId)
+      .first();
+
+    if (!applicationSpots) return { cap: 0, freeSpots: 0 };
+
+    const cap = applicationSpots.cap;
+
+    const validApplications = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("campaign_id")
+      .count({
+        count: "user_id",
+      })
+      .whereNot("accepted", -1)
+      .where("campaign_id", this.campaignId);
+
+    const count = validApplications[0]?.count
+      ? Number(validApplications[0].count)
+      : 0;
+
+    return {
+      cap: 0,
+      freeSpots: cap - count,
+    };
   }
 }
 
