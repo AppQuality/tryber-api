@@ -177,6 +177,11 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
           meta_key: "point_multiplier_critical",
           meta_value: "9.40",
         },
+        {
+          campaign_id: 1,
+          meta_key: "point_multiplier_high",
+          meta_value: "10.45",
+        },
       ]);
     });
     afterEach(async () => {
@@ -248,6 +253,12 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
         .get("/users/me/campaigns/1/payout_data")
         .set("Authorization", "Bearer tester");
       expect(response.body).toHaveProperty("point_multiplier_critical", 9.4);
+    });
+    it("Should return payout data with point_multiplier_high field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("point_multiplier_high", 10.45);
     });
   });
 });
