@@ -7466,16 +7466,16 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
-                      - device:
+                      - campaign_type:
+                          id: 1
+                          name: Bug Hunting
+                        device:
                           id: 123
                           manufacturer: Apple
                           model: iPhone 6
-                        id: 2
                         end_date: 01-01-2026
                         goal: A beautiful goal
-                        campaign_type:
-                          name: Bug Hunting
-                          id: 1
+                        id: 2
                         operating_system:
                           id: 234
                           platform: Apple
@@ -7520,14 +7520,14 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      id: 1
+                      name: Bug Hunting
                     devices: []
-                    hasBugForm: false
-                    id: 123
                     end_date: 01-01-2026
                     goal: A beautiful goal
-                    campaign_type:
-                      name: Bug Hunting
-                      id: 1
+                    hasBugForm: false
+                    id: 123
                     minimumMedia: 3
                     title: My campaign
                     titleRule: true
@@ -7558,6 +7558,9 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      id: 1
+                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7569,13 +7572,10 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
-                    hasBugForm: true
-                    id: 123
                     end_date: 01-01-2026
                     goal: A beautiful goal
-                    campaign_type:
-                      name: Bug Hunting
-                      id: 1
+                    hasBugForm: true
+                    id: 123
                     minimumMedia: 3
                     title: My campaign
                     titleRule: true
@@ -7610,13 +7610,13 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
-                    hasBugForm: true
-                    id: 123
+                    campaign_type:
+                      id: 1
+                      name: Bug Hunting
                     end_date: 01-01-2026
                     goal: A beautiful goal
-                    campaign_type:
-                      name: Bug Hunting
-                      id: 1
+                    hasBugForm: true
+                    id: 123
                     minimumMedia: 3
                     title: My campaign
                     titleRule: true
@@ -7632,6 +7632,114 @@ paths:
                       - mp4
               schema:
                 type: object
+                properties:
+                  additionalFields:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CampaignAdditionalField'
+                  bugReplicability:
+                    type: object
+                    properties:
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - invalid
+                      - valid
+                  bugSeverity:
+                    type: object
+                    properties:
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - invalid
+                      - valid
+                  bugTypes:
+                    type: object
+                    properties:
+                      invalid:
+                        type: array
+                        items:
+                          type: string
+                      valid:
+                        type: array
+                        items:
+                          type: string
+                    required:
+                      - invalid
+                      - valid
+                  campaign_type:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - name
+                      - id
+                  devices:
+                    type: array
+                    items:
+                      allOf:
+                        - properties:
+                            id:
+                              type: integer
+                          required:
+                            - id
+                          type: object
+                        - $ref: '#/components/schemas/UserDevice'
+                  end_date:
+                    type: string
+                  goal:
+                    type: string
+                  hasBugForm:
+                    type: boolean
+                  id:
+                    type: integer
+                  language:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                    required:
+                      - code
+                      - message
+                  minimumMedia:
+                    type: integer
+                  title:
+                    type: string
+                  titleRule:
+                    type: boolean
+                  useCases:
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - name
+                      type: object
+                  validFileExtensions:
+                    type: array
+                    items:
+                      type: string
                 required:
                   - bugReplicability
                   - bugSeverity
@@ -7645,124 +7753,6 @@ paths:
                   - end_date
                   - goal
                   - campaign_type
-                properties:
-                  additionalFields:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CampaignAdditionalField'
-                  bugReplicability:
-                    type: object
-                    required:
-                      - invalid
-                      - valid
-                    properties:
-                      invalid:
-                        type: array
-                        items:
-                          type: string
-                      valid:
-                        type: array
-                        items:
-                          type: string
-                  bugSeverity:
-                    type: object
-                    required:
-                      - invalid
-                      - valid
-                    properties:
-                      invalid:
-                        type: array
-                        items:
-                          type: string
-                      valid:
-                        type: array
-                        items:
-                          type: string
-                  bugTypes:
-                    type: object
-                    required:
-                      - invalid
-                      - valid
-                    properties:
-                      invalid:
-                        type: array
-                        items:
-                          type: string
-                      valid:
-                        type: array
-                        items:
-                          type: string
-                  devices:
-                    type: array
-                    items:
-                      allOf:
-                        - type: object
-                          required:
-                            - id
-                          properties:
-                            id:
-                              type: integer
-                        - $ref: '#/components/schemas/UserDevice'
-                  hasBugForm:
-                    type: boolean
-                  id:
-                    type: integer
-                  language:
-                    type: object
-                    required:
-                      - code
-                      - message
-                    properties:
-                      code:
-                        type: string
-                      message:
-                        type: string
-                  minimumMedia:
-                    type: integer
-                  title:
-                    type: string
-                  titleRule:
-                    type: boolean
-                  useCases:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - id
-                        - name
-                      properties:
-                        id:
-                          type: integer
-                        name:
-                          type: string
-                  validFileExtensions:
-                    type: array
-                    items:
-                      type: string
-                  end_date:
-                    type: string
-                    x-stoplight:
-                      id: x9glneab91b07
-                  goal:
-                    type: string
-                    x-stoplight:
-                      id: vemilchkitz0f
-                  campaign_type:
-                    type: object
-                    x-stoplight:
-                      id: qrpqclnzqmeyb
-                    required:
-                      - name
-                      - id
-                    properties:
-                      name:
-                        type: string
-                        x-stoplight:
-                          id: 035l9wi9sgv8e
-                      id:
-                        type: number
-                        x-stoplight:
-                          id: 12n078i59ziuc
       security:
         - JWT: []
         - User Token: []
