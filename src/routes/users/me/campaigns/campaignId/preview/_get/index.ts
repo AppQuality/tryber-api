@@ -155,7 +155,8 @@ class GetCampaignPreviewV2 extends UserRoute<{
       .where("id", this.campaignId)
       .first();
 
-    if (!applicationSpots) return { cap: 0, freeSpots: 0 };
+    if (!applicationSpots || applicationSpots.cap == -1)
+      return { cap: 0, freeSpots: 0 };
 
     const cap = applicationSpots.cap;
 
