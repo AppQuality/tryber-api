@@ -103,12 +103,6 @@ class GetCampaignPreviewV2 extends UserRoute<{
       throw new Error("Campaign not found");
     }
 
-    const application = await tryber.tables.WpCrowdAppqHasCandidate.do()
-      .select("accepted")
-      .where("user_id", this.getWordpressId())
-      .where("campaign_id", this.campaignId)
-      .first();
-
     return {
       content: res.content,
       campaignType: res.campaign_type,
