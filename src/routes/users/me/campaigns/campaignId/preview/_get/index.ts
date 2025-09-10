@@ -76,9 +76,8 @@ class GetCampaignPreviewV2 extends UserRoute<{
   }
 
   private async retrieveCampaignData() {
-    const res = await tryber.tables.CampaignPreviews.do()
+    const res = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
-        tryber.ref("content").withSchema("campaign_previews"),
         tryber.ref("start_date").withSchema("wp_appq_evd_campaign"),
         tryber.ref("end_date").withSchema("wp_appq_evd_campaign"),
         tryber
@@ -87,16 +86,11 @@ class GetCampaignPreviewV2 extends UserRoute<{
           .as("campaign_type")
       )
       .join(
-        "wp_appq_evd_campaign",
-        "wp_appq_evd_campaign.id",
-        "campaign_previews.campaign_id"
-      )
-      .join(
         "wp_appq_campaign_type",
         "wp_appq_campaign_type.id",
         "wp_appq_evd_campaign.campaign_type_id"
       )
-      .where("campaign_id", this.campaignId)
+      .where("wp_appq_evd_campaign.id", this.campaignId)
       .first();
 
     if (!res) {
@@ -104,7 +98,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
     }
 
     return {
-      content: res.content,
+      content: await this.getContent(),
       campaignType: res.campaign_type,
       startDate: res.start_date,
       endDate: res.end_date,
@@ -114,6 +108,23 @@ class GetCampaignPreviewV2 extends UserRoute<{
         email: config.testerLeaderCPV2.email,
       },
     };
+  }
+
+  private async getContent() {
+    const res = await tryber.tables.CampaignPreviews.do()
+      .select(tryber.ref("content").withSchema("campaign_previews"))
+      .join(
+        "wp_appq_evd_campaign",
+        "wp_appq_evd_campaign.id",
+        "campaign_previews.campaign_id"
+      )
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    if (!res) {
+      return "";
+    }
+    return res.content;
   }
 
   private async getStatus() {
