@@ -162,6 +162,11 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
           meta_key: "minimum_bugs",
           meta_value: "6",
         },
+        {
+          campaign_id: 1,
+          meta_key: "payout_limit",
+          meta_value: "7.30",
+        },
       ]);
     });
     afterEach(async () => {
@@ -215,6 +220,12 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
         .get("/users/me/campaigns/1/payout_data")
         .set("Authorization", "Bearer tester");
       expect(response.body).toHaveProperty("minimum_bugs", 6);
+    });
+    it("Should return payout data with payout_limit field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("payout_limit", 7.3);
     });
   });
 });
