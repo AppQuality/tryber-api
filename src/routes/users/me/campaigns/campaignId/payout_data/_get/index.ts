@@ -117,7 +117,7 @@ class GetCampaignPayoutData extends UserRoute<{
         "campaign_complete_bonus_eur",
         results
       ),
-      campaign_pts: this.campaign ? this.campaign.campaign_pts || 0 : 0,
+      campaign_pts: this.campaign ? this.campaign.campaign_pts || 200 : 200,
       critical_bug_payout: this.evaluatePayoutField(
         "critical_bug_payout",
         results
