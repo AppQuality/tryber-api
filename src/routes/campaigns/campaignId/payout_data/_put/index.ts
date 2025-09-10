@@ -134,26 +134,6 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
       }
     }
     return response;
-    /*
-    const rows = this.payoutDataKeys
-      .filter((k) => Object.prototype.hasOwnProperty.call(body, k))
-      .map((k) => ({
-        campaign_id: this.cp_id,
-        meta_key: k,
-        meta_value: String(body[k]),
-      }));
-
-    console.log(rows);
-
-    if (rows.length === 0) return;
-    try {
-      await tryber.tables.WpAppqCpMeta.do()
-        .insert(rows)
-        .onConflict(["campaign_id", "meta_key"])
-        .merge(["meta_value"]);
-    } catch (error) {
-      console.error("Error updating payout data:", error);
-    } */
   }
 
   private isPayoutDataValid(): boolean {
