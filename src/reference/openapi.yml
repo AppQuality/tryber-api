@@ -8329,6 +8329,120 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/payout_data':
+    get:
+      operationId: get-users-me-campaigns-cid-payout-data
+      summary: Get the payout data form campaign
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    campaign_complete_bonus_eur: 1.4
+                    campaign_pts: 2.4
+                    critical_bug_payout: 3.4
+                    high_bug_payout: 4.4
+                    low_bug_payout: 5.4
+                    medium_bug_payout: 6.4
+                    minimum_bugs: 6.4
+                    payout_limit: 7.4
+                    percent_usecases: 80
+                    point_multiplier_critical: 9.4
+                    point_multiplier_high: 10.4
+                    point_multiplier_low: 11.4
+                    point_multiplier_medium: 12.4
+                    point_multiplier_perfect: 13.4
+                    point_multiplier_refused: 14.4
+                    top_tester_bonus: 15.4
+              schema:
+                type: object
+                properties:
+                  campaign_complete_bonus_eur:
+                    type: number
+                  campaign_pts:
+                    type: number
+                  critical_bug_payout:
+                    type: number
+                  high_bug_payout:
+                    type: number
+                  low_bug_payout:
+                    type: number
+                  medium_bug_payout:
+                    type: number
+                  minimum_bugs:
+                    type: number
+                  payout_limit:
+                    type: number
+                  percent_usecases:
+                    type: number
+                    maximum: 100
+                    minimum: 0
+                  point_multiplier_critical:
+                    type: number
+                  point_multiplier_high:
+                    type: number
+                  point_multiplier_low:
+                    type: number
+                  point_multiplier_medium:
+                    type: number
+                  point_multiplier_perfect:
+                    type: number
+                  point_multiplier_refused:
+                    type: number
+                  top_tester_bonus:
+                    type: number
+                required:
+                  - campaign_complete_bonus_eur
+                  - campaign_pts
+                  - critical_bug_payout
+                  - high_bug_payout
+                  - low_bug_payout
+                  - medium_bug_payout
+                  - minimum_bugs
+                  - payout_limit
+                  - percent_usecases
+                  - point_multiplier_critical
+                  - point_multiplier_high
+                  - point_multiplier_low
+                  - point_multiplier_medium
+                  - point_multiplier_perfect
+                  - point_multiplier_refused
+                  - top_tester_bonus
+                x-examples:
+                  Example 1:
+                    campaign_complete_bonus_eur: 10.4
+                    campaign_pts: 10.4
+                    critical_bug_payout: 10.4
+                    high_bug_payout: 10.4
+                    low_bug_payout: 10.4
+                    medium_bug_payout: 10.4
+                    minimum_bugs: 10.4
+                    payout_limit: 10.4
+                    percent_usecases: 10.4
+                    point_multiplier_critical: 10.4
+                    point_multiplier_high: 10.4
+                    point_multiplier_low: 10.4
+                    point_multiplier_medium: 10.4
+                    point_multiplier_perfect: 10.4
+                    point_multiplier_refused: 10.4
+                    top_tester_bonus: 10.4
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
   '/users/me/campaigns/{campaignId}/preview':
     get:
       operationId: get-users-me-campaigns-cid-preview
