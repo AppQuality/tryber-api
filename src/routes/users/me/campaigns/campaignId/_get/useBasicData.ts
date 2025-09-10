@@ -1,7 +1,52 @@
 import { tryber } from "@src/features/database";
 
 const useBasicData = () => {
+  const modules = [
+    {
+      type: "title",
+      output: "plan title",
+      variant: "default",
+    },
+    {
+      type: "goal",
+      output: "Example: goal of the campaign",
+      variant: "default",
+    },
+    {
+      type: "dates",
+      output: {
+        start: "2025-03-12T23:00:00.000",
+      },
+      variant: "default",
+    },
+    {
+      type: "tasks",
+      variant: "default",
+      output: [
+        {
+          kind: "video",
+          title: "string",
+        },
+      ],
+    },
+  ];
+
+  const config = { modules: modules };
+
   beforeAll(async () => {
+    await tryber.tables.CpReqPlans.do().insert({
+      id: 1,
+      name: "Plan 1",
+      config: JSON.stringify(config),
+    });
+    await tryber.tables.WpAppqCampaignType.do().insert({
+      id: 1,
+      name: "Bug Hunting",
+      description: "Bug Hunting Campaigns",
+      category_id: 1,
+      type: 0,
+      has_auto_apply: 0,
+    });
     await tryber.seeds().campaign_statuses();
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
@@ -200,6 +245,7 @@ const useBasicData = () => {
         title: "My campaign",
         min_allowed_media: 4,
         campaign_type: 0,
+        campaign_type_id: 1,
         platform_id: 1,
         start_date: "2020-01-01 00:00:00",
         end_date: "2020-12-31 23:59:59",
@@ -210,6 +256,7 @@ const useBasicData = () => {
         project_id: 1,
         customer_title: "My campaign",
         phase_id: 20,
+        plan_id: 1,
       },
       {
         id: 2,
@@ -245,6 +292,8 @@ const useBasicData = () => {
     await tryber.tables.WpAppqCampaignTask.do().delete();
     await tryber.tables.WpAppqCampaignTaskGroup.do().delete();
     await tryber.tables.WpOptions.do().delete();
+    await tryber.tables.CpReqPlans.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
   });
 };
 

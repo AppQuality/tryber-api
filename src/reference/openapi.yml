@@ -7466,10 +7466,15 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
-                      - device:
+                      - campaign_type:
+                          id: 1
+                          name: Bug Hunting
+                        device:
                           id: 123
                           manufacturer: Apple
                           model: iPhone 6
+                        end_date: 01-01-2026
+                        goal: A beautiful goal
                         id: 2
                         operating_system:
                           id: 234
@@ -7515,7 +7520,12 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      id: 1
+                      name: Bug Hunting
                     devices: []
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: false
                     id: 123
                     minimumMedia: 3
@@ -7548,6 +7558,9 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      id: 1
+                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7559,6 +7572,8 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: true
                     id: 123
                     minimumMedia: 3
@@ -7595,6 +7610,11 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      id: 1
+                      name: Bug Hunting
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: true
                     id: 123
                     minimumMedia: 3
@@ -7629,8 +7649,8 @@ paths:
                         items:
                           type: string
                     required:
-                      - valid
                       - invalid
+                      - valid
                   bugSeverity:
                     type: object
                     properties:
@@ -7643,8 +7663,8 @@ paths:
                         items:
                           type: string
                     required:
-                      - valid
                       - invalid
+                      - valid
                   bugTypes:
                     type: object
                     properties:
@@ -7657,8 +7677,18 @@ paths:
                         items:
                           type: string
                     required:
-                      - valid
                       - invalid
+                      - valid
+                  campaign_type:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - name
+                      - id
                   devices:
                     type: array
                     items:
@@ -7670,6 +7700,10 @@ paths:
                             - id
                           type: object
                         - $ref: '#/components/schemas/UserDevice'
+                  end_date:
+                    type: string
+                  goal:
+                    type: string
                   hasBugForm:
                     type: boolean
                   id:
@@ -7707,15 +7741,18 @@ paths:
                     items:
                       type: string
                 required:
-                  - id
-                  - title
-                  - minimumMedia
-                  - useCases
-                  - bugTypes
-                  - bugSeverity
                   - bugReplicability
+                  - bugSeverity
+                  - bugTypes
                   - hasBugForm
+                  - id
+                  - minimumMedia
+                  - title
+                  - useCases
                   - validFileExtensions
+                  - end_date
+                  - goal
+                  - campaign_type
       security:
         - JWT: []
         - User Token: []

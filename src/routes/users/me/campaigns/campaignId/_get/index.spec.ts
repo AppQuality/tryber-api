@@ -5,6 +5,7 @@ import useBasicData from "./useBasicData";
 
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   useBasicData();
+
   it("Should return 403 if user is not logged in", async () => {
     const res = await request(app).get("/users/me/campaigns/1");
     expect(res.status).toBe(403);
@@ -74,6 +75,12 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
         },
       ],
       validFileExtensions: [".jpg", ".png", ".gif"],
+      end_date: "2020-12-31 23:59:59",
+      goal: "Example: goal of the campaign",
+      campaign_type: {
+        name: "Bug Hunting",
+        id: 1,
+      },
     });
   });
 });

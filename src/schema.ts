@@ -3835,9 +3835,15 @@ export interface operations {
               invalid: string[];
               valid: string[];
             };
+            campaign_type: {
+              id: number;
+              name: string;
+            };
             devices?: ({
               id: number;
             } & components["schemas"]["UserDevice"])[];
+            end_date: string;
+            goal: string;
             hasBugForm: boolean;
             id: number;
             language?: {
