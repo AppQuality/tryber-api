@@ -205,6 +205,7 @@ class RouteItem extends UserRoute<{
       .select(
         tryber.ref("id").withSchema("wp_appq_evd_campaign"),
         "title",
+        "page_version",
         "page_preview_id",
         "page_manual_id",
         "start_date",
@@ -301,6 +302,8 @@ class RouteItem extends UserRoute<{
 
   private async enhanceWithLinkedPages<T>(
     campaigns: (T & {
+      id: number;
+      page_version: string;
       page_manual_id: number;
       page_preview_id: number;
     })[]
@@ -313,6 +316,23 @@ class RouteItem extends UserRoute<{
     const linkedPages = await resolvePermalinks(pageIds);
 
     return campaigns.map((campaign) => {
+      if (campaign.page_version === "v2") {
+        return {
+          ...campaign,
+          preview_link: {
+            en: `/campaigns/${campaign.id}/preview`,
+            it: `/it/campaigns/${campaign.id}/preview`,
+            es: `/es/campaigns/${campaign.id}/preview`,
+            fr: `/fr/campaigns/${campaign.id}/preview`,
+          },
+          manual_link: {
+            en: `/campaigns/${campaign.id}/manual`,
+            it: `/it/campaigns/${campaign.id}/manual`,
+            es: `/es/campaigns/${campaign.id}/manual`,
+            fr: `/fr/campaigns/${campaign.id}/manual`,
+          },
+        };
+      }
       return {
         ...campaign,
         preview_link: linkedPages[campaign.page_preview_id]
