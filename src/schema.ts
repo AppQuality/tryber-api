@@ -537,6 +537,16 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/tasks/{taskId}": {
+    post: operations["post-users-me-campaigns-campaign-tasks-task"];
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+        taskId: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaignId}/devices": {
     get: operations["get-users-me-campaigns-campaignId-devices"];
     parameters: {
@@ -4017,6 +4027,29 @@ export interface operations {
           title: string;
           type: string;
           usecase: number;
+        };
+      };
+    };
+  };
+  "post-users-me-campaigns-campaign-tasks-task": {
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+        taskId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {undefined} */
+          status: "completed";
         };
       };
     };
