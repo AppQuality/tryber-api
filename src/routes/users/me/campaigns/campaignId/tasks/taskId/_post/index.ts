@@ -7,15 +7,36 @@ import UserRoute from "@src/features/routes/UserRoute";
 
 export default class PostCampaignTask extends UserRoute<{
   response: StoplightOperations["post-users-me-campaigns-campaign-tasks-task"]["responses"]["200"];
-  parameters: StoplightOperations["post-users-me-campaigns-campaignId-tasks-task"]["parameters"]["path"];
+  parameters: StoplightOperations["post-users-me-campaigns-campaign-tasks-task"]["parameters"]["path"];
+  body: StoplightOperations["post-users-me-campaigns-campaign-tasks-task"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId = parseInt(this.getParameters().campaignId);
+  private taskId = parseInt(this.getParameters().taskId);
+  private payload = this.getBody();
 
   protected async filter(): Promise<boolean> {
     if (await this.testerIsNotCandidate()) return false;
     if (await this.campaignIsUnavailable()) return false;
+    if (await this.taskIsUnavailable()) return false;
 
     return true;
+  }
+
+  private async taskIsUnavailable() {
+    const task = await tryber.tables.WpAppqCampaignTask.do()
+      .select("*")
+      .where({
+        id: this.taskId,
+        campaign_id: this.campaignId,
+      })
+      .first();
+
+    if (!task) {
+      this.setError(403, new OpenapiError("This task does not exist"));
+      return true;
+    }
+
+    return false;
   }
 
   private async campaignIsUnavailable() {
@@ -44,30 +65,35 @@ export default class PostCampaignTask extends UserRoute<{
 
   protected async prepare() {
     const campaign = new Campaign(this.campaignId, false);
-    campaign.init();
-    await campaign.ready;
-    if (!campaign) throw new Error("Campaign not found");
+    if (!campaign)
+      this.setError(403, new OpenapiError("Campaign does not exist"));
+    // safety check but it should never happen
+    if (this.payload.status !== "completed") {
+      this.setError(403, new OpenapiError("Invalid status"));
+      return;
+    }
 
     try {
-      this.setSuccess(200, {
-        id: campaign.id,
-        title: campaign.title,
-        minimumMedia: campaign.min_allowed_media,
-        hasBugForm: campaign.hasBugForm,
-        bugSeverity: await campaign.getAvailableSeverities(),
-        bugReplicability: await campaign.getAvailableReplicabilities(),
-        useCases: await campaign.getUserUseCases(
-          this.getWordpressId().toString()
-        ),
-        bugTypes: await campaign.getAvailableTypes(),
-        validFileExtensions: await campaign.getAvailableFileExtensions(),
-        additionalFields: await campaign.getAdditionalFields(),
-        language: await campaign.getBugLanguageMessage(),
-        titleRule: await campaign.getTitleRule(),
-      });
+      await this.updateTaskStatus();
+      this.setSuccess(200, {});
     } catch (error) {
       this.setError(500, error as OpenapiError);
     }
+  }
+
+  private isAdmin() {
+    if (!this.configuration.request.user.permission.admin) return false;
+    if (!this.configuration.request.user.permission.admin.appq_campaign)
+      return false;
+    if (this.configuration.request.user.permission.admin.appq_campaign === true)
+      return true;
+    if (
+      this.configuration.request.user.permission.admin.appq_campaign.includes(
+        this.campaignId
+      )
+    )
+      return true;
+    return false;
   }
 
   private async testerIsNotCandidate() {
@@ -86,5 +112,20 @@ export default class PostCampaignTask extends UserRoute<{
       return true;
     }
     return false;
+  }
+
+  private async updateTaskStatus() {
+    try {
+      await tryber.tables.WpAppqUserTask.do()
+        .update({
+          is_completed: 1,
+        })
+        .where({
+          tester_id: this.getTesterId(),
+          task_id: this.taskId,
+        });
+    } catch (error) {
+      this.setError(500, error as OpenapiError);
+    }
   }
 }
