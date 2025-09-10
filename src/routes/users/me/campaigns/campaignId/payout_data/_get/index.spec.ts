@@ -147,6 +147,11 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
           meta_key: "high_bug_payout",
           meta_value: "3.15",
         },
+        {
+          campaign_id: 1,
+          meta_key: "low_bug_payout",
+          meta_value: "4.20",
+        },
       ]);
     });
     afterEach(async () => {
@@ -182,6 +187,12 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
         .get("/users/me/campaigns/1/payout_data")
         .set("Authorization", "Bearer tester");
       expect(response.body).toHaveProperty("high_bug_payout", 3.15);
+    });
+    it("Should return payout data with low_bug_payout field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("low_bug_payout", 4.2);
     });
   });
 });
