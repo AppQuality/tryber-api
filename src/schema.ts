@@ -553,16 +553,16 @@ export interface paths {
       };
     };
   };
-  "/users/me/campaigns/{campaignId}/preview": {
-    get: operations["get-users-me-campaigns-cid-preview"];
+  "/users/me/campaigns/{campaignId}/media": {
+    post: operations["post-users-me-campaigns-campaignId-media"];
     parameters: {
       path: {
         campaignId: string;
       };
     };
   };
-  "/users/me/campaigns/{campaignId}/media": {
-    post: operations["post-users-me-campaigns-campaignId-media"];
+  "/users/me/campaigns/{campaignId}/preview": {
+    get: operations["get-users-me-campaigns-cid-preview"];
     parameters: {
       path: {
         campaignId: string;
@@ -4018,32 +4018,6 @@ export interface operations {
       };
     };
   };
-  "get-users-me-campaigns-cid-preview": {
-    parameters: {
-      path: {
-        campaignId: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            content: string;
-            campaignType: string;
-            startDate: string;
-            endDate: string;
-            tl?: {
-              name: string;
-              email: string;
-            };
-          };
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
   "post-users-me-campaigns-campaignId-media": {
     parameters: {
       path: {
@@ -4077,6 +4051,34 @@ export interface operations {
           media?: string | string[];
         };
       };
+    };
+  };
+  "get-users-me-campaigns-cid-preview": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            campaignType: string;
+            content: string;
+            endDate: string;
+            startDate: string;
+            /** @enum {string} */
+            status?: "available" | "applied" | "excluded" | "selected";
+            tl?: {
+              email: string;
+              name: string;
+            };
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-users-me-campaigns-campaignId-compatible-devices": {
