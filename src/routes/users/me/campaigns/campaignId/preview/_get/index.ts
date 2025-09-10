@@ -109,7 +109,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
         email: config.testerLeaderCPV2.email,
       },
       ...(capacity.cap > 0
-        ? { value: capacity.cap, freeSpots: capacity.freeSpots }
+        ? { cap: { value: capacity.cap, free: capacity.freeSpots } }
         : {}),
     };
   }
@@ -172,7 +172,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
       : 0;
 
     return {
-      cap: 0,
+      cap: count,
       freeSpots: cap - count,
     };
   }
