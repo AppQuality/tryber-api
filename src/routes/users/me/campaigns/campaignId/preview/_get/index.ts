@@ -78,8 +78,8 @@ class GetCampaignPreviewV2 extends UserRoute<{
   private async retrieveCampaignData() {
     const res = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
-        tryber.ref("start_date").withSchema("wp_appq_evd_campaign"),
-        tryber.ref("end_date").withSchema("wp_appq_evd_campaign"),
+        tryber.fn.charDate("start_date"),
+        tryber.fn.charDate("end_date"),
         tryber
           .ref("name")
           .withSchema("wp_appq_campaign_type")
