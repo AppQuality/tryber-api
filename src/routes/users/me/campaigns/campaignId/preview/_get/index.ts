@@ -1,10 +1,10 @@
 /** OPENAPI-CLASS: get-users-me-campaigns-cid-preview */
 
-import UserRoute from "@src/features/routes/UserRoute";
+import config from "@src/config";
+import { tryber } from "@src/features/database";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
-import { tryber } from "@src/features/database";
-import config from "@src/config";
+import UserRoute from "@src/features/routes/UserRoute";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaigns-cid-preview"]["responses"]["200"]["content"]["application/json"];
@@ -103,16 +103,36 @@ class GetCampaignPreviewV2 extends UserRoute<{
       throw new Error("Campaign not found");
     }
 
+    const application = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("accepted")
+      .where("user_id", this.getWordpressId())
+      .where("campaign_id", this.campaignId)
+      .first();
+
     return {
       content: res.content,
       campaignType: res.campaign_type,
       startDate: res.start_date,
       endDate: res.end_date,
+      status: await this.getStatus(),
       tl: {
         name: config.testerLeaderCPV2.name,
         email: config.testerLeaderCPV2.email,
       },
     };
+  }
+
+  private async getStatus() {
+    const application = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("accepted")
+      .where("user_id", this.getWordpressId())
+      .where("campaign_id", this.campaignId)
+      .first();
+
+    if (!application) return "available" as const;
+    if (application.accepted === 1) return "selected" as const;
+    if (application.accepted === -1) return "excluded" as const;
+    return "applied" as const;
   }
 }
 

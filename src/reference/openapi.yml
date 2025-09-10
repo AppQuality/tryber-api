@@ -8267,70 +8267,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       security:
         - JWT: []
-  '/users/me/campaigns/{campaignId}/preview':
-    get:
-      operationId: get-users-me-campaigns-cid-preview
-      summary: Get the preview data form for your v2-campaign
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              examples:
-                preview-with-tl:
-                  value:
-                    content: string
-                    campaignType: string
-                    startDate: string
-                    endDate: string
-                    tl:
-                      name: string
-                      email: string
-                preview-without-tl:
-                  value:
-                    content: string
-                    campaignType: string
-                    startDate: string
-                    endDate: string
-              schema:
-                type: object
-                properties:
-                  content:
-                    type: string
-                  campaignType:
-                    type: string
-                  startDate:
-                    type: string
-                  endDate:
-                    type: string
-                  tl:
-                    type: object
-                    properties:
-                      name:
-                        type: string
-                      email:
-                        type: string
-                    required:
-                      - name
-                      - email
-                required:
-                  - content
-                  - campaignType
-                  - startDate
-                  - endDate
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
-      tags: []
-    parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: string
   '/users/me/campaigns/{campaignId}/media':
     parameters:
       - name: campaignId
@@ -8393,6 +8329,77 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/preview':
+    get:
+      operationId: get-users-me-campaigns-cid-preview
+      summary: Get the preview data form for your v2-campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                preview-with-tl:
+                  value:
+                    campaignType: string
+                    content: string
+                    endDate: string
+                    startDate: string
+                    tl:
+                      email: string
+                      name: string
+                preview-without-tl:
+                  value:
+                    campaignType: string
+                    content: string
+                    endDate: string
+                    startDate: string
+              schema:
+                type: object
+                properties:
+                  campaignType:
+                    type: string
+                  content:
+                    type: string
+                  endDate:
+                    type: string
+                  startDate:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - available
+                      - applied
+                      - excluded
+                      - selected
+                  tl:
+                    type: object
+                    properties:
+                      email:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - name
+                      - email
+                required:
+                  - content
+                  - campaignType
+                  - startDate
+                  - endDate
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices
