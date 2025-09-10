@@ -11,6 +11,9 @@ class Campaign {
   public min_allowed_media: number = 0;
   public campaign_type: -1 | 0 | 1 = 0;
   public bug_lang: 0 | 1 = 0;
+  public end_date: string = "";
+  public campaign_type_id: number = 0;
+  public plan_id: number = 0;
   public ready: Promise<boolean>;
   constructor(id: number, init: boolean = true) {
     this.id = id;
@@ -29,6 +32,9 @@ class Campaign {
           "min_allowed_media",
           "campaign_type",
           "bug_lang",
+          "end_date",
+          "campaign_type_id",
+          "plan_id",
         ])
         .where({ id: this.id })
         .first();
@@ -39,6 +45,9 @@ class Campaign {
       this.min_allowed_media = campaignData.min_allowed_media;
       this.campaign_type = campaignData.campaign_type as 0 | 1 | -1;
       this.bug_lang = campaignData.bug_lang as 0 | 1;
+      this.end_date = campaignData.end_date;
+      this.campaign_type_id = campaignData.campaign_type_id;
+      this.plan_id = campaignData.plan_id;
       this.ready = Promise.resolve(true);
       resolve(true);
     });
@@ -368,6 +377,30 @@ class Campaign {
     } catch {
       return false;
     }
+  }
+
+  public async getCampaignType(): Promise<{ id: number; name: string }> {
+    const type = await tryber.tables.WpAppqCampaignType.do()
+      .select("id", "name")
+      .where({ id: this.campaign_type_id })
+      .first();
+    if (!type) return { id: -1, name: "Unknown" };
+    return type;
+  }
+
+  public async getCampaignGoal(): Promise<string | null> {
+    const config = await tryber.tables.CpReqPlans.do()
+      .select("config")
+      .where({ id: this.id })
+      .first();
+    if (!config) return null;
+    const parsedConfig = JSON.parse(config.config);
+    const goalModule = parsedConfig.modules.find(
+      (m: { type: string }) => m.type === "goal"
+    );
+    if (!goalModule) return null;
+    if (typeof goalModule.output !== "string") return null;
+    return goalModule.output;
   }
 }
 
