@@ -135,7 +135,12 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
         {
           campaign_id: 1,
           meta_key: "campaign_complete_bonus_eur",
-          meta_value: "1,50",
+          meta_value: "1,05",
+        },
+        {
+          campaign_id: 1,
+          meta_key: "critical_bug_payout",
+          meta_value: "2.10",
         },
       ]);
     });
@@ -159,7 +164,13 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
       const response = await request(app)
         .get("/users/me/campaigns/1/payout_data")
         .set("Authorization", "Bearer tester");
-      expect(response.body).toHaveProperty("campaign_complete_bonus_eur", 1.5);
+      expect(response.body).toHaveProperty("campaign_complete_bonus_eur", 1.05);
+    });
+    it("Should return payout data with critical_bug_payout field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("critical_bug_payout", 2.1);
     });
   });
 });
