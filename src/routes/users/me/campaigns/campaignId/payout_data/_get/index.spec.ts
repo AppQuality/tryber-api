@@ -167,6 +167,11 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
           meta_key: "payout_limit",
           meta_value: "7.30",
         },
+        {
+          campaign_id: 1,
+          meta_key: "percent_usecases",
+          meta_value: "8.35",
+        },
       ]);
     });
     afterEach(async () => {
@@ -226,6 +231,12 @@ describe("GET users/me/campaigns/:cId/payout_data", () => {
         .get("/users/me/campaigns/1/payout_data")
         .set("Authorization", "Bearer tester");
       expect(response.body).toHaveProperty("payout_limit", 7.3);
+    });
+    it("Should return payout data with percent_usecases field", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1/payout_data")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toHaveProperty("percent_usecases", 8.35);
     });
   });
 });
