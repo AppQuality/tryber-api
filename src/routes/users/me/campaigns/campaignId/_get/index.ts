@@ -65,7 +65,10 @@ export default class UserSingleCampaignRoute extends UserRoute<{
         language: await campaign.getBugLanguageMessage(),
         titleRule: await campaign.getTitleRule(),
         end_date: campaign.end_date,
-        campaign_type: await campaign.getCampaignType(),
+        campaign_type: (await campaign.getCampaignType()) ?? {
+          id: -1,
+          name: "Unknown",
+        },
         goal: (await campaign.getCampaignGoal()) ?? "",
       });
     } catch (error) {

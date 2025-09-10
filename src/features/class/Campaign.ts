@@ -13,7 +13,7 @@ class Campaign {
   public bug_lang: 0 | 1 = 0;
   public end_date: string = "";
   public campaign_type_id: number = 0;
-  public plan_id: number = 0;
+  public plan_id: number = -1;
   public ready: Promise<boolean>;
   constructor(id: number, init: boolean = true) {
     this.id = id;
@@ -47,7 +47,7 @@ class Campaign {
       this.bug_lang = campaignData.bug_lang as 0 | 1;
       this.end_date = campaignData.end_date;
       this.campaign_type_id = campaignData.campaign_type_id;
-      this.plan_id = campaignData.plan_id;
+      this.plan_id = campaignData.plan_id ?? -1;
       this.ready = Promise.resolve(true);
       resolve(true);
     });
@@ -379,19 +379,21 @@ class Campaign {
     }
   }
 
-  public async getCampaignType(): Promise<{ id: number; name: string }> {
+  public async getCampaignType(): Promise<{ id: number; name: string } | null> {
     const type = await tryber.tables.WpAppqCampaignType.do()
       .select("id", "name")
       .where({ id: this.campaign_type_id })
       .first();
-    if (!type) return { id: -1, name: "Unknown" };
+    if (!type) return null;
     return type;
   }
 
   public async getCampaignGoal(): Promise<string | null> {
+    if (this.plan_id === -1) return null;
+
     const config = await tryber.tables.CpReqPlans.do()
       .select("config")
-      .where({ id: this.id })
+      .where({ id: this.plan_id })
       .first();
     if (!config) return null;
     const parsedConfig = JSON.parse(config.config);
