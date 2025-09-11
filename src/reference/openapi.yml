@@ -7461,6 +7461,10 @@ paths:
                           manufacturer: Apple
                           model: iPhone X
                         id: 1
+                        icon: bug-report
+                        acceptedDevices:
+                          smartphone: all
+                          pc: windows
                         operating_system:
                           id: 234
                           platform: Apple
@@ -7531,6 +7535,10 @@ paths:
                     minimumMedia: 3
                     title: My campaign
                     titleRule: true
+                    icon: bug-report
+                    acceptedDevices:
+                      smartphone: all
+                      pc: windows
                     useCases: []
                     validFileExtensions:
                       - jpg
@@ -7578,6 +7586,10 @@ paths:
                     id: 123
                     minimumMedia: 3
                     title: My campaign
+                    icon: bug-report
+                    acceptedDevices:
+                      smartphone: iphone
+                      pc: windows
                     titleRule: true
                     useCases:
                       - id: 0
@@ -7617,6 +7629,8 @@ paths:
                     goal: A beautiful goal
                     hasBugForm: true
                     id: 123
+                    icon: bug-report
+                    acceptedDevices: {}
                     minimumMedia: 3
                     title: My campaign
                     titleRule: true
@@ -7632,6 +7646,21 @@ paths:
                       - mp4
               schema:
                 type: object
+                required:
+                  - bugReplicability
+                  - bugSeverity
+                  - bugTypes
+                  - campaign_type
+                  - end_date
+                  - goal
+                  - hasBugForm
+                  - id
+                  - minimumMedia
+                  - title
+                  - useCases
+                  - validFileExtensions
+                  - icon
+                  - acceptedDevices
                 properties:
                   additionalFields:
                     type: array
@@ -7639,6 +7668,9 @@ paths:
                       $ref: '#/components/schemas/CampaignAdditionalField'
                   bugReplicability:
                     type: object
+                    required:
+                      - invalid
+                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7648,11 +7680,11 @@ paths:
                         type: array
                         items:
                           type: string
-                    required:
-                      - invalid
-                      - valid
                   bugSeverity:
                     type: object
+                    required:
+                      - invalid
+                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7662,11 +7694,11 @@ paths:
                         type: array
                         items:
                           type: string
-                    required:
-                      - invalid
-                      - valid
                   bugTypes:
                     type: object
+                    required:
+                      - invalid
+                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7676,29 +7708,26 @@ paths:
                         type: array
                         items:
                           type: string
-                    required:
-                      - invalid
-                      - valid
                   campaign_type:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: number
                       name:
                         type: string
-                    required:
-                      - name
-                      - id
                   devices:
                     type: array
                     items:
                       allOf:
-                        - properties:
-                            id:
-                              type: integer
+                        - type: object
                           required:
                             - id
-                          type: object
+                          properties:
+                            id:
+                              type: integer
                         - $ref: '#/components/schemas/UserDevice'
                   end_date:
                     type: string
@@ -7710,14 +7739,14 @@ paths:
                     type: integer
                   language:
                     type: object
+                    required:
+                      - code
+                      - message
                     properties:
                       code:
                         type: string
                       message:
                         type: string
-                    required:
-                      - code
-                      - message
                   minimumMedia:
                     type: integer
                   title:
@@ -7727,32 +7756,92 @@ paths:
                   useCases:
                     type: array
                     items:
+                      type: object
+                      required:
+                        - id
+                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
-                      required:
-                        - id
-                        - name
-                      type: object
                   validFileExtensions:
                     type: array
                     items:
                       type: string
-                required:
-                  - bugReplicability
-                  - bugSeverity
-                  - bugTypes
-                  - hasBugForm
-                  - id
-                  - minimumMedia
-                  - title
-                  - useCases
-                  - validFileExtensions
-                  - end_date
-                  - goal
-                  - campaign_type
+                  icon:
+                    type: string
+                    x-stoplight:
+                      id: 0gfndjlcr8goc
+                  acceptedDevices:
+                    type: object
+                    properties:
+                      smartphone:
+                        x-stoplight:
+                          id: lofrcvp0b3630
+                        anyOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AdditionalField'
+                          - x-stoplight:
+                              id: bk0odi10jgxrj
+                            enum:
+                              - all
+                      tablet:
+                        x-stoplight:
+                          id: zj6gha7hu9r8d
+                        anyOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - x-stoplight:
+                              id: 5ugd55cxwut7j
+                            enum:
+                              - all
+                      pc:
+                        x-stoplight:
+                          id: 7vpuf2x48jr74
+                        anyOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - x-stoplight:
+                              id: zua82zes0yc6u
+                            enum:
+                              - all
+                      console:
+                        x-stoplight:
+                          id: 3miulspy2e5f7
+                        anyOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - x-stoplight:
+                              id: ae0de60ncey5r
+                            enum:
+                              - all
+                      smartwatch:
+                        x-stoplight:
+                          id: qbkxyollvokhf
+                        anyOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - x-stoplight:
+                              id: zahs85syhim62
+                            enum:
+                              - all
+                      smartTv:
+                        x-stoplight:
+                          id: wc78xr9wfr8hd
+                        anyOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - x-stoplight:
+                              id: ky26trhnzeaw5
+                            enum:
+                              - all
       security:
         - JWT: []
         - User Token: []
@@ -11890,6 +11979,16 @@ components:
         - device
         - operating_system
       title: UserDevice
+    AvailableDevice:
+      title: AvailableDevice
+      x-stoplight:
+        id: cthyff6dezl4r
+      type: object
+      properties:
+        name:
+          type: string
+          x-stoplight:
+            id: 2sbrpl19vnqdf
   examples: {}
   requestBodies: {}
   responses:
