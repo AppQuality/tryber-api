@@ -32,7 +32,7 @@ class Campaign {
           "min_allowed_media",
           "campaign_type",
           "bug_lang",
-          "end_date",
+          tryber.fn.charDate("end_date"),
           "campaign_type_id",
           "plan_id",
         ])
