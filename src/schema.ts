@@ -561,6 +561,14 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/payout_data": {
+    get: operations["get-users-me-campaigns-cid-payout-data"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaignId}/preview": {
     get: operations["get-users-me-campaigns-cid-preview"];
     parameters: {
@@ -4057,6 +4065,40 @@ export interface operations {
           media?: string | string[];
         };
       };
+    };
+  };
+  "get-users-me-campaigns-cid-payout-data": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            campaign_complete_bonus_eur: number;
+            campaign_pts: number;
+            critical_bug_payout: number;
+            high_bug_payout: number;
+            low_bug_payout: number;
+            medium_bug_payout: number;
+            minimum_bugs: number;
+            payout_limit: number;
+            percent_usecases: number;
+            point_multiplier_critical: number;
+            point_multiplier_high: number;
+            point_multiplier_low: number;
+            point_multiplier_medium: number;
+            point_multiplier_perfect: number;
+            point_multiplier_refused: number;
+            top_tester_bonus: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   "get-users-me-campaigns-cid-preview": {
