@@ -1072,6 +1072,10 @@ export interface components {
       };
       type: string;
     };
+    /** AvailableDevice */
+    AvailableDevice: {
+      name: string;
+    };
   };
   responses: {
     /** Authentication data. The token can be used to authenticate the protected requests */
@@ -3866,6 +3870,21 @@ export interface operations {
               name: string;
             }[];
             validFileExtensions: string[];
+            icon: string;
+            acceptedDevices: {
+              smartphone?: Partial<components["schemas"]["AdditionalField"][]> &
+                Partial<"all">;
+              tablet?: Partial<components["schemas"]["AvailableDevice"][]> &
+                Partial<"all">;
+              pc?: Partial<components["schemas"]["AvailableDevice"][]> &
+                Partial<"all">;
+              console?: Partial<components["schemas"]["AvailableDevice"][]> &
+                Partial<"all">;
+              smartwatch?: Partial<components["schemas"]["AvailableDevice"][]> &
+                Partial<"all">;
+              smartTv?: Partial<components["schemas"]["AvailableDevice"][]> &
+                Partial<"all">;
+            };
           };
         };
       };
