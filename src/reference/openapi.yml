@@ -11984,6 +11984,8 @@ components:
       x-stoplight:
         id: cthyff6dezl4r
       type: object
+      required:
+        - name
       properties:
         name:
           type: string
