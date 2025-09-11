@@ -48,6 +48,8 @@ export default class UserSingleCampaignRoute extends UserRoute<{
     await campaign.ready;
     if (!campaign) throw new Error("Campaign not found");
 
+    console.log("device", await campaign.getCampaignAvailableDevices());
+
     try {
       this.setSuccess(200, {
         id: campaign.id,

@@ -43,6 +43,7 @@ const useBasicData = () => {
       id: 1,
       name: "Bug Hunting",
       description: "Bug Hunting Campaigns",
+      icon: "bug-report",
       category_id: 1,
       type: 0,
       has_auto_apply: 0,
@@ -239,6 +240,12 @@ const useBasicData = () => {
       { task_id: 9, group_id: 3 },
       { task_id: 10, group_id: 0 },
     ]);
+    await tryber.tables.WpAppqEvdPlatform.do().insert({
+      id: 5,
+      name: "Linux",
+      form_factor: 2,
+      architecture: 0,
+    });
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         id: 1,
@@ -252,6 +259,8 @@ const useBasicData = () => {
         page_preview_id: 1,
         page_manual_id: 1,
         customer_id: 1,
+        os: "5",
+        form_factor: "2",
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
@@ -294,6 +303,7 @@ const useBasicData = () => {
     await tryber.tables.WpOptions.do().delete();
     await tryber.tables.CpReqPlans.do().delete();
     await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
   });
 };
 

@@ -322,6 +322,8 @@ class Campaign {
       return [{ selected_device: -1, group_id: 0 }];
     return candidature;
   }
+
+  // get user available devices for this campaign
   public async getAvailableDevices(user: {
     userId: string;
     testerId: number;
@@ -412,6 +414,43 @@ class Campaign {
       .first();
     if (!icon || !icon.icon) return null;
     return icon.icon;
+  }
+
+  public async getCampaignAvailableDevices() {
+    const DEVICE_SO = {
+      iOs: 2, // value os in evd_campaign and id in evd_platform
+      Android: 1,
+      Windows: 2,
+    };
+
+    const DEVICE_TYPE = {
+      Smartphone: 0, // value form_factor in evd_campaign and form_factor in evd_platform
+      Tablet: 1,
+      PC: 2,
+      Console: 4,
+      SmartTv: 5,
+      Smartwatch: 3,
+    };
+
+    const form_factor = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(tryber.ref("form_factor").withSchema("wp_appq_evd_campaign"))
+      .where({ id: this.id })
+      .first();
+
+    const splitted_form_factor = form_factor
+      ? form_factor.form_factor.split(",").map((f: string) => Number(f))
+      : [];
+
+    const campaignAcceptedDevices: { [key: string]: { name: string }[] } = {
+      smartphone: [],
+      tablet: [],
+      pc: [],
+      console: [],
+      smartTv: [],
+      smartwatch: [],
+    };
+
+    // to do logic
   }
 }
 
