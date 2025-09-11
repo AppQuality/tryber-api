@@ -70,6 +70,8 @@ export default class UserSingleCampaignRoute extends UserRoute<{
           name: "Unknown",
         },
         goal: (await campaign.getCampaignGoal()) ?? "",
+        acceptedDevices: {},
+        icon: (await campaign.getCampaignIcon()) ?? "",
       });
     } catch (error) {
       this.setError(500, error as OpenapiError);

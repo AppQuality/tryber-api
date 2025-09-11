@@ -404,6 +404,15 @@ class Campaign {
     if (typeof goalModule.output !== "string") return null;
     return goalModule.output;
   }
+
+  public async getCampaignIcon(): Promise<string | null> {
+    const icon = await tryber.tables.WpAppqCampaignType.do()
+      .select(tryber.ref("icon").withSchema("wp_appq_campaign_type"))
+      .where({ id: this.campaign_type_id })
+      .first();
+    if (!icon || !icon.icon) return null;
+    return icon.icon;
+  }
 }
 
 export default Campaign;
