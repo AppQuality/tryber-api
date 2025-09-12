@@ -7456,10 +7456,7 @@ paths:
                         - CRASH
                         - TYPO
                     devices:
-                      - acceptedDevices:
-                          pc: windows
-                          smartphone: all
-                        device:
+                      - device:
                           id: 123
                           manufacturer: Apple
                           model: iPhone X
@@ -7469,16 +7466,10 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
-                      - campaign_type:
-                          id: 1
-                          icon: bug-report
-                          name: Bug Hunting
-                        device:
+                      - device:
                           id: 123
                           manufacturer: Apple
                           model: iPhone 6
-                        end_date: 01-01-2026
-                        goal: A beautiful goal
                         id: 2
                         operating_system:
                           id: 234
@@ -7487,11 +7478,21 @@ paths:
                         type: Smartphone
                     hasBugForm: true
                     id: 123
+                    goal: A beautiful goal
+                    end_date: 01-01-2026
+                    campaign_type:
+                      id: 1
+                      icon: bug-report
+                      name: Bug Hunting
                     language:
                       code: IT
                       message: In questa campagna vanno caricati i bug in italiano
                     minimumMedia: 3
                     title: My campaign
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     titleRule: true
                     useCases:
                       - id: 0
@@ -7506,7 +7507,8 @@ paths:
                 with-bugform-disabled:
                   value:
                     acceptedDevices:
-                      pc: windows
+                      pc:
+                        - name: Windows
                       smartphone: all
                     bugReplicability:
                       invalid: []
@@ -7548,8 +7550,9 @@ paths:
                 with-only-one-device:
                   value:
                     acceptedDevices:
-                      pc: windows
-                      smartphone: iphone
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7603,7 +7606,10 @@ paths:
                       - mp4
                 without-device:
                   value:
-                    acceptedDevices: {}
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
