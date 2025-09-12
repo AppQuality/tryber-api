@@ -28,14 +28,6 @@ describe("Route POST /users/me/campaigns/{campaignId}/tasks/{taskId}", () => {
     expect(res.status).toBe(403);
   });
 
-  it("Should return 403 if the user is logged but has never been assigned to the task", async () => {
-    const res = await request(app)
-      .post("/users/me/campaigns/1/tasks/1")
-      .send({ status: "completed" })
-      .set("Authorization", "Bearer tester");
-    expect(res.status).toBe(403);
-  });
-
   describe("Check payload", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqUserTask.do().insert({
@@ -107,6 +99,29 @@ describe("Route POST /users/me/campaigns/{campaignId}/tasks/{taskId}", () => {
           .where({ id: 1 })
           .first();
         expect(valueAfter?.is_completed).toBe(1);
+      });
+
+      it("Should create the user task if it does not exist and return 200", async () => {
+        const userTaskBefore = await tryber.tables.WpAppqUserTask.do()
+          .select("*")
+          .where({ tester_id: 1, task_id: 2 })
+          .first();
+        expect(userTaskBefore).toBeUndefined();
+
+        const response = await request(app)
+          .post("/users/me/campaigns/1/tasks/2")
+          .send({ status: "completed" })
+          .set("Authorization", "Bearer tester");
+
+        expect(response.status).toBe(200);
+
+        const userTaskAfter = await tryber.tables.WpAppqUserTask.do()
+          .select("*")
+          .where({ tester_id: 1, task_id: 2 })
+          .first();
+        expect(userTaskAfter).toBeDefined();
+        expect(userTaskAfter?.is_completed).toBe(1);
+        expect(userTaskAfter?.is_completed).toBe(1);
       });
     });
   });

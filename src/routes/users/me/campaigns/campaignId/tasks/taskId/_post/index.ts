@@ -18,7 +18,6 @@ export default class PostCampaignTask extends UserRoute<{
     if (await this.testerIsNotCandidate()) return false;
     if (await this.campaignIsUnavailable()) return false;
     if (await this.taskIsUnavailable()) return false;
-    if (await this.userTaskDoesNotExist()) return false;
 
     return true;
   }
@@ -39,6 +38,19 @@ export default class PostCampaignTask extends UserRoute<{
 
     return false;
   };
+
+  private async createUserTask() {
+    try {
+      await tryber.tables.WpAppqUserTask.do().insert({
+        tester_id: this.getTesterId(),
+        task_id: this.taskId,
+        is_completed: 0,
+      });
+    } catch (error) {
+      console.error(error);
+      this.setError(500, error as OpenapiError);
+    }
+  }
 
   private async taskIsUnavailable() {
     const task = await tryber.tables.WpAppqCampaignTask.do()
@@ -85,10 +97,15 @@ export default class PostCampaignTask extends UserRoute<{
     const campaign = new Campaign(this.campaignId, false);
     if (!campaign)
       this.setError(403, new OpenapiError("Campaign does not exist"));
+
     // safety check but it should never happen
     if (this.payload.status !== "completed") {
       this.setError(403, new OpenapiError("Invalid status"));
       return;
+    }
+
+    if (await this.userTaskDoesNotExist()) {
+      await this.createUserTask();
     }
 
     try {
