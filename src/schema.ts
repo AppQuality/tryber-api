@@ -3858,6 +3858,7 @@ export interface operations {
             campaign_type: {
               id: number;
               name: string;
+              icon: string;
             };
             devices?: ({
               id: number;
@@ -3865,7 +3866,6 @@ export interface operations {
             end_date: string;
             goal: string;
             hasBugForm: boolean;
-            icon: string;
             id: number;
             language?: {
               code: string;
