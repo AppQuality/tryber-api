@@ -73,6 +73,14 @@ export interface paths {
     get: operations["get-campaigns-owners"];
     parameters: {};
   };
+  "/campaigns/{campaignId}/visibility": {
+    patch: operations["patch-campaigns-campaignId-visibility"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
   "/campaigns/{campaign}": {
     /** Get the data of a Campaign if you have access to it */
     get: operations["get-campaigns-campaign"];
@@ -1646,6 +1654,29 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "patch-campaigns-campaignId-visibility": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {undefined} */
+          type: "internal" | "target";
+        };
+      };
     };
   };
   /** Get the data of a Campaign if you have access to it */

@@ -1433,6 +1433,45 @@ paths:
       tags:
         - Campaign
     parameters: []
+  '/campaigns/{campaignId}/visibility':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      operationId: patch-campaigns-campaignId-visibility
+      summary: Your PATCH endpoint
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  type: target
+            schema:
+              type: object
+              properties:
+                type:
+                  enum:
+                    - internal
+                    - target
+              required:
+                - type
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      tags: []
   '/campaigns/{campaign}':
     get:
       operationId: get-campaigns-campaign
@@ -10782,49 +10821,6 @@ paths:
       security:
         - JWT: []
       tags: []
-  '/campaigns/{campaignId}/visibility':
-    parameters:
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
-    patch:
-      summary: Your PATCH endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-          content: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          description: Internal Server Error
-      operationId: patch-campaigns-campaignId-visibility
-      x-stoplight:
-        id: ha6laau27hx7k
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - type
-              properties:
-                type:
-                  x-stoplight:
-                    id: wk5rs3v5dlx3d
-                  enum:
-                    - internal
-                    - target
-            examples:
-              Example 1:
-                value:
-                  type: target
 components:
   parameters:
     campaign:
