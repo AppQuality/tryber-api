@@ -7790,7 +7790,7 @@ paths:
                       tablet:
                         x-stoplight:
                           id: zj6gha7hu9r8d
-                        anyOf:
+                        oneOf:
                           - type: array
                             items:
                               $ref: '#/components/schemas/AvailableDevice'
@@ -7801,7 +7801,7 @@ paths:
                       pc:
                         x-stoplight:
                           id: 7vpuf2x48jr74
-                        anyOf:
+                        oneOf:
                           - type: array
                             items:
                               $ref: '#/components/schemas/AvailableDevice'
@@ -7812,7 +7812,7 @@ paths:
                       console:
                         x-stoplight:
                           id: 3miulspy2e5f7
-                        anyOf:
+                        oneOf:
                           - type: array
                             items:
                               $ref: '#/components/schemas/AvailableDevice'
@@ -7823,7 +7823,7 @@ paths:
                       smartwatch:
                         x-stoplight:
                           id: qbkxyollvokhf
-                        anyOf:
+                        oneOf:
                           - type: array
                             items:
                               $ref: '#/components/schemas/AvailableDevice'
@@ -7834,7 +7834,7 @@ paths:
                       smartTv:
                         x-stoplight:
                           id: wc78xr9wfr8hd
-                        anyOf:
+                        oneOf:
                           - type: array
                             items:
                               $ref: '#/components/schemas/AvailableDevice'
