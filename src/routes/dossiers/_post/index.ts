@@ -341,6 +341,10 @@ export default class PostDossiers extends UserRoute<{
 
     const autoApply = await this.evaluateAutoApply();
 
+    const pageVersion = this.getBody().pageVersion
+      ? this.getBody().pageVersion
+      : "v1";
+
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -364,6 +368,7 @@ export default class PostDossiers extends UserRoute<{
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
+        page_version: pageVersion,
 
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
@@ -569,7 +574,12 @@ export default class PostDossiers extends UserRoute<{
     else await apiTrigger.generateMailMerges();
 
     if (this.duplicate.pagesFrom) await this.duplicatePages(campaignId);
-    else await apiTrigger.generatePages();
+    else {
+      const pageVersion = this.getBody().pageVersion
+        ? this.getBody().pageVersion
+        : "v1";
+      if (pageVersion !== "v2") await apiTrigger.generatePages();
+    }
 
     if (this.duplicate.testersFrom) await this.duplicateTesters(campaignId);
   }
