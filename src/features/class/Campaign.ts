@@ -453,7 +453,7 @@ class Campaign {
 
     if (splittedFormFactor.length === 0) return {};
 
-    // counting total devices by form_factor limited to the campaign ones
+    // counting total existing devices by form_factor, limited to the campaign ones
     const totalsRaw = await tryber.tables.WpAppqEvdPlatform.do()
       .select(
         tryber
@@ -493,7 +493,7 @@ class Campaign {
             .as("form_factor")
         )
         .whereIn("form_factor", splittedFormFactor)
-        .and.whereIn("id", splittedOSAvailable);
+        .whereIn("id", splittedOSAvailable);
 
     // grouping by form_factor and accumulating os names
     type OSInfo = { osNames: Set<string> };
