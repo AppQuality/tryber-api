@@ -1,3 +1,4 @@
+import { FORM_FACTOR_KEY } from "@src/constants";
 import { tryber } from "@src/features/database";
 import Devices from "./Devices";
 
@@ -412,15 +413,6 @@ class Campaign {
   }
 
   public async getCampaignAvailableDevices() {
-    const FORM_FACTOR_KEY = {
-      0: "smartphone",
-      1: "tablet",
-      2: "pc",
-      3: "smartwatch",
-      4: "console",
-      5: "smartTv",
-    } as const;
-
     type FFNum = keyof typeof FORM_FACTOR_KEY; // 0|1|2|3|4|5
 
     type CampaignDevices = {
