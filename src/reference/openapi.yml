@@ -7779,7 +7779,7 @@ paths:
                       smartphone:
                         x-stoplight:
                           id: lofrcvp0b3630
-                        anyOf:
+                        oneOf:
                           - type: array
                             items:
                               $ref: '#/components/schemas/AvailableDevice'
