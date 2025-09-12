@@ -28,7 +28,9 @@ class GetUsecasesRoute extends CampaignRoute<{
     const { campaign } = this.getParameters();
     const usecases = await tryber.tables.WpAppqCampaignTask.do()
       .select("id", "title", "content", "campaign_id")
-      .where("campaign_id", campaign);
+      .where("campaign_id", campaign)
+      .orderBy("position", "asc")
+      .orderBy("id", "asc");
     if (!usecases || usecases.length < 1) return [];
 
     return usecases.map((usecase) => ({

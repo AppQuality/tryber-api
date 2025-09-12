@@ -44,6 +44,7 @@ describe("GET /campaigns/{CampaignId}/tasks", () => {
         jf_text: "jf_text_100",
         info: "Task 100 info",
         prefix: "Task 100 prefix",
+        position: 2,
       },
       {
         id: 200,
@@ -56,6 +57,7 @@ describe("GET /campaigns/{CampaignId}/tasks", () => {
         jf_text: "jf_text_200",
         info: "Task 200 info",
         prefix: "Task 200 prefix",
+        position: 2,
       },
       {
         id: 300,
@@ -68,6 +70,20 @@ describe("GET /campaigns/{CampaignId}/tasks", () => {
         jf_text: "jf_text_300",
         info: "Task 300 info",
         prefix: "Task 300 prefix",
+        position: 1,
+      },
+      {
+        id: 400,
+        campaign_id: 100,
+        title: "Task 400",
+        simple_title: "Task 400",
+        content: "Task 400 content",
+        is_required: 1,
+        jf_code: "jf_code_400",
+        jf_text: "jf_text_400",
+        info: "Task 400 info",
+        prefix: "Task 400 prefix",
+        position: 1,
       },
     ]);
   });
@@ -116,7 +132,7 @@ describe("GET /campaigns/{CampaignId}/tasks", () => {
       .get("/campaigns/100/tasks")
       .set("Authorization", " Bearer admin");
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(2);
+    expect(response.body).toHaveLength(3);
     expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -131,7 +147,25 @@ describe("GET /campaigns/{CampaignId}/tasks", () => {
           content: "Task 200 content",
           campaign_id: 100,
         }),
+        expect.objectContaining({
+          id: 400,
+          name: "Task 400",
+          content: "Task 400 content",
+          campaign_id: 100,
+        }),
       ])
     );
+  });
+
+  it("Should return the usecases ordered by position ASC, id ASC", async () => {
+    const response = await request(app)
+      .get("/campaigns/100/tasks")
+      .set("Authorization", " Bearer admin");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(3);
+    // 400, 100, 200
+    expect(response.body[0].id).toBe(400);
+    expect(response.body[1].id).toBe(100);
+    expect(response.body[2].id).toBe(200);
   });
 });
