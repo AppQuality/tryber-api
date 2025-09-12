@@ -10812,6 +10812,8 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - type
               properties:
                 type:
                   x-stoplight:
