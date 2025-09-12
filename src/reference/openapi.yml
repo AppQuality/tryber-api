@@ -10812,15 +10812,13 @@ paths:
           application/json:
             schema:
               type: object
-              required:
-                - type
               properties:
                 type:
                   x-stoplight:
-                    id: ebqu696xibkbc
+                    id: wk5rs3v5dlx3d
                   enum:
-                    - target
                     - internal
+                    - target
             examples:
               Example 1:
                 value:
