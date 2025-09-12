@@ -2789,6 +2789,9 @@ export interface operations {
           };
         } & {
           skipPagesAndTasks?: number;
+          autoApply?: number;
+          /** @enum {string} */
+          pageVersion?: "v1" | "v2";
         };
       };
     };

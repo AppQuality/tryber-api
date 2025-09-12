@@ -4519,7 +4519,8 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     duplicate:
                       type: object
                       properties:
@@ -4535,14 +4536,22 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                  type: object
-                - properties:
+                - type: object
+                  properties:
                     skipPagesAndTasks:
                       type: integer
                       default: 0
                       maximum: 1
                       minimum: 0
-                  type: object
+                    autoApply:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
+                    pageVersion:
+                      type: string
+                      enum:
+                        - v1
+                        - v2
       responses:
         '201':
           description: Created
