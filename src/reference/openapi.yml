@@ -7782,7 +7782,7 @@ paths:
                         anyOf:
                           - type: array
                             items:
-                              $ref: '#/components/schemas/AdditionalField'
+                              $ref: '#/components/schemas/AvailableDevice'
                           - x-stoplight:
                               id: bk0odi10jgxrj
                             enum:
