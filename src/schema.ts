@@ -3856,9 +3856,9 @@ export interface operations {
               valid: string[];
             };
             campaign_type: {
+              icon: string;
               id: number;
               name: string;
-              icon: string;
             };
             devices?: ({
               id: number;
