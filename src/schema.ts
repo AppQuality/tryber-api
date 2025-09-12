@@ -3872,18 +3872,12 @@ export interface operations {
             validFileExtensions: string[];
             icon: string;
             acceptedDevices: {
-              smartphone?: Partial<components["schemas"]["AdditionalField"][]> &
-                Partial<"all">;
-              tablet?: Partial<components["schemas"]["AvailableDevice"][]> &
-                Partial<"all">;
-              pc?: Partial<components["schemas"]["AvailableDevice"][]> &
-                Partial<"all">;
-              console?: Partial<components["schemas"]["AvailableDevice"][]> &
-                Partial<"all">;
-              smartwatch?: Partial<components["schemas"]["AvailableDevice"][]> &
-                Partial<"all">;
-              smartTv?: Partial<components["schemas"]["AvailableDevice"][]> &
-                Partial<"all">;
+              smartphone?: components["schemas"]["AvailableDevice"][] | "all";
+              tablet?: components["schemas"]["AvailableDevice"][] | "all";
+              pc?: components["schemas"]["AvailableDevice"][] | "all";
+              console?: components["schemas"]["AvailableDevice"][] | "all";
+              smartwatch?: components["schemas"]["AvailableDevice"][] | "all";
+              smartTv?: components["schemas"]["AvailableDevice"][] | "all";
             };
           };
         };
