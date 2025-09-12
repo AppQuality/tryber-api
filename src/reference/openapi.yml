@@ -8468,13 +8468,16 @@ paths:
               schema:
                 type: array
                 items:
+                  type: object
                   properties:
                     content:
                       type: string
                     id:
                       type: integer
                     is_required:
-                      type: string
+                      type: integer
+                      minimum: 0
+                      maximum: 1
                     name:
                       type: string
                     status:
@@ -8483,12 +8486,11 @@ paths:
                         - completed
                         - pending
                   required:
-                    - id
-                    - name
                     - content
+                    - id
                     - is_required
+                    - name
                     - status
-                  type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

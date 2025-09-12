@@ -4112,7 +4112,7 @@ export interface operations {
           "application/json": {
             content: string;
             id: number;
-            is_required: string;
+            is_required: number;
             name: string;
             /** @enum {string} */
             status: "completed" | "pending";
