@@ -712,6 +712,10 @@ export interface components {
       tokens: number;
       unitPrice: number;
     };
+    /** AvailableDevice */
+    AvailableDevice: {
+      name: string;
+    };
     /** Bug */
     Bug: {
       campaign?: components["schemas"]["CampaignOptional"] & {
@@ -1071,10 +1075,6 @@ export interface components {
         version: string;
       };
       type: string;
-    };
-    /** AvailableDevice */
-    AvailableDevice: {
-      name: string;
     };
   };
   responses: {
@@ -3834,6 +3834,14 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            acceptedDevices: {
+              console?: components["schemas"]["AvailableDevice"][] | "all";
+              pc?: components["schemas"]["AvailableDevice"][] | "all";
+              smartTv?: components["schemas"]["AvailableDevice"][] | "all";
+              smartphone?: components["schemas"]["AvailableDevice"][] | "all";
+              smartwatch?: components["schemas"]["AvailableDevice"][] | "all";
+              tablet?: components["schemas"]["AvailableDevice"][] | "all";
+            };
             additionalFields?: components["schemas"]["CampaignAdditionalField"][];
             bugReplicability: {
               invalid: string[];
@@ -3857,6 +3865,7 @@ export interface operations {
             end_date: string;
             goal: string;
             hasBugForm: boolean;
+            icon: string;
             id: number;
             language?: {
               code: string;
@@ -3870,15 +3879,6 @@ export interface operations {
               name: string;
             }[];
             validFileExtensions: string[];
-            icon: string;
-            acceptedDevices: {
-              smartphone?: components["schemas"]["AvailableDevice"][] | "all";
-              tablet?: components["schemas"]["AvailableDevice"][] | "all";
-              pc?: components["schemas"]["AvailableDevice"][] | "all";
-              console?: components["schemas"]["AvailableDevice"][] | "all";
-              smartwatch?: components["schemas"]["AvailableDevice"][] | "all";
-              smartTv?: components["schemas"]["AvailableDevice"][] | "all";
-            };
           };
         };
       };
