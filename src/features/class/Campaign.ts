@@ -449,7 +449,6 @@ class Campaign {
       ? String(cpFormFactor.form_factor)
           .split(",")
           .map((f) => Number(f.trim()))
-          .filter((n) => Number(n))
       : [];
 
     if (splittedFormFactor.length === 0) return {};
@@ -470,29 +469,43 @@ class Campaign {
 
     const totalByFF: Record<number, number> = {};
 
+    // how many o.s. are there for each form_factor in our db
     for (const row of totalsRaw) {
       totalByFF[Number(row.form_factor)] = Number(row.total);
     }
 
-    // retrieve devices info (name, form_factor) for the campaign available form_factors
-    const devicesInfo: DeviceRow[] = await tryber.tables.WpAppqEvdPlatform.do()
-      .select(
-        tryber.ref("name").withSchema("wp_appq_evd_platform").as("name"),
-        tryber
-          .ref("form_factor")
-          .withSchema("wp_appq_evd_platform")
-          .as("form_factor")
-      )
-      .whereIn("form_factor", splittedFormFactor);
+    // retrieve devices info (name, form_factor) for the campaign available form_factors and os
+    const campaignOSAvailable = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(tryber.ref("os").withSchema("wp_appq_evd_campaign"))
+      .where({ id: this.id })
+      .first();
+    const splittedOSAvailable = campaignOSAvailable?.os
+      ? campaignOSAvailable.os.split(",").map((os) => Number(os.trim()))
+      : [];
+
+    const campaignDevicesInfo: DeviceRow[] =
+      await tryber.tables.WpAppqEvdPlatform.do()
+        .select(
+          tryber.ref("name").withSchema("wp_appq_evd_platform").as("name"),
+          tryber
+            .ref("form_factor")
+            .withSchema("wp_appq_evd_platform")
+            .as("form_factor")
+        )
+        .whereIn("form_factor", splittedFormFactor)
+        .and.whereIn("id", splittedOSAvailable);
 
     // grouping by form_factor and accumulating os names
     type OSInfo = { osNames: Set<string> };
     const campaignDevicesAccumulation: Record<number, OSInfo> = {};
 
-    for (const d of devicesInfo) {
+    for (const d of campaignDevicesInfo) {
       const formFactorId = Number(d.form_factor);
-      if (!(formFactorId in campaignDevicesAccumulation))
-        campaignDevicesAccumulation[formFactorId] = { osNames: new Set() };
+      if (!(formFactorId in campaignDevicesAccumulation)) {
+        campaignDevicesAccumulation[formFactorId] = {
+          osNames: new Set(),
+        };
+      }
 
       campaignDevicesAccumulation[formFactorId].osNames.add(d.name);
     }
@@ -500,18 +513,18 @@ class Campaign {
     // build the result object with "all" or the list of o.s. names
     const campaignAcceptedDevices: CampaignDevices = {};
     for (const [ffStr, bucket] of Object.entries(campaignDevicesAccumulation)) {
-      const ff = Number(ffStr) as FFNum;
-      const deviceType = FORM_FACTOR_KEY[ff];
+      const ffNumber = Number(ffStr) as FFNum;
+      const deviceType = FORM_FACTOR_KEY[ffNumber];
       if (!deviceType) continue;
 
-      const total = totalByFF[ff] ?? 0;
+      const total = totalByFF[ffNumber] ?? 0;
 
       if (total > 0 && bucket.osNames.size === total) {
         campaignAcceptedDevices[deviceType] = "all";
       } else {
-        campaignAcceptedDevices[deviceType] = Array.from(bucket.osNames)
-          .sort((a, b) => a.localeCompare(b))
-          .map((name) => ({ name }));
+        campaignAcceptedDevices[deviceType] = Array.from(bucket.osNames).map(
+          (name) => ({ name })
+        );
       }
     }
 

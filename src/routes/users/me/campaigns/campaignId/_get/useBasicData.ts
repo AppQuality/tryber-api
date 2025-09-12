@@ -240,12 +240,16 @@ const useBasicData = () => {
       { task_id: 9, group_id: 3 },
       { task_id: 10, group_id: 0 },
     ]);
-    await tryber.tables.WpAppqEvdPlatform.do().insert({
-      id: 5,
-      name: "Linux",
-      form_factor: 2,
-      architecture: 0,
-    });
+    await tryber.tables.WpAppqEvdPlatform.do().insert([
+      {
+        id: 5,
+        name: "Linux",
+        form_factor: 2,
+        architecture: 0,
+      },
+      { id: 8, name: "Windows", form_factor: 2, architecture: 0 },
+      { id: 1, name: "Android", form_factor: 0, architecture: 0 },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         id: 1,
@@ -259,8 +263,8 @@ const useBasicData = () => {
         page_preview_id: 1,
         page_manual_id: 1,
         customer_id: 1,
-        os: "5",
-        form_factor: "2",
+        os: "5,1",
+        form_factor: "2,0,0",
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
