@@ -28,6 +28,28 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
 
   private cpPointsKey = "campaign_pts" as const;
 
+  private updateMeta: Partial<
+    Record<
+      typeof this.cpMetaPayoutDataKeys[number] | typeof this.cpPointsKey,
+      number
+    >
+  > = {};
+
+  constructor(configuration: RouteClassConfiguration) {
+    super(configuration);
+
+    const body = this.getBody();
+
+    this.cpMetaPayoutDataKeys.forEach((key) => {
+      if (body[key] !== undefined) {
+        this.updateMeta[key] = body[key];
+      }
+    });
+    if (body[this.cpPointsKey] !== undefined) {
+      this.updateMeta[this.cpPointsKey] = body[this.cpPointsKey];
+    }
+  }
+
   protected async filter(): Promise<boolean> {
     if (!(await super.filter())) return false;
 
@@ -44,111 +66,61 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
   }
 
   protected async prepare(): Promise<void> {
+    await this.updatePayoutData();
     return this.setSuccess(200, {
       message: "Payout data updated successfully",
-      ...(await this.updatePayoutData()),
+      ...this.getBody(),
     });
   }
 
-  private async updatePayoutData(): Promise<{
-    [key: string]: string | number | undefined;
-  }> {
-    const body = this.getBody();
+  private async updatePayoutData() {
+    const existingKeys = await tryber.tables.WpAppqCpMeta.do()
+      .select(["meta_key"])
+      .where({ campaign_id: this.cp_id })
+      .then((rows) => rows.map((row) => row.meta_key));
 
-    // retrieve from db all existing meta_keys for this campaign
-    // then decide if we need to insert or update each key
-    const existingMeta = await tryber.tables.WpAppqCpMeta.do()
-      .select(["meta_key", "meta_value"])
-      .where({ campaign_id: this.cp_id });
+    const toInsert = Object.entries(this.updateMeta)
+      .filter(([key, value]) => !existingKeys.includes(key))
+      .map(([key, value]) => {
+        return {
+          meta_key: key,
+          meta_value: String(value),
+        };
+      });
 
-    const existingMetaMap: { [key: string]: string } = {};
-    existingMeta.forEach((meta) => {
-      existingMetaMap[meta.meta_key] = meta.meta_value;
-    });
-
-    const rowsToInsert: Array<{
-      campaign_id: number;
-      meta_key: string;
-      meta_value: string;
-    }> = [];
-    const rowsToUpdate: Array<{
-      campaign_id: number;
-      meta_key: string;
-      meta_value: string;
-    }> = [];
-    const response: { [key: string]: string | number | undefined } = {};
-
-    this.cpMetaPayoutDataKeys.forEach((key) => {
-      if (Object.prototype.hasOwnProperty.call(body, key)) {
-        const newMetaValue = String(body[key]);
-        if (existingMetaMap[key] !== undefined) {
-          // Key exists, prepare for update if value is different
-          if (existingMetaMap[key] !== newMetaValue) {
-            rowsToUpdate.push({
-              meta_value: newMetaValue,
-              campaign_id: this.cp_id,
-              meta_key: key,
-            });
-          }
-        } else {
-          // Key does not exist, prepare for insert
-          rowsToInsert.push({
-            campaign_id: this.cp_id,
-            meta_key: key,
-            meta_value: newMetaValue,
-          });
-        }
-        response[key] = body[key];
-      }
-    });
-
-    // Perform inserts
-    if (rowsToInsert.length > 0) {
-      try {
-        await tryber.tables.WpAppqCpMeta.do().insert(rowsToInsert);
-      } catch (error) {
-        console.error("Error inserting payout data:", error);
-      }
+    if (toInsert.length > 0) {
+      await tryber.tables.WpAppqCpMeta.do().insert(
+        toInsert.map((row) => ({
+          campaign_id: this.cp_id,
+          meta_key: row.meta_key,
+          meta_value: row.meta_value,
+        }))
+      );
     }
 
-    // Perform updates
-    for (const row of rowsToUpdate) {
-      try {
-        await tryber.tables.WpAppqCpMeta.do()
-          .update({ meta_value: row.meta_value })
-          .where({ campaign_id: row.campaign_id, meta_key: row.meta_key });
-      } catch (error) {
-        console.error("Error updating payout data:", error);
-      }
+    const toUpdate = Object.entries(this.updateMeta)
+      .filter(([key, value]) => existingKeys.includes(key))
+      .map(([key, value]) => {
+        return {
+          meta_key: key,
+          meta_value: String(value),
+        };
+      });
+    for (const row of toUpdate) {
+      await tryber.tables.WpAppqCpMeta.do()
+        .update({ meta_value: row.meta_value })
+        .where({ campaign_id: this.cp_id, meta_key: row.meta_key });
     }
 
-    // update campaign points if campaign_pts is present in body
-    if (Object.prototype.hasOwnProperty.call(body, this.cpPointsKey)) {
-      try {
-        await tryber.tables.WpAppqEvdCampaign.do()
-          .update({ campaign_pts: body.campaign_pts })
-          .where({ id: this.cp_id });
-        response[this.cpPointsKey] = body.campaign_pts;
-      } catch (error) {
-        console.error("Error updating campaign points:", error);
-      }
+    if (this.updateMeta[this.cpPointsKey]) {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({ campaign_pts: this.updateMeta[this.cpPointsKey] })
+        .where({ id: this.cp_id });
     }
-    return response;
   }
 
   private isPayoutDataValid(): boolean {
     const body = this.getBody();
-
-    // check if body is an object and defined
-    if (
-      !body ||
-      body === null ||
-      body === undefined ||
-      typeof body !== "object"
-    ) {
-      this.setError(403, new OpenapiError("Invalid body"));
-      return false;
-    }
 
     // check if body is empty
     if (Object.keys(body).length === 0) {
