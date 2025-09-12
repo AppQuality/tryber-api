@@ -10789,19 +10789,13 @@ paths:
         name: campaignId
         in: path
         required: true
-      - schema:
-          type: string
-        name: campaignId
-        in: path
-        required: true
     patch:
       summary: Your PATCH endpoint
       tags: []
       responses:
         '200':
           description: OK
-        '400':
-          $ref: '#/components/responses/MissingParameters'
+          content: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -10827,6 +10821,10 @@ paths:
                   enum:
                     - target
                     - internal
+            examples:
+              Example 1:
+                value:
+                  type: target
 components:
   parameters:
     campaign:
