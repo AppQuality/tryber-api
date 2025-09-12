@@ -577,6 +577,14 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/tasks": {
+    get: operations["get-users-me-campaign-campaignId-tasks"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaign}/compatible_devices": {
     get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
     parameters: {
@@ -4140,6 +4148,30 @@ export interface operations {
               name: string;
             };
           };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+  };
+  "get-users-me-campaign-campaignId-tasks": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            content: string;
+            id: number;
+            is_required: number;
+            name: string;
+            /** @enum {string} */
+            status: "completed" | "pending";
+          }[];
         };
       };
       403: components["responses"]["NotAuthorized"];

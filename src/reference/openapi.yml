@@ -8631,6 +8631,62 @@ paths:
         required: true
         schema:
           type: string
+  '/users/me/campaigns/{campaignId}/tasks':
+    get:
+      operationId: get-users-me-campaign-campaignId-tasks
+      summary: Get the Usecases for your campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    - content: string
+                      id: 0
+                      is_required: string
+                      name: string
+                      status: completed
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                    id:
+                      type: integer
+                    is_required:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
+                    name:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                        - completed
+                        - pending
+                  required:
+                    - content
+                    - id
+                    - is_required
+                    - name
+                    - status
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices
