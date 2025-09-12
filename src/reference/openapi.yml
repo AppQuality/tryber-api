@@ -11610,18 +11610,50 @@ components:
       title: CustomUserFieldsType
     DossierCreationData:
       type: object
+      x-examples:
+        Example 1:
+          autoApply: false
+          browsers:
+            - 0
+          closeDate: '2019-08-24T14:15:22Z'
+          countries:
+            - st
+          csm: 0
+          description: string
+          deviceList:
+            - 0
+          deviceRequirements: string
+          endDate: '2019-08-24T14:15:22Z'
+          goal: string
+          languages:
+            - string
+          notes: string
+          outOfScope: string
+          productLink: string
+          productType: 0
+          project: 0
+          roles:
+            - role: 0
+              user: 0
+          startDate: '2019-08-24T14:15:22Z'
+          target:
+            cap: 0
+            notes: string
+            size: 0
+          testType: 0
+          title:
+            customer: string
+            tester: string
       properties:
         additionals:
           type: array
           items:
             allOf:
-              - properties:
+              - type: object
+                properties:
                   showInStats:
                     type: boolean
-                type: object
               - $ref: '#/components/schemas/CampaignAdditionalField'
-        autoApply:
-          type: boolean
         browsers:
           type: array
           items:
@@ -11669,6 +11701,7 @@ components:
         roles:
           type: array
           items:
+            type: object
             properties:
               role:
                 type: integer
@@ -11677,7 +11710,6 @@ components:
             required:
               - role
               - user
-            type: object
         startDate:
           type: string
           format: date-time
@@ -11696,19 +11728,20 @@ components:
           type: integer
         title:
           type: object
+          required:
+            - customer
           properties:
             customer:
               type: string
             tester:
               type: string
-          required:
-            - customer
         visibilityCriteria:
           type: object
           properties:
             ageRanges:
               type: array
               items:
+                type: object
                 properties:
                   max:
                     type: integer
@@ -11717,10 +11750,10 @@ components:
                 required:
                   - max
                   - min
-                type: object
             cuf:
               type: array
               items:
+                type: object
                 properties:
                   cufId:
                     type: integer
@@ -11731,7 +11764,6 @@ components:
                 required:
                   - cufId
                   - cufValueIds
-                type: object
             gender:
               type: array
               items:
@@ -11746,40 +11778,6 @@ components:
         - startDate
         - testType
         - title
-      x-examples:
-        Example 1:
-          autoApply: false
-          browsers:
-            - 0
-          closeDate: '2019-08-24T14:15:22Z'
-          countries:
-            - st
-          csm: 0
-          description: string
-          deviceList:
-            - 0
-          deviceRequirements: string
-          endDate: '2019-08-24T14:15:22Z'
-          goal: string
-          languages:
-            - string
-          notes: string
-          outOfScope: string
-          productLink: string
-          productType: 0
-          project: 0
-          roles:
-            - role: 0
-              user: 0
-          startDate: '2019-08-24T14:15:22Z'
-          target:
-            cap: 0
-            notes: string
-            size: 0
-          testType: 0
-          title:
-            customer: string
-            tester: string
     FiscalBirthCity:
       type: object
       oneOf:
