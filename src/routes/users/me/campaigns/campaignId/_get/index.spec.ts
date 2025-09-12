@@ -77,8 +77,8 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       validFileExtensions: [".jpg", ".png", ".gif"],
       end_date: "2020-12-31 23:59:59",
       goal: "Example: goal of the campaign",
-      icon: "bug-report",
       campaign_type: {
+        icon: "bug-report",
         name: "Bug Hunting",
         id: 1,
       },
