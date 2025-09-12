@@ -339,9 +339,7 @@ export default class PostDossiers extends UserRoute<{
 
     const campaignToDuplicate = await this.getCampaignToDuplicate();
 
-    const autoApply = await this.getHasAutoApplyFromCampaignType(
-      this.getBody().testType
-    );
+    const autoApply = await this.evaluateAutoApply();
 
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
@@ -366,6 +364,7 @@ export default class PostDossiers extends UserRoute<{
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
+
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
@@ -759,15 +758,19 @@ export default class PostDossiers extends UserRoute<{
     return { os, form_factor };
   }
 
-  private async getHasAutoApplyFromCampaignType(
-    typeId: number
-  ): Promise<number> {
-    const autoApply = await tryber.tables.WpAppqCampaignType.do()
+  private async evaluateAutoApply(): Promise<number> {
+    const { autoApply, testType } = this.getBody();
+
+    if (typeof autoApply === "number") {
+      if (autoApply === 0 || autoApply === 1) return autoApply;
+    }
+
+    const autoApplyFromType = await tryber.tables.WpAppqCampaignType.do()
       .select("has_auto_apply")
-      .where("id", typeId)
+      .where("id", testType)
       .first();
 
-    if (!autoApply) return 0;
-    return autoApply.has_auto_apply ? 1 : 0;
+    if (!autoApplyFromType) return 0;
+    return autoApplyFromType.has_auto_apply ? 1 : 0;
   }
 }

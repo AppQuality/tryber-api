@@ -920,7 +920,7 @@ describe("Route POST /dossiers", () => {
   });
 
   describe("Auto Apply", () => {
-    beforeEach(async () => {
+    beforeAll(async () => {
       // we add a new type without explicit autoApply value that defaults to 0
       await tryber.tables.WpAppqCampaignType.do().insert({
         id: 11,
@@ -930,13 +930,32 @@ describe("Route POST /dossiers", () => {
       });
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
       await tryber.tables.WpAppqCampaignType.do().delete();
     });
-    it("Should insert the correct autoApply value for the campaign type", async () => {
+
+    it("Should insert autoApply sent if send autoApply", async () => {
       const postResponse = await request(app)
         .post("/dossiers")
         .set("authorization", " Bearer admin")
+        .send({ ...baseRequest, autoApply: 0 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 0);
+    });
+    it("Should insert autoApply value from the campaign type (if no send autoApply)", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
         .send(baseRequest);
 
       expect(postResponse.status).toBe(201);
@@ -952,7 +971,7 @@ describe("Route POST /dossiers", () => {
       expect(getResponse.body).toHaveProperty("autoApply", 1);
     });
 
-    it("Should insert the default autoApply value", async () => {
+    it("Should insert the default autoApply 0 if not specified and not in campaign type", async () => {
       const postResponse = await request(app)
         .post("/dossiers")
         .set("authorization", " Bearer admin")
