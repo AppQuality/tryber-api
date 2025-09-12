@@ -39,12 +39,12 @@ export default class PostCampaignTask extends UserRoute<{
     return false;
   };
 
-  private async createUserTask() {
+  private async createCompletedUserTask() {
     try {
       await tryber.tables.WpAppqUserTask.do().insert({
         tester_id: this.getTesterId(),
         task_id: this.taskId,
-        is_completed: 0,
+        is_completed: 1,
       });
     } catch (error) {
       console.error(error);
@@ -93,6 +93,14 @@ export default class PostCampaignTask extends UserRoute<{
     return false;
   }
 
+  private async handleUserTasks() {
+    if (await this.userTaskDoesNotExist()) {
+      await this.createCompletedUserTask();
+      return;
+    }
+    await this.updateUserTaskStatus();
+  }
+
   protected async prepare() {
     const campaign = new Campaign(this.campaignId, false);
     if (!campaign)
@@ -105,11 +113,10 @@ export default class PostCampaignTask extends UserRoute<{
     }
 
     if (await this.userTaskDoesNotExist()) {
-      await this.createUserTask();
     }
 
     try {
-      await this.updateUserTaskStatus();
+      await this.handleUserTasks();
       this.setSuccess(200, {});
     } catch (error) {
       this.setError(500, error as OpenapiError);
