@@ -7423,6 +7423,10 @@ paths:
               examples:
                 full:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     additionalFields:
                       - error: You have to select a browser
                         name: Browser Used
@@ -7455,6 +7459,10 @@ paths:
                       valid:
                         - CRASH
                         - TYPO
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7466,21 +7474,18 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
-                      - campaign_type:
-                          id: 1
-                          name: Bug Hunting
-                        device:
+                      - device:
                           id: 123
                           manufacturer: Apple
                           model: iPhone 6
-                        end_date: 01-01-2026
-                        goal: A beautiful goal
                         id: 2
                         operating_system:
                           id: 234
                           platform: Apple
                           version: iOs 10
                         type: Smartphone
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: true
                     id: 123
                     language:
@@ -7501,6 +7506,10 @@ paths:
                       - mp4
                 with-bugform-disabled:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7521,6 +7530,7 @@ paths:
                         - TYPO
                         - PERFORMANCE
                     campaign_type:
+                      icon: bug-report
                       id: 1
                       name: Bug Hunting
                     devices: []
@@ -7539,6 +7549,10 @@ paths:
                       - mp4
                 with-only-one-device:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7559,6 +7573,7 @@ paths:
                         - TYPO
                         - PERFORMANCE
                     campaign_type:
+                      icon: bug-report
                       id: 1
                       name: Bug Hunting
                     devices:
@@ -7591,6 +7606,10 @@ paths:
                       - mp4
                 without-device:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7611,6 +7630,7 @@ paths:
                         - TYPO
                         - PERFORMANCE
                     campaign_type:
+                      icon: bug-report
                       id: 1
                       name: Bug Hunting
                     end_date: 01-01-2026
@@ -7633,6 +7653,51 @@ paths:
               schema:
                 type: object
                 properties:
+                  acceptedDevices:
+                    type: object
+                    properties:
+                      console:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      pc:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartTv:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartphone:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartwatch:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      tablet:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
                   additionalFields:
                     type: array
                     items:
@@ -7682,13 +7747,16 @@ paths:
                   campaign_type:
                     type: object
                     properties:
+                      icon:
+                        type: string
                       id:
                         type: number
                       name:
                         type: string
                     required:
-                      - name
                       - id
+                      - name
+                      - icon
                   devices:
                     type: array
                     items:
@@ -7741,18 +7809,19 @@ paths:
                     items:
                       type: string
                 required:
+                  - acceptedDevices
                   - bugReplicability
                   - bugSeverity
                   - bugTypes
+                  - campaign_type
+                  - end_date
+                  - goal
                   - hasBugForm
                   - id
                   - minimumMedia
                   - title
                   - useCases
                   - validFileExtensions
-                  - end_date
-                  - goal
-                  - campaign_type
       security:
         - JWT: []
         - User Token: []
@@ -10939,6 +11008,14 @@ components:
           title: Agreement Title
           tokens: 10.5
           unitPrice: 165
+    AvailableDevice:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      title: AvailableDevice
     Bug:
       type: object
       properties:

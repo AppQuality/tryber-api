@@ -712,6 +712,10 @@ export interface components {
       tokens: number;
       unitPrice: number;
     };
+    /** AvailableDevice */
+    AvailableDevice: {
+      name: string;
+    };
     /** Bug */
     Bug: {
       campaign?: components["schemas"]["CampaignOptional"] & {
@@ -3830,6 +3834,14 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            acceptedDevices: {
+              console?: components["schemas"]["AvailableDevice"][] | "all";
+              pc?: components["schemas"]["AvailableDevice"][] | "all";
+              smartTv?: components["schemas"]["AvailableDevice"][] | "all";
+              smartphone?: components["schemas"]["AvailableDevice"][] | "all";
+              smartwatch?: components["schemas"]["AvailableDevice"][] | "all";
+              tablet?: components["schemas"]["AvailableDevice"][] | "all";
+            };
             additionalFields?: components["schemas"]["CampaignAdditionalField"][];
             bugReplicability: {
               invalid: string[];
@@ -3844,6 +3856,7 @@ export interface operations {
               valid: string[];
             };
             campaign_type: {
+              icon: string;
               id: number;
               name: string;
             };
