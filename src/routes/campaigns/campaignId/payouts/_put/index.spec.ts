@@ -1,6 +1,6 @@
-import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
 describe("GET /campaigns/campaignId/payouts", () => {
   beforeAll(async () => {
@@ -49,14 +49,14 @@ describe("GET /campaigns/campaignId/payouts", () => {
     describe("Not enough permissions", () => {
       it("Should return 403 if logged out", async () => {
         const response = await request(app)
-          .put("/campaigns/1/payout_data")
+          .put("/campaigns/1/payouts")
           .send({});
         expect(response.status).toBe(403);
       });
 
       it("Should return 403 if logged in as user without olps", async () => {
         const response = await request(app)
-          .put("/campaigns/1/payout_data")
+          .put("/campaigns/1/payouts")
           .set("Authorization", "Bearer user")
           .send({
             campaign_complete_bonus_eur: 10,
@@ -83,7 +83,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
     describe("Enough permissions", () => {
       it("Should return 200 if logged in as admin", async () => {
         const response = await request(app)
-          .put("/campaigns/1/payout_data")
+          .put("/campaigns/1/payouts")
           .set("Authorization", "Bearer admin")
           .send({
             campaign_complete_bonus_eur: 10,
@@ -93,7 +93,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
       it("Should return 200 if logged in as user with olps", async () => {
         const response = await request(app)
-          .put("/campaigns/1/payout_data")
+          .put("/campaigns/1/payouts")
           .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
           .send({
             campaign_complete_bonus_eur: 10,
@@ -108,7 +108,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       describe("Invalid body", () => {
         it("Should return 403 if the body is empty", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({});
 
@@ -117,7 +117,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should return 403 if the body contains wrong keys", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               wrong_key: 10,
@@ -127,7 +127,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should return 400 if the body contains negative values", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", "Bearer admin")
             .send({
               campaign_complete_bonus_eur: -10,
@@ -139,7 +139,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should return 400 if the body contains values that are not numbers", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               campaign_complete_bonus_eur: "ten",
@@ -150,7 +150,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should return 400 if trying to pass a percentage over 100", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", "Bearer admin")
             .send({
               percent_usecases: 150,
@@ -162,7 +162,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
       describe("Valid body - Checking payout data update in cp_meta", () => {
         it("Should update the campaign_complete_bonus_eur", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               campaign_complete_bonus_eur: 10,
@@ -182,7 +182,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
         });
         it("Should update the campaign_pts", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               campaign_pts: 399,
@@ -202,7 +202,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update critical_bug_payout", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               critical_bug_payout: 7,
@@ -223,7 +223,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update high_bug_payout", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               high_bug_payout: 6,
@@ -244,7 +244,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update low_bug_payout", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               low_bug_payout: 5,
@@ -265,7 +265,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update medium_bug_payout", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               medium_bug_payout: 4,
@@ -286,7 +286,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update payout_limit", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({
               payout_limit: 300,
@@ -307,7 +307,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update percent_usecases", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ percent_usecases: 55 });
 
@@ -326,7 +326,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update point_multiplier_critical", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ point_multiplier_critical: 2 });
 
@@ -345,7 +345,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update point_multiplier_high", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ point_multiplier_high: 3 });
 
@@ -364,7 +364,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update point_multiplier_low", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ point_multiplier_low: 1 });
 
@@ -383,7 +383,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update point_multiplier_medium", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ point_multiplier_medium: 2 });
 
@@ -402,7 +402,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update point_multiplier_perfect", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ point_multiplier_perfect: 5 });
 
@@ -421,7 +421,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update point_multiplier_refused", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ point_multiplier_refused: 0 });
 
@@ -440,7 +440,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update top_tester_bonus", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
             .send({ top_tester_bonus: 99 });
 
@@ -459,7 +459,7 @@ describe("GET /campaigns/campaignId/payouts", () => {
 
         it("Should update multiple fields at once", async () => {
           const response = await request(app)
-            .put("/campaigns/1/payout_data")
+            .put("/campaigns/1/payouts")
             .set("Authorization", "Bearer admin")
             .send({
               campaign_complete_bonus_eur: 20,

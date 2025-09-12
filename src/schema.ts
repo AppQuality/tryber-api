@@ -166,16 +166,9 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/payout_data": {
-    put: operations["put-campaigns-campaign-payout_data"];
-    parameters: {
-      path: {
-        campaign: string;
-      };
-    };
-  };
   "/campaigns/{campaign}/payouts": {
     get: operations["get-campaigns-campaign-payouts"];
+    put: operations["put-campaigns-campaign-payouts"];
     parameters: {
       path: {
         /** A campaign id */
@@ -2054,63 +2047,6 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
-  "put-campaigns-campaign-payout_data": {
-    parameters: {
-      path: {
-        campaign: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            campaign_complete_bonus_eur?: number;
-            campaign_pts?: number;
-            critical_bug_payout?: number;
-            high_bug_payout?: number;
-            low_bug_payout?: number;
-            medium_bug_payout?: number;
-            minimum_bugs?: number;
-            payout_limit?: number;
-            percent_usecases?: number;
-            point_multiplier_critical?: number;
-            point_multiplier_high?: number;
-            point_multiplier_low?: number;
-            point_multiplier_medium?: number;
-            point_multiplier_perfect?: number;
-            point_multiplier_refused?: number;
-            top_tester_bonus?: number;
-          };
-        };
-      };
-      400: components["responses"]["MissingParameters"];
-      403: components["responses"]["Authentication"];
-      404: components["responses"]["NotFound"];
-    };
-    requestBody: {
-      content: {
-        "application/json": {
-          campaign_complete_bonus_eur?: number;
-          campaign_pts?: number;
-          critical_bug_payout?: number;
-          high_bug_payout?: number;
-          low_bug_payout?: number;
-          medium_bug_payout?: number;
-          minimum_bugs?: number;
-          payout_limit?: number;
-          percent_usecases?: number;
-          point_multiplier_critical?: number;
-          point_multiplier_high?: number;
-          point_multiplier_low?: number;
-          point_multiplier_medium?: number;
-          point_multiplier_perfect?: number;
-          point_multiplier_refused?: number;
-          top_tester_bonus?: number;
-        };
-      };
-    };
-  };
   "get-campaigns-campaign-payouts": {
     parameters: {
       path: {
@@ -2143,6 +2079,64 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "put-campaigns-campaign-payouts": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            campaign_complete_bonus_eur?: number;
+            campaign_pts?: number;
+            critical_bug_payout?: number;
+            high_bug_payout?: number;
+            low_bug_payout?: number;
+            medium_bug_payout?: number;
+            minimum_bugs?: number;
+            payout_limit?: number;
+            percent_usecases?: number;
+            point_multiplier_critical?: number;
+            point_multiplier_high?: number;
+            point_multiplier_low?: number;
+            point_multiplier_medium?: number;
+            point_multiplier_perfect?: number;
+            point_multiplier_refused?: number;
+            top_tester_bonus?: number;
+          };
+        };
+      };
+      400: components["responses"]["MissingParameters"];
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          campaign_complete_bonus_eur?: number;
+          campaign_pts?: number;
+          critical_bug_payout?: number;
+          high_bug_payout?: number;
+          low_bug_payout?: number;
+          medium_bug_payout?: number;
+          minimum_bugs?: number;
+          payout_limit?: number;
+          percent_usecases?: number;
+          point_multiplier_critical?: number;
+          point_multiplier_high?: number;
+          point_multiplier_low?: number;
+          point_multiplier_medium?: number;
+          point_multiplier_perfect?: number;
+          point_multiplier_refused?: number;
+          top_tester_bonus?: number;
+        };
+      };
     };
   };
   "get-campaigns-campaign-prospect": {

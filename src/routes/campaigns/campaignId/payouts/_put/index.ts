@@ -1,12 +1,12 @@
-/** OPENAPI-CLASS: put-campaigns-campaign-payout_data */
+/** OPENAPI-CLASS: put-campaigns-campaign-payouts */
 
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 export default class PutCampaignPayoutData extends CampaignRoute<{
-  response: StoplightOperations["put-campaigns-campaign-payout_data"]["responses"]["200"]["content"]["application/json"];
-  parameters: StoplightOperations["put-campaigns-campaign-payout_data"]["parameters"]["path"];
-  body: StoplightOperations["put-campaigns-campaign-payout_data"]["requestBody"]["content"]["application/json"];
+  response: StoplightOperations["put-campaigns-campaign-payouts"]["responses"]["200"]["content"]["application/json"];
+  parameters: StoplightOperations["put-campaigns-campaign-payouts"]["parameters"]["path"];
+  body: StoplightOperations["put-campaigns-campaign-payouts"]["requestBody"]["content"]["application/json"];
 }> {
   private cpMetaPayoutDataKeys = [
     "campaign_complete_bonus_eur",
