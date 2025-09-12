@@ -381,9 +381,13 @@ class Campaign {
     }
   }
 
-  public async getCampaignType(): Promise<{ id: number; name: string } | null> {
+  public async getCampaignType(): Promise<{
+    id: number;
+    name: string;
+    icon: string;
+  } | null> {
     const type = await tryber.tables.WpAppqCampaignType.do()
-      .select("id", "name")
+      .select("id", "name", "icon")
       .where({ id: this.campaign_type_id })
       .first();
     if (!type) return null;
@@ -405,15 +409,6 @@ class Campaign {
     if (!goalModule) return null;
     if (typeof goalModule.output !== "string") return null;
     return goalModule.output;
-  }
-
-  public async getCampaignIcon(): Promise<string | null> {
-    const icon = await tryber.tables.WpAppqCampaignType.do()
-      .select(tryber.ref("icon").withSchema("wp_appq_campaign_type"))
-      .where({ id: this.campaign_type_id })
-      .first();
-    if (!icon || !icon.icon) return null;
-    return icon.icon;
   }
 
   public async getCampaignAvailableDevices() {
