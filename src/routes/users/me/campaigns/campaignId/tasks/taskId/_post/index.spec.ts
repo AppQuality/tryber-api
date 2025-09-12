@@ -20,20 +20,22 @@ describe("Route POST /users/me/campaigns/{campaignId}/tasks/{taskId}", () => {
     expect(res.status).toBe(404);
   });
 
-  it("Should return 403 if user is logged in but the task does not belong to the campaign", async () => {
+  it("Should return 403 if user is logged in but the task does not exist", async () => {
     const res = await request(app)
       .post("/users/me/campaigns/1/tasks/999")
       .send({ status: "completed" })
       .set("Authorization", "Bearer tester");
     expect(res.status).toBe(403);
   });
-  it("Should return 200 if user is logged and selected", async () => {
-    const response = await request(app)
+
+  it("Should return 403 if the user is logged but has never been assigned to the task", async () => {
+    const res = await request(app)
       .post("/users/me/campaigns/1/tasks/1")
       .send({ status: "completed" })
       .set("Authorization", "Bearer tester");
-    expect(response.status).toBe(200);
+    expect(res.status).toBe(403);
   });
+
   describe("Check payload", () => {
     beforeEach(async () => {
       await tryber.tables.WpAppqUserTask.do().insert({
@@ -80,6 +82,13 @@ describe("Route POST /users/me/campaigns/{campaignId}/tasks/{taskId}", () => {
     });
 
     describe("Valid body", () => {
+      it("Should return 200 if user is logged and selected", async () => {
+        const response = await request(app)
+          .post("/users/me/campaigns/1/tasks/1")
+          .send({ status: "completed" })
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+      });
       it("Should return 200 if payload is valid", async () => {
         const valueBefore = await tryber.tables.WpAppqUserTask.do()
           .select("is_completed")

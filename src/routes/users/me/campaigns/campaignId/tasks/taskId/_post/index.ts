@@ -18,9 +18,27 @@ export default class PostCampaignTask extends UserRoute<{
     if (await this.testerIsNotCandidate()) return false;
     if (await this.campaignIsUnavailable()) return false;
     if (await this.taskIsUnavailable()) return false;
+    if (await this.userTaskDoesNotExist()) return false;
 
     return true;
   }
+
+  private userTaskDoesNotExist = async () => {
+    const userTask = await tryber.tables.WpAppqUserTask.do()
+      .select("*")
+      .where({
+        tester_id: this.getTesterId(),
+        task_id: this.taskId,
+      })
+      .first();
+
+    if (!userTask) {
+      this.setError(403, new OpenapiError("This user task does not exist"));
+      return true;
+    }
+
+    return false;
+  };
 
   private async taskIsUnavailable() {
     const task = await tryber.tables.WpAppqCampaignTask.do()
@@ -74,7 +92,7 @@ export default class PostCampaignTask extends UserRoute<{
     }
 
     try {
-      await this.updateTaskStatus();
+      await this.updateUserTaskStatus();
       this.setSuccess(200, {});
     } catch (error) {
       this.setError(500, error as OpenapiError);
@@ -114,7 +132,7 @@ export default class PostCampaignTask extends UserRoute<{
     return false;
   }
 
-  private async updateTaskStatus() {
+  private async updateUserTaskStatus() {
     try {
       await tryber.tables.WpAppqUserTask.do()
         .update({
