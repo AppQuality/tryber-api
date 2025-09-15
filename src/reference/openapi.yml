@@ -4476,7 +4476,7 @@ paths:
             examples:
               Example 1:
                 value:
-                  autoApply: false
+                  autoApply: 0
                   browsers:
                     - 0
                   closeDate: '2019-08-24T14:15:22Z'
@@ -7577,6 +7577,12 @@ paths:
                       pc:
                         - name: Windows
                       smartphone: all
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
                     additionalFields:
                       - error: You have to select a browser
                         name: Browser Used
@@ -7609,10 +7615,6 @@ paths:
                       valid:
                         - CRASH
                         - TYPO
-                    campaign_type:
-                      icon: bug-report
-                      id: 1
-                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7634,8 +7636,6 @@ paths:
                           platform: Apple
                           version: iOs 10
                         type: Smartphone
-                    end_date: 01-01-2026
-                    goal: A beautiful goal
                     hasBugForm: true
                     id: 123
                     language:
@@ -8715,6 +8715,7 @@ paths:
                     content: string
                     endDate: string
                     startDate: string
+                    status: selected
                     tl:
                       email: string
                       name: string
@@ -8724,6 +8725,7 @@ paths:
                     content: string
                     endDate: string
                     startDate: string
+                    status: selected
               schema:
                 type: object
                 properties:
@@ -8795,7 +8797,7 @@ paths:
                   value:
                     - content: string
                       id: 0
-                      is_required: string
+                      is_required: 0
                       name: string
                       status: completed
               schema:
