@@ -86,7 +86,8 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
           meta_key: key,
           meta_value: String(value),
         };
-      });
+      })
+      .filter((row) => row.meta_key !== this.cpPointsKey);
 
     if (toInsert.length > 0) {
       await tryber.tables.WpAppqCpMeta.do().insert(
@@ -105,7 +106,8 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
           meta_key: key,
           meta_value: String(value),
         };
-      });
+      })
+      .filter((row) => row.meta_key !== this.cpPointsKey);
     for (const row of toUpdate) {
       await tryber.tables.WpAppqCpMeta.do()
         .update({ meta_value: row.meta_value })
