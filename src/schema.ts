@@ -4220,6 +4220,7 @@ export interface operations {
               email: string;
               name: string;
             };
+            selectionStatus?: string;
           };
         };
       };
