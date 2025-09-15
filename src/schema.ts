@@ -586,15 +586,6 @@ export interface paths {
       };
     };
   };
-  "/users/me/campaigns/{campaign}/compatible_devices": {
-    get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: string;
-      };
-    };
-  };
   "/users/me/campaigns/{campaignId}/tasks/{taskId}": {
     post: operations["post-users-me-campaigns-campaign-tasks-task"];
     parameters: {
@@ -602,6 +593,15 @@ export interface paths {
         /** the campaign id */
         campaignId: string;
         taskId: string;
+      };
+    };
+  };
+  "/users/me/campaigns/{campaign}/compatible_devices": {
+    get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
       };
     };
   };
@@ -2797,10 +2797,10 @@ export interface operations {
             useCases?: number;
           };
         } & {
-          skipPagesAndTasks?: number;
           autoApply?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
+          skipPagesAndTasks?: number;
         };
       };
     };
@@ -4251,24 +4251,6 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
-  "get-users-me-campaigns-campaignId-compatible-devices": {
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["UserDevice"][];
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-    };
-  };
   "post-users-me-campaigns-campaign-tasks-task": {
     parameters: {
       path: {
@@ -4290,6 +4272,24 @@ export interface operations {
           status: "completed";
         };
       };
+    };
+  };
+  "get-users-me-campaigns-campaignId-compatible-devices": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["UserDevice"][];
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
     };
   };
   /** Add one certification to your profile */
