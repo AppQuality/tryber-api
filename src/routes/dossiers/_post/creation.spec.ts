@@ -1,6 +1,7 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
+import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 
 jest.mock("@src/features/wp/WordpressJsonApiTrigger");
 jest.mock("@src/features/webhookTrigger");
@@ -126,7 +127,6 @@ describe("Route POST /dossiers", () => {
       .post("/dossiers")
       .set("authorization", "Bearer admin")
       .send(baseRequest);
-    console.log(postResponse.body);
     expect(postResponse.status).toBe(201);
     expect(postResponse.body).toHaveProperty("id");
 
@@ -920,7 +920,7 @@ describe("Route POST /dossiers", () => {
   });
 
   describe("Auto Apply", () => {
-    beforeEach(async () => {
+    beforeAll(async () => {
       // we add a new type without explicit autoApply value that defaults to 0
       await tryber.tables.WpAppqCampaignType.do().insert({
         id: 11,
@@ -930,13 +930,32 @@ describe("Route POST /dossiers", () => {
       });
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
       await tryber.tables.WpAppqCampaignType.do().delete();
     });
-    it("Should insert the correct autoApply value for the campaign type", async () => {
+
+    it("Should insert autoApply sent if send autoApply", async () => {
       const postResponse = await request(app)
         .post("/dossiers")
-        .set("authorization", " Bearer admin")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, autoApply: 0 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 0);
+    });
+    it("Should insert autoApply value from the campaign type (if no send autoApply)", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
         .send(baseRequest);
 
       expect(postResponse.status).toBe(201);
@@ -952,10 +971,10 @@ describe("Route POST /dossiers", () => {
       expect(getResponse.body).toHaveProperty("autoApply", 1);
     });
 
-    it("Should insert the default autoApply value", async () => {
+    it("Should insert the default autoApply 0 if not specified and not in campaign type", async () => {
       const postResponse = await request(app)
         .post("/dossiers")
-        .set("authorization", " Bearer admin")
+        .set("authorization", "Bearer admin")
         .send({ ...baseRequest, testType: 11 });
 
       expect(postResponse.status).toBe(201);
@@ -969,6 +988,81 @@ describe("Route POST /dossiers", () => {
 
       expect(getResponse.status).toBe(200);
       expect(getResponse.body).toHaveProperty("autoApply", 0);
+    });
+  });
+
+  describe("Page Version", () => {
+    beforeAll(async () => {
+      await tryber.tables.WpAppqCampaignType.do().insert({
+        id: 11,
+        name: "Test Type No Auto Apply",
+        description: "Test Description",
+        category_id: 1,
+      });
+    });
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    afterAll(async () => {
+      await tryber.tables.WpAppqCampaignType.do().delete();
+    });
+    it("Should insert pageVersion v1 as default (if pageVersion is not defined)", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const pageVersion = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("page_version")
+        .where({ id: dossierId })
+        .first();
+
+      expect(pageVersion).toHaveProperty("page_version", "v1");
+    });
+
+    it("Should insert pageVersion v1 if send pageVersion v1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, pageVersion: "v1" });
+
+      const dossierId = postResponse.body.id;
+
+      const pageVersion = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("page_version")
+        .where({ id: dossierId })
+        .first();
+
+      expect(pageVersion).toHaveProperty("page_version", "v1");
+    });
+    it("Should insert pageVersion v2 if send pageVersion v2", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, pageVersion: "v2" });
+
+      const dossierId = postResponse.body.id;
+
+      const pageVersion = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("page_version")
+        .where({ id: dossierId })
+        .first();
+
+      expect(pageVersion).toHaveProperty("page_version", "v2");
+    });
+
+    it("Should skip pageCreation if send pageVersion v2", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, pageVersion: "v2" });
+
+      expect(
+        WordpressJsonApiTrigger.prototype.generatePages
+      ).toHaveBeenCalledTimes(0);
     });
   });
 });

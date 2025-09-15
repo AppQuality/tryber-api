@@ -868,7 +868,6 @@ export interface components {
       additionals?: ({
         showInStats?: boolean;
       } & components["schemas"]["CampaignAdditionalField"])[];
-      autoApply?: boolean;
       browsers?: number[];
       bugTypes?: number[];
       /** Format: date-time */
@@ -2789,6 +2788,9 @@ export interface operations {
           };
         } & {
           skipPagesAndTasks?: number;
+          autoApply?: number;
+          /** @enum {string} */
+          pageVersion?: "v1" | "v2";
         };
       };
     };
@@ -2910,7 +2912,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DossierCreationData"];
+        "application/json": components["schemas"]["DossierCreationData"] & {
+          autoApply?: number;
+        };
       };
     };
   };

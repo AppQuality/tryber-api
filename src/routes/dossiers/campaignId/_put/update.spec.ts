@@ -11,7 +11,7 @@ const baseRequest = {
   },
   startDate: "2019-08-24T14:15:22Z",
   deviceList: [1],
-  autoApply: false,
+  autoApply: 0,
 };
 
 describe("Route POST /dossiers", () => {
@@ -92,11 +92,6 @@ describe("Route POST /dossiers", () => {
       },
     ]);
 
-    /* await tryber.tables.WpAppqLang.do().insert([
-      { id: 1, display_name: "Test Language", lang_code: "TL" },
-      { id: 2, display_name: "Other Language", lang_code: "OL" },
-    ]); */
-
     await tryber.tables.Browsers.do().insert([
       { id: 1, name: "Test Browser" },
       { id: 2, name: "Other Browser" },
@@ -120,22 +115,41 @@ describe("Route POST /dossiers", () => {
   });
 
   beforeEach(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert({
-      id: 1,
-      project_id: 1,
-      campaign_type_id: 1,
-      title: "Test Campaign",
-      customer_title: "Test Customer Campaign",
-      start_date: "2019-08-24T14:15:22Z",
-      end_date: "2019-08-24T14:15:22Z",
-      close_date: "2019-08-25T14:15:22Z",
-      platform_id: 0,
-      os: "1",
-      page_manual_id: 0,
-      page_preview_id: 0,
-      pm_id: 1,
-      customer_id: 0,
-    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      {
+        id: 1,
+        project_id: 1,
+        campaign_type_id: 1,
+        title: "Test Campaign",
+        customer_title: "Test Customer Campaign",
+        start_date: "2019-08-24T14:15:22Z",
+        end_date: "2019-08-24T14:15:22Z",
+        close_date: "2019-08-25T14:15:22Z",
+        platform_id: 0,
+        os: "1",
+        page_manual_id: 0,
+        page_preview_id: 0,
+        pm_id: 1,
+        customer_id: 0,
+      },
+      {
+        id: 299,
+        project_id: 1,
+        campaign_type_id: 1,
+        title: "Test Campaign",
+        customer_title: "Test Customer Campaign",
+        start_date: "2019-08-24T14:15:22Z",
+        end_date: "2019-08-24T14:15:22Z",
+        close_date: "2019-08-25T14:15:22Z",
+        platform_id: 0,
+        os: "1",
+        page_manual_id: 0,
+        page_preview_id: 0,
+        pm_id: 1,
+        customer_id: 0,
+        auto_apply: 1,
+      },
+    ]);
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -317,7 +331,7 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({
         ...baseRequest,
-        autoApply: true,
+        autoApply: 1,
       });
 
     expect(response.status).toBe(200);
@@ -330,6 +344,26 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("auto_apply", 1);
+  });
+  it("Should unset the campaign auto apply flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/299")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApply: 0,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("auto_apply", 0);
   });
 
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
@@ -1118,6 +1152,7 @@ describe("Route POST /dossiers", () => {
           },
         })
         .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      4;
       expect(response.status).toBe(200);
     });
     it("Should add cuf if sent valid cuf", async () => {

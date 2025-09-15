@@ -4476,7 +4476,7 @@ paths:
             examples:
               Example 1:
                 value:
-                  autoApply: false
+                  autoApply: 0
                   browsers:
                     - 0
                   closeDate: '2019-08-24T14:15:22Z'
@@ -4519,7 +4519,8 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     duplicate:
                       type: object
                       properties:
@@ -4535,14 +4536,22 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                  type: object
-                - properties:
+                - type: object
+                  properties:
                     skipPagesAndTasks:
                       type: integer
                       default: 0
                       maximum: 1
                       minimum: 0
-                  type: object
+                    autoApply:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
+                    pageVersion:
+                      type: string
+                      enum:
+                        - v1
+                        - v2
       responses:
         '201':
           description: Created
@@ -4869,7 +4878,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DossierCreationData'
+              allOf:
+                - $ref: '#/components/schemas/DossierCreationData'
+                - type: object
+                  properties:
+                    autoApply:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
       responses:
         '200':
           description: OK
@@ -7568,6 +7584,12 @@ paths:
                       pc:
                         - name: Windows
                       smartphone: all
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
                     additionalFields:
                       - error: You have to select a browser
                         name: Browser Used
@@ -7600,10 +7622,6 @@ paths:
                       valid:
                         - CRASH
                         - TYPO
-                    campaign_type:
-                      icon: bug-report
-                      id: 1
-                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7625,8 +7643,6 @@ paths:
                           platform: Apple
                           version: iOs 10
                         type: Smartphone
-                    end_date: 01-01-2026
-                    goal: A beautiful goal
                     hasBugForm: true
                     id: 123
                     language:
@@ -8706,6 +8722,7 @@ paths:
                     content: string
                     endDate: string
                     startDate: string
+                    status: selected
                     tl:
                       email: string
                       name: string
@@ -8715,6 +8732,7 @@ paths:
                     content: string
                     endDate: string
                     startDate: string
+                    status: selected
               schema:
                 type: object
                 properties:
@@ -8786,7 +8804,7 @@ paths:
                   value:
                     - content: string
                       id: 0
-                      is_required: string
+                      is_required: 0
                       name: string
                       status: completed
               schema:
@@ -11601,18 +11619,50 @@ components:
       title: CustomUserFieldsType
     DossierCreationData:
       type: object
+      x-examples:
+        Example 1:
+          autoApply: false
+          browsers:
+            - 0
+          closeDate: '2019-08-24T14:15:22Z'
+          countries:
+            - st
+          csm: 0
+          description: string
+          deviceList:
+            - 0
+          deviceRequirements: string
+          endDate: '2019-08-24T14:15:22Z'
+          goal: string
+          languages:
+            - string
+          notes: string
+          outOfScope: string
+          productLink: string
+          productType: 0
+          project: 0
+          roles:
+            - role: 0
+              user: 0
+          startDate: '2019-08-24T14:15:22Z'
+          target:
+            cap: 0
+            notes: string
+            size: 0
+          testType: 0
+          title:
+            customer: string
+            tester: string
       properties:
         additionals:
           type: array
           items:
             allOf:
-              - properties:
+              - type: object
+                properties:
                   showInStats:
                     type: boolean
-                type: object
               - $ref: '#/components/schemas/CampaignAdditionalField'
-        autoApply:
-          type: boolean
         browsers:
           type: array
           items:
@@ -11660,6 +11710,7 @@ components:
         roles:
           type: array
           items:
+            type: object
             properties:
               role:
                 type: integer
@@ -11668,7 +11719,6 @@ components:
             required:
               - role
               - user
-            type: object
         startDate:
           type: string
           format: date-time
@@ -11687,19 +11737,20 @@ components:
           type: integer
         title:
           type: object
+          required:
+            - customer
           properties:
             customer:
               type: string
             tester:
               type: string
-          required:
-            - customer
         visibilityCriteria:
           type: object
           properties:
             ageRanges:
               type: array
               items:
+                type: object
                 properties:
                   max:
                     type: integer
@@ -11708,10 +11759,10 @@ components:
                 required:
                   - max
                   - min
-                type: object
             cuf:
               type: array
               items:
+                type: object
                 properties:
                   cufId:
                     type: integer
@@ -11722,7 +11773,6 @@ components:
                 required:
                   - cufId
                   - cufValueIds
-                type: object
             gender:
               type: array
               items:
@@ -11737,40 +11787,7 @@ components:
         - startDate
         - testType
         - title
-      x-examples:
-        Example 1:
-          autoApply: false
-          browsers:
-            - 0
-          closeDate: '2019-08-24T14:15:22Z'
-          countries:
-            - st
-          csm: 0
-          description: string
-          deviceList:
-            - 0
-          deviceRequirements: string
-          endDate: '2019-08-24T14:15:22Z'
-          goal: string
-          languages:
-            - string
-          notes: string
-          outOfScope: string
-          productLink: string
-          productType: 0
-          project: 0
-          roles:
-            - role: 0
-              user: 0
-          startDate: '2019-08-24T14:15:22Z'
-          target:
-            cap: 0
-            notes: string
-            size: 0
-          testType: 0
-          title:
-            customer: string
-            tester: string
+      title: ''
     FiscalBirthCity:
       type: object
       oneOf:

@@ -130,7 +130,7 @@ describe("GET /campaigns/{CampaignId}/tasks", () => {
   it("Should return the usecases for the campaign", async () => {
     const response = await request(app)
       .get("/campaigns/100/tasks")
-      .set("Authorization", " Bearer admin");
+      .set("Authorization", "Bearer admin");
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(3);
     expect(response.body).toEqual(

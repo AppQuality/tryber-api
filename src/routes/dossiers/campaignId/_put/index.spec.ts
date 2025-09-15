@@ -11,7 +11,7 @@ const baseRequest = {
   },
   startDate: "2019-08-24T14:15:22Z",
   deviceList: [1],
-  autoApply: false,
+  autoApply: 0,
 };
 
 describe("Route PUT /dossiers/:id", () => {
@@ -324,7 +324,6 @@ describe("Route PUT /dossiers/:id", () => {
           },
         })
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
-      console.log(response.body);
       const dossierCuf = await tryber.tables.CampaignDossierDataCuf.do()
         .select("cuf_id", "cuf_value_id")
         .join(

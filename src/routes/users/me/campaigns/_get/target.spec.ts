@@ -181,7 +181,7 @@ describe("GET /users/me/campaigns - target", () => {
       it("Should not show the campaign", async () => {
         const response = await request(app)
           .get("/users/me/campaigns")
-          .set("Authorization", " Bearer tester");
+          .set("Authorization", "Bearer tester");
         expect(response.status).toBe(404);
       });
     });
@@ -240,7 +240,7 @@ describe("GET /users/me/campaigns - target", () => {
       it("Should not show the campaign", async () => {
         const response = await request(app)
           .get("/users/me/campaigns")
-          .set("Authorization", " Bearer tester");
+          .set("Authorization", "Bearer tester");
         expect(response.status).toBe(404);
       });
     });
