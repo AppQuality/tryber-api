@@ -176,6 +176,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/prewiew": {
+    post: operations["post-campaigns-campaign-prewiew"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/prospect": {
     get: operations["get-campaigns-campaign-prospect"];
     /** Make campaign perspective status done, and change exp points and tester payouts. */
@@ -2162,6 +2170,26 @@ export interface operations {
           point_multiplier_perfect?: number;
           point_multiplier_refused?: number;
           top_tester_bonus?: number;
+        };
+      };
+    };
+  };
+  "post-campaigns-campaign-prewiew": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          content: string;
         };
       };
     };
