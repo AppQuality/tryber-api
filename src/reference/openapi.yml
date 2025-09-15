@@ -3179,6 +3179,11 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':

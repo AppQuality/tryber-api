@@ -2182,7 +2182,11 @@ export interface operations {
     };
     responses: {
       /** OK */
-      200: unknown;
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
