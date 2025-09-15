@@ -586,6 +586,16 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/tasks/{taskId}": {
+    post: operations["post-users-me-campaigns-campaign-tasks-task"];
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+        taskId: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaign}/compatible_devices": {
     get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
     parameters: {
@@ -2787,10 +2797,10 @@ export interface operations {
             useCases?: number;
           };
         } & {
-          skipPagesAndTasks?: number;
           autoApply?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
+          skipPagesAndTasks?: number;
         };
       };
     };
@@ -4239,6 +4249,29 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "post-users-me-campaigns-campaign-tasks-task": {
+    parameters: {
+      path: {
+        /** the campaign id */
+        campaignId: string;
+        taskId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {undefined} */
+          status: "completed";
+        };
+      };
     };
   };
   "get-users-me-campaigns-campaignId-compatible-devices": {
