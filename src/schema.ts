@@ -4220,7 +4220,8 @@ export interface operations {
               email: string;
               name: string;
             };
-            selectionStatus?: string;
+            /** @enum {undefined} */
+            selectionStatus?: "starting" | "excluded" | "ready" | "complete";
           };
         };
       };
