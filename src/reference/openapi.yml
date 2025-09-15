@@ -8782,7 +8782,11 @@ paths:
                   selectionStatus:
                     x-stoplight:
                       id: h47ndk99e56ha
-                    type: string
+                    enum:
+                      - starting
+                      - excluded
+                      - ready
+                      - complete
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
