@@ -3166,7 +3166,7 @@ paths:
           $ref: '#/components/responses/NotFound'
       security:
         - JWT: []
-  '/campaigns/{campaign}/prewiew':
+  '/campaigns/{campaign}/preview':
     parameters:
       - name: campaign
         in: path
@@ -3175,7 +3175,7 @@ paths:
           type: string
     post:
       summary: POST Preview on a Specific Campaign
-      operationId: post-campaigns-campaign-prewiew
+      operationId: post-campaigns-campaign-preview
       responses:
         '200':
           description: OK

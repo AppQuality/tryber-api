@@ -176,8 +176,8 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/prewiew": {
-    post: operations["post-campaigns-campaign-prewiew"];
+  "/campaigns/{campaign}/preview": {
+    post: operations["post-campaigns-campaign-preview"];
     parameters: {
       path: {
         campaign: string;
@@ -2174,7 +2174,7 @@ export interface operations {
       };
     };
   };
-  "post-campaigns-campaign-prewiew": {
+  "post-campaigns-campaign-preview": {
     parameters: {
       path: {
         campaign: string;
