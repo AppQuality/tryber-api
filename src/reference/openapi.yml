@@ -8719,6 +8719,7 @@ paths:
                 preview-with-tl:
                   value:
                     campaignType: string
+                    selectionStatus: starting
                     content: string
                     endDate: string
                     startDate: string
@@ -8729,25 +8730,33 @@ paths:
                 preview-without-tl:
                   value:
                     campaignType: string
+                    selectionStatus: starting
                     content: string
                     endDate: string
                     startDate: string
                     status: selected
               schema:
                 type: object
+                required:
+                  - campaignType
+                  - content
+                  - endDate
+                  - startDate
+                  - status
+                  - selectionStatus
                 properties:
                   campaignType:
                     type: string
                   cap:
                     type: object
+                    required:
+                      - free
+                      - value
                     properties:
                       free:
                         type: integer
                       value:
                         type: integer
-                    required:
-                      - value
-                      - free
                   content:
                     type: string
                   endDate:
@@ -8763,20 +8772,22 @@ paths:
                       - selected
                   tl:
                     type: object
+                    required:
+                      - email
+                      - name
                     properties:
                       email:
                         type: string
                       name:
                         type: string
-                    required:
-                      - name
-                      - email
-                required:
-                  - content
-                  - campaignType
-                  - startDate
-                  - endDate
-                  - status
+                  selectionStatus:
+                    x-stoplight:
+                      id: h47ndk99e56ha
+                    enum:
+                      - starting
+                      - excluded
+                      - ready
+                      - complete
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
