@@ -2912,7 +2912,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DossierCreationData"];
+        "application/json": components["schemas"]["DossierCreationData"] & {
+          autoApply?: number;
+        };
       };
     };
   };

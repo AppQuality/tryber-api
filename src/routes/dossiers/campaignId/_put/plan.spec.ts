@@ -11,7 +11,7 @@ const baseRequest = {
   },
   startDate: "2019-08-24T14:15:22Z",
   deviceList: [],
-  autoApply: false,
+  autoApply: 0,
 };
 
 describe("Route POST /dossiers - plan", () => {
