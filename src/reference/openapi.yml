@@ -8783,10 +8783,6 @@ paths:
                     x-stoplight:
                       id: h47ndk99e56ha
                     type: string
-                  '':
-                    type: string
-                    x-stoplight:
-                      id: c9aek4s5rd5gd
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
