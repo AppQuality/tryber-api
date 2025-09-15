@@ -8743,7 +8743,6 @@ paths:
                   - endDate
                   - startDate
                   - status
-                  - selectionStatus
                 properties:
                   campaignType:
                     type: string
@@ -8783,11 +8782,11 @@ paths:
                   selectionStatus:
                     x-stoplight:
                       id: h47ndk99e56ha
-                    enum:
-                      - starting
-                      - excluded
-                      - ready
-                      - complete
+                    type: string
+                  '':
+                    type: string
+                    x-stoplight:
+                      id: c9aek4s5rd5gd
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
