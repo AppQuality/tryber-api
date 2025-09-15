@@ -4,6 +4,11 @@ import Devices from "./Devices";
 type AdditionalField =
   StoplightComponents["schemas"]["CampaignAdditionalField"];
 
+const VisibilityTypeMap: Record<string, number> = {
+  internal: 0,
+  target: 4,
+};
+
 type CampaignSelectItem = { id: number; name: string };
 class Campaign {
   public id: number;
@@ -13,6 +18,7 @@ class Campaign {
   public bug_lang: 0 | 1 = 0;
   public end_date: string = "";
   public campaign_type_id: number = 0;
+  public is_public: number = 0;
   public plan_id: number = -1;
   public ready: Promise<boolean>;
   constructor(id: number, init: boolean = true) {
@@ -386,6 +392,20 @@ class Campaign {
       .first();
     if (!type) return null;
     return type;
+  }
+
+  public async changeVisibility(visibilityType: string): Promise<void> {
+    if (!visibilityType || !(visibilityType in VisibilityTypeMap)) {
+      throw new Error("Invalid visibility type");
+    }
+
+    try {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({ is_public: VisibilityTypeMap[visibilityType] })
+        .where({ id: this.id });
+    } catch {
+      throw new Error("Error updating campaign visibility");
+    }
   }
 
   public async getCampaignGoal(): Promise<string | null> {
