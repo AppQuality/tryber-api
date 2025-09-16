@@ -7580,10 +7580,6 @@ paths:
               examples:
                 full:
                   value:
-                    acceptedDevices:
-                      pc:
-                        - name: Windows
-                      smartphone: all
                     additionalFields:
                       - error: You have to select a browser
                         name: Browser Used
@@ -7663,10 +7659,6 @@ paths:
                       - mp4
                 with-bugform-disabled:
                   value:
-                    acceptedDevices:
-                      pc:
-                        - name: Windows
-                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7706,10 +7698,6 @@ paths:
                       - mp4
                 with-only-one-device:
                   value:
-                    acceptedDevices:
-                      pc:
-                        - name: Windows
-                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7763,10 +7751,6 @@ paths:
                       - mp4
                 without-device:
                   value:
-                    acceptedDevices:
-                      pc:
-                        - name: Windows
-                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7810,51 +7794,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  acceptedDevices:
-                    type: object
-                    properties:
-                      console:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      pc:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      smartTv:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      smartphone:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      smartwatch:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      tablet:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
                   additionalFields:
                     type: array
                     items:
@@ -7966,7 +7905,6 @@ paths:
                     items:
                       type: string
                 required:
-                  - acceptedDevices
                   - bugReplicability
                   - bugSeverity
                   - bugTypes
@@ -8718,26 +8656,87 @@ paths:
               examples:
                 preview-with-tl:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     campaignType: string
                     content: string
                     endDate: string
                     selectionStatus: starting
                     startDate: string
                     status: selected
+                    title: title
                     tl:
                       email: string
                       name: string
+                    type:
+                      icon: bug-report
+                      name: Bug Hunting
                 preview-without-tl:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     campaignType: string
                     content: string
                     endDate: string
                     selectionStatus: starting
                     startDate: string
                     status: selected
+                    title: title
+                    type:
+                      icon: bug-report
+                      name: Bug Hunting
               schema:
                 type: object
                 properties:
+                  acceptedDevices:
+                    type: object
+                    properties:
+                      console:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      pc:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartTv:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartphone:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartwatch:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      tablet:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
                   cap:
                     type: object
                     properties:
@@ -8791,6 +8790,7 @@ paths:
                       - name
                       - icon
                 required:
+                  - acceptedDevices
                   - type
                   - content
                   - endDate

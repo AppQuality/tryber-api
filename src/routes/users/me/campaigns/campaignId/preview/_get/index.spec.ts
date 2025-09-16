@@ -38,6 +38,16 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
       buildCampaignRow({ id: 1, version: "v2", isPublic: 4 }), // 4 = target group
       buildCampaignRow({ id: 2, version: "v1", isPublic: 1, cp_type: 2 }), // 1 = public
     ]);
+    await tryber.tables.WpAppqEvdPlatform.do().insert([
+      {
+        id: 5,
+        name: "Linux",
+        form_factor: 2,
+        architecture: 0,
+      },
+      { id: 8, name: "Windows", form_factor: 2, architecture: 0 },
+      { id: 1, name: "Android", form_factor: 0, architecture: 0 },
+    ]);
     await tryber.tables.CampaignDossierData.do().insert([
       {
         id: 1,
@@ -183,6 +193,16 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
           .get("/users/me/campaigns/1/preview")
           .set("Authorization", "Bearer tester");
         expect(response.body).toHaveProperty("title", "Campaign 1");
+      });
+
+      it("Should return acceptedDevices ", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/preview")
+          .set("Authorization", "Bearer tester");
+        expect(response.body).toHaveProperty("acceptedDevices", {
+          pc: [{ name: "Linux" }],
+          smartphone: "all",
+        });
       });
 
       describe("Selection status", () => {
@@ -495,6 +515,8 @@ function buildCampaignRow({
     page_preview_id: version === "v2" ? 0 : 1234,
     page_manual_id: version === "v2" ? 0 : 1234,
     customer_id: 1,
+    os: "5,1",
+    form_factor: "2,0,0",
     pm_id: 11111,
     project_id: 1,
     campaign_type_id: cp_type || 1,

@@ -71,7 +71,6 @@ export default class UserSingleCampaignRoute extends UserRoute<{
           icon: "",
         },
         goal: (await campaign.getCampaignGoal()) ?? "",
-        acceptedDevices: await campaign.getCampaignAvailableDevices(),
       });
     } catch (error) {
       this.setError(500, error as OpenapiError);

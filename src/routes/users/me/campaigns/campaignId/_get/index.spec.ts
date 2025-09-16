@@ -82,7 +82,6 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
         name: "Bug Hunting",
         id: 1,
       },
-      acceptedDevices: { smartphone: "all", pc: [{ name: "Linux" }] },
     });
   });
 });
