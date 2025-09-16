@@ -1,6 +1,6 @@
 import app from "@src/app";
-import request from "supertest";
 import { tryber } from "@src/features/database";
+import request from "supertest";
 
 const initialConfig = require("@src/config");
 describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
@@ -14,11 +14,13 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         id: 1,
         name: "Campaign Type 1",
         category_id: 1,
+        icon: "icon1",
       },
       {
         id: 2,
         name: "Campaign Type 2",
         category_id: 1,
+        icon: "icon1",
       },
     ]);
     await tryber.tables.WpAppqEvdProfile.do().insert([
@@ -158,7 +160,10 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/preview")
           .set("Authorization", "Bearer tester");
-        expect(response.body).toHaveProperty("campaignType", "Campaign Type 1");
+        expect(response.body).toHaveProperty("type", {
+          name: "Campaign Type 1",
+          icon: "icon1",
+        });
       });
       it("Should return tester leader info ", async () => {
         const response = await request(app)
@@ -172,6 +177,12 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
             },
           })
         );
+      });
+      it("Should return title ", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/preview")
+          .set("Authorization", "Bearer tester");
+        expect(response.body).toHaveProperty("title", "Campaign 1");
       });
 
       describe("Selection status", () => {

@@ -81,12 +81,18 @@ class GetCampaignPreviewV2 extends UserRoute<{
   private async retrieveCampaignData(): Promise<SuccessType> {
     const res = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
+        tryber.ref("title").withSchema("wp_appq_evd_campaign").as("title"),
         tryber.fn.charDate("start_date"),
         tryber.fn.charDate("end_date"),
         tryber
           .ref("name")
           .withSchema("wp_appq_campaign_type")
-          .as("campaign_type")
+          .as("campaign_type"),
+
+        tryber
+          .ref("icon")
+          .withSchema("wp_appq_campaign_type")
+          .as("campaign_type_icon")
       )
       .join(
         "wp_appq_campaign_type",
@@ -104,7 +110,11 @@ class GetCampaignPreviewV2 extends UserRoute<{
     const selectionStatus = await this.getSelectionStatus();
     return {
       content: await this.getContent(),
-      campaignType: res.campaign_type,
+      type: {
+        name: res.campaign_type,
+        icon: res.campaign_type_icon,
+      },
+      title: res.title,
       startDate: res.start_date,
       endDate: res.end_date,
       status: await this.getStatus(),

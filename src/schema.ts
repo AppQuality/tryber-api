@@ -4206,20 +4206,24 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            campaignType: string;
             cap?: {
               free: number;
               value: number;
             };
             content: string;
             endDate: string;
-            /** @enum {undefined} */
+            /** @enum {string} */
             selectionStatus?: "starting" | "excluded" | "ready" | "complete";
             startDate: string;
             /** @enum {string} */
             status: "available" | "applied" | "excluded" | "selected";
+            title: string;
             tl?: {
               email: string;
+              name: string;
+            };
+            type: {
+              icon: string;
               name: string;
             };
           };
