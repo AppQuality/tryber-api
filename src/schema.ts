@@ -2400,7 +2400,7 @@ export interface operations {
       201: {
         content: {
           "application/json": {
-            id: string;
+            id: number;
             title: string;
             content: string;
           };
