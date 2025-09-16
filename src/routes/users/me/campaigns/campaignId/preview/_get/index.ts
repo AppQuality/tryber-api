@@ -139,6 +139,10 @@ class GetCampaignPreviewV2 extends UserRoute<{
   }
 
   private async getSelectionStatus(): Promise<SelectionStatusType> {
+    if (this.isAdmin()) return "ready";
+
+    if (this.hasAccessToCampaign(this.campaignId)) return "ready";
+
     const candidate = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select(tryber.ref("accepted"), tryber.ref("results"))
       .where("user_id", this.getWordpressId())
@@ -170,6 +174,10 @@ class GetCampaignPreviewV2 extends UserRoute<{
     if (application.accepted === 1) return "selected" as const;
     if (application.accepted === -1) return "excluded" as const;
     return "applied" as const;
+  }
+
+  private isAdmin() {
+    return !this.isNotAdmin();
   }
 
   private async getFreeSpots() {
