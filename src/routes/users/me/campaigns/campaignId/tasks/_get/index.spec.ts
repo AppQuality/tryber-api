@@ -189,6 +189,14 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             content: "Content 4",
             is_required: 1,
           },
+          {
+            ...task,
+            id: 14,
+            campaign_id: 1,
+            title: "Task 4 without user task",
+            content: "Content 4",
+            is_required: 1,
+          },
         ]);
         await tryber.tables.WpAppqUserTask.do().insert([
           { id: 1, tester_id: 1, task_id: 10, is_completed: 1 },
@@ -213,7 +221,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
           .get("/users/me/campaigns/1/tasks")
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(200);
-        expect(response.body).toHaveLength(3);
+        expect(response.body).toHaveLength(4);
         expect(response.body).toMatchObject(
           expect.arrayContaining([
             expect.objectContaining({
@@ -247,13 +255,20 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
               content: "Content 2",
               status: "completed",
             }),
-            // expect.objectContaining({
-            //   id: 12,
-            //   name: "Task 3",
-            //   is_required: 1,
-            //   content: "Content 3",
-            //   status: "pending"
-            // }),
+            expect.objectContaining({
+              id: 12,
+              name: "Task 3",
+              is_required: 1,
+              content: "Content 3",
+              status: "pending",
+            }),
+            expect.objectContaining({
+              id: 14,
+              name: "Task 4 without user task",
+              is_required: 1,
+              content: "Content 4",
+              status: "pending",
+            }),
           ])
         );
       });
