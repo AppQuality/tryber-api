@@ -4213,6 +4213,8 @@ export interface operations {
             };
             content: string;
             endDate: string;
+            /** @enum {undefined} */
+            selectionStatus?: "starting" | "excluded" | "ready" | "complete";
             startDate: string;
             /** @enum {string} */
             status: "available" | "applied" | "excluded" | "selected";
@@ -4220,8 +4222,6 @@ export interface operations {
               email: string;
               name: string;
             };
-            /** @enum {undefined} */
-            selectionStatus?: "starting" | "excluded" | "ready" | "complete";
           };
         };
       };

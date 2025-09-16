@@ -8719,9 +8719,9 @@ paths:
                 preview-with-tl:
                   value:
                     campaignType: string
-                    selectionStatus: starting
                     content: string
                     endDate: string
+                    selectionStatus: starting
                     startDate: string
                     status: selected
                     tl:
@@ -8730,36 +8730,36 @@ paths:
                 preview-without-tl:
                   value:
                     campaignType: string
-                    selectionStatus: starting
                     content: string
                     endDate: string
+                    selectionStatus: starting
                     startDate: string
                     status: selected
               schema:
                 type: object
-                required:
-                  - campaignType
-                  - content
-                  - endDate
-                  - startDate
-                  - status
                 properties:
                   campaignType:
                     type: string
                   cap:
                     type: object
-                    required:
-                      - free
-                      - value
                     properties:
                       free:
                         type: integer
                       value:
                         type: integer
+                    required:
+                      - free
+                      - value
                   content:
                     type: string
                   endDate:
                     type: string
+                  selectionStatus:
+                    enum:
+                      - starting
+                      - excluded
+                      - ready
+                      - complete
                   startDate:
                     type: string
                   status:
@@ -8771,22 +8771,20 @@ paths:
                       - selected
                   tl:
                     type: object
-                    required:
-                      - email
-                      - name
                     properties:
                       email:
                         type: string
                       name:
                         type: string
-                  selectionStatus:
-                    x-stoplight:
-                      id: h47ndk99e56ha
-                    enum:
-                      - starting
-                      - excluded
-                      - ready
-                      - complete
+                    required:
+                      - email
+                      - name
+                required:
+                  - campaignType
+                  - content
+                  - endDate
+                  - startDate
+                  - status
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
