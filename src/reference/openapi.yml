@@ -8671,8 +8671,8 @@ paths:
                       email: string
                       name: string
                     type:
-                      icon: bug-icon
-                      name: bug-hunting
+                      icon: bug-report
+                      name: Bug Hunting
                 preview-without-tl:
                   value:
                     acceptedDevices:
@@ -8687,8 +8687,8 @@ paths:
                     status: selected
                     title: title
                     type:
-                      icon: bug-icon
-                      name: bug-hunting
+                      icon: bug-report
+                      name: Bug Hunting
               schema:
                 type: object
                 properties:
