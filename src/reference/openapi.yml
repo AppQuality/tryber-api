@@ -8667,12 +8667,12 @@ paths:
                     startDate: string
                     status: selected
                     title: title
-                    type:
-                      icon: bug-icon
-                      name: bug-hunting
                     tl:
                       email: string
                       name: string
+                    type:
+                      icon: bug-icon
+                      name: bug-hunting
                 preview-without-tl:
                   value:
                     acceptedDevices:
@@ -8681,14 +8681,14 @@ paths:
                       smartphone: all
                     campaignType: string
                     content: string
-                    title: title
                     endDate: string
-                    type:
-                      icon: bug-icon
-                      name: bug-hunting
                     selectionStatus: starting
                     startDate: string
                     status: selected
+                    title: title
+                    type:
+                      icon: bug-icon
+                      name: bug-hunting
               schema:
                 type: object
                 properties:
