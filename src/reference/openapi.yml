@@ -8721,6 +8721,7 @@ paths:
                     campaignType: string
                     content: string
                     endDate: string
+                    selectionStatus: starting
                     startDate: string
                     status: selected
                     tl:
@@ -8731,6 +8732,7 @@ paths:
                     campaignType: string
                     content: string
                     endDate: string
+                    selectionStatus: starting
                     startDate: string
                     status: selected
               schema:
@@ -8746,12 +8748,18 @@ paths:
                       value:
                         type: integer
                     required:
-                      - value
                       - free
+                      - value
                   content:
                     type: string
                   endDate:
                     type: string
+                  selectionStatus:
+                    enum:
+                      - starting
+                      - excluded
+                      - ready
+                      - complete
                   startDate:
                     type: string
                   status:
@@ -8769,13 +8777,13 @@ paths:
                       name:
                         type: string
                     required:
-                      - name
                       - email
+                      - name
                 required:
-                  - content
                   - campaignType
-                  - startDate
+                  - content
                   - endDate
+                  - startDate
                   - status
         '403':
           $ref: '#/components/responses/NotAuthorized'

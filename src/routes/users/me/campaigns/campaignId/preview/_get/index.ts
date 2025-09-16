@@ -9,6 +9,9 @@ import UserRoute from "@src/features/routes/UserRoute";
 type SuccessType =
   StoplightOperations["get-users-me-campaigns-cid-preview"]["responses"]["200"]["content"]["application/json"];
 
+type SelectionStatusType =
+  StoplightOperations["get-users-me-campaigns-cid-preview"]["responses"]["200"]["content"]["application/json"]["selectionStatus"];
+
 class GetCampaignPreviewV2 extends UserRoute<{
   response: SuccessType;
   parameters: StoplightOperations["get-users-me-campaigns-cid-preview"]["parameters"]["path"];
@@ -75,7 +78,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
     return this.campaign;
   }
 
-  private async retrieveCampaignData() {
+  private async retrieveCampaignData(): Promise<SuccessType> {
     const res = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
         tryber.fn.charDate("start_date"),
@@ -98,12 +101,16 @@ class GetCampaignPreviewV2 extends UserRoute<{
     }
 
     const capacity = await this.getFreeSpots();
+    const selectionStatus = await this.getSelectionStatus();
     return {
       content: await this.getContent(),
       campaignType: res.campaign_type,
       startDate: res.start_date,
       endDate: res.end_date,
       status: await this.getStatus(),
+      ...(selectionStatus !== undefined
+        ? { selectionStatus: selectionStatus }
+        : {}),
       tl: {
         name: config.testerLeaderCPV2.name,
         email: config.testerLeaderCPV2.email,
@@ -129,6 +136,27 @@ class GetCampaignPreviewV2 extends UserRoute<{
       return "";
     }
     return res.content;
+  }
+
+  private async getSelectionStatus(): Promise<SelectionStatusType> {
+    const candidate = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select(tryber.ref("accepted"), tryber.ref("results"))
+      .where("user_id", this.getWordpressId())
+      .where("campaign_id", this.campaignId)
+      .first();
+    if (!candidate || candidate.accepted !== 1) return undefined;
+    switch (candidate.results) {
+      case 0:
+        return "starting";
+      case 1:
+        return "excluded";
+      case 2:
+        return "ready";
+      case 3:
+        return "complete";
+      default:
+        return undefined;
+    }
   }
 
   private async getStatus() {
