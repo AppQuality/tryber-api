@@ -85,10 +85,10 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
         "title",
         "content",
         "is_required",
-        tryber.ref("is_completed").withSchema("wp_appq_user_task")
+        "is_completed"
       )
       .where({ campaign_id: this.campaignId })
-      .join(
+      .leftJoin(
         "wp_appq_user_task",
         "wp_appq_user_task.task_id",
         "wp_appq_campaign_task.id"
@@ -109,7 +109,9 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
       is_required: task.is_required === 1 ? 1 : 0,
       content: task.content || "",
       status:
-        task.is_completed === 1 ? ("completed" as const) : ("pending" as const),
+        task?.is_completed && task.is_completed === 1
+          ? ("completed" as const)
+          : ("pending" as const),
     }));
   }
 }
