@@ -41,7 +41,9 @@ class PostUsecasesRoute extends CampaignRoute<{
       })
       .returning("id");
 
-    if (!res || res.length < 1) throw new Error("Error creating task");
+    if (!res || res.length < 1) {
+      this.setError(403, new OpenapiError("Error creating the task"));
+    }
 
     const newTaskId = res[0].id ?? res[0];
     return newTaskId;
@@ -52,7 +54,10 @@ class PostUsecasesRoute extends CampaignRoute<{
       .select("id", "title", "content")
       .where("id", taskId)
       .first();
-    if (!task) throw new Error("Task not found");
+    if (!task) {
+      this.setError(404, new OpenapiError("Task not found"));
+      return;
+    }
 
     return {
       id: task.id,
