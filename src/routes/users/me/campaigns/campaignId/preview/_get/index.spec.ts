@@ -173,6 +173,123 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
           })
         );
       });
+
+      describe("Selection status", () => {
+        describe("There is no candidature", () => {
+          it("Should answer with undefined", async () => {
+            const response = await request(app)
+              .get("/users/me/campaigns/1/preview")
+              .set("Authorization", "Bearer tester");
+            expect(response.body).not.toHaveProperty("selectionStatus");
+          });
+        });
+
+        describe("There is a candidature", () => {
+          describe("With accepted = 0", () => {
+            beforeEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                user_id: 1,
+                campaign_id: 1,
+                accepted: 0,
+              });
+            });
+            afterEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+            });
+            it("Should not answer with selectionStatus", async () => {
+              const response = await request(app)
+                .get("/users/me/campaigns/1/preview")
+                .set("Authorization", "Bearer tester");
+              expect(response.body).not.toHaveProperty("selectionStatus");
+            });
+          });
+          describe("With results = 0", () => {
+            beforeEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                user_id: 1,
+                campaign_id: 1,
+                accepted: 1,
+                results: 0,
+              });
+            });
+            afterEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+            });
+            it("Should answer with selectionStatus = starting", async () => {
+              const response = await request(app)
+                .get("/users/me/campaigns/1/preview")
+                .set("Authorization", "Bearer tester");
+              expect(response.body).toHaveProperty(
+                "selectionStatus",
+                "starting"
+              );
+            });
+          });
+          describe("With results = 1", () => {
+            beforeEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                user_id: 1,
+                campaign_id: 1,
+                accepted: 1,
+                results: 1,
+              });
+            });
+            afterEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+            });
+            it("Should answer with selectionStatus = excluded", async () => {
+              const response = await request(app)
+                .get("/users/me/campaigns/1/preview")
+                .set("Authorization", "Bearer tester");
+              expect(response.body).toHaveProperty(
+                "selectionStatus",
+                "excluded"
+              );
+            });
+          });
+          describe("With results = 2", () => {
+            beforeEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                user_id: 1,
+                campaign_id: 1,
+                accepted: 1,
+                results: 2,
+              });
+            });
+            afterEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+            });
+            it("Should answer with selectionStatus = ready", async () => {
+              const response = await request(app)
+                .get("/users/me/campaigns/1/preview")
+                .set("Authorization", "Bearer tester");
+              expect(response.body).toHaveProperty("selectionStatus", "ready");
+            });
+          });
+          describe("With results = 3", () => {
+            beforeEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                user_id: 1,
+                campaign_id: 1,
+                accepted: 1,
+                results: 3,
+              });
+            });
+            afterEach(async () => {
+              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+            });
+            it("Should answer with selectionStatus = complete", async () => {
+              const response = await request(app)
+                .get("/users/me/campaigns/1/preview")
+                .set("Authorization", "Bearer tester");
+              expect(response.body).toHaveProperty(
+                "selectionStatus",
+                "complete"
+              );
+            });
+          });
+        });
+      });
     });
   });
 });
