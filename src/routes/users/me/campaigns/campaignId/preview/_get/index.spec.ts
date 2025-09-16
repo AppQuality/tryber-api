@@ -176,7 +176,7 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
 
       describe("Selection status", () => {
         describe("There is no candidature", () => {
-          it("Should answer with undefined", async () => {
+          it("Should answer without selectionStatus", async () => {
             const response = await request(app)
               .get("/users/me/campaigns/1/preview")
               .set("Authorization", "Bearer tester");
