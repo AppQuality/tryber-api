@@ -79,6 +79,10 @@ class GetCampaignPreviewV2 extends UserRoute<{
   }
 
   private async retrieveCampaignData(): Promise<SuccessType> {
+    if (!this.campaign) {
+      throw new Error("Campaign not found");
+    }
+
     const res = await tryber.tables.WpAppqEvdCampaign.do()
       .select(
         tryber.ref("title").withSchema("wp_appq_evd_campaign").as("title"),
@@ -118,6 +122,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
       startDate: res.start_date,
       endDate: res.end_date,
       status: await this.getStatus(),
+      acceptedDevices: await this.campaign.getCampaignAvailableDevices(),
       ...(selectionStatus !== undefined
         ? { selectionStatus: selectionStatus }
         : {}),
