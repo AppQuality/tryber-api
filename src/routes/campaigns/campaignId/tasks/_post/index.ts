@@ -68,21 +68,9 @@ class PostUsecasesRoute extends CampaignRoute<{
 
   private hasNoAccess() {
     if (this.isNotAdmin() === false) return false;
-    if (this.hasCampaignAccess()) return false;
+    if (this.hasAccessToCampaign(this.cp_id)) return false;
 
     return true;
-  }
-
-  protected hasCampaignAccess() {
-    return (
-      this.configuration.request.user.permission?.admin?.appq_campaign ===
-        true ||
-      (typeof this.configuration.request.user.permission?.admin
-        ?.appq_campaign === "object" &&
-        this.configuration.request.user.permission?.admin?.appq_campaign?.includes(
-          this.cp_id
-        ))
-    );
   }
 }
 

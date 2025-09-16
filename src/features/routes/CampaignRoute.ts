@@ -64,6 +64,16 @@ export default class CampaignRoute<
       .where({ campaign_id: this.cp_id });
   }
 
+  get campaignOlps() {
+    return this.configuration.request.user.permission.admin?.appq_campaign;
+  }
+
+  protected hasAccessToCampaign(campaignId: number) {
+    const olp = this.campaignOlps;
+    if (!olp) return false;
+    return olp === true || olp?.includes(campaignId);
+  }
+
   protected shouldShowNeedReview(): boolean {
     return this.showNeedReview;
   }
