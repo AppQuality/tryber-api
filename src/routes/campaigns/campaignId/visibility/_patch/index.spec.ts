@@ -1,4 +1,4 @@
-import useBasicData from "../../_get/useBasicData";
+import useBasicData from "../../../../users/me/campaigns/campaignId/_get/useBasicData";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
