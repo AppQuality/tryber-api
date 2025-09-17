@@ -3,7 +3,7 @@ info:
   contact:
     email: it@app-quality.com
     name: Developers
-  description: An API to get all data for your bugfinding and ux research needs!
+  description: vsAn API to get all data for your bugfinding and ux research needs!
   title: AppQualityApi
   version: '1.0'
 servers:
@@ -1433,6 +1433,45 @@ paths:
       tags:
         - Campaign
     parameters: []
+  '/campaigns/{campaignId}/visibility':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      operationId: patch-campaigns-campaignId-visibility
+      summary: Your PATCH endpoint
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  type: target
+            schema:
+              type: object
+              properties:
+                type:
+                  enum:
+                    - internal
+                    - target
+              required:
+                - type
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      tags: []
   '/campaigns/{campaign}':
     get:
       operationId: get-campaigns-campaign
