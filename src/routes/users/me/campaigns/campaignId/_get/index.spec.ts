@@ -88,21 +88,11 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
 
 describe("Route GET /users/me/campaigns/{campaignId}/ - user selected over a closed campaign", () => {
   beforeEach(async () => {
-    await tryber.tables.CampaignPhase.do().insert({
-      id: 100,
-      name: "Completed",
-      type_id: 3,
-      status_details: "Successful",
-    });
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: 3,
       user_id: 1,
       group_id: 1,
       accepted: 1,
-    });
-    await tryber.tables.CampaignPhaseType.do().insert({
-      id: 3,
-      name: "closed",
     });
     await tryber.tables.WpAppqEvdCampaign.do().insert({
       id: 3,
@@ -125,6 +115,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - user selected over a clo
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.CampaignPhase.do().delete();
+    await tryber.tables.CampaignPhaseType.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
   });
   it("Should return 404 if campaign is overdue, status_id = 2 and phase_id = 100 (closed)", async () => {
