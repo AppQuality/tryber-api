@@ -114,8 +114,6 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - user selected over a clo
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
-    await tryber.tables.CampaignPhase.do().delete();
-    await tryber.tables.CampaignPhaseType.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
   });
   it("Should return 404 if campaign is overdue, status_id = 2 and phase_id = 100 (closed)", async () => {
