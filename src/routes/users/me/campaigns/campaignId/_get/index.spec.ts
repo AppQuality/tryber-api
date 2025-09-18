@@ -86,6 +86,55 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   });
 });
 
+describe("Route GET /users/me/campaigns/{campaignId}/ - user selected over a closed campaign", () => {
+  beforeEach(async () => {
+    await tryber.tables.CampaignPhase.do().insert({
+      id: 100,
+      name: "Completed",
+      type_id: 3,
+      status_details: "Successful",
+    });
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+      campaign_id: 3,
+      user_id: 1,
+      group_id: 1,
+      accepted: 1,
+    });
+    await tryber.tables.CampaignPhaseType.do().insert({
+      id: 3,
+      name: "closed",
+    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
+      id: 3,
+      title: "My closed campaign 3",
+      min_allowed_media: 4,
+      campaign_type: 0,
+      platform_id: 1,
+      start_date: "2020-01-01 00:00:00",
+      end_date: "2020-12-31 23:59:59", // overdue
+      page_preview_id: 1,
+      page_manual_id: 1,
+      customer_id: 1,
+      pm_id: 1,
+      project_id: 1,
+      customer_title: "My campaign",
+      status_id: 2, // closed
+      phase_id: 100,
+    });
+  });
+  afterEach(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.CampaignPhase.do().delete();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+  });
+  it("Should return 404 if campaign is overdue, status_id = 2 and phase_id = 100 (closed)", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/3")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(404);
+  });
+});
+
 describe("Route GET /users/me/campaigns/{campaignId}/ - custom severities set for a specific CP", () => {
   useBasicData();
   beforeAll(async () => {
