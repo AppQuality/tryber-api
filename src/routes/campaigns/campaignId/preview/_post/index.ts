@@ -3,7 +3,7 @@ import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 
-export default class POST extends CampaignRoute<{
+export default class PostCampaignPreview extends CampaignRoute<{
   response: StoplightOperations["post-campaigns-campaign-preview"]["responses"][200]["content"]["application/json"];
   parameters: StoplightOperations["post-campaigns-campaign-preview"]["parameters"]["path"];
   body: StoplightOperations["post-campaigns-campaign-preview"]["requestBody"]["content"]["application/json"];
