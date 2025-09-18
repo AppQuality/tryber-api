@@ -116,7 +116,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - user selected over a clo
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
   });
-  it("Should return 404 if campaign is overdue, status_id = 2 and phase_id = 100 (closed)", async () => {
+  it("Should return 404 if campaign is overdue and status_id = 2 (closed)", async () => {
     const response = await request(app)
       .get("/users/me/campaigns/3")
       .set("Authorization", "Bearer tester");

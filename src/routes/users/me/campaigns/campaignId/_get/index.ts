@@ -45,7 +45,7 @@ export default class UserSingleCampaignRoute extends UserRoute<{
 
   private async isCampaignClosed(): Promise<boolean> {
     const campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select("status_id", "phase_id", "end_date")
+      .select("status_id", "end_date")
       .where("id", this.campaignId)
       .first();
 
@@ -56,7 +56,7 @@ export default class UserSingleCampaignRoute extends UserRoute<{
 
     const isOverdue = new Date(campaign.end_date) < new Date();
 
-    if (campaign.status_id === 2 && campaign.phase_id === 100 && isOverdue) {
+    if (campaign.status_id === 2 && isOverdue) {
       this.setError(404, new OpenapiError("This campaign is closed"));
       return true;
     }
