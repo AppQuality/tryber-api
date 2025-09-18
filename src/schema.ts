@@ -2428,14 +2428,28 @@ export interface operations {
     };
     responses: {
       /** Created */
-      201: unknown;
+      201: {
+        content: {
+          "application/json": {
+            id: number;
+            title: string;
+            content: string;
+          };
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
     /** The data of the new UseCase to link to the Campaign */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["TaskOptional"];
+        "application/json": {
+          title: string;
+          content: string;
+          is_required: number;
+          position?: number;
+          prefix?: string;
+        };
       };
     };
   };

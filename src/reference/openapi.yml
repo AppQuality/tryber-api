@@ -3718,19 +3718,56 @@ paths:
         content:
           application/json:
             examples:
-              example:
+              Example 1:
                 value:
-                  allow_media: true
-                  campaign_id: 42
-                  content: <b>During</b> the trip ask the car for the weather
-                  group: 4
-                  id: 2
-                  name: Ask news to Model-3
+                  title: string
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
             schema:
-              $ref: '#/components/schemas/TaskOptional'
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+                is_required:
+                  type: integer
+                  maximum: 1
+                  minimum: 0
+                position:
+                  type: integer
+                prefix:
+                  type: string
+              required:
+                - title
+                - content
+                - is_required
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  content:
+                    type: string
+                required:
+                  - id
+                  - title
+                  - content
+              examples:
+                Example 1:
+                  value:
+                    id: 1
+                    title: string
+                    content: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
