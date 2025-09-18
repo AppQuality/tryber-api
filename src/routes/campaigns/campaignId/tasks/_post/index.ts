@@ -22,6 +22,7 @@ class PostUsecasesRoute extends CampaignRoute<{
 
   protected async prepare(): Promise<void> {
     const taskId = await this.createNewTask();
+    await this.createNewTaskGroup(taskId);
     return this.setSuccess(201, await this.getTaskById(taskId));
   }
   private async createNewTask() {
@@ -47,6 +48,19 @@ class PostUsecasesRoute extends CampaignRoute<{
 
     const newTaskId = res[0].id ?? res[0];
     return newTaskId;
+  }
+
+  private async createNewTaskGroup(taskId: number) {
+    const res = await tryber.tables.WpAppqCampaignTaskGroup.do()
+      .insert({
+        group_id: 0,
+        task_id: taskId,
+      })
+      .returning("task_id");
+
+    if (!res[0] || !res[0].task_id) {
+      this.setError(403, new OpenapiError("Error creating the task group"));
+    }
   }
 
   private async getTaskById(taskId: number) {

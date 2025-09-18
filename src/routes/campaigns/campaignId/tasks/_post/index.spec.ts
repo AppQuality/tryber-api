@@ -38,6 +38,7 @@ describe("POST /campaigns/{CampaignId}/tasks", () => {
   });
   afterEach(async () => {
     await tryber.tables.WpAppqCampaignTask.do().delete();
+    await tryber.tables.WpAppqCampaignTaskGroup.do().delete();
   });
   it("Should answer 403 if not logged in", async () => {
     const response = await request(app).post("/campaigns/100/tasks");
@@ -70,7 +71,6 @@ describe("POST /campaigns/{CampaignId}/tasks", () => {
         is_required: 1,
         position: 10,
       })
-      // .set("Authorization", 'Bearer tester olp {"appq_campaign":[100]}')
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
     expect(response.body).toMatchObject({
@@ -175,6 +175,31 @@ describe("POST /campaigns/{CampaignId}/tasks", () => {
         }),
       ])
     );
+  });
+
+  it("Should create new taskGroup for the task created", async () => {
+    const response = await request(app)
+      .post("/campaigns/100/tasks")
+      .send({
+        title: "new task",
+        content: "new task content",
+        is_required: 1,
+        position: 10,
+      })
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(201);
+    const newTaskId = response.body.id;
+
+    const taskGroup = await tryber.tables.WpAppqCampaignTaskGroup.do()
+      .select()
+      .where("task_id", newTaskId)
+      .first();
+
+    expect(taskGroup).toBeDefined();
+    expect(taskGroup).toMatchObject({
+      task_id: newTaskId,
+      group_id: 0,
+    });
   });
 
   it("Should return new task data", async () => {
