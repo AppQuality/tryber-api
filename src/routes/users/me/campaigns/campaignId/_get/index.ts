@@ -14,6 +14,7 @@ export default class UserSingleCampaignRoute extends UserRoute<{
   protected async filter(): Promise<boolean> {
     if (await this.testerIsNotCandidate()) return false;
     if (await this.campaignIsUnavailable()) return false;
+    if (await this.isCampaignClosed()) return false;
 
     return true;
   }
@@ -39,6 +40,26 @@ export default class UserSingleCampaignRoute extends UserRoute<{
       return true;
     }
 
+    return false;
+  }
+
+  private async isCampaignClosed(): Promise<boolean> {
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("status_id", "end_date")
+      .where("id", this.campaignId)
+      .first();
+
+    if (!campaign) {
+      this.setError(404, new OpenapiError("This campaign does not exist"));
+      return true;
+    }
+
+    const isOverdue = new Date(campaign.end_date) < new Date();
+
+    if (campaign.status_id === 2 && isOverdue) {
+      this.setError(404, new OpenapiError("This campaign is closed"));
+      return true;
+    }
     return false;
   }
 
