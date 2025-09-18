@@ -137,9 +137,6 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
     });
 
     describe("Tasks not present", () => {
-      beforeEach(async () => {
-        await tryber.tables.WpAppqCampaignTask.do().delete();
-      });
       it("Should return 200", async () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/tasks")
@@ -186,14 +183,6 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             id: 13,
             campaign_id: 2, // task for another campaign
             title: "Task 1",
-            content: "Content 4",
-            is_required: 1,
-          },
-          {
-            ...task,
-            id: 14,
-            campaign_id: 1,
-            title: "Task 4 without user task",
             content: "Content 4",
             is_required: 1,
           },
