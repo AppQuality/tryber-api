@@ -137,9 +137,6 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
     });
 
     describe("Tasks not present", () => {
-      beforeEach(async () => {
-        await tryber.tables.WpAppqCampaignTask.do().delete();
-      });
       it("Should return 200", async () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/tasks")
@@ -184,7 +181,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
           {
             ...task,
             id: 13,
-            campaign_id: 2,
+            campaign_id: 2, // task for another campaign
             title: "Task 1",
             content: "Content 4",
             is_required: 1,
@@ -197,12 +194,21 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             content: "Content 4",
             is_required: 1,
           },
+          {
+            ...task, // task of another tester
+            id: 15,
+            campaign_id: 1,
+            title: "Task 5 - other tester",
+            content: "Content 5",
+            is_required: 1,
+          },
         ]);
         await tryber.tables.WpAppqUserTask.do().insert([
           { id: 1, tester_id: 1, task_id: 10, is_completed: 1 },
           { id: 2, tester_id: 1, task_id: 11, is_completed: 1 },
           { id: 3, tester_id: 1, task_id: 12, is_completed: 0 },
           { id: 4, tester_id: 1, task_id: 13, is_completed: 1 },
+          { id: 5, tester_id: 2, task_id: 15, is_completed: 1 },
         ]);
       });
       afterEach(async () => {
@@ -215,6 +221,24 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
           .get("/users/me/campaigns/1/tasks")
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(200);
+      });
+      it("Should not return tasks of other testers", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/tasks")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(4);
+        expect(response.body).toMatchObject(
+          expect.not.arrayContaining([
+            expect.objectContaining({
+              id: 15,
+              name: "Task 5 - other tester",
+              is_required: 1,
+              content: "Content 5",
+              status: "completed",
+            }),
+          ])
+        );
       });
       it("Should return array of tasks data", async () => {
         const response = await request(app)

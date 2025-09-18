@@ -88,6 +88,11 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
         "is_completed"
       )
       .where({ campaign_id: this.campaignId })
+      .andWhere((q) => {
+        q.where("wp_appq_user_task.tester_id", this.getTesterId()).orWhereNull(
+          "wp_appq_user_task.tester_id"
+        );
+      })
       .leftJoin(
         "wp_appq_user_task",
         "wp_appq_user_task.task_id",
