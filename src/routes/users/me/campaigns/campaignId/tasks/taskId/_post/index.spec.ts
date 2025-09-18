@@ -20,6 +20,22 @@ describe("Route POST /users/me/campaigns/{campaignId}/tasks/{taskId}", () => {
     expect(res.status).toBe(404);
   });
 
+  it("Should return 404 if user is admin but not selected", async () => {
+    const res = await request(app)
+      .post("/users/me/campaigns/2/tasks/1")
+      .send({ status: "completed" })
+      .set("Authorization", "Bearer admin");
+    expect(res.status).toBe(404);
+  });
+
+  it("Should return 404 if user has appq_campaign olps but is not selected", async () => {
+    const res = await request(app)
+      .post("/users/me/campaigns/2/tasks/1")
+      .send({ status: "completed" })
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[true]}');
+    expect(res.status).toBe(404);
+  });
+
   it("Should return 403 if user is logged in but the task does not exist", async () => {
     const res = await request(app)
       .post("/users/me/campaigns/1/tasks/999")

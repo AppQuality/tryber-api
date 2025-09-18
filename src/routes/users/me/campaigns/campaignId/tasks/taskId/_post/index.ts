@@ -144,7 +144,7 @@ export default class PostCampaignTask extends UserRoute<{
     if (
       !(await campaign.isUserCandidate(
         this.getWordpressId().toString(),
-        this.isAdmin()
+        false // always checks for cp candidature, also for admin users
       ))
     ) {
       this.setError(
