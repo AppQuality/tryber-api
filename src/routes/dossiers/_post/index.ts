@@ -5,8 +5,8 @@ import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
-import Province from "comuni-province-regioni/lib/province";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
+import Province from "comuni-province-regioni/lib/province";
 
 const MIN_TESTER_AGE = 14;
 
@@ -562,12 +562,13 @@ export default class PostDossiers extends UserRoute<{
 
   private async generateLinkedData(campaignId: number) {
     const apiTrigger = new WordpressJsonApiTrigger(campaignId);
-    await apiTrigger.generateTasks();
+    const isV2 = this.getBody().pageVersion === "v2";
+    if (!isV2) await apiTrigger.generateTasks();
 
     if (this.duplicate.fieldsFrom) await this.duplicateFields(campaignId);
 
     if (this.duplicate.useCasesFrom) await this.duplicateUsecases(campaignId);
-    else await apiTrigger.generateUseCase();
+    else if (!isV2) await apiTrigger.generateUseCase();
 
     if (this.duplicate.mailMergesFrom)
       await this.duplicateMailMerge(campaignId);
@@ -575,10 +576,7 @@ export default class PostDossiers extends UserRoute<{
 
     if (this.duplicate.pagesFrom) await this.duplicatePages(campaignId);
     else {
-      const pageVersion = this.getBody().pageVersion
-        ? this.getBody().pageVersion
-        : "v1";
-      if (pageVersion !== "v2") await apiTrigger.generatePages();
+      if (!isV2) await apiTrigger.generatePages();
     }
 
     if (this.duplicate.testersFrom) await this.duplicateTesters(campaignId);
