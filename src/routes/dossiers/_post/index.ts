@@ -87,6 +87,10 @@ export default class PostDossiers extends UserRoute<{
       this.setError(406, new OpenapiError("Invalid provinces submitted"));
       return false;
     }
+    if (this.invalidBugParadeSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid bug parade submitted"));
+      return false;
+    }
 
     return true;
   }
@@ -112,6 +116,12 @@ export default class PostDossiers extends UserRoute<{
       .whereIn("id", ids);
 
     return campaigns.length !== ids.length;
+  }
+
+  private invalidBugParadeSubmitted() {
+    const { hasBugParade } = this.getBody();
+    if (!hasBugParade) return false;
+    if ([0, 1].includes(hasBugParade) === false) return true;
   }
 
   private async invalidRolesSubmitted() {
@@ -345,6 +355,8 @@ export default class PostDossiers extends UserRoute<{
       ? this.getBody().pageVersion
       : "v1";
 
+    const hasBugParade = this.getBody().hasBugParade === 1;
+
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -369,7 +381,7 @@ export default class PostDossiers extends UserRoute<{
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
         page_version: pageVersion,
-
+        campaign_type: hasBugParade ? 1 : 0,
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
