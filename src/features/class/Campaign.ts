@@ -22,6 +22,7 @@ class Campaign {
   public is_public: number = 0;
   public plan_id: number = -1;
   public ready: Promise<boolean>;
+  public hasBugParade: 0 | 1 | null = null;
   constructor(id: number, init: boolean = true) {
     this.id = id;
     this.ready = Promise.resolve(false);
@@ -42,6 +43,7 @@ class Campaign {
           tryber.fn.charDate("end_date"),
           "campaign_type_id",
           "plan_id",
+          "campaign_type",
         ])
         .where({ id: this.id })
         .first();
@@ -56,6 +58,7 @@ class Campaign {
       this.campaign_type_id = campaignData.campaign_type_id;
       this.plan_id = campaignData.plan_id ?? -1;
       this.ready = Promise.resolve(true);
+      this.hasBugParade = this.campaign_type === 1 ? 1 : 0;
       resolve(true);
     });
   }

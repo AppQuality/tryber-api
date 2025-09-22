@@ -41,6 +41,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       title: "My campaign",
       minimumMedia: 4,
       hasBugForm: true,
+      hasBugParade: 0,
       bugSeverity: { valid: ["LOW", "MEDIUM"], invalid: [] },
       bugTypes: { valid: ["TYPO", "CRASH"], invalid: [] },
       bugReplicability: { valid: ["ONCE", "ALWAYS"], invalid: [] },
