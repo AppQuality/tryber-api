@@ -85,7 +85,8 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
         "title",
         "content",
         "is_required",
-        "is_completed"
+        "is_completed",
+        "allow_media"
       )
       .where({ campaign_id: this.campaignId })
       .andWhere((q) => {
@@ -117,6 +118,8 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
         task?.is_completed && task.is_completed === 1
           ? ("completed" as const)
           : ("pending" as const),
+      can_upload_media:
+        task.allow_media && task.allow_media === 1 ? true : false,
     }));
   }
 }

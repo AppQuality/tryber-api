@@ -8959,9 +8959,11 @@ paths:
                       is_required: 0
                       name: string
                       status: completed
+                      can_upload_media: true
               schema:
                 type: array
                 items:
+                  type: object
                   properties:
                     content:
                       type: string
@@ -8978,13 +8980,15 @@ paths:
                       enum:
                         - completed
                         - pending
+                    can_upload_media:
+                      type: boolean
                   required:
                     - content
                     - id
                     - is_required
                     - name
                     - status
-                  type: object
+                    - can_upload_media
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
