@@ -22,7 +22,8 @@ class Campaign {
   public is_public: number = 0;
   public plan_id: number = -1;
   public ready: Promise<boolean>;
-  public hasBugParade: 0 | 1 | null = null;
+  // cp_type -1 = no bug form, 0 = only bug form, 1 = bug form with bug parade
+  public hasBugParade: 0 | 1 = 0;
   constructor(id: number, init: boolean = true) {
     this.id = id;
     this.ready = Promise.resolve(false);

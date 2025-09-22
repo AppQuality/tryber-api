@@ -355,8 +355,6 @@ export default class PostDossiers extends UserRoute<{
       ? this.getBody().pageVersion
       : "v1";
 
-    const hasBugParade = this.getBody().hasBugParade === 1;
-
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -381,7 +379,9 @@ export default class PostDossiers extends UserRoute<{
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
         page_version: pageVersion,
-        campaign_type: hasBugParade ? 1 : 0,
+        ...(typeof this.getBody().hasBugParade !== "undefined" && {
+          campaign_type: this.getBody().hasBugParade,
+        }),
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
