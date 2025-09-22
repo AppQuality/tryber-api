@@ -1064,5 +1064,58 @@ describe("Route POST /dossiers", () => {
         WordpressJsonApiTrigger.prototype.generatePages
       ).toHaveBeenCalledTimes(0);
     });
+
+    it("Should return an error if send invalid hasBugParade", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, hasBugParade: 2 });
+
+      expect(postResponse.status).toBe(400);
+    });
+    it("Should insert campaign_type 0 as default if not send hasBugParade", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11 });
+      console.log(postResponse.body);
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 0);
+    });
+    it("Should insert campaign_type 0 if send hasBugParade 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, hasBugParade: 0 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 0);
+    });
+
+    it("Should insert campaign_type 1 if send hasBugParade 1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, hasBugParade: 1 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 1);
+    });
   });
 });

@@ -75,6 +75,7 @@ export default class UserSingleCampaignRoute extends UserRoute<{
         title: campaign.title,
         minimumMedia: campaign.min_allowed_media,
         hasBugForm: campaign.hasBugForm,
+        hasBugParade: campaign.hasBugParade ? campaign.hasBugParade : 0,
         bugSeverity: await campaign.getAvailableSeverities(),
         bugReplicability: await campaign.getAvailableReplicabilities(),
         useCases: await campaign.getUserUseCases(

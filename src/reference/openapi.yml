@@ -3213,8 +3213,23 @@ paths:
         schema:
           type: string
     post:
-      summary: POST Preview on a Specific Campaign
       operationId: post-campaigns-campaign-preview
+      summary: POST Preview on a Specific Campaign
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  content: <payout>Content</payout>
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
       responses:
         '200':
           description: OK
@@ -3227,21 +3242,6 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-              required:
-                - content
-            examples:
-              Example 1:
-                value:
-                  content: <payout>Content</payout>
-        description: ''
       security:
         - JWT: []
   '/campaigns/{campaign}/prospect':
@@ -3759,16 +3759,14 @@ paths:
             examples:
               Example 1:
                 value:
-                  title: string
                   content: string
                   is_required: 0
                   position: 0
                   prefix: string
+                  title: string
             schema:
               type: object
               properties:
-                title:
-                  type: string
                 content:
                   type: string
                 is_required:
@@ -3779,6 +3777,8 @@ paths:
                   type: integer
                 prefix:
                   type: string
+                title:
+                  type: string
               required:
                 - title
                 - content
@@ -3788,25 +3788,25 @@ paths:
           description: Created
           content:
             application/json:
+              examples:
+                Example 1:
+                  value:
+                    content: string
+                    id: 1
+                    title: string
               schema:
                 type: object
                 properties:
+                  content:
+                    type: string
                   id:
                     type: integer
                   title:
-                    type: string
-                  content:
                     type: string
                 required:
                   - id
                   - title
                   - content
-              examples:
-                Example 1:
-                  value:
-                    id: 1
-                    title: string
-                    content: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4656,6 +4656,10 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    hasBugParade:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
                     pageVersion:
                       type: string
                       enum:
@@ -4997,6 +5001,10 @@ paths:
                 - $ref: '#/components/schemas/DossierCreationData'
                 - properties:
                     autoApply:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                    hasBugParade:
                       type: integer
                       maximum: 1
                       minimum: 0
@@ -7755,6 +7763,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 1
                     id: 123
                     language:
                       code: IT
@@ -7801,6 +7810,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: false
+                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7850,6 +7860,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 1
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7892,6 +7903,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7965,9 +7977,9 @@ paths:
                       name:
                         type: string
                     required:
+                      - icon
                       - id
                       - name
-                      - icon
                   devices:
                     type: array
                     items:
@@ -7985,6 +7997,10 @@ paths:
                     type: string
                   hasBugForm:
                     type: boolean
+                  hasBugParade:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
                   id:
                     type: integer
                   language:
@@ -8027,6 +8043,7 @@ paths:
                   - end_date
                   - goal
                   - hasBugForm
+                  - hasBugParade
                   - id
                   - minimumMedia
                   - title

@@ -2463,9 +2463,9 @@ export interface operations {
       201: {
         content: {
           "application/json": {
+            content: string;
             id: number;
             title: string;
-            content: string;
           };
         };
       };
@@ -2476,11 +2476,11 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          title: string;
           content: string;
           is_required: number;
           position?: number;
           prefix?: string;
+          title: string;
         };
       };
     };
@@ -2875,6 +2875,7 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
@@ -3001,6 +3002,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          hasBugParade?: number;
         };
       };
     };
@@ -4016,6 +4018,7 @@ export interface operations {
             end_date: string;
             goal: string;
             hasBugForm: boolean;
+            hasBugParade: number;
             id: number;
             language?: {
               code: string;

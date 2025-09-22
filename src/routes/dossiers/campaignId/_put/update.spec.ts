@@ -805,6 +805,48 @@ describe("Route POST /dossiers", () => {
       expect(responseGet.body).toHaveProperty("target");
       expect(responseGet.body.target).toHaveProperty("cap", 0);
     });
+
+    it("Should not change campaign_type 0 if not send hasBugParade", async () => {
+      const campaignTypeBefore = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+        });
+      const campaignTypeAfter = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      expect(campaignTypeAfter).toEqual(campaignTypeBefore);
+    });
+
+    it("Should set campaign_type 0 if send hasBugParade 0", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 0 });
+      const after = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      expect(after?.campaign_type).toEqual(0);
+    });
+
+    it("Should set campaign_type 1 if send hasBugParade 1", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1 });
+      const after = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      expect(after?.campaign_type).toEqual(1);
+    });
   });
 
   describe("Role handling", () => {
