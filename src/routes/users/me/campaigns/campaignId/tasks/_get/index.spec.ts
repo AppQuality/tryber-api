@@ -23,6 +23,7 @@ const task = {
   simple_title: "simple_title",
   info: "info",
   prefix: "prefix",
+  allow_media: 0,
 };
 describe("GET users/me/campaigns/:cId/tasks", () => {
   beforeAll(async () => {
@@ -161,6 +162,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             title: "Task 1",
             content: "Content 1",
             is_required: 1,
+            allow_media: 1,
           },
           {
             ...task,
@@ -169,6 +171,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             title: "Task 2",
             content: "Content 2",
             is_required: 0,
+            allow_media: 0,
           },
           {
             ...task,
@@ -177,6 +180,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             title: "Task 3",
             content: "Content 3",
             is_required: 1,
+            allow_media: 1,
           },
           {
             ...task,
@@ -193,6 +197,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             title: "Task 4 without user task",
             content: "Content 4",
             is_required: 1,
+            allow_media: 0,
           },
           {
             ...task, // task of another tester
@@ -271,6 +276,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
               is_required: 1,
               content: "Content 1",
               status: "completed",
+              can_upload_media: true,
             }),
             expect.objectContaining({
               id: 11,
@@ -278,6 +284,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
               is_required: 0,
               content: "Content 2",
               status: "completed",
+              can_upload_media: false,
             }),
             expect.objectContaining({
               id: 12,
@@ -285,6 +292,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
               is_required: 1,
               content: "Content 3",
               status: "pending",
+              can_upload_media: true,
             }),
             expect.objectContaining({
               id: 14,
@@ -292,6 +300,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
               is_required: 1,
               content: "Content 4",
               status: "pending",
+              can_upload_media: false,
             }),
           ])
         );
