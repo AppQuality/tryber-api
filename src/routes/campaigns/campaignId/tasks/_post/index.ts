@@ -45,6 +45,7 @@ class PostUsecasesRoute extends CampaignRoute<{
         info: "",
         allow_media,
         optimize_media: body.upload?.policy === "optimize" ? 1 : 0,
+        language: body.upload?.language ?? "it",
       })
       .returning("id");
 
