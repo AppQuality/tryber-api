@@ -3772,7 +3772,7 @@ paths:
                   prefix: string
                   title: string
                   upload:
-                    language: string
+                    language: it
                     policy: optimize
               with-upload-allow:
                 value:
@@ -3782,7 +3782,7 @@ paths:
                   prefix: string
                   title: string
                   upload:
-                    language: string
+                    language: en
                     policy: allow
             schema:
               type: object
@@ -3804,6 +3804,8 @@ paths:
                   properties:
                     language:
                       type: string
+                      maxLength: 2
+                      minLength: 2
                     policy:
                       type: string
                       enum:
