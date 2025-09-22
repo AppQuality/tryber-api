@@ -7763,6 +7763,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 1
                     id: 123
                     language:
                       code: IT
@@ -7809,6 +7810,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: false
+                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7858,6 +7860,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 1
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7900,6 +7903,7 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7923,6 +7927,9 @@ paths:
                       $ref: '#/components/schemas/CampaignAdditionalField'
                   bugReplicability:
                     type: object
+                    required:
+                      - invalid
+                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7932,11 +7939,11 @@ paths:
                         type: array
                         items:
                           type: string
-                    required:
-                      - invalid
-                      - valid
                   bugSeverity:
                     type: object
+                    required:
+                      - invalid
+                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7946,11 +7953,11 @@ paths:
                         type: array
                         items:
                           type: string
-                    required:
-                      - invalid
-                      - valid
                   bugTypes:
                     type: object
+                    required:
+                      - invalid
+                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7960,11 +7967,12 @@ paths:
                         type: array
                         items:
                           type: string
-                    required:
-                      - invalid
-                      - valid
                   campaign_type:
                     type: object
+                    required:
+                      - icon
+                      - id
+                      - name
                     properties:
                       icon:
                         type: string
@@ -7972,20 +7980,16 @@ paths:
                         type: number
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
-                      - icon
                   devices:
                     type: array
                     items:
                       allOf:
-                        - properties:
+                        - type: object
+                          properties:
                             id:
                               type: integer
                           required:
                             - id
-                          type: object
                         - $ref: '#/components/schemas/UserDevice'
                   end_date:
                     type: string
@@ -7993,6 +7997,10 @@ paths:
                     type: string
                   hasBugForm:
                     type: boolean
+                  hasBugParade:
+                    type: integer
+                    minimum: 0
+                    maximum: 1
                   id:
                     type: integer
                   language:
@@ -8014,6 +8022,7 @@ paths:
                   useCases:
                     type: array
                     items:
+                      type: object
                       properties:
                         id:
                           type: integer
@@ -8022,7 +8031,6 @@ paths:
                       required:
                         - id
                         - name
-                      type: object
                   validFileExtensions:
                     type: array
                     items:
@@ -8035,6 +8043,7 @@ paths:
                   - end_date
                   - goal
                   - hasBugForm
+                  - hasBugParade
                   - id
                   - minimumMedia
                   - title

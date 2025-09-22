@@ -4018,6 +4018,7 @@ export interface operations {
             end_date: string;
             goal: string;
             hasBugForm: boolean;
+            hasBugParade: number;
             id: number;
             language?: {
               code: string;
