@@ -3002,6 +3002,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          hasBugParade?: number;
         };
       };
     };

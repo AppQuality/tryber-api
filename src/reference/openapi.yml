@@ -4999,12 +4999,16 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
-                  type: object
+                    hasBugParade:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
       responses:
         '200':
           description: OK
