@@ -2878,6 +2878,7 @@ export interface operations {
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
+          hasBugParade?: number;
         };
       };
     };
