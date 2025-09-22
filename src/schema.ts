@@ -4330,6 +4330,7 @@ export interface operations {
             name: string;
             /** @enum {string} */
             status: "completed" | "pending";
+            can_upload_media: boolean;
           }[];
         };
       };
