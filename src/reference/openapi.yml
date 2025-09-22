@@ -3764,6 +3764,26 @@ paths:
                   position: 0
                   prefix: string
                   title: string
+              with-upload-optimize:
+                value:
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
+                  title: string
+                  upload:
+                    language: it
+                    policy: optimize
+              with-upload-allow:
+                value:
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
+                  title: string
+                  upload:
+                    language: en
+                    policy: allow
             schema:
               type: object
               properties:
@@ -3779,10 +3799,25 @@ paths:
                   type: string
                 title:
                   type: string
+                upload:
+                  type: object
+                  properties:
+                    language:
+                      type: string
+                      maxLength: 2
+                      minLength: 2
+                    policy:
+                      type: string
+                      enum:
+                        - optimize
+                        - allow
+                  required:
+                    - language
+                    - policy
               required:
-                - title
                 - content
                 - is_required
+                - title
       responses:
         '201':
           description: Created

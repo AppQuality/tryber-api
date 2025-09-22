@@ -2481,6 +2481,11 @@ export interface operations {
           position?: number;
           prefix?: string;
           title: string;
+          upload?: {
+            language: string;
+            /** @enum {string} */
+            policy: "optimize" | "allow";
+          };
         };
       };
     };

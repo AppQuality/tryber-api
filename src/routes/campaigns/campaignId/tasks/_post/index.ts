@@ -27,6 +27,10 @@ class PostUsecasesRoute extends CampaignRoute<{
   }
   private async createNewTask() {
     const body = this.getBody();
+    const allow_media =
+      body.upload?.policy && ["optimize", "allow"].includes(body.upload?.policy)
+        ? 1
+        : 0;
     const res = await tryber.tables.WpAppqCampaignTask.do()
       .insert({
         campaign_id: this.cp_id,
@@ -39,6 +43,9 @@ class PostUsecasesRoute extends CampaignRoute<{
         jf_code: "",
         jf_text: "",
         info: "",
+        allow_media,
+        optimize_media: body.upload?.policy === "optimize" ? 1 : 0,
+        language: body.upload?.language ?? "it",
       })
       .returning("id");
 
