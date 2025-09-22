@@ -3213,8 +3213,23 @@ paths:
         schema:
           type: string
     post:
-      summary: POST Preview on a Specific Campaign
       operationId: post-campaigns-campaign-preview
+      summary: POST Preview on a Specific Campaign
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  content: <payout>Content</payout>
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
       responses:
         '200':
           description: OK
@@ -3227,21 +3242,6 @@ paths:
           $ref: '#/components/responses/NotAuthorized'
         '404':
           $ref: '#/components/responses/NotFound'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-              required:
-                - content
-            examples:
-              Example 1:
-                value:
-                  content: <payout>Content</payout>
-        description: ''
       security:
         - JWT: []
   '/campaigns/{campaign}/prospect':
@@ -3759,16 +3759,14 @@ paths:
             examples:
               Example 1:
                 value:
-                  title: string
                   content: string
                   is_required: 0
                   position: 0
                   prefix: string
+                  title: string
             schema:
               type: object
               properties:
-                title:
-                  type: string
                 content:
                   type: string
                 is_required:
@@ -3779,6 +3777,8 @@ paths:
                   type: integer
                 prefix:
                   type: string
+                title:
+                  type: string
               required:
                 - title
                 - content
@@ -3788,25 +3788,25 @@ paths:
           description: Created
           content:
             application/json:
+              examples:
+                Example 1:
+                  value:
+                    content: string
+                    id: 1
+                    title: string
               schema:
                 type: object
                 properties:
+                  content:
+                    type: string
                   id:
                     type: integer
                   title:
-                    type: string
-                  content:
                     type: string
                 required:
                   - id
                   - title
                   - content
-              examples:
-                Example 1:
-                  value:
-                    id: 1
-                    title: string
-                    content: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4634,8 +4634,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
+                - properties:
                     duplicate:
                       type: object
                       properties:
@@ -4651,9 +4650,13 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                - type: object
-                  properties:
+                  type: object
+                - properties:
                     autoApply:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                    hasBugParade:
                       type: integer
                       maximum: 1
                       minimum: 0
@@ -4667,10 +4670,7 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
-                    hasBugParade:
-                      type: integer
-                      minimum: 0
-                      maximum: 1
+                  type: object
       responses:
         '201':
           description: Created
@@ -4999,8 +4999,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
+                - properties:
                     autoApply:
                       type: integer
                       maximum: 1
@@ -5009,6 +5008,7 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
+                  type: object
       responses:
         '200':
           description: OK
@@ -7927,9 +7927,6 @@ paths:
                       $ref: '#/components/schemas/CampaignAdditionalField'
                   bugReplicability:
                     type: object
-                    required:
-                      - invalid
-                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7939,11 +7936,11 @@ paths:
                         type: array
                         items:
                           type: string
+                    required:
+                      - invalid
+                      - valid
                   bugSeverity:
                     type: object
-                    required:
-                      - invalid
-                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7953,11 +7950,11 @@ paths:
                         type: array
                         items:
                           type: string
+                    required:
+                      - invalid
+                      - valid
                   bugTypes:
                     type: object
-                    required:
-                      - invalid
-                      - valid
                     properties:
                       invalid:
                         type: array
@@ -7967,12 +7964,11 @@ paths:
                         type: array
                         items:
                           type: string
+                    required:
+                      - invalid
+                      - valid
                   campaign_type:
                     type: object
-                    required:
-                      - icon
-                      - id
-                      - name
                     properties:
                       icon:
                         type: string
@@ -7980,16 +7976,20 @@ paths:
                         type: number
                       name:
                         type: string
+                    required:
+                      - icon
+                      - id
+                      - name
                   devices:
                     type: array
                     items:
                       allOf:
-                        - type: object
-                          properties:
+                        - properties:
                             id:
                               type: integer
                           required:
                             - id
+                          type: object
                         - $ref: '#/components/schemas/UserDevice'
                   end_date:
                     type: string
@@ -7999,8 +7999,8 @@ paths:
                     type: boolean
                   hasBugParade:
                     type: integer
-                    minimum: 0
                     maximum: 1
+                    minimum: 0
                   id:
                     type: integer
                   language:
@@ -8022,7 +8022,6 @@ paths:
                   useCases:
                     type: array
                     items:
-                      type: object
                       properties:
                         id:
                           type: integer
@@ -8031,6 +8030,7 @@ paths:
                       required:
                         - id
                         - name
+                      type: object
                   validFileExtensions:
                     type: array
                     items:
