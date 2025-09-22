@@ -39,6 +39,7 @@ class PostUsecasesRoute extends CampaignRoute<{
         jf_code: "",
         jf_text: "",
         info: "",
+        allow_media: body.upload?.policy === "allow" ? 1 : 0,
       })
       .returning("id");
 

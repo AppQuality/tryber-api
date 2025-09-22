@@ -221,4 +221,52 @@ describe("POST /campaigns/{CampaignId}/tasks", () => {
       content: requestBody.content,
     });
   });
+
+  it("Should save allow_media = false if upload not provided in request body", async () => {
+    const requestBody = {
+      title: "new task",
+      content: "new task content",
+      is_required: 1,
+      position: 1,
+    };
+    const response = await request(app)
+      .post("/campaigns/100/tasks")
+      .send(requestBody)
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(201);
+
+    const task = await tryber.tables.WpAppqCampaignTask.do()
+      .select("allow_media")
+      .where("id", response.body.id)
+      .first();
+
+    expect(task).toBeDefined();
+    expect(task?.allow_media).toBe(0);
+  });
+
+  it("Should save allow_media = true if send upload.policy=allow in request body", async () => {
+    const response = await request(app)
+      .post("/campaigns/100/tasks")
+      .send({
+        title: "new task",
+        content: "new task content",
+        is_required: 1,
+        position: 1,
+        upload: {
+          policy: "allow",
+          language: "japanese",
+        },
+      })
+      .set("Authorization", "Bearer admin");
+    console.log(response.body);
+    expect(response.status).toBe(201);
+
+    const task = await tryber.tables.WpAppqCampaignTask.do()
+      .select("allow_media")
+      .where("id", response.body.id)
+      .first();
+
+    expect(task).toBeDefined();
+    expect(task?.allow_media).toBe(1);
+  });
 });
