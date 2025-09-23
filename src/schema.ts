@@ -2884,6 +2884,8 @@ export interface operations {
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
+          bugLanguage?: Partial<"it" | "gb" | "es" | "fr" | "de"> &
+            Partial<boolean>;
         };
       };
     };
