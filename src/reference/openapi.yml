@@ -11508,11 +11508,11 @@ components:
     BugLang:
       type: string
       enum:
-        - it
-        - gb
-        - es
-        - fr
-        - de
+        - IT
+        - GB
+        - ES
+        - FR
+        - DE
       title: BugLang
     BugSeverity:
       type: object

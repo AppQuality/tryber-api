@@ -764,7 +764,7 @@ export interface components {
      * BugLang
      * @enum {string}
      */
-    BugLang: "it" | "gb" | "es" | "fr" | "de";
+    BugLang: "IT" | "GB" | "ES" | "FR" | "DE";
     /** BugSeverity */
     BugSeverity: {
       id?: number;
