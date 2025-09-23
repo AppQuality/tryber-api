@@ -2885,8 +2885,7 @@ export interface operations {
           };
         } & {
           autoApply?: number;
-          bugLanguage?: Partial<components["schemas"]["BugLang"]> &
-            Partial<boolean>;
+          bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
