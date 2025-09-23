@@ -4708,13 +4708,7 @@ paths:
                       minimum: 0
                     bugLanguage:
                       anyOf:
-                        - type: string
-                          enum:
-                            - it
-                            - gb
-                            - es
-                            - fr
-                            - de
+                        - $ref: '#/components/schemas/BugLang'
                         - type: boolean
       responses:
         '201':
@@ -12443,6 +12437,17 @@ components:
         - device
         - operating_system
       title: UserDevice
+    BugLang:
+      title: AcceptableBugLang
+      x-stoplight:
+        id: dpip55apvye46
+      type: string
+      enum:
+        - it
+        - gb
+        - es
+        - fr
+        - de
   examples: {}
   requestBodies: {}
   responses:

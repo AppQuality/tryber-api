@@ -1110,6 +1110,11 @@ export interface components {
       };
       type: string;
     };
+    /**
+     * AcceptableBugLang
+     * @enum {string}
+     */
+    BugLang: "it" | "gb" | "es" | "fr" | "de";
   };
   responses: {
     /** Authentication data. The token can be used to authenticate the protected requests */
@@ -2884,7 +2889,7 @@ export interface operations {
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
-          bugLanguage?: Partial<"it" | "gb" | "es" | "fr" | "de"> &
+          bugLanguage?: Partial<components["schemas"]["BugLang"]> &
             Partial<boolean>;
         };
       };
