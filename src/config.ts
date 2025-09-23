@@ -74,8 +74,8 @@ const config: {
     password: process.env.UNGUESS_API_PASSWORD || "",
   },
   testerLeaderCPV2: {
-    name: process.env.TESTER_LEADER_NAME || "Unknown",
-    email: process.env.TESTER_LEADER_EMAIL || "Unknown",
+    name: process.env.TESTER_LEADER_CPV2_NAME || "Unknown",
+    email: process.env.TESTER_LEADER_CPV2_EMAIL || "Unknown",
   },
 };
 
