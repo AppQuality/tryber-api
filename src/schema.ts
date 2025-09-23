@@ -760,6 +760,11 @@ export interface components {
       status?: components["schemas"]["BugStatus"];
       title?: string;
     };
+    /**
+     * BugLang
+     * @enum {string}
+     */
+    BugLang: "it" | "gb" | "es" | "fr" | "de";
     /** BugSeverity */
     BugSeverity: {
       id?: number;
@@ -1110,11 +1115,6 @@ export interface components {
       };
       type: string;
     };
-    /**
-     * AcceptableBugLang
-     * @enum {string}
-     */
-    BugLang: "it" | "gb" | "es" | "fr" | "de";
   };
   responses: {
     /** Authentication data. The token can be used to authenticate the protected requests */
@@ -2885,12 +2885,12 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          bugLanguage?: Partial<components["schemas"]["BugLang"]> &
+            Partial<boolean>;
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
-          bugLanguage?: Partial<components["schemas"]["BugLang"]> &
-            Partial<boolean>;
         };
       };
     };
@@ -4336,13 +4336,13 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            can_upload_media: boolean;
             content: string;
             id: number;
             is_required: number;
             name: string;
             /** @enum {string} */
             status: "completed" | "pending";
-            can_upload_media: boolean;
           }[];
         };
       };
