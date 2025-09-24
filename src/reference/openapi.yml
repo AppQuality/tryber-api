@@ -4669,8 +4669,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
+                - properties:
                     duplicate:
                       type: object
                       properties:
@@ -4686,8 +4685,8 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                - type: object
-                  properties:
+                  type: object
+                - properties:
                     autoApply:
                       type: integer
                       maximum: 1
@@ -4708,6 +4707,7 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
+                  type: object
       responses:
         '201':
           description: Created
@@ -5036,8 +5036,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
+                - properties:
                     autoApply:
                       type: integer
                       maximum: 1
@@ -5050,6 +5049,7 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
+                  type: object
       responses:
         '200':
           description: OK
@@ -9104,6 +9104,75 @@ paths:
       security:
         - JWT: []
       tags: []
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: post-users-me-campaigns-campaignId-tasks-taskId-media
+      summary: Upload media for a task
+      description: ''
+      requestBody:
+        description: ''
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - properties: {}
+                      type: string
+                    - items:
+                        type: string
+                      type: array
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items:
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - FILE_TOO_BIG
+                            - INVALID_FILE_EXTENSION
+                            - GENERIC_ERROR
+                        name:
+                          type: string
+                      required:
+                        - name
+                        - errorCode
+                      type: object
+                  files:
+                    type: array
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                      type: object
+      security:
+        - JWT: []
+        - User Token: []
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices
