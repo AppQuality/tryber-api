@@ -3,7 +3,7 @@ info:
   contact:
     email: it@app-quality.com
     name: Developers
-  description: vsAn API to get all data for your bugfinding and ux research needs!
+  description: An API to get all data for your bugfinding and ux research needs!
   title: AppQualityApi
   version: '1.0'
 servers:
@@ -1433,45 +1433,6 @@ paths:
       tags:
         - Campaign
     parameters: []
-  '/campaigns/{campaignId}/visibility':
-    parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: string
-    patch:
-      operationId: patch-campaigns-campaignId-visibility
-      summary: Your PATCH endpoint
-      requestBody:
-        content:
-          application/json:
-            examples:
-              Example 1:
-                value:
-                  type: target
-            schema:
-              type: object
-              properties:
-                type:
-                  enum:
-                    - internal
-                    - target
-              required:
-                - type
-      responses:
-        '200':
-          description: OK
-          content: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          description: Internal Server Error
-      security:
-        - JWT: []
-      tags: []
   '/campaigns/{campaign}':
     get:
       operationId: get-campaigns-campaign
@@ -3205,45 +3166,6 @@ paths:
           $ref: '#/components/responses/NotFound'
       security:
         - JWT: []
-  '/campaigns/{campaign}/preview':
-    parameters:
-      - name: campaign
-        in: path
-        required: true
-        schema:
-          type: string
-    post:
-      operationId: post-campaigns-campaign-preview
-      summary: POST Preview on a Specific Campaign
-      requestBody:
-        description: ''
-        content:
-          application/json:
-            examples:
-              Example 1:
-                value:
-                  content: <payout>Content</payout>
-            schema:
-              type: object
-              properties:
-                content:
-                  type: string
-              required:
-                - content
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties: {}
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-      security:
-        - JWT: []
   '/campaigns/{campaign}/prospect':
     get:
       operationId: get-campaigns-campaign-prospect
@@ -3757,91 +3679,19 @@ paths:
         content:
           application/json:
             examples:
-              Example 1:
+              example:
                 value:
-                  content: string
-                  is_required: 0
-                  position: 0
-                  prefix: string
-                  title: string
-              with-upload-allow:
-                value:
-                  content: string
-                  is_required: 0
-                  position: 0
-                  prefix: string
-                  title: string
-                  upload:
-                    language: en
-                    policy: allow
-              with-upload-optimize:
-                value:
-                  content: string
-                  is_required: 0
-                  position: 0
-                  prefix: string
-                  title: string
-                  upload:
-                    language: it
-                    policy: optimize
+                  allow_media: true
+                  campaign_id: 42
+                  content: <b>During</b> the trip ask the car for the weather
+                  group: 4
+                  id: 2
+                  name: Ask news to Model-3
             schema:
-              type: object
-              properties:
-                content:
-                  type: string
-                is_required:
-                  type: integer
-                  maximum: 1
-                  minimum: 0
-                position:
-                  type: integer
-                prefix:
-                  type: string
-                title:
-                  type: string
-                upload:
-                  type: object
-                  properties:
-                    language:
-                      type: string
-                      maxLength: 2
-                      minLength: 2
-                    policy:
-                      type: string
-                      enum:
-                        - optimize
-                        - allow
-                  required:
-                    - language
-                    - policy
-              required:
-                - content
-                - is_required
-                - title
+              $ref: '#/components/schemas/TaskOptional'
       responses:
         '201':
           description: Created
-          content:
-            application/json:
-              examples:
-                Example 1:
-                  value:
-                    content: string
-                    id: 1
-                    title: string
-              schema:
-                type: object
-                properties:
-                  content:
-                    type: string
-                  id:
-                    type: integer
-                  title:
-                    type: string
-                required:
-                  - id
-                  - title
-                  - content
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4669,8 +4519,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
+                - properties:
                     duplicate:
                       type: object
                       properties:
@@ -4686,15 +4535,9 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                - type: object
-                  properties:
+                  type: object
+                - properties:
                     autoApply:
-                      type: integer
-                      maximum: 1
-                      minimum: 0
-                    bugLanguage:
-                      $ref: '#/components/schemas/BugLang'
-                    hasBugParade:
                       type: integer
                       maximum: 1
                       minimum: 0
@@ -4708,6 +4551,7 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
+                  type: object
       responses:
         '201':
           description: Created
@@ -5036,20 +4880,12 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - type: object
-                  properties:
+                - properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
-                    bugLanguage:
-                      oneOf:
-                        - $ref: '#/components/schemas/BugLang'
-                        - type: boolean
-                    hasBugParade:
-                      type: integer
-                      maximum: 1
-                      minimum: 0
+                  type: object
       responses:
         '200':
           description: OK
@@ -7744,6 +7580,10 @@ paths:
               examples:
                 full:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     additionalFields:
                       - error: You have to select a browser
                         name: Browser Used
@@ -7804,7 +7644,6 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
-                    hasBugParade: 1
                     id: 123
                     language:
                       code: IT
@@ -7824,6 +7663,10 @@ paths:
                       - mp4
                 with-bugform-disabled:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7851,7 +7694,6 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: false
-                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7864,6 +7706,10 @@ paths:
                       - mp4
                 with-only-one-device:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7901,7 +7747,6 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
-                    hasBugParade: 1
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7918,6 +7763,10 @@ paths:
                       - mp4
                 without-device:
                   value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
                     bugReplicability:
                       invalid: []
                       valid:
@@ -7944,7 +7793,6 @@ paths:
                     end_date: 01-01-2026
                     goal: A beautiful goal
                     hasBugForm: true
-                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7962,6 +7810,51 @@ paths:
               schema:
                 type: object
                 properties:
+                  acceptedDevices:
+                    type: object
+                    properties:
+                      console:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      pc:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartTv:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartphone:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      smartwatch:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
+                      tablet:
+                        oneOf:
+                          - items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                            type: array
+                          - enum:
+                              - all
                   additionalFields:
                     type: array
                     items:
@@ -8018,9 +7911,9 @@ paths:
                       name:
                         type: string
                     required:
-                      - icon
                       - id
                       - name
+                      - icon
                   devices:
                     type: array
                     items:
@@ -8038,10 +7931,6 @@ paths:
                     type: string
                   hasBugForm:
                     type: boolean
-                  hasBugParade:
-                    type: integer
-                    maximum: 1
-                    minimum: 0
                   id:
                     type: integer
                   language:
@@ -8077,6 +7966,7 @@ paths:
                     items:
                       type: string
                 required:
+                  - acceptedDevices
                   - bugReplicability
                   - bugSeverity
                   - bugTypes
@@ -8084,7 +7974,6 @@ paths:
                   - end_date
                   - goal
                   - hasBugForm
-                  - hasBugParade
                   - id
                   - minimumMedia
                   - title
@@ -8703,6 +8592,75 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      - schema:
+          type: string
+        name: taskId
+        in: path
+        required: true
+    post:
+      operationId: post-users-me-campaigns-campaignId-tasks-taskId-media
+      summary: Upload media for a task
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - properties: {}
+                      type: string
+                    - items:
+                        type: string
+                      type: array
+        description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items:
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - FILE_TOO_BIG
+                            - INVALID_FILE_EXTENSION
+                            - GENERIC_ERROR
+                        name:
+                          type: string
+                      required:
+                        - name
+                        - errorCode
+                      type: object
+                  files:
+                    type: array
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                      type: object
+      security:
+        - JWT: []
+        - User Token: []
+      description: ''
   '/users/me/campaigns/{campaignId}/payout_data':
     get:
       operationId: get-users-me-campaigns-cid-payout-data
@@ -8829,87 +8787,42 @@ paths:
               examples:
                 preview-with-tl:
                   value:
-                    acceptedDevices:
-                      pc:
-                        - name: Windows
-                      smartphone: all
                     campaignType: string
                     content: string
                     endDate: string
                     selectionStatus: starting
                     startDate: string
                     status: selected
-                    title: title
                     tl:
                       email: string
                       name: string
-                    type:
-                      icon: bug-report
-                      name: Bug Hunting
                 preview-without-tl:
                   value:
-                    acceptedDevices:
-                      pc:
-                        - name: Windows
-                      smartphone: all
                     campaignType: string
                     content: string
                     endDate: string
                     selectionStatus: starting
                     startDate: string
                     status: selected
-                    title: title
-                    type:
-                      icon: bug-report
-                      name: Bug Hunting
               schema:
                 type: object
                 properties:
-                  acceptedDevices:
+                  type:
                     type: object
+                    required:
+                      - name
+                      - icon
+                    x-stoplight:
+                      id: gy3wkrp9ygxa0
                     properties:
-                      console:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      pc:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      smartTv:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      smartphone:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      smartwatch:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
-                      tablet:
-                        oneOf:
-                          - items:
-                              $ref: '#/components/schemas/AvailableDevice'
-                            type: array
-                          - enum:
-                              - all
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: 3qlavzbf7vd9g
+                      icon:
+                        type: string
+                        x-stoplight:
+                          id: zrqfmmbke7b4f
                   cap:
                     type: object
                     properties:
@@ -8925,12 +8838,12 @@ paths:
                   endDate:
                     type: string
                   selectionStatus:
-                    type: string
                     enum:
                       - starting
                       - excluded
                       - ready
                       - complete
+                    type: string
                   startDate:
                     type: string
                   status:
@@ -8940,8 +8853,6 @@ paths:
                       - applied
                       - excluded
                       - selected
-                  title:
-                    type: string
                   tl:
                     type: object
                     properties:
@@ -8952,18 +8863,11 @@ paths:
                     required:
                       - email
                       - name
-                  type:
-                    type: object
-                    properties:
-                      icon:
-                        type: string
-                      name:
-                        type: string
-                    required:
-                      - name
-                      - icon
+                  title:
+                    type: string
+                    x-stoplight:
+                      id: 04qjco8n6hatm
                 required:
-                  - acceptedDevices
                   - type
                   - content
                   - endDate
@@ -8995,8 +8899,7 @@ paths:
               examples:
                 Example 1:
                   value:
-                    - can_upload_media: true
-                      content: string
+                    - content: string
                       id: 0
                       is_required: 0
                       name: string
@@ -9005,8 +8908,6 @@ paths:
                 type: array
                 items:
                   properties:
-                    can_upload_media:
-                      type: boolean
                     content:
                       type: string
                     id:
@@ -9028,7 +8929,6 @@ paths:
                     - is_required
                     - name
                     - status
-                    - can_upload_media
                   type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -11507,15 +11407,6 @@ components:
           type: string
       title: Bug
       x-examples: {}
-    BugLang:
-      type: string
-      enum:
-        - IT
-        - GB
-        - ES
-        - FR
-        - DE
-      title: BugLang
     BugSeverity:
       type: object
       properties:
