@@ -73,6 +73,14 @@ export interface paths {
     get: operations["get-campaigns-owners"];
     parameters: {};
   };
+  "/campaigns/{campaignId}/visibility": {
+    patch: operations["patch-campaigns-campaignId-visibility"];
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+  };
   "/campaigns/{campaign}": {
     /** Get the data of a Campaign if you have access to it */
     get: operations["get-campaigns-campaign"];
@@ -173,6 +181,23 @@ export interface paths {
       path: {
         /** A campaign id */
         campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
+  "/users/me/campaigns/{campaignId}/tasks/{taskId}/media": {
+    post: operations["post-users-me-campaigns-campaignId-tasks-taskId-media"];
+    parameters: {
+      path: {
+        campaignId: string;
+        taskId: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/preview": {
+    post: operations["post-campaigns-campaign-preview"];
+    parameters: {
+      path: {
+        campaign: string;
       };
     };
   };
@@ -596,15 +621,6 @@ export interface paths {
       };
     };
   };
-  "/users/me/campaigns/{campaignId}/tasks/{taskId}/media": {
-    post: operations["post-users-me-campaigns-campaignId-tasks-taskId-media"];
-    parameters: {
-      path: {
-        campaignId: string;
-        taskId: string;
-      };
-    };
-  };
   "/users/me/campaigns/{campaign}/compatible_devices": {
     get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
     parameters: {
@@ -753,6 +769,11 @@ export interface components {
       status?: components["schemas"]["BugStatus"];
       title?: string;
     };
+    /**
+     * BugLang
+     * @enum {string}
+     */
+    BugLang: "IT" | "GB" | "ES" | "FR" | "DE";
     /** BugSeverity */
     BugSeverity: {
       id?: number;
@@ -1679,6 +1700,29 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  "patch-campaigns-campaignId-visibility": {
+    parameters: {
+      path: {
+        campaignId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @enum {undefined} */
+          type: "internal" | "target";
+        };
+      };
+    };
+  };
   /** Get the data of a Campaign if you have access to it */
   "get-campaigns-campaign": {
     parameters: {
@@ -2185,6 +2229,66 @@ export interface operations {
       };
     };
   };
+  "post-users-me-campaigns-campaignId-tasks-taskId-media": {
+    parameters: {
+      path: {
+        campaignId: string;
+        taskId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            failed?: {
+              /** @enum {string} */
+              errorCode:
+                | "FILE_TOO_BIG"
+                | "INVALID_FILE_EXTENSION"
+                | "GENERIC_ERROR";
+              name: string;
+            }[];
+            files?: {
+              name: string;
+              path: string;
+            }[];
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          media?: string | string[];
+        };
+      };
+    };
+  };
+  "post-campaigns-campaign-preview": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          content: string;
+        };
+      };
+    };
+  };
   "get-campaigns-campaign-prospect": {
     parameters: {
       path: {
@@ -2406,14 +2510,33 @@ export interface operations {
     };
     responses: {
       /** Created */
-      201: unknown;
+      201: {
+        content: {
+          "application/json": {
+            content: string;
+            id: number;
+            title: string;
+          };
+        };
+      };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
     };
     /** The data of the new UseCase to link to the Campaign */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["TaskOptional"];
+        "application/json": {
+          content: string;
+          is_required: number;
+          position?: number;
+          prefix?: string;
+          title: string;
+          upload?: {
+            language: string;
+            /** @enum {string} */
+            policy: "optimize" | "allow";
+          };
+        };
       };
     };
   };
@@ -2807,6 +2930,8 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          bugLanguage?: components["schemas"]["BugLang"];
+          hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
@@ -2933,6 +3058,8 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          bugLanguage?: components["schemas"]["BugLang"] | boolean;
+          hasBugParade?: number;
         };
       };
     };
@@ -3924,14 +4051,6 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            acceptedDevices: {
-              console?: components["schemas"]["AvailableDevice"][] | "all";
-              pc?: components["schemas"]["AvailableDevice"][] | "all";
-              smartTv?: components["schemas"]["AvailableDevice"][] | "all";
-              smartphone?: components["schemas"]["AvailableDevice"][] | "all";
-              smartwatch?: components["schemas"]["AvailableDevice"][] | "all";
-              tablet?: components["schemas"]["AvailableDevice"][] | "all";
-            };
             additionalFields?: components["schemas"]["CampaignAdditionalField"][];
             bugReplicability: {
               invalid: string[];
@@ -3956,6 +4075,7 @@ export interface operations {
             end_date: string;
             goal: string;
             hasBugForm: boolean;
+            hasBugParade: number;
             id: number;
             language?: {
               code: string;
@@ -4215,6 +4335,14 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            acceptedDevices: {
+              console?: components["schemas"]["AvailableDevice"][] | "all";
+              pc?: components["schemas"]["AvailableDevice"][] | "all";
+              smartTv?: components["schemas"]["AvailableDevice"][] | "all";
+              smartphone?: components["schemas"]["AvailableDevice"][] | "all";
+              smartwatch?: components["schemas"]["AvailableDevice"][] | "all";
+              tablet?: components["schemas"]["AvailableDevice"][] | "all";
+            };
             cap?: {
               free: number;
               value: number;
@@ -4253,6 +4381,7 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            can_upload_media: boolean;
             content: string;
             id: number;
             is_required: number;
@@ -4285,42 +4414,6 @@ export interface operations {
         "application/json": {
           /** @enum {undefined} */
           status: "completed";
-        };
-      };
-    };
-  };
-  "post-users-me-campaigns-campaignId-tasks-taskId-media": {
-    parameters: {
-      path: {
-        campaignId: string;
-        taskId: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            failed?: {
-              /** @enum {string} */
-              errorCode:
-                | "FILE_TOO_BIG"
-                | "INVALID_FILE_EXTENSION"
-                | "GENERIC_ERROR";
-              name: string;
-            }[];
-            files?: {
-              name: string;
-              path: string;
-            }[];
-          };
-        };
-      };
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          media?: string | string[];
         };
       };
     };
