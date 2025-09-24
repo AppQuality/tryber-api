@@ -3764,16 +3764,6 @@ paths:
                   position: 0
                   prefix: string
                   title: string
-              with-upload-optimize:
-                value:
-                  content: string
-                  is_required: 0
-                  position: 0
-                  prefix: string
-                  title: string
-                  upload:
-                    language: it
-                    policy: optimize
               with-upload-allow:
                 value:
                   content: string
@@ -3784,6 +3774,16 @@ paths:
                   upload:
                     language: en
                     policy: allow
+              with-upload-optimize:
+                value:
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
+                  title: string
+                  upload:
+                    language: it
+                    policy: optimize
             schema:
               type: object
               properties:
@@ -4669,7 +4669,8 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     duplicate:
                       type: object
                       properties:
@@ -4685,12 +4686,14 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                  type: object
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    bugLanguage:
+                      $ref: '#/components/schemas/BugLang'
                     hasBugParade:
                       type: integer
                       maximum: 1
@@ -4705,7 +4708,6 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '201':
           description: Created
@@ -5034,16 +5036,20 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    bugLanguage:
+                      oneOf:
+                        - $ref: '#/components/schemas/BugLang'
+                        - type: boolean
                     hasBugParade:
                       type: integer
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '200':
           description: OK
@@ -8989,17 +8995,18 @@ paths:
               examples:
                 Example 1:
                   value:
-                    - content: string
+                    - can_upload_media: true
+                      content: string
                       id: 0
                       is_required: 0
                       name: string
                       status: completed
-                      can_upload_media: true
               schema:
                 type: array
                 items:
-                  type: object
                   properties:
+                    can_upload_media:
+                      type: boolean
                     content:
                       type: string
                     id:
@@ -9015,8 +9022,6 @@ paths:
                       enum:
                         - completed
                         - pending
-                    can_upload_media:
-                      type: boolean
                   required:
                     - content
                     - id
@@ -9024,6 +9029,7 @@ paths:
                     - name
                     - status
                     - can_upload_media
+                  type: object
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -11501,6 +11507,15 @@ components:
           type: string
       title: Bug
       x-examples: {}
+    BugLang:
+      type: string
+      enum:
+        - IT
+        - GB
+        - ES
+        - FR
+        - DE
+      title: BugLang
     BugSeverity:
       type: object
       properties:

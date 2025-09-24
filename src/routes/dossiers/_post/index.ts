@@ -6,6 +6,7 @@ import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
+import { components } from "@src/schema";
 import Province from "comuni-province-regioni/lib/province";
 
 const MIN_TESTER_AGE = 14;
@@ -93,6 +94,44 @@ export default class PostDossiers extends UserRoute<{
     }
 
     return true;
+  }
+
+  protected async prepare(): Promise<void> {
+    const { skipPagesAndTasks, bugLanguage } = this.getBody();
+
+    try {
+      const campaignId = await this.createCampaign();
+      await this.linkRolesToCampaign(campaignId);
+
+      if (!skipPagesAndTasks) {
+        await this.generateLinkedData(campaignId);
+      }
+
+      if (bugLanguage) {
+        await this.setBugLanguage(campaignId);
+      }
+
+      const webhook = new WebhookTrigger({
+        type: "campaign_created",
+        data: {
+          campaignId,
+        },
+      });
+
+      try {
+        await webhook.trigger();
+        this.setSuccess(201, {
+          id: campaignId,
+        });
+      } catch (e) {
+        this.setSuccess(201, {
+          id: campaignId,
+          message: "HOOK_FAILED",
+        });
+      }
+    } catch (e) {
+      this.setError(500, e as OpenapiError);
+    }
   }
 
   private async hasFullAccess() {
@@ -239,38 +278,36 @@ export default class PostDossiers extends UserRoute<{
     return devices.length === deviceList.length;
   }
 
-  protected async prepare(): Promise<void> {
-    const { skipPagesAndTasks } = this.getBody();
+  private async setBugLanguage(campaignId: number) {
+    const bugLanguage = this.getBody().bugLanguage;
+    if (!bugLanguage) return;
 
-    try {
-      const campaignId = await this.createCampaign();
-      await this.linkRolesToCampaign(campaignId);
-
-      if (!skipPagesAndTasks) {
-        await this.generateLinkedData(campaignId);
-      }
-
-      const webhook = new WebhookTrigger({
-        type: "campaign_created",
-        data: {
-          campaignId,
-        },
+    if (typeof bugLanguage === "string" && bugLanguage.length === 2) {
+      await tryber.tables.WpAppqCpMeta.do().insert({
+        campaign_id: campaignId,
+        meta_key: "bug_lang_code",
+        meta_value: bugLanguage,
       });
 
-      try {
-        await webhook.trigger();
-        this.setSuccess(201, {
-          id: campaignId,
-        });
-      } catch (e) {
-        this.setSuccess(201, {
-          id: campaignId,
-          message: "HOOK_FAILED",
-        });
-      }
-    } catch (e) {
-      this.setError(500, e as OpenapiError);
+      await tryber.tables.WpAppqCpMeta.do().insert({
+        campaign_id: campaignId,
+        meta_key: "bug_lang_message",
+        meta_value: this.getTranslatedBugMessage(bugLanguage),
+      });
     }
+  }
+  private getTranslatedBugMessage(
+    bugLanguage: components["schemas"]["BugLang"]
+  ) {
+    const messages: Record<components["schemas"]["BugLang"], string> = {
+      ES: "Los bugs deben ser reportados en idioma español",
+      FR: "Les bugs doivent être signalés en langue française",
+      DE: "Die Bugs müssen in deutscher Sprache gemeldet werden",
+      GB: "Bugs must be reported in English",
+      IT: "I bug devono essere inseriti in lingua italiana",
+    };
+
+    return messages[bugLanguage] ?? messages.IT; // fallback on IT
   }
 
   private async getCampaignToDuplicate() {

@@ -760,6 +760,11 @@ export interface components {
       status?: components["schemas"]["BugStatus"];
       title?: string;
     };
+    /**
+     * BugLang
+     * @enum {string}
+     */
+    BugLang: "IT" | "GB" | "ES" | "FR" | "DE";
     /** BugSeverity */
     BugSeverity: {
       id?: number;
@@ -2880,6 +2885,7 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          bugLanguage?: components["schemas"]["BugLang"];
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
@@ -3007,6 +3013,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
         };
       };
@@ -4329,13 +4336,13 @@ export interface operations {
       200: {
         content: {
           "application/json": {
+            can_upload_media: boolean;
             content: string;
             id: number;
             is_required: number;
             name: string;
             /** @enum {string} */
             status: "completed" | "pending";
-            can_upload_media: boolean;
           }[];
         };
       };
