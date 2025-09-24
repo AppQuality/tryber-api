@@ -562,15 +562,6 @@ export interface paths {
       };
     };
   };
-  "/users/me/campaigns/{campaignId}/tasks/{taskId}/media": {
-    post: operations["post-users-me-campaigns-campaignId-tasks-taskId-media"];
-    parameters: {
-      path: {
-        campaignId: string;
-        taskId: string;
-      };
-    };
-  };
   "/users/me/campaigns/{campaignId}/payout_data": {
     get: operations["get-users-me-campaigns-cid-payout-data"];
     parameters: {
@@ -600,6 +591,15 @@ export interface paths {
     parameters: {
       path: {
         /** the campaign id */
+        campaignId: string;
+        taskId: string;
+      };
+    };
+  };
+  "/users/me/campaigns/{campaignId}/tasks/{taskId}/media": {
+    post: operations["post-users-me-campaigns-campaignId-tasks-taskId-media"];
+    parameters: {
+      path: {
         campaignId: string;
         taskId: string;
       };
@@ -4170,42 +4170,6 @@ export interface operations {
       };
     };
   };
-  "post-users-me-campaigns-campaignId-tasks-taskId-media": {
-    parameters: {
-      path: {
-        campaignId: string;
-        taskId: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            failed?: {
-              /** @enum {string} */
-              errorCode:
-                | "FILE_TOO_BIG"
-                | "INVALID_FILE_EXTENSION"
-                | "GENERIC_ERROR";
-              name: string;
-            }[];
-            files?: {
-              name: string;
-              path: string;
-            }[];
-          };
-        };
-      };
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          media?: string | string[];
-        };
-      };
-    };
-  };
   "get-users-me-campaigns-cid-payout-data": {
     parameters: {
       path: {
@@ -4251,10 +4215,6 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            type: {
-              name: string;
-              icon: string;
-            };
             cap?: {
               free: number;
               value: number;
@@ -4266,11 +4226,15 @@ export interface operations {
             startDate: string;
             /** @enum {string} */
             status: "available" | "applied" | "excluded" | "selected";
+            title: string;
             tl?: {
               email: string;
               name: string;
             };
-            title: string;
+            type: {
+              icon: string;
+              name: string;
+            };
           };
         };
       };
@@ -4321,6 +4285,42 @@ export interface operations {
         "application/json": {
           /** @enum {undefined} */
           status: "completed";
+        };
+      };
+    };
+  };
+  "post-users-me-campaigns-campaignId-tasks-taskId-media": {
+    parameters: {
+      path: {
+        campaignId: string;
+        taskId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            failed?: {
+              /** @enum {string} */
+              errorCode:
+                | "FILE_TOO_BIG"
+                | "INVALID_FILE_EXTENSION"
+                | "GENERIC_ERROR";
+              name: string;
+            }[];
+            files?: {
+              name: string;
+              path: string;
+            }[];
+          };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          media?: string | string[];
         };
       };
     };

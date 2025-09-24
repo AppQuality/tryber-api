@@ -8592,75 +8592,6 @@ paths:
       security:
         - JWT: []
         - User Token: []
-  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media':
-    parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: string
-      - schema:
-          type: string
-        name: taskId
-        in: path
-        required: true
-    post:
-      operationId: post-users-me-campaigns-campaignId-tasks-taskId-media
-      summary: Upload media for a task
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                media:
-                  oneOf:
-                    - properties: {}
-                      type: string
-                    - items:
-                        type: string
-                      type: array
-        description: ''
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  failed:
-                    type: array
-                    items:
-                      properties:
-                        errorCode:
-                          type: string
-                          enum:
-                            - FILE_TOO_BIG
-                            - INVALID_FILE_EXTENSION
-                            - GENERIC_ERROR
-                        name:
-                          type: string
-                      required:
-                        - name
-                        - errorCode
-                      type: object
-                  files:
-                    type: array
-                    items:
-                      properties:
-                        name:
-                          type: string
-                        path:
-                          type: string
-                      required:
-                        - name
-                        - path
-                      type: object
-      security:
-        - JWT: []
-        - User Token: []
-      description: ''
   '/users/me/campaigns/{campaignId}/payout_data':
     get:
       operationId: get-users-me-campaigns-cid-payout-data
@@ -8807,22 +8738,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  type:
-                    type: object
-                    required:
-                      - name
-                      - icon
-                    x-stoplight:
-                      id: gy3wkrp9ygxa0
-                    properties:
-                      name:
-                        type: string
-                        x-stoplight:
-                          id: 3qlavzbf7vd9g
-                      icon:
-                        type: string
-                        x-stoplight:
-                          id: zrqfmmbke7b4f
                   cap:
                     type: object
                     properties:
@@ -8838,12 +8753,12 @@ paths:
                   endDate:
                     type: string
                   selectionStatus:
+                    type: string
                     enum:
                       - starting
                       - excluded
                       - ready
                       - complete
-                    type: string
                   startDate:
                     type: string
                   status:
@@ -8853,6 +8768,8 @@ paths:
                       - applied
                       - excluded
                       - selected
+                  title:
+                    type: string
                   tl:
                     type: object
                     properties:
@@ -8863,10 +8780,16 @@ paths:
                     required:
                       - email
                       - name
-                  title:
-                    type: string
-                    x-stoplight:
-                      id: 04qjco8n6hatm
+                  type:
+                    type: object
+                    properties:
+                      icon:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - name
+                      - icon
                 required:
                   - type
                   - content
@@ -9004,6 +8927,75 @@ paths:
       security:
         - JWT: []
       tags: []
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: post-users-me-campaigns-campaignId-tasks-taskId-media
+      summary: Upload media for a task
+      description: ''
+      requestBody:
+        description: ''
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - properties: {}
+                      type: string
+                    - items:
+                        type: string
+                      type: array
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items:
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - FILE_TOO_BIG
+                            - INVALID_FILE_EXTENSION
+                            - GENERIC_ERROR
+                        name:
+                          type: string
+                      required:
+                        - name
+                        - errorCode
+                      type: object
+                  files:
+                    type: array
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                      type: object
+      security:
+        - JWT: []
+        - User Token: []
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices
