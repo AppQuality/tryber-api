@@ -7,6 +7,7 @@ import upload from "../upload";
 class TaskMediaUploader {
   private _validExtensions?: string[];
   private request: OpenapiRequest;
+  private bucket: string = process.env.MEDIA_BUCKET || "";
   private initialized: boolean = false;
   private keyMaker: (params: {
     testerId: number;
@@ -16,10 +17,12 @@ class TaskMediaUploader {
 
   constructor({
     request,
+    bucket,
     validExtensions,
     keyMaker,
   }: {
     request: OpenapiRequest;
+    bucket?: string;
     validExtensions?: string[];
     keyMaker: (params: {
       testerId: number;
@@ -29,6 +32,7 @@ class TaskMediaUploader {
   }) {
     this._validExtensions = validExtensions;
     this.request = request;
+    if (bucket) this.bucket = bucket;
     this.keyMaker = keyMaker;
   }
 
@@ -81,7 +85,7 @@ class TaskMediaUploader {
     for (const media of files) {
       const currentPath = (
         await upload({
-          bucket: process.env.MEDIA_BUCKET || "",
+          bucket: this.bucket,
           key: this.keyMaker({
             testerId: testerId,
             filename: path.basename(media.name, path.extname(media.name)),
