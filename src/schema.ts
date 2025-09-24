@@ -2885,7 +2885,7 @@ export interface operations {
           };
         } & {
           autoApply?: number;
-          bugLanguage?: components["schemas"]["BugLang"] | boolean;
+          bugLanguage?: components["schemas"]["BugLang"];
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
@@ -3013,6 +3013,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
         };
       };

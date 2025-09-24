@@ -4693,9 +4693,7 @@ paths:
                       maximum: 1
                       minimum: 0
                     bugLanguage:
-                      oneOf:
-                        - $ref: '#/components/schemas/BugLang'
-                        - type: boolean
+                      $ref: '#/components/schemas/BugLang'
                     hasBugParade:
                       type: integer
                       maximum: 1
@@ -5038,16 +5036,20 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    bugLanguage:
+                      oneOf:
+                        - $ref: '#/components/schemas/BugLang'
+                        - type: boolean
                     hasBugParade:
                       type: integer
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '200':
           description: OK
