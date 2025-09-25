@@ -132,7 +132,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
     });
 
     describe("Tasks not present", () => {
-      it("Should return 200", async () => {
+      it("Should return 403", async () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/tasks/9999/media")
           .set("Authorization", "Bearer tester");
