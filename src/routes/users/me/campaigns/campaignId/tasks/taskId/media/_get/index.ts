@@ -1,9 +1,9 @@
 /** OPENAPI-CLASS: get-users-me-campaigns-campaignId-tasks-taskId-media */
 
-import UserRoute from "@src/features/routes/UserRoute";
+import { tryber } from "@src/features/database";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
-import { tryber } from "@src/features/database";
+import UserRoute from "@src/features/routes/UserRoute";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaigns-campaignId-tasks-taskId-media"]["responses"]["200"]["content"]["application/json"];
@@ -84,7 +84,7 @@ class GetCampaignMyCampaignTasksMedia extends UserRoute<{
           .select(tryber.ref("id").withSchema("wp_appq_campaign_task"))
           .where("wp_appq_campaign_task.id", this.taskId)
           .where("wp_appq_campaign_task.campaign_id", this.campaignId)
-          .leftJoin(
+          .join(
             "wp_appq_user_task",
             "wp_appq_user_task.task_id",
             "wp_appq_campaign_task.id"
