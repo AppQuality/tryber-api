@@ -623,6 +623,17 @@ export interface paths {
       };
     };
   };
+  "/users/me/campaigns/{campaignId}/tasks/{taskId}/media/{mediaId}": {
+    /** Delete a specific media of a specific campaign task if authorized */
+    delete: operations["delete-users-me-campaigns-campaignId-tasks-taskId-media-mediaId"];
+    parameters: {
+      path: {
+        campaignId: string;
+        taskId: string;
+        mediaId: string;
+      };
+    };
+  };
   "/users/me/campaigns/{campaign}/compatible_devices": {
     get: operations["get-users-me-campaigns-campaignId-compatible-devices"];
     parameters: {
@@ -4442,6 +4453,27 @@ export interface operations {
           media?: string | string[];
         };
       };
+    };
+  };
+  /** Delete a specific media of a specific campaign task if authorized */
+  "delete-users-me-campaigns-campaignId-tasks-taskId-media-mediaId": {
+    parameters: {
+      path: {
+        campaignId: string;
+        taskId: string;
+        mediaId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+      404: components["responses"]["NotFound"];
     };
   };
   "get-users-me-campaigns-campaignId-compatible-devices": {
