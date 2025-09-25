@@ -79,6 +79,7 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
    * @returns Array of objects with tasks data
    */
   private async retrieveCampaignTasks() {
+    const tid = this.getTesterId();
     const results = await tryber.tables.WpAppqCampaignTask.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_campaign_task"),
@@ -90,15 +91,17 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
       )
       .where({ campaign_id: this.campaignId })
       .andWhere((q) => {
-        q.where("wp_appq_user_task.tester_id", this.getTesterId()).orWhereNull(
+        q.where("wp_appq_user_task.tester_id", tid).orWhereNull(
           "wp_appq_user_task.tester_id"
         );
       })
-      .leftJoin(
-        "wp_appq_user_task",
-        "wp_appq_user_task.task_id",
-        "wp_appq_campaign_task.id"
-      );
+      .leftJoin("wp_appq_user_task", function () {
+        this.on(
+          "wp_appq_user_task.task_id",
+          "=",
+          "wp_appq_campaign_task.id"
+        ).andOn("wp_appq_user_task.tester_id", "=", tryber.raw("?", [tid]));
+      });
 
     if (!results) {
       throw new Error("Campaign tasks not found");

@@ -227,38 +227,17 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(200);
       });
-      it("Should not return tasks of other testers", async () => {
+      it("Should return tasks without userTask as pending ", async () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/tasks")
           .set("Authorization", "Bearer tester");
         expect(response.status).toBe(200);
-        expect(response.body).toHaveLength(4);
-        expect(response.body).toMatchObject(
-          expect.not.arrayContaining([
-            expect.objectContaining({
-              id: 15,
-              name: "Task 5 - other tester",
-              is_required: 1,
-              content: "Content 5",
-              status: "completed",
-            }),
-          ])
-        );
-      });
-      it("Should return array of tasks data", async () => {
-        const response = await request(app)
-          .get("/users/me/campaigns/1/tasks")
-          .set("Authorization", "Bearer tester");
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveLength(4);
+        expect(response.body).toHaveLength(5);
         expect(response.body).toMatchObject(
           expect.arrayContaining([
             expect.objectContaining({
-              id: expect.any(Number),
-              name: expect.any(String),
-              is_required: expect.any(Number),
-              content: expect.any(String),
-              status: expect.stringMatching(/^(completed|pending)$/),
+              id: 15,
+              status: "pending",
             }),
           ])
         );
