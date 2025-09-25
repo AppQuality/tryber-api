@@ -9173,6 +9173,49 @@ paths:
       security:
         - JWT: []
         - User Token: []
+    get:
+      summary: GET tester media uploaded on a specific Campaign Task
+      operationId: get-users-me-campaigns-campaignId-tasks-taskId-media
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        location:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - location
+                        - name
+                required:
+                  - items
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 11111
+                        location: 'https://www.example.com/media1'
+                        name: media1
+                      - id: 12345
+                        location: 'https://www.example.com/media2'
+                        name: media2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      security:
+        - JWT: []
+      description: Return a list of tester media uploaded on a specific Usecase of a specific Campaign
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices

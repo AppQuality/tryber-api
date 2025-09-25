@@ -613,6 +613,8 @@ export interface paths {
     };
   };
   "/users/me/campaigns/{campaignId}/tasks/{taskId}/media": {
+    /** Return a list of tester media uploaded on a specific Usecase of a specific Campaign */
+    get: operations["get-users-me-campaigns-campaignId-tasks-taskId-media"];
     post: operations["post-users-me-campaigns-campaignId-tasks-taskId-media"];
     parameters: {
       path: {
@@ -4380,6 +4382,30 @@ export interface operations {
           status: "completed";
         };
       };
+    };
+  };
+  /** Return a list of tester media uploaded on a specific Usecase of a specific Campaign */
+  "get-users-me-campaigns-campaignId-tasks-taskId-media": {
+    parameters: {
+      path: {
+        campaignId: string;
+        taskId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              location: string;
+              name: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
     };
   };
   "post-users-me-campaigns-campaignId-tasks-taskId-media": {
