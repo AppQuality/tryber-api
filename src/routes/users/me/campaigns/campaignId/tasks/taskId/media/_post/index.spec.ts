@@ -8,9 +8,12 @@ import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
 import crypt from "./crypt";
+import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 
 jest.mock("@src/features/upload");
 jest.mock("./crypt");
+jest.mock("@src/features/getMimetypeFromS3");
+(getMimetypeFromS3 as jest.Mock).mockReturnValue("image");
 
 const mockFileBuffer = Buffer.from("some data");
 process.env.OPTIMIZED_TASK_MEDIA_BUCKET = "optimized-task-bucket";
@@ -180,5 +183,25 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       "path",
       "https://s3.amazonaws.com/optimized-task-bucket/CP1/UC2/T1/crypted.png"
     );
+  });
+  it("Should call getMimetypeFromS3 for each uploaded file", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/tasks/1/media")
+      .attach("media", mockFileBuffer, "void.png")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(getMimetypeFromS3).toHaveBeenCalledTimes(1);
+  });
+  it("Should save the mimetype returned by getMimetypeFromS3 in the database", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/tasks/1/media")
+      .attach("media", mockFileBuffer, "void.png")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const insertedMimetypeMedia = await tryber.tables.WpAppqUserTaskMedia.do()
+      .select("mimetype")
+      .where("filename", response.body.files[0].name);
+    expect(insertedMimetypeMedia).not.toEqual(undefined);
+    expect(insertedMimetypeMedia[0].mimetype).toEqual("image");
   });
 });
