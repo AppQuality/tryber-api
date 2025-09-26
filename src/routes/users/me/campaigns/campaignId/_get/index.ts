@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS: get-users-me-campaigns-campaignId */
 
-import OpenapiError from "@src/features/OpenapiError";
 import Campaign from "@src/features/class/Campaign";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class UserSingleCampaignRoute extends UserRoute<{
@@ -12,6 +12,8 @@ export default class UserSingleCampaignRoute extends UserRoute<{
   private campaignId = parseInt(this.getParameters().campaignId);
 
   protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
+    if (this.hasAccessToCampaign(this.campaignId)) return true;
     if (await this.testerIsNotCandidate()) return false;
     if (await this.campaignIsUnavailable()) return false;
     if (await this.isCampaignClosed()) return false;
