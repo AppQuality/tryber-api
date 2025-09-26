@@ -32,7 +32,7 @@ const decomposeS3Url = (input: string) => {
   // Helpers
   const firstSeg = path.split("/")[0] || "";
   const restSegs = path.split("/").slice(1).join("/"); // potrebbe essere "" se root
-  const decodeKey = (k) => {
+  const decodeKey = (k: string) => {
     // decodeURIComponent non tocca gli slash, ma decodifica %20 ecc.
     try {
       return decodeURIComponent(k);
