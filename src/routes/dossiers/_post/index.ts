@@ -283,6 +283,10 @@ export default class PostDossiers extends UserRoute<{
     if (!bugLanguage) return;
 
     if (typeof bugLanguage === "string" && bugLanguage.length === 2) {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({ bug_lang: 1 })
+        .where("id", campaignId);
+
       await tryber.tables.WpAppqCpMeta.do().insert({
         campaign_id: campaignId,
         meta_key: "bug_lang_code",
