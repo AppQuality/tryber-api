@@ -1110,6 +1110,19 @@ describe("Route POST /dossiers", () => {
       jest.clearAllMocks();
       await tryber.tables.WpAppqCpMeta.do().delete();
     });
+    it("Should set bug_lang = 1 in campaign if send any valid language", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "IT" });
+
+      const cpLang = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("bug_lang")
+        .where({ id: postResponse.body.id })
+        .first();
+
+      expect(cpLang).toHaveProperty("bug_lang", 1);
+    });
     it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language IT", async () => {
       const postResponse = await request(app)
         .post("/dossiers")

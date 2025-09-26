@@ -416,6 +416,7 @@ export default class PostDossiers extends UserRoute<{
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
         page_version: pageVersion,
+        ...(this.getBody().bugLanguage ? { bug_lang: 1 } : {}),
         ...(typeof this.getBody().hasBugParade !== "undefined" && {
           campaign_type: this.getBody().hasBugParade,
         }),
