@@ -9216,6 +9216,41 @@ paths:
       security:
         - JWT: []
       description: Return a list of tester media uploaded on a specific Usecase of a specific Campaign
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media/{mediaId}':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      - schema:
+          type: string
+        name: mediaId
+        in: path
+        required: true
+    delete:
+      summary: Delete tryber media
+      operationId: delete-users-me-campaigns-campaignId-tasks-taskId-media-mediaId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Delete a specific media of a specific campaign task if authorized
+      security:
+        - JWT: []
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices
