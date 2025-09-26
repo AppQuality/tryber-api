@@ -9,6 +9,7 @@ class TaskMediaUploader {
   private request: OpenapiRequest;
   private bucket: string = process.env.MEDIA_BUCKET || "";
   private initialized: boolean = false;
+  private usePathStyle: boolean = false;
   private keyMaker: (params: {
     testerId: number;
     filename: string;
@@ -34,6 +35,10 @@ class TaskMediaUploader {
     this.request = request;
     if (bucket) this.bucket = bucket;
     this.keyMaker = keyMaker;
+  }
+
+  set pathStyle(value: boolean) {
+    this.usePathStyle = value;
   }
 
   async init() {
@@ -92,6 +97,7 @@ class TaskMediaUploader {
             extension: path.extname(media.name),
           }),
           file: media,
+          style: this.usePathStyle ? "path" : undefined,
         })
       ).toString();
 

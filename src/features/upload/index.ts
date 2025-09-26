@@ -5,14 +5,23 @@ type UploadParams = {
   bucket: string;
   key: string;
   file: Media;
+  style?: "path";
 };
 
-export default async ({ bucket, key, file }: UploadParams): Promise<string> => {
+export default async ({
+  bucket,
+  key,
+  file,
+  style,
+}: UploadParams): Promise<string> => {
   const awsCredentials = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   };
-  const s3 = new S3(awsCredentials);
+  const s3 = new S3({
+    ...awsCredentials,
+    ...(style === "path" ? { s3ForcePathStyle: true } : {}),
+  });
   const pass = new stream.PassThrough();
 
   const promise = s3

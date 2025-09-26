@@ -71,6 +71,8 @@ export default async (
       )}${extension}`,
   });
 
+  uploader.pathStyle = true;
+
   await uploader.init();
   const { valid, invalid } = await uploader.getValidInvalidFiles();
   const result = {
