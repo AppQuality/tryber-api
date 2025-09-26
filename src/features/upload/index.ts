@@ -20,7 +20,12 @@ export default async ({
   };
   const s3 = new S3({
     ...awsCredentials,
-    ...(style === "path" ? { s3ForcePathStyle: true } : {}),
+    ...(style === "path"
+      ? {
+          endpoint: `https://s3-${process.env.AWS_REGION}.amazonaws.com`,
+          s3ForcePathStyle: true,
+        }
+      : {}),
   });
   const pass = new stream.PassThrough();
 
