@@ -131,14 +131,16 @@ export default class PutCampaignPayoutData extends CampaignRoute<{
     }
 
     // check if body contains invalid values
-    if (
-      Object.keys(body).some(
-        (key) =>
-          !this.cpMetaPayoutDataKeys.includes(key as any) &&
-          key !== this.cpPointsKey
-      )
-    ) {
-      this.setError(403, new OpenapiError("Invalid keys in body"));
+    const invalidKeys = Object.keys(body).filter(
+      (key) =>
+        !this.cpMetaPayoutDataKeys.includes(key as any) &&
+        key !== this.cpPointsKey
+    );
+    if (invalidKeys.length > 0) {
+      this.setError(
+        403,
+        new OpenapiError(`Invalid keys in body: ${invalidKeys.join(", ")}`)
+      );
       return false;
     }
 
