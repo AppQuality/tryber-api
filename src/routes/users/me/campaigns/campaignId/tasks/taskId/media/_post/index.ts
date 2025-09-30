@@ -4,6 +4,7 @@ import { tryber } from "@src/features/database";
 import TaskMediaUploader from "@src/features/TaskMediaUploader";
 import { Context } from "openapi-backend";
 import crypt from "./crypt";
+import getMimetypeFromS3 from "@src/features/getMimetypeFromS3";
 
 export default async (
   c: Context,
@@ -88,6 +89,7 @@ export default async (
       filename: file.name,
       size: file.size,
       tester_id: req.user.testerId,
+      mimetype: await getMimetypeFromS3({ url: file.path }),
     });
   }
 
