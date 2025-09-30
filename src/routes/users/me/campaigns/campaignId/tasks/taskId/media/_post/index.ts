@@ -86,6 +86,7 @@ export default async (
       campaign_task_id: task.id,
       location: file.path,
       filename: file.name,
+      size: file.size,
       tester_id: req.user.testerId,
     });
   }
