@@ -2235,6 +2235,7 @@ export interface operations {
           point_multiplier_high?: number;
           point_multiplier_low?: number;
           point_multiplier_medium?: number;
+          /** Format: float */
           point_multiplier_perfect?: number;
           point_multiplier_refused?: number;
           top_tester_bonus?: number;

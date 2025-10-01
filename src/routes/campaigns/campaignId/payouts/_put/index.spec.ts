@@ -457,6 +457,15 @@ describe("GET /campaigns/campaignId/payouts", () => {
           expect(cpMeta?.meta_value).toBe("99");
         });
 
+        it("Should update correctly with floats", async () => {
+          const response = await request(app)
+            .put("/campaigns/1/payouts")
+            .set("Authorization", "Bearer admin")
+            .send({
+              point_multiplier_perfect: 6.5,
+            });
+          expect(response.status).toBe(200);
+        });
         it("Should update multiple fields at once", async () => {
           const response = await request(app)
             .put("/campaigns/1/payouts")
