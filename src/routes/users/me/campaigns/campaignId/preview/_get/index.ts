@@ -158,15 +158,21 @@ class GetCampaignPreviewV2 extends UserRoute<{
 
     if (this.hasAccessToCampaign(this.campaignId)) return "ready";
 
+    if (this.campaign === false) return undefined;
+
     const candidate = await tryber.tables.WpCrowdAppqHasCandidate.do()
       .select(tryber.ref("accepted"), tryber.ref("results"))
       .where("user_id", this.getWordpressId())
       .where("campaign_id", this.campaignId)
       .first();
-    if (!candidate || candidate.accepted !== 1) return undefined;
+
+    if (!candidate) return undefined;
+
+    if (candidate.results === 0) return "starting";
+
+    if (new Date(this.campaign.start_date) > new Date()) return "not-started";
+
     switch (candidate.results) {
-      case 0:
-        return "starting";
       case 1:
         return "excluded";
       case 2:

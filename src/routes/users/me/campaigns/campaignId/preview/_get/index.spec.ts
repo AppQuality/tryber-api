@@ -35,8 +35,23 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
       },
     ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
-      buildCampaignRow({ id: 1, version: "v2", isPublic: 4 }), // 4 = target group
+      buildCampaignRow({
+        id: 1,
+        version: "v2",
+        isPublic: 4,
+        startDate: new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+      }), // 4 = target group
       buildCampaignRow({ id: 2, version: "v1", isPublic: 1, cp_type: 2 }), // 1 = public
+      buildCampaignRow({
+        id: 3,
+        version: "v2",
+        isPublic: 4,
+        startDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0], // one week in the future
+      }), // 4 = target group
     ]);
     await tryber.tables.WpAppqEvdPlatform.do().insert([
       {
@@ -163,7 +178,7 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/preview")
           .set("Authorization", "Bearer tester");
-        expect(response.body).toHaveProperty("startDate", "2025-09-17");
+        expect(response.body).toHaveProperty("startDate", "2025-09-24");
         expect(response.body).toHaveProperty("endDate", "2025-09-29");
       });
       it("Should return campaignType ", async () => {
@@ -237,110 +252,266 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         });
 
         describe("There is a candidature", () => {
-          describe("With accepted = 0", () => {
+          describe("Campaign with start date in the past", () => {
+            describe("With accepted = 0 and results=0", () => {
+              beforeEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                  user_id: 1,
+                  campaign_id: 1,
+                  accepted: 0,
+                });
+              });
+              afterEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+              });
+
+              describe("User role = tester", () => {
+                it("Should answer with selectionStatus starting", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer tester");
+                  console.log(response.body);
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "starting"
+                  );
+                });
+              });
+
+              describe("User role = administrator", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer admin");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+              describe("User role = tester with appq_campaign olp", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set(
+                      "Authorization",
+                      'Bearer tester olp {"appq_campaign":[1]}'
+                    );
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+            });
+            describe("With results = 0", () => {
+              beforeEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                  user_id: 1,
+                  campaign_id: 1,
+                  accepted: 1,
+                  results: 0,
+                });
+              });
+              afterEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+              });
+
+              describe("User role = tester", () => {
+                it("Should answer with selectionStatus = starting", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer tester");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "starting"
+                  );
+                });
+              });
+
+              describe("User role = administrator", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer admin");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+              describe("User role = tester with appq_campaign olp", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set(
+                      "Authorization",
+                      'Bearer tester olp {"appq_campaign":[1]}'
+                    );
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+            });
+            describe("With results = 1", () => {
+              beforeEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                  user_id: 1,
+                  campaign_id: 1,
+                  accepted: 1,
+                  results: 1,
+                });
+              });
+              afterEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+              });
+
+              describe("User role = tester", () => {
+                it("Should answer with selectionStatus = excluded", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer tester");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "excluded"
+                  );
+                });
+              });
+              describe("User role = administrator", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer admin");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+              describe("User role = tester with appq_campaign olp", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set(
+                      "Authorization",
+                      'Bearer tester olp {"appq_campaign":[1]}'
+                    );
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+            });
+            describe("With results = 2", () => {
+              beforeEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                  user_id: 1,
+                  campaign_id: 1,
+                  accepted: 1,
+                  results: 2,
+                });
+              });
+              afterEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+              });
+
+              describe("User role = tester", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer tester");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+
+              describe("User role = administrator", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer admin");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+              describe("User role = tester with appq_campaign olp", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set(
+                      "Authorization",
+                      'Bearer tester olp {"appq_campaign":[1]}'
+                    );
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+            });
+            describe("With results = 3", () => {
+              beforeEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+                  user_id: 1,
+                  campaign_id: 1,
+                  accepted: 1,
+                  results: 3,
+                });
+              });
+              afterEach(async () => {
+                await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+              });
+              describe("User role = tester", () => {
+                it("Should answer with selectionStatus = complete", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer tester");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "complete"
+                  );
+                });
+              });
+              describe("User role = administrator", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set("Authorization", "Bearer admin");
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+              describe("User role = tester with appq_campaign olp", () => {
+                it("Should answer with selectionStatus = ready", async () => {
+                  const response = await request(app)
+                    .get("/users/me/campaigns/1/preview")
+                    .set(
+                      "Authorization",
+                      'Bearer tester olp {"appq_campaign":[1]}'
+                    );
+                  expect(response.body).toHaveProperty(
+                    "selectionStatus",
+                    "ready"
+                  );
+                });
+              });
+            });
+          });
+          describe("Campaign with start date in the future", () => {
             beforeEach(async () => {
               await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
                 user_id: 1,
-                campaign_id: 1,
+                campaign_id: 3,
                 accepted: 0,
-              });
-            });
-            afterEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
-            });
-
-            describe("User role = tester", () => {
-              it("Should not answer with selectionStatus", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer tester");
-                expect(response.body).not.toHaveProperty("selectionStatus");
-              });
-            });
-
-            describe("User role = administrator", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer admin");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-            describe("User role = tester with appq_campaign olp", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set(
-                    "Authorization",
-                    'Bearer tester olp {"appq_campaign":[1]}'
-                  );
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-          });
-          describe("With results = 0", () => {
-            beforeEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
-                user_id: 1,
-                campaign_id: 1,
-                accepted: 1,
-                results: 0,
-              });
-            });
-            afterEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
-            });
-
-            describe("User role = tester", () => {
-              it("Should answer with selectionStatus = starting", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer tester");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "starting"
-                );
-              });
-            });
-
-            describe("User role = administrator", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer admin");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-            describe("User role = tester with appq_campaign olp", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set(
-                    "Authorization",
-                    'Bearer tester olp {"appq_campaign":[1]}'
-                  );
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-          });
-          describe("With results = 1", () => {
-            beforeEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
-                user_id: 1,
-                campaign_id: 1,
-                accepted: 1,
                 results: 1,
               });
             });
@@ -349,135 +520,21 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
             });
 
             describe("User role = tester", () => {
-              it("Should answer with selectionStatus = excluded", async () => {
+              it("Should answer with selection status not-started", async () => {
                 const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
+                  .get("/users/me/campaigns/3/preview")
                   .set("Authorization", "Bearer tester");
                 expect(response.body).toHaveProperty(
                   "selectionStatus",
-                  "excluded"
+                  "not-started"
                 );
               });
             });
-            describe("User role = administrator", () => {
-              it("Should answer with selectionStatus = ready", async () => {
+            describe("User role = admin", () => {
+              it("Should answer with selectionStatus ready if admin", async () => {
                 const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
+                  .get("/users/me/campaigns/3/preview")
                   .set("Authorization", "Bearer admin");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-            describe("User role = tester with appq_campaign olp", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set(
-                    "Authorization",
-                    'Bearer tester olp {"appq_campaign":[1]}'
-                  );
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-          });
-          describe("With results = 2", () => {
-            beforeEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
-                user_id: 1,
-                campaign_id: 1,
-                accepted: 1,
-                results: 2,
-              });
-            });
-            afterEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
-            });
-
-            describe("User role = tester", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer tester");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-
-            describe("User role = administrator", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer admin");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-            describe("User role = tester with appq_campaign olp", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set(
-                    "Authorization",
-                    'Bearer tester olp {"appq_campaign":[1]}'
-                  );
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-          });
-          describe("With results = 3", () => {
-            beforeEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
-                user_id: 1,
-                campaign_id: 1,
-                accepted: 1,
-                results: 3,
-              });
-            });
-            afterEach(async () => {
-              await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
-            });
-            describe("User role = tester", () => {
-              it("Should answer with selectionStatus = complete", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer tester");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "complete"
-                );
-              });
-            });
-            describe("User role = administrator", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set("Authorization", "Bearer admin");
-                expect(response.body).toHaveProperty(
-                  "selectionStatus",
-                  "ready"
-                );
-              });
-            });
-            describe("User role = tester with appq_campaign olp", () => {
-              it("Should answer with selectionStatus = ready", async () => {
-                const response = await request(app)
-                  .get("/users/me/campaigns/1/preview")
-                  .set(
-                    "Authorization",
-                    'Bearer tester olp {"appq_campaign":[1]}'
-                  );
                 expect(response.body).toHaveProperty(
                   "selectionStatus",
                   "ready"
@@ -496,16 +553,18 @@ function buildCampaignRow({
   version,
   isPublic,
   cp_type,
+  startDate,
 }: {
   id: number;
   version: "v1" | "v2";
   isPublic?: number;
   cp_type?: number;
+  startDate?: string;
 }) {
   return {
     id,
     is_public: isPublic,
-    start_date: "2025-09-17",
+    start_date: startDate || "2025-09-17",
     platform_id: 1,
     // new date il 5 days in the future
     end_date: "2025-09-29",
