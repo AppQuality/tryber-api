@@ -221,6 +221,26 @@ describe("POST /campaigns/{CampaignId}/tasks", () => {
       content: requestBody.content,
     });
   });
+  it("Should return title with prefix if send prefix", async () => {
+    const requestBody = {
+      title: "new task",
+      content: "new task content",
+      is_required: 1,
+      position: 10,
+      prefix: "PREFIX",
+    };
+    const response = await request(app)
+      .post("/campaigns/100/tasks")
+      .send(requestBody)
+      .set("Authorization", "Bearer admin");
+    expect(response.status).toBe(201);
+
+    expect(response.body).toMatchObject({
+      id: expect.any(Number),
+      title: `${requestBody.prefix}: ${requestBody.title}`,
+      content: requestBody.content,
+    });
+  });
 
   it("Should save allow_media = false if upload not provided in request body", async () => {
     const response = await request(app)

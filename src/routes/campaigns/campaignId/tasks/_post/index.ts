@@ -34,7 +34,7 @@ class PostUsecasesRoute extends CampaignRoute<{
     const res = await tryber.tables.WpAppqCampaignTask.do()
       .insert({
         campaign_id: this.cp_id,
-        title: body.title,
+        title: `${body.prefix ? `${body.prefix}: ` : ""}${body.title}`,
         simple_title: body.title,
         content: body.content,
         is_required: body.is_required ? 1 : 0,
