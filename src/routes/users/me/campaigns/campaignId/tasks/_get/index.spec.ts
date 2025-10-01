@@ -163,6 +163,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             content: "Content 1",
             is_required: 1,
             allow_media: 1,
+            position: 10,
           },
           {
             ...task,
@@ -172,6 +173,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             content: "Content 2",
             is_required: 0,
             allow_media: 0,
+            position: 9,
           },
           {
             ...task,
@@ -181,6 +183,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             content: "Content 3",
             is_required: 1,
             allow_media: 1,
+            position: 8,
           },
           {
             ...task,
@@ -189,6 +192,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             title: "Task 1",
             content: "Content 4",
             is_required: 1,
+            position: 100,
           },
           {
             ...task,
@@ -198,6 +202,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             content: "Content 4",
             is_required: 1,
             allow_media: 0,
+            position: 7,
           },
           {
             ...task, // task of another tester
@@ -206,6 +211,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             title: "Task 5 - other tester",
             content: "Content 5",
             is_required: 1,
+            position: 200,
           },
         ]);
         await tryber.tables.WpAppqUserTask.do().insert([
@@ -283,6 +289,17 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             }),
           ])
         );
+      });
+      it("Should return tasks ordered by position asc", async () => {
+        const response = await request(app)
+          .get("/users/me/campaigns/1/tasks")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(5);
+        expect(response.body[0].id).toBe(14);
+        expect(response.body[1].id).toBe(12);
+        expect(response.body[2].id).toBe(11);
+        expect(response.body[3].id).toBe(10);
       });
     });
   });

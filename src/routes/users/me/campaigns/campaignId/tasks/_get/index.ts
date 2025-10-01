@@ -101,7 +101,9 @@ class GetCampaignMyCampaignTasks extends UserRoute<{
           "=",
           "wp_appq_campaign_task.id"
         ).andOn("wp_appq_user_task.tester_id", "=", tryber.raw("?", [tid]));
-      });
+      })
+      .orderBy("wp_appq_campaign_task.position", "asc")
+      .orderBy("wp_appq_campaign_task.id", "asc");
 
     if (!results) {
       throw new Error("Campaign tasks not found");
