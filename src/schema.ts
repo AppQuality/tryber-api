@@ -4327,7 +4327,12 @@ export interface operations {
             content: string;
             endDate: string;
             /** @enum {string} */
-            selectionStatus?: "starting" | "excluded" | "ready" | "complete";
+            selectionStatus?:
+              | "starting"
+              | "excluded"
+              | "ready"
+              | "complete"
+              | "not-started";
             startDate: string;
             /** @enum {string} */
             status: "available" | "applied" | "excluded" | "selected";
