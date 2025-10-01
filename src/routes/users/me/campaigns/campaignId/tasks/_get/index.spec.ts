@@ -205,7 +205,7 @@ describe("GET users/me/campaigns/:cId/tasks", () => {
             position: 7,
           },
           {
-            ...task, // task of another tester
+            ...task,
             id: 15,
             campaign_id: 1,
             title: "Task 5 - other tester",
