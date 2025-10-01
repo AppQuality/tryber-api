@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS: post-users-me-campaigns-campaign-tasks-task */
 
-import OpenapiError from "@src/features/OpenapiError";
 import Campaign from "@src/features/class/Campaign";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class PostCampaignTask extends UserRoute<{
@@ -32,7 +32,6 @@ export default class PostCampaignTask extends UserRoute<{
       .first();
 
     if (!userTask) {
-      this.setError(403, new OpenapiError("This user task does not exist"));
       return true;
     }
 
@@ -51,6 +50,27 @@ export default class PostCampaignTask extends UserRoute<{
       this.setError(500, error as OpenapiError);
     }
   }
+
+  private allUserTasksCompleted = async () => {
+    const tasks = await tryber.tables.WpAppqCampaignTask.do()
+      .select("id")
+      .where("campaign_id", this.campaignId);
+
+    const completedTasks = await tryber.tables.WpAppqUserTask.do()
+      .where({
+        tester_id: this.getTesterId(),
+        is_completed: 1,
+      })
+      .whereIn(
+        "task_id",
+        tasks.map((t) => t.id)
+      );
+
+    const incompleteTasks = tasks.filter(
+      (t) => !completedTasks.find((ct) => ct.task_id === t.id)
+    );
+    return incompleteTasks.length === 0;
+  };
 
   private async taskIsUnavailable() {
     const task = await tryber.tables.WpAppqCampaignTask.do()
@@ -112,30 +132,27 @@ export default class PostCampaignTask extends UserRoute<{
       return;
     }
 
-    if (await this.userTaskDoesNotExist()) {
-    }
-
     try {
       await this.handleUserTasks();
+
+      if (await this.allUserTasksCompleted()) {
+        await this.completeCampaign();
+      }
       this.setSuccess(200, {});
     } catch (error) {
       this.setError(500, error as OpenapiError);
     }
   }
 
-  private isAdmin() {
-    if (!this.configuration.request.user.permission.admin) return false;
-    if (!this.configuration.request.user.permission.admin.appq_campaign)
-      return false;
-    if (this.configuration.request.user.permission.admin.appq_campaign === true)
-      return true;
-    if (
-      this.configuration.request.user.permission.admin.appq_campaign.includes(
-        this.campaignId
-      )
-    )
-      return true;
-    return false;
+  private async completeCampaign() {
+    await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .update({
+        results: 3,
+      })
+      .where({
+        user_id: this.getWordpressId(),
+        campaign_id: this.campaignId,
+      });
   }
 
   private async testerIsNotCandidate() {
