@@ -8864,62 +8864,70 @@ paths:
                       name: Bug Hunting
               schema:
                 type: object
+                required:
+                  - acceptedDevices
+                  - content
+                  - endDate
+                  - startDate
+                  - status
+                  - title
+                  - type
                 properties:
                   acceptedDevices:
                     type: object
                     properties:
                       console:
                         oneOf:
-                          - items:
+                          - type: array
+                            items:
                               $ref: '#/components/schemas/AvailableDevice'
-                            type: array
                           - enum:
                               - all
                       pc:
                         oneOf:
-                          - items:
+                          - type: array
+                            items:
                               $ref: '#/components/schemas/AvailableDevice'
-                            type: array
                           - enum:
                               - all
                       smartTv:
                         oneOf:
-                          - items:
+                          - type: array
+                            items:
                               $ref: '#/components/schemas/AvailableDevice'
-                            type: array
                           - enum:
                               - all
                       smartphone:
                         oneOf:
-                          - items:
+                          - type: array
+                            items:
                               $ref: '#/components/schemas/AvailableDevice'
-                            type: array
                           - enum:
                               - all
                       smartwatch:
                         oneOf:
-                          - items:
+                          - type: array
+                            items:
                               $ref: '#/components/schemas/AvailableDevice'
-                            type: array
                           - enum:
                               - all
                       tablet:
                         oneOf:
-                          - items:
+                          - type: array
+                            items:
                               $ref: '#/components/schemas/AvailableDevice'
-                            type: array
                           - enum:
                               - all
                   cap:
                     type: object
+                    required:
+                      - free
+                      - value
                     properties:
                       free:
                         type: integer
                       value:
                         type: integer
-                    required:
-                      - free
-                      - value
                   content:
                     type: string
                   endDate:
@@ -8931,6 +8939,7 @@ paths:
                       - excluded
                       - ready
                       - complete
+                      - not-started
                   startDate:
                     type: string
                   status:
@@ -8944,32 +8953,24 @@ paths:
                     type: string
                   tl:
                     type: object
+                    required:
+                      - email
+                      - name
                     properties:
                       email:
                         type: string
                       name:
                         type: string
-                    required:
-                      - email
-                      - name
                   type:
                     type: object
+                    required:
+                      - icon
+                      - name
                     properties:
                       icon:
                         type: string
                       name:
                         type: string
-                    required:
-                      - name
-                      - icon
-                required:
-                  - acceptedDevices
-                  - type
-                  - content
-                  - endDate
-                  - startDate
-                  - status
-                  - title
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
