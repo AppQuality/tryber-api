@@ -182,7 +182,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
 
     if (candidate.results === 0) return "starting";
 
-    if (new Date(this.startDate.replace(" ", "T")) > new Date())
+    if (new Date(this.startDate.replace(" ", "T") + "+02:00") > new Date())
       return "not-started";
 
     switch (candidate.results) {
