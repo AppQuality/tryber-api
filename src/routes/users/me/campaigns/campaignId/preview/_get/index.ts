@@ -182,10 +182,8 @@ class GetCampaignPreviewV2 extends UserRoute<{
 
     if (candidate.results === 0) return "starting";
 
-    console.log(this.campaign.start_date);
-    console.log(typeof this.campaign.start_date);
-
-    if (new Date(this.startDate) > new Date()) return "not-started";
+    if (new Date(this.startDate.replace(" ", "T")) > new Date())
+      return "not-started";
 
     switch (candidate.results) {
       case 1:
