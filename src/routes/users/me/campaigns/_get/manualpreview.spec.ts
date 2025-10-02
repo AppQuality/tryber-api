@@ -120,16 +120,16 @@ describe("GET /users/me/campaigns ", () => {
           expect.objectContaining({
             id: 4,
             manual_link: {
-              en: "/campaigns/4/manual",
-              it: "/it/campaigns/4/manual",
-              es: "/es/campaigns/4/manual",
-              fr: "/fr/campaigns/4/manual",
+              en: "/campaigns/4/manual/",
+              it: "/it/campaigns/4/manual/",
+              es: "/es/campaigns/4/manual/",
+              fr: "/fr/campaigns/4/manual/",
             },
             preview_link: {
-              en: "/campaigns/4/preview",
-              it: "/it/campaigns/4/preview",
-              es: "/es/campaigns/4/preview",
-              fr: "/fr/campaigns/4/preview",
+              en: "/campaigns/4/preview/",
+              it: "/it/campaigns/4/preview/",
+              es: "/es/campaigns/4/preview/",
+              fr: "/fr/campaigns/4/preview/",
             },
           }),
         ])

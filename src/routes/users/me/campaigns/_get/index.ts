@@ -320,16 +320,16 @@ class RouteItem extends UserRoute<{
         return {
           ...campaign,
           preview_link: {
-            en: `/campaigns/${campaign.id}/preview`,
-            it: `/it/campaigns/${campaign.id}/preview`,
-            es: `/es/campaigns/${campaign.id}/preview`,
-            fr: `/fr/campaigns/${campaign.id}/preview`,
+            en: `/campaigns/${campaign.id}/preview/`,
+            it: `/it/campaigns/${campaign.id}/preview/`,
+            es: `/es/campaigns/${campaign.id}/preview/`,
+            fr: `/fr/campaigns/${campaign.id}/preview/`,
           },
           manual_link: {
-            en: `/campaigns/${campaign.id}/manual`,
-            it: `/it/campaigns/${campaign.id}/manual`,
-            es: `/es/campaigns/${campaign.id}/manual`,
-            fr: `/fr/campaigns/${campaign.id}/manual`,
+            en: `/campaigns/${campaign.id}/manual/`,
+            it: `/it/campaigns/${campaign.id}/manual/`,
+            es: `/es/campaigns/${campaign.id}/manual/`,
+            fr: `/fr/campaigns/${campaign.id}/manual/`,
           },
         };
       }
