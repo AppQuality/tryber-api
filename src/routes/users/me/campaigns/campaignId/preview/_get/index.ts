@@ -17,6 +17,7 @@ class GetCampaignPreviewV2 extends UserRoute<{
   parameters: StoplightOperations["get-users-me-campaigns-cid-preview"]["parameters"]["path"];
 }> {
   private campaignId: number;
+  private startDate: string = "1970-01-01";
   private campaign: CampaignObject | false = false;
 
   private db: {
@@ -32,6 +33,17 @@ class GetCampaignPreviewV2 extends UserRoute<{
       campaigns: new Campaigns(),
       pageAccess: new PageAccess(),
     };
+  }
+
+  protected async init() {
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(tryber.fn.charDate("start_date"))
+      .where("id", this.campaignId)
+      .first();
+
+    if (campaign) {
+      this.startDate = campaign.start_date;
+    }
   }
 
   protected async filter() {
@@ -170,7 +182,10 @@ class GetCampaignPreviewV2 extends UserRoute<{
 
     if (candidate.results === 0) return "starting";
 
-    if (new Date(this.campaign.start_date) > new Date()) return "not-started";
+    console.log(this.campaign.start_date);
+    console.log(typeof this.campaign.start_date);
+
+    if (new Date(this.startDate) > new Date()) return "not-started";
 
     switch (candidate.results) {
       case 1:

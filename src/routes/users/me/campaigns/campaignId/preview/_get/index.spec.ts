@@ -178,7 +178,14 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         const response = await request(app)
           .get("/users/me/campaigns/1/preview")
           .set("Authorization", "Bearer tester");
-        expect(response.body).toHaveProperty("startDate", "2025-09-24");
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 7);
+        expect(response.body).toHaveProperty(
+          "startDate",
+          startDate.toISOString().split("T")[0]
+        );
         expect(response.body).toHaveProperty("endDate", "2025-09-29");
       });
       it("Should return campaignType ", async () => {
