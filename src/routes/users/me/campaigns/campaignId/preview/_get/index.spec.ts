@@ -50,7 +50,7 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
         isPublic: 4,
         startDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
           .toISOString()
-          .split("T")[0], // one week in the future
+          .split(".")[0], // one week in the future
       }), // 4 = target group
     ]);
     await tryber.tables.WpAppqEvdPlatform.do().insert([
