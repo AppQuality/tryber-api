@@ -277,7 +277,6 @@ describe("GET users/me/campaigns/:cId/preview - Page Version 2", () => {
                   const response = await request(app)
                     .get("/users/me/campaigns/1/preview")
                     .set("Authorization", "Bearer tester");
-                  console.log(response.body);
                   expect(response.body).toHaveProperty(
                     "selectionStatus",
                     "starting"
