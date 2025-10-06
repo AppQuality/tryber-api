@@ -4669,7 +4669,8 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     duplicate:
                       type: object
                       properties:
@@ -4685,14 +4686,18 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                  type: object
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
                     bugLanguage:
                       $ref: '#/components/schemas/BugLang'
+                    hasBugForm:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
                     hasBugParade:
                       type: integer
                       maximum: 1
@@ -4707,7 +4712,6 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '201':
           description: Created

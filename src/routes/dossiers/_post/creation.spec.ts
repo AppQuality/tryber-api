@@ -1047,7 +1047,7 @@ describe("Route POST /dossiers", () => {
       ).toHaveBeenCalledTimes(0);
     });
   });
-  describe("hasBugParade", () => {
+  describe("hasBugParade and hasBugForm", () => {
     afterEach(() => {
       jest.clearAllMocks();
     });
@@ -1102,6 +1102,62 @@ describe("Route POST /dossiers", () => {
         .where({ id: dossierId })
         .first();
       expect(campaignType).toHaveProperty("campaign_type", 1);
+    });
+    it("Should return an error if send hasBugParade 1 and hasBugForm 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1, hasBugForm: 0, testType: 11 });
+      expect(postResponse.status).toBe(406);
+      expect(postResponse.body).toEqual(
+        expect.objectContaining({
+          message: "Invalid bug form submitted",
+        })
+      );
+    });
+    // set bug parade
+    it("Should insert campaign_type 1 if send hasBugParade 1 and hasBugForm 1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1, hasBugForm: 1, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 1);
+    });
+    // disable bugform
+    it("Should insert campaign_type -1 if send hasBugForm 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugForm: 0, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", -1);
+    });
+    it("Should insert campaign_type -1 if send hasBugForm 0 and hasBugForm 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugForm: 0, hasBugParade: 0, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", -1);
     });
   });
 

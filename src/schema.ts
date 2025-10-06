@@ -2909,6 +2909,7 @@ export interface operations {
         } & {
           autoApply?: number;
           bugLanguage?: components["schemas"]["BugLang"];
+          hasBugForm?: number;
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";

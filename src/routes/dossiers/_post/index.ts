@@ -92,6 +92,10 @@ export default class PostDossiers extends UserRoute<{
       this.setError(406, new OpenapiError("Invalid bug parade submitted"));
       return false;
     }
+    if (this.invalidBugFormSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid bug form submitted"));
+      return false;
+    }
 
     return true;
   }
@@ -159,8 +163,15 @@ export default class PostDossiers extends UserRoute<{
 
   private invalidBugParadeSubmitted() {
     const { hasBugParade } = this.getBody();
-    if (!hasBugParade) return false;
+    if (hasBugParade === undefined) return false;
     if ([0, 1].includes(hasBugParade) === false) return true;
+  }
+
+  private invalidBugFormSubmitted() {
+    const { hasBugParade, hasBugForm } = this.getBody();
+    if (hasBugForm === undefined) return false;
+    if (hasBugParade !== undefined && hasBugParade === 1 && hasBugForm === 0)
+      return true;
   }
 
   private async invalidRolesSubmitted() {
@@ -417,9 +428,7 @@ export default class PostDossiers extends UserRoute<{
         auto_apply: autoApply,
         page_version: pageVersion,
         ...(this.getBody().bugLanguage ? { bug_lang: 1 } : {}),
-        ...(typeof this.getBody().hasBugParade !== "undefined" && {
-          campaign_type: this.getBody().hasBugParade,
-        }),
+        ...this.evaluateCampaignType(),
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
@@ -561,6 +570,28 @@ export default class PostDossiers extends UserRoute<{
     }
 
     return campaignId;
+  }
+
+  private evaluateCampaignType() {
+    /**
+     * campaign_type values: -1 | 0 | 1
+     * -1 = no bug form
+     * 0 = standard campaign bug form enabled
+     * 1 = bug form with bug parade enabled
+     */
+    const { hasBugParade, hasBugForm } = this.getBody();
+    if (hasBugParade === undefined && hasBugForm === undefined)
+      return { campaign_type: 0 };
+
+    if (hasBugParade === 1) {
+      return { campaign_type: 1 };
+    }
+
+    if (hasBugForm === 0) {
+      return { campaign_type: -1 };
+    }
+
+    return {};
   }
 
   private async createAdditionals(campaignId: number) {
