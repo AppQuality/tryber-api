@@ -11,6 +11,7 @@ const baseRequest = {
   },
   startDate: "2019-08-24T14:15:22Z",
   deviceList: [1],
+  autoApply: 0,
 };
 
 describe("Route POST /dossiers", () => {
@@ -91,11 +92,6 @@ describe("Route POST /dossiers", () => {
       },
     ]);
 
-    /* await tryber.tables.WpAppqLang.do().insert([
-      { id: 1, display_name: "Test Language", lang_code: "TL" },
-      { id: 2, display_name: "Other Language", lang_code: "OL" },
-    ]); */
-
     await tryber.tables.Browsers.do().insert([
       { id: 1, name: "Test Browser" },
       { id: 2, name: "Other Browser" },
@@ -119,22 +115,41 @@ describe("Route POST /dossiers", () => {
   });
 
   beforeEach(async () => {
-    await tryber.tables.WpAppqEvdCampaign.do().insert({
-      id: 1,
-      project_id: 1,
-      campaign_type_id: 1,
-      title: "Test Campaign",
-      customer_title: "Test Customer Campaign",
-      start_date: "2019-08-24T14:15:22Z",
-      end_date: "2019-08-24T14:15:22Z",
-      close_date: "2019-08-25T14:15:22Z",
-      platform_id: 0,
-      os: "1",
-      page_manual_id: 0,
-      page_preview_id: 0,
-      pm_id: 1,
-      customer_id: 0,
-    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert([
+      {
+        id: 1,
+        project_id: 1,
+        campaign_type_id: 1,
+        title: "Test Campaign",
+        customer_title: "Test Customer Campaign",
+        start_date: "2019-08-24T14:15:22Z",
+        end_date: "2019-08-24T14:15:22Z",
+        close_date: "2019-08-25T14:15:22Z",
+        platform_id: 0,
+        os: "1",
+        page_manual_id: 0,
+        page_preview_id: 0,
+        pm_id: 1,
+        customer_id: 0,
+      },
+      {
+        id: 299,
+        project_id: 1,
+        campaign_type_id: 1,
+        title: "Test Campaign",
+        customer_title: "Test Customer Campaign",
+        start_date: "2019-08-24T14:15:22Z",
+        end_date: "2019-08-24T14:15:22Z",
+        close_date: "2019-08-25T14:15:22Z",
+        platform_id: 0,
+        os: "1",
+        page_manual_id: 0,
+        page_preview_id: 0,
+        pm_id: 1,
+        customer_id: 0,
+        auto_apply: 1,
+      },
+    ]);
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
@@ -308,6 +323,47 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("close_date", "2021-08-20 14:15:22");
+  });
+
+  it("Should update the campaign with the auto apply flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApply: 1,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("auto_apply", 1);
+  });
+  it("Should unset the campaign auto apply flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/299")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApply: 0,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("auto_apply", 0);
   });
 
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
@@ -749,6 +805,48 @@ describe("Route POST /dossiers", () => {
       expect(responseGet.body).toHaveProperty("target");
       expect(responseGet.body.target).toHaveProperty("cap", 0);
     });
+
+    it("Should not change campaign_type 0 if not send hasBugParade", async () => {
+      const campaignTypeBefore = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({
+          ...baseRequest,
+        });
+      const campaignTypeAfter = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      expect(campaignTypeAfter).toEqual(campaignTypeBefore);
+    });
+
+    it("Should set campaign_type 0 if send hasBugParade 0", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 0 });
+      const after = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      expect(after?.campaign_type).toEqual(0);
+    });
+
+    it("Should set campaign_type 1 if send hasBugParade 1", async () => {
+      await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1 });
+      const after = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: 1 })
+        .first();
+      expect(after?.campaign_type).toEqual(1);
+    });
   });
 
   describe("Role handling", () => {
@@ -1096,6 +1194,7 @@ describe("Route POST /dossiers", () => {
           },
         })
         .set("authorization", 'Bearer tester olp {"appq_campaign":true}');
+      4;
       expect(response.status).toBe(200);
     });
     it("Should add cuf if sent valid cuf", async () => {
@@ -1138,6 +1237,188 @@ describe("Route POST /dossiers", () => {
           expect.objectContaining({
             cuf_id: 20,
             cuf_value_id: 201,
+          }),
+        ])
+      );
+    });
+  });
+  describe("Should Update BugLanguage and translated BugLanguage message on cp_meta", () => {
+    beforeEach(async () => {
+      await tryber.tables.WpAppqCpMeta.do().insert([
+        {
+          campaign_id: 1,
+          meta_key: "bug_lang_code",
+          meta_value: "JP",
+        },
+        {
+          campaign_id: 1,
+          meta_key: "bug_lang_message",
+          meta_value: "バグは日本語で報告する必要があります",
+        },
+      ]);
+    });
+
+    afterEach(async () => {
+      await tryber.tables.WpAppqCpMeta.do().delete();
+    });
+    it("Should delete cp_meta bug_lang_message and bug_lang_code if send bug_language = false", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: false });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_message", "bug_lang_code"]);
+
+      expect(cpMeta).toHaveLength(0);
+    });
+    it("Should delete old cp_meta (bug_lang_message and bug_lang_code) if send bug_language=IT", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "IT" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_message", "bug_lang_code"]);
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.not.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "JP",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "バグは日本語で報告する必要があります",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language IT", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, bugLanguage: "IT" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "IT",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "I bug devono essere inseriti in lingua italiana",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language GB", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, bugLanguage: "GB" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "GB",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Bugs must be reported in English",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language ES", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, bugLanguage: "ES" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "ES",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Los bugs deben ser reportados en idioma español",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language FR", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, bugLanguage: "FR" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "FR",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Les bugs doivent être signalés en langue française",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language DE", async () => {
+      const postResponse = await request(app)
+        .put("/dossiers/1")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, bugLanguage: "DE" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "DE",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Die Bugs müssen in deutscher Sprache gemeldet werden",
           }),
         ])
       );

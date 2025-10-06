@@ -1,8 +1,8 @@
 /** OPENAPI-CLASS: get-users-me-campaigns-campaignId */
 
-import OpenapiError from "@src/features/OpenapiError";
 import Campaign from "@src/features/class/Campaign";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 
 export default class UserSingleCampaignRoute extends UserRoute<{
@@ -12,8 +12,11 @@ export default class UserSingleCampaignRoute extends UserRoute<{
   private campaignId = parseInt(this.getParameters().campaignId);
 
   protected async filter(): Promise<boolean> {
+    if (!(await super.filter())) return false;
+    if (this.hasAccessToCampaign(this.campaignId)) return true;
     if (await this.testerIsNotCandidate()) return false;
     if (await this.campaignIsUnavailable()) return false;
+    if (await this.isCampaignClosed()) return false;
 
     return true;
   }
@@ -42,6 +45,26 @@ export default class UserSingleCampaignRoute extends UserRoute<{
     return false;
   }
 
+  private async isCampaignClosed(): Promise<boolean> {
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("status_id", "end_date")
+      .where("id", this.campaignId)
+      .first();
+
+    if (!campaign) {
+      this.setError(404, new OpenapiError("This campaign does not exist"));
+      return true;
+    }
+
+    const isOverdue = new Date(campaign.end_date) < new Date();
+
+    if (campaign.status_id === 2 && isOverdue) {
+      this.setError(404, new OpenapiError("This campaign is closed"));
+      return true;
+    }
+    return false;
+  }
+
   protected async prepare() {
     const campaign = new Campaign(this.campaignId, false);
     campaign.init();
@@ -54,6 +77,7 @@ export default class UserSingleCampaignRoute extends UserRoute<{
         title: campaign.title,
         minimumMedia: campaign.min_allowed_media,
         hasBugForm: campaign.hasBugForm,
+        hasBugParade: campaign.hasBugParade ? campaign.hasBugParade : 0,
         bugSeverity: await campaign.getAvailableSeverities(),
         bugReplicability: await campaign.getAvailableReplicabilities(),
         useCases: await campaign.getUserUseCases(
@@ -64,6 +88,13 @@ export default class UserSingleCampaignRoute extends UserRoute<{
         additionalFields: await campaign.getAdditionalFields(),
         language: await campaign.getBugLanguageMessage(),
         titleRule: await campaign.getTitleRule(),
+        end_date: campaign.end_date,
+        campaign_type: (await campaign.getCampaignType()) ?? {
+          id: -1,
+          name: "Unknown",
+          icon: "",
+        },
+        goal: (await campaign.getCampaignGoal()) ?? "",
       });
     } catch (error) {
       this.setError(500, error as OpenapiError);

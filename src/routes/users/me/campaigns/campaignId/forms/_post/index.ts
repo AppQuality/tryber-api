@@ -141,8 +141,7 @@ class RouteItem extends UserRoute<{
 
   protected async prepare(): Promise<void> {
     try {
-      const isScreenedOut = await this.handleForm();
-      await this.applyToCampaign({ isScreenedOut });
+      await this.applyToCampaign();
       await this.addExperiencePoints();
     } catch (e) {
       this.setError(403, e as OpenapiError);
@@ -151,13 +150,38 @@ class RouteItem extends UserRoute<{
     this.setSuccess(200, {});
   }
 
-  private async applyToCampaign({ isScreenedOut }: { isScreenedOut: boolean }) {
+  private async applyToCampaign() {
+    const status = await this.getAcceptedStatus();
     await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
       campaign_id: this.campaignId,
       user_id: this.getWordpressId(),
       devices: this.deviceId.toString(),
-      accepted: isScreenedOut ? -1 : 0,
+      accepted: status,
+      ...(status === 1 ? { selected_device: this.getRandomDevice() } : {}),
     });
+  }
+
+  private getRandomDevice() {
+    if (this.deviceId === false) {
+      return 0;
+    }
+    return this.deviceId[0];
+  }
+
+  private async getAcceptedStatus() {
+    const isScreenedOut = await this.handleForm();
+    if (isScreenedOut) return -1;
+
+    const isAutoApply = await this.isAutoApply();
+    return isAutoApply ? 1 : 0;
+  }
+
+  private async isAutoApply() {
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select("auto_apply")
+      .where("id", this.campaignId)
+      .first();
+    return campaign?.auto_apply === 1;
   }
 
   private async addExperiencePoints() {

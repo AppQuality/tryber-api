@@ -3,6 +3,7 @@
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
+import { components } from "@src/schema";
 
 export default class RouteItem extends UserRoute<{
   response: StoplightOperations["put-dossiers-campaign"]["responses"]["200"]["content"]["application/json"];
@@ -142,6 +143,10 @@ export default class RouteItem extends UserRoute<{
         ...(typeof this.getBody().target?.cap !== "undefined" && {
           desired_number_of_testers: this.getBody().target?.cap,
         }),
+        auto_apply: this.getBody().autoApply ? 1 : 0,
+        ...(typeof this.getBody().hasBugParade !== "undefined" && {
+          campaign_type: this.getBody().hasBugParade,
+        }),
       })
       .where({
         id: this.campaignId,
@@ -154,6 +159,50 @@ export default class RouteItem extends UserRoute<{
     await this.updateTesterVisibilityCriteria();
 
     await this.updatePlanData();
+
+    await this.updateBugLanguageMeta();
+  }
+
+  private async updateBugLanguageMeta() {
+    const { bugLanguage } = this.getBody();
+    if (bugLanguage === undefined) return;
+
+    if (bugLanguage === false || typeof bugLanguage === "string") {
+      await tryber.tables.WpAppqCpMeta.do()
+        .delete()
+        .where({
+          campaign_id: this.campaignId,
+        })
+        .whereIn("meta_key", ["bug_lang_message", "bug_lang_code"]);
+
+      if (typeof bugLanguage === "string" && bugLanguage.length === 2) {
+        await tryber.tables.WpAppqCpMeta.do().insert({
+          campaign_id: this.campaignId,
+          meta_key: "bug_lang_code",
+          meta_value: bugLanguage,
+        });
+
+        await tryber.tables.WpAppqCpMeta.do().insert({
+          campaign_id: this.campaignId,
+          meta_key: "bug_lang_message",
+          meta_value: this.getTranslatedBugMessage(bugLanguage),
+        });
+      }
+    }
+  }
+
+  private getTranslatedBugMessage(
+    bugLanguage: components["schemas"]["BugLang"]
+  ) {
+    const messages: Record<components["schemas"]["BugLang"], string> = {
+      ES: "Los bugs deben ser reportados en idioma español",
+      FR: "Les bugs doivent être signalés en langue française",
+      DE: "Die Bugs müssen in deutscher Sprache gemeldet werden",
+      GB: "Bugs must be reported in English",
+      IT: "I bug devono essere inseriti in lingua italiana",
+    };
+
+    return messages[bugLanguage] ?? messages.IT; // fallback on IT
   }
 
   private async updatePlanData() {

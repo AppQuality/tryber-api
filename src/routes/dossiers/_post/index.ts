@@ -5,8 +5,9 @@ import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
 import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
-import Province from "comuni-province-regioni/lib/province";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
+import { components } from "@src/schema";
+import Province from "comuni-province-regioni/lib/province";
 
 const MIN_TESTER_AGE = 14;
 
@@ -87,8 +88,54 @@ export default class PostDossiers extends UserRoute<{
       this.setError(406, new OpenapiError("Invalid provinces submitted"));
       return false;
     }
+    if (this.invalidBugParadeSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid bug parade submitted"));
+      return false;
+    }
+    if (this.invalidBugFormSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid bug form submitted"));
+      return false;
+    }
 
     return true;
+  }
+
+  protected async prepare(): Promise<void> {
+    const { skipPagesAndTasks, bugLanguage } = this.getBody();
+
+    try {
+      const campaignId = await this.createCampaign();
+      await this.linkRolesToCampaign(campaignId);
+
+      if (!skipPagesAndTasks) {
+        await this.generateLinkedData(campaignId);
+      }
+
+      if (bugLanguage) {
+        await this.setBugLanguage(campaignId);
+      }
+
+      const webhook = new WebhookTrigger({
+        type: "campaign_created",
+        data: {
+          campaignId,
+        },
+      });
+
+      try {
+        await webhook.trigger();
+        this.setSuccess(201, {
+          id: campaignId,
+        });
+      } catch (e) {
+        this.setSuccess(201, {
+          id: campaignId,
+          message: "HOOK_FAILED",
+        });
+      }
+    } catch (e) {
+      this.setError(500, e as OpenapiError);
+    }
   }
 
   private async hasFullAccess() {
@@ -112,6 +159,19 @@ export default class PostDossiers extends UserRoute<{
       .whereIn("id", ids);
 
     return campaigns.length !== ids.length;
+  }
+
+  private invalidBugParadeSubmitted() {
+    const { hasBugParade } = this.getBody();
+    if (hasBugParade === undefined) return false;
+    if ([0, 1].includes(hasBugParade) === false) return true;
+  }
+
+  private invalidBugFormSubmitted() {
+    const { hasBugParade, hasBugForm } = this.getBody();
+    if (hasBugForm === undefined) return false;
+    if (hasBugParade !== undefined && hasBugParade === 1 && hasBugForm === 0)
+      return true;
   }
 
   private async invalidRolesSubmitted() {
@@ -229,38 +289,36 @@ export default class PostDossiers extends UserRoute<{
     return devices.length === deviceList.length;
   }
 
-  protected async prepare(): Promise<void> {
-    const { skipPagesAndTasks } = this.getBody();
+  private async setBugLanguage(campaignId: number) {
+    const bugLanguage = this.getBody().bugLanguage;
+    if (!bugLanguage) return;
 
-    try {
-      const campaignId = await this.createCampaign();
-      await this.linkRolesToCampaign(campaignId);
-
-      if (!skipPagesAndTasks) {
-        await this.generateLinkedData(campaignId);
-      }
-
-      const webhook = new WebhookTrigger({
-        type: "campaign_created",
-        data: {
-          campaignId,
-        },
+    if (typeof bugLanguage === "string" && bugLanguage.length === 2) {
+      await tryber.tables.WpAppqCpMeta.do().insert({
+        campaign_id: campaignId,
+        meta_key: "bug_lang_code",
+        meta_value: bugLanguage,
       });
 
-      try {
-        await webhook.trigger();
-        this.setSuccess(201, {
-          id: campaignId,
-        });
-      } catch (e) {
-        this.setSuccess(201, {
-          id: campaignId,
-          message: "HOOK_FAILED",
-        });
-      }
-    } catch (e) {
-      this.setError(500, e as OpenapiError);
+      await tryber.tables.WpAppqCpMeta.do().insert({
+        campaign_id: campaignId,
+        meta_key: "bug_lang_message",
+        meta_value: this.getTranslatedBugMessage(bugLanguage),
+      });
     }
+  }
+  private getTranslatedBugMessage(
+    bugLanguage: components["schemas"]["BugLang"]
+  ) {
+    const messages: Record<components["schemas"]["BugLang"], string> = {
+      ES: "Los bugs deben ser reportados en idioma español",
+      FR: "Les bugs doivent être signalés en langue française",
+      DE: "Die Bugs müssen in deutscher Sprache gemeldet werden",
+      GB: "Bugs must be reported in English",
+      IT: "I bug devono essere inseriti in lingua italiana",
+    };
+
+    return messages[bugLanguage] ?? messages.IT; // fallback on IT
   }
 
   private async getCampaignToDuplicate() {
@@ -339,6 +397,12 @@ export default class PostDossiers extends UserRoute<{
 
     const campaignToDuplicate = await this.getCampaignToDuplicate();
 
+    const autoApply = await this.evaluateAutoApply();
+
+    const pageVersion = this.getBody().pageVersion
+      ? this.getBody().pageVersion
+      : "v1";
+
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -361,6 +425,10 @@ export default class PostDossiers extends UserRoute<{
         os: os.join(","),
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
+        auto_apply: autoApply,
+        page_version: pageVersion,
+        ...(this.getBody().bugLanguage ? { bug_lang: 1 } : {}),
+        ...this.evaluateCampaignType(),
         ...(typeof this.getBody().target?.cap !== "undefined"
           ? { desired_number_of_testers: this.getBody().target?.cap }
           : {}),
@@ -504,6 +572,28 @@ export default class PostDossiers extends UserRoute<{
     return campaignId;
   }
 
+  private evaluateCampaignType() {
+    /**
+     * campaign_type values: -1 | 0 | 1
+     * -1 = no bug form
+     * 0 = standard campaign bug form enabled
+     * 1 = bug form with bug parade enabled
+     */
+    const { hasBugParade, hasBugForm } = this.getBody();
+    if (hasBugParade === undefined && hasBugForm === undefined)
+      return { campaign_type: 0 };
+
+    if (hasBugParade === 1) {
+      return { campaign_type: 1 };
+    }
+
+    if (hasBugForm === 0) {
+      return { campaign_type: -1 };
+    }
+
+    return {};
+  }
+
   private async createAdditionals(campaignId: number) {
     const { additionals } = this.getBody();
     if (!additionals || !additionals.length) return;
@@ -553,19 +643,22 @@ export default class PostDossiers extends UserRoute<{
 
   private async generateLinkedData(campaignId: number) {
     const apiTrigger = new WordpressJsonApiTrigger(campaignId);
-    await apiTrigger.generateTasks();
+    const isV2 = this.getBody().pageVersion === "v2";
+    if (!isV2) await apiTrigger.generateTasks();
 
     if (this.duplicate.fieldsFrom) await this.duplicateFields(campaignId);
 
     if (this.duplicate.useCasesFrom) await this.duplicateUsecases(campaignId);
-    else await apiTrigger.generateUseCase();
+    else if (!isV2) await apiTrigger.generateUseCase();
 
     if (this.duplicate.mailMergesFrom)
       await this.duplicateMailMerge(campaignId);
     else await apiTrigger.generateMailMerges();
 
     if (this.duplicate.pagesFrom) await this.duplicatePages(campaignId);
-    else await apiTrigger.generatePages();
+    else {
+      if (!isV2) await apiTrigger.generatePages();
+    }
 
     if (this.duplicate.testersFrom) await this.duplicateTesters(campaignId);
   }
@@ -752,5 +845,21 @@ export default class PostDossiers extends UserRoute<{
     const form_factor = devices.map((device) => device.form_factor);
 
     return { os, form_factor };
+  }
+
+  private async evaluateAutoApply(): Promise<number> {
+    const { autoApply, testType } = this.getBody();
+
+    if (typeof autoApply === "number") {
+      if (autoApply === 0 || autoApply === 1) return autoApply;
+    }
+
+    const autoApplyFromType = await tryber.tables.WpAppqCampaignType.do()
+      .select("has_auto_apply")
+      .where("id", testType)
+      .first();
+
+    if (!autoApplyFromType) return 0;
+    return autoApplyFromType.has_auto_apply ? 1 : 0;
   }
 }

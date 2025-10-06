@@ -1,8 +1,14 @@
+import { FORM_FACTOR_KEY } from "@src/constants";
 import { tryber } from "@src/features/database";
 import Devices from "./Devices";
 
 type AdditionalField =
   StoplightComponents["schemas"]["CampaignAdditionalField"];
+
+const VisibilityTypeMap: Record<string, number> = {
+  internal: 0,
+  target: 4,
+};
 
 type CampaignSelectItem = { id: number; name: string };
 class Campaign {
@@ -11,7 +17,13 @@ class Campaign {
   public min_allowed_media: number = 0;
   public campaign_type: -1 | 0 | 1 = 0;
   public bug_lang: 0 | 1 = 0;
+  public end_date: string = "";
+  public campaign_type_id: number = 0;
+  public is_public: number = 0;
+  public plan_id: number = -1;
   public ready: Promise<boolean>;
+  // cp_type -1 = no bug form, 0 = only bug form, 1 = bug form with bug parade
+  public hasBugParade: 0 | 1 = 0;
   constructor(id: number, init: boolean = true) {
     this.id = id;
     this.ready = Promise.resolve(false);
@@ -29,6 +41,10 @@ class Campaign {
           "min_allowed_media",
           "campaign_type",
           "bug_lang",
+          tryber.fn.charDate("end_date"),
+          "campaign_type_id",
+          "plan_id",
+          "campaign_type",
         ])
         .where({ id: this.id })
         .first();
@@ -39,7 +55,11 @@ class Campaign {
       this.min_allowed_media = campaignData.min_allowed_media;
       this.campaign_type = campaignData.campaign_type as 0 | 1 | -1;
       this.bug_lang = campaignData.bug_lang as 0 | 1;
+      this.end_date = campaignData.end_date;
+      this.campaign_type_id = campaignData.campaign_type_id;
+      this.plan_id = campaignData.plan_id ?? -1;
       this.ready = Promise.resolve(true);
+      this.hasBugParade = this.campaign_type === 1 ? 1 : 0;
       resolve(true);
     });
   }
@@ -313,6 +333,8 @@ class Campaign {
       return [{ selected_device: -1, group_id: 0 }];
     return candidature;
   }
+
+  // get user available devices for this campaign
   public async getAvailableDevices(user: {
     userId: string;
     testerId: number;
@@ -368,6 +390,156 @@ class Campaign {
     } catch {
       return false;
     }
+  }
+
+  public async getCampaignType(): Promise<{
+    id: number;
+    name: string;
+    icon: string;
+  } | null> {
+    const type = await tryber.tables.WpAppqCampaignType.do()
+      .select("id", "name", "icon")
+      .where({ id: this.campaign_type_id })
+      .first();
+    if (!type) return null;
+    return type;
+  }
+
+  public async changeVisibility(visibilityType: string): Promise<void> {
+    if (!visibilityType || !(visibilityType in VisibilityTypeMap)) {
+      throw new Error("Invalid visibility type");
+    }
+
+    try {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({ is_public: VisibilityTypeMap[visibilityType] })
+        .where({ id: this.id });
+    } catch {
+      throw new Error("Error updating campaign visibility");
+    }
+  }
+
+  public async getCampaignGoal(): Promise<string | null> {
+    if (this.plan_id === -1) return null;
+
+    const config = await tryber.tables.CpReqPlans.do()
+      .select("config")
+      .where({ id: this.plan_id })
+      .first();
+    if (!config) return null;
+    const parsedConfig = JSON.parse(config.config);
+    const goalModule = parsedConfig.modules.find(
+      (m: { type: string }) => m.type === "goal"
+    );
+    if (!goalModule) return null;
+    if (typeof goalModule.output !== "string") return null;
+    return goalModule.output;
+  }
+
+  public async getCampaignAvailableDevices() {
+    type FFNum = keyof typeof FORM_FACTOR_KEY; // 0|1|2|3|4|5
+
+    type CampaignDevices = {
+      smartphone?: { name: string }[] | "all";
+      tablet?: { name: string }[] | "all";
+      pc?: { name: string }[] | "all";
+      console?: { name: string }[] | "all";
+      smartTv?: { name: string }[] | "all";
+      smartwatch?: { name: string }[] | "all";
+    };
+
+    type DeviceRow = { name: string; form_factor: number };
+
+    // campaign available devices
+    const cpFormFactor = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(tryber.ref("form_factor").withSchema("wp_appq_evd_campaign"))
+      .where({ id: this.id })
+      .first();
+
+    const splittedFormFactor: number[] = cpFormFactor?.form_factor
+      ? String(cpFormFactor.form_factor)
+          .split(",")
+          .map((f) => Number(f.trim()))
+      : [];
+
+    if (splittedFormFactor.length === 0) return {};
+
+    // counting total existing devices by form_factor, limited to the campaign ones
+    const totalsRaw = await tryber.tables.WpAppqEvdPlatform.do()
+      .select(
+        tryber
+          .ref("form_factor")
+          .withSchema("wp_appq_evd_platform")
+          .as("form_factor")
+      )
+      .countDistinct<{ form_factor: number; total: string }[]>({
+        total: tryber.ref("id").withSchema("wp_appq_evd_platform"),
+      })
+      .whereIn("form_factor", splittedFormFactor)
+      .groupBy("form_factor");
+
+    const totalByFF: Record<number, number> = {};
+
+    // how many o.s. are there for each form_factor in our db
+    for (const row of totalsRaw) {
+      totalByFF[Number(row.form_factor)] = Number(row.total);
+    }
+
+    // retrieve devices info (name, form_factor) for the campaign available form_factors and os
+    const campaignOSAvailable = await tryber.tables.WpAppqEvdCampaign.do()
+      .select(tryber.ref("os").withSchema("wp_appq_evd_campaign"))
+      .where({ id: this.id })
+      .first();
+    const splittedOSAvailable = campaignOSAvailable?.os
+      ? campaignOSAvailable.os.split(",").map((os) => Number(os.trim()))
+      : [];
+
+    const campaignDevicesInfo: DeviceRow[] =
+      await tryber.tables.WpAppqEvdPlatform.do()
+        .select(
+          tryber.ref("name").withSchema("wp_appq_evd_platform").as("name"),
+          tryber
+            .ref("form_factor")
+            .withSchema("wp_appq_evd_platform")
+            .as("form_factor")
+        )
+        .whereIn("form_factor", splittedFormFactor)
+        .whereIn("id", splittedOSAvailable);
+
+    // grouping by form_factor and accumulating os names
+    type OSInfo = { osNames: Set<string> };
+    const campaignDevicesAccumulation: Record<number, OSInfo> = {};
+
+    for (const d of campaignDevicesInfo) {
+      const formFactorId = Number(d.form_factor);
+      if (!(formFactorId in campaignDevicesAccumulation)) {
+        campaignDevicesAccumulation[formFactorId] = {
+          osNames: new Set(),
+        };
+      }
+
+      campaignDevicesAccumulation[formFactorId].osNames.add(d.name);
+    }
+
+    // build the result object with "all" or the list of o.s. names
+    const campaignAcceptedDevices: CampaignDevices = {};
+    for (const [ffStr, bucket] of Object.entries(campaignDevicesAccumulation)) {
+      const ffNumber = Number(ffStr) as FFNum;
+      const deviceType = FORM_FACTOR_KEY[ffNumber];
+      if (!deviceType) continue;
+
+      const total = totalByFF[ffNumber] ?? 0;
+
+      if (total > 0 && bucket.osNames.size === total) {
+        campaignAcceptedDevices[deviceType] = "all";
+      } else {
+        campaignAcceptedDevices[deviceType] = Array.from(bucket.osNames).map(
+          (name) => ({ name })
+        );
+      }
+    }
+
+    return campaignAcceptedDevices;
   }
 }
 

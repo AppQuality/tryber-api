@@ -1,7 +1,53 @@
 import { tryber } from "@src/features/database";
 
 const useBasicData = () => {
+  const modules = [
+    {
+      type: "title",
+      output: "plan title",
+      variant: "default",
+    },
+    {
+      type: "goal",
+      output: "Example: goal of the campaign",
+      variant: "default",
+    },
+    {
+      type: "dates",
+      output: {
+        start: "2025-03-12T23:00:00.000",
+      },
+      variant: "default",
+    },
+    {
+      type: "tasks",
+      variant: "default",
+      output: [
+        {
+          kind: "video",
+          title: "string",
+        },
+      ],
+    },
+  ];
+
+  const config = { modules: modules };
+
   beforeAll(async () => {
+    await tryber.tables.CpReqPlans.do().insert({
+      id: 1,
+      name: "Plan 1",
+      config: JSON.stringify(config),
+    });
+    await tryber.tables.WpAppqCampaignType.do().insert({
+      id: 1,
+      name: "Bug Hunting",
+      description: "Bug Hunting Campaigns",
+      icon: "bug-report",
+      category_id: 1,
+      type: 0,
+      has_auto_apply: 0,
+    });
     await tryber.seeds().campaign_statuses();
     await tryber.tables.WpAppqEvdProfile.do().insert({
       id: 1,
@@ -194,22 +240,36 @@ const useBasicData = () => {
       { task_id: 9, group_id: 3 },
       { task_id: 10, group_id: 0 },
     ]);
+    await tryber.tables.WpAppqEvdPlatform.do().insert([
+      {
+        id: 5,
+        name: "Linux",
+        form_factor: 2,
+        architecture: 0,
+      },
+      { id: 8, name: "Windows", form_factor: 2, architecture: 0 },
+      { id: 1, name: "Android", form_factor: 0, architecture: 0 },
+    ]);
     await tryber.tables.WpAppqEvdCampaign.do().insert([
       {
         id: 1,
         title: "My campaign",
         min_allowed_media: 4,
         campaign_type: 0,
+        campaign_type_id: 1,
         platform_id: 1,
         start_date: "2020-01-01 00:00:00",
         end_date: "2020-12-31 23:59:59",
         page_preview_id: 1,
         page_manual_id: 1,
         customer_id: 1,
+        os: "5,1",
+        form_factor: "2,0,0",
         pm_id: 1,
         project_id: 1,
         customer_title: "My campaign",
         phase_id: 20,
+        plan_id: 1,
       },
       {
         id: 2,
@@ -245,6 +305,9 @@ const useBasicData = () => {
     await tryber.tables.WpAppqCampaignTask.do().delete();
     await tryber.tables.WpAppqCampaignTaskGroup.do().delete();
     await tryber.tables.WpOptions.do().delete();
+    await tryber.tables.CpReqPlans.do().delete();
+    await tryber.tables.WpAppqCampaignType.do().delete();
+    await tryber.tables.WpAppqEvdPlatform.do().delete();
   });
 };
 

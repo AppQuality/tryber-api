@@ -1,6 +1,7 @@
 import app from "@src/app";
 import { tryber } from "@src/features/database";
 import request from "supertest";
+import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 
 jest.mock("@src/features/wp/WordpressJsonApiTrigger");
 jest.mock("@src/features/webhookTrigger");
@@ -41,12 +42,21 @@ describe("Route POST /dossiers", () => {
       edited_by: 1,
     });
 
-    await tryber.tables.WpAppqCampaignType.do().insert({
-      id: 10,
-      name: "Test Type",
-      description: "Test Description",
-      category_id: 1,
-    });
+    await tryber.tables.WpAppqCampaignType.do().insert([
+      {
+        id: 10,
+        name: "Test Type",
+        description: "Test Description",
+        category_id: 1,
+        has_auto_apply: 1,
+      },
+      {
+        id: 11,
+        name: "Test Type No Auto Apply",
+        description: "Test Description",
+        category_id: 1,
+      },
+    ]);
 
     await tryber.tables.WpAppqEvdPlatform.do().insert([
       {
@@ -125,7 +135,6 @@ describe("Route POST /dossiers", () => {
       .post("/dossiers")
       .set("authorization", "Bearer admin")
       .send(baseRequest);
-
     expect(postResponse.status).toBe(201);
     expect(postResponse.body).toHaveProperty("id");
 
@@ -916,5 +925,384 @@ describe("Route POST /dossiers", () => {
     expect(getResponse.status).toBe(200);
     expect(getResponse.body).toHaveProperty("target");
     expect(getResponse.body.target).toHaveProperty("cap", 0);
+  });
+
+  describe("Auto Apply", () => {
+    it("Should insert autoApply sent if send autoApply", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, autoApply: 0 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 0);
+    });
+    it("Should insert autoApply value from the campaign type (if no send autoApply)", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 1);
+    });
+
+    it("Should insert the default autoApply 0 if not specified and not in campaign type", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApply", 0);
+    });
+  });
+
+  describe("Page Version", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    it("Should insert pageVersion v1 as default (if pageVersion is not defined)", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const pageVersion = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("page_version")
+        .where({ id: dossierId })
+        .first();
+
+      expect(pageVersion).toHaveProperty("page_version", "v1");
+    });
+
+    it("Should insert pageVersion v1 if send pageVersion v1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, pageVersion: "v1" });
+
+      const dossierId = postResponse.body.id;
+
+      const pageVersion = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("page_version")
+        .where({ id: dossierId })
+        .first();
+
+      expect(pageVersion).toHaveProperty("page_version", "v1");
+    });
+    it("Should insert pageVersion v2 if send pageVersion v2", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, pageVersion: "v2" });
+
+      const dossierId = postResponse.body.id;
+
+      const pageVersion = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("page_version")
+        .where({ id: dossierId })
+        .first();
+
+      expect(pageVersion).toHaveProperty("page_version", "v2");
+    });
+
+    it("Should skip pageCreation if send pageVersion v2", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11, pageVersion: "v2" });
+
+      expect(
+        WordpressJsonApiTrigger.prototype.generatePages
+      ).toHaveBeenCalledTimes(0);
+    });
+  });
+  describe("hasBugParade and hasBugForm", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("Should return an error if send invalid hasBugParade", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 2, testType: 11 });
+
+      expect(postResponse.status).toBe(400);
+    });
+    it("Should insert campaign_type 0 as default if not send hasBugParade", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 0);
+    });
+    it("Should insert campaign_type 0 if send hasBugParade 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 0, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 0);
+    });
+
+    it("Should insert campaign_type 1 if send hasBugParade 1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 1);
+    });
+    it("Should return an error if send hasBugParade 1 and hasBugForm 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1, hasBugForm: 0, testType: 11 });
+      expect(postResponse.status).toBe(406);
+      expect(postResponse.body).toEqual(
+        expect.objectContaining({
+          message: "Invalid bug form submitted",
+        })
+      );
+    });
+    // set bug parade
+    it("Should insert campaign_type 1 if send hasBugParade 1 and hasBugForm 1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugParade: 1, hasBugForm: 1, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", 1);
+    });
+    // disable bugform
+    it("Should insert campaign_type -1 if send hasBugForm 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugForm: 0, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", -1);
+    });
+    it("Should insert campaign_type -1 if send hasBugForm 0 and hasBugForm 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, hasBugForm: 0, hasBugParade: 0, testType: 11 });
+
+      const dossierId = postResponse.body.id;
+
+      const campaignType = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("campaign_type")
+        .where({ id: dossierId })
+        .first();
+      expect(campaignType).toHaveProperty("campaign_type", -1);
+    });
+  });
+
+  describe("Bug Language", () => {
+    afterEach(async () => {
+      jest.clearAllMocks();
+      await tryber.tables.WpAppqCpMeta.do().delete();
+    });
+    it("Should set bug_lang = 1 in campaign if send any valid language", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "IT" });
+
+      const cpLang = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("bug_lang")
+        .where({ id: postResponse.body.id })
+        .first();
+
+      expect(cpLang).toHaveProperty("bug_lang", 1);
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language IT", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "IT" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "IT",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "I bug devono essere inseriti in lingua italiana",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language GB", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "GB" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "GB",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Bugs must be reported in English",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language ES", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "ES" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "ES",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Los bugs deben ser reportados en idioma español",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language FR", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "FR" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "FR",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Les bugs doivent être signalés en langue française",
+          }),
+        ])
+      );
+    });
+    it("Should insert cp_metas bug_lang_code and translated bug_lang_message if send bug_language DE", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, bugLanguage: "DE" });
+
+      const cpMeta = await tryber.tables.WpAppqCpMeta.do()
+        .select()
+        .where({ campaign_id: postResponse.body.id })
+        .whereIn("meta_key", ["bug_lang_code", "bug_lang_message"]);
+
+      expect(cpMeta).toHaveLength(2);
+      expect(cpMeta).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            meta_key: "bug_lang_code",
+            meta_value: "DE",
+          }),
+          expect.objectContaining({
+            meta_key: "bug_lang_message",
+            meta_value: "Die Bugs müssen in deutscher Sprache gemeldet werden",
+          }),
+        ])
+      );
+    });
   });
 });

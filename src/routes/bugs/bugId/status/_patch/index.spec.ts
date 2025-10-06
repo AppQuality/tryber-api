@@ -101,7 +101,7 @@ describe("PATCH /bugs/{BugId}/status", () => {
     const response = await request(app)
       .patch("/bugs/999/status")
       .send({ status_id: 3 })
-      .set("Authorization", " Bearer admin");
+      .set("Authorization", "Bearer admin");
     expect(response.status).toBe(400);
     expect(response.body).toMatchObject({
       message: "Bug not found",

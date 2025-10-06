@@ -3,7 +3,7 @@ info:
   contact:
     email: it@app-quality.com
     name: Developers
-  description: An API to get all data for your bugfinding and ux research needs!
+  description: vsAn API to get all data for your bugfinding and ux research needs!
   title: AppQualityApi
   version: '1.0'
 servers:
@@ -1433,6 +1433,45 @@ paths:
       tags:
         - Campaign
     parameters: []
+  '/campaigns/{campaignId}/visibility':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      operationId: patch-campaigns-campaignId-visibility
+      summary: Your PATCH endpoint
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  type: target
+            schema:
+              type: object
+              properties:
+                type:
+                  enum:
+                    - internal
+                    - target
+              required:
+                - type
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      tags: []
   '/campaigns/{campaign}':
     get:
       operationId: get-campaigns-campaign
@@ -3025,6 +3064,186 @@ paths:
         - JWT: []
     parameters:
       - $ref: '#/components/parameters/campaign'
+    put:
+      operationId: put-campaigns-campaign-payouts
+      summary: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  campaign_complete_bonus_eur: 0
+                  campaign_pts: 0
+                  critical_bug_payout: 0
+                  high_bug_payout: 0
+                  low_bug_payout: 0
+                  medium_bug_payout: 0
+                  minimum_bugs: 0
+                  payout_limit: 0
+                  percent_usecases: 0
+                  point_multiplier_critical: 0
+                  point_multiplier_high: 0
+                  point_multiplier_low: 0
+                  point_multiplier_medium: 0
+                  point_multiplier_perfect: 0
+                  point_multiplier_refused: 0
+                  top_tester_bonus: 0
+              properties:
+                campaign_complete_bonus_eur:
+                  type: number
+                  minimum: 0
+                campaign_pts:
+                  type: number
+                critical_bug_payout:
+                  type: number
+                  minimum: 0
+                high_bug_payout:
+                  type: number
+                  minimum: 0
+                low_bug_payout:
+                  type: number
+                  minimum: 0
+                medium_bug_payout:
+                  type: number
+                  minimum: 0
+                minimum_bugs:
+                  type: number
+                  minimum: 0
+                payout_limit:
+                  type: number
+                  minimum: 0
+                percent_usecases:
+                  type: number
+                  maximum: 100
+                  minimum: 0
+                point_multiplier_critical:
+                  type: number
+                  minimum: 0
+                point_multiplier_high:
+                  type: number
+                  minimum: 0
+                point_multiplier_low:
+                  type: number
+                  minimum: 0
+                point_multiplier_medium:
+                  type: number
+                  minimum: 0
+                point_multiplier_perfect:
+                  type: number
+                  format: float
+                point_multiplier_refused:
+                  type: number
+                  minimum: 0
+                top_tester_bonus:
+                  type: number
+                  minimum: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    campaign_complete_bonus_eur: 0
+                    campaign_pts: 0
+                    critical_bug_payout: 0
+                    high_bug_payout: 0
+                    low_bug_payout: 0
+                    medium_bug_payout: 0
+                    minimum_bugs: 0
+                    payout_limit: 0
+                    percent_usecases: 0
+                    point_multiplier_critical: 0
+                    point_multiplier_high: 0
+                    point_multiplier_low: 0
+                    point_multiplier_medium: 0
+                    point_multiplier_perfect: 0
+                    point_multiplier_refused: 0
+                    top_tester_bonus: 0
+                properties:
+                  campaign_complete_bonus_eur:
+                    type: number
+                  campaign_pts:
+                    type: number
+                  critical_bug_payout:
+                    type: number
+                  high_bug_payout:
+                    type: number
+                  low_bug_payout:
+                    type: number
+                  medium_bug_payout:
+                    type: number
+                  minimum_bugs:
+                    type: number
+                  payout_limit:
+                    type: number
+                  percent_usecases:
+                    type: number
+                  point_multiplier_critical:
+                    type: number
+                  point_multiplier_high:
+                    type: number
+                  point_multiplier_low:
+                    type: number
+                  point_multiplier_medium:
+                    type: number
+                  point_multiplier_perfect:
+                    type: number
+                  point_multiplier_refused:
+                    type: number
+                  top_tester_bonus:
+                    type: number
+        '400':
+          $ref: '#/components/responses/MissingParameters'
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/preview':
+    parameters:
+      - name: campaign
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: post-campaigns-campaign-preview
+      summary: POST Preview on a Specific Campaign
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  content: <payout>Content</payout>
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
   '/campaigns/{campaign}/prospect':
     get:
       operationId: get-campaigns-campaign-prospect
@@ -3538,19 +3757,91 @@ paths:
         content:
           application/json:
             examples:
-              example:
+              Example 1:
                 value:
-                  allow_media: true
-                  campaign_id: 42
-                  content: <b>During</b> the trip ask the car for the weather
-                  group: 4
-                  id: 2
-                  name: Ask news to Model-3
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
+                  title: string
+              with-upload-allow:
+                value:
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
+                  title: string
+                  upload:
+                    language: en
+                    policy: allow
+              with-upload-optimize:
+                value:
+                  content: string
+                  is_required: 0
+                  position: 0
+                  prefix: string
+                  title: string
+                  upload:
+                    language: it
+                    policy: optimize
             schema:
-              $ref: '#/components/schemas/TaskOptional'
+              type: object
+              properties:
+                content:
+                  type: string
+                is_required:
+                  type: integer
+                  maximum: 1
+                  minimum: 0
+                position:
+                  type: integer
+                prefix:
+                  type: string
+                title:
+                  type: string
+                upload:
+                  type: object
+                  properties:
+                    language:
+                      type: string
+                      maxLength: 2
+                      minLength: 2
+                    policy:
+                      type: string
+                      enum:
+                        - optimize
+                        - allow
+                  required:
+                    - language
+                    - policy
+              required:
+                - content
+                - is_required
+                - title
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    content: string
+                    id: 1
+                    title: string
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: string
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                required:
+                  - id
+                  - title
+                  - content
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -4335,6 +4626,7 @@ paths:
             examples:
               Example 1:
                 value:
+                  autoApply: 0
                   browsers:
                     - 0
                   closeDate: '2019-08-24T14:15:22Z'
@@ -4377,7 +4669,8 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     duplicate:
                       type: object
                       properties:
@@ -4393,14 +4686,32 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                  type: object
-                - properties:
+                - type: object
+                  properties:
+                    autoApply:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                    bugLanguage:
+                      $ref: '#/components/schemas/BugLang'
+                    hasBugForm:
+                      type: integer
+                      minimum: 0
+                      maximum: 1
+                    hasBugParade:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                    pageVersion:
+                      type: string
+                      enum:
+                        - v1
+                        - v2
                     skipPagesAndTasks:
                       type: integer
                       default: 0
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '201':
           description: Created
@@ -4448,6 +4759,7 @@ paths:
               examples:
                 Example 1:
                   value:
+                    autoApply: 1
                     closeDate: '2019-08-24T14:15:22Z'
                     csm:
                       id: 1
@@ -4484,6 +4796,10 @@ paths:
               schema:
                 type: object
                 properties:
+                  autoApply:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
                   browsers:
                     type: array
                     items:
@@ -4704,6 +5020,7 @@ paths:
                   - startDate
                   - testType
                   - title
+                  - autoApply
       security:
         - JWT: []
     parameters:
@@ -4721,7 +5038,22 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DossierCreationData'
+              allOf:
+                - $ref: '#/components/schemas/DossierCreationData'
+                - properties:
+                    autoApply:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                    bugLanguage:
+                      oneOf:
+                        - $ref: '#/components/schemas/BugLang'
+                        - type: boolean
+                    hasBugParade:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                  type: object
       responses:
         '200':
           description: OK
@@ -7448,6 +7780,10 @@ paths:
                       valid:
                         - CRASH
                         - TYPO
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7469,7 +7805,10 @@ paths:
                           platform: Apple
                           version: iOs 10
                         type: Smartphone
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 1
                     id: 123
                     language:
                       code: IT
@@ -7508,8 +7847,15 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
                     devices: []
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: false
+                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7541,6 +7887,10 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
                     devices:
                       - device:
                           id: 123
@@ -7552,7 +7902,10 @@ paths:
                           platform: Apple
                           version: iOs 12
                         type: Smartphone
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 1
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7588,7 +7941,14 @@ paths:
                         - CRASH
                         - TYPO
                         - PERFORMANCE
+                    campaign_type:
+                      icon: bug-report
+                      id: 1
+                      name: Bug Hunting
+                    end_date: 01-01-2026
+                    goal: A beautiful goal
                     hasBugForm: true
+                    hasBugParade: 0
                     id: 123
                     minimumMedia: 3
                     title: My campaign
@@ -7622,8 +7982,8 @@ paths:
                         items:
                           type: string
                     required:
-                      - valid
                       - invalid
+                      - valid
                   bugSeverity:
                     type: object
                     properties:
@@ -7636,8 +7996,8 @@ paths:
                         items:
                           type: string
                     required:
-                      - valid
                       - invalid
+                      - valid
                   bugTypes:
                     type: object
                     properties:
@@ -7650,8 +8010,21 @@ paths:
                         items:
                           type: string
                     required:
-                      - valid
                       - invalid
+                      - valid
+                  campaign_type:
+                    type: object
+                    properties:
+                      icon:
+                        type: string
+                      id:
+                        type: number
+                      name:
+                        type: string
+                    required:
+                      - icon
+                      - id
+                      - name
                   devices:
                     type: array
                     items:
@@ -7663,8 +8036,16 @@ paths:
                             - id
                           type: object
                         - $ref: '#/components/schemas/UserDevice'
+                  end_date:
+                    type: string
+                  goal:
+                    type: string
                   hasBugForm:
                     type: boolean
+                  hasBugParade:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
                   id:
                     type: integer
                   language:
@@ -7700,14 +8081,18 @@ paths:
                     items:
                       type: string
                 required:
-                  - id
-                  - title
-                  - minimumMedia
-                  - useCases
-                  - bugTypes
-                  - bugSeverity
                   - bugReplicability
+                  - bugSeverity
+                  - bugTypes
+                  - campaign_type
+                  - end_date
+                  - goal
                   - hasBugForm
+                  - hasBugParade
+                  - id
+                  - minimumMedia
+                  - title
+                  - useCases
                   - validFileExtensions
       security:
         - JWT: []
@@ -8322,6 +8707,555 @@ paths:
       security:
         - JWT: []
         - User Token: []
+  '/users/me/campaigns/{campaignId}/payout_data':
+    get:
+      operationId: get-users-me-campaigns-cid-payout-data
+      summary: Get the payout data form campaign
+      description: ''
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    campaign_complete_bonus_eur: 1.4
+                    campaign_pts: 2.4
+                    critical_bug_payout: 3.4
+                    high_bug_payout: 4.4
+                    low_bug_payout: 5.4
+                    medium_bug_payout: 6.4
+                    minimum_bugs: 6.4
+                    payout_limit: 7.4
+                    percent_usecases: 80
+                    point_multiplier_critical: 9.4
+                    point_multiplier_high: 10.4
+                    point_multiplier_low: 11.4
+                    point_multiplier_medium: 12.4
+                    point_multiplier_perfect: 13.4
+                    point_multiplier_refused: 14.4
+                    top_tester_bonus: 15.4
+              schema:
+                type: object
+                properties:
+                  campaign_complete_bonus_eur:
+                    type: number
+                  campaign_pts:
+                    type: number
+                  critical_bug_payout:
+                    type: number
+                  high_bug_payout:
+                    type: number
+                  low_bug_payout:
+                    type: number
+                  medium_bug_payout:
+                    type: number
+                  minimum_bugs:
+                    type: number
+                  payout_limit:
+                    type: number
+                  percent_usecases:
+                    type: number
+                    maximum: 100
+                    minimum: 0
+                  point_multiplier_critical:
+                    type: number
+                  point_multiplier_high:
+                    type: number
+                  point_multiplier_low:
+                    type: number
+                  point_multiplier_medium:
+                    type: number
+                  point_multiplier_perfect:
+                    type: number
+                  point_multiplier_refused:
+                    type: number
+                  top_tester_bonus:
+                    type: number
+                required:
+                  - campaign_complete_bonus_eur
+                  - campaign_pts
+                  - critical_bug_payout
+                  - high_bug_payout
+                  - low_bug_payout
+                  - medium_bug_payout
+                  - minimum_bugs
+                  - payout_limit
+                  - percent_usecases
+                  - point_multiplier_critical
+                  - point_multiplier_high
+                  - point_multiplier_low
+                  - point_multiplier_medium
+                  - point_multiplier_perfect
+                  - point_multiplier_refused
+                  - top_tester_bonus
+                x-examples:
+                  Example 1:
+                    campaign_complete_bonus_eur: 10.4
+                    campaign_pts: 10.4
+                    critical_bug_payout: 10.4
+                    high_bug_payout: 10.4
+                    low_bug_payout: 10.4
+                    medium_bug_payout: 10.4
+                    minimum_bugs: 10.4
+                    payout_limit: 10.4
+                    percent_usecases: 10.4
+                    point_multiplier_critical: 10.4
+                    point_multiplier_high: 10.4
+                    point_multiplier_low: 10.4
+                    point_multiplier_medium: 10.4
+                    point_multiplier_perfect: 10.4
+                    point_multiplier_refused: 10.4
+                    top_tester_bonus: 10.4
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+  '/users/me/campaigns/{campaignId}/preview':
+    get:
+      operationId: get-users-me-campaigns-cid-preview
+      summary: Get the preview data form for your v2-campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                preview-with-tl:
+                  value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
+                    campaignType: string
+                    content: string
+                    endDate: string
+                    selectionStatus: starting
+                    startDate: string
+                    status: selected
+                    title: title
+                    tl:
+                      email: string
+                      name: string
+                    type:
+                      icon: bug-report
+                      name: Bug Hunting
+                preview-without-tl:
+                  value:
+                    acceptedDevices:
+                      pc:
+                        - name: Windows
+                      smartphone: all
+                    campaignType: string
+                    content: string
+                    endDate: string
+                    selectionStatus: starting
+                    startDate: string
+                    status: selected
+                    title: title
+                    type:
+                      icon: bug-report
+                      name: Bug Hunting
+              schema:
+                type: object
+                required:
+                  - acceptedDevices
+                  - content
+                  - endDate
+                  - startDate
+                  - status
+                  - title
+                  - type
+                properties:
+                  acceptedDevices:
+                    type: object
+                    properties:
+                      console:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - enum:
+                              - all
+                      pc:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - enum:
+                              - all
+                      smartTv:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - enum:
+                              - all
+                      smartphone:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - enum:
+                              - all
+                      smartwatch:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - enum:
+                              - all
+                      tablet:
+                        oneOf:
+                          - type: array
+                            items:
+                              $ref: '#/components/schemas/AvailableDevice'
+                          - enum:
+                              - all
+                  cap:
+                    type: object
+                    required:
+                      - free
+                      - value
+                    properties:
+                      free:
+                        type: integer
+                      value:
+                        type: integer
+                  content:
+                    type: string
+                  endDate:
+                    type: string
+                  selectionStatus:
+                    type: string
+                    enum:
+                      - starting
+                      - excluded
+                      - ready
+                      - complete
+                      - not-started
+                  startDate:
+                    type: string
+                  status:
+                    type: string
+                    enum:
+                      - available
+                      - applied
+                      - excluded
+                      - selected
+                  title:
+                    type: string
+                  tl:
+                    type: object
+                    required:
+                      - email
+                      - name
+                    properties:
+                      email:
+                        type: string
+                      name:
+                        type: string
+                  type:
+                    type: object
+                    required:
+                      - icon
+                      - name
+                    properties:
+                      icon:
+                        type: string
+                      name:
+                        type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+  '/users/me/campaigns/{campaignId}/tasks':
+    get:
+      operationId: get-users-me-campaign-campaignId-tasks
+      summary: Get the Usecases for your campaign
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              examples:
+                Example 1:
+                  value:
+                    - can_upload_media: true
+                      content: string
+                      id: 0
+                      is_required: 0
+                      name: string
+                      status: completed
+              schema:
+                type: array
+                items:
+                  properties:
+                    can_upload_media:
+                      type: boolean
+                    content:
+                      type: string
+                    id:
+                      type: integer
+                    is_required:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                    name:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                        - completed
+                        - pending
+                  required:
+                    - content
+                    - id
+                    - is_required
+                    - name
+                    - status
+                    - can_upload_media
+                  type: object
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}':
+    parameters:
+      - name: campaignId
+        in: path
+        description: the campaign id
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: post-users-me-campaigns-campaign-tasks-task
+      summary: Set a task completed by user
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            examples:
+              Example 1:
+                value:
+                  status: completed
+            schema:
+              type: object
+              properties:
+                status:
+                  enum:
+                    - completed
+              required:
+                - status
+              x-examples:
+                example-1:
+                  additional:
+                    - name: ''
+                      value: ''
+                  current: ''
+                  description: ''
+                  device: 1
+                  expected: ''
+                  media:
+                    - ''
+                    - ''
+                  notes: ''
+                  replicability: ONCE
+                  severity: LOW
+                  title: ''
+                  type: TYPO
+                  usecase: 1
+      responses:
+        '200':
+          description: OK
+          content: {}
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - JWT: []
+      tags: []
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: post-users-me-campaigns-campaignId-tasks-taskId-media
+      summary: Upload media for a task
+      description: ''
+      requestBody:
+        description: ''
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  oneOf:
+                    - properties: {}
+                      type: string
+                    - items:
+                        type: string
+                      type: array
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  failed:
+                    type: array
+                    items:
+                      properties:
+                        errorCode:
+                          type: string
+                          enum:
+                            - FILE_TOO_BIG
+                            - INVALID_FILE_EXTENSION
+                            - GENERIC_ERROR
+                        name:
+                          type: string
+                      required:
+                        - name
+                        - errorCode
+                      type: object
+                  files:
+                    type: array
+                    items:
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+                      required:
+                        - name
+                        - path
+                      type: object
+      security:
+        - JWT: []
+        - User Token: []
+    get:
+      summary: GET tester media uploaded on a specific Campaign Task
+      operationId: get-users-me-campaigns-campaignId-tasks-taskId-media
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        location:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - location
+                        - name
+                required:
+                  - items
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 11111
+                        location: 'https://www.example.com/media1'
+                        name: media1
+                      - id: 12345
+                        location: 'https://www.example.com/media2'
+                        name: media2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+      security:
+        - JWT: []
+      description: Return a list of tester media uploaded on a specific Usecase of a specific Campaign
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media/{mediaId}':
+    parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      - schema:
+          type: string
+        name: mediaId
+        in: path
+        required: true
+    delete:
+      summary: Delete tryber media
+      operationId: delete-users-me-campaigns-campaignId-tasks-taskId-media-mediaId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '403':
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+      description: Delete a specific media of a specific campaign task if authorized
+      security:
+        - JWT: []
   '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       operationId: get-users-me-campaigns-campaignId-compatible-devices
@@ -10699,6 +11633,14 @@ components:
           title: Agreement Title
           tokens: 10.5
           unitPrice: 165
+    AvailableDevice:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+      title: AvailableDevice
     Bug:
       type: object
       properties:
@@ -10717,6 +11659,15 @@ components:
           type: string
       title: Bug
       x-examples: {}
+    BugLang:
+      type: string
+      enum:
+        - IT
+        - GB
+        - ES
+        - FR
+        - DE
+      title: BugLang
     BugSeverity:
       type: object
       properties:
@@ -11190,8 +12141,8 @@ components:
                   min:
                     type: integer
                 required:
-                  - min
                   - max
+                  - min
                 type: object
             cuf:
               type: array
@@ -11216,13 +12167,15 @@ components:
               items:
                 type: string
       required:
+        - deviceList
         - project
+        - startDate
         - testType
         - title
-        - startDate
-        - deviceList
+      title: ''
       x-examples:
         Example 1:
+          autoApply: false
           browsers:
             - 0
           closeDate: '2019-08-24T14:15:22Z'

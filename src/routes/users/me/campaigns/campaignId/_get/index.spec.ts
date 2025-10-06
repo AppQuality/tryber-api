@@ -5,6 +5,7 @@ import useBasicData from "./useBasicData";
 
 describe("Route GET /users/me/campaigns/{campaignId}/", () => {
   useBasicData();
+
   it("Should return 403 if user is not logged in", async () => {
     const res = await request(app).get("/users/me/campaigns/1");
     expect(res.status).toBe(403);
@@ -40,6 +41,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       title: "My campaign",
       minimumMedia: 4,
       hasBugForm: true,
+      hasBugParade: 0,
       bugSeverity: { valid: ["LOW", "MEDIUM"], invalid: [] },
       bugTypes: { valid: ["TYPO", "CRASH"], invalid: [] },
       bugReplicability: { valid: ["ONCE", "ALWAYS"], invalid: [] },
@@ -74,7 +76,52 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
         },
       ],
       validFileExtensions: [".jpg", ".png", ".gif"],
+      end_date: "2020-12-31 23:59:59",
+      goal: "Example: goal of the campaign",
+      campaign_type: {
+        icon: "bug-report",
+        name: "Bug Hunting",
+        id: 1,
+      },
     });
+  });
+});
+
+describe("Route GET /users/me/campaigns/{campaignId}/ - user selected over a closed campaign", () => {
+  beforeEach(async () => {
+    await tryber.tables.WpCrowdAppqHasCandidate.do().insert({
+      campaign_id: 3,
+      user_id: 1,
+      group_id: 1,
+      accepted: 1,
+    });
+    await tryber.tables.WpAppqEvdCampaign.do().insert({
+      id: 3,
+      title: "My closed campaign 3",
+      min_allowed_media: 4,
+      campaign_type: 0,
+      platform_id: 1,
+      start_date: "2020-01-01 00:00:00",
+      end_date: "2020-12-31 23:59:59", // overdue
+      page_preview_id: 1,
+      page_manual_id: 1,
+      customer_id: 1,
+      pm_id: 1,
+      project_id: 1,
+      customer_title: "My campaign",
+      status_id: 2, // closed
+      phase_id: 100,
+    });
+  });
+  afterEach(async () => {
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
+  });
+  it("Should return 404 if campaign is overdue and status_id = 2 (closed)", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/3")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(404);
   });
 });
 
