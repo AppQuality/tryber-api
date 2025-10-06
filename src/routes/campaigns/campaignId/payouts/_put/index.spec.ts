@@ -133,7 +133,6 @@ describe("GET /campaigns/campaignId/payouts", () => {
               campaign_complete_bonus_eur: -10,
               point_multiplier_high: -3,
             });
-          console.log(response.body);
           expect(response.status).toBe(400);
         });
 
