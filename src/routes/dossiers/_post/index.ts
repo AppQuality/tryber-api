@@ -92,6 +92,10 @@ export default class PostDossiers extends UserRoute<{
       this.setError(406, new OpenapiError("Invalid bug parade submitted"));
       return false;
     }
+    if (this.invalidBugFormSubmitted()) {
+      this.setError(406, new OpenapiError("Invalid bug form submitted"));
+      return false;
+    }
 
     return true;
   }
@@ -159,8 +163,15 @@ export default class PostDossiers extends UserRoute<{
 
   private invalidBugParadeSubmitted() {
     const { hasBugParade } = this.getBody();
-    if (!hasBugParade) return false;
+    if (hasBugParade === undefined) return false;
     if ([0, 1].includes(hasBugParade) === false) return true;
+  }
+
+  private invalidBugFormSubmitted() {
+    const { hasBugParade, hasBugForm } = this.getBody();
+    if (hasBugForm === undefined) return false;
+    if (hasBugParade !== undefined && hasBugParade === 1 && hasBugForm === 0)
+      return true;
   }
 
   private async invalidRolesSubmitted() {
