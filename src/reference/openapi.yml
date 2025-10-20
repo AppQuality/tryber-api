@@ -10988,6 +10988,7 @@ paths:
               - gross
               - activity
         - $ref: '#/components/parameters/order'
+        - $ref: '#/components/parameters/filterBy'
       responses:
         '200':
           description: OK
