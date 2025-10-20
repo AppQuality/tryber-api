@@ -1,11 +1,11 @@
+import app from "@src/app";
+import { tryber } from "@src/features/database";
+import sqlite3 from "@src/features/sqlite";
 import Attributions, {
   AttributionParams,
 } from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
-import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
-import { tryber } from "@src/features/database";
 
 const campaign1 = {
   id: 1,
@@ -95,12 +95,17 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
     await Campaigns.insert(campaign1);
     await Campaigns.insert(campaign2);
     await Campaigns.insert(campaign10);
-    await sqlite3.insert("wp_appq_payment", attribution1);
-    await sqlite3.insert("wp_appq_payment", attribution2);
-    await sqlite3.insert("wp_appq_payment", attribution3);
-    await sqlite3.insert("wp_appq_payment", attributionPaid);
-    await sqlite3.insert("wp_appq_payment", attributionRequested);
-    await sqlite3.insert("wp_appq_payment", attribution4);
+    await tryber.tables.WpAppqPayment.do().insert([
+      attribution1,
+      attribution2,
+      attribution3,
+      attributionPaid,
+      attributionRequested,
+      attribution4,
+    ]);
+    await tryber.tables.WpAppqPayment.do().insert([
+      { ...attribution2, id: 100, is_expired: 1 },
+    ]);
     await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
       { id: 1, work_type: "B Activity1" },
       { id: 2, work_type: "A Activity2" },

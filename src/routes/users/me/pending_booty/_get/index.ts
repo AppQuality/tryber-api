@@ -119,6 +119,7 @@ export default class RouteItem extends UserRoute<{
       .where("wp_appq_payment.tester_id", this.getTesterId())
       .where("wp_appq_payment.is_paid", 0)
       .where("wp_appq_payment.is_requested", 0)
+      .where("wp_appq_payment.is_expired", 0)
       .limit(this.limit)
       .offset(this.start);
 
