@@ -161,6 +161,12 @@ describe("POST /users/me/payments", () => {
         tester_id: 1,
         amount: 9.99,
       });
+
+      await tryber.tables.WpAppqPayment.do().insert({
+        tester_id: 1,
+        amount: 9.99,
+        is_expired: 1,
+      });
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
         amount: 50,
