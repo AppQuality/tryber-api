@@ -43,11 +43,11 @@ export default class Route extends CampaignRoute<{
   }
 
   protected async getBugAiReview() {
-    return await tryber.tables.WpAppqEvdBug.do()
+    return await tryber.tables.AiBugReview.do()
       .select("ai_status", "ai_reason", "ai_notes", "score_percentage")
-      .from("ai_bug_review")
       .where("campaign_id", this.cp_id)
       .where("bug_id", this.bug_id)
+      .where("version", "v1")
       .first();
   }
 
