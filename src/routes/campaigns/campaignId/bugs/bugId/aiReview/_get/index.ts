@@ -48,6 +48,7 @@ export default class Route extends CampaignRoute<{
       .from("ai_bug_review")
       .where("campaign_id", this.cp_id)
       .where("bug_id", this.bug_id)
+      .where("version", " v1")
       .first();
   }
 
