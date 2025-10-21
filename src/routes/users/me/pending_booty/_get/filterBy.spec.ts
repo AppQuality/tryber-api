@@ -3,44 +3,34 @@ import Attributions, {
 } from "@src/__mocks__/mockedDb/attributions";
 import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { tryber } from "@src/features/database";
 
 const campaign1 = {
   id: 1,
   title: "The Best Campaign ever",
+  platform_id: 1,
+  start_date: "1970-01-01",
+  end_date: "2070-01-01",
+  page_preview_id: 1,
+  page_manual_id: 1,
+  customer_id: 1,
+  pm_id: 85,
+  project_id: 1,
+  customer_title: "Customer Title",
 };
 const campaign2 = {
+  ...campaign1,
   id: 2,
   title: "Absolut Best Campaign ever",
 };
 const campaign10 = {
+  ...campaign1,
   id: 10,
   title: "Absolut Best Campaign ever",
 };
-const attribution1: AttributionParams = {
-  id: 1,
-  tester_id: 1,
-  campaign_id: 2,
-  amount: 6969.69,
-  creation_date: "1970-01-01 00:00:00",
-  is_paid: 0,
-  is_requested: 0,
-  work_type_id: 1,
-  is_expired: 0,
-};
-const attribution2: AttributionParams = {
-  id: 2,
-  tester_id: 1,
-  campaign_id: 1,
-  amount: 90,
-  creation_date: "1980-01-01 00:00:00",
-  is_paid: 0,
-  is_requested: 0,
-  work_type_id: 2,
-};
-const attribution3: AttributionParams = {
+
+const attributionExpired: AttributionParams = {
   id: 3,
   tester_id: 1,
   campaign_id: 10,
@@ -49,59 +39,28 @@ const attribution3: AttributionParams = {
   is_paid: 0,
   is_requested: 0,
   work_type_id: 3,
+  is_expired: 1,
 };
 
-const attribution4: AttributionParams = {
-  id: 6,
-  tester_id: 2,
-  campaign_id: 1,
-  amount: 9999,
-  creation_date: "1960-01-01 00:00:00",
-  is_paid: 0,
-  is_requested: 0,
-  work_type_id: 3,
-};
-const attributionPaid: AttributionParams = {
+const attributionNotExpired: AttributionParams = {
   id: 4,
   tester_id: 1,
   campaign_id: 3,
   amount: 100,
   creation_date: "1980-01-01 00:00:00",
-  is_paid: 1,
+  is_paid: 0,
   is_requested: 0,
   work_type_id: 3,
-};
-const attributionTryber2: AttributionParams = {
-  id: 333,
-  tester_id: 2,
-  campaign_id: 1,
-  amount: 169,
-  creation_date: "1969-06-09 00:00:00",
-  is_paid: 1,
-  work_type_id: 3,
-};
-const attributionRequested: AttributionParams = {
-  id: 666,
-  tester_id: 1,
-  campaign_id: 1,
-  amount: 100,
-  creation_date: "1980-01-01 00:00:00",
-  is_paid: 0,
-  is_requested: 1,
-  work_type_id: 3,
+  is_expired: 0,
 };
 
 describe("GET /users/me/pending_booty  - filterBy isExpired", () => {
   beforeAll(async () => {
-    await Campaigns.insert(campaign1);
-    await Campaigns.insert(campaign2);
-    await Campaigns.insert(campaign10);
-    await sqlite3.insert("wp_appq_payment", attribution1);
-    await sqlite3.insert("wp_appq_payment", attribution2);
-    await sqlite3.insert("wp_appq_payment", attribution3);
-    await sqlite3.insert("wp_appq_payment", attributionPaid);
-    await sqlite3.insert("wp_appq_payment", attributionRequested);
-    await sqlite3.insert("wp_appq_payment", attribution4);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign1);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign2);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign10);
+    await tryber.tables.WpAppqPayment.do().insert(attributionExpired);
+    await tryber.tables.WpAppqPayment.do().insert(attributionNotExpired);
     await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
       { id: 1, work_type: "B Activity1" },
       { id: 2, work_type: "A Activity2" },
