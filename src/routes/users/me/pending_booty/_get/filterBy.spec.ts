@@ -45,7 +45,7 @@ const attributionExpired: AttributionParams = {
 const attributionNotExpired: AttributionParams = {
   id: 4,
   tester_id: 1,
-  campaign_id: 3,
+  campaign_id: 10,
   amount: 100,
   creation_date: "1980-01-01 00:00:00",
   is_paid: 0,
@@ -89,40 +89,66 @@ describe("GET /users/me/pending_booty  - filterBy isExpired", () => {
       .get("/users/me/pending_booty?filterBy[isExpired]=1")
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({
-      total: 1,
-      items: [
-        {
-          id: 3,
-          attributionDate: "1960-01-01",
-          amount: 99,
-          cp_title: "Absolut Best Campaign ever",
-          cp_id: 10,
-          activity: "C Activity3",
+    expect(response.body.results).toEqual([
+      {
+        activity: "C Activity3",
+        amount: {
+          gross: { currency: "EUR", value: 99 },
+          net: { currency: "EUR", value: 79.2 },
         },
-      ],
-    });
+        attributionDate: "1960-01-01",
+        id: 3,
+        name: "[CP-10] Absolut Best Campaign ever",
+      },
+    ]);
   });
 
   it("Should filter by isExpired = 0", async () => {
     const response = await request(app)
       .get("/users/me/pending_booty?filterBy[isExpired]=0")
-      .set("Authorization", "Bearer tester")
-      .query({ filterBy: { isExpired: 0 } });
+      .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
-    console.log(response.body);
-    expect(response.body).toEqual({
-      total: 1,
-      items: [
-        {
-          id: 4,
-          attributionDate: "1980-01-01",
-          amount: 100,
-          cp_title: "The Best Campaign ever",
-          cp_id: 1,
-          activity: "B Activity1",
+    expect(response.body.results).toEqual([
+      {
+        activity: "C Activity3",
+        amount: {
+          gross: { currency: "EUR", value: 100 },
+          net: { currency: "EUR", value: 80 },
         },
-      ],
-    });
+        attributionDate: "1980-01-01",
+        id: 4,
+        name: "[CP-10] Absolut Best Campaign ever",
+      },
+    ]);
+  });
+  it("Should not filter when isExpired is not provided", async () => {
+    const response = await request(app)
+      .get("/users/me/pending_booty?filterBy[test]=1")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    expect(response.body.results).toEqual(
+      expect.arrayContaining([
+        {
+          activity: "C Activity3",
+          amount: {
+            gross: { currency: "EUR", value: 99 },
+            net: { currency: "EUR", value: 79.2 },
+          },
+          attributionDate: "1960-01-01",
+          id: 3,
+          name: "[CP-10] Absolut Best Campaign ever",
+        },
+        {
+          activity: "C Activity3",
+          amount: {
+            gross: { currency: "EUR", value: 100 },
+            net: { currency: "EUR", value: 80 },
+          },
+          attributionDate: "1980-01-01",
+          id: 4,
+          name: "[CP-10] Absolut Best Campaign ever",
+        },
+      ])
+    );
   });
 });

@@ -30,6 +30,9 @@ export default class RouteItem extends UserRoute<{
     }
     if (query.order) this.order = query.order;
     if (query.orderBy) this._orderBy = query.orderBy;
+    if (query.filterBy) {
+      this.filterBy = query.filterBy;
+    }
   }
 
   get orderBy() {
@@ -96,7 +99,6 @@ export default class RouteItem extends UserRoute<{
     const WHERE = `WHERE
     p.tester_id = ? and p.is_paid=0 and p.is_requested=0`;
     const data = [this.getTesterId()];
-
     const query = tryber.tables.WpAppqPayment.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_payment"),
@@ -125,7 +127,7 @@ export default class RouteItem extends UserRoute<{
       .limit(this.limit)
       .offset(this.start);
 
-    if (this.filterBy && this.filterBy.isExpired) {
+    if (this.filterBy && this.filterBy.isExpired !== undefined) {
       query.where("wp_appq_payment.is_expired", this.filterBy.isExpired);
     }
     if (this.orderBy === "activityName") {
@@ -141,7 +143,6 @@ export default class RouteItem extends UserRoute<{
     } else {
       query.orderBy(this.orderBy, this.order);
     }
-
     const results = (await query).map((row) => {
       return {
         id: row.id,
