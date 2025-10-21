@@ -87,7 +87,7 @@ describe("GET /users/me/pending_booty  - filterBy isExpired", () => {
   it("Should filter by isExpired = 1", async () => {
     const response = await request(app)
       .get("/users/me/pending_booty?filterBy[isExpired]=1")
-      .set("Authorization", "Bearer tester1");
+      .set("Authorization", "Bearer tester");
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       total: 1,
@@ -107,9 +107,10 @@ describe("GET /users/me/pending_booty  - filterBy isExpired", () => {
   it("Should filter by isExpired = 0", async () => {
     const response = await request(app)
       .get("/users/me/pending_booty?filterBy[isExpired]=0")
-      .set("Authorization", "Bearer tester1")
+      .set("Authorization", "Bearer tester")
       .query({ filterBy: { isExpired: 0 } });
     expect(response.status).toBe(200);
+    console.log(response.body);
     expect(response.body).toEqual({
       total: 1,
       items: [
