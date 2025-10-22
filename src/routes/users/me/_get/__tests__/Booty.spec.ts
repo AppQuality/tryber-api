@@ -1,7 +1,7 @@
 import app from "@src/app";
 import Attributions from "@src/__mocks__/mockedDb/attributions";
-import { data as PaymentRequest } from "@src/__mocks__/mockedDb/paymentRequest";
 import { data as FiscalProfile } from "@src/__mocks__/mockedDb/fiscalProfile";
+import { data as PaymentRequest } from "@src/__mocks__/mockedDb/paymentRequest";
 import Profile from "@src/__mocks__/mockedDb/profile";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
@@ -110,6 +110,7 @@ describe("GET /users/me - booties data - fiscal_category = 1", () => {
     const response = await request(app)
       .get("/users/me?fields=pending_booty")
       .set("authorization", "Bearer tester");
+    console.log(response.body.err);
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("id");
     expect(response.body).toHaveProperty("pending_booty");

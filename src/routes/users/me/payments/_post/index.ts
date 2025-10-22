@@ -4,7 +4,7 @@ import { tryber } from "@src/features/database";
 import debugMessage from "@src/features/debugMessage";
 import { sendTemplate } from "@src/features/mail/sendTemplate";
 import UserRoute from "@src/features/routes/UserRoute";
-import checkBooty from "./checkBooty";
+import getCrowdOption from "@src/features/wp/getCrowdOption";
 import checkProcessingPayment from "./checkProcessingPayment";
 
 export default class Route extends UserRoute<{
@@ -30,7 +30,7 @@ export default class Route extends UserRoute<{
     await super.init();
 
     try {
-      this.booty = await checkBooty(this.getTesterId());
+      this.booty = await this.checkBooty();
     } catch (err) {
       this.setError(403, err as OpenapiError);
       throw err;
@@ -49,6 +49,25 @@ export default class Route extends UserRoute<{
       this.setError(403, err as OpenapiError);
       throw err;
     }
+  }
+
+  private async checkBooty() {
+    const testerId = this.getTesterId();
+    const attributions = await tryber.tables.WpAppqPayment.do()
+      .sum("amount", { as: "total" })
+      .where("tester_id", testerId)
+      .where("is_paid", 0)
+      .where("is_requested", 0)
+      .first();
+
+    if (!attributions || !attributions.total) {
+      throw new Error("You don't have any booty to pay");
+    }
+    const threshold = await getCrowdOption("minimum_payout");
+    if (threshold && attributions.total < parseFloat(threshold)) {
+      throw new Error(`You need to have at least ${threshold} booty to pay`);
+    }
+    return attributions.total;
   }
 
   private async checkFiscalProfile() {
@@ -231,6 +250,7 @@ export default class Route extends UserRoute<{
       .where({
         tester_id: this.getTesterId(),
         is_requested: 0,
+        is_expired: 0,
       });
   }
 
