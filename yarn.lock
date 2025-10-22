@@ -30,7 +30,7 @@
 
 "@appquality/tryber-database@^0.45.0":
   version "0.45.0"
-  resolved "https://registry.npmjs.org/@appquality/tryber-database/-/tryber-database-0.45.0.tgz#f9483cff194b20e9dcaa2fb9cc1ebd6735e8f527"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.45.0.tgz#f9483cff194b20e9dcaa2fb9cc1ebd6735e8f527"
   integrity sha512-k9hAN/mKUJGNoY0RNJMggPqG+4c5O7+ieKlqoZPE7BxxxLFE6Ol/pBqWWryB/TQqEbEKiU7MnwcPVLHyHCwRRg==
   dependencies:
     better-sqlite3 "^8.1.0"
