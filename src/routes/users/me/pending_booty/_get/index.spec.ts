@@ -1,25 +1,31 @@
-import Attributions, {
-  AttributionParams,
-} from "@src/__mocks__/mockedDb/attributions";
-import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import app from "@src/app";
-import sqlite3 from "@src/features/sqlite";
 import request from "supertest";
 import { tryber } from "@src/features/database";
 
 const campaign1 = {
   id: 1,
   title: "The Best Campaign ever",
+  platform_id: 1,
+  start_date: "1970-01-01",
+  end_date: "2070-01-01",
+  page_preview_id: 1,
+  page_manual_id: 1,
+  customer_id: 1,
+  pm_id: 85,
+  project_id: 1,
+  customer_title: "Customer Title",
 };
 const campaign2 = {
+  ...campaign1,
   id: 2,
   title: "Absolut Best Campaign ever",
 };
 const campaign10 = {
+  ...campaign1,
   id: 10,
   title: "Absolut Best Campaign ever",
 };
-const attribution1: AttributionParams = {
+const attribution1 = {
   id: 1,
   tester_id: 1,
   campaign_id: 2,
@@ -29,7 +35,7 @@ const attribution1: AttributionParams = {
   is_requested: 0,
   work_type_id: 1,
 };
-const attribution2: AttributionParams = {
+const attribution2 = {
   id: 2,
   tester_id: 1,
   campaign_id: 1,
@@ -39,7 +45,7 @@ const attribution2: AttributionParams = {
   is_requested: 0,
   work_type_id: 2,
 };
-const attribution3: AttributionParams = {
+const attribution3 = {
   id: 3,
   tester_id: 1,
   campaign_id: 10,
@@ -50,7 +56,7 @@ const attribution3: AttributionParams = {
   work_type_id: 3,
 };
 
-const attribution4: AttributionParams = {
+const attribution4 = {
   id: 6,
   tester_id: 2,
   campaign_id: 1,
@@ -60,7 +66,7 @@ const attribution4: AttributionParams = {
   is_requested: 0,
   work_type_id: 3,
 };
-const attributionPaid: AttributionParams = {
+const attributionPaid = {
   id: 4,
   tester_id: 1,
   campaign_id: 3,
@@ -70,7 +76,7 @@ const attributionPaid: AttributionParams = {
   is_requested: 0,
   work_type_id: 3,
 };
-const attributionTryber2: AttributionParams = {
+const attributionTryber2 = {
   id: 333,
   tester_id: 2,
   campaign_id: 1,
@@ -79,7 +85,7 @@ const attributionTryber2: AttributionParams = {
   is_paid: 1,
   work_type_id: 3,
 };
-const attributionRequested: AttributionParams = {
+const attributionRequested = {
   id: 666,
   tester_id: 1,
   campaign_id: 1,
@@ -92,15 +98,15 @@ const attributionRequested: AttributionParams = {
 
 describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
   beforeAll(async () => {
-    await Campaigns.insert(campaign1);
-    await Campaigns.insert(campaign2);
-    await Campaigns.insert(campaign10);
-    await sqlite3.insert("wp_appq_payment", attribution1);
-    await sqlite3.insert("wp_appq_payment", attribution2);
-    await sqlite3.insert("wp_appq_payment", attribution3);
-    await sqlite3.insert("wp_appq_payment", attributionPaid);
-    await sqlite3.insert("wp_appq_payment", attributionRequested);
-    await sqlite3.insert("wp_appq_payment", attribution4);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign1);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign2);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign10);
+    await tryber.tables.WpAppqPayment.do().insert(attribution1);
+    await tryber.tables.WpAppqPayment.do().insert(attribution2);
+    await tryber.tables.WpAppqPayment.do().insert(attribution3);
+    await tryber.tables.WpAppqPayment.do().insert(attributionPaid);
+    await tryber.tables.WpAppqPayment.do().insert(attributionRequested);
+    await tryber.tables.WpAppqPayment.do().insert(attribution4);
     await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
       { id: 1, work_type: "B Activity1" },
       { id: 2, work_type: "A Activity2" },
@@ -118,8 +124,8 @@ describe("GET /users/me/pending_booty - fiscal_category = 1", () => {
     ]);
   });
   afterAll(async () => {
-    await Attributions.clear();
-    await Campaigns.clear();
+    await tryber.tables.WpAppqPayment.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqFiscalProfile.do().delete();
     await tryber.tables.WpAppqPaymentWorkTypes.do().delete();
   });
@@ -549,15 +555,15 @@ describe("Route GET payment-pending-booty when no data", () => {
 
 describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
   beforeAll(async () => {
-    await Campaigns.insert(campaign1);
-    await Campaigns.insert(campaign2);
-    await Campaigns.insert(campaign10);
-    await sqlite3.insert("wp_appq_payment", attribution1);
-    await sqlite3.insert("wp_appq_payment", attribution2);
-    await sqlite3.insert("wp_appq_payment", attribution3);
-    await sqlite3.insert("wp_appq_payment", attribution4);
-    await sqlite3.insert("wp_appq_payment", attributionPaid);
-    await sqlite3.insert("wp_appq_payment", attributionRequested);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign1);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign2);
+    await tryber.tables.WpAppqEvdCampaign.do().insert(campaign10);
+    await tryber.tables.WpAppqPayment.do().insert(attribution1);
+    await tryber.tables.WpAppqPayment.do().insert(attribution2);
+    await tryber.tables.WpAppqPayment.do().insert(attribution3);
+    await tryber.tables.WpAppqPayment.do().insert(attribution4);
+    await tryber.tables.WpAppqPayment.do().insert(attributionPaid);
+    await tryber.tables.WpAppqPayment.do().insert(attributionRequested);
     await tryber.tables.WpAppqPaymentWorkTypes.do().insert([
       { id: 1, work_type: "Activity1" },
       { id: 2, work_type: "Activity2" },
@@ -583,8 +589,8 @@ describe("GET /users/me/pending_booty - fiscal_category = 2", () => {
     ]);
   });
   afterAll(async () => {
-    await Attributions.clear();
-    await Campaigns.clear();
+    await tryber.tables.WpAppqPayment.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpAppqFiscalProfile.do().delete();
     await tryber.tables.WpAppqPayment.do().delete();
     await tryber.tables.WpAppqPaymentWorkTypes.do().delete();

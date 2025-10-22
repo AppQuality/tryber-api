@@ -1,7 +1,3 @@
-import Attributions, {
-  AttributionParams,
-} from "@src/__mocks__/mockedDb/attributions";
-import Campaigns from "@src/__mocks__/mockedDb/campaign";
 import app from "@src/app";
 import request from "supertest";
 import { tryber } from "@src/features/database";
@@ -30,7 +26,7 @@ const campaign10 = {
   title: "Absolut Best Campaign ever",
 };
 
-const attributionExpired: AttributionParams = {
+const attributionExpired = {
   id: 3,
   tester_id: 1,
   campaign_id: 10,
@@ -42,7 +38,7 @@ const attributionExpired: AttributionParams = {
   is_expired: 1,
 };
 
-const attributionNotExpired: AttributionParams = {
+const attributionNotExpired = {
   id: 4,
   tester_id: 1,
   campaign_id: 10,
@@ -78,10 +74,10 @@ describe("GET /users/me/pending_booty  - filterBy isExpired", () => {
     ]);
   });
   afterAll(async () => {
-    await Attributions.clear();
-    await Campaigns.clear();
     await tryber.tables.WpAppqFiscalProfile.do().delete();
     await tryber.tables.WpAppqPaymentWorkTypes.do().delete();
+    await tryber.tables.WpAppqPayment.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
   });
 
   it("Should filter by isExpired = 1", async () => {

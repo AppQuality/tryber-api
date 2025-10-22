@@ -90,13 +90,8 @@ export default class RouteItem extends UserRoute<{
     return 0;
   }
 
-  private getPendingBootiesOrderBy() {
-    if (this.orderBy === "activityName") return "wp_appq_evd_campaign.id";
-    if (this.orderBy === "id") return "wp_appq_payment.id";
-    return this.orderBy;
-  }
   private async getPendingBooties() {
-    const WHERE = `WHERE
+    let WHERE = `WHERE
     p.tester_id = ? and p.is_paid=0 and p.is_requested=0`;
     const data = [this.getTesterId()];
     const query = tryber.tables.WpAppqPayment.do()
@@ -160,10 +155,17 @@ export default class RouteItem extends UserRoute<{
       };
     }
     let total: number | undefined = undefined;
+
+    if (this.filterBy && this.filterBy.isExpired !== undefined) {
+      WHERE += ` and p.is_expired = ?`;
+      data.push(this.filterBy.isExpired ? 1 : 0);
+    }
+
     if (this.explicitLimitIsRequested) {
       const countSql = `SELECT COUNT(p.id) as total
     FROM wp_appq_payment p
       ${WHERE}`;
+
       const countResults = await db.query(db.format(countSql, data));
       total = countResults[0].total;
     }
