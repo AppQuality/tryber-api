@@ -64,6 +64,16 @@ const ai_review_1 = {
   bug_id: bug_1.id,
 };
 
+const ai_review_1_v2 = {
+  ai_status: "approved",
+  ai_reason: "Bug is valid",
+  ai_notes: "Bug has been reviewed by AI",
+  score_percentage: 95,
+  campaign_id: campaign_1.id,
+  bug_id: bug_1.id,
+  version: "v2",
+};
+
 describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdBug.do().insert([bug_1, bug_2, bug_3]);
@@ -106,6 +116,11 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
     });
     await tryber.tables.AiBugReview.do().insert({
       ...ai_review_1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+    await tryber.tables.AiBugReview.do().insert({
+      ...ai_review_1_v2,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     });
@@ -195,7 +210,7 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should return the AI review data", async () => {
+  it("Should return the AI review data (version = v1)", async () => {
     const response = await request(app)
       .get(`/campaigns/${campaign_1.id}/bugs/${bug_1.id}/aiReview`)
       .set("Authorization", "Bearer admin");
