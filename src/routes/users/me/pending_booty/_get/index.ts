@@ -16,6 +16,9 @@ export default class RouteItem extends UserRoute<{
   private _orderBy: ReturnType<RouteItem["getQuery"]>["orderBy"] =
     "attributionDate";
   private fiscalCategory: number = 0;
+  private filterBy: {
+    isExpired?: number;
+  } = {};
 
   constructor(configuration: RouteClassConfiguration) {
     super({ ...configuration, element: "pending booty" });
@@ -27,6 +30,9 @@ export default class RouteItem extends UserRoute<{
     }
     if (query.order) this.order = query.order;
     if (query.orderBy) this._orderBy = query.orderBy;
+    if (query.filterBy) {
+      this.filterBy = query.filterBy;
+    }
   }
 
   get orderBy() {
@@ -84,16 +90,10 @@ export default class RouteItem extends UserRoute<{
     return 0;
   }
 
-  private getPendingBootiesOrderBy() {
-    if (this.orderBy === "activityName") return "wp_appq_evd_campaign.id";
-    if (this.orderBy === "id") return "wp_appq_payment.id";
-    return this.orderBy;
-  }
   private async getPendingBooties() {
-    const WHERE = `WHERE 
+    let WHERE = `WHERE
     p.tester_id = ? and p.is_paid=0 and p.is_requested=0`;
     const data = [this.getTesterId()];
-
     const query = tryber.tables.WpAppqPayment.do()
       .select(
         tryber.ref("id").withSchema("wp_appq_payment"),
@@ -122,6 +122,9 @@ export default class RouteItem extends UserRoute<{
       .limit(this.limit)
       .offset(this.start);
 
+    if (this.filterBy && this.filterBy.isExpired !== undefined) {
+      query.where("wp_appq_payment.is_expired", this.filterBy.isExpired);
+    }
     if (this.orderBy === "activityName") {
       query
         .orderBy("wp_appq_evd_campaign.id", this.order)
@@ -135,7 +138,6 @@ export default class RouteItem extends UserRoute<{
     } else {
       query.orderBy(this.orderBy, this.order);
     }
-
     const results = (await query).map((row) => {
       return {
         id: row.id,
@@ -153,10 +155,17 @@ export default class RouteItem extends UserRoute<{
       };
     }
     let total: number | undefined = undefined;
+
+    if (this.filterBy && this.filterBy.isExpired !== undefined) {
+      WHERE += ` and p.is_expired = ?`;
+      data.push(this.filterBy.isExpired ? 1 : 0);
+    }
+
     if (this.explicitLimitIsRequested) {
       const countSql = `SELECT COUNT(p.id) as total
-    FROM wp_appq_payment p 
+    FROM wp_appq_payment p
       ${WHERE}`;
+
       const countResults = await db.query(db.format(countSql, data));
       total = countResults[0].total;
     }
