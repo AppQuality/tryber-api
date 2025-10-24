@@ -58,6 +58,7 @@ export default class Route extends UserRoute<{
       .where("tester_id", testerId)
       .where("is_paid", 0)
       .where("is_requested", 0)
+      .where("is_expired", 0)
       .first();
 
     if (!attributions || !attributions.total) {

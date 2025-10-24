@@ -32,6 +32,7 @@ export default async (id: string) => {
     .where("wp_appq_evd_profile.wp_user_id", id)
     .where("wp_appq_payment.is_requested", 0)
     .where("wp_appq_payment.is_paid", 0)
+    .where("wp_appq_payment.is_expired", 0)
     .first();
 
   if (!result) {
