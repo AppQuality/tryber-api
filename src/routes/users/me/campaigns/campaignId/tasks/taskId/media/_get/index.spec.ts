@@ -205,6 +205,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
             filename: "media10",
             location: "https://www.example.com/media10",
             tester_id: 1,
+            mimetype: "image/jpeg",
           },
           {
             id: 20,
@@ -213,6 +214,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
             filename: "media20",
             location: "https://www.example.com/media20",
             tester_id: 1,
+            mimetype: "image/jpeg",
           },
           {
             id: 33,
@@ -221,6 +223,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
             filename: "media33",
             location: "https://www.example.com/media33",
             tester_id: 2,
+            mimetype: "video/mp4",
           },
           {
             id: 44,
@@ -229,6 +232,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
             filename: "media44",
             location: "https://www.example.com/media44",
             tester_id: 2,
+            mimetype: "image/png",
           },
           {
             id: 55,
@@ -237,6 +241,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
             filename: "media55-on-task-not-allowed-upload",
             location: "https://www.example.com/media55",
             tester_id: 1,
+            mimetype: "image/png",
           },
         ]);
       });
@@ -287,11 +292,13 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
               id: 10,
               location: "https://www.example.com/media10",
               name: "media10",
+              mimetype: "image/jpeg",
             }),
             expect.objectContaining({
               id: 20,
               location: "https://www.example.com/media20",
               name: "media20",
+              mimetype: "image/jpeg",
             }),
           ]),
         });
@@ -307,6 +314,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
               id: 33,
               location: "https://www.example.com/media33",
               name: "media33",
+              mimetype: "video/mp4",
             }),
           ]),
         });
@@ -321,6 +329,7 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
               id: 55,
               location: "https://www.example.com/media55",
               name: "media55-on-task-not-allowed-upload",
+              mimetype: "image/png",
             }),
           ]),
         });

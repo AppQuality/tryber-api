@@ -110,7 +110,8 @@ class GetCampaignMyCampaignTasksMedia extends UserRoute<{
       .select(
         tryber.ref("id").withSchema("wp_appq_user_task_media"),
         tryber.ref("filename").withSchema("wp_appq_user_task_media"),
-        tryber.ref("location").withSchema("wp_appq_user_task_media")
+        tryber.ref("location").withSchema("wp_appq_user_task_media"),
+        tryber.ref("mimetype").withSchema("wp_appq_user_task_media")
       )
       .where("wp_appq_campaign_task.campaign_id", this.campaignId)
       .andWhere("wp_appq_user_task_media.campaign_task_id", this.taskId)
@@ -133,6 +134,7 @@ class GetCampaignMyCampaignTasksMedia extends UserRoute<{
               id: item.id,
               location: item.location,
               name: item.filename,
+              mimetype: item.mimetype,
             }))
           : [],
     };
