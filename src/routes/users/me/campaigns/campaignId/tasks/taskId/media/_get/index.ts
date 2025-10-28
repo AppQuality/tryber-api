@@ -134,7 +134,7 @@ class GetCampaignMyCampaignTasksMedia extends UserRoute<{
               id: item.id,
               location: item.location,
               name: item.filename,
-              mimetype: item.mimetype,
+              mimetype: item.mimetype ?? undefined,
             }))
           : [],
     };
