@@ -9188,11 +9188,17 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - items
                 properties:
                   items:
                     type: array
                     items:
                       type: object
+                      required:
+                        - id
+                        - location
+                        - name
                       properties:
                         id:
                           type: integer
@@ -9200,12 +9206,10 @@ paths:
                           type: string
                         name:
                           type: string
-                      required:
-                        - id
-                        - location
-                        - name
-                required:
-                  - items
+                        mimetype:
+                          type: string
+                          x-stoplight:
+                            id: x0vfn4gf1wjew
               examples:
                 Example 1:
                   value:
@@ -9213,9 +9217,11 @@ paths:
                       - id: 11111
                         location: 'https://www.example.com/media1'
                         name: media1
+                        mimetype: video/mp4
                       - id: 12345
                         location: 'https://www.example.com/media2'
                         name: media2
+                        mimetype: image/png
         '403':
           $ref: '#/components/responses/NotAuthorized'
       security:
