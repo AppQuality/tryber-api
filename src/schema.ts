@@ -4419,6 +4419,7 @@ export interface operations {
               id: number;
               location: string;
               name: string;
+              mimetype?: string;
             }[];
           };
         };
