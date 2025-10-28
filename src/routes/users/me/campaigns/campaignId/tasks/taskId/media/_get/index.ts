@@ -4,6 +4,7 @@ import { tryber } from "@src/features/database";
 import Campaigns, { CampaignObject } from "@src/features/db/class/Campaigns";
 import PageAccess from "@src/features/db/class/PageAccess";
 import UserRoute from "@src/features/routes/UserRoute";
+import { getPresignedUrl } from "@src/features/s3/presignUrl";
 
 type SuccessType =
   StoplightOperations["get-users-me-campaigns-campaignId-tasks-taskId-media"]["responses"]["200"]["content"]["application/json"];
@@ -130,12 +131,14 @@ class GetCampaignMyCampaignTasksMedia extends UserRoute<{
     return {
       items:
         results.length > 0
-          ? results.map((item) => ({
-              id: item.id,
-              location: item.location,
-              name: item.filename,
-              mimetype: item.mimetype ?? undefined,
-            }))
+          ? await Promise.all(
+              results.map(async (item) => ({
+                id: item.id,
+                location: await getPresignedUrl(item.location),
+                name: item.filename,
+                mimetype: item.mimetype ?? undefined,
+              }))
+            )
           : [],
     };
   }

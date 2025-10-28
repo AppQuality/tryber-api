@@ -1,6 +1,7 @@
 import app from "@src/app";
 import request from "supertest";
 import { tryber } from "@src/features/database";
+import { getPresignedUrl } from "@src/features/s3/presignUrl";
 
 const campaign = {
   start_date: "2025-09-17",
@@ -25,6 +26,15 @@ const task = {
   prefix: "prefix",
   allow_media: 1,
 };
+
+// mock the getPresignedUrl function such that it just returns the url passed to it
+jest.mock("@src/features/s3/presignUrl", () => {
+  return {
+    getPresignedUrl: jest
+      .fn()
+      .mockImplementation((url: string) => Promise.resolve(url)),
+  };
+});
 describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
   beforeAll(async () => {
     await tryber.tables.WpAppqCampaignType.do().insert([
@@ -83,6 +93,9 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
     await tryber.tables.WpCrowdAppqHasCandidate.do().delete();
     await tryber.tables.CampaignDossierData.do().delete();
+  });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("Should return 403 if user is not authenticated", async () => {
@@ -286,17 +299,18 @@ describe("GET users/me/campaigns/:cId/tasks/:tId/media", () => {
           .get("/users/me/campaigns/1/tasks/10/media")
           .set("Authorization", "Bearer tester");
         expect(response.body.items).toHaveLength(2);
+        expect(getPresignedUrl).toHaveBeenCalledTimes(2);
         expect(response.body).toMatchObject({
           items: expect.arrayContaining([
             expect.objectContaining({
               id: 10,
-              location: "https://www.example.com/media10",
+              location: "https://www.example.com/media10", // should match presigned url mock
               name: "media10",
               mimetype: "image/jpeg",
             }),
             expect.objectContaining({
               id: 20,
-              location: "https://www.example.com/media20",
+              location: "https://www.example.com/media20", // should match presigned url mock
               name: "media20",
               mimetype: "image/jpeg",
             }),
