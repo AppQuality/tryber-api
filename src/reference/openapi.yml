@@ -9208,8 +9208,6 @@ paths:
                           type: string
                         mimetype:
                           type: string
-                          x-stoplight:
-                            id: x0vfn4gf1wjew
               examples:
                 Example 1:
                   value:
