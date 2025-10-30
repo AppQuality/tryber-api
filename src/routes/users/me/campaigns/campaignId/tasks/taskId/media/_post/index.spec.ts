@@ -3,7 +3,6 @@ import { tryber } from "@src/features/database";
 import upload from "@src/features/upload";
 import Candidature from "@src/__mocks__/mockedDb/cpHasCandidates";
 import Profile from "@src/__mocks__/mockedDb/profile";
-import UploadedMedia from "@src/__mocks__/mockedDb/uploadedMedia";
 import WpOptions from "@src/__mocks__/mockedDb/wp_options";
 import WpUsers from "@src/__mocks__/mockedDb/wp_users";
 import request from "supertest";
@@ -72,6 +71,7 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       campaign_id: 1,
       user_id: 1,
       accepted: 1,
+      selected_device: 1,
     });
   });
   afterAll(async () => {
@@ -79,9 +79,9 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     await Profile.clear();
     await WpOptions.clear();
     await Candidature.clear();
-    await UploadedMedia.clear();
   });
   afterEach(async () => {
+    await tryber.tables.WpAppqUserTaskMedia.do().delete();
     jest.clearAllMocks();
   });
   it("Should answer 403 if not logged in", async () => {
@@ -180,5 +180,76 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
       "path",
       "https://s3.amazonaws.com/optimized-task-bucket/CP1/UC2/T1/crypted.png"
     );
+  });
+
+  describe("Device Data Serialization", () => {
+    describe("When the selected device doesnt exists", () => {
+      it("Should serialize default data on media", async () => {
+        const response = await request(app)
+          .post("/users/me/campaigns/1/tasks/1/media")
+          .attach("media", mockFileBuffer, "void.png")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        const insertedMedia =
+          await tryber.tables.WpAppqUserTaskMedia.do().select(
+            "manufacturer",
+            "model",
+            "pc_type",
+            "platform_id",
+            "os_version_id",
+            "form_factor"
+          );
+
+        expect(insertedMedia).not.toEqual(undefined);
+        expect(insertedMedia[0].manufacturer).toEqual("Unknown");
+        expect(insertedMedia[0].model).toEqual("Unknown");
+        expect(insertedMedia[0].pc_type).toEqual("Unknown");
+        expect(insertedMedia[0].platform_id).toEqual(0);
+        expect(insertedMedia[0].os_version_id).toEqual(0);
+        expect(insertedMedia[0].form_factor).toEqual("Unknown");
+      });
+    });
+    describe("When the selected device exists", () => {
+      beforeAll(async () => {
+        await tryber.tables.WpCrowdAppqDevice.do().insert({
+          id: 1,
+          id_profile: 1,
+          manufacturer: "Test Manufacturer",
+          model: "Test Model",
+          pc_type: "Test PC Type",
+          platform_id: 10,
+          os_version_id: 100,
+          form_factor: "Test Form Factor",
+        });
+      });
+      afterAll(async () => {
+        await tryber.tables.WpCrowdAppqDevice.do().delete();
+      });
+
+      it("Should serialize the device data on media", async () => {
+        const response = await request(app)
+          .post("/users/me/campaigns/1/tasks/1/media")
+          .attach("media", mockFileBuffer, "void.png")
+          .set("Authorization", "Bearer tester");
+        expect(response.status).toBe(200);
+        const insertedMedia =
+          await tryber.tables.WpAppqUserTaskMedia.do().select(
+            "manufacturer",
+            "model",
+            "pc_type",
+            "platform_id",
+            "os_version_id",
+            "form_factor"
+          );
+
+        expect(insertedMedia).not.toEqual(undefined);
+        expect(insertedMedia[0].manufacturer).toEqual("Test Manufacturer");
+        expect(insertedMedia[0].model).toEqual("Test Model");
+        expect(insertedMedia[0].pc_type).toEqual("Test PC Type");
+        expect(insertedMedia[0].platform_id).toEqual(10);
+        expect(insertedMedia[0].os_version_id).toEqual(100);
+        expect(insertedMedia[0].form_factor).toEqual("Test Form Factor");
+      });
+    });
   });
 });

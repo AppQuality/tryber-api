@@ -88,6 +88,7 @@ export default async (
       filename: file.name,
       size: file.size,
       tester_id: req.user.testerId,
+      ...(await getSelectedDeviceData()),
     });
   }
 
@@ -102,5 +103,48 @@ export default async (
       .andWhere("accepted", 1);
     if (candidature.length === 0)
       throw Error("You are not selected for this campaign");
+  }
+
+  async function getSelectedDeviceData() {
+    const mediaDevice = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select(
+        tryber.ref("manufacturer").withSchema("wp_crowd_appq_device"),
+        tryber.ref("model").withSchema("wp_crowd_appq_device"),
+        tryber.ref("pc_type").withSchema("wp_crowd_appq_device"),
+        tryber.ref("platform_id").withSchema("wp_crowd_appq_device"),
+        tryber.ref("os_version_id").withSchema("wp_crowd_appq_device"),
+        tryber.ref("form_factor").withSchema("wp_crowd_appq_device")
+      )
+      .join(
+        "wp_crowd_appq_device",
+        "wp_crowd_appq_device.id",
+        "=",
+        "wp_crowd_appq_has_candidate.selected_device"
+      )
+      .where("user_id", req.user.ID)
+      .andWhere("campaign_id", campaignId)
+      .andWhere("accepted", 1)
+      .first();
+
+    console.log(mediaDevice);
+    if (mediaDevice) {
+      return {
+        manufacturer: mediaDevice.manufacturer,
+        model: mediaDevice.model,
+        pc_type: mediaDevice.pc_type,
+        platform_id: mediaDevice.platform_id,
+        os_version_id: mediaDevice.os_version_id,
+        form_factor: mediaDevice.form_factor,
+      };
+    }
+
+    return {
+      manufacturer: "Unknown",
+      model: "Unknown",
+      pc_type: "Unknown",
+      platform_id: 0,
+      os_version_id: 0,
+      form_factor: "Unknown",
+    };
   }
 };
