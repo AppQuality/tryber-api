@@ -92,6 +92,7 @@ class CampaignObject {
       )
       .where("campaign_id", this.id)
       .andWhere("wp_appq_evd_profile.id", testerId)
+      .andWhere("accepted", 1)
       .first();
 
     return !!isTesterSelected;
