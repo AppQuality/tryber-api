@@ -1,7 +1,7 @@
 import { FORM_FACTOR_KEY } from "@src/constants";
+import { tryber } from "@src/features/database";
 import { UserTargetChecker } from "@src/features/target/UserTargetChecker";
 import Database from "./Database";
-import { tryber } from "@src/features/database";
 import PageAccess from "./PageAccess";
 
 type CampaignType = {
@@ -82,7 +82,22 @@ class CampaignObject {
     return targetRules;
   }
 
+  public async testerIsSelected(testerId: number) {
+    const isTesterSelected = await tryber.tables.WpCrowdAppqHasCandidate.do()
+      .select("user_id")
+      .join(
+        "wp_appq_evd_profile",
+        "wp_appq_evd_profile.wp_user_id",
+        "wp_crowd_appq_has_candidate.user_id"
+      )
+      .where("campaign_id", this.id)
+      .andWhere("wp_appq_evd_profile.id", testerId)
+      .first();
+
+    return !!isTesterSelected;
+  }
   public async testerHasAccess(testerId: number) {
+    if (await this.testerIsSelected(testerId)) return true;
     if (this.isPublic) return true;
     if (this.isSmallGroup) {
       const pageAccess = new PageAccess();
