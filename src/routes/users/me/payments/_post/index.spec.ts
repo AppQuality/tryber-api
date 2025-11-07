@@ -161,6 +161,12 @@ describe("POST /users/me/payments", () => {
         tester_id: 1,
         amount: 9.99,
       });
+
+      await tryber.tables.WpAppqPayment.do().insert({
+        tester_id: 1,
+        amount: 9.99,
+        is_expired: 1,
+      });
       await tryber.tables.WpAppqPayment.do().insert({
         tester_id: 1,
         amount: 50,
@@ -325,7 +331,7 @@ describe("POST /users/me/payments", () => {
       it("Should create a row in the requests with the amount_gross equal to sum of current payments not paid and is_paid=0", async () => {
         const payments = await tryber.tables.WpAppqPayment.do()
           .sum("amount", { as: "total" })
-          .where({ tester_id: 1, is_paid: 0 })
+          .where({ tester_id: 1, is_paid: 0, is_expired: 0 })
           .first();
 
         if (!payments) throw new Error("Payments not found");

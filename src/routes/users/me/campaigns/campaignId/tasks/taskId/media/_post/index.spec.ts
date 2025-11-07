@@ -182,6 +182,16 @@ describe("Route POST /users/me/campaign/{campaignId}/media", () => {
     );
   });
 
+  it("Should save the mimetype on DB", async () => {
+    const response = await request(app)
+      .post("/users/me/campaigns/1/tasks/1/media")
+      .attach("media", mockFileBuffer, "void.png")
+      .set("Authorization", "Bearer tester");
+    expect(response.status).toBe(200);
+    const insertedMedia = await tryber.tables.WpAppqUserTaskMedia.do().select();
+    expect(insertedMedia).not.toEqual(undefined);
+    expect(insertedMedia[0].mimetype).toEqual("image/png");
+  });
   describe("Device Data Serialization", () => {
     describe("When the selected device doesnt exists", () => {
       it("Should serialize default data on media", async () => {

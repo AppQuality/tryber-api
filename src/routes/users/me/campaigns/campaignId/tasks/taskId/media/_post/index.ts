@@ -88,6 +88,7 @@ export default async (
       filename: file.name,
       size: file.size,
       tester_id: req.user.testerId,
+      mimetype: file.mimetype,
       ...(await getSelectedDeviceData()),
     });
   }

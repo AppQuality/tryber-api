@@ -10,6 +10,7 @@ type AttributionParams = {
   creation_date?: string;
   is_requested?: 0 | 1;
   is_paid?: 0 | 1;
+  is_expired?: 0 | 1;
 };
 const defaultItem: AttributionParams = {
   id: 1,
@@ -21,6 +22,7 @@ const defaultItem: AttributionParams = {
   creation_date: "2020-01-01",
   is_requested: 0,
   is_paid: 0,
+  is_expired: 0,
 };
 class Attributions extends Table<AttributionParams> {
   protected name = "wp_appq_payment";
@@ -34,6 +36,7 @@ class Attributions extends Table<AttributionParams> {
     "work_type_id INTEGER",
     "request_id INTEGER DEFAULT NULL",
     "campaign_id INTEGER",
+    "is_expired INTEGER DEFAULT 0",
   ];
   constructor() {
     super(defaultItem);

@@ -105,6 +105,7 @@ class TaskMediaUploader {
         name: media.name,
         path: currentPath,
         size: media.size,
+        mimetype: media.mimeType,
       });
       await this.createUploadedFile(
         currentPath,

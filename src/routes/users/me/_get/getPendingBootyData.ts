@@ -1,37 +1,54 @@
-import * as db from "@src/features/db";
+import { tryber } from "@src/features/database";
+
+const getTesterFiscalCategory = async (id: string) => {
+  const result = await tryber.tables.WpAppqFiscalProfile.do()
+    .select(tryber.ref("fiscal_category"))
+    .join(
+      "wp_appq_evd_profile",
+      "wp_appq_evd_profile.id",
+      "wp_appq_fiscal_profile.tester_id"
+    )
+    .where("wp_appq_evd_profile.wp_user_id", id)
+    .where("wp_appq_fiscal_profile.is_active", 1)
+    .first();
+
+  if (result && result.fiscal_category) {
+    return result.fiscal_category;
+  }
+
+  return false;
+};
 
 export default async (id: string) => {
-  let fiscalCategory = 0;
+  const fiscalCategory = await getTesterFiscalCategory(id);
 
-  let fiscalSql = `SELECT 
-  fp.fiscal_category from wp_appq_fiscal_profile as fp
-  JOIN wp_appq_evd_profile as p ON (p.id = fp.tester_id)
-  WHERE p.wp_user_id = ? AND fp.is_active = 1
-`;
-  const fiscal = await db.query(db.format(fiscalSql, [id]));
-  if (fiscal.length) {
-    fiscalCategory = fiscal[0].fiscal_category;
-  }
-  let sql = `SELECT SUM(pay.amount) as total
-    FROM wp_appq_payment pay
-    JOIN wp_appq_evd_profile p ON (p.id = pay.tester_id)
-    WHERE p.wp_user_id = ? AND is_requested = 0 AND is_paid = 0;
-  `;
-  const res = await db.query(db.format(sql, [id]));
-  if (!res.length) {
-    Promise.reject(Error("Invalid pending booty data"));
+  const result = await tryber.tables.WpAppqPayment.do()
+    .sum("amount", { as: "total" })
+    .join(
+      "wp_appq_evd_profile",
+      "wp_appq_evd_profile.id",
+      "wp_appq_payment.tester_id"
+    )
+    .where("wp_appq_evd_profile.wp_user_id", id)
+    .where("wp_appq_payment.is_requested", 0)
+    .where("wp_appq_payment.is_paid", 0)
+    .where("wp_appq_payment.is_expired", 0)
+    .first();
+
+  if (!result) {
+    return Promise.reject(Error("Invalid pending booty data"));
   }
   return {
     pending_booty: {
       gross: {
-        value: res[0].total ? Number(parseFloat(res[0].total).toFixed(2)) : 0,
+        value: result.total ? Number(result.total.toFixed(2)) : 0,
         currency: "EUR",
       },
-      ...(fiscal &&
+      ...(fiscalCategory !== false &&
         fiscalCategory === 1 && {
           net: {
-            value: res[0].total
-              ? Number(parseFloat(`${res[0].total * 0.8}`).toFixed(2))
+            value: result.total
+              ? Number(parseFloat(`${result.total * 0.8}`).toFixed(2))
               : 0,
             currency: "EUR",
           },

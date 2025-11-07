@@ -4419,6 +4419,7 @@ export interface operations {
               id: number;
               location: string;
               name: string;
+              mimetype?: string;
             }[];
           };
         };
@@ -5063,6 +5064,8 @@ export interface operations {
           | "activity";
         /** How to order values (ASC, DESC) */
         order?: components["parameters"]["order"];
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
       };
     };
     responses: {
