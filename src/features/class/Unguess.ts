@@ -83,6 +83,28 @@ class Unguess {
       name: result.name,
     };
   }
+
+  /**
+   * Public method to post campaign watchers
+   */
+  public async postCampaignWatcher({
+    profileIds,
+    campaignId,
+  }: {
+    profileIds: { id: number }[];
+    campaignId: number;
+  }): Promise<{ result: any }> {
+    const body = {
+      profileIds,
+    };
+    const result = await this.authPost(
+      `/campaigns/${campaignId}/watchers`,
+      body
+    );
+    return {
+      result: result,
+    };
+  }
 }
 
 export default Unguess;
