@@ -2914,6 +2914,7 @@ export interface operations {
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
+        } & {
           /** @enum {undefined} */
           notify_everyone: 0 | 1;
         };
