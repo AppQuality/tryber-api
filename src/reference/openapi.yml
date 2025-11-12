@@ -4688,8 +4688,6 @@ paths:
                         useCases:
                           type: integer
                 - type: object
-                  required:
-                    - notify_everyone
                   properties:
                     autoApply:
                       type: integer
@@ -4715,9 +4713,13 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
+                - type: object
+                  x-stoplight:
+                    id: tslgngl35vs2m
+                  properties:
                     notify_everyone:
                       x-stoplight:
-                        id: qnlxzo0msj1nd
+                        id: zc1f0xfg9h0lw
                       enum:
                         - 0
                         - 1
