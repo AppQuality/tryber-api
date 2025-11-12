@@ -47,8 +47,6 @@ class Unguess {
     body: Record<string, any>
   ): Promise<any> {
     const token = await this.getToken();
-
-    console.log("Making POST request to:", `${this.baseUrl}${path}`);
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: "POST",
       headers: {
