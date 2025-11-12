@@ -4627,6 +4627,7 @@ paths:
               Example 1:
                 value:
                   autoApply: 0
+                  notify_everyone: 0
                   browsers:
                     - 0
                   closeDate: '2019-08-24T14:15:22Z'
@@ -4687,6 +4688,8 @@ paths:
                         useCases:
                           type: integer
                 - type: object
+                  required:
+                    - notify_everyone
                   properties:
                     autoApply:
                       type: integer
@@ -4712,6 +4715,13 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
+                    notify_everyone:
+                      type: integer
+                      x-stoplight:
+                        id: qnlxzo0msj1nd
+                      default: 0
+                      minimum: 0
+                      maximum: 1
       responses:
         '201':
           description: Created
