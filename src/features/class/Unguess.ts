@@ -47,6 +47,8 @@ class Unguess {
     body: Record<string, any>
   ): Promise<any> {
     const token = await this.getToken();
+
+    console.log("Making POST request to:", `${this.baseUrl}${path}`);
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: "POST",
       headers: {
@@ -87,15 +89,15 @@ class Unguess {
   /**
    * Public method to post campaign watchers
    */
-  public async postCampaignWatcher({
+  public async postCampaignWatchers({
     profileIds,
     campaignId,
   }: {
-    profileIds: { id: number }[];
+    profileIds: { users: { id: number }[] };
     campaignId: number;
   }): Promise<{ result: any }> {
     const body = {
-      profileIds,
+      ...profileIds,
     };
     const result = await this.authPost(
       `/campaigns/${campaignId}/watchers`,
