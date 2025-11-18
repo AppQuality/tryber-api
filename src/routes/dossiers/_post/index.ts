@@ -117,7 +117,6 @@ export default class PostDossiers extends UserRoute<{
       }
 
       if (notify_everyone === 1) {
-        console.log("sono qui");
         await this.setupNotifications(campaignId);
       }
 
