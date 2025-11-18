@@ -4716,8 +4716,6 @@ paths:
                 - type: object
                   x-stoplight:
                     id: tslgngl35vs2m
-                  required:
-                    - notify_everyone
                   properties:
                     notify_everyone:
                       x-stoplight:
