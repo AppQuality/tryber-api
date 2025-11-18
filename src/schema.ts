@@ -2916,7 +2916,7 @@ export interface operations {
           skipPagesAndTasks?: number;
         } & {
           /** @enum {undefined} */
-          notify_everyone: 0 | 1;
+          notify_everyone?: 0 | 1;
         };
       };
     };
