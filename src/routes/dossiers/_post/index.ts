@@ -872,7 +872,6 @@ export default class PostDossiers extends UserRoute<{
   private async setupNotifications(campaignId: number) {
     const usersToNotify = await this.retrieveProjectAndWorkspaceUsers();
 
-    console.log("notify; ", usersToNotify);
     if (!usersToNotify) return;
     const unguess = new Unguess();
     try {
@@ -892,7 +891,6 @@ export default class PostDossiers extends UserRoute<{
 
   private async retrieveProjectAndWorkspaceUsers() {
     const projectId = this.getBody().project;
-    console.log("nella project:", projectId);
 
     try {
       const projectUsers = await tryber.tables.WpAppqProject.do()
@@ -908,8 +906,6 @@ export default class PostDossiers extends UserRoute<{
         )
         .where("wp_appq_project.id", projectId);
 
-      console.log("proj users", projectUsers);
-
       if (!projectUsers.length) return;
 
       const workspaceUsers = await tryber.tables.WpAppqUserToCustomer.do()
@@ -919,22 +915,14 @@ export default class PostDossiers extends UserRoute<{
           projectUsers.map((pu) => pu.customer_id)
         );
 
-      console.log("wp users: ", workspaceUsers);
-
       const uniqueUsers = new Set([
         ...projectUsers.map((pu) => pu.profile_id),
         ...workspaceUsers.map((wu) => wu.profile_id),
       ]);
 
-      console.log("unique", uniqueUsers);
-
-      console.log({
-        users: Array.from(uniqueUsers).map((id: number) => ({ id })),
-      });
-
       return { users: Array.from(uniqueUsers).map((id: number) => ({ id })) };
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 }

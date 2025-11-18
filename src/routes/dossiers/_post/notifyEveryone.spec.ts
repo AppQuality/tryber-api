@@ -1,16 +1,30 @@
 import app from "@src/app";
+import Unguess from "@src/features/class/Unguess";
 import { tryber } from "@src/features/database";
 import request from "supertest";
 
-jest.mock("@src/features/Unguess", () => ({
-  Unguess: jest.fn().mockImplementation(() => ({
-    postCampaignWatchers: jest.fn().mockResolvedValue({ result: "ok" }),
+const mockPostCampaignWatchers = jest
+  .fn()
+  .mockResolvedValue({ result: "ok", status: 201 });
+const mockTrigger = jest.fn().mockResolvedValue(undefined);
+
+jest.mock("@src/features/class/Unguess", () => ({
+  __esModule: true,
+  default: jest.fn().mockImplementation(() => ({
+    postCampaignWatchers: mockPostCampaignWatchers,
+  })),
+}));
+
+jest.mock("@src/features/webhookTrigger", () => ({
+  WebhookTrigger: jest.fn().mockImplementation(() => ({
+    trigger: mockTrigger,
   })),
 }));
 
 const baseRequest = {
   project: 10,
   testType: 10,
+  skipPagesAndTasks: 1,
   title: {
     customer: "Campaign Title for Customer",
     tester: "Campaign Title for Tester",
@@ -116,6 +130,9 @@ describe("Route POST /dossiers", () => {
   });
   afterEach(async () => {
     await tryber.tables.WpAppqEvdCampaign.do().delete();
+    mockPostCampaignWatchers.mockClear();
+    mockTrigger.mockClear();
+    (Unguess as jest.Mock).mockClear();
   });
 
   it("Should call postCampaignWatchers", async () => {
@@ -123,6 +140,13 @@ describe("Route POST /dossiers", () => {
       .post("/dossiers")
       .set("authorization", "Bearer admin")
       .send({ ...baseRequest, notify_everyone: 1 });
+
+    expect(mockPostCampaignWatchers).toHaveBeenCalledTimes(1);
+
+    expect(mockPostCampaignWatchers).toHaveBeenCalledWith({
+      profileIds: { users: [{ id: 1 }] },
+      campaignId: expect.any(Number),
+    });
   });
 
   it("Should not call postCampaignWatchers", async () => {
@@ -131,6 +155,6 @@ describe("Route POST /dossiers", () => {
       .set("authorization", "Bearer admin")
       .send({ ...baseRequest, notify_everyone: 0 });
 
-    console.log(response.body);
+    expect(mockPostCampaignWatchers).not.toHaveBeenCalled();
   });
 });
