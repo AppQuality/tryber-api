@@ -116,7 +116,7 @@ export default class PostDossiers extends UserRoute<{
         await this.setBugLanguage(campaignId);
       }
 
-      if (notify_everyone && notify_everyone === 1) {
+      if (notify_everyone === 1) {
         await this.setupNotifications(campaignId);
       }
 
