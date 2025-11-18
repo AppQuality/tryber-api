@@ -153,7 +153,7 @@ describe("Route POST /dossiers", () => {
     const response = await request(app)
       .post("/dossiers")
       .set("authorization", "Bearer admin")
-      .send({ ...baseRequest, notify_everyone: 0 });
+      .send({ ...baseRequest });
 
     expect(mockPostCampaignWatchers).not.toHaveBeenCalled();
   });
