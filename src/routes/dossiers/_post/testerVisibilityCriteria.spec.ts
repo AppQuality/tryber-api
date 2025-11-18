@@ -7,6 +7,7 @@ jest.mock("@src/features/webhookTrigger");
 
 const baseRequest = {
   project: 1,
+  notify_everyone: 0,
   testType: 1,
   title: {
     customer: "Campaign Title for Customer",

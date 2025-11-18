@@ -8,6 +8,7 @@ jest.mock("@src/features/webhookTrigger");
 const baseRequest = {
   project: 10,
   testType: 10,
+  notify_everyone: 0,
   title: {
     customer: "Campaign Title for Customer",
     tester: "Campaign Title for Tester",
@@ -888,6 +889,8 @@ describe("Route POST /dossiers", () => {
           cap: 100,
         },
       });
+
+    console.log(response.body);
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty("id");
