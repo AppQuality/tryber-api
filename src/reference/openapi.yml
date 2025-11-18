@@ -4714,12 +4714,8 @@ paths:
                       maximum: 1
                       minimum: 0
                 - type: object
-                  x-stoplight:
-                    id: tslgngl35vs2m
                   properties:
                     notify_everyone:
-                      x-stoplight:
-                        id: zc1f0xfg9h0lw
                       enum:
                         - 0
                         - 1
