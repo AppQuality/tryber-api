@@ -95,7 +95,7 @@ class Unguess {
     campaignId: number;
   }): Promise<{ result: any }> {
     const body = {
-      ...profileIds,
+      users: profileIds.users,
     };
     const result = await this.authPost(
       `/campaigns/${campaignId}/watchers`,
