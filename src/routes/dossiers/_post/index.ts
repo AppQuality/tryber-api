@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS: post-dossiers */
 
+import Unguess from "@src/features/class/Unguess";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
@@ -101,7 +102,7 @@ export default class PostDossiers extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const { skipPagesAndTasks, bugLanguage } = this.getBody();
+    const { skipPagesAndTasks, bugLanguage, notify_everyone } = this.getBody();
 
     try {
       const campaignId = await this.createCampaign();
@@ -113,6 +114,10 @@ export default class PostDossiers extends UserRoute<{
 
       if (bugLanguage) {
         await this.setBugLanguage(campaignId);
+      }
+
+      if (notify_everyone === 1) {
+        await this.setupNotifications(campaignId);
       }
 
       const webhook = new WebhookTrigger({
@@ -861,5 +866,62 @@ export default class PostDossiers extends UserRoute<{
 
     if (!autoApplyFromType) return 0;
     return autoApplyFromType.has_auto_apply ? 1 : 0;
+  }
+
+  private async setupNotifications(campaignId: number) {
+    const usersToNotify = await this.retrieveProjectAndWorkspaceUsers();
+
+    if (!usersToNotify) return;
+    const unguess = new Unguess();
+    try {
+      const result = await unguess.postCampaignWatchers({
+        profileIds: usersToNotify,
+        campaignId: campaignId,
+      });
+      return result;
+    } catch (error) {
+      console.error(
+        "Error setting up notifications calling unguess api:",
+        error
+      );
+      return;
+    }
+  }
+
+  private async retrieveProjectAndWorkspaceUsers() {
+    const projectId = this.getBody().project;
+
+    try {
+      const projectUsers = await tryber.tables.WpAppqProject.do()
+        .select(
+          tryber.ref("profile_id").withSchema("wp_appq_user_to_project"),
+          tryber.ref("project_id").withSchema("wp_appq_user_to_project"),
+          tryber.ref("customer_id").withSchema("wp_appq_project")
+        )
+        .leftJoin(
+          "wp_appq_user_to_project",
+          "wp_appq_user_to_project.project_id",
+          "wp_appq_project.id"
+        )
+        .where("wp_appq_project.id", projectId);
+
+      if (!projectUsers.length) return;
+
+      const workspaceUsers = await tryber.tables.WpAppqUserToCustomer.do()
+        .select("profile_id")
+        .whereIn(
+          "customer_id",
+          projectUsers.map((pu) => pu.customer_id)
+        );
+
+      const uniqueUsers = new Set([
+        ...projectUsers.map((pu) => pu.profile_id),
+        ...workspaceUsers.map((wu) => wu.profile_id),
+      ]);
+
+      return { users: Array.from(uniqueUsers).map((id: number) => ({ id })) };
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

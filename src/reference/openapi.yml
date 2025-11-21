@@ -4627,6 +4627,7 @@ paths:
               Example 1:
                 value:
                   autoApply: 0
+                  notify_everyone: 0
                   browsers:
                     - 0
                   closeDate: '2019-08-24T14:15:22Z'
@@ -4712,6 +4713,13 @@ paths:
                       default: 0
                       maximum: 1
                       minimum: 0
+                - type: object
+                  properties:
+                    notify_everyone:
+                      enum:
+                        - 0
+                        - 1
+                      default: 0
       responses:
         '201':
           description: Created
