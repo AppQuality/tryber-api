@@ -101,6 +101,7 @@ class Unguess {
       `/campaigns/${campaignId}/watchers`,
       body
     );
+    console.debug("postCampaignWatchers result:", result);
     return {
       result: result,
     };
