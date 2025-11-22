@@ -95,13 +95,13 @@ class Unguess {
     campaignId: number;
   }): Promise<{ result: any }> {
     const body = {
-      users: profileIds.users.map(({ id }) => ({ id })),
+      ...profileIds,
     };
     const result = await this.authPost(
-      `/campaigns/${campaignId}/watchers`,
+      `/campaigns/${campaignId.toString()}/watchers`,
       body
     );
-    console.debug("postCampaignWatchers result:", result);
+    console.warn("postCampaignWatchers result:", result);
     return {
       result: result,
     };

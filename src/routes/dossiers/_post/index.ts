@@ -884,6 +884,8 @@ export default class PostDossiers extends UserRoute<{
         "Error setting up notifications calling unguess api:",
         error
       );
+      // @ts-ignore
+      console.error(error.response.data);
       return;
     }
   }
