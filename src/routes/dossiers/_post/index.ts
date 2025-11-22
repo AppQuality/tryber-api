@@ -892,15 +892,16 @@ export default class PostDossiers extends UserRoute<{
     }
   }
 
-  private async retrieveProjectAndWorkspaceUsers() {
+  private async retrieveProjectAndWorkspaceUsers(): Promise<
+    { users: { id: number }[] } | undefined
+  > {
     const projectId = this.getBody().project;
 
     try {
       const projectUsers = await tryber.tables.WpAppqProject.do()
         .select(
           tryber.ref("profile_id").withSchema("wp_appq_user_to_project"),
-          tryber.ref("project_id").withSchema("wp_appq_user_to_project"),
-          tryber.ref("customer_id").withSchema("wp_appq_project")
+          "wp_appq_project.customer_id"
         )
         .leftJoin(
           "wp_appq_user_to_project",
@@ -918,12 +919,24 @@ export default class PostDossiers extends UserRoute<{
           projectUsers.map((pu) => pu.customer_id)
         );
 
-      const uniqueUsers = new Set([
+      const rawIds = [
         ...projectUsers.map((pu) => pu.profile_id),
         ...workspaceUsers.map((wu) => wu.profile_id),
-      ]);
+      ];
 
-      return { users: Array.from(uniqueUsers).map((id: number) => ({ id })) };
+      const validIds = Array.from(
+        new Set(
+          rawIds
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0)
+        )
+      );
+
+      if (!validIds.length) return;
+
+      return {
+        users: validIds.map((id) => ({ id })),
+      };
     } catch (e) {
       console.error(e);
     }
