@@ -146,7 +146,6 @@ class Unguess {
       `/campaigns/${campaignId.toString()}/watchers`,
       body
     );
-    console.warn("postCampaignWatchers result:", result);
     return {
       result,
     };
