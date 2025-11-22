@@ -8,6 +8,7 @@ import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import { components } from "@src/schema";
+import { AxiosError } from "axios";
 import Province from "comuni-province-regioni/lib/province";
 
 const MIN_TESTER_AGE = 14;
@@ -879,13 +880,14 @@ export default class PostDossiers extends UserRoute<{
         campaignId: campaignId,
       });
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         "Error setting up notifications calling unguess api:",
         error
       );
+
       // @ts-ignore
-      console.error(error.response.data);
+      console.error("error details: ", error?.response?.data);
       return;
     }
   }
