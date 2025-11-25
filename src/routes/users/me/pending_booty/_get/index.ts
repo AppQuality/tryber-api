@@ -158,7 +158,7 @@ export default class RouteItem extends UserRoute<{
 
     if (this.filterBy && this.filterBy.isExpired !== undefined) {
       WHERE += ` and p.is_expired = ?`;
-      data.push(this.filterBy.isExpired ? 1 : 0);
+      data.push(Number(this.filterBy.isExpired));
     }
 
     if (this.explicitLimitIsRequested) {
