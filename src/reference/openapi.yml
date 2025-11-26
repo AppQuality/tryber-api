@@ -4693,6 +4693,11 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    autoApprove:
+                      type: integer
+                      default: 0
+                      minimum: 0
+                      maximum: 1
                     bugLanguage:
                       $ref: '#/components/schemas/BugLang'
                     hasBugForm:

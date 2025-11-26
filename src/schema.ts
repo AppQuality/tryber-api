@@ -2908,6 +2908,7 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"];
           hasBugForm?: number;
           hasBugParade?: number;
