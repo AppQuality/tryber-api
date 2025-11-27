@@ -70,7 +70,8 @@ export default class RouteItem extends UserRoute<{
           .withSchema("campaign_phase")
           .as("phase_id"),
         tryber.ref("name").withSchema("campaign_phase").as("phase_name"),
-        tryber.ref("auto_apply").withSchema("wp_appq_evd_campaign")
+        tryber.ref("auto_apply").withSchema("wp_appq_evd_campaign"),
+        tryber.ref("auto_approve").withSchema("wp_appq_evd_campaign")
       )
       .join(
         "wp_appq_project",
@@ -246,6 +247,7 @@ export default class RouteItem extends UserRoute<{
         closeDate: this.formatDate(this.campaign.close_date),
         deviceList: this.campaign.devices,
         autoApply: this.campaign.auto_apply,
+        autoApprove: this.campaign.auto_approve,
         csm: {
           id: this.campaign.pm_id,
           name: `${this.campaign.pm_name} ${this.campaign.pm_surname}`,

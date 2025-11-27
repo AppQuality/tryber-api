@@ -366,6 +366,47 @@ describe("Route POST /dossiers", () => {
     expect(campaign).toHaveProperty("auto_apply", 0);
   });
 
+  it("Should update the campaign with the auto approve flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApprove: 1,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("auto_approve", 1);
+  });
+  it("Should unset the campaign auto approve flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/299")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApprove: 0,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+    const id = response.body.id;
+
+    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+      .select()
+      .where({ id })
+      .first();
+
+    expect(campaign).toHaveProperty("auto_approve", 0);
+  });
+
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
     const response = await request(app)
       .put("/dossiers/1")

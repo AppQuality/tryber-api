@@ -984,6 +984,64 @@ describe("Route POST /dossiers", () => {
       expect(getResponse.body).toHaveProperty("autoApply", 0);
     });
   });
+  describe("Auto Approve", () => {
+    it("Should insert autoApprove 0 sent if send autoApprove 0", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, autoApprove: 0 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApprove", 0);
+    });
+
+    it("Should insert autoApprove 1 sent if send autoApprove 1", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, autoApprove: 1 });
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApprove", 1);
+    });
+
+    it("Should insert autoApprove 0 sent if don't send autoApprove", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send(baseRequest);
+
+      expect(postResponse.status).toBe(201);
+      expect(postResponse.body).toHaveProperty("id");
+
+      const dossierId = postResponse.body.id;
+
+      const getResponse = await request(app)
+        .get(`/dossiers/${dossierId}`)
+        .set("authorization", "Bearer admin");
+
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body).toHaveProperty("autoApprove", 0);
+    });
+  });
 
   describe("Page Version", () => {
     afterEach(() => {
