@@ -4813,9 +4813,15 @@ paths:
                     type: integer
                     maximum: 1
                     minimum: 0
+                  autoApprove:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
+                    default: 0
                   browsers:
                     type: array
                     items:
+                      type: object
                       properties:
                         id:
                           type: integer
@@ -4824,41 +4830,41 @@ paths:
                       required:
                         - id
                         - name
-                      type: object
                   closeDate:
                     type: string
                     format: date-time
                   countries:
                     type: array
-                    items:
-                      $ref: '#/components/schemas/CountryCode'
                     minItems: 1
                     uniqueItems: true
+                    items:
+                      $ref: '#/components/schemas/CountryCode'
                   csm:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   customer:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   description:
                     type: string
                   deviceList:
                     type: array
                     items:
+                      type: object
                       properties:
                         id:
                           type: integer
@@ -4867,7 +4873,6 @@ paths:
                       required:
                         - id
                         - name
-                      type: object
                   deviceRequirements:
                     type: string
                   endDate:
@@ -4880,26 +4885,26 @@ paths:
                   languages:
                     type: array
                     items:
+                      type: object
                       properties:
                         name:
                           type: string
                       required:
                         - name
-                      type: object
                   notes:
                     type: string
                   outOfScope:
                     type: string
                   phase:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   productLink:
                     type: string
                   productType:
@@ -4914,17 +4919,18 @@ paths:
                       - name
                   project:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   roles:
                     type: array
                     items:
+                      type: object
                       properties:
                         role:
                           type: object
@@ -4949,7 +4955,6 @@ paths:
                             - id
                             - name
                             - surname
-                      type: object
                   startDate:
                     type: string
                     format: date-time
@@ -4966,30 +4971,31 @@ paths:
                         type: integer
                   testType:
                     type: object
+                    required:
+                      - id
+                      - name
                     properties:
                       id:
                         type: integer
                       name:
                         type: string
-                    required:
-                      - id
-                      - name
                   title:
                     type: object
+                    required:
+                      - customer
+                      - tester
                     properties:
                       customer:
                         type: string
                       tester:
                         type: string
-                    required:
-                      - customer
-                      - tester
                   visibilityCriteria:
                     type: object
                     properties:
                       ageRanges:
                         type: array
                         items:
+                          type: object
                           properties:
                             max:
                               type: integer
@@ -4998,10 +5004,10 @@ paths:
                           required:
                             - max
                             - min
-                          type: object
                       cuf:
                         type: array
                         items:
+                          type: object
                           properties:
                             cufId:
                               type: integer
@@ -5012,7 +5018,6 @@ paths:
                           required:
                             - cufId
                             - cufValueIds
-                          type: object
                       gender:
                         type: array
                         items:
@@ -5022,6 +5027,8 @@ paths:
                         items:
                           type: string
                 required:
+                  - autoApply
+                  - autoApprove
                   - closeDate
                   - csm
                   - customer
@@ -5033,7 +5040,6 @@ paths:
                   - startDate
                   - testType
                   - title
-                  - autoApply
       security:
         - JWT: []
     parameters:
