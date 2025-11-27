@@ -3042,6 +3042,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
         };

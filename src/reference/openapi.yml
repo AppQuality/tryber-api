@@ -4817,6 +4817,8 @@ paths:
                     type: integer
                     maximum: 1
                     minimum: 0
+                    x-stoplight:
+                      id: pe32n97qwd88b
                     default: 0
                   browsers:
                     type: array
@@ -5059,11 +5061,19 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    autoApprove:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                      x-stoplight:
+                        id: 6iwpeobccz4re
+                      default: 0
                     bugLanguage:
                       oneOf:
                         - $ref: '#/components/schemas/BugLang'
@@ -5072,7 +5082,6 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '200':
           description: OK
