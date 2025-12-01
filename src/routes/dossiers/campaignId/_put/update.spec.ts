@@ -131,6 +131,7 @@ describe("Route POST /dossiers", () => {
         page_preview_id: 0,
         pm_id: 1,
         customer_id: 0,
+        auto_approve: 0,
       },
       {
         id: 299,
@@ -148,6 +149,7 @@ describe("Route POST /dossiers", () => {
         pm_id: 1,
         customer_id: 0,
         auto_apply: 1,
+        auto_approve: 1,
       },
     ]);
   });
@@ -377,14 +379,11 @@ describe("Route POST /dossiers", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("id");
-    const id = response.body.id;
 
-    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select()
-      .where({ id })
-      .first();
-
-    expect(campaign).toHaveProperty("auto_approve", 1);
+    const getCampaign = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+    expect(getCampaign.body).toHaveProperty("autoApprove", 1);
   });
   it("Should unset the campaign auto approve flag", async () => {
     const response = await request(app)
@@ -397,14 +396,11 @@ describe("Route POST /dossiers", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("id");
-    const id = response.body.id;
 
-    const campaign = await tryber.tables.WpAppqEvdCampaign.do()
-      .select()
-      .where({ id })
-      .first();
-
-    expect(campaign).toHaveProperty("auto_approve", 0);
+    const getCampaign = await request(app)
+      .get("/dossiers/299")
+      .set("authorization", "Bearer admin");
+    expect(getCampaign.body).toHaveProperty("autoApprove", 0);
   });
 
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {
