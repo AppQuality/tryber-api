@@ -33,6 +33,7 @@ export default class RouteItem extends UserRoute<{
         tryber.fn.charDate("end_date"),
         tryber.fn.charDate("close_date"),
         tryber.ref("id").withSchema("wp_appq_evd_campaign"),
+        tryber.ref("plan_id").withSchema("wp_appq_evd_campaign"),
         "title",
         "customer_title",
         "project_id",
@@ -225,6 +226,7 @@ export default class RouteItem extends UserRoute<{
     try {
       this.setSuccess(200, {
         id: this.campaign.id,
+        hasPlan: this.campaign.plan_id != null,
         title: {
           customer: this.campaign.customer_title,
           tester: this.campaign.title,
