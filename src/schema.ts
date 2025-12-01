@@ -2908,6 +2908,7 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"];
           hasBugForm?: number;
           hasBugParade?: number;
@@ -2934,6 +2935,7 @@ export interface operations {
         content: {
           "application/json": {
             autoApply: number;
+            autoApprove: number;
             browsers?: {
               id: number;
               name: string;
@@ -3041,6 +3043,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
         };

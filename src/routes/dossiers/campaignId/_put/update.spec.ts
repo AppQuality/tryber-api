@@ -131,6 +131,7 @@ describe("Route POST /dossiers", () => {
         page_preview_id: 0,
         pm_id: 1,
         customer_id: 0,
+        auto_approve: 0,
       },
       {
         id: 299,
@@ -148,6 +149,7 @@ describe("Route POST /dossiers", () => {
         pm_id: 1,
         customer_id: 0,
         auto_apply: 1,
+        auto_approve: 1,
       },
     ]);
   });
@@ -364,6 +366,41 @@ describe("Route POST /dossiers", () => {
       .first();
 
     expect(campaign).toHaveProperty("auto_apply", 0);
+  });
+
+  it("Should update the campaign with the auto approve flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/1")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApprove: 1,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+
+    const getCampaign = await request(app)
+      .get("/dossiers/1")
+      .set("authorization", "Bearer admin");
+    expect(getCampaign.body).toHaveProperty("autoApprove", 1);
+  });
+  it("Should unset the campaign auto approve flag", async () => {
+    const response = await request(app)
+      .put("/dossiers/299")
+      .set("authorization", "Bearer admin")
+      .send({
+        ...baseRequest,
+        autoApprove: 0,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id");
+
+    const getCampaign = await request(app)
+      .get("/dossiers/299")
+      .set("authorization", "Bearer admin");
+    expect(getCampaign.body).toHaveProperty("autoApprove", 0);
   });
 
   it("Should leave the end date of the campaign unedited if left unspecified", async () => {

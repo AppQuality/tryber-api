@@ -4693,6 +4693,11 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    autoApprove:
+                      type: integer
+                      default: 0
+                      minimum: 0
+                      maximum: 1
                     bugLanguage:
                       $ref: '#/components/schemas/BugLang'
                     hasBugForm:
@@ -4821,18 +4826,25 @@ paths:
                     type: integer
                     maximum: 1
                     minimum: 0
+                  autoApprove:
+                    type: integer
+                    maximum: 1
+                    minimum: 0
+                    x-stoplight:
+                      id: pe32n97qwd88b
+                    default: 0
                   browsers:
                     type: array
                     items:
                       type: object
-                      required:
-                        - id
-                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
+                      required:
+                        - id
+                        - name
                   closeDate:
                     type: string
                     format: date-time
@@ -4868,14 +4880,14 @@ paths:
                     type: array
                     items:
                       type: object
-                      required:
-                        - id
-                        - name
                       properties:
                         id:
                           type: integer
                         name:
                           type: string
+                      required:
+                        - id
+                        - name
                   deviceRequirements:
                     type: string
                   endDate:
@@ -4889,11 +4901,11 @@ paths:
                     type: array
                     items:
                       type: object
-                      required:
-                        - name
                       properties:
                         name:
                           type: string
+                      required:
+                        - name
                   notes:
                     type: string
                   outOfScope:
@@ -4920,6 +4932,11 @@ paths:
                         type: number
                       name:
                         type: string
+                  project:
+                    type: object
+                    required:
+                      - id
+                      - name
                   project:
                     type: object
                     required:
@@ -4958,6 +4975,10 @@ paths:
                               type: string
                             surname:
                               type: string
+                          required:
+                            - id
+                            - name
+                            - surname
                   startDate:
                     type: string
                     format: date-time
@@ -4999,21 +5020,18 @@ paths:
                         type: array
                         items:
                           type: object
-                          required:
-                            - max
-                            - min
                           properties:
                             max:
                               type: integer
                             min:
                               type: integer
+                          required:
+                            - max
+                            - min
                       cuf:
                         type: array
                         items:
                           type: object
-                          required:
-                            - cufId
-                            - cufValueIds
                           properties:
                             cufId:
                               type: integer
@@ -5021,6 +5039,9 @@ paths:
                               type: array
                               items:
                                 type: integer
+                          required:
+                            - cufId
+                            - cufValueIds
                       gender:
                         type: array
                         items:
@@ -5029,9 +5050,20 @@ paths:
                         type: array
                         items:
                           type: string
-                  hasPlan:
-                    type: boolean
-                    default: false
+                required:
+                  - autoApply
+                  - autoApprove
+                  - closeDate
+                  - csm
+                  - customer
+                  - deviceList
+                  - endDate
+                  - id
+                  - phase
+                  - project
+                  - startDate
+                  - testType
+                  - title
       security:
         - JWT: []
     parameters:
@@ -5051,11 +5083,19 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       type: integer
                       maximum: 1
                       minimum: 0
+                    autoApprove:
+                      type: integer
+                      maximum: 1
+                      minimum: 0
+                      x-stoplight:
+                        id: 6iwpeobccz4re
+                      default: 0
                     bugLanguage:
                       oneOf:
                         - $ref: '#/components/schemas/BugLang'
@@ -5064,7 +5104,6 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
-                  type: object
       responses:
         '200':
           description: OK

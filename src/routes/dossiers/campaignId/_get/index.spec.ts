@@ -78,6 +78,7 @@ describe("Route GET /dossiers/:id", () => {
       customer_id: 0,
       desired_number_of_testers: 100,
       auto_apply: 1,
+      auto_approve: 1,
     });
 
     await tryber.tables.CustomRoles.do().insert([
@@ -731,6 +732,16 @@ describe("Route GET /dossiers/:id", () => {
 
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty("autoApply", 1);
+      });
+    });
+    describe("Auto approve", () => {
+      it("Should return autoApprove value for the campaign", async () => {
+        const response = await request(app)
+          .get("/dossiers/1")
+          .set("authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("autoApprove", 1);
       });
     });
   });
