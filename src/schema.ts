@@ -3016,6 +3016,7 @@ export interface operations {
               gender?: number[];
               province?: string[];
             };
+            hasPlan?: boolean;
           };
         };
       };
