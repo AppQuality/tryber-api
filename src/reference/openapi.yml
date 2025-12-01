@@ -5031,8 +5031,6 @@ paths:
                           type: string
                   hasPlan:
                     type: boolean
-                    x-stoplight:
-                      id: nsy4wxwaut8si
                     default: false
       security:
         - JWT: []
