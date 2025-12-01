@@ -409,6 +409,8 @@ export default class PostDossiers extends UserRoute<{
       ? this.getBody().pageVersion
       : "v1";
 
+    const autoApprove = this.getBody().autoApprove;
+
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -432,6 +434,7 @@ export default class PostDossiers extends UserRoute<{
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
+        auto_approve: autoApprove ?? 0,
         page_version: pageVersion,
         ...(this.getBody().bugLanguage ? { bug_lang: 1 } : {}),
         ...this.evaluateCampaignType(),
