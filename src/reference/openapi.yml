@@ -5089,7 +5089,114 @@ paths:
                 properties: {}
       security:
         - JWT: []
+
+  '/customers/{customerId}/agreements':
+    parameters:
+      - schema:
+          type: string
+        name: customerId
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - id: number
+                        name: string
+                        totalTokens: number
+                        remainingTokens: number
+                        value: number
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                        - totalTokens
+                        - remainingTokens
+                        - value
+                      properties:
+                        id:
+                          type: number
+                        name:
+                          type: string
+                        totalTokens:
+                          type: number
+                        remainingTokens:
+                          type: number
+                        value:
+                          type: number
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 1
+                        name: Agreement 1
+                        totalTokens: 100
+                        remainingTokens: 90
+                        value: 20
+        '400':
+          description: Bad Request
+        '403':
+          $ref: '#/components/responses/Authentication'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: get-customers-customerId-agreements
+      security:
+        - JWT: []
   '/dossiers/{campaign}/agreements':
+
+    put:
+      summary: Your PUT endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: put-dossiers-campaign-agreements
+      x-stoplight:
+        id: ecy2awt77nf1a
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tokens
+                - agreementId
+              properties:
+                tokens:
+                  type: number
+                agreementId:
+                  type: integer
+            examples:
+              Example 1:
+                value:
+                  tokens: 10
+                  agreementId: 10
+        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
     get:
       summary: Your GET endpoint
       tags: []
@@ -11569,49 +11676,6 @@ paths:
       security:
         - JWT: []
       tags: []
-  '/dossiers/{campaign}/agreements':
-    parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
-    put:
-      summary: Your PUT endpoint
-      tags: []
-      responses:
-        '200':
-          description: OK
-        '403':
-          $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          description: Internal Server Error
-      operationId: put-dossiers-campaign-agreements
-      x-stoplight:
-        id: ecy2awt77nf1a
-      security:
-        - JWT: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - tokens
-                - agreementId
-              properties:
-                tokens:
-                  type: number
-                agreementId:
-                  type: integer
-            examples:
-              Example 1:
-                value:
-                  tokens: 10
-                  agreementId: 10
-        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
   '/dossiers/{campaign}/humanResources':
     get:
       summary: Get Human Resources for a campaign
