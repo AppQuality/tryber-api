@@ -2908,12 +2908,16 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"];
           hasBugForm?: number;
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
           skipPagesAndTasks?: number;
+        } & {
+          /** @enum {undefined} */
+          notify_everyone?: 0 | 1;
         };
       };
     };
@@ -2931,6 +2935,7 @@ export interface operations {
         content: {
           "application/json": {
             autoApply: number;
+            autoApprove: number;
             browsers?: {
               id: number;
               name: string;
@@ -3037,6 +3042,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
         };

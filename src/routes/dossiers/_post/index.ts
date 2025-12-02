@@ -1,5 +1,6 @@
 /** OPENAPI-CLASS: post-dossiers */
 
+import Unguess from "@src/features/class/Unguess";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import UserRoute from "@src/features/routes/UserRoute";
@@ -7,6 +8,7 @@ import { WebhookTrigger } from "@src/features/webhookTrigger";
 import { importPages } from "@src/features/wp/Pages/importPages";
 import WordpressJsonApiTrigger from "@src/features/wp/WordpressJsonApiTrigger";
 import { components } from "@src/schema";
+import { AxiosError } from "axios";
 import Province from "comuni-province-regioni/lib/province";
 
 const MIN_TESTER_AGE = 14;
@@ -101,7 +103,7 @@ export default class PostDossiers extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const { skipPagesAndTasks, bugLanguage } = this.getBody();
+    const { skipPagesAndTasks, bugLanguage, notify_everyone } = this.getBody();
 
     try {
       const campaignId = await this.createCampaign();
@@ -113,6 +115,10 @@ export default class PostDossiers extends UserRoute<{
 
       if (bugLanguage) {
         await this.setBugLanguage(campaignId);
+      }
+
+      if (notify_everyone === 1) {
+        await this.setupNotifications(campaignId);
       }
 
       const webhook = new WebhookTrigger({
@@ -403,6 +409,8 @@ export default class PostDossiers extends UserRoute<{
       ? this.getBody().pageVersion
       : "v1";
 
+    const autoApprove = this.getBody().autoApprove;
+
     const results = await tryber.tables.WpAppqEvdCampaign.do()
       .insert({
         title: this.getBody().title.tester,
@@ -426,6 +434,7 @@ export default class PostDossiers extends UserRoute<{
         form_factor: form_factor.join(","),
         base_bug_internal_id: "UG",
         auto_apply: autoApply,
+        auto_approve: autoApprove ?? 0,
         page_version: pageVersion,
         ...(this.getBody().bugLanguage ? { bug_lang: 1 } : {}),
         ...this.evaluateCampaignType(),
@@ -861,5 +870,77 @@ export default class PostDossiers extends UserRoute<{
 
     if (!autoApplyFromType) return 0;
     return autoApplyFromType.has_auto_apply ? 1 : 0;
+  }
+
+  private async setupNotifications(campaignId: number) {
+    const usersToNotify = await this.retrieveProjectAndWorkspaceUsers();
+
+    if (!usersToNotify) return;
+    const unguess = new Unguess();
+    try {
+      const result = await unguess.postCampaignWatchers({
+        profileIds: usersToNotify,
+        campaignId: campaignId,
+      });
+      return result;
+    } catch (error: any) {
+      console.error(
+        "Error setting up notifications calling unguess api:",
+        error
+      );
+      // @ts-ignore
+      console.error("Error details: ", error?.response?.data);
+      return;
+    }
+  }
+
+  private async retrieveProjectAndWorkspaceUsers(): Promise<
+    { users: { id: number }[] } | undefined
+  > {
+    const projectId = this.getBody().project;
+
+    try {
+      const projectUsers = await tryber.tables.WpAppqProject.do()
+        .select(
+          tryber.ref("profile_id").withSchema("wp_appq_user_to_project"),
+          "wp_appq_project.customer_id"
+        )
+        .leftJoin(
+          "wp_appq_user_to_project",
+          "wp_appq_user_to_project.project_id",
+          "wp_appq_project.id"
+        )
+        .where("wp_appq_project.id", projectId);
+
+      if (!projectUsers.length) return;
+
+      const workspaceUsers = await tryber.tables.WpAppqUserToCustomer.do()
+        .select("profile_id")
+        .whereIn(
+          "customer_id",
+          projectUsers.map((pu) => pu.customer_id)
+        );
+
+      const rawIds = [
+        ...projectUsers.map((pu) => pu.profile_id),
+        ...workspaceUsers.map((wu) => wu.profile_id),
+      ];
+
+      const validIds = Array.from(
+        new Set(
+          rawIds
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0)
+        )
+      );
+
+      if (!validIds.length) return;
+
+      return {
+        users: validIds.map((id) => ({ id })),
+      };
+    } catch (e) {
+      console.error(e);
+    }
   }
 }

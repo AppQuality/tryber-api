@@ -28,7 +28,29 @@ class Unguess {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to authenticate: " + response.statusText);
+      let errorBody: unknown = undefined;
+      try {
+        const text = await response.text();
+        try {
+          errorBody = text ? JSON.parse(text) : text;
+        } catch {
+          errorBody = text;
+        }
+      } catch {
+        // ignore
+      }
+
+      const error: any = new Error(
+        `Failed to authenticate: ${response.status} ${response.statusText}`
+      );
+      error.status = response.status;
+      error.statusText = response.statusText;
+      error.response = {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorBody,
+      };
+      throw error;
     }
 
     const data = await response.json();
@@ -57,9 +79,32 @@ class Unguess {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to post to ${path}: ${response.statusText}`);
+      let errorBody: unknown = undefined;
+
+      try {
+        const text = await response.text();
+        try {
+          errorBody = text ? JSON.parse(text) : text;
+        } catch {
+          errorBody = text;
+        }
+      } catch {}
+
+      const error: any = new Error(
+        `Failed to post to ${path}: ${response.status} ${response.statusText}`
+      );
+      error.status = response.status;
+      error.statusText = response.statusText;
+      error.response = {
+        status: response.status,
+        statusText: response.statusText,
+        data: errorBody,
+      };
+
+      throw error;
     }
 
+    // Se ok, ritorniamo il JSON come prima
     return response.json();
   }
 
@@ -81,6 +126,28 @@ class Unguess {
     return {
       id: result.id,
       name: result.name,
+    };
+  }
+
+  /**
+   * Public method to post campaign watchers
+   */
+  public async postCampaignWatchers({
+    profileIds,
+    campaignId,
+  }: {
+    profileIds: { users: { id: number }[] };
+    campaignId: number;
+  }): Promise<{ result: any }> {
+    const body = {
+      ...profileIds,
+    };
+    const result = await this.authPost(
+      `/campaigns/${campaignId.toString()}/watchers`,
+      body
+    );
+    return {
+      result,
     };
   }
 }
