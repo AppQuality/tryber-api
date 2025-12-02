@@ -804,6 +804,9 @@ components:
           type: string
         goal:
           type: string
+        hasPlan:
+          default: false
+          type: boolean
         languages:
           items:
             type: string
@@ -13132,4 +13135,3 @@ tags:
   - name: Projects
   - name: Task
   - name: User
-  - name: Admin

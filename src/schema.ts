@@ -967,6 +967,7 @@ export interface components {
       /** Format: date-time */
       endDate?: string;
       goal?: string;
+      hasPlan?: boolean;
       languages?: string[];
       notes?: string;
       outOfScope?: string;

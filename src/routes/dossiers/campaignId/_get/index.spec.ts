@@ -284,6 +284,52 @@ describe("Route GET /dossiers/:id", () => {
     expect(response.body.phase).toHaveProperty("name", "Active");
   });
 
+  describe("Campaign Plan", () => {
+    beforeEach(async () => {
+      await tryber.tables.CpReqPlans.do().insert({
+        id: 1,
+        name: "Standard Plan",
+        config: "config",
+      });
+      await tryber.tables.WpAppqEvdCampaign.do().insert({
+        id: 2,
+        project_id: 1,
+        campaign_type_id: 1,
+        title: "Test Campaign",
+        customer_title: "Test Customer Campaign",
+        start_date: "2019-08-24T14:15:22Z",
+        end_date: "2019-08-24T14:15:22Z",
+        close_date: "2019-08-27T14:15:22Z",
+        platform_id: 0,
+        os: "1",
+        page_manual_id: 0,
+        page_preview_id: 0,
+        pm_id: 1,
+        customer_id: 0,
+        desired_number_of_testers: 100,
+        auto_apply: 1,
+        plan_id: 1,
+      });
+    });
+    afterEach(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do().delete().where("id", 2);
+      await tryber.tables.CpReqPlans.do().delete();
+    });
+    it("Should return whether the campaign has a plan or not", async () => {
+      const response = await request(app)
+        .get("/dossiers/1")
+        .set("authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("hasPlan", false);
+
+      const responseWithPlan = await request(app)
+        .get("/dossiers/2")
+        .set("authorization", "Bearer admin");
+      expect(responseWithPlan.status).toBe(200);
+      expect(responseWithPlan.body).toHaveProperty("hasPlan", true);
+    });
+  });
+
   describe("With dossier data", () => {
     beforeAll(async () => {
       await tryber.tables.CampaignDossierData.do().insert({
