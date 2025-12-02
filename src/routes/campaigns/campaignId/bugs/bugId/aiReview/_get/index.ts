@@ -47,7 +47,7 @@ export default class Route extends CampaignRoute<{
       .select("ai_status", "ai_reason", "ai_notes", "score_percentage")
       .where("campaign_id", this.cp_id)
       .where("bug_id", this.bug_id)
-      .where("version", "v1")
+      .where("version", "v2")
       .first();
   }
 
