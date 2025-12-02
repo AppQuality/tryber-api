@@ -12831,6 +12831,61 @@ paths:
       summary: Get all your payments
       tags: []
     parameters: []
+  
+  /dossiers/rates:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    items:
+                      - id: 0
+                        name: ''
+                        rate: 0
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                        - rate
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        rate:
+                          type: integer
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - id: 0
+                        name: Name
+                        rate: 0
+        '403':
+          $ref: '#/components/responses/Authentication'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          description: Not Acceptable
+        '500':
+          description: Internal Server Error
+      operationId: get-dossiers-rates
+      x-stoplight:
+        id: qhs3sh6dveatp
+      security:
+        - JWT: []
   /users/me/permissions:
     get:
       description: Return all user permissions
