@@ -62,6 +62,7 @@ const ai_review_1 = {
   score_percentage: 95,
   campaign_id: campaign_1.id,
   bug_id: bug_1.id,
+  version: "v1",
 };
 
 const ai_review_1_v2 = {
@@ -125,7 +126,7 @@ describe("GET /campaigns/{cid}/bugs/{bid}/aiReview", () => {
       updated_at: new Date().toISOString(),
     });
     await tryber.tables.AiBugReview.do().insert({
-      ...ai_review_1,
+      ...ai_review_1_v2,
       campaign_id: campaign_3.id,
       bug_id: bug_3.id,
       created_at: new Date().toISOString(),
