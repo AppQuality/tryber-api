@@ -5093,7 +5093,7 @@ paths:
                 properties: {}
       security:
         - JWT: []
-  '/dossier/{campaignId}/agreements':
+  '/dossier/{campaign}/agreements':
     get:
       summary: Your GET endpoint
       tags: []
@@ -5142,7 +5142,7 @@ paths:
     parameters:
       - schema:
           type: string
-        name: campaignId
+        name: campaign
         in: path
         required: true
   '/dossiers/{campaign}/availableTesters':
