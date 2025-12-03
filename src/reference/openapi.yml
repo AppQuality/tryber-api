@@ -11509,6 +11509,64 @@ paths:
       security:
         - JWT: []
       tags: []
+  '/dossiers/{campaign}/humanResources':
+    get:
+      summary: Get Human Resources for a campaign
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: c3bpoja6vxbu4
+                    items:
+                      x-stoplight:
+                        id: dye2lmzphece2
+                      type: object
+                      properties:
+                        assignee:
+                          type: object
+                          x-stoplight:
+                            id: xh7j62893qz66
+                          properties:
+                            id:
+                              type: integer
+                              x-stoplight:
+                                id: h6eod32n27kt4
+                        days:
+                          type: number
+                          x-stoplight:
+                            id: u0mvlxxksr7ps
+                        rate:
+                          type: object
+                          x-stoplight:
+                            id: isi1teyt89m6f
+                          properties:
+                            id:
+                              type: integer
+                              x-stoplight:
+                                id: 8sgqlvxzqqcub
+                            value:
+                              type: number
+                              x-stoplight:
+                                id: khz90zb5miam3
+                        id:
+                          type: integer
+                          x-stoplight:
+                            id: ylze7fw0bnk3j
+      operationId: get-dossiers-campaign-humanResources
+      description: ''
+      security:
+        - JWT: []
+    parameters:
+      - $ref: '#/components/parameters/campaign'
 components:
   parameters:
     campaign:

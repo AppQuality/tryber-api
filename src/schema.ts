@@ -749,6 +749,15 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/dossiers/{campaign}/humanResources": {
+    get: operations["get-dossiers-campaign-humanResources"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+  };
 }
 
 export interface components {
@@ -5204,6 +5213,34 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-dossiers-campaign-humanResources": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items?: {
+              assignee?: {
+                id?: number;
+              };
+              days?: number;
+              rate?: {
+                id?: number;
+                value?: number;
+              };
+              id?: number;
+            }[];
+          };
+        };
+      };
     };
   };
 }
