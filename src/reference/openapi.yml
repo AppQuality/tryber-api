@@ -4772,6 +4772,7 @@ paths:
               examples:
                 Example 1:
                   value:
+                    autoApprove: 1
                     autoApply: 1
                     closeDate: '2019-08-24T14:15:22Z'
                     csm:
@@ -5092,6 +5093,58 @@ paths:
                 properties: {}
       security:
         - JWT: []
+  '/dossier/{campaignId}/agreements':
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: number
+                    x-stoplight:
+                      id: 1dz493u0y1a9m
+                  agreement:
+                    type: object
+                    x-stoplight:
+                      id: 1bfxbmxccb69l
+                    properties:
+                      id:
+                        type: number
+                        x-stoplight:
+                          id: 7p3s8esx3i85u
+                      name:
+                        type: string
+                        x-stoplight:
+                          id: 05970fsxm3rad
+                      totalTokens:
+                        type: number
+                        x-stoplight:
+                          id: ts792e5a0c8lf
+                      remainingTokens:
+                        type: number
+                        x-stoplight:
+                          id: 701h7iwfw5wih
+                      value:
+                        type: number
+                        x-stoplight:
+                          id: liaj2rikv19xi
+      operationId: get-dossier-campaignId-agreements
+      x-stoplight:
+        id: qvqxqe090at61
+      security:
+        - JWT: []
+    parameters:
+      - schema:
+          type: string
+        name: campaignId
+        in: path
+        required: true
   '/dossiers/{campaign}/availableTesters':
     get:
       operationId: get-dossiers-campaign-availableTesters
@@ -6613,12 +6666,6 @@ paths:
         - JWT: []
       tags:
         - Admin
-    parameters:
-      - name: popup
-        in: path
-        required: true
-        schema:
-          type: number
     patch:
       operationId: patch-popups-popup
       summary: Update popup
@@ -6646,6 +6693,12 @@ paths:
         - JWT: []
       tags:
         - Admin
+    parameters:
+      - name: popup
+        in: path
+        required: true
+        schema:
+          type: number
   /productTypes:
     get:
       operationId: get-productTypes
@@ -8133,13 +8186,6 @@ paths:
         schema:
           type: string
   '/users/me/campaigns/{campaignId}/bugs':
-    parameters:
-      - name: campaignId
-        in: path
-        description: the campaign id
-        required: true
-        schema:
-          type: string
     post:
       operationId: post-users-me-campaigns-campaign-bugs
       summary: POST a user bug on a specific campaign
@@ -8337,6 +8383,13 @@ paths:
       security:
         - JWT: []
         - User Token: []
+    parameters:
+      - name: campaignId
+        in: path
+        description: the campaign id
+        required: true
+        schema:
+          type: string
   '/users/me/campaigns/{campaignId}/devices':
     get:
       operationId: get-users-me-campaigns-campaignId-devices
