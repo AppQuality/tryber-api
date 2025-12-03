@@ -331,6 +331,14 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/agreements": {
+    get: operations["get-dossiers-campaign-agreements"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/dossiers/{campaign}/availableTesters": {
     /**  */
     get: operations["get-dossiers-campaign-availableTesters"];
@@ -3045,6 +3053,30 @@ export interface operations {
           autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign-agreements": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            tokens?: number;
+            agreement?: {
+              id?: number;
+              name?: string;
+              totalTokens?: number;
+              remainingTokens?: number;
+              value?: number;
+            };
+          };
         };
       };
     };

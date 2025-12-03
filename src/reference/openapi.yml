@@ -4818,8 +4818,6 @@ paths:
                     type: integer
                     maximum: 1
                     minimum: 0
-                    x-stoplight:
-                      id: pe32n97qwd88b
                     default: 0
                   browsers:
                     type: array
@@ -5072,8 +5070,6 @@ paths:
                       type: integer
                       maximum: 1
                       minimum: 0
-                      x-stoplight:
-                        id: 6iwpeobccz4re
                       default: 0
                     bugLanguage:
                       oneOf:
@@ -5107,36 +5103,20 @@ paths:
                 properties:
                   tokens:
                     type: number
-                    x-stoplight:
-                      id: 1dz493u0y1a9m
                   agreement:
                     type: object
-                    x-stoplight:
-                      id: 1bfxbmxccb69l
                     properties:
                       id:
                         type: number
-                        x-stoplight:
-                          id: 7p3s8esx3i85u
                       name:
                         type: string
-                        x-stoplight:
-                          id: 05970fsxm3rad
                       totalTokens:
                         type: number
-                        x-stoplight:
-                          id: ts792e5a0c8lf
                       remainingTokens:
                         type: number
-                        x-stoplight:
-                          id: 701h7iwfw5wih
                       value:
                         type: number
-                        x-stoplight:
-                          id: liaj2rikv19xi
       operationId: get-dossiers-campaign-agreements
-      x-stoplight:
-        id: qvqxqe090at61
       security:
         - JWT: []
     parameters:
