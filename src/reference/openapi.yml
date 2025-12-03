@@ -5093,7 +5093,7 @@ paths:
                 properties: {}
       security:
         - JWT: []
-  '/dossier/{campaign}/agreements':
+  '/dossiers/{campaign}/agreements':
     get:
       summary: Your GET endpoint
       tags: []
@@ -5134,7 +5134,7 @@ paths:
                         type: number
                         x-stoplight:
                           id: liaj2rikv19xi
-      operationId: get-dossier-campaignId-agreements
+      operationId: get-dossiers-campaign-agreements
       x-stoplight:
         id: qvqxqe090at61
       security:
