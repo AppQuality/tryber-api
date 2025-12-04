@@ -5418,8 +5418,6 @@ paths:
                 properties:
                   totalCost:
                     type: number
-                    x-stoplight:
-                      id: q0g1cloh90lp2
       operationId: get-dossiers-campaign-costs
       x-stoplight:
         id: q9l4m7dj053wk
