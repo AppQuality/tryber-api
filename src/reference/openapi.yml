@@ -11536,6 +11536,49 @@ paths:
       security:
         - JWT: []
       tags: []
+  '/dossiers/{campaign}/agreements':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    put:
+      summary: Your PUT endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: put-dossiers-campaign-agreements
+      x-stoplight:
+        id: ecy2awt77nf1a
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tokens
+                - agreementId
+              properties:
+                tokens:
+                  type: number
+                agreementId:
+                  type: integer
+            examples:
+              Example 1:
+                value:
+                  tokens: 10
+                  agreementId: 10
+        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
   '/dossiers/{campaign}/humanResources':
     get:
       summary: Get Human Resources for a campaign
@@ -11594,6 +11637,7 @@ paths:
         - JWT: []
     parameters:
       - $ref: '#/components/parameters/campaign'
+        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
 components:
   parameters:
     campaign:

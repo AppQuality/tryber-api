@@ -757,6 +757,14 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/dossiers/{campaign}/agreements": {
+    put: operations["put-dossiers-campaign-agreements"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/dossiers/{campaign}/humanResources": {
     get: operations["get-dossiers-campaign-humanResources"];
     parameters: {
@@ -5242,6 +5250,30 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "put-dossiers-campaign-agreements": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    /** Updates tokens_usage in campaign and updates the link between cp_id and agreementId */
+    requestBody: {
+      content: {
+        "application/json": {
+          tokens: number;
+          agreementId: number;
+        };
+      };
     };
   };
   "get-dossiers-campaign-humanResources": {
