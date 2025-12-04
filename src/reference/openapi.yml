@@ -11544,12 +11544,8 @@ paths:
               properties:
                 tokens:
                   type: number
-                  x-stoplight:
-                    id: eyo5iptuxpg4h
                 agreementId:
                   type: integer
-                  x-stoplight:
-                    id: gju5iz8v2ys6c
             examples:
               Example 1:
                 value:
