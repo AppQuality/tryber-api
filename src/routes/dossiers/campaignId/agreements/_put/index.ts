@@ -2,17 +2,14 @@
 
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
-import UserRoute from "@src/features/routes/UserRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
-export default class RouteItem extends UserRoute<{
+export default class RouteItem extends CampaignRoute<{
   response: StoplightOperations["put-dossiers-campaign-agreements"]["responses"]["200"];
   parameters: StoplightOperations["put-dossiers-campaign-agreements"]["parameters"]["path"];
   body: StoplightOperations["put-dossiers-campaign-agreements"]["requestBody"]["content"]["application/json"];
 }> {
   private campaignId: number;
-  private accessibleCampaigns: true | number[] = this.campaignOlps
-    ? this.campaignOlps
-    : [];
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
@@ -22,10 +19,7 @@ export default class RouteItem extends UserRoute<{
   protected async filter() {
     if (!(await super.filter())) return false;
 
-    if (
-      (await this.doesNotHaveAccess()) ||
-      (await this.campaignDoesNotExists())
-    ) {
+    if (!this.hasAccessToCampaign(this.campaignId)) {
       this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
@@ -50,26 +44,6 @@ export default class RouteItem extends UserRoute<{
       return true;
     }
     return false;
-  }
-
-  private async doesNotHaveAccess() {
-    if (this.accessibleCampaigns === true) return false;
-    if (Array.isArray(this.accessibleCampaigns))
-      return !this.accessibleCampaigns.includes(this.campaignId);
-    return true;
-  }
-
-  private async campaignDoesNotExists() {
-    try {
-      const campaign = await tryber.tables.WpAppqEvdCampaign.do()
-        .select("id")
-        .where("id", this.campaignId)
-        .first();
-      if (!campaign) return true;
-      return false;
-    } catch (error) {
-      return true;
-    }
   }
 
   private async updateCampaignUsedTokens() {
