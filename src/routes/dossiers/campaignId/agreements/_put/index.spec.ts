@@ -128,13 +128,13 @@ describe("Route PUT /dossiers/:id/agreements", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should return 403 if campaign does not exists", async () => {
+  it("Should return 400 if campaign does not exists", async () => {
     const response = await request(app)
       .put("/dossiers/100/agreements")
       .send({ agreementId: 1, tokens: 5 })
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[100]}');
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(400);
   });
 
   describe("Request body checks", () => {
