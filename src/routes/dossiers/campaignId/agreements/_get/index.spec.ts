@@ -106,11 +106,11 @@ describe("GET /dossiers/campaignId/agreements", () => {
       .set("Authorization", "Bearer tester");
     expect(response.status).toBe(403);
   });
-  it("Should answer 403 if campaign does not exists", async () => {
+  it("Should answer 400 if campaign does not exists", async () => {
     const response = await request(app)
       .get("/dossiers/100/agreements")
       .set("Authorization", "Bearer tester");
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(400);
   });
 
   it("Should answer 403 if logged as user without permissions on the campaign", async () => {
