@@ -11547,12 +11547,10 @@ paths:
                   x-stoplight:
                     id: eyo5iptuxpg4h
                   exclusiveMinimum: false
-                  minimum: 0
                 agreementId:
                   type: integer
                   x-stoplight:
                     id: gju5iz8v2ys6c
-                  minimum: 1
             examples:
               Example 1:
                 value:
