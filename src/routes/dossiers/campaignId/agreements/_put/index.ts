@@ -9,17 +9,10 @@ export default class RouteItem extends CampaignRoute<{
   parameters: StoplightOperations["put-dossiers-campaign-agreements"]["parameters"]["path"];
   body: StoplightOperations["put-dossiers-campaign-agreements"]["requestBody"]["content"]["application/json"];
 }> {
-  private campaignId: number;
-
-  constructor(configuration: RouteClassConfiguration) {
-    super(configuration);
-    this.campaignId = Number(this.getParameters().campaign);
-  }
-
   protected async filter() {
     if (!(await super.filter())) return false;
 
-    if (!this.hasAccessToCampaign(this.campaignId)) {
+    if (!this.hasAccessToCampaign(this.cp_id)) {
       this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
@@ -51,7 +44,7 @@ export default class RouteItem extends CampaignRoute<{
     try {
       await tryber.tables.WpAppqEvdCampaign.do()
         .update({ tokens_usage: tokens })
-        .where("id", this.campaignId);
+        .where("id", this.cp_id);
     } catch (error) {
       throw new OpenapiError("Failed to update campaign tokens usage");
     }
@@ -61,7 +54,7 @@ export default class RouteItem extends CampaignRoute<{
     try {
       const link = await tryber.tables.FinanceCampaignToAgreement.do()
         .select("agreement_id")
-        .where("cp_id", this.campaignId)
+        .where("cp_id", this.cp_id)
         .first();
 
       if (link) {
@@ -70,10 +63,10 @@ export default class RouteItem extends CampaignRoute<{
             agreement_id: agreementId,
             last_editor_id: this.getTesterId(),
           })
-          .where("cp_id", this.campaignId);
+          .where("cp_id", this.cp_id);
       } else {
         await tryber.tables.FinanceCampaignToAgreement.do().insert({
-          cp_id: this.campaignId,
+          cp_id: this.cp_id,
           agreement_id: agreementId,
           last_editor_id: this.getTesterId(),
         });
