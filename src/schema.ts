@@ -395,6 +395,14 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/costs": {
+    get: operations["get-dossiers-campaign-costs"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/education": {
     /** Get all education levels */
     get: operations["get-education"];
@@ -3233,6 +3241,27 @@ export interface operations {
                 status: "pending" | "proposed" | "approved" | "rejected";
               };
             }[];
+          };
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign-costs": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+      query: {
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            totalCost?: number;
           };
         };
       };

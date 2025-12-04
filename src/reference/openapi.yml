@@ -5398,6 +5398,33 @@ paths:
         required: true
         schema:
           type: string
+  '/dossiers/{campaign}/costs':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCost:
+                    type: number
+      operationId: get-dossiers-campaign-costs
+      x-stoplight:
+        id: q9l4m7dj053wk
+      security:
+        - JWT: []
+      parameters:
+        - $ref: '#/components/parameters/filterBy'
   /education:
     get:
       operationId: get-education
