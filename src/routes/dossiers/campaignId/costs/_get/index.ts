@@ -2,9 +2,9 @@
 
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
-import UserRoute from "@src/features/routes/UserRoute";
+import CampaignRoute from "@src/features/routes/CampaignRoute";
 
-export default class RouteItem extends UserRoute<{
+export default class RouteItem extends CampaignRoute<{
   response: StoplightOperations["get-dossiers-campaign-costs"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["get-dossiers-campaign-costs"]["parameters"]["path"];
   query: StoplightOperations["get-dossiers-campaign-costs"]["parameters"]["query"];
@@ -26,8 +26,8 @@ export default class RouteItem extends UserRoute<{
   protected async filter() {
     if (!(await super.filter())) return false;
 
-    if (await this.doesNotHaveAccessToCampaign()) {
-      this.setError(403, new OpenapiError("No access to campaign"));
+    if (!this.hasAccessToCampaign(this.campaignId)) {
+      this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
 
@@ -37,10 +37,6 @@ export default class RouteItem extends UserRoute<{
     }
 
     return true;
-  }
-
-  private async doesNotHaveAccessToCampaign() {
-    return !this.hasAccessToCampaign(this.campaignId);
   }
 
   private async campaignExists(): Promise<boolean> {
