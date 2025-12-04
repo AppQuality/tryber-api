@@ -281,6 +281,14 @@ export interface paths {
     post: operations["post-customers"];
     parameters: {};
   };
+  "/customers/{customerId}/agreements": {
+    get: operations["get-customers-customerId-agreements"];
+    parameters: {
+      path: {
+        customerId: string;
+      };
+    };
+  };
   "/customers/{customer}/projects": {
     get: operations["get-customers-customer-projects"];
     post: operations["post-customers-customer-projects"];
@@ -331,14 +339,6 @@ export interface paths {
       };
     };
   };
-  "/customers/{customerId}/agreements": {
-    get: operations["get-customers-customerId-agreements"];
-    parameters: {
-      path: {
-        customerId: string;
-      };
-    };
-  };
   "/dossiers/{campaign}/agreements": {
     get: operations["get-dossiers-campaign-agreements"];
     put: operations["put-dossiers-campaign-agreements"];
@@ -354,6 +354,23 @@ export interface paths {
     parameters: {
       path: {
         campaign: string;
+      };
+    };
+  };
+  "/dossiers/{campaign}/costs": {
+    get: operations["get-dossiers-campaign-costs"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
+  "/dossiers/{campaign}/humanResources": {
+    get: operations["get-dossiers-campaign-humanResources"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
       };
     };
   };
@@ -408,14 +425,6 @@ export interface paths {
     parameters: {
       path: {
         /** A campaign id */
-        campaign: string;
-      };
-    };
-  };
-  "/dossiers/{campaign}/costs": {
-    get: operations["get-dossiers-campaign-costs"];
-    parameters: {
-      path: {
         campaign: string;
       };
     };
@@ -773,15 +782,6 @@ export interface paths {
   };
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
-  };
-  "/dossiers/{campaign}/humanResources": {
-    get: operations["get-dossiers-campaign-humanResources"];
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: components["parameters"]["campaign"];
-      };
-    };
   };
 }
 
@@ -2783,6 +2783,35 @@ export interface operations {
       };
     };
   };
+  "get-customers-customerId-agreements": {
+    parameters: {
+      path: {
+        customerId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+              remainingTokens: number;
+              totalTokens: number;
+              value: number;
+            }[];
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      403: components["responses"]["Authentication"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+  };
   "get-customers-customer-projects": {
     parameters: {
       path: {
@@ -3083,35 +3112,6 @@ export interface operations {
       };
     };
   };
-  "get-customers-customerId-agreements": {
-    parameters: {
-      path: {
-        customerId: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            items: {
-              id: number;
-              name: string;
-              totalTokens: number;
-              remainingTokens: number;
-              value: number;
-            }[];
-          };
-        };
-      };
-      /** Bad Request */
-      400: unknown;
-      403: components["responses"]["Authentication"];
-      404: components["responses"]["NotFound"];
-      /** Internal Server Error */
-      500: unknown;
-    };
-  };
   "get-dossiers-campaign-agreements": {
     parameters: {
       path: {
@@ -3123,14 +3123,14 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            tokens?: number;
             agreement?: {
               id?: number;
               name?: string;
-              totalTokens?: number;
               remainingTokens?: number;
+              totalTokens?: number;
               value?: number;
             };
+            tokens?: number;
           };
         };
       };
@@ -3154,8 +3154,8 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
-          tokens: number;
           agreementId: number;
+          tokens: number;
         };
       };
     };
@@ -3178,6 +3178,55 @@ export interface operations {
             count: number;
             /** Format: date-time */
             lastUpdate: string;
+          };
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign-costs": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+      query: {
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            totalCost?: number;
+          };
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign-humanResources": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items?: {
+              assignee?: {
+                id?: number;
+              };
+              days?: number;
+              id?: number;
+              rate?: {
+                id?: number;
+                value?: number;
+              };
+            }[];
           };
         };
       };
@@ -3335,27 +3384,6 @@ export interface operations {
                 status: "pending" | "proposed" | "approved" | "rejected";
               };
             }[];
-          };
-        };
-      };
-    };
-  };
-  "get-dossiers-campaign-costs": {
-    parameters: {
-      path: {
-        campaign: string;
-      };
-      query: {
-        /** Key-value Array for item filtering */
-        filterBy?: components["parameters"]["filterBy"];
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            totalCost?: number;
           };
         };
       };
@@ -4556,8 +4584,8 @@ export interface operations {
             items: {
               id: number;
               location: string;
-              name: string;
               mimetype?: string;
+              name: string;
             }[];
           };
         };
@@ -5336,34 +5364,6 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
-    };
-  };
-  "get-dossiers-campaign-humanResources": {
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: components["parameters"]["campaign"];
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            items?: {
-              assignee?: {
-                id?: number;
-              };
-              days?: number;
-              rate?: {
-                id?: number;
-                value?: number;
-              };
-              id?: number;
-            }[];
-          };
-        };
-      };
     };
   };
 }
