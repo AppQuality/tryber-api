@@ -11546,7 +11546,6 @@ paths:
                   type: number
                   x-stoplight:
                     id: eyo5iptuxpg4h
-                  exclusiveMinimum: false
                 agreementId:
                   type: integer
                   x-stoplight:
