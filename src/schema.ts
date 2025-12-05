@@ -758,6 +758,9 @@ export interface paths {
     get: operations["get-users-me-pending-booty"];
     parameters: {};
   };
+  "/dossiers/rates": {
+    get: operations["get-dossiers-rates"];
+  };
   "/users/me/permissions": {
     /** Return all user permissions */
     get: operations["get-users-me-permissions"];
@@ -5261,6 +5264,27 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "get-dossiers-rates": {
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+              rate: number;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["Authentication"];
+      404: components["responses"]["NotFound"];
+      /** Not Acceptable */
+      406: unknown;
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   /** Return all user permissions */
