@@ -110,6 +110,25 @@ describe("Route PUT/dossiers/:campaignId/humanResources", () => {
           { assignee: 2, days: 8, rate: 2 },
         ])
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const humanResources =
+        await tryber.tables.CampaignHumanResources.do().select();
+      expect(humanResources).toHaveLength(2);
+      expect(humanResources).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            campaign_id: 1,
+            profile_id: 3,
+            days: 5,
+            work_rate_id: 1,
+          }),
+          expect.objectContaining({
+            campaign_id: 1,
+            profile_id: 2,
+            days: 8,
+            work_rate_id: 2,
+          }),
+        ])
+      );
       expect(response.status).toBe(200);
     });
   });

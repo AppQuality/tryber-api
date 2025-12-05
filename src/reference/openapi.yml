@@ -6691,8 +6691,6 @@ paths:
             schema:
               type: array
               items:
-                x-stoplight:
-                  id: b1dhlat7cpfid
                 type: object
                 required:
                   - assignee
@@ -6701,16 +6699,10 @@ paths:
                 properties:
                   assignee:
                     type: integer
-                    x-stoplight:
-                      id: 8vqh7jsh9jyj7
                   days:
                     type: number
-                    x-stoplight:
-                      id: lqzmgfjia3ag6
                   rate:
                     type: integer
-                    x-stoplight:
-                      id: gstq85tnedinv
   '/dossiers/{campaign}/manual':
     parameters:
       - $ref: '#/components/parameters/campaign'
