@@ -967,7 +967,6 @@ export interface components {
       /** Format: date-time */
       endDate?: string;
       goal?: string;
-      hasPlan?: boolean;
       languages?: string[];
       notes?: string;
       outOfScope?: string;
@@ -3021,6 +3020,7 @@ export interface operations {
               name: string;
             }[];
             deviceRequirements?: string;
+            hasPlan?: boolean;
             /** Format: date-time */
             endDate: string;
             goal?: string;

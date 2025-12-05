@@ -804,9 +804,6 @@ components:
           type: string
         goal:
           type: string
-        hasPlan:
-          default: false
-          type: boolean
         languages:
           items:
             type: string
@@ -6335,6 +6332,10 @@ paths:
                     type: array
                   deviceRequirements:
                     type: string
+
+                  hasPlan:
+                    default: false
+                    type: boolean
                   endDate:
                     format: date-time
                     type: string
