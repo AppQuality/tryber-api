@@ -71,7 +71,8 @@ export default class RouteItem extends UserRoute<{
           .as("phase_id"),
         tryber.ref("name").withSchema("campaign_phase").as("phase_name"),
         tryber.ref("auto_apply").withSchema("wp_appq_evd_campaign"),
-        tryber.ref("auto_approve").withSchema("wp_appq_evd_campaign")
+        tryber.ref("auto_approve").withSchema("wp_appq_evd_campaign"),
+        tryber.ref("plan_id").withSchema("wp_appq_evd_campaign")
       )
       .join(
         "wp_appq_project",
@@ -226,6 +227,7 @@ export default class RouteItem extends UserRoute<{
     try {
       this.setSuccess(200, {
         id: this.campaign.id,
+        hasPlan: this.campaign.plan_id != null,
         title: {
           customer: this.campaign.customer_title,
           tester: this.campaign.title,

@@ -3020,6 +3020,7 @@ export interface operations {
               name: string;
             }[];
             deviceRequirements?: string;
+            hasPlan?: boolean;
             /** Format: date-time */
             endDate: string;
             goal?: string;
