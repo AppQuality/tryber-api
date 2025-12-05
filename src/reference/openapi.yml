@@ -6699,10 +6699,13 @@ paths:
                 properties:
                   assignee:
                     type: integer
+                    exclusiveMinimum: false
+                    minimum: 1
                   days:
                     type: number
                   rate:
                     type: integer
+                    minimum: 1
   '/dossiers/{campaign}/manual':
     parameters:
       - $ref: '#/components/parameters/campaign'
