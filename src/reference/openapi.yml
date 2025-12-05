@@ -6703,6 +6703,7 @@ paths:
                     minimum: 1
                   days:
                     type: number
+                    minimum: 0
                   rate:
                     type: integer
                     minimum: 1
