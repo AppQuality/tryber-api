@@ -64,6 +64,22 @@ describe("Route PUT/dossiers/:campaignId/humanResources", () => {
     expect(response.status).toBe(400);
   });
 
+  it("Should answer 400 if profile does not exist", async () => {
+    const response = await request(app)
+      .put("/dossiers/1/humanResources")
+      .send([{ assignee: 999, days: 5, rate: 1 }])
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.status).toBe(400);
+  });
+
+  it("Should answer 400 if work rate does not exist", async () => {
+    const response = await request(app)
+      .put("/dossiers/1/humanResources")
+      .send([{ assignee: 3, days: 5, rate: 999 }])
+      .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    expect(response.status).toBe(400);
+  });
+
   it("Should answer 200 if admin", async () => {
     const response = await request(app)
       .put("/dossiers/1/humanResources")

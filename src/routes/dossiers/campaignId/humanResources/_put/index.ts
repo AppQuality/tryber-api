@@ -15,37 +15,47 @@ export default class RouteItem extends CampaignRoute<{
       this.setError(403, new OpenapiError("You are not authorized to do this"));
       return false;
     }
-    if (this.isInvalidBody()) {
-      this.setError(400, new OpenapiError("Invalid request body"));
+    if (!(await this.validateHumanResources())) {
       return false;
     }
-
     return true;
   }
 
-  private isInvalidBody(): boolean {
+  private async isProfileValid(profileId: number) {
+    const profile = await tryber.tables.WpAppqEvdProfile.do()
+      .select("id")
+      .where("id", profileId)
+      .first();
+    return !!profile;
+  }
+
+  private async isWorkRateValid(rateId: number) {
+    const workRate = await tryber.tables.WorkRates.do()
+      .select("id")
+      .where("id", rateId)
+      .first();
+    return !!workRate;
+  }
+
+  private async validateHumanResources() {
     const body = this.getBody();
-
     for (const item of body) {
-      if (typeof item !== "object" || item === null) return true;
-
-      const { assignee, days, rate } = item;
-      if (
-        typeof assignee !== "number" ||
-        !Number.isInteger(assignee) ||
-        assignee <= 0
-      ) {
-        return true;
+      if (!(await this.isProfileValid(item.assignee))) {
+        this.setError(
+          400,
+          new OpenapiError(`Profile with id ${item.assignee} does not exist`)
+        );
+        return false;
       }
-
-      if (typeof days !== "number" || days < 0) {
-        return true;
-      }
-      if (typeof rate !== "number" || !Number.isInteger(rate) || rate < 0) {
-        return true;
+      if (!(await this.isWorkRateValid(item.rate))) {
+        this.setError(
+          400,
+          new OpenapiError(`Work rate with id ${item.rate} does not exist`)
+        );
+        return false;
       }
     }
-    return false;
+    return true;
   }
 
   private async updateHumanResources() {
