@@ -6699,7 +6699,6 @@ paths:
                 properties:
                   assignee:
                     type: integer
-                    exclusiveMinimum: false
                     minimum: 1
                   days:
                     type: number
