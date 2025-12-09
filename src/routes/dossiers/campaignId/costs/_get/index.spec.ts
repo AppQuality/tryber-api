@@ -170,6 +170,7 @@ describe("GET /dossiers/campaignId/costs", () => {
     const response = await request(app)
       .get("/dossiers/1/costs?filterBy[invalid]=1")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+    console.log(response.body);
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       totalCost: payment_1.amount + payment_2.amount,

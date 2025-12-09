@@ -1,7 +1,7 @@
 /** OPENAPI-CLASS : get-dossiers-campaign-costs */
 
-import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
+import OpenapiError from "@src/features/OpenapiError";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 
 export default class RouteItem extends CampaignRoute<{
@@ -11,15 +11,22 @@ export default class RouteItem extends CampaignRoute<{
 }> {
   private campaignId: number;
   private filterBy: {
-    type?: string | string[];
+    type?: string[];
   } = {};
 
   constructor(configuration: RouteClassConfiguration) {
     super(configuration);
     const query = this.getQuery();
     this.campaignId = Number(this.getParameters().campaign);
-    if (query.filterBy) {
-      this.filterBy = query.filterBy;
+    if (query.filterBy && query.filterBy?.type) {
+      const types = (query.filterBy?.type as string)
+        .split(",")
+        .map((t) => Number(t))
+        .filter((t) => !isNaN(t))
+        .map((t) => t.toString());
+      if (types.length > 0) {
+        this.filterBy.type = types;
+      }
     }
   }
 
@@ -62,17 +69,7 @@ export default class RouteItem extends CampaignRoute<{
     });
 
     if (this.filterBy && this.filterBy.type !== undefined) {
-      const rawTypes = Array.isArray(this.filterBy.type)
-        ? this.filterBy.type
-        : [this.filterBy.type];
-
-      const types = rawTypes
-        .map((t) => Number(t))
-        .filter((t) => !Number.isNaN(t));
-
-      if (types.length > 0) {
-        query = query.whereIn("work_type_id", types);
-      }
+      query = query.whereIn("work_type_id", this.filterBy.type);
     }
 
     const paymentsTotal = (await query
