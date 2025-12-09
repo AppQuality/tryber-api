@@ -106,7 +106,7 @@ describe("Route GET /dossiers/:campaignId/humanResources", () => {
               id: 1,
             },
             days: 10,
-            work_rate: {
+            rate: {
               id: 1,
               value: 1.5,
             },
@@ -117,7 +117,7 @@ describe("Route GET /dossiers/:campaignId/humanResources", () => {
               id: 2,
             },
             days: 4.5,
-            work_rate: {
+            rate: {
               id: 2,
               value: 2,
             },
