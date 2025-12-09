@@ -786,6 +786,15 @@ export interface paths {
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
   };
+  "/campaigns/{campaign}/tasks/{usecase}/survey/jotform": {
+    post: operations["post-campaigns-campaign-tasks-usecase-survey-jotform"];
+    parameters: {
+      path: {
+        campaign: string;
+        usecase: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -5389,6 +5398,35 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "post-campaigns-campaign-tasks-usecase-survey-jotform": {
+    parameters: {
+      path: {
+        campaign: string;
+        usecase: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      "": {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          jotformId: string;
+          testerQuestionId: string;
+        };
+      };
     };
   };
 }

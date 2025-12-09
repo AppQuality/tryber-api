@@ -41,7 +41,7 @@ components:
           - it
         type: string
     order:
-      description: How to order values (ASC, DESC)
+      description: 'How to order values (ASC, DESC)'
       in: query
       name: order
       required: false
@@ -121,9 +121,7 @@ components:
               username:
                 type: string
             type: object
-      description: >-
-        Authentication data. The token can be used to authenticate the protected
-        requests
+      description: Authentication data. The token can be used to authenticate the protected requests
     MissingParameters:
       content:
         application/json:
@@ -319,7 +317,7 @@ components:
     Agreement:
       properties:
         expirationDate:
-          pattern: ^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$
+          pattern: '^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$'
           type: string
         isTokenBased:
           default: false
@@ -327,7 +325,7 @@ components:
         note:
           type: string
         startDate:
-          pattern: ^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$
+          pattern: '^[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])$'
           type: string
         title:
           minLength: 1
@@ -511,13 +509,9 @@ components:
           description: True if you applied on this Campaign
           type: boolean
         bugform_link:
-          description: >-
-            If bugform is deactivated is a boolean else contains URLs to
-            bugforms for each languages
+          description: If bugform is deactivated is a boolean else contains URLs to bugforms for each languages
           oneOf:
-            - description: >-
-                Exists only when the campaign bugform is deactivated. It is
-                FALSE
+            - description: Exists only when the campaign bugform is deactivated. It is FALSE
               type: boolean
             - $ref: '#/components/schemas/TranslatablePage'
         csm_effort:
@@ -632,7 +626,7 @@ components:
             projectManager:
               email: user@example.com
               id: 0
-              image: http://example.com
+              image: 'http://example.com'
               is_verified: true
               name: string
               role: string
@@ -1101,7 +1095,7 @@ components:
           short_name: string
           type: gender
     PreselectionQuestionCuf:
-      pattern: ^cuf_[0-9]*$
+      pattern: '^cuf_[0-9]*$'
       title: PreselectionQuestionCuf
       type: string
     PreselectionQuestionMultiple:
@@ -1276,7 +1270,7 @@ components:
           value:
             email: user@example.com
             id: 0
-            image: http://example.com
+            image: 'http://example.com'
             is_verified: true
             name: string
             role: string
@@ -1426,7 +1420,7 @@ paths:
                         unitPrice: 6.9
                     size: 2
                     start: 0
-                agreement-filterBy[customer]=1,3&start=1:
+                'agreement-filterBy[customer]=1,3&start=1':
                   value:
                     items:
                       - customer:
@@ -1455,7 +1449,7 @@ paths:
                     size: 2
                     start: 1
                     total: 3
-                filterBy[customer]=1,3&limit=1:
+                'filterBy[customer]=1,3&limit=1':
                   value:
                     items:
                       - customer:
@@ -1558,7 +1552,7 @@ paths:
                     size: 1
                     start: 1
                     total: 4
-                response-items-filterBy[customer]=1,3&start=1&limit=1:
+                'response-items-filterBy[customer]=1,3&start=1&limit=1':
                   value:
                     items:
                       - customer:
@@ -1665,7 +1659,7 @@ paths:
       security:
         - JWT: []
       summary: POST Agreement
-  /agreements/{agreementId}:
+  '/agreements/{agreementId}':
     delete:
       description: Delete a specific Agreement
       operationId: delete-agreements-agreement-id
@@ -1947,7 +1941,7 @@ paths:
           description: OK
       summary: Your GET endpoint
       tags: []
-  /bugs/{bugId}/status:
+  '/bugs/{bugId}/status':
     parameters:
       - in: path
         name: bugId
@@ -2312,9 +2306,7 @@ paths:
                     project_id:
                       type: integer
                   type: object
-        description: >-
-          The Campaign data to set on the newly created Campaign, including the
-          id of the Project to link the Campaign to
+        description: 'The Campaign data to set on the newly created Campaign, including the id of the Project to link the Campaign to'
       responses:
         '201':
           $ref: '#/components/responses/SingleCampaign'
@@ -2430,27 +2422,27 @@ paths:
               x-examples:
                 example-1:
                   fields:
-                    - question: What's your [custom question]?
+                    - question: 'What''s your [custom question]?'
                       type: text
                     - options:
                         - Option1
                         - Option2
-                      question: What's your [custom selectable question]?
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                     - options:
                         - Option1
                         - Option2
-                      question: What's your [custom selectable question]?
+                      question: 'What''s your [custom selectable question]?'
                       type: select
-                    - question: What's your [cuf text question]?
+                    - question: 'What''s your [cuf text question]?'
                       type: cuf_1
                     - options:
                         - 1
                         - 5
                         - 14
-                      question: What's your [cuf text question]?
+                      question: 'What''s your [cuf text question]?'
                       type: cuf_12
-                    - question: What's your [profile question]?
+                    - question: 'What''s your [profile question]?'
                       type: gender
                   name: My form
       responses:
@@ -2509,7 +2501,7 @@ paths:
       security:
         - JWT: []
       summary: Create a new preselection form
-  /campaigns/forms/{formId}:
+  '/campaigns/forms/{formId}':
     get:
       description: ''
       operationId: get-campaigns-forms-formId
@@ -2618,22 +2610,22 @@ paths:
                   campaign: 1
                   fields:
                     - id: 3
-                      question: What's your [custom question]?
+                      question: 'What''s your [custom question]?'
                       type: text
                     - id: 12
                       options:
                         - Option1
                         - Option2
-                      question: What's your [custom selectable question]?
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                     - id: 9
                       options:
                         - Option1
                         - Option2
-                      question: What's your [custom selectable question]?
+                      question: 'What''s your [custom selectable question]?'
                       type: select
                     - id: 24
-                      question: What's your [cuf text question]?
+                      question: 'What''s your [cuf text question]?'
                       type: cuf_1
                     - id: 29
                       options:
@@ -2641,9 +2633,9 @@ paths:
                         - 5
                         - 7
                         - 14
-                      question: What's your [cuf select question]?
+                      question: 'What''s your [cuf select question]?'
                       type: cuf_12
-                    - question: What's your [profile question]?
+                    - question: 'What''s your [profile question]?'
                       type: gender
                   name: My form
       responses:
@@ -2699,32 +2691,32 @@ paths:
                   example-1:
                     fields:
                       - id: 3
-                        question: What's your [custom question]?
+                        question: 'What''s your [custom question]?'
                         type: text
                       - id: 12
                         options:
                           - Option1
                           - Option2
-                        question: What's your [custom selectable question]?
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                       - id: 9
                         options:
                           - Option1
                           - Option2
-                        question: What's your [custom selectable question]?
+                        question: 'What''s your [custom selectable question]?'
                         type: select
                       - id: 24
-                        question: What's your [cuf text question]?
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_1
                       - id: 29
                         options:
                           - 1
                           - 5
                           - 14
-                        question: What's your [cuf text question]?
+                        question: 'What''s your [cuf text question]?'
                         type: cuf_12
                       - id: 89
-                        question: What's your [profile question]?
+                        question: 'What''s your [profile question]?'
                         type: gender
                     id: 15
                     name: My form
@@ -2771,7 +2763,7 @@ paths:
       tags:
         - Campaign
     parameters: []
-  /campaigns/{campaignId}/visibility:
+  '/campaigns/{campaignId}/visibility':
     parameters:
       - in: path
         name: campaignId
@@ -2810,7 +2802,7 @@ paths:
         - JWT: []
       summary: Your PATCH endpoint
       tags: []
-  /campaigns/{campaign}:
+  '/campaigns/{campaign}':
     get:
       description: 'Get the data of a Campaign if you have access to it '
       operationId: get-campaigns-campaign
@@ -2939,7 +2931,7 @@ paths:
       summary: Edit a Campaign
       tags:
         - Campaign
-  /campaigns/{campaign}/bugs:
+  '/campaigns/{campaign}/bugs':
     get:
       description: 'Get all bugs of a Campaign if you have access to it '
       operationId: get-campaigns-cid-bugs
@@ -2948,7 +2940,7 @@ paths:
         - $ref: '#/components/parameters/start'
         - $ref: '#/components/parameters/search'
         - $ref: '#/components/parameters/order'
-        - description: Order values by STATUS, TESTERID, SEVERITY, TYPE, ID
+        - description: 'Order values by STATUS, TESTERID, SEVERITY, TYPE, ID'
           in: query
           name: orderBy
           schema:
@@ -3088,7 +3080,7 @@ paths:
         - Campaign
     parameters:
       - $ref: '#/components/parameters/campaign'
-  /campaigns/{campaign}/bugs/{bugId}:
+  '/campaigns/{campaign}/bugs/{bugId}':
     get:
       description: 'Get single bug of a Campaign if you have access to it '
       operationId: get-campaigns-single-bug
@@ -3219,7 +3211,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/bugs/{bugId}/aiReview:
+  '/campaigns/{campaign}/bugs/{bugId}/aiReview':
     get:
       description: 'Get ai review for a single bug of a Campaign if you have access to it '
       operationId: get-campaigns-single-bug-ai-review
@@ -3231,21 +3223,13 @@ paths:
               examples:
                 Example 1:
                   value:
-                    ai_reason: >-
-                      The bug requires review because it impacts the
-                      functionality of a key feature on the homepage,
-                      specifically the 'Find a dealer' section, which is
-                      essential for user navigation and experience.
+                    ai_reason: 'The bug requires review because it impacts the functionality of a key feature on the homepage, specifically the ''Find a dealer'' section, which is essential for user navigation and experience.'
                     ai_status: need_review
                     score_percentage: 54
                 Example 2:
                   value:
                     ai_notes: ' The mixed language content creates confusion for users during registration.'
-                    ai_reason: >-
-                      The bug has been refused due to language inconsistencies
-                      in the title and description, which do not align with the
-                      use case requirements for a clear and consistent
-                      registration process.
+                    ai_reason: 'The bug has been refused due to language inconsistencies in the title and description, which do not align with the use case requirements for a clear and consistent registration process.'
                     ai_status: refused
                     score_percentage: 31
               schema:
@@ -3285,7 +3269,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/candidates:
+  '/campaigns/{campaign}/candidates':
     get:
       description: ''
       operationId: get-campaigns-campaign-candidates
@@ -3296,7 +3280,7 @@ paths:
           in: query
           name: fields
           schema:
-            example: question_1,question_2
+            example: 'question_1,question_2'
             type: string
         - description: Key-value Array for item filtering
           in: query
@@ -3935,7 +3919,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /campaigns/{campaign}/clusters:
+  '/campaigns/{campaign}/clusters':
     get:
       description: Get all clusters for  a specific campaign
       operationId: get-campaigns-campaign-clusters
@@ -3997,7 +3981,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/forms:
+  '/campaigns/{campaign}/forms':
     get:
       description: ''
       operationId: get-campaigns-campaign-forms
@@ -4042,7 +4026,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/groups:
+  '/campaigns/{campaign}/groups':
     get:
       description: 'Get all groups used in a Campaign if you have access to it '
       operationId: get-campaigns-cid-groups
@@ -4081,7 +4065,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/observations:
+  '/campaigns/{campaign}/observations':
     get:
       description: Get observations for a campaign
       operationId: get-campaigns-campaign-observations
@@ -4145,10 +4129,8 @@ paths:
                         id: 10678
                         media:
                           id: 73578
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T11291/91d3f36562a4d2be809c9b1217f591b317f928b4_1666108920.mp4'
                         name: ok
                         tester:
                           id: 11291
@@ -4160,10 +4142,8 @@ paths:
                         id: 10682
                         media:
                           id: 73577
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
                         name: ''
                         tester:
                           id: 8208
@@ -4175,10 +4155,8 @@ paths:
                         id: 10683
                         media:
                           id: 73579
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
                         name: t58918_xiaomi_mi10_usecase1-mp4
                         tester:
                           id: 58918
@@ -4190,10 +4168,8 @@ paths:
                         id: 10684
                         media:
                           id: 73580
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T960/19ebc32b3d71e4a3f2858eea298761d44db5d83b_1666112983.mp4'
                         name: t960_apple_iphone12_usecase0-mp4
                         tester:
                           id: 960
@@ -4205,10 +4181,8 @@ paths:
                         id: 10685
                         media:
                           id: 73589
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T17968/0af496e75fb6ec367749d1c34a2f9a0dec0f2b4a_1666121805.mp4'
                         name: t17968_pc_desktop-_amd_usecase1-
                         tester:
                           id: 17968
@@ -4220,10 +4194,8 @@ paths:
                         id: 10686
                         media:
                           id: 73590
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T29187/c40ae70fbc3e3ac3c77a07aefdddec014d099e30_1666125348.mp4'
                         name: t29187_huaweihonor_usecase0-mp4
                         tester:
                           id: 29187
@@ -4235,10 +4207,8 @@ paths:
                         id: 10687
                         media:
                           id: 73577
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T8208/bfc341707a8a3c247926aee8d4efe14f06f5165d_1666101262.mp4'
                         name: interessante
                         tester:
                           id: 8208
@@ -4250,10 +4220,8 @@ paths:
                         id: 10688
                         media:
                           id: 73579
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/appq.use-case-media/CP4845/UC19595/T58918/713c9be296e4fb76d0b074947bbe9a56b2807000_1666111033.mp4'
                         name: giommiobs
                         tester:
                           id: 58918
@@ -4265,10 +4233,8 @@ paths:
                         id: 10690
                         media:
                           id: 74191
-                          streamUrl: >-
-                            https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8
-                          url: >-
-                            https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4
+                          streamUrl: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543-stream.m3u8'
+                          url: 'https://s3-eu-west-1.amazonaws.com/mediaconvert-encoder-staging-bucket/CP4845/UC19596/T32/ad4fc347f2579800a1920a8be6e181dda0f4b290_1692791543.mp4'
                         name: ok T32
                         tester:
                           id: 32
@@ -4348,7 +4314,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/payouts:
+  '/campaigns/{campaign}/payouts':
     get:
       description: ''
       operationId: get-campaigns-campaign-payouts
@@ -4569,7 +4535,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /campaigns/{campaign}/preview:
+  '/campaigns/{campaign}/preview':
     parameters:
       - in: path
         name: campaign
@@ -4608,7 +4574,7 @@ paths:
       security:
         - JWT: []
       summary: POST Preview on a Specific Campaign
-  /campaigns/{campaign}/prospect:
+  '/campaigns/{campaign}/prospect':
     get:
       description: ''
       operationId: get-campaigns-campaign-prospect
@@ -4826,9 +4792,7 @@ paths:
         - JWT: []
       summary: ''
     put:
-      description: >-
-        Make campaign perspective status done, and change exp points and tester
-        payouts.
+      description: 'Make campaign perspective status done, and change exp points and tester payouts.'
       operationId: put-campaigns-campaign-prospect
       requestBody:
         content:
@@ -4916,7 +4880,7 @@ paths:
       security:
         - JWT: []
       summary: Edit a campaign prospect
-  /campaigns/{campaign}/prospect/{testerId}:
+  '/campaigns/{campaign}/prospect/{testerId}':
     parameters:
       - $ref: '#/components/parameters/campaign'
       - $ref: '#/components/parameters/testerId'
@@ -5046,7 +5010,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /campaigns/{campaign}/stats:
+  '/campaigns/{campaign}/stats':
     get:
       description: ''
       operationId: get-campaigns-campaign-stats
@@ -5073,7 +5037,7 @@ paths:
         required: true
         schema:
           type: string
-  /campaigns/{campaign}/tasks:
+  '/campaigns/{campaign}/tasks':
     get:
       description: |
         Get all UseCases linked to a Campaign
@@ -5217,7 +5181,7 @@ paths:
       tags:
         - Campaign
         - Task
-  /campaigns/{campaign}/tasks/{task}:
+  '/campaigns/{campaign}/tasks/{task}':
     get:
       description: Get the data of a UseCase in a Campaign
       operationId: get-campaigns-campaign-tasks-task
@@ -5291,7 +5255,7 @@ paths:
       tags:
         - Campaign
         - Task
-  /campaigns/{campaign}/ux:
+  '/campaigns/{campaign}/ux':
     get:
       description: Get the data of a UseCase in a Campaign
       operationId: get-campaigns-campaign-ux
@@ -5535,36 +5499,25 @@ paths:
                       insights:
                         - clusterIds:
                             - 1
-                          description: >-
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Maecenas tellus lorem, maximus sit amet
-                            fermentum ac, venenatis eu sapien. In hac habitasse
-                            platea dictumst.
+                          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst.'
                           id: 70
                           order: 0
                           severityId: 1
                           title: Malfunzionamento form
                           videoParts:
-                            - description: >-
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Maecenas tellus lorem, maximus
-                                sit amet fermentum ac, venenatis eu sapien
+                            - description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien'
                               end: 97
                               id: 250
                               mediaId: 73579
                               order: 0
                               start: 0
-                            - description: >-
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. 
+                            - description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
                               end: 101
                               id: 251
                               mediaId: 73577
                               order: 1
                               start: 22
-                            - description: >-
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. 
+                            - description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
                               end: 152
                               id: 252
                               mediaId: 73578
@@ -5572,9 +5525,7 @@ paths:
                               start: 0
                         - clusterIds:
                             - 2
-                          description: >-
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. edited
+                          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. edited'
                           id: 71
                           order: 1
                           severityId: 1
@@ -5588,24 +5539,13 @@ paths:
                               start: 0
                         - clusterIds:
                             - 1
-                          description: >-
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Maecenas tellus lorem, maximus sit amet
-                            fermentum ac, venenatis eu sapien. In hac habitasse
-                            platea dictumst. Etiam sodales nibh turpis, at
-                            condimentum arcu vehicula eget. Donec sollicitudin
-                            dapibus 
+                          description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis, at condimentum arcu vehicula eget. Donec sollicitudin dapibus '
                           id: 72
                           order: 2
                           severityId: 2
                           title: Criticità Pagina Prodotto
                           videoParts:
-                            - description: >-
-                                Lorem ipsum dolor sit amet, consectetur
-                                adipiscing elit. Maecenas tellus lorem, maximus
-                                sit amet fermentum ac, venenatis eu sapien. In
-                                hac habitasse platea dictumst. Etiam sodales
-                                nibh turpis,
+                            - description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas tellus lorem, maximus sit amet fermentum ac, venenatis eu sapien. In hac habitasse platea dictumst. Etiam sodales nibh turpis,'
                               end: 106
                               id: 254
                               mediaId: 73589
@@ -5672,7 +5612,7 @@ paths:
       tags:
         - Devices
     parameters: []
-  /countries/{code}/region:
+  '/countries/{code}/region':
     get:
       operationId: get-regions
       parameters:
@@ -5821,7 +5761,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /customers/{customerId}/agreements:
+  '/customers/{customerId}/agreements':
     get:
       operationId: get-customers-customerId-agreements
       responses:
@@ -5890,7 +5830,7 @@ paths:
         required: true
         schema:
           type: string
-  /customers/{customer}/projects:
+  '/customers/{customer}/projects':
     get:
       description: ''
       operationId: get-customers-customer-projects
@@ -5956,7 +5896,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /devices/{device_type}/models:
+  '/devices/{device_type}/models':
     get:
       description: Get all model of devices with theirs manufacturers
       operationId: get-devices-devices-type-model
@@ -5998,7 +5938,7 @@ paths:
         required: true
         schema:
           type: string
-  /devices/{device_type}/operating_systems:
+  '/devices/{device_type}/operating_systems':
     get:
       description: Get all operating systems of a device type
       operationId: get-devices-operating-systems
@@ -6039,7 +5979,7 @@ paths:
         required: true
         schema:
           type: string
-  /devices/{device_type}/os_versions:
+  '/devices/{device_type}/os_versions':
     get:
       description: Get all versions of an operating systems
       operationId: get-devices-os-versions
@@ -6219,7 +6159,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /dossiers/{campaign}:
+  '/dossiers/{campaign}':
     get:
       operationId: get-dossiers-campaign
       responses:
@@ -6332,7 +6272,6 @@ paths:
                     type: array
                   deviceRequirements:
                     type: string
-
                   hasPlan:
                     default: false
                     type: boolean
@@ -6552,7 +6491,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /dossiers/{campaign}/agreements:
+  '/dossiers/{campaign}/agreements':
     get:
       operationId: get-dossiers-campaign-agreements
       responses:
@@ -6608,9 +6547,7 @@ paths:
                 - tokens
                 - agreementId
               type: object
-        description: >-
-          Updates tokens_usage in campaign and updates the link between cp_id
-          and agreementId
+        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
       responses:
         '200':
           description: OK
@@ -6624,7 +6561,7 @@ paths:
         - JWT: []
       summary: Your PUT endpoint
       tags: []
-  /dossiers/{campaign}/availableTesters:
+  '/dossiers/{campaign}/availableTesters':
     get:
       description: '    '
       operationId: get-dossiers-campaign-availableTesters
@@ -6662,7 +6599,7 @@ paths:
         required: true
         schema:
           type: string
-  /dossiers/{campaign}/costs:
+  '/dossiers/{campaign}/costs':
     get:
       operationId: get-dossiers-campaign-costs
       parameters:
@@ -6687,7 +6624,7 @@ paths:
         required: true
         schema:
           type: string
-  /dossiers/{campaign}/humanResources:
+  '/dossiers/{campaign}/humanResources':
     get:
       description: ''
       operationId: get-dossiers-campaign-humanResources
@@ -6727,10 +6664,8 @@ paths:
       tags: []
     parameters:
       - $ref: '#/components/parameters/campaign'
-        description: >-
-          Updates tokens_usage in campaign and updates the link between cp_id
-          and agreementId
-  /dossiers/{campaign}/manual:
+        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
+  '/dossiers/{campaign}/manual':
     parameters:
       - $ref: '#/components/parameters/campaign'
     post:
@@ -6756,7 +6691,7 @@ paths:
       security:
         - JWT: []
       summary: Create the manual
-  /dossiers/{campaign}/phases:
+  '/dossiers/{campaign}/phases':
     parameters:
       - description: A campaign id
         in: path
@@ -6795,7 +6730,7 @@ paths:
         - JWT: []
       summary: Your PUT endpoint
       tags: []
-  /dossiers/{campaign}/preview:
+  '/dossiers/{campaign}/preview':
     parameters:
       - $ref: '#/components/parameters/campaign'
     post:
@@ -6820,7 +6755,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /dossiers/{campaign}/quotations:
+  '/dossiers/{campaign}/quotations':
     parameters:
       - description: A campaign id
         in: path
@@ -6873,7 +6808,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /dossiers/{campaign}/quotations/{quote}:
+  '/dossiers/{campaign}/quotations/{quote}':
     parameters:
       - description: A campaign id
         in: path
@@ -6920,7 +6855,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /dossiers/{campaign}/quotesHistory:
+  '/dossiers/{campaign}/quotesHistory':
     get:
       operationId: get-dossiers-campaign-quotes-history
       responses:
@@ -7117,7 +7052,7 @@ paths:
       summary: Get Jotforms
       tags: []
     parameters: []
-  /jotforms/forms/{formId}/questions:
+  '/jotforms/forms/{formId}/questions':
     get:
       operationId: get-jotforms-forms-formId-questions
       responses:
@@ -7176,7 +7111,7 @@ paths:
         required: true
         schema:
           type: string
-  /jotforms/{campaign}:
+  '/jotforms/{campaign}':
     parameters:
       - description: A campaign id
         in: path
@@ -7968,7 +7903,7 @@ paths:
       summary: Get all payments
       tags: []
     parameters: []
-  /payments/{paymentId}:
+  '/payments/{paymentId}':
     delete:
       description: delete a specific payment request
       operationId: delete-payments-paymentId
@@ -8189,7 +8124,7 @@ paths:
       summary: Create a new popup
       tags:
         - Admin
-  /popups/{popup}:
+  '/popups/{popup}':
     get:
       description: Retrieve a signle popup for admin operations
       operationId: get-popups-popup
@@ -8391,7 +8326,7 @@ paths:
       summary: Create a new user
       tags:
         - User
-  /users/by-email/{email}:
+  '/users/by-email/{email}':
     head:
       description: ''
       operationId: head-users-by-email-email
@@ -8409,7 +8344,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/by-role/{role}:
+  '/users/by-role/{role}':
     get:
       operationId: get-users-by-role-role
       responses:
@@ -8680,8 +8615,7 @@ paths:
                   value:
                     email: name.surname@mail.com
                     id: 11110
-                    image: >-
-                      https://secure.gravatar.com/avatar/087ada6e86cf8ec31a49217dd05b7151?s=132&d=https%3A%2F%2Feu.ui-avatars.com%2Fapi%2Fi%2Bl%2F132&r=x
+                    image: 'https://secure.gravatar.com/avatar/087ada6e86cf8ec31a49217dd05b7151?s=132&d=https%3A%2F%2Feu.ui-avatars.com%2Fapi%2Fi%2Bl%2F132&r=x'
                     name: Name
                     onboarding_completed: true
                     role: subscriber
@@ -8809,7 +8743,7 @@ paths:
                   example-1:
                     email: user@example.com
                     id: 0
-                    image: http://example.com
+                    image: 'http://example.com'
                     is_verified: true
                     name: string
                     role: string
@@ -9162,7 +9096,7 @@ paths:
       summary: Edit your user data
       tags:
         - User
-  /users/me/additionals/{fieldId}:
+  '/users/me/additionals/{fieldId}':
     parameters:
       - description: The id of the field to edit
         in: path
@@ -9211,7 +9145,7 @@ paths:
                   example-1:
                     - field_id: 23
                       name: Linkedin Profile
-                      value: https://www.linkedin.com/in/gianpaolosinatra/
+                      value: 'https://www.linkedin.com/in/gianpaolosinatra/'
           description: OK
         '403':
           $ref: '#/components/responses/NotAuthorized'
@@ -9302,20 +9236,12 @@ paths:
     parameters: []
   /users/me/campaigns:
     get:
-      description: >-
+      description: |-
         get available, and selected campaigns for a single user.
-
-        filterBy[accepted] = 1 retrieve accepted campaign only, otherwise
-        retrieve available campaign.
-
-        filterBy[completed] = 1 get completed campaigns only (end date in the
-        past)
-
-        filterBy[completed] = 0 get not completed campaigns only (end date today
-        or in the future)
-
+        filterBy[accepted] = 1 retrieve accepted campaign only, otherwise retrieve available campaign.
+        filterBy[completed] = 1 get completed campaigns only (end date in the past)
+        filterBy[completed] = 0 get not completed campaigns only (end date today or in the future)
         filterBy[statusID] = 1 get open campaigns
-
         filterBy[statusID] = 2 get closed campaigns
       operationId: get-users-me-campaigns
       parameters:
@@ -9372,7 +9298,7 @@ paths:
       summary: GET user campaign
       tags:
         - User
-  /users/me/campaigns/{campaignId}:
+  '/users/me/campaigns/{campaignId}':
     get:
       description: ''
       operationId: get-users-me-campaigns-campaignId
@@ -9741,7 +9667,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/me/campaigns/{campaignId}/bugs:
+  '/users/me/campaigns/{campaignId}/bugs':
     parameters:
       - description: the campaign id
         in: path
@@ -9946,7 +9872,7 @@ paths:
         - JWT: []
         - User Token: []
       summary: POST a user bug on a specific campaign
-  /users/me/campaigns/{campaignId}/devices:
+  '/users/me/campaigns/{campaignId}/devices':
     get:
       operationId: get-users-me-campaigns-campaignId-devices
       responses:
@@ -10038,7 +9964,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/me/campaigns/{campaignId}/forms:
+  '/users/me/campaigns/{campaignId}/forms':
     get:
       operationId: get-users-me-campaign-campaignId-forms
       responses:
@@ -10088,7 +10014,7 @@ paths:
                       type: cuf_15
                       validation:
                         error: 'Inserire l''utente telegram in questo formato: @pippo'
-                        regex: ^@[a-zA-Z]*$
+                        regex: '^@[a-zA-Z]*$'
                       value: '@pippo'
                     - id: 7
                       question: Con che genere ti identifichi?
@@ -10098,7 +10024,7 @@ paths:
                       question: Qual è il tuo numero di telefono
                       type: phone_number
                       validation:
-                        regex: ^\+?[0-9]{12,14}$
+                        regex: '^\+?[0-9]{12,14}$'
                       value: '+33123456789'
                     - id: 9
                       question: Dove abiti?
@@ -10153,8 +10079,7 @@ paths:
                                 type: string
                               type: array
                             type:
-                              $ref: >-
-                                #/components/schemas/PreselectionQuestionMultiple
+                              $ref: '#/components/schemas/PreselectionQuestionMultiple'
                           required:
                             - type
                             - options
@@ -10283,7 +10208,7 @@ paths:
       security:
         - JWT: []
       summary: ''
-  /users/me/campaigns/{campaignId}/media:
+  '/users/me/campaigns/{campaignId}/media':
     parameters:
       - in: path
         name: campaignId
@@ -10345,7 +10270,7 @@ paths:
         - JWT: []
         - User Token: []
       summary: Upload media for a bug
-  /users/me/campaigns/{campaignId}/payout_data:
+  '/users/me/campaigns/{campaignId}/payout_data':
     get:
       description: ''
       operationId: get-users-me-campaigns-cid-payout-data
@@ -10459,7 +10384,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/me/campaigns/{campaignId}/preview:
+  '/users/me/campaigns/{campaignId}/preview':
     get:
       operationId: get-users-me-campaigns-cid-preview
       responses:
@@ -10626,7 +10551,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/me/campaigns/{campaignId}/tasks:
+  '/users/me/campaigns/{campaignId}/tasks':
     get:
       operationId: get-users-me-campaign-campaignId-tasks
       responses:
@@ -10686,7 +10611,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/me/campaigns/{campaignId}/tasks/{taskId}:
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}':
     parameters:
       - description: the campaign id
         in: path
@@ -10747,11 +10672,9 @@ paths:
         - JWT: []
       summary: Set a task completed by user
       tags: []
-  /users/me/campaigns/{campaignId}/tasks/{taskId}/media:
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media':
     get:
-      description: >-
-        Return a list of tester media uploaded on a specific Usecase of a
-        specific Campaign
+      description: Return a list of tester media uploaded on a specific Usecase of a specific Campaign
       operationId: get-users-me-campaigns-campaignId-tasks-taskId-media
       responses:
         '200':
@@ -10762,11 +10685,11 @@ paths:
                   value:
                     items:
                       - id: 11111
-                        location: https://www.example.com/media1
+                        location: 'https://www.example.com/media1'
                         mimetype: video/mp4
                         name: media1
                       - id: 12345
-                        location: https://www.example.com/media2
+                        location: 'https://www.example.com/media2'
                         mimetype: image/png
                         name: media2
               schema:
@@ -10865,7 +10788,7 @@ paths:
         - JWT: []
         - User Token: []
       summary: Upload media for a task
-  /users/me/campaigns/{campaignId}/tasks/{taskId}/media/{mediaId}:
+  '/users/me/campaigns/{campaignId}/tasks/{taskId}/media/{mediaId}':
     delete:
       description: Delete a specific media of a specific campaign task if authorized
       operationId: delete-users-me-campaigns-campaignId-tasks-taskId-media-mediaId
@@ -10900,7 +10823,7 @@ paths:
         required: true
         schema:
           type: string
-  /users/me/campaigns/{campaign}/compatible_devices:
+  '/users/me/campaigns/{campaign}/compatible_devices':
     get:
       description: ''
       operationId: get-users-me-campaigns-campaignId-compatible-devices
@@ -10984,7 +10907,7 @@ paths:
       summary: Add one certification to your profile
       tags:
         - User
-  /users/me/certifications/{certificationId}:
+  '/users/me/certifications/{certificationId}':
     delete:
       description: The certification will be removed
       operationId: delete-users-me-certifications-certificationId
@@ -11089,12 +11012,9 @@ paths:
       tags:
         - User
         - Devices
-  /users/me/devices/{deviceId}:
+  '/users/me/devices/{deviceId}':
     delete:
-      description: >-
-        The device will be disabled and won't be available for selections and
-        bugs submission. You can't remove a device currently involved in a
-        campaign
+      description: The device will be disabled and won't be available for selections and bugs submission. You can't remove a device currently involved in a campaign
       operationId: delete-users-me-devices-deviceId
       responses:
         '200':
@@ -11830,7 +11750,7 @@ paths:
       summary: Update your languages
       tags:
         - User
-  /users/me/languages/{languageId}:
+  '/users/me/languages/{languageId}':
     delete:
       description: The language will be removed from your profile
       operationId: delete-users-me-languages-languageId
@@ -11894,7 +11814,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '-'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: processing
                       - amount:
                           gross:
@@ -11908,7 +11828,7 @@ paths:
                           note: Iban ********************8020
                           type: iban
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -11922,7 +11842,7 @@ paths:
                           note: Iban ********************8020
                           type: iban
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -11936,7 +11856,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -11950,7 +11870,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -11964,7 +11884,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -11978,7 +11898,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -11992,7 +11912,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12006,7 +11926,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12020,7 +11940,7 @@ paths:
                           note: Iban ********************8020
                           type: iban
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                     size: 10
                     start: 0
@@ -12041,7 +11961,7 @@ paths:
                           note: Iban ********************8020
                           type: iban
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12055,7 +11975,7 @@ paths:
                           note: Iban ********************8020
                           type: iban
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12069,7 +11989,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12083,7 +12003,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12097,7 +12017,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12111,7 +12031,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12125,7 +12045,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12139,7 +12059,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                       - amount:
                           gross:
@@ -12153,7 +12073,7 @@ paths:
                           note: Iban ********************8020
                           type: iban
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                     size: 10
                     start: 0
@@ -12174,7 +12094,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '-'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: processing
                       - amount:
                           gross:
@@ -12188,7 +12108,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                     size: 2
                     start: 0
@@ -12209,7 +12129,7 @@ paths:
                           note: me@example.com
                           type: paypal
                         paidDate: '2019-08-24'
-                        receipt: http://example.com
+                        receipt: 'http://example.com'
                         status: paid
                     size: 1
                     start: 0
@@ -12324,13 +12244,10 @@ paths:
                         - email
                     - properties:
                         accountHolderName:
-                          pattern: ^[A-Za-zÀ-ÖØ-öø-ÿ'-ū\.]+ ['A-Za-zÀ-Ö Ø-öø-ÿ-ū\.]+$
+                          pattern: '^[A-Za-zÀ-ÖØ-öø-ÿ''-ū\.]+ [''A-Za-zÀ-Ö Ø-öø-ÿ-ū\.]+$'
                           type: string
                         iban:
-                          pattern: >-
-                            ^([A-Z]{2}[ \-]?[0-9]{2})(?=(?:[
-                            \-]?[A-Z0-9]){9,30}$)((?:[
-                            \-]?[A-Z0-9]{3,5}){2,7})([ \-]?[A-Z0-9]{1,3})?$
+                          pattern: '^([A-Z]{2}[ \-]?[0-9]{2})(?=(?:[ \-]?[A-Z0-9]){9,30}$)((?:[ \-]?[A-Z0-9]{3,5}){2,7})([ \-]?[A-Z0-9]{1,3})?$'
                           type: string
                         type:
                           enum:
@@ -12366,7 +12283,7 @@ paths:
       security:
         - JWT: []
       summary: Request your booty
-  /users/me/payments/{payment}:
+  '/users/me/payments/{payment}':
     get:
       description: Return all attributions of a specific request
       operationId: get-users-me-payments-payment
@@ -12831,7 +12748,6 @@ paths:
       summary: Get all your payments
       tags: []
     parameters: []
-  
   /dossiers/rates:
     get:
       summary: Your GET endpoint
@@ -12939,7 +12855,7 @@ paths:
       description: Get all popup defined for your user
       operationId: get-users-me-popups
       parameters:
-        - description: Show all popup history, expired popups included
+        - description: 'Show all popup history, expired popups included'
           in: query
           name: showExpired
           schema:
@@ -12972,7 +12888,7 @@ paths:
       summary: Get your popups
       tags:
         - User
-  /users/me/popups/{popup}:
+  '/users/me/popups/{popup}':
     get:
       description: Get a single popup. Will set the retrieved popup as expired
       operationId: get-users-me-popups-popup
@@ -13099,63 +13015,63 @@ paths:
                   value:
                     peers:
                       - id: 41
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 50
                         name: Peppe F.
                         position: 50
                       - id: 42
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 50
                         name: Rosario M.
                         position: 51
                       - id: 49
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 49
                         name: Giuseppe S.
                         position: 52
                       - id: 20
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 48
                         name: Maria D.
                         position: 53
                       - id: 40
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 49
                         name: Luca F.
                         position: 54
                       - id: 100
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 46
                         name: Maurizio C.
                         position: 55
                       - id: 123
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 45
                         name: Vittorio S.
                         position: 56
                       - id: 49
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 44
                         name: Fabrizio C.
                         position: 57
                       - id: 49
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 40
                         name: Antonio Z.
                         position: 58
                     tops:
                       - id: 1
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 100
                         name: Pippo F.
                         position: 1
                       - id: 2
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 90
                         name: Ciccio P.
                         position: 2
                       - id: 3
-                        image: https://placekitten.com/200/200
+                        image: 'https://placekitten.com/200/200'
                         monthly_exp: 100
                         name: Ciccio I.
                         position: 3
@@ -13182,8 +13098,57 @@ paths:
         - JWT: []
       summary: Get your ranking list
       tags: []
+  '/campaigns/{campaign}/tasks/{usecase}/survey/jotform':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: usecase
+        in: path
+        required: true
+    post:
+      summary: ''
+      operationId: post-campaigns-campaign-tasks-usecase-survey-jotform
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jotformId:
+                  type: string
+                  x-stoplight:
+                    id: fohfdcevsl29p
+                testerQuestionId:
+                  type: string
+                  x-stoplight:
+                    id: yuzjtdlu1mo5d
+              required:
+                - jotformId
+                - testerQuestionId
+      description: ''
 servers:
-  - url: https://api.app-quality.com
+  - url: 'https://api.app-quality.com'
 tags:
   - name: Authentication
   - name: Campaign
