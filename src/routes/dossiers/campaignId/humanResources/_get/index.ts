@@ -44,7 +44,7 @@ export default class RouteItem extends CampaignRoute<{
           id: hr.profile_id,
         },
         days: hr.days,
-        work_rate: {
+        rate: {
           id: hr.work_rate_id,
           value: hr.value,
         },
