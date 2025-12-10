@@ -118,6 +118,19 @@ describe("Route PUT/dossiers/:campaignId/humanResources", () => {
       await tryber.tables.CampaignHumanResources.do().delete();
     });
 
+    it("Should return 200 if body is empty and simply delete all human resources", async () => {
+      const response = await request(app)
+        .put("/dossiers/1/humanResources")
+        .send([])
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
+      const humanResources = await request(app)
+        .get("/dossiers/1/humanResources")
+        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}')
+        .then((res) => res.body.items);
+      expect(humanResources).toHaveLength(0);
+      expect(response.status).toBe(200);
+    });
+
     it("Should remove the old records and update the human resources", async () => {
       const response = await request(app)
         .put("/dossiers/1/humanResources")

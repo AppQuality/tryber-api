@@ -66,6 +66,10 @@ export default class RouteItem extends CampaignRoute<{
         .delete()
         .where("campaign_id", this.cp_id);
 
+      if (body.length === 0) {
+        return;
+      }
+
       await tryber.tables.CampaignHumanResources.do().insert([
         ...body.map((item) => ({
           campaign_id: this.cp_id,
