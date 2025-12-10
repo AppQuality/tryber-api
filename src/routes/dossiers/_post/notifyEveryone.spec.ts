@@ -39,14 +39,32 @@ describe("Route POST /dossiers", () => {
     await tryber.tables.CampaignPhase.do().insert([
       { id: 1, name: "Test Phase", type_id: 1 },
     ]);
-    await tryber.tables.WpAppqEvdProfile.do().insert({
-      id: 1,
-      wp_user_id: 100,
-      name: "",
-      email: "",
-      education_id: 1,
-      employment_id: 1,
-    });
+    await tryber.tables.WpAppqEvdProfile.do().insert([
+      {
+        id: 1,
+        wp_user_id: 100,
+        name: "",
+        email: "",
+        education_id: 1,
+        employment_id: 1,
+      },
+      {
+        id: 2,
+        wp_user_id: 101,
+        name: "",
+        email: "",
+        education_id: 1,
+        employment_id: 1,
+      },
+    ]);
+    await tryber.tables.WpAppqCustomerAccountInvitations.do().insert([
+      {
+        id: 1,
+        token: "invitationtoken",
+        tester_id: 2,
+        status: "0",
+      },
+    ]);
     await tryber.tables.WpAppqCustomer.do().insert({
       id: 1,
       company: "Test Company",
@@ -65,11 +83,18 @@ describe("Route POST /dossiers", () => {
       wp_user_id: 100,
     });
 
-    await tryber.tables.WpAppqUserToCustomer.do().insert({
-      profile_id: 1,
-      wp_user_id: 100,
-      customer_id: 1,
-    });
+    await tryber.tables.WpAppqUserToCustomer.do().insert([
+      {
+        profile_id: 1,
+        wp_user_id: 100,
+        customer_id: 1,
+      },
+      {
+        profile_id: 2,
+        wp_user_id: 101,
+        customer_id: 1,
+      },
+    ]);
 
     await tryber.tables.WpAppqCampaignType.do().insert([
       {
@@ -145,6 +170,11 @@ describe("Route POST /dossiers", () => {
 
     expect(mockPostCampaignWatchers).toHaveBeenCalledWith({
       profileIds: { users: [{ id: 1 }] },
+      campaignId: expect.any(Number),
+    });
+
+    expect(mockPostCampaignWatchers).not.toHaveBeenCalledWith({
+      profileIds: { users: [{ id: 2 }] }, // user pending invitation
       campaignId: expect.any(Number),
     });
   });
