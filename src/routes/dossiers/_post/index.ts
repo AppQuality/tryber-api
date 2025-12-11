@@ -910,16 +910,38 @@ export default class PostDossiers extends UserRoute<{
           "wp_appq_user_to_project.project_id",
           "wp_appq_project.id"
         )
-        .where("wp_appq_project.id", projectId);
+        .leftJoin(
+          "wp_appq_customer_account_invitations",
+          "wp_appq_user_to_project.profile_id",
+          "wp_appq_customer_account_invitations.tester_id"
+        )
+        .where("wp_appq_project.id", projectId)
+        .andWhere(function () {
+          this.whereNull("wp_appq_customer_account_invitations.status").orWhere(
+            "wp_appq_customer_account_invitations.status",
+            1
+          );
+        });
 
       if (!projectUsers.length) return;
 
       const workspaceUsers = await tryber.tables.WpAppqUserToCustomer.do()
-        .select("profile_id")
+        .select(tryber.ref("profile_id").withSchema("wp_appq_user_to_customer"))
+        .leftJoin(
+          "wp_appq_customer_account_invitations",
+          "wp_appq_user_to_customer.profile_id",
+          "wp_appq_customer_account_invitations.tester_id"
+        )
         .whereIn(
           "customer_id",
           projectUsers.map((pu) => pu.customer_id)
-        );
+        )
+        .andWhere(function () {
+          this.whereNull("wp_appq_customer_account_invitations.status").orWhere(
+            "wp_appq_customer_account_invitations.status",
+            1
+          );
+        });
 
       const rawIds = [
         ...projectUsers.map((pu) => pu.profile_id),

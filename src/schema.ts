@@ -281,6 +281,14 @@ export interface paths {
     post: operations["post-customers"];
     parameters: {};
   };
+  "/customers/{customerId}/agreements": {
+    get: operations["get-customers-customerId-agreements"];
+    parameters: {
+      path: {
+        customerId: string;
+      };
+    };
+  };
   "/customers/{customer}/projects": {
     get: operations["get-customers-customer-projects"];
     post: operations["post-customers-customer-projects"];
@@ -331,12 +339,39 @@ export interface paths {
       };
     };
   };
+  "/dossiers/{campaign}/agreements": {
+    get: operations["get-dossiers-campaign-agreements"];
+    put: operations["put-dossiers-campaign-agreements"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/dossiers/{campaign}/availableTesters": {
     /**  */
     get: operations["get-dossiers-campaign-availableTesters"];
     parameters: {
       path: {
         campaign: string;
+      };
+    };
+  };
+  "/dossiers/{campaign}/costs": {
+    get: operations["get-dossiers-campaign-costs"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
+  "/dossiers/{campaign}/humanResources": {
+    get: operations["get-dossiers-campaign-humanResources"];
+    put: operations["put-dossiers-campaign-humanResources"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
       };
     };
   };
@@ -724,6 +759,9 @@ export interface paths {
     get: operations["get-users-me-pending-booty"];
     parameters: {};
   };
+  "/dossiers/rates": {
+    get: operations["get-dossiers-rates"];
+  };
   "/users/me/permissions": {
     /** Return all user permissions */
     get: operations["get-users-me-permissions"];
@@ -748,6 +786,15 @@ export interface paths {
   };
   "/users/me/rank/list": {
     get: operations["get-users-me-rank-list"];
+  };
+  "/campaigns/{campaign}/tasks/{usecase}/survey/jotform": {
+    post: operations["post-campaigns-campaign-tasks-usecase-survey-jotform"];
+    parameters: {
+      path: {
+        campaign: string;
+        usecase: string;
+      };
+    };
   };
 }
 
@@ -2749,6 +2796,35 @@ export interface operations {
       };
     };
   };
+  "get-customers-customerId-agreements": {
+    parameters: {
+      path: {
+        customerId: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+              remainingTokens: number;
+              totalTokens: number;
+              value: number;
+            }[];
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      403: components["responses"]["Authentication"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+  };
   "get-customers-customer-projects": {
     parameters: {
       path: {
@@ -2957,6 +3033,7 @@ export interface operations {
               name: string;
             }[];
             deviceRequirements?: string;
+            hasPlan?: boolean;
             /** Format: date-time */
             endDate: string;
             goal?: string;
@@ -3049,6 +3126,54 @@ export interface operations {
       };
     };
   };
+  "get-dossiers-campaign-agreements": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            agreement?: {
+              id?: number;
+              name?: string;
+              remainingTokens?: number;
+              totalTokens?: number;
+              value?: number;
+            };
+            tokens?: number;
+          };
+        };
+      };
+    };
+  };
+  "put-dossiers-campaign-agreements": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    /** Updates tokens_usage in campaign and updates the link between cp_id and agreementId */
+    requestBody: {
+      content: {
+        "application/json": {
+          agreementId: number;
+          tokens: number;
+        };
+      };
+    };
+  };
   /**  */
   "get-dossiers-campaign-availableTesters": {
     parameters: {
@@ -3069,6 +3194,81 @@ export interface operations {
             lastUpdate: string;
           };
         };
+      };
+    };
+  };
+  "get-dossiers-campaign-costs": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+      query: {
+        /** Key-value Array for item filtering */
+        filterBy?: components["parameters"]["filterBy"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            totalCost?: number;
+          };
+        };
+      };
+    };
+  };
+  "get-dossiers-campaign-humanResources": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items?: {
+              assignee?: {
+                id?: number;
+              };
+              days?: number;
+              id?: number;
+              rate?: {
+                id?: number;
+                value?: number;
+              };
+            }[];
+          };
+        };
+      };
+    };
+  };
+  "put-dossiers-campaign-humanResources": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    /** Overwrites the data for the given campaign in the campaign_human_resources table */
+    requestBody: {
+      content: {
+        "application/json": {
+          assignee: number;
+          days: number;
+          rate: number;
+        }[];
       };
     };
   };
@@ -4424,8 +4624,8 @@ export interface operations {
             items: {
               id: number;
               location: string;
-              name: string;
               mimetype?: string;
+              name: string;
             }[];
           };
         };
@@ -5102,6 +5302,27 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  "get-dossiers-rates": {
+    responses: {
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              id: number;
+              name: string;
+              rate: number;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["Authentication"];
+      404: components["responses"]["NotFound"];
+      /** Not Acceptable */
+      406: unknown;
+      /** Internal Server Error */
+      500: unknown;
+    };
+  };
   /** Return all user permissions */
   "get-users-me-permissions": {
     parameters: {};
@@ -5204,6 +5425,35 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "post-campaigns-campaign-tasks-usecase-survey-jotform": {
+    parameters: {
+      path: {
+        campaign: string;
+        usecase: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+      "": {
+        content: {
+          "application/json": { [key: string]: unknown };
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          jotformId: string;
+          testerQuestionId: string;
+        };
+      };
     };
   };
 }
