@@ -32,7 +32,7 @@ export default class RouteItem extends CampaignRoute<{
       agreementId <= 0 ||
       !Number.isInteger(agreementId) ||
       typeof tokens !== "number" ||
-      tokens <= 0
+      tokens < 0
     ) {
       return true;
     }
