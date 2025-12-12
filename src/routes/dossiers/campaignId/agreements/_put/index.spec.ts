@@ -210,6 +210,22 @@ describe("Route PUT /dossiers/:id/agreements", () => {
         expect(campaign?.tokens_usage).toBe(7.5);
       });
 
+      it("Should update the tokens usage and return 200 also with tokens=0", async () => {
+        const response = await request(app)
+          .put("/dossiers/1/agreements")
+          .send({ agreementId: 1, tokens: 0 })
+          .set("Authorization", "Bearer admin");
+
+        expect(response.status).toBe(200);
+
+        const campaign = await tryber.tables.WpAppqEvdCampaign.do()
+          .select("tokens_usage")
+          .where("id", 1)
+          .first();
+
+        expect(campaign?.tokens_usage).toBe(0);
+      });
+
       describe("Link between campaign and agreement does not exists", () => {
         it("Should create the link between campaign and agreement", async () => {
           const response = await request(app)
