@@ -1362,5 +1362,32 @@ describe("Route POST /dossiers", () => {
         ])
       );
     });
+
+    it("Should insert send_ux_notification = 1 if ux_notify = 1 is passed", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest, ux_notify: 1 });
+
+      const data = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("send_ux_notification")
+        .where({ id: postResponse.body.id })
+        .first();
+
+      expect(data).toHaveProperty("send_ux_notification", 1);
+    });
+
+    it("Should insert send_ux_notification = 0 if ux_notify is not passed", async () => {
+      const postResponse = await request(app)
+        .post("/dossiers")
+        .set("authorization", "Bearer admin")
+        .send({ ...baseRequest });
+      const data = await tryber.tables.WpAppqEvdCampaign.do()
+        .select("send_ux_notification")
+        .where({ id: postResponse.body.id })
+        .first();
+
+      expect(data).toHaveProperty("send_ux_notification", 0);
+    });
   });
 });
