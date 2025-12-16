@@ -903,7 +903,7 @@ export default class PostDossiers extends UserRoute<{
     try {
       await tryber.tables.WpAppqEvdCampaign.do()
         .update({
-          send_ux_notifications: 1,
+          send_ux_notification: 1,
         })
         .where("id", campaignId);
     } catch (error) {
