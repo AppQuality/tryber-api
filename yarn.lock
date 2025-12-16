@@ -28,13 +28,13 @@
     "@babel/parser" "^7.22.5"
     "@babel/traverse" "^7.22.5"
 
-"@appquality/tryber-database@^0.46.4":
-  version "0.46.4"
-  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.46.4.tgz#5ff0c9459aa19a7428b2817d00618971e70df3a4"
-  integrity sha512-ohjjM8lwEHQaO+Tk9k5irJF3mUAEZ/Sm4E1e7w8FpC3OmFUuQhXQgY4zVKa+BdBYAXm/ADErgfzdQ2FXrupSuA==
+"@appquality/tryber-database@^0.46.9":
+  version "0.46.9"
+  resolved "https://registry.yarnpkg.com/@appquality/tryber-database/-/tryber-database-0.46.9.tgz#a3e600157144828f2aa82672e82d0fee177e0069"
+  integrity sha512-uXknjuEU1VevX1ozv47j0rK6wqK7DgCzEYG1gbQNs1NXVrFb9X+tR82BmTMiBP1FY3Aqov5Zu61KvoZw9zvDww==
   dependencies:
-    better-sqlite3 "^8.1.0"
-    knex "^2.5.1"
+    better-sqlite3 "^12.5.0"
+    knex "^3.1.0"
     mysql "^2.18.1"
 
 "@appquality/wp-auth@^1.0.7":
@@ -2415,10 +2415,10 @@ better-sqlite3@^11.9.1:
     bindings "^1.5.0"
     prebuild-install "^7.1.1"
 
-better-sqlite3@^8.1.0:
-  version "8.7.0"
-  resolved "https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-8.7.0.tgz#bcc341856187b1d110a8a47234fa89c48c8ef538"
-  integrity sha512-99jZU4le+f3G6aIl6PmmV0cxUIWqKieHxsiF7G34CVFiE+/UabpYqkU0NJIkY/96mQKikHeBjtR27vFfs5JpEw==
+better-sqlite3@^12.5.0:
+  version "12.5.0"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-12.5.0.tgz#c570873d9635b5d56baa52f7e72634c2c589f35f"
+  integrity sha512-WwCZ/5Diz7rsF29o27o0Gcc1Du+l7Zsv7SYtVPG0X3G/uUI1LqdxrQI7c9Hs2FWpqXXERjW9hp6g3/tH7DlVKg==
   dependencies:
     bindings "^1.5.0"
     prebuild-install "^7.1.1"
@@ -4724,10 +4724,10 @@ kleur@^3.0.3:
   resolved "https://registry.npmjs.org/kleur/-/kleur-3.0.3.tgz"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-knex@^2.5.1:
-  version "2.5.1"
-  resolved "https://registry.npmjs.org/knex/-/knex-2.5.1.tgz#a6c6b449866cf4229f070c17411f23871ba52ef9"
-  integrity sha512-z78DgGKUr4SE/6cm7ku+jHvFT0X97aERh/f0MUKAKgFnwCYBEW4TFBqtHWFYiJFid7fMrtpZ/gxJthvz5mEByA==
+knex@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/knex/-/knex-3.1.0.tgz#b6ddd5b5ad26a6315234a5b09ec38dc4a370bd8c"
+  integrity sha512-GLoII6hR0c4ti243gMs5/1Rb3B+AjwMOfjYm97pu0FOQa7JH56hgBxYf5WK2525ceSbBY1cjeZ9yk99GPMB6Kw==
   dependencies:
     colorette "2.0.19"
     commander "^10.0.0"
@@ -4738,7 +4738,7 @@ knex@^2.5.1:
     getopts "2.3.0"
     interpret "^2.2.0"
     lodash "^4.17.21"
-    pg-connection-string "2.6.1"
+    pg-connection-string "2.6.2"
     rechoir "^0.8.0"
     resolve-from "^5.0.0"
     tarn "^3.0.2"
@@ -5575,10 +5575,10 @@ path-type@^4.0.0:
   resolved "https://registry.npmjs.org/path-type/-/path-type-4.0.0.tgz"
   integrity sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==
 
-pg-connection-string@2.6.1:
-  version "2.6.1"
-  resolved "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.6.1.tgz#78c23c21a35dd116f48e12e23c0965e8d9e2cbfb"
-  integrity sha512-w6ZzNu6oMmIzEAYVw+RLK0+nqHPt8K3ZnknKi+g48Ak2pr3dtljJW3o+D/n2zzCG07Zoe9VOX3aiKpj+BN0pjg==
+pg-connection-string@2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/pg-connection-string/-/pg-connection-string-2.6.2.tgz#713d82053de4e2bd166fab70cd4f26ad36aab475"
+  integrity sha512-ch6OwaeaPYcova4kKZ15sbJ2hKb/VP48ZD2gE7i1J+L4MspCtBMAx8nMgz7bksc7IojCIIWuEhHibSMFH8m8oA==
 
 php-serialize@^4.1.1:
   version "4.1.1"

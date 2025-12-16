@@ -6048,6 +6048,7 @@ paths:
                     - string
                   notes: string
                   notify_everyone: 0
+                  ux_notify: 1
                   outOfScope: string
                   productLink: string
                   productType: 0
@@ -6068,8 +6069,10 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/DossierCreationData'
-                - properties:
+                - type: object
+                  properties:
                     duplicate:
+                      type: object
                       properties:
                         campaign:
                           type: integer
@@ -6083,9 +6086,8 @@ paths:
                           type: integer
                         useCases:
                           type: integer
-                      type: object
-                  type: object
-                - properties:
+                - type: object
+                  properties:
                     autoApply:
                       maximum: 1
                       minimum: 0
@@ -6115,14 +6117,20 @@ paths:
                       maximum: 1
                       minimum: 0
                       type: integer
-                  type: object
-                - properties:
+                - type: object
+                  properties:
                     notify_everyone:
                       default: 0
                       enum:
                         - 0
                         - 1
-                  type: object
+                    ux_notify:
+                      type: integer
+                      x-stoplight:
+                        id: 0gogh4w9jbf6i
+                      minimum: 0
+                      maximum: 1
+                      example: 1
       responses:
         '201':
           content:
