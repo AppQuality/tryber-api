@@ -103,7 +103,10 @@ export default class PostDossiers extends UserRoute<{
   }
 
   protected async prepare(): Promise<void> {
-    const { skipPagesAndTasks, bugLanguage, notify_everyone } = this.getBody();
+    const { skipPagesAndTasks, bugLanguage, notify_everyone, ux_notify } =
+      this.getBody();
+
+    console.debug("Creating campaign with body:", this.getBody());
 
     try {
       const campaignId = await this.createCampaign();
@@ -119,6 +122,10 @@ export default class PostDossiers extends UserRoute<{
 
       if (notify_everyone === 1) {
         await this.setupNotifications(campaignId);
+      }
+
+      if (ux_notify === 1) {
+        await this.enableUXTaskNotifications(campaignId);
       }
 
       const webhook = new WebhookTrigger({
@@ -890,6 +897,19 @@ export default class PostDossiers extends UserRoute<{
       );
       // @ts-ignore
       console.error("Error details: ", error?.response?.data);
+      return;
+    }
+  }
+
+  private async enableUXTaskNotifications(campaignId: number) {
+    try {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({
+          send_ux_notification: 1,
+        })
+        .where("id", campaignId);
+    } catch (error) {
+      console.error("Error enabling UX task notifications:", error);
       return;
     }
   }
