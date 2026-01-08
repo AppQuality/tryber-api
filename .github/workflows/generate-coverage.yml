@@ -12,14 +12,14 @@ jobs:
       - name: "Install Node"
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 24
       - name: Install dependencies
         run: |
           echo //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }} > .npmrc
-          yarn
+          npm ci
       - name: "Generate Coverage"
         run: |
-          yarn coverage
+          npm run coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
