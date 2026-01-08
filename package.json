@@ -11,7 +11,7 @@
     "clean": "rimraf dist",
     "transpile": "tsc --noEmit false  && tscpaths -p tsconfig.json -s ./src -o ./dist",
     "copy-reference": "copyfiles -f src/reference/* dist/reference/",
-    "build": "yarn clean && yarn transpile && yarn  copy-reference",
+    "build": "npm run clean && npm run transpile && npm run copy-reference",
     "start": "tsnd --respawn -r tsconfig-paths/register  --transpile-only  ./src/index.ts",
     "start:debug": "tsnd --respawn  --inspect=4321 -r tsconfig-paths/register  --transpile-only  ./src/index.ts",
     "prepare": "npx husky install",

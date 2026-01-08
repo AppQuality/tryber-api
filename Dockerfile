@@ -26,7 +26,6 @@ COPY --from=base /.git/HEAD /app/.git/HEAD
 COPY --from=base /.git/refs /app/.git/refs
 
 WORKDIR /app
-RUN apk add yarn
 ARG NPM_TOKEN  
 RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc && \
     npm ci --omit=dev --ignore-scripts && \
