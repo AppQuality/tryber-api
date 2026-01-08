@@ -1,37 +1,33 @@
-FROM node:18.17.1-alpine AS node
-FROM alpine:3.16 as base
+FROM node:24-alpine3.22 AS builder
 
-COPY --from=node /usr/lib /usr/lib
-COPY --from=node /usr/local/share /usr/local/share
-COPY --from=node /usr/local/lib /usr/local/lib
-COPY --from=node /usr/local/include /usr/local/include
-COPY --from=node /usr/local/bin /usr/local/bin
+WORKDIR /app
 
 ARG NPM_TOKEN  
-RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
-RUN apk add yarn
-COPY package.json ./
-COPY yarn.lock ./
-RUN yarn --ignore-scripts
-RUN rm -f .npmrc
+COPY package.json package-lock.json ./
+
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc && \
+    npm ci && \
+    rm -f .npmrc
 
 COPY . .
 
-RUN yarn global add npm-run-all
-RUN yarn build
+RUN npm run build
 
-FROM node:18.17.1-alpine AS web
+FROM node:24-alpine3.22 AS runner
 
-COPY --from=base /dist /app/build
-COPY package*.json /app/
-COPY yarn.lock /app/
-COPY --from=base /src/routes /app/src/routes
-COPY --from=base /.git/HEAD /app/.git/HEAD
-COPY --from=base /.git/refs /app/.git/refs
 WORKDIR /app
-RUN apk add yarn
-ARG NPM_TOKEN  
-RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
-RUN --mount=type=cache,target=/yarn-cache yarn --prod --ignore-scripts --cache-folder /yarn-cache
-RUN rm -f .npmrc
-CMD node build/index.js
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./build
+COPY --from=builder /app/src/routes ./src/routes
+COPY --from=builder /app/.git/HEAD ./.git/HEAD
+COPY --from=builder /app/.git/refs ./.git/refs
+
+ARG NPM_TOKEN
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc && \
+    npm ci --omit=dev --ignore-scripts && \
+    rm -f .npmrc && \
+    npm cache clean --force
+
+CMD ["node", "build/index.js"]

@@ -6,6 +6,21 @@ import stringToUuid from "./stringToUuid";
 
 dotenv.config();
 
+interface TransferwiseError {
+  code: string;
+  path: string;
+}
+
+interface TransferwiseResponse {
+  errors?: TransferwiseError[];
+}
+
+interface TransferwisePaymentResponse {
+  type?: string;
+  status?: string;
+  errorCode?: string;
+}
+
 class Transferwise {
   sandbox: boolean;
   apiKey: string;
@@ -132,11 +147,12 @@ class Transferwise {
       return await this.request("POST", `/v1/accounts`, data);
     } catch (error) {
       const res = error as AxiosError;
+      const responseData = res.response?.data as TransferwiseResponse;
+
       if (
-        res.response?.data?.errors &&
-        res.response.data.errors.find(
-          (e: { code: string; path: string }) =>
-            e.code === "NOT_VALID" && e.path === "IBAN"
+        responseData?.errors &&
+        responseData.errors.find(
+          (e) => e.code === "NOT_VALID" && e.path === "IBAN"
         )
       ) {
         throw {
@@ -148,7 +164,7 @@ class Transferwise {
         status_code: res.response?.status,
         message: {
           code: this.errorCodes.GENERIC_ERROR,
-          data: JSON.stringify(res.response?.data.errors),
+          data: JSON.stringify(responseData?.errors),
         },
       };
     }
@@ -186,7 +202,9 @@ class Transferwise {
       const res = error as AxiosError;
       throw {
         status_code: res.response?.status,
-        message: JSON.stringify(res.response?.data?.errors || res.message),
+        message: JSON.stringify(
+          (res.response?.data as TransferwiseResponse)?.errors || res.message
+        ),
       };
     }
   }
@@ -231,17 +249,19 @@ class Transferwise {
       );
     } catch (error) {
       const res = error as AxiosError;
+      const responseData = res.response?.data as TransferwisePaymentResponse;
+
       if (
-        res.response?.data &&
-        res.response.data.type === "BALANCE" &&
-        res.response.data.status === "REJECTED"
+        responseData &&
+        responseData.type === "BALANCE" &&
+        responseData.status === "REJECTED"
       ) {
-        if (res.response.data.errorCode === "payment.exists") {
+        if (responseData.errorCode === "payment.exists") {
           throw {
             status_code: 422,
             message: {
               code: this.errorCodes.DUPLICATE_PAYMENT,
-              data: JSON.stringify(res.response.data),
+              data: JSON.stringify(responseData),
             },
           };
         }
@@ -249,13 +269,15 @@ class Transferwise {
           status_code: 422,
           message: {
             code: this.errorCodes.NO_FUNDS,
-            data: JSON.stringify(res.response.data),
+            data: JSON.stringify(responseData),
           },
         };
       }
       throw {
         status_code: res.response?.status,
-        message: JSON.stringify(res.response?.data?.errors || res.message),
+        message: JSON.stringify(
+          (res.response?.data as TransferwiseResponse)?.errors || res.message
+        ),
       };
     }
   }

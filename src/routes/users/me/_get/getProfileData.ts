@@ -1,5 +1,5 @@
 import * as db from "@src/features/db";
-import { gravatarUrl } from "avatar-initials";
+import avatar from "avatar-initials";
 
 export default async (id: string, fields: string[]) => {
   let sqlFields = ["p.id"];
@@ -40,6 +40,7 @@ export default async (id: string, fields: string[]) => {
       const nameSlug = user.name.toLowerCase().replace(/[\W_ ]+/g, "");
       const surnameSlug = user.surname.toLowerCase().replace(/[\W_ ]+/g, "");
       const initials = `${nameSlug[0] || "?"}+${surnameSlug[0] || "?"}`;
+      const { gravatarUrl } = avatar;
       user.image = gravatarUrl({
         fallback: `https://eu.ui-avatars.com/api/${initials}/132`,
         email: user.email,
