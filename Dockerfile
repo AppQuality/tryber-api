@@ -1,36 +1,33 @@
-FROM node:24-alpine3.22 as node
-FROM alpine:3.16 as base
+FROM node:24-alpine3.22 AS builder
 
-COPY --from=node /usr/lib /usr/lib
-COPY --from=node /usr/local/share /usr/local/share
-COPY --from=node /usr/local/lib /usr/local/lib
-COPY --from=node /usr/local/include /usr/local/include
-COPY --from=node /usr/local/bin /usr/local/bin
+WORKDIR /app
 
 ARG NPM_TOKEN  
-RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc
 COPY package.json package-lock.json ./
-RUN npm ci && \
-    rm -f .npmrc && \
-    npm i -g npm-run-all
+
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc && \
+    npm ci && \
+    rm -f .npmrc
 
 COPY . .
 
 RUN npm run build
-FROM node:24-alpine3.22 as web
 
-COPY --from=base /dist /app/build
-COPY package*.json /app/
-COPY --from=base /src/routes /app/src/routes
-COPY --from=base /.git/HEAD /app/.git/HEAD
-COPY --from=base /.git/refs /app/.git/refs
+FROM node:24-alpine3.22 AS runner
 
 WORKDIR /app
-ARG NPM_TOKEN  
-RUN echo //registry.npmjs.org/:_authToken=${NPM_TOKEN} > .npmrc && \
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./build
+COPY --from=builder /app/src/routes ./src/routes
+COPY --from=builder /app/.git/HEAD ./.git/HEAD
+COPY --from=builder /app/.git/refs ./.git/refs
+
+ARG NPM_TOKEN
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc && \
     npm ci --omit=dev --ignore-scripts && \
     rm -f .npmrc && \
-    rm -rf /var/cache/apk/* && \
     npm cache clean --force
 
-CMD node build/index.js
+CMD ["node", "build/index.js"]
