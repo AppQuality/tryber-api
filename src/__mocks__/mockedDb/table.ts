@@ -1,5 +1,5 @@
 import sqlite3 from "@src/features/sqlite";
-class Table<T> {
+class Table<T extends Record<string, any>> {
   protected columns = ["id INTEGER PRIMARY KEY"];
   protected name = "my_table";
   constructor(public defaultItem: T) {
