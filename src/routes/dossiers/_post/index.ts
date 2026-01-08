@@ -106,6 +106,8 @@ export default class PostDossiers extends UserRoute<{
     const { skipPagesAndTasks, bugLanguage, notify_everyone, ux_notify } =
       this.getBody();
 
+    console.debug("Creating campaign with body:", this.getBody());
+
     try {
       const campaignId = await this.createCampaign();
       await this.linkRolesToCampaign(campaignId);
