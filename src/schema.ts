@@ -2994,6 +2994,8 @@ export interface operations {
         } & {
           /** @enum {undefined} */
           notify_everyone?: 0 | 1;
+          /** @example 1 */
+          ux_notify?: number;
         };
       };
     };
