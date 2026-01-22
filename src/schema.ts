@@ -1871,6 +1871,8 @@ export interface operations {
               id: number;
               internalId: string;
               isFavourite: boolean;
+              /** @enum {string} */
+              reviewerType?: "ai" | "human";
               severity: {
                 id: number;
                 name: string;
