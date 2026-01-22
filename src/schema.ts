@@ -809,6 +809,7 @@ export interface components {
     };
     Agreement: {
       expirationDate: string;
+      /** @default false */
       isTokenBased?: boolean;
       note?: string;
       startDate: string;
@@ -888,6 +889,7 @@ export interface components {
       applied?: boolean;
       /** @description If bugform is deactivated is a boolean else contains URLs to bugforms for each languages */
       bugform_link?: boolean | components["schemas"]["TranslatablePage"];
+      /** @default 0 */
       csm_effort?: number;
       customerCanViewReviewing?: boolean;
       customer_title?: string;
@@ -910,7 +912,9 @@ export interface components {
       public?: boolean;
       status?: boolean;
       titleRule?: boolean;
+      /** @default 0 */
       tokens?: number;
+      /** @default 0 */
       ux_effort?: number;
       visibility?: {
         freeSpots?: number;
@@ -2984,15 +2988,20 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          /** @default 0 */
           autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"];
           hasBugForm?: number;
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
+          /** @default 0 */
           skipPagesAndTasks?: number;
         } & {
-          /** @enum {undefined} */
+          /**
+           * @default 0
+           * @enum {undefined}
+           */
           notify_everyone?: 0 | 1;
           /** @example 1 */
           ux_notify?: number;
@@ -3013,6 +3022,7 @@ export interface operations {
         content: {
           "application/json": {
             autoApply: number;
+            /** @default 0 */
             autoApprove: number;
             browsers?: {
               id: number;
@@ -3035,6 +3045,7 @@ export interface operations {
               name: string;
             }[];
             deviceRequirements?: string;
+            /** @default false */
             hasPlan?: boolean;
             /** Format: date-time */
             endDate: string;
@@ -3121,6 +3132,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          /** @default 0 */
           autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
@@ -5439,11 +5451,6 @@ export interface operations {
     responses: {
       /** OK */
       200: {
-        content: {
-          "application/json": { [key: string]: unknown };
-        };
-      };
-      "": {
         content: {
           "application/json": { [key: string]: unknown };
         };

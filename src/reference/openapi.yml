@@ -6671,13 +6671,7 @@ paths:
       summary: Get Human Resources for a campaign
       tags: []
     parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
       - $ref: '#/components/parameters/campaign'
-        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
     put:
       summary: Your PUT endpoint
       tags: []
@@ -12841,6 +12835,7 @@ paths:
                       - id: 0
                         name: Name
                         rate: 0
+          description: ''
         '403':
           $ref: '#/components/responses/Authentication'
         '404':
@@ -13168,12 +13163,6 @@ paths:
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties: {}
-        '':
           content:
             application/json:
               schema:
