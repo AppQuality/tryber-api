@@ -2,7 +2,6 @@ import debugMessage from "@src/features/debugMessage";
 import upload from "@src/features/upload";
 import { Context } from "openapi-backend";
 import path from "path";
-import fs from "fs";
 import busboyMapper from "@src/features/busboyMapper";
 
 /** OPENAPI-ROUTE: post-media */

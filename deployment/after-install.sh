@@ -97,6 +97,7 @@ services:
       TESTER_LEADER_CPV2_EMAIL: '${TESTER_LEADER_CPV2_EMAIL}'
       TASK_MEDIA_BUCKET: '${TASK_MEDIA_BUCKET}'
       OPTIMIZED_TASK_MEDIA_BUCKET: '${OPTIMIZED_TASK_MEDIA_BUCKET}'
+      AI_REVIEWER_PROFILE_ID: '${AI_REVIEWER_PROFILE_ID}'
     volumes:
       - /var/docker/keys:/app/keys
     logging:
