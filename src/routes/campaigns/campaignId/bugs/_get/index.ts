@@ -3,11 +3,15 @@
 import OpenapiError from "@src/features/OpenapiError";
 import { tryber } from "@src/features/database";
 import CampaignRoute from "@src/features/routes/CampaignRoute";
+import config from "@src/config";
 
 interface Tag {
   id: number;
   name: string;
 }
+
+type ReviewerType =
+  StoplightOperations["get-campaigns-cid-bugs"]["responses"]["200"]["content"]["application/json"]["items"][number]["reviewerType"];
 
 export default class BugsRoute extends CampaignRoute<{
   response: StoplightOperations["get-campaigns-cid-bugs"]["responses"]["200"]["content"]["application/json"];
@@ -133,6 +137,7 @@ export default class BugsRoute extends CampaignRoute<{
         "is_duplicated",
         "duplicated_of_id",
         "is_favorite",
+        "reviewer",
         tryber.raw("CAST(created AS CHAR) as created"),
         tryber.raw("CAST(updated AS CHAR) as updated"),
         tryber.ref("message").as("title"),
@@ -197,6 +202,7 @@ export default class BugsRoute extends CampaignRoute<{
         id: bug.bug_type_id,
         name: bug.type,
       },
+      reviewerType: bug.reviewer === config.aiReviewer ? "ai" : "human",
     }));
   }
 
@@ -277,6 +283,7 @@ export default class BugsRoute extends CampaignRoute<{
           .toISOString()
           .slice(0, 19)
           .replace("T", " "),
+        reviewerType: bug.reviewerType as ReviewerType,
       };
     });
   }
