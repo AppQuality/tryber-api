@@ -4029,6 +4029,26 @@ paths:
                           type: string
                           x-stoplight:
                             id: l7f6z5ngj01uy
+                  failed:
+                    type: array
+                    x-stoplight:
+                      id: 7ddxgc7abxz39
+                    items:
+                      x-stoplight:
+                        id: 5r1ivzdsjci00
+                      type: object
+                      required:
+                        - name
+                        - path
+                      properties:
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: cwjl6g75vg2lr
+                        path:
+                          type: string
+                          x-stoplight:
+                            id: s3fuamuxbq1wn
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '500':
