@@ -13229,16 +13229,11 @@ paths:
               type: object
               required:
                 - name
-                - created_by
               properties:
                 name:
                   type: string
                   x-stoplight:
                     id: bzvnmo26hda42
-                created_by:
-                  type: integer
-                  x-stoplight:
-                    id: 5ri3rzkppb17t
       security:
         - JWT: []
 servers:
