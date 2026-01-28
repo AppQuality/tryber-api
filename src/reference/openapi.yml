@@ -13199,6 +13199,48 @@ paths:
                 - jotformId
                 - testerQuestionId
       description: ''
+  '/campaigns/{campaign}/finance/supplier':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    post:
+      summary: POST a new supplier
+      tags: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: post-campaigns-campaign-finance-supplier
+      x-stoplight:
+        id: j17dlfvjwluu7
+      description: Create a new campaign supplier
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - created_by
+              properties:
+                name:
+                  type: string
+                  x-stoplight:
+                    id: bzvnmo26hda42
+                created_by:
+                  type: integer
+                  x-stoplight:
+                    id: 5ri3rzkppb17t
+      security:
+        - JWT: []
 servers:
   - url: 'https://api.app-quality.com'
 tags:
