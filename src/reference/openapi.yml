@@ -13317,6 +13317,12 @@ paths:
       security:
         - JWT: []
       summary: Get finance supplier
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
 servers:
   - url: 'https://api.app-quality.com'
 tags:
