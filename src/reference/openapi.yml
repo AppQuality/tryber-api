@@ -13234,6 +13234,10 @@ paths:
                   type: string
                   x-stoplight:
                     id: bzvnmo26hda42
+            examples:
+              Example 1:
+                value:
+                  name: Respondent
       security:
         - JWT: []
 servers:
