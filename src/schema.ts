@@ -822,7 +822,7 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/finance/suppliers": {
+  "/campaigns/{campaign}/finance/supplier": {
     /** Get all finance suppliers */
     get: operations["get-campaigns-campaign-finance-supplier"];
     parameters: {
