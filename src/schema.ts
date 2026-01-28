@@ -146,16 +146,6 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/finance/supplier": {
-    /** Get all suppliers for finance */
-    get: operations["get-campaigns-cid-finance-supplier"];
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: string;
-      };
-    };
-  };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
     parameters: {
@@ -806,7 +796,7 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/finance/suppliers": {
+  "/campaigns/{campaign}/finance/supplier": {
     /** Get all finance suppliers */
     get: operations["get-campaigns-campaign-finance-supplier"];
     parameters: {
@@ -2134,32 +2124,6 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
-    };
-  };
-  /** Get all suppliers for finance */
-  "get-campaigns-cid-finance-supplier": {
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            id: number;
-            name: string;
-            created_on?: string;
-            created_by?: number;
-          };
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-      /** Internal Server Error */
-      500: unknown;
     };
   };
   "get-campaigns-campaign-forms": {
