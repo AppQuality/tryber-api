@@ -154,6 +154,16 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/supplier": {
+    /** Get all suppliers for finance */
+    get: operations["get-campaigns-cid-finance-supplier"];
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
     parameters: {
@@ -806,6 +816,15 @@ export interface paths {
   };
   "/campaigns/{campaign}/finance/type": {
     get: operations["get-campaigns-campaign-finance-type"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/finance/suppliers": {
+    /** Get all finance suppliers */
+    get: operations["get-campaigns-campaign-finance-supplier"];
     parameters: {
       path: {
         campaign: string;
@@ -2166,6 +2185,32 @@ export interface operations {
           attachment?: string | string[];
         };
       };
+    };
+  };
+  /** Get all suppliers for finance */
+  "get-campaigns-cid-finance-supplier": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            id: number;
+            name: string;
+            created_on?: string;
+            created_by?: number;
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   "get-campaigns-campaign-forms": {
@@ -5541,6 +5586,35 @@ export interface operations {
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
       /** Shared Response */
+      500: unknown;
+    };
+  };
+  /** Get all finance suppliers */
+  "get-campaigns-campaign-finance-supplier": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              name: string;
+              created_at?: string;
+              created_by?: number;
+              id: number;
+            }[];
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
       500: unknown;
     };
   };
