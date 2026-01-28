@@ -3981,51 +3981,65 @@ paths:
         required: true
         schema:
           type: string
-  '/campaigns/{campaign}/finance/supplier':
-    get:
-      description: Get all suppliers for finance
-      operationId: get-campaigns-cid-finance-supplier
-      parameters: []
+  '/campaigns/{campaign}/finance/attachments':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    post:
+      summary: Your POST endpoint
+      tags: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
-              examples:
-                Example 2:
-                  value:
-                    id: 1
-                    name: Respondent
-                    created_on: '2026-01-01'
-                    created_by: 32
               schema:
                 type: object
-                required:
-                  - id
-                  - name
                 properties:
-                  id:
-                    type: number
-                    x-stoplight:
-                      id: ctt8sbti2xlsa
-                  name:
-                    type: string
-                    x-stoplight:
-                      id: p42d6s7ngpjtz
-                  created_on:
-                    type: string
-                    x-stoplight:
-                      id: cx6fszbvodyk6
-                  created_by:
-                    type: integer
-                    x-stoplight:
-                      id: 9avtyf2lbwksr
-          description: OK
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - name
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+
+                        name:
+                          type: string
+                        mime_type:
+                          type: string
+                  failed:
+                    type: array
+
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - path
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
         '403':
           $ref: '#/components/responses/NotAuthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
         '500':
           description: Internal Server Error
+      operationId: post-campaigns-campaign-finance-attachments
+      x-stoplight:
+        id: 0ucra88nj3skb
       security:
         - JWT: []
       summary: Get all suppliers
@@ -13341,7 +13355,7 @@ paths:
                 - jotformId
                 - testerQuestionId
       description: ''
-  '/campaigns/{campaign}/finance/suppliers':
+  '/campaigns/{campaign}/finance/supplier':
     get:
       description: Get all finance suppliers
       operationId: get-campaigns-campaign-finance-supplier
@@ -13400,6 +13414,8 @@ paths:
       security:
         - JWT: []
       summary: Get finance supplier
+      x-stoplight:
+        id: tlziygldrfder
     parameters:
       - schema:
           type: string
