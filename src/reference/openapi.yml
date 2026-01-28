@@ -13400,6 +13400,12 @@ paths:
       security:
         - JWT: []
       summary: Get finance supplier
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
   '/campaigns/{campaign}/finance/type':
     parameters:
       - schema:
