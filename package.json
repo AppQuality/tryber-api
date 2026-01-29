@@ -21,7 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@appquality/tryber-database": "^0.46.11",
+    "@appquality/tryber-database": "^0.46.17",
     "@appquality/wp-auth": "^1.0.7",
     "@aws-crypto/sha256-js": "^5.2.0",
     "@aws-sdk/hash-node": "^3.374.0",
