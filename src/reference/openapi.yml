@@ -4010,14 +4010,12 @@ paths:
                       properties:
                         url:
                           type: string
-
                         name:
                           type: string
                         mime_type:
                           type: string
                   failed:
                     type: array
-
                     items:
                       type: object
                       required:
@@ -13338,6 +13336,39 @@ paths:
         name: campaign
         in: path
         required: true
+    post:
+      summary: POST a new supplier
+      operationId: post-campaigns-campaign-finance-supplier
+      tags:
+        - Campaign
+      responses:
+        '201':
+          description: Created
+          content: {}
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+            examples:
+              Example 1:
+                value:
+                  name: Respondent
+      x-stoplight:
+        id: j17dlfvjwluu7
   '/campaigns/{campaign}/finance/type':
     parameters:
       - schema:
@@ -13382,7 +13413,7 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
         '500':
-          description: Shared Response
+          description: Internal Server Error
       operationId: get-campaigns-campaign-finance-type
       x-stoplight:
         id: 02e8ns5xdhecm

@@ -807,6 +807,7 @@ export interface paths {
   "/campaigns/{campaign}/finance/supplier": {
     /** Get all finance suppliers */
     get: operations["get-campaigns-campaign-finance-supplier"];
+    post: operations["post-campaigns-campaign-finance-supplier"];
     parameters: {
       path: {
         campaign: string;
@@ -5558,6 +5559,30 @@ export interface operations {
       500: unknown;
     };
   };
+  "post-campaigns-campaign-finance-supplier": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** Created */
+      201: unknown;
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+        };
+      };
+    };
+  };
   "get-campaigns-campaign-finance-type": {
     parameters: {
       path: {
@@ -5577,7 +5602,7 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
-      /** Shared Response */
+      /** Internal Server Error */
       500: unknown;
     };
   };
