@@ -13340,10 +13340,45 @@ paths:
         required: true
     post:
       summary: POST a new supplier
-      tags: []
+      operationId: post-campaigns-campaign-finance-supplier
+      tags:
+        - Campaign
       responses:
         '201':
           description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    type: integer
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+            examples:
+              Example 1:
+                value:
+                  name: Respondent
+      x-stoplight:
+        id: j17dlfvjwluu7
   '/campaigns/{campaign}/finance/type':
     parameters:
       - schema:

@@ -807,17 +807,7 @@ export interface paths {
   "/campaigns/{campaign}/finance/supplier": {
     /** Get all finance suppliers */
     get: operations["get-campaigns-campaign-finance-supplier"];
-    post: {
-      parameters: {
-        path: {
-          campaign: string;
-        };
-      };
-      responses: {
-        /** Created */
-        201: unknown;
-      };
-    };
+    post: operations["post-campaigns-campaign-finance-supplier"];
     parameters: {
       path: {
         campaign: string;
@@ -5567,6 +5557,36 @@ export interface operations {
       403: unknown;
       /** Internal Server Error */
       500: unknown;
+    };
+  };
+  "post-campaigns-campaign-finance-supplier": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** Created */
+      201: {
+        content: {
+          "application/json": {
+            id: number;
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+        };
+      };
     };
   };
   "get-campaigns-campaign-finance-type": {
