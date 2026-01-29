@@ -146,6 +146,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/attachments": {
+    post: operations["post-campaigns-campaign-finance-attachments"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
     parameters: {
@@ -796,6 +804,24 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/supplier": {
+    /** Get all finance suppliers */
+    get: operations["get-campaigns-campaign-finance-supplier"];
+    post: operations["post-campaigns-campaign-finance-supplier"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
+  "/campaigns/{campaign}/finance/type": {
+    get: operations["get-campaigns-campaign-finance-type"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -809,6 +835,7 @@ export interface components {
     };
     Agreement: {
       expirationDate: string;
+      /** @default false */
       isTokenBased?: boolean;
       note?: string;
       startDate: string;
@@ -888,6 +915,7 @@ export interface components {
       applied?: boolean;
       /** @description If bugform is deactivated is a boolean else contains URLs to bugforms for each languages */
       bugform_link?: boolean | components["schemas"]["TranslatablePage"];
+      /** @default 0 */
       csm_effort?: number;
       customerCanViewReviewing?: boolean;
       customer_title?: string;
@@ -910,7 +938,9 @@ export interface components {
       public?: boolean;
       status?: boolean;
       titleRule?: boolean;
+      /** @default 0 */
       tokens?: number;
+      /** @default 0 */
       ux_effort?: number;
       visibility?: {
         freeSpots?: number;
@@ -2113,6 +2143,41 @@ export interface operations {
       404: components["responses"]["NotFound"];
     };
   };
+  "post-campaigns-campaign-finance-attachments": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            attachments?: {
+              url: string;
+              name: string;
+              mime_type: string;
+            }[];
+            failed?: {
+              name: string;
+              path: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          attachment?: string | string[];
+        };
+      };
+    };
+  };
   "get-campaigns-campaign-forms": {
     parameters: {
       path: {
@@ -2984,15 +3049,20 @@ export interface operations {
           };
         } & {
           autoApply?: number;
+          /** @default 0 */
           autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"];
           hasBugForm?: number;
           hasBugParade?: number;
           /** @enum {string} */
           pageVersion?: "v1" | "v2";
+          /** @default 0 */
           skipPagesAndTasks?: number;
         } & {
-          /** @enum {undefined} */
+          /**
+           * @default 0
+           * @enum {undefined}
+           */
           notify_everyone?: 0 | 1;
           /** @example 1 */
           ux_notify?: number;
@@ -3013,6 +3083,7 @@ export interface operations {
         content: {
           "application/json": {
             autoApply: number;
+            /** @default 0 */
             autoApprove: number;
             browsers?: {
               id: number;
@@ -3035,6 +3106,7 @@ export interface operations {
               name: string;
             }[];
             deviceRequirements?: string;
+            /** @default false */
             hasPlan?: boolean;
             /** Format: date-time */
             endDate: string;
@@ -3121,6 +3193,7 @@ export interface operations {
       content: {
         "application/json": components["schemas"]["DossierCreationData"] & {
           autoApply?: number;
+          /** @default 0 */
           autoApprove?: number;
           bugLanguage?: components["schemas"]["BugLang"] | boolean;
           hasBugParade?: number;
@@ -5456,6 +5529,81 @@ export interface operations {
           testerQuestionId: string;
         };
       };
+    };
+  };
+  /** Get all finance suppliers */
+  "get-campaigns-campaign-finance-supplier": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              name: string;
+              created_at?: string;
+              created_by?: number;
+            }[];
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
+    };
+  };
+  "post-campaigns-campaign-finance-supplier": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** Created */
+      201: unknown;
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          name: string;
+        };
+      };
+    };
+  };
+  "get-campaigns-campaign-finance-type": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              name?: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
     };
   };
 }
