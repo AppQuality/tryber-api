@@ -13199,6 +13199,56 @@ paths:
                 - jotformId
                 - testerQuestionId
       description: ''
+  '/campaigns/{campaign}/finance/type':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: GET types
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: d7f0e5l5qrx6o
+                    items:
+                      x-stoplight:
+                        id: r1p9rcymebjpu
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: y0keeoutvijjh
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - name: Recruiting
+                      - name: Survey
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Shared Response
+      operationId: get-campaigns-campaign-finance-type
+      x-stoplight:
+        id: 02e8ns5xdhecm
+      security:
+        - JWT: []
 servers:
   - url: 'https://api.app-quality.com'
 tags:
