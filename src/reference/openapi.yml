@@ -13379,7 +13379,6 @@ paths:
                       type: object
                       required:
                         - name
-                        - id
                       properties:
                         name:
                           type: string
@@ -13393,16 +13392,11 @@ paths:
                           type: integer
                           x-stoplight:
                             id: gcs2p8mvl32gc
-                        id:
-                          type: integer
-                          x-stoplight:
-                            id: 3lwwkv3h1vsun
               examples:
                 Example 2:
                   value:
                     items:
-                      - id: 1
-                        name: Respondent
+                      - name: Respondent
                         created_at: '2026-01-01'
                         created_by: 10
         '400':
