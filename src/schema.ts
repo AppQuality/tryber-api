@@ -154,16 +154,6 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/finance/supplier": {
-    /** Get all suppliers for finance */
-    get: operations["get-campaigns-cid-finance-supplier"];
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: string;
-      };
-    };
-  };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
     parameters: {
