@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import { after } from "node:test";
 
 describe("GET /campaigns/campaignId/finance/supplier", () => {
   beforeAll(async () => {
@@ -54,6 +55,13 @@ describe("GET /campaigns/campaignId/finance/supplier", () => {
     ]);
   });
 
+  afterAll(async () => {
+    await tryber.tables.WpAppqCampaignOtherCostsSupplier.do().delete();
+    await tryber.tables.WpAppqEvdCampaign.do().delete();
+    await tryber.tables.WpUsers.do().delete();
+    await tryber.tables.WpAppqEvdProfile.do().delete();
+  });
+
   it("Should return 403 if logged out", async () => {
     const response = await request(app).get("/campaigns/1/finance/supplier");
     expect(response.status).toBe(403);
@@ -80,7 +88,7 @@ describe("GET /campaigns/campaignId/finance/supplier", () => {
     expect(response.status).toBe(200);
   });
 
-  it("Should return finance suppliers", async () => {
+  it("Should return finance suppliers - admin", async () => {
     const response = await request(app)
       .get("/campaigns/1/finance/supplier")
       .set("Authorization", "Bearer admin");
@@ -105,7 +113,7 @@ describe("GET /campaigns/campaignId/finance/supplier", () => {
     expect(response.body.items).toHaveLength(2);
   });
 
-  it("Should return suppliers with olp permissions", async () => {
+  it("Should return suppliers - olp permissions", async () => {
     const response = await request(app)
       .get("/campaigns/1/finance/supplier")
       .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
