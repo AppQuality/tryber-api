@@ -804,6 +804,15 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/supplier": {
+    /** Get all finance suppliers */
+    get: operations["get-campaigns-campaign-finance-supplier"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/finance/type": {
     get: operations["get-campaigns-campaign-finance-type"];
     parameters: {
@@ -5519,6 +5528,34 @@ export interface operations {
           testerQuestionId: string;
         };
       };
+    };
+  };
+  /** Get all finance suppliers */
+  "get-campaigns-campaign-finance-supplier": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              name: string;
+              created_at?: string;
+              created_by?: number;
+            }[];
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Internal Server Error */
+      500: unknown;
     };
   };
   "get-campaigns-campaign-finance-type": {

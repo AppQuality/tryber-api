@@ -3988,11 +3988,6 @@ paths:
         name: campaign
         in: path
         required: true
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
     post:
       summary: Your POST endpoint
       tags: []
@@ -13282,6 +13277,67 @@ paths:
                 - jotformId
                 - testerQuestionId
       description: ''
+  '/campaigns/{campaign}/finance/supplier':
+    get:
+      description: Get all finance suppliers
+      operationId: get-campaigns-campaign-finance-supplier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: hhr19m5dfxjtt
+                    items:
+                      x-stoplight:
+                        id: ihcfe7bywmrjs
+                      type: object
+                      required:
+                        - name
+                      properties:
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: 08yzm5eu8tl1h
+                        created_at:
+                          type: string
+                          x-stoplight:
+                            id: w0fmflgc090ff
+                        created_by:
+                          type: integer
+                          x-stoplight:
+                            id: gcs2p8mvl32gc
+              examples:
+                Example 2:
+                  value:
+                    items:
+                      - name: Respondent
+                        created_at: '2026-01-01'
+                        created_by: 10
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      summary: Get finance supplier
+      x-stoplight:
+        id: tlziygldrfder
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
   '/campaigns/{campaign}/finance/type':
     parameters:
       - schema:
