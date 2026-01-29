@@ -5567,13 +5567,7 @@ export interface operations {
     };
     responses: {
       /** Created */
-      201: {
-        content: {
-          "application/json": {
-            id: number;
-          };
-        };
-      };
+      201: unknown;
       /** Bad Request */
       400: unknown;
       /** Forbidden */
