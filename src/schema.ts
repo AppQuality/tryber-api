@@ -5605,7 +5605,6 @@ export interface operations {
               name: string;
               created_at?: string;
               created_by?: number;
-              id: number;
             }[];
           };
         };
