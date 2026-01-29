@@ -804,17 +804,17 @@ export interface paths {
       };
     };
   };
-  "/campaigns/{campaign}/finance/type": {
-    get: operations["get-campaigns-campaign-finance-type"];
+  "/campaigns/{campaign}/finance/supplier": {
+    /** Get all finance suppliers */
+    get: operations["get-campaigns-campaign-finance-supplier"];
     parameters: {
       path: {
         campaign: string;
       };
     };
   };
-  "/campaigns/{campaign}/finance/supplier": {
-    /** Get all finance suppliers */
-    get: operations["get-campaigns-campaign-finance-supplier"];
+  "/campaigns/{campaign}/finance/type": {
+    get: operations["get-campaigns-campaign-finance-type"];
     parameters: {
       path: {
         campaign: string;
@@ -2175,32 +2175,6 @@ export interface operations {
           attachment?: string | string[];
         };
       };
-    };
-  };
-  /** Get all suppliers for finance */
-  "get-campaigns-cid-finance-supplier": {
-    parameters: {
-      path: {
-        /** A campaign id */
-        campaign: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            id: number;
-            name: string;
-            created_on?: string;
-            created_by?: number;
-          };
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-      /** Internal Server Error */
-      500: unknown;
     };
   };
   "get-campaigns-campaign-forms": {
@@ -5556,29 +5530,6 @@ export interface operations {
       };
     };
   };
-  "get-campaigns-campaign-finance-type": {
-    parameters: {
-      path: {
-        campaign: string;
-      };
-    };
-    responses: {
-      /** OK */
-      200: {
-        content: {
-          "application/json": {
-            items: {
-              name?: string;
-            }[];
-          };
-        };
-      };
-      403: components["responses"]["NotAuthorized"];
-      404: components["responses"]["NotFound"];
-      /** Shared Response */
-      500: unknown;
-    };
-  };
   /** Get all finance suppliers */
   "get-campaigns-campaign-finance-supplier": {
     parameters: {
@@ -5604,6 +5555,29 @@ export interface operations {
       /** Forbidden */
       403: unknown;
       /** Internal Server Error */
+      500: unknown;
+    };
+  };
+  "get-campaigns-campaign-finance-type": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items: {
+              name?: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Shared Response */
       500: unknown;
     };
   };
