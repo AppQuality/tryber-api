@@ -3981,6 +3981,89 @@ paths:
         required: true
         schema:
           type: string
+  '/campaigns/{campaign}/finance/attachments':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    post:
+      summary: Your POST endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - name
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+
+                        name:
+                          type: string
+                        mime_type:
+                          type: string
+                  failed:
+                    type: array
+
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - path
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '500':
+          description: Internal Server Error
+      operationId: post-campaigns-campaign-finance-attachments
+      x-stoplight:
+        id: 0ucra88nj3skb
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                attachment:
+                  x-stoplight:
+                    id: loo9qp15yg7er
+                  oneOf:
+                    - type: string
+                      x-stoplight:
+                        id: 1y0da4vjut50n
+                      format: binary
+                    - type: array
+                      x-stoplight:
+                        id: 567eldf6sv5mh
+                      items:
+                        x-stoplight:
+                          id: ykrxebcilk657
+                        type: string
+                        format: binary
   '/campaigns/{campaign}/forms':
     get:
       description: ''

@@ -146,6 +146,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/attachments": {
+    post: operations["post-campaigns-campaign-finance-attachments"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
   "/campaigns/{campaign}/forms": {
     get: operations["get-campaigns-campaign-forms"];
     parameters: {
@@ -2123,6 +2131,41 @@ export interface operations {
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+    };
+  };
+  "post-campaigns-campaign-finance-attachments": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            attachments?: {
+              url: string;
+              name: string;
+              mime_type: string;
+            }[];
+            failed?: {
+              name: string;
+              path: string;
+            }[];
+          };
+        };
+      };
+      403: components["responses"]["NotAuthorized"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          attachment?: string | string[];
+        };
+      };
     };
   };
   "get-campaigns-campaign-forms": {
