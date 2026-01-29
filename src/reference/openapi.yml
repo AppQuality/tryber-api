@@ -4010,14 +4010,12 @@ paths:
                       properties:
                         url:
                           type: string
-
                         name:
                           type: string
                         mime_type:
                           type: string
                   failed:
                     type: array
-
                     items:
                       type: object
                       required:
@@ -13346,15 +13344,7 @@ paths:
       responses:
         '201':
           description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                  - id
-                properties:
-                  id:
-                    type: integer
+          content: {}
         '400':
           description: Bad Request
         '403':
