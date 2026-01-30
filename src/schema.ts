@@ -5610,7 +5610,8 @@ export interface operations {
         content: {
           "application/json": {
             items: {
-              name?: string;
+              name: string;
+              id: number;
             }[];
           };
         };
