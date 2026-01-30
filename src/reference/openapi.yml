@@ -13299,6 +13299,7 @@ paths:
                       type: object
                       required:
                         - name
+                        - id
                       properties:
                         name:
                           type: string
@@ -13312,11 +13313,16 @@ paths:
                           type: integer
                           x-stoplight:
                             id: gcs2p8mvl32gc
+                        id:
+                          type: number
+                          x-stoplight:
+                            id: ek7zfipegepg5
               examples:
                 Example 2:
                   value:
                     items:
-                      - name: Respondent
+                      - id: 1
+                        name: Respondent
                         created_at: '2026-01-01'
                         created_by: 10
         '400':
@@ -13344,7 +13350,17 @@ paths:
       responses:
         '201':
           description: Created
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - supplier_id
+                properties:
+                  supplier_id:
+                    type: number
+                    x-stoplight:
+                      id: rsrwvlerw0w2j
         '400':
           description: Bad Request
         '403':
@@ -13523,7 +13539,6 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
-         
       operationId: get-campaigns-campaign-finance-otherCosts
       x-stoplight:
         id: 9hp8r67rwl59d
