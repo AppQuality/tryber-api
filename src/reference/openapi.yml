@@ -13419,6 +13419,20 @@ paths:
         id: 02e8ns5xdhecm
       security:
         - JWT: []
+  '/campaigns/{campaign}/finance/otherCosts':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses: {}
+      operationId: get-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: 9hp8r67rwl59d
 servers:
   - url: 'https://api.app-quality.com'
 tags:
