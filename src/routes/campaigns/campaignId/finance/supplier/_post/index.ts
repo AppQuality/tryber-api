@@ -5,7 +5,7 @@ import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
 export default class SupplierRoute extends CampaignRoute<{
-  response: StoplightOperations["post-campaigns-campaign-finance-supplier"]["responses"]["201"];
+  response: StoplightOperations["post-campaigns-campaign-finance-supplier"]["responses"]["201"]["content"]["application/json"];
   parameters: StoplightOperations["post-campaigns-campaign-finance-supplier"]["parameters"]["path"];
   body: StoplightOperations["post-campaigns-campaign-finance-supplier"]["requestBody"]["content"]["application/json"];
 }> {
@@ -32,8 +32,8 @@ export default class SupplierRoute extends CampaignRoute<{
     }
 
     try {
-      await this.createNewSupplier(this.getBody().name);
-      return this.setSuccess(201, {});
+      const supplierId = await this.createNewSupplier(this.getBody().name);
+      return this.setSuccess(201, { supplier_id: supplierId });
     } catch (e) {
       console.error("Error creating new supplier: ", e);
       return this.setError(
@@ -43,11 +43,19 @@ export default class SupplierRoute extends CampaignRoute<{
     }
   }
 
-  private async createNewSupplier(name: string): Promise<void> {
-    await tryber.tables.WpAppqCampaignOtherCostsSupplier.do().insert({
-      name,
-      created_by: this.getTesterId(),
-    });
+  private async createNewSupplier(name: string): Promise<number> {
+    const result = await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
+      .insert({
+        name,
+        created_by: this.getTesterId(),
+      })
+      .returning("id");
+
+    const id = result[0]?.id ?? result[0];
+
+    if (!id) throw new Error("Error creating supplier");
+
+    return id;
   }
 
   private async checkSupplierExists(name: string): Promise<boolean> {

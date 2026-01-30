@@ -5,6 +5,7 @@ import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
 type Supplier = {
+  id: number;
   name: string;
   created_on?: string;
   created_by?: number;
@@ -33,6 +34,7 @@ export default class SupplierRoute extends CampaignRoute<{
 
   private async getSuppliers(): Promise<Supplier[]> {
     return await tryber.tables.WpAppqCampaignOtherCostsSupplier.do().select(
+      "id",
       "name",
       "created_on",
       "created_by"

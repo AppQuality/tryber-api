@@ -5555,6 +5555,7 @@ export interface operations {
               name: string;
               created_at?: string;
               created_by?: number;
+              id: number;
             }[];
           };
         };
@@ -5575,7 +5576,13 @@ export interface operations {
     };
     responses: {
       /** Created */
-      201: unknown;
+      201: {
+        content: {
+          "application/json": {
+            supplier_id: number;
+          };
+        };
+      };
       /** Bad Request */
       400: unknown;
       /** Forbidden */
