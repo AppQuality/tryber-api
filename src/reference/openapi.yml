@@ -13429,10 +13429,38 @@ paths:
     get:
       summary: Your GET endpoint
       tags: []
-      responses: {}
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: 7k2qykvqlzwfe
+                    items:
+                      x-stoplight:
+                        id: srl106ylr6cpm
+                      type: object
+                      properties:
+                        type:
+                          type: object
+                          x-stoplight:
+                            id: itchthltx575n
       operationId: get-campaigns-campaign-finance-otherCosts
       x-stoplight:
         id: 9hp8r67rwl59d
+      security:
+        - JWT: []
 servers:
   - url: 'https://api.app-quality.com'
 tags:
