@@ -13413,17 +13413,26 @@ paths:
                       x-stoplight:
                         id: r1p9rcymebjpu
                       type: object
+                      required:
+                        - name
+                        - id
                       properties:
                         name:
                           type: string
                           x-stoplight:
                             id: y0keeoutvijjh
+                        id:
+                          type: number
+                          x-stoplight:
+                            id: r546xns1ecc4j
               examples:
                 Example 1:
                   value:
                     items:
                       - name: Recruiting
+                        id: 1
                       - name: Survey
+                        id: 2
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
