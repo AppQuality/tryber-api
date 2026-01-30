@@ -5622,13 +5622,7 @@ export interface operations {
     };
     responses: {
       /** OK */
-      200: unknown;
-      /** Forbidden */
-      403: unknown;
-      /** Not Found */
-      404: unknown;
-      /** Internal Server Error */
-      500: {
+      200: {
         content: {
           "application/json": {
             items?: {
@@ -5651,6 +5645,12 @@ export interface operations {
           };
         };
       };
+      /** Forbidden */
+      403: unknown;
+      /** Not Found */
+      404: unknown;
+      /** Internal Server Error */
+      500: unknown;
     };
   };
 }

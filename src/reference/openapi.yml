@@ -13432,12 +13432,6 @@ paths:
       responses:
         '200':
           description: OK
-        '403':
-          description: Forbidden
-        '404':
-          description: Not Found
-        '500':
-          description: Internal Server Error
           content:
             application/json:
               schema:
@@ -13523,6 +13517,13 @@ paths:
                             url: string
                             mimetype: string
                         cost_id: 0
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+         
       operationId: get-campaigns-campaign-finance-otherCosts
       x-stoplight:
         id: 9hp8r67rwl59d
