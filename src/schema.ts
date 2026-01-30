@@ -822,6 +822,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/otherCosts": {
+    get: operations["get-campaigns-campaign-finance-otherCosts"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -5604,6 +5612,45 @@ export interface operations {
       404: components["responses"]["NotFound"];
       /** Internal Server Error */
       500: unknown;
+    };
+  };
+  "get-campaigns-campaign-finance-otherCosts": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Forbidden */
+      403: unknown;
+      /** Not Found */
+      404: unknown;
+      /** Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            items?: {
+              cost_id?: number;
+              type?: {
+                name?: string;
+                id?: number;
+              };
+              supplier?: {
+                name?: string;
+                id?: number;
+              };
+              description?: string;
+              attachments?: {
+                id?: number;
+                url?: string;
+                mimetype?: string;
+              }[];
+            }[];
+          };
+        };
+      };
     };
   };
 }
