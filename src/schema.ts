@@ -826,6 +826,7 @@ export interface paths {
     get: operations["get-campaigns-campaign-finance-otherCosts"];
     /** Create a new campaign cost */
     post: operations["post-campaigns-campaign-finance-otherCosts"];
+    delete: operations["delete-campaigns-campaign-finance-otherCosts"];
     parameters: {
       path: {
         /** A campaign id */
@@ -5694,6 +5695,31 @@ export interface operations {
             url: string;
             mime_type: string;
           }[];
+        };
+      };
+    };
+  };
+  "delete-campaigns-campaign-finance-otherCosts": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** OK */
+      200: unknown;
+      /** Bad Request */
+      400: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          cost_id: number;
         };
       };
     };
