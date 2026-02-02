@@ -37,40 +37,10 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
       return false;
     }
 
-    // Validate supplier: either supplier_id OR new_supplier_name, but not both
-    const hasSupplier =
-      body.supplier_id !== undefined && body.supplier_id !== null;
-    const hasNewSupplierName =
-      body.new_supplier_name !== undefined &&
-      body.new_supplier_name !== null &&
-      body.new_supplier_name.trim() !== "";
-
-    if (!hasSupplier && !hasNewSupplierName) {
-      this.setError(
-        400,
-        new OpenapiError(
-          "Either supplier_id or new_supplier_name must be provided"
-        )
-      );
+    const supplierExists = await this.supplierExists(body.supplier_id);
+    if (!supplierExists) {
+      this.setError(404, new OpenapiError("Supplier not found"));
       return false;
-    }
-
-    if (hasSupplier && hasNewSupplierName) {
-      this.setError(
-        400,
-        new OpenapiError(
-          "Cannot provide both supplier_id and new_supplier_name"
-        )
-      );
-      return false;
-    }
-
-    if (hasSupplier) {
-      const supplierExists = await this.supplierExists(body.supplier_id!);
-      if (!supplierExists) {
-        this.setError(404, new OpenapiError("Supplier not found"));
-        return false;
-      }
     }
 
     return true;
@@ -116,51 +86,18 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
   ): Promise<void> {
     await this.deleteExistingAttachments(body.cost_id);
 
-    let supplierId: number;
-    if (body.supplier_id !== undefined && body.supplier_id !== null) {
-      supplierId = body.supplier_id;
-    } else if (body.new_supplier_name) {
-      supplierId = await this.createOrGetSupplier(body.new_supplier_name);
-    } else {
-      throw new Error("No supplier information provided");
-    }
-
     await tryber.tables.WpAppqCampaignOtherCosts.do()
       .where({ id: body.cost_id })
       .update({
         description: body.description,
         cost: body.cost,
         type_id: body.type_id,
-        supplier_id: supplierId,
+        supplier_id: body.supplier_id,
       });
 
     if (body.attachments && body.attachments.length > 0) {
       await this.createAttachments(body.cost_id, body.attachments);
     }
-  }
-
-  private async createOrGetSupplier(supplierName: string): Promise<number> {
-    const existingSupplier =
-      await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
-        .where({ name: supplierName })
-        .first();
-
-    if (existingSupplier) {
-      return existingSupplier.id;
-    }
-
-    const result = await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
-      .insert({
-        name: supplierName,
-        created_by: this.getWordpressId(),
-        created_on: tryber.fn.now(),
-      })
-      .returning("id");
-
-    const id = result[0]?.id ?? result[0];
-    if (!id) throw new Error("Error creating supplier");
-
-    return id;
   }
 
   private async deleteExistingAttachments(costId: number): Promise<void> {

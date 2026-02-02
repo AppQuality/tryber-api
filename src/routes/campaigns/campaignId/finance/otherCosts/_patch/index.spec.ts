@@ -191,8 +191,7 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     });
 
     it("Should return 400 if cost_id is missing", async () => {
-      const payload = { ...validPayload };
-      delete (payload as any).cost_id;
+      const { cost_id, ...payload } = validPayload;
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
@@ -238,8 +237,7 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     });
 
     it("Should return 400 if description is missing", async () => {
-      const payload = { ...validPayload };
-      delete (payload as any).description;
+      const { description, ...payload } = validPayload;
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
@@ -250,8 +248,18 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     });
 
     it("Should return 400 if type_id is missing", async () => {
-      const payload = { ...validPayload };
-      delete (payload as any).type_id;
+      const { type_id, ...payload } = validPayload;
+
+      const response = await request(app)
+        .patch("/campaigns/1/finance/otherCosts")
+        .send(payload)
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body.err).toBeDefined();
+    });
+
+    it("Should return 400 if supplier_id is missing", async () => {
+      const { supplier_id, ...payload } = validPayload;
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
@@ -262,8 +270,7 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     });
 
     it("Should return 400 if cost is missing", async () => {
-      const payload = { ...validPayload };
-      delete (payload as any).cost;
+      const { cost, ...payload } = validPayload;
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
@@ -274,8 +281,7 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     });
 
     it("Should return 400 if attachments is missing", async () => {
-      const payload = { ...validPayload };
-      delete (payload as any).attachments;
+      const { attachments, ...payload } = validPayload;
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
@@ -386,57 +392,6 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
       expect(response.body).toEqual(
         expect.objectContaining({
           message: "Supplier not found",
-        })
-      );
-    });
-
-    it("Should return 400 if both supplier_id and new_supplier_name are provided", async () => {
-      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
-        id: 1,
-        campaign_id: 1,
-        description: "Original cost",
-        cost: 100.0,
-        type_id: 1,
-        supplier_id: 1,
-      });
-
-      const response = await request(app)
-        .patch("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          supplier_id: 105,
-          new_supplier_name: "New Supplier",
-        })
-        .set("Authorization", "Bearer admin");
-      expect(response.status).toBe(400);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          message: "Cannot provide both supplier_id and new_supplier_name",
-        })
-      );
-    });
-
-    it("Should return 400 if neither supplier_id nor new_supplier_name are provided", async () => {
-      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
-        id: 1,
-        campaign_id: 1,
-        description: "Original cost",
-        cost: 100.0,
-        type_id: 1,
-        supplier_id: 1,
-      });
-
-      const payload = { ...validPayload };
-      delete (payload as any).supplier_id;
-
-      const response = await request(app)
-        .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
-        .set("Authorization", "Bearer admin");
-      expect(response.status).toBe(400);
-      expect(response.body).toEqual(
-        expect.objectContaining({
-          message: "Either supplier_id or new_supplier_name must be provided",
         })
       );
     });
@@ -733,85 +688,6 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
       expect(getResponse.status).toBe(200);
       expect(getResponse.body.items).toHaveLength(2);
     });
-
-    it("Should create new supplier when new_supplier_name is provided", async () => {
-      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
-        id: 1,
-        campaign_id: 1,
-        description: "Original cost",
-        cost: 100.0,
-        type_id: 1,
-        supplier_id: 1,
-      });
-
-      const payload = {
-        ...validPayload,
-        new_supplier_name: "Nuovo Fornitore SRL",
-      };
-      delete (payload as any).supplier_id;
-
-      const response = await request(app)
-        .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
-        .set("Authorization", "Bearer admin");
-      expect(response.status).toBe(200);
-
-      const newSupplier =
-        await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
-          .where({ name: "Nuovo Fornitore SRL" })
-          .first();
-      expect(newSupplier).toBeDefined();
-      expect(newSupplier?.name).toBe("Nuovo Fornitore SRL");
-
-      const updatedCost = await tryber.tables.WpAppqCampaignOtherCosts.do()
-        .where({ id: 1 })
-        .first();
-      expect(updatedCost?.supplier_id).toBe(newSupplier?.id);
-    });
-
-    it("Should reuse existing supplier if new_supplier_name matches existing name", async () => {
-      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
-        id: 1,
-        campaign_id: 1,
-        description: "Original cost",
-        cost: 100.0,
-        type_id: 1,
-        supplier_id: 1,
-      });
-
-      const payload = {
-        ...validPayload,
-        new_supplier_name: "Supplier 1", // This already exists in the database
-      };
-      delete (payload as any).supplier_id;
-
-      const initialSupplierCount =
-        await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
-          .count("id")
-          .as("count")
-          .first();
-
-      const response = await request(app)
-        .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
-        .set("Authorization", "Bearer admin");
-      expect(response.status).toBe(200);
-
-      // Verify no new supplier was created
-      const finalSupplierCount =
-        await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
-          .count("id")
-          .as("count")
-          .first();
-      expect(Number(finalSupplierCount?.count)).toBe(
-        Number(initialSupplierCount?.count)
-      );
-
-      const updatedCost = await tryber.tables.WpAppqCampaignOtherCosts.do()
-        .where({ id: 1 })
-        .first();
-      expect(updatedCost?.supplier_id).toBe(1); // Should use Supplier 1's ID
-    });
   });
 
   describe("Success - olp permissions", () => {
@@ -891,40 +767,6 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
           description: "Riparazione hardware ufficio",
         })
       );
-    });
-
-    it("Should create new supplier with olp permissions when new_supplier_name is provided", async () => {
-      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
-        id: 1,
-        campaign_id: 1,
-        description: "Original cost",
-        cost: 100.0,
-        type_id: 1,
-        supplier_id: 1,
-      });
-
-      const payload = {
-        ...validPayload,
-        new_supplier_name: "Fornitore OLP Test",
-      };
-      delete (payload as any).supplier_id;
-
-      const response = await request(app)
-        .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
-        .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
-      expect(response.status).toBe(200);
-
-      const newSupplier =
-        await tryber.tables.WpAppqCampaignOtherCostsSupplier.do()
-          .where({ name: "Fornitore OLP Test" })
-          .first();
-      expect(newSupplier).toBeDefined();
-
-      const updatedCost = await tryber.tables.WpAppqCampaignOtherCosts.do()
-        .where({ id: 1 })
-        .first();
-      expect(updatedCost?.supplier_id).toBe(newSupplier?.id);
     });
   });
 
