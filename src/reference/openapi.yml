@@ -13446,11 +13446,7 @@ paths:
         - JWT: []
   '/campaigns/{campaign}/finance/otherCosts':
     parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
+      - $ref: '#/components/parameters/campaign'
     get:
       summary: Your GET endpoint
       tags: []
