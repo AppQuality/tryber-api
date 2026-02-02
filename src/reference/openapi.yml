@@ -13451,6 +13451,11 @@ paths:
         name: campaign
         in: path
         required: true
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
     get:
       summary: Your GET endpoint
       tags: []
@@ -13553,6 +13558,79 @@ paths:
         id: 9hp8r67rwl59d
       security:
         - JWT: []
+    post:
+      summary: Your POST endpoint
+      tags: []
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: post-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: aujq76gdkus39
+      description: Create a new campaign cost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  description: Riparazione hardware ufficio
+                  type_id: 3
+                  supplier_id: 105
+                  cost: 250.5
+                  attachments:
+                    - url: 'https://esempio.com/documenti/fattura.pdf'
+                      mime_type: application/pdf
+                    - url: 'https://esempio.com/immagini/danno.jpg'
+                      mime_type: image/jpeg
+              required:
+                - description
+                - type_id
+                - supplier_id
+                - cost
+                - attachments
+              properties:
+                description:
+                  type: string
+                type_id:
+                  type: integer
+                supplier_id:
+                  type: integer
+                cost:
+                  type: number
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - url
+                      - mime_type
+                    properties:
+                      url:
+                        type: string
+                      mime_type:
+                        type: string
+            examples:
+              Example 1:
+                value:
+                  description: Riparazione hardware ufficio
+                  type_id: 3
+                  supplier_id: 105
+                  cost: 250.5
+                  attachments:
+                    - url: 'https://esempio.com/documenti/fattura.pdf'
+                      mime_type: application/pdf
+                    - url: 'https://esempio.com/immagini/danno.jpg'
+                      mime_type: image/jpeg
 servers:
   - url: 'https://api.app-quality.com'
 tags:
