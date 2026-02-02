@@ -13462,6 +13462,8 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - items
                 properties:
                   items:
                     type: array
@@ -13471,6 +13473,13 @@ paths:
                       x-stoplight:
                         id: srl106ylr6cpm
                       type: object
+                      required:
+                        - cost_id
+                        - type
+                        - supplier
+                        - description
+                        - attachments
+                        - cost
                       properties:
                         cost_id:
                           type: number
@@ -13480,6 +13489,9 @@ paths:
                           type: object
                           x-stoplight:
                             id: itchthltx575n
+                          required:
+                            - name
+                            - id
                           properties:
                             name:
                               type: string
@@ -13493,6 +13505,9 @@ paths:
                           type: object
                           x-stoplight:
                             id: pewi2gjqq2j1h
+                          required:
+                            - name
+                            - id
                           properties:
                             name:
                               type: string
@@ -13514,6 +13529,10 @@ paths:
                             x-stoplight:
                               id: w31uej26rl532
                             type: object
+                            required:
+                              - id
+                              - url
+                              - mimetype
                             properties:
                               id:
                                 type: number
@@ -13527,6 +13546,10 @@ paths:
                                 type: string
                                 x-stoplight:
                                   id: 6tqj2cg96280v
+                        cost:
+                          type: number
+                          x-stoplight:
+                            id: 4zut3xli3ht5f
               examples:
                 Example 1:
                   value:
@@ -13543,6 +13566,7 @@ paths:
                             url: string
                             mimetype: string
                         cost_id: 0
+                        cost: 10.2
         '403':
           description: Forbidden
         '404':

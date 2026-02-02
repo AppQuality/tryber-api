@@ -5638,22 +5638,23 @@ export interface operations {
       200: {
         content: {
           "application/json": {
-            items?: {
-              cost_id?: number;
-              type?: {
-                name?: string;
-                id?: number;
+            items: {
+              cost_id: number;
+              type: {
+                name: string;
+                id: number;
               };
-              supplier?: {
-                name?: string;
-                id?: number;
+              supplier: {
+                name: string;
+                id: number;
               };
-              description?: string;
-              attachments?: {
-                id?: number;
-                url?: string;
-                mimetype?: string;
+              description: string;
+              attachments: {
+                id: number;
+                url: string;
+                mimetype: string;
               }[];
+              cost: number;
             }[];
           };
         };
