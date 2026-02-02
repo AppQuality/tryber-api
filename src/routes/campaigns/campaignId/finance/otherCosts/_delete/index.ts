@@ -63,9 +63,6 @@ export default class OtherCostsDeleteRoute extends CampaignRoute<{
       for (const attachment of attachments) {
         try {
           await deleteFromS3({ url: attachment.url });
-          await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
-            .where({ id: attachment.id })
-            .delete();
         } catch (e) {
           console.error(
             `Error deleting attachment from S3: ${attachment.url}`,
@@ -73,6 +70,9 @@ export default class OtherCostsDeleteRoute extends CampaignRoute<{
           );
           throw new Error("Error deleting attachment from S3");
         }
+        await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
+          .where({ id: attachment.id })
+          .delete();
       }
     }
 
