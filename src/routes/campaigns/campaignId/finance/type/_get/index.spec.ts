@@ -82,9 +82,11 @@ describe("GET /campaigns/campaignId/finance/type", () => {
       expect.objectContaining({
         items: expect.arrayContaining([
           expect.objectContaining({
+            id: 1,
             name: "Type 1",
           }),
           expect.objectContaining({
+            id: 2,
             name: "Type 2",
           }),
         ]),
@@ -102,9 +104,11 @@ describe("GET /campaigns/campaignId/finance/type", () => {
       expect.objectContaining({
         items: expect.arrayContaining([
           expect.objectContaining({
+            id: 1,
             name: "Type 1",
           }),
           expect.objectContaining({
+            id: 2,
             name: "Type 2",
           }),
         ]),

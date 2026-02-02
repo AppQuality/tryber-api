@@ -101,6 +101,7 @@ describe("POST /campaigns/campaignId/finance/supplier", () => {
         .send({ name: "New Supplier" })
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(201);
+      expect(response.body).toEqual({ supplier_id: expect.any(Number) });
     });
     it("Should not add existing supplier", async () => {
       const response = await request(app)
@@ -131,6 +132,7 @@ describe("POST /campaigns/campaignId/finance/supplier", () => {
         .send({ name: "New Supplier" })
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
       expect(response.status).toBe(201);
+      expect(response.body).toEqual({ supplier_id: expect.any(Number) });
     });
 
     it("Should not add existing supplier", async () => {

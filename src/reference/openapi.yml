@@ -13299,6 +13299,7 @@ paths:
                       type: object
                       required:
                         - name
+                        - id
                       properties:
                         name:
                           type: string
@@ -13312,11 +13313,16 @@ paths:
                           type: integer
                           x-stoplight:
                             id: gcs2p8mvl32gc
+                        id:
+                          type: number
+                          x-stoplight:
+                            id: ek7zfipegepg5
               examples:
                 Example 2:
                   value:
                     items:
-                      - name: Respondent
+                      - id: 1
+                        name: Respondent
                         created_at: '2026-01-01'
                         created_by: 10
         '400':
@@ -13344,7 +13350,17 @@ paths:
       responses:
         '201':
           description: Created
-          content: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - supplier_id
+                properties:
+                  supplier_id:
+                    type: number
+                    x-stoplight:
+                      id: rsrwvlerw0w2j
         '400':
           description: Bad Request
         '403':
@@ -13397,17 +13413,26 @@ paths:
                       x-stoplight:
                         id: r1p9rcymebjpu
                       type: object
+                      required:
+                        - name
+                        - id
                       properties:
                         name:
                           type: string
                           x-stoplight:
                             id: y0keeoutvijjh
+                        id:
+                          type: number
+                          x-stoplight:
+                            id: r546xns1ecc4j
               examples:
                 Example 1:
                   value:
                     items:
                       - name: Recruiting
+                        id: 1
                       - name: Survey
+                        id: 2
         '403':
           $ref: '#/components/responses/NotAuthorized'
         '404':
@@ -13417,6 +13442,115 @@ paths:
       operationId: get-campaigns-campaign-finance-type
       x-stoplight:
         id: 02e8ns5xdhecm
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/finance/otherCosts':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: 7k2qykvqlzwfe
+                    items:
+                      x-stoplight:
+                        id: srl106ylr6cpm
+                      type: object
+                      properties:
+                        cost_id:
+                          type: number
+                          x-stoplight:
+                            id: 5tq4npphsv3wx
+                        type:
+                          type: object
+                          x-stoplight:
+                            id: itchthltx575n
+                          properties:
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: mkzkmmdtonn2u
+                            id:
+                              type: number
+                              x-stoplight:
+                                id: ng1a3g0fc695g
+                        supplier:
+                          type: object
+                          x-stoplight:
+                            id: pewi2gjqq2j1h
+                          properties:
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: eel1e2x9tsc4x
+                            id:
+                              type: number
+                              x-stoplight:
+                                id: ppawzunmvk3qx
+                        description:
+                          type: string
+                          x-stoplight:
+                            id: jlosijekgy2c6
+                        attachments:
+                          type: array
+                          x-stoplight:
+                            id: jj9p1k4imekme
+                          items:
+                            x-stoplight:
+                              id: w31uej26rl532
+                            type: object
+                            properties:
+                              id:
+                                type: number
+                                x-stoplight:
+                                  id: bz8ydut5na834
+                              url:
+                                type: string
+                                x-stoplight:
+                                  id: nctzb7saomq7c
+                              mimetype:
+                                type: string
+                                x-stoplight:
+                                  id: 6tqj2cg96280v
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - type:
+                          name: string
+                          id: 0
+                        supplier:
+                          name: string
+                          id: 0
+                        description: string
+                        attachments:
+                          - id: 0
+                            url: string
+                            mimetype: string
+                        cost_id: 0
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: 9hp8r67rwl59d
       security:
         - JWT: []
 servers:

@@ -822,6 +822,14 @@ export interface paths {
       };
     };
   };
+  "/campaigns/{campaign}/finance/otherCosts": {
+    get: operations["get-campaigns-campaign-finance-otherCosts"];
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+  };
 }
 
 export interface components {
@@ -5547,6 +5555,7 @@ export interface operations {
               name: string;
               created_at?: string;
               created_by?: number;
+              id: number;
             }[];
           };
         };
@@ -5567,7 +5576,13 @@ export interface operations {
     };
     responses: {
       /** Created */
-      201: unknown;
+      201: {
+        content: {
+          "application/json": {
+            supplier_id: number;
+          };
+        };
+      };
       /** Bad Request */
       400: unknown;
       /** Forbidden */
@@ -5595,13 +5610,53 @@ export interface operations {
         content: {
           "application/json": {
             items: {
-              name?: string;
+              name: string;
+              id: number;
             }[];
           };
         };
       };
       403: components["responses"]["NotAuthorized"];
       404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+  };
+  "get-campaigns-campaign-finance-otherCosts": {
+    parameters: {
+      path: {
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            items?: {
+              cost_id?: number;
+              type?: {
+                name?: string;
+                id?: number;
+              };
+              supplier?: {
+                name?: string;
+                id?: number;
+              };
+              description?: string;
+              attachments?: {
+                id?: number;
+                url?: string;
+                mimetype?: string;
+              }[];
+            }[];
+          };
+        };
+      };
+      /** Forbidden */
+      403: unknown;
+      /** Not Found */
+      404: unknown;
       /** Internal Server Error */
       500: unknown;
     };

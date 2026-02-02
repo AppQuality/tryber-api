@@ -95,11 +95,13 @@ describe("GET /campaigns/campaignId/finance/supplier", () => {
       expect.objectContaining({
         items: expect.arrayContaining([
           expect.objectContaining({
+            id: 1,
             name: "Supplier 1",
             created_by: 1,
             created_on: "2024-01-01 10:00:00",
           }),
           expect.objectContaining({
+            id: 2,
             name: "Supplier 2",
             created_by: 2,
             created_on: "2024-01-02 11:00:00",
@@ -119,11 +121,13 @@ describe("GET /campaigns/campaignId/finance/supplier", () => {
       expect.objectContaining({
         items: expect.arrayContaining([
           expect.objectContaining({
+            id: 1,
             name: "Supplier 1",
             created_by: 1,
             created_on: "2024-01-01 10:00:00",
           }),
           expect.objectContaining({
+            id: 2,
             name: "Supplier 2",
             created_by: 2,
             created_on: "2024-01-02 11:00:00",

@@ -26,6 +26,9 @@ export default class TypeRoute extends CampaignRoute<{
   }
 
   private async getTypes() {
-    return await tryber.tables.WpAppqCampaignOtherCostsType.do().select("name");
+    return await tryber.tables.WpAppqCampaignOtherCostsType.do().select(
+      "name",
+      "id"
+    );
   }
 }
