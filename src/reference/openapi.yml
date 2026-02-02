@@ -13446,6 +13446,11 @@ paths:
         - JWT: []
   '/campaigns/{campaign}/finance/otherCosts':
     parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
       - $ref: '#/components/parameters/campaign'
     get:
       summary: Your GET endpoint
@@ -13624,6 +13629,41 @@ paths:
                       mime_type: image/jpeg
       security:
         - JWT: []
+    delete:
+      summary: Your DELETE endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: delete-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: p9q4g69c20okp
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cost_id
+              properties:
+                cost_id:
+                  type: integer
+                  x-stoplight:
+                    id: b27nhd7f5ugfs
+            examples:
+              Example 1:
+                value:
+                  cost_id: 80
 servers:
   - url: 'https://api.app-quality.com'
 tags:
