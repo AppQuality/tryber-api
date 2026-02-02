@@ -13444,9 +13444,14 @@ paths:
         id: 02e8ns5xdhecm
       security:
         - JWT: []
-  /campaigns/finance/otherCosts:
+  '/campaigns/{campaign}/finance/otherCosts':
     parameters:
-      - $ref: '#/components/parameters/campaign'
+      - description: A campaign id
+        in: path
+        name: campaign
+        required: true
+        schema:
+          type: string
     get:
       summary: Your GET endpoint
       tags: []
