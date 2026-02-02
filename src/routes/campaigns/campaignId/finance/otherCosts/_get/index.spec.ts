@@ -97,21 +97,21 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
     await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().insert([
       {
         id: 1,
-        cost_id: 1,
         url: "https://example.com/attachment1.pdf",
         mime_type: "application/pdf",
+        cost_id: 1,
       },
       {
         id: 2,
-        cost_id: 1,
         url: "https://example.com/attachment2.jpg",
         mime_type: "image/jpeg",
+        cost_id: 1,
       },
       {
         id: 3,
-        cost_id: 2,
         url: "https://example.com/attachment3.png",
         mime_type: "image/png",
+        cost_id: 2,
       },
     ]);
   });
