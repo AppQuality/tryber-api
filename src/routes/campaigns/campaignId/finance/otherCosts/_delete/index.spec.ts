@@ -1,6 +1,9 @@
 import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import deleteFromS3 from "@src/features/deleteFromS3";
+
+jest.mock("@src/features/deleteFromS3");
 
 describe("DELETE /campaigns/campaignId/finance/otherCosts", () => {
   beforeAll(async () => {
@@ -82,6 +85,7 @@ describe("DELETE /campaigns/campaignId/finance/otherCosts", () => {
   afterEach(async () => {
     await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().delete();
     await tryber.tables.WpAppqCampaignOtherCosts.do().delete();
+    jest.clearAllMocks();
   });
 
   afterAll(async () => {
@@ -643,6 +647,160 @@ describe("DELETE /campaigns/campaignId/finance/otherCosts", () => {
           description: "Cost to keep",
         })
       );
+    });
+  });
+
+  describe("S3 Deletion", () => {
+    it("Should not call deleteFromS3 if cost has no attachments", async () => {
+      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
+        id: 1,
+        campaign_id: 1,
+        description: "Cost without attachments",
+        cost: 100.0,
+        type_id: 1,
+        supplier_id: 1,
+      });
+
+      const response = await request(app)
+        .delete("/campaigns/1/finance/otherCosts")
+        .send({ cost_id: 1 })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(deleteFromS3).toBeCalledTimes(0);
+    });
+
+    it("Should call deleteFromS3 once for cost with one attachment", async () => {
+      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
+        id: 1,
+        campaign_id: 1,
+        description: "Cost with one attachment",
+        cost: 100.0,
+        type_id: 1,
+        supplier_id: 1,
+      });
+
+      await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().insert({
+        id: 1,
+        cost_id: 1,
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/file1.pdf",
+        mime_type: "application/pdf",
+      });
+
+      const response = await request(app)
+        .delete("/campaigns/1/finance/otherCosts")
+        .send({ cost_id: 1 })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(deleteFromS3).toBeCalledTimes(1);
+      expect(deleteFromS3).toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/file1.pdf",
+      });
+    });
+
+    it("Should call deleteFromS3 three times for cost with three attachments", async () => {
+      await tryber.tables.WpAppqCampaignOtherCosts.do().insert({
+        id: 1,
+        campaign_id: 1,
+        description: "Cost with multiple attachments",
+        cost: 100.0,
+        type_id: 1,
+        supplier_id: 1,
+      });
+
+      await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().insert([
+        {
+          id: 1,
+          cost_id: 1,
+          url: "https://s3.eu-west-1.amazonaws.com/bucket/file1.pdf",
+          mime_type: "application/pdf",
+        },
+        {
+          id: 2,
+          cost_id: 1,
+          url: "https://s3.eu-west-1.amazonaws.com/bucket/file2.jpg",
+          mime_type: "image/jpeg",
+        },
+        {
+          id: 3,
+          cost_id: 1,
+          url: "https://s3.eu-west-1.amazonaws.com/bucket/file3.png",
+          mime_type: "image/png",
+        },
+      ]);
+
+      const response = await request(app)
+        .delete("/campaigns/1/finance/otherCosts")
+        .send({ cost_id: 1 })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(deleteFromS3).toBeCalledTimes(3);
+      expect(deleteFromS3).toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/file1.pdf",
+      });
+      expect(deleteFromS3).toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/file2.jpg",
+      });
+      expect(deleteFromS3).toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/file3.png",
+      });
+    });
+
+    it("Should only delete S3 files for the specified cost, not others", async () => {
+      await tryber.tables.WpAppqCampaignOtherCosts.do().insert([
+        {
+          id: 1,
+          campaign_id: 1,
+          description: "Cost to delete",
+          cost: 100.0,
+          type_id: 1,
+          supplier_id: 1,
+        },
+        {
+          id: 2,
+          campaign_id: 1,
+          description: "Cost to keep",
+          cost: 200.0,
+          type_id: 2,
+          supplier_id: 2,
+        },
+      ]);
+
+      await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().insert([
+        {
+          id: 1,
+          cost_id: 1,
+          url: "https://s3.eu-west-1.amazonaws.com/bucket/delete1.pdf",
+          mime_type: "application/pdf",
+        },
+        {
+          id: 2,
+          cost_id: 1,
+          url: "https://s3.eu-west-1.amazonaws.com/bucket/delete2.jpg",
+          mime_type: "image/jpeg",
+        },
+        {
+          id: 3,
+          cost_id: 2,
+          url: "https://s3.eu-west-1.amazonaws.com/bucket/keep.png",
+          mime_type: "image/png",
+        },
+      ]);
+
+      const response = await request(app)
+        .delete("/campaigns/1/finance/otherCosts")
+        .send({ cost_id: 1 })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(deleteFromS3).toBeCalledTimes(2);
+      expect(deleteFromS3).toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/delete1.pdf",
+      });
+      expect(deleteFromS3).toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/delete2.jpg",
+      });
+      expect(deleteFromS3).not.toHaveBeenCalledWith({
+        url: "https://s3.eu-west-1.amazonaws.com/bucket/keep.png",
+      });
     });
   });
 });

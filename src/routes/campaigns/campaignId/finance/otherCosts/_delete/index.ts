@@ -3,6 +3,7 @@
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
+import deleteFromS3 from "@src/features/deleteFromS3";
 
 export default class OtherCostsDeleteRoute extends CampaignRoute<{
   response: StoplightOperations["delete-campaigns-campaign-finance-otherCosts"]["responses"]["200"];
@@ -53,9 +54,27 @@ export default class OtherCostsDeleteRoute extends CampaignRoute<{
   }
 
   private async deleteOtherCost(costId: number): Promise<void> {
-    await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
-      .where({ cost_id: costId })
-      .delete();
+    const attachments =
+      await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
+        .select("url", "id")
+        .where({ cost_id: costId });
+
+    if (attachments.length > 0) {
+      for (const attachment of attachments) {
+        try {
+          await deleteFromS3({ url: attachment.url });
+          await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
+            .where({ id: attachment.id })
+            .delete();
+        } catch (e) {
+          console.error(
+            `Error deleting attachment from S3: ${attachment.url}`,
+            e
+          );
+          throw new Error("Error deleting attachment from S3");
+        }
+      }
+    }
 
     await tryber.tables.WpAppqCampaignOtherCosts.do()
       .where({ id: costId })
