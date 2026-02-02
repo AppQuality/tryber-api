@@ -13451,11 +13451,6 @@ paths:
         name: campaign
         in: path
         required: true
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
     get:
       summary: Your GET endpoint
       tags: []
