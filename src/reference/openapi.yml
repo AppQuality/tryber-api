@@ -13622,6 +13622,8 @@ paths:
                       mime_type: application/pdf
                     - url: 'https://esempio.com/immagini/danno.jpg'
                       mime_type: image/jpeg
+      security:
+        - JWT: []
 servers:
   - url: 'https://api.app-quality.com'
 tags:
