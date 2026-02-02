@@ -824,9 +824,12 @@ export interface paths {
   };
   "/campaigns/{campaign}/finance/otherCosts": {
     get: operations["get-campaigns-campaign-finance-otherCosts"];
+    /** Create a new campaign cost */
+    post: operations["post-campaigns-campaign-finance-otherCosts"];
     parameters: {
       path: {
-        campaign: string;
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
       };
     };
   };
@@ -5625,7 +5628,8 @@ export interface operations {
   "get-campaigns-campaign-finance-otherCosts": {
     parameters: {
       path: {
-        campaign: string;
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
       };
     };
     responses: {
@@ -5659,6 +5663,39 @@ export interface operations {
       404: unknown;
       /** Internal Server Error */
       500: unknown;
+    };
+  };
+  /** Create a new campaign cost */
+  "post-campaigns-campaign-finance-otherCosts": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: components["parameters"]["campaign"];
+      };
+    };
+    responses: {
+      /** Created */
+      201: unknown;
+      /** Bad Request */
+      400: unknown;
+      403: components["responses"]["NotAuthorized"];
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          description: string;
+          type_id: number;
+          supplier_id: number;
+          cost: number;
+          attachments: {
+            url: string;
+            mime_type: string;
+          }[];
+        };
+      };
     };
   };
 }
