@@ -6,6 +6,7 @@ import OpenapiError from "@src/features/OpenapiError";
 
 type OtherCost = {
   cost_id: number;
+  cost: number;
   type: {
     name: string;
     id: number;
@@ -52,7 +53,8 @@ export default class OtherCostsRoute extends CampaignRoute<{
           .as("cost_id"),
         "description",
         "type_id",
-        "supplier_id"
+        "supplier_id",
+        "cost"
       )
       .where("campaign_id", this.cp_id);
 
@@ -84,6 +86,7 @@ export default class OtherCostsRoute extends CampaignRoute<{
 
       return {
         cost_id: cost.cost_id,
+        cost: cost.cost,
         type: {
           name: type?.name || "",
           id: type?.id || 0,

@@ -161,6 +161,7 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
         items: expect.arrayContaining([
           expect.objectContaining({
             cost_id: 1,
+            cost: 100.5,
             type: {
               name: "Type 1",
               id: 1,
@@ -185,6 +186,7 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
           }),
           expect.objectContaining({
             cost_id: 2,
+            cost: 200.75,
             type: {
               name: "Type 2",
               id: 2,
@@ -218,6 +220,7 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
         items: expect.arrayContaining([
           expect.objectContaining({
             cost_id: 1,
+            cost: 100.5,
             type: {
               name: "Type 1",
               id: 1,
@@ -230,6 +233,7 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
           }),
           expect.objectContaining({
             cost_id: 2,
+            cost: 200.75,
             type: {
               name: "Type 2",
               id: 2,
@@ -300,6 +304,7 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
       (item: any) => item.cost_id === 10
     );
     expect(costWithoutAttachments).toBeDefined();
+    expect(costWithoutAttachments.cost).toBe(50);
     expect(costWithoutAttachments.attachments).toEqual([]);
   });
 });
