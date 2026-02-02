@@ -5763,10 +5763,7 @@ export interface operations {
         "application/json": {
           description: string;
           type_id: number;
-          /** @description ID of existing supplier (mutually exclusive with new_supplier_name) */
-          supplier_id?: number;
-          /** @description Name for new supplier (mutually exclusive with supplier_id) */
-          new_supplier_name?: string;
+          supplier_id: number;
           cost: number;
           attachments: {
             url: string;

@@ -13787,6 +13787,7 @@ paths:
               required:
                 - description
                 - type_id
+                - supplier_id
                 - cost
                 - attachments
                 - cost_id
@@ -13797,10 +13798,6 @@ paths:
                   type: integer
                 supplier_id:
                   type: integer
-                  description: ID of existing supplier (mutually exclusive with new_supplier_name)
-                new_supplier_name:
-                  type: string
-                  description: Name for new supplier (mutually exclusive with supplier_id)
                 cost:
                   type: number
                 attachments:
@@ -13832,16 +13829,6 @@ paths:
                       mime_type: application/pdf
                     - url: 'https://esempio.com/immagini/danno.jpg'
                       mime_type: image/jpeg
-              Example 2 (New Supplier):
-                value:
-                  description: Riparazione hardware ufficio
-                  type_id: 3
-                  cost_id: 2
-                  new_supplier_name: Nuovo Fornitore SRL
-                  cost: 250.5
-                  attachments:
-                    - url: 'https://esempio.com/documenti/fattura.pdf'
-                      mime_type: application/pdf
 servers:
   - url: 'https://api.app-quality.com'
 tags:
