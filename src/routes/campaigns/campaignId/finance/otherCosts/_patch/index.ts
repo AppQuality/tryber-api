@@ -81,7 +81,7 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
   private async updateOtherCost(
     body: StoplightOperations["patch-campaigns-campaign-finance-otherCosts"]["requestBody"]["content"]["application/json"]
   ): Promise<void> {
-    await this.deleteExistingAttachments(body.cost_id);
+    await this.updateAttachments();
 
     await tryber.tables.WpAppqCampaignOtherCosts.do()
       .where({ id: body.cost_id })
@@ -91,22 +91,29 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
         type_id: body.type_id,
         supplier_id: body.supplier_id,
       });
-
-    if (body.attachments && body.attachments.length > 0) {
-      await this.createAttachments(body.cost_id, body.attachments);
-    }
   }
 
-  private async deleteExistingAttachments(costId: number): Promise<void> {
-    const attachments =
+  private async updateAttachments(): Promise<void> {
+    const { cost_id, attachments } = this.getBody();
+    const existingAttachments =
       await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
-        .select("url", "id")
-        .where({ cost_id: costId });
+        .select("id", "url", "mime_type")
+        .where({ cost_id: cost_id });
 
-    if (attachments.length > 0) {
-      for (const attachment of attachments) {
+    const existingUrls = existingAttachments.map((a) => a.url);
+    const newUrls = attachments.map((a) => a.url);
+
+    const attachmentsToDelete = existingAttachments.filter(
+      (existing) => !newUrls.includes(existing.url)
+    );
+
+    if (attachmentsToDelete.length > 0) {
+      for (const attachment of attachmentsToDelete) {
         try {
           await deleteFromS3({ url: attachment.url });
+          await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
+            .where("id", attachment.id)
+            .delete();
         } catch (e) {
           console.error(
             `Error deleting attachment from S3: ${attachment.url}`,
@@ -115,26 +122,23 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
           throw new Error("Error deleting attachment from S3");
         }
       }
-
-      await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
-        .where({ cost_id: costId })
-        .delete();
     }
-  }
 
-  private async createAttachments(
-    costId: number,
-    attachments: { url: string; mime_type: string }[]
-  ): Promise<void> {
-    const attachmentsData = attachments.map((attachment) => ({
-      cost_id: costId,
-      url: attachment.url,
-      mime_type: attachment.mime_type,
-    }));
-
-    await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().insert(
-      attachmentsData
+    const attachmentsToAdd = attachments.filter(
+      (newAttachment) => !existingUrls.includes(newAttachment.url)
     );
+
+    if (attachmentsToAdd.length > 0) {
+      const attachmentsData = attachmentsToAdd.map((attachment) => ({
+        cost_id: cost_id,
+        url: attachment.url,
+        mime_type: attachment.mime_type,
+      }));
+
+      await tryber.tables.WpAppqCampaignOtherCostsAttachment.do().insert(
+        attachmentsData
+      );
+    }
   }
 
   private async getUpdatedCost(costId: number) {
