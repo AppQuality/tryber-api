@@ -88,12 +88,23 @@ export default class OtherCostsRoute extends CampaignRoute<{
         );
 
         const resolvedAttachments = await Promise.all(
-          costAttachments.map(async (a) => ({
-            id: a.id,
-            url: a.url,
-            mimetype: a.mime_type,
-            presigned_url: await getPresignedUrl(a.url, 10800), // 3 hours expiration
-          }))
+          costAttachments.map(async (a) => {
+            let presignedUrl = a.url;
+            try {
+              presignedUrl = await getPresignedUrl(a.url, 10800);
+            } catch (error) {
+              console.error(
+                `Failed to generate presigned URL for ${a.url}:`,
+                error
+              );
+            }
+            return {
+              id: a.id,
+              url: a.url,
+              mimetype: a.mime_type,
+              presigned_url: presignedUrl,
+            };
+          })
         );
 
         return {

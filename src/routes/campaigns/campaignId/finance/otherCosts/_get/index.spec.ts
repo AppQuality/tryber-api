@@ -3,17 +3,15 @@ import app from "@src/app";
 import { tryber } from "@src/features/database";
 import { getPresignedUrl } from "@src/features/s3/presignUrl";
 
-jest.mock("@src/features/s3/presignUrl");
-
-const mockedGetPresignedUrl = getPresignedUrl as jest.MockedFunction<
-  typeof getPresignedUrl
->;
+jest.mock("@src/features/s3/presignUrl", () => {
+  return {
+    getPresignedUrl: jest
+      .fn()
+      .mockImplementation((url: string) => Promise.resolve(url)),
+  };
+});
 
 describe("GET /campaigns/campaignId/finance/otherCosts", () => {
-  beforeEach(() => {
-    mockedGetPresignedUrl.mockImplementation(async (url: string) => url);
-  });
-
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -347,21 +345,21 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
     expect(costWithoutAttachments.attachments).toEqual([]);
   });
 
-  it("Should call getPresignedUrl for each attachment with 3 hours expiration", async () => {
+  it("Should call getPresignedUrl for each attachment", async () => {
     await request(app)
       .get("/campaigns/1/finance/otherCosts")
       .set("Authorization", "Bearer admin");
 
-    expect(mockedGetPresignedUrl).toHaveBeenCalledTimes(3);
-    expect(mockedGetPresignedUrl).toHaveBeenCalledWith(
+    expect(getPresignedUrl).toHaveBeenCalledTimes(3);
+    expect(getPresignedUrl).toHaveBeenCalledWith(
       "https://example.com/attachment1.pdf",
       10800
     );
-    expect(mockedGetPresignedUrl).toHaveBeenCalledWith(
+    expect(getPresignedUrl).toHaveBeenCalledWith(
       "https://example.com/attachment2.jpg",
       10800
     );
-    expect(mockedGetPresignedUrl).toHaveBeenCalledWith(
+    expect(getPresignedUrl).toHaveBeenCalledWith(
       "https://example.com/attachment3.png",
       10800
     );
