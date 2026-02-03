@@ -102,22 +102,24 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
-  const validPayload = {
-    description: "Riparazione hardware ufficio",
-    type_id: 3,
-    supplier_id: 105,
-    cost: 250.5,
-    attachments: [
-      {
-        url: "https://esempio.com/documenti/fattura.pdf",
-        mime_type: "application/pdf",
-      },
-      {
-        url: "https://esempio.com/immagini/danno.jpg",
-        mime_type: "image/jpeg",
-      },
-    ],
-  };
+  const validPayload = [
+    {
+      description: "Riparazione hardware ufficio",
+      type_id: 3,
+      supplier_id: 105,
+      cost: 250.5,
+      attachments: [
+        {
+          url: "https://esempio.com/documenti/fattura.pdf",
+          mime_type: "application/pdf",
+        },
+        {
+          url: "https://esempio.com/immagini/danno.jpg",
+          mime_type: "image/jpeg",
+        },
+      ],
+    },
+  ];
 
   describe("Not enough permissions", () => {
     it("Should return 403 if logged out", async () => {
@@ -145,15 +147,37 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
   });
 
   describe("Validation errors", () => {
-    it("Should return 400 if description is empty", async () => {
+    it("Should return 400 if body is not an array", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, description: "" })
+        .send(validPayload[0])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body.err).toBeDefined();
+    });
+
+    it("Should return 400 if body is an empty array", async () => {
+      const response = await request(app)
+        .post("/campaigns/1/finance/otherCosts")
+        .send([])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Description should not be empty",
+          message: "Body must be a non-empty array of cost items",
+        })
+      );
+    });
+
+    it("Should return 400 if description is empty", async () => {
+      const response = await request(app)
+        .post("/campaigns/1/finance/otherCosts")
+        .send([{ ...validPayload[0], description: "" }])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          message: "Item 1: Description should not be empty",
         })
       );
     });
@@ -161,12 +185,12 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if description is only whitespace", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, description: "   " })
+        .send([{ ...validPayload[0], description: "   " }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Description should not be empty",
+          message: "Item 1: Description should not be empty",
         })
       );
     });
@@ -174,12 +198,12 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if cost is 0", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost: 0 })
+        .send([{ ...validPayload[0], cost: 0 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Cost must be greater than 0",
+          message: "Item 1: Cost must be greater than 0",
         })
       );
     });
@@ -187,12 +211,12 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if cost is negative", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost: -10 })
+        .send([{ ...validPayload[0], cost: -10 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Cost must be greater than 0",
+          message: "Item 1: Cost must be greater than 0",
         })
       );
     });
@@ -200,12 +224,12 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if type_id does not exist", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, type_id: 999 })
+        .send([{ ...validPayload[0], type_id: 999 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Type not found",
+          message: "Item 1: Type not found",
         })
       );
     });
@@ -213,12 +237,12 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if supplier_id does not exist", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, supplier_id: 999 })
+        .send([{ ...validPayload[0], supplier_id: 999 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Supplier not found",
+          message: "Item 1: Supplier not found",
         })
       );
     });
@@ -226,12 +250,12 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if attachments array is empty", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, attachments: [] })
+        .send([{ ...validPayload[0], attachments: [] }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "At least one attachment is required",
+          message: "Item 1: At least one attachment is required",
         })
       );
     });
@@ -239,20 +263,22 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if attachment url is empty", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          attachments: [
-            {
-              url: "",
-              mime_type: "application/pdf",
-            },
-          ],
-        })
+        .send([
+          {
+            ...validPayload[0],
+            attachments: [
+              {
+                url: "",
+                mime_type: "application/pdf",
+              },
+            ],
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Attachment URL is required",
+          message: "Item 1: Attachment URL is required",
         })
       );
     });
@@ -260,20 +286,35 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if attachment mime_type is empty", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          attachments: [
-            {
-              url: "https://esempio.com/documenti/fattura.pdf",
-              mime_type: "",
-            },
-          ],
-        })
+        .send([
+          {
+            ...validPayload[0],
+            attachments: [
+              {
+                url: "https://esempio.com/documenti/fattura.pdf",
+                mime_type: "",
+              },
+            ],
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Attachment mime_type is required",
+          message: "Item 1: Attachment mime_type is required",
+        })
+      );
+    });
+
+    it("Should return 400 for second item with invalid data", async () => {
+      const response = await request(app)
+        .post("/campaigns/1/finance/otherCosts")
+        .send([validPayload[0], { ...validPayload[0], description: "" }])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual(
+        expect.objectContaining({
+          message: "Item 2: Description should not be empty",
         })
       );
     });
@@ -338,15 +379,17 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should create cost with single attachment", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          attachments: [
-            {
-              url: "https://esempio.com/documenti/fattura.pdf",
-              mime_type: "application/pdf",
-            },
-          ],
-        })
+        .send([
+          {
+            ...validPayload[0],
+            attachments: [
+              {
+                url: "https://esempio.com/documenti/fattura.pdf",
+                mime_type: "application/pdf",
+              },
+            ],
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(201);
 
@@ -360,23 +403,25 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
     it("Should create cost with multiple attachments", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          attachments: [
-            {
-              url: "https://esempio.com/documenti/fattura1.pdf",
-              mime_type: "application/pdf",
-            },
-            {
-              url: "https://esempio.com/documenti/fattura2.pdf",
-              mime_type: "application/pdf",
-            },
-            {
-              url: "https://esempio.com/immagini/danno.jpg",
-              mime_type: "image/jpeg",
-            },
-          ],
-        })
+        .send([
+          {
+            ...validPayload[0],
+            attachments: [
+              {
+                url: "https://esempio.com/documenti/fattura1.pdf",
+                mime_type: "application/pdf",
+              },
+              {
+                url: "https://esempio.com/documenti/fattura2.pdf",
+                mime_type: "application/pdf",
+              },
+              {
+                url: "https://esempio.com/immagini/danno.jpg",
+                mime_type: "image/jpeg",
+              },
+            ],
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(201);
 
@@ -396,11 +441,13 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
 
       const response2 = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          description: "Second cost",
-          cost: 100.0,
-        })
+        .send([
+          {
+            ...validPayload[0],
+            description: "Second cost",
+            cost: 100.0,
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response2.status).toBe(201);
 
@@ -411,10 +458,36 @@ describe("POST /campaigns/campaignId/finance/otherCosts", () => {
       expect(getResponse.body.items).toHaveLength(2);
     });
 
+    it("Should create multiple costs in single request", async () => {
+      const response = await request(app)
+        .post("/campaigns/1/finance/otherCosts")
+        .send([
+          validPayload[0],
+          {
+            ...validPayload[0],
+            description: "Second cost",
+            cost: 100.0,
+          },
+          {
+            ...validPayload[0],
+            description: "Third cost",
+            cost: 150.0,
+          },
+        ])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(201);
+
+      const getResponse = await request(app)
+        .get("/campaigns/1/finance/otherCosts")
+        .set("Authorization", "Bearer admin");
+      expect(getResponse.status).toBe(200);
+      expect(getResponse.body.items).toHaveLength(3);
+    });
+
     it("Should accept decimal cost values", async () => {
       const response = await request(app)
         .post("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost: 123.456 })
+        .send([{ ...validPayload[0], cost: 123.456 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(201);
 

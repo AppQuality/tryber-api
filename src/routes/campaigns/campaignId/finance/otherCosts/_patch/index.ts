@@ -5,6 +5,15 @@ import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 import deleteFromS3 from "@src/features/deleteFromS3";
 
+type OtherCostItem = {
+  cost_id: number;
+  description: string;
+  type_id: number;
+  supplier_id: number;
+  cost: number;
+  attachments: { url: string; mime_type: string }[];
+};
+
 export default class OtherCostsPatchRoute extends CampaignRoute<{
   response: StoplightOperations["patch-campaigns-campaign-finance-otherCosts"]["responses"]["200"]["content"]["application/json"];
   parameters: StoplightOperations["patch-campaigns-campaign-finance-otherCosts"]["parameters"]["path"];
@@ -20,32 +29,52 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
 
     const body = this.getBody();
 
-    if (body.attachments.length === 0) {
+    if (!Array.isArray(body) || body.length === 0) {
       this.setError(
         400,
-        new OpenapiError("At least one attachment is required")
+        new OpenapiError("Body must be a non-empty array of cost items")
       );
       return false;
     }
 
-    if (body.cost_id <= 0) {
-      this.setError(400, new OpenapiError("cost_id must be a positive number"));
-      return false;
-    }
+    for (const item of body) {
+      const i = body.indexOf(item);
+      if (item.attachments.length === 0) {
+        this.setError(
+          400,
+          new OpenapiError(`Item ${i + 1}: At least one attachment is required`)
+        );
+        return false;
+      }
 
-    if (!(await this.costExistsInCampaign(body.cost_id))) {
-      this.setError(404, new OpenapiError("Cost not found for this campaign"));
-      return false;
-    }
+      if (item.cost_id <= 0) {
+        this.setError(
+          400,
+          new OpenapiError(`Item ${i + 1}: cost_id must be a positive number`)
+        );
+        return false;
+      }
 
-    if (!(await this.typeExists(body.type_id))) {
-      this.setError(404, new OpenapiError("Type not found"));
-      return false;
-    }
+      if (!(await this.costExistsInCampaign(item.cost_id))) {
+        this.setError(
+          404,
+          new OpenapiError(`Item ${i + 1}: Cost not found for this campaign`)
+        );
+        return false;
+      }
 
-    if (!(await this.supplierExists(body.supplier_id))) {
-      this.setError(404, new OpenapiError("Supplier not found"));
-      return false;
+      if (!(await this.typeExists(item.type_id))) {
+        this.setError(404, new OpenapiError(`Item ${i + 1}: Type not found`));
+        return false;
+      }
+
+      if (!(await this.supplierExists(item.supplier_id))) {
+        this.setError(
+          404,
+          new OpenapiError(`Item ${i + 1}: Supplier not found`)
+        );
+        return false;
+      }
     }
 
     return true;
@@ -54,14 +83,18 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
   protected async prepare(): Promise<void> {
     try {
       const body = this.getBody();
-      await this.updateOtherCost(body);
+      const updatedCosts = [];
 
-      const updatedCost = await this.getUpdatedCost(body.cost_id);
+      for (const item of body) {
+        await this.updateOtherCost(item);
+        const updatedCost = await this.getUpdatedCost(item.cost_id);
+        updatedCosts.push(updatedCost);
+      }
 
-      return this.setSuccess(200, updatedCost);
+      return this.setSuccess(200, updatedCosts);
     } catch (e) {
-      console.error("Error updating other cost: ", e);
-      return this.setError(500, new OpenapiError("Error updating other cost"));
+      console.error("Error updating other costs: ", e);
+      return this.setError(500, new OpenapiError("Error updating other costs"));
     }
   }
 
@@ -86,23 +119,21 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
     return supplier !== undefined;
   }
 
-  private async updateOtherCost(
-    body: StoplightOperations["patch-campaigns-campaign-finance-otherCosts"]["requestBody"]["content"]["application/json"]
-  ): Promise<void> {
-    await this.updateAttachments();
+  private async updateOtherCost(item: OtherCostItem): Promise<void> {
+    await this.updateAttachments(item);
 
     await tryber.tables.WpAppqCampaignOtherCosts.do()
-      .where({ id: body.cost_id })
+      .where({ id: item.cost_id })
       .update({
-        description: body.description,
-        cost: body.cost,
-        type_id: body.type_id,
-        supplier_id: body.supplier_id,
+        description: item.description,
+        cost: item.cost,
+        type_id: item.type_id,
+        supplier_id: item.supplier_id,
       });
   }
 
-  private async updateAttachments(): Promise<void> {
-    const { cost_id, attachments } = this.getBody();
+  private async updateAttachments(item: OtherCostItem): Promise<void> {
+    const { cost_id, attachments } = item;
     const existingAttachments =
       await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
         .select("id", "url", "mime_type")

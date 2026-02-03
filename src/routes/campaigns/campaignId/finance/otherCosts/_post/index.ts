@@ -4,6 +4,14 @@ import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
 
+type OtherCostItem = {
+  description: string;
+  type_id: number;
+  supplier_id: number;
+  cost: number;
+  attachments: { url: string; mime_type: string }[];
+};
+
 export default class OtherCostsPostRoute extends CampaignRoute<{
   response: StoplightOperations["post-campaigns-campaign-finance-otherCosts"]["responses"]["201"];
   parameters: StoplightOperations["post-campaigns-campaign-finance-otherCosts"]["parameters"]["path"];
@@ -19,50 +27,69 @@ export default class OtherCostsPostRoute extends CampaignRoute<{
 
     const body = this.getBody();
 
-    // Validate description
-    if (!body.description || body.description.trim() === "") {
-      this.setError(400, new OpenapiError("Description should not be empty"));
-      return false;
-    }
-
-    // Validate cost
-    if (body.cost <= 0) {
-      this.setError(400, new OpenapiError("Cost must be greater than 0"));
-      return false;
-    }
-
-    // Validate type_id exists
-    if (!(await this.typeExists(body.type_id))) {
-      this.setError(400, new OpenapiError("Type not found"));
-      return false;
-    }
-
-    // Validate supplier_id exists
-    if (!(await this.supplierExists(body.supplier_id))) {
-      this.setError(400, new OpenapiError("Supplier not found"));
-      return false;
-    }
-
-    // Validate attachments
-    if (!body.attachments || body.attachments.length === 0) {
+    if (!Array.isArray(body) || body.length === 0) {
       this.setError(
         400,
-        new OpenapiError("At least one attachment is required")
+        new OpenapiError("Body must be a non-empty array of cost items")
       );
       return false;
     }
 
-    for (const attachment of body.attachments) {
-      if (!attachment.url || attachment.url.trim() === "") {
-        this.setError(400, new OpenapiError("Attachment URL is required"));
-        return false;
-      }
-      if (!attachment.mime_type || attachment.mime_type.trim() === "") {
+    for (const item of body) {
+      const i = body.indexOf(item);
+
+      if (!item.description || item.description.trim() === "") {
         this.setError(
           400,
-          new OpenapiError("Attachment mime_type is required")
+          new OpenapiError(`Item ${i + 1}: Description should not be empty`)
         );
         return false;
+      }
+
+      if (item.cost <= 0) {
+        this.setError(
+          400,
+          new OpenapiError(`Item ${i + 1}: Cost must be greater than 0`)
+        );
+        return false;
+      }
+
+      if (!(await this.typeExists(item.type_id))) {
+        this.setError(400, new OpenapiError(`Item ${i + 1}: Type not found`));
+        return false;
+      }
+
+      if (!(await this.supplierExists(item.supplier_id))) {
+        this.setError(
+          400,
+          new OpenapiError(`Item ${i + 1}: Supplier not found`)
+        );
+        return false;
+      }
+
+      if (!item.attachments || item.attachments.length === 0) {
+        this.setError(
+          400,
+          new OpenapiError(`Item ${i + 1}: At least one attachment is required`)
+        );
+        return false;
+      }
+
+      for (const attachment of item.attachments) {
+        if (!attachment.url || attachment.url.trim() === "") {
+          this.setError(
+            400,
+            new OpenapiError(`Item ${i + 1}: Attachment URL is required`)
+          );
+          return false;
+        }
+        if (!attachment.mime_type || attachment.mime_type.trim() === "") {
+          this.setError(
+            400,
+            new OpenapiError(`Item ${i + 1}: Attachment mime_type is required`)
+          );
+          return false;
+        }
       }
     }
 
@@ -72,26 +99,27 @@ export default class OtherCostsPostRoute extends CampaignRoute<{
   protected async prepare(): Promise<void> {
     try {
       const body = this.getBody();
-      const costId = await this.createOtherCost(body);
-      await this.createAttachments(costId, body.attachments);
 
-      return this.setSuccess(201, undefined);
+      for (const item of body) {
+        const costId = await this.createOtherCost(item);
+        await this.createAttachments(costId, item.attachments);
+      }
+
+      return this.setSuccess(201, {});
     } catch (e) {
-      console.error("Error creating other cost: ", e);
-      return this.setError(500, new OpenapiError("Error creating other cost"));
+      console.error("Error creating other costs: ", e);
+      return this.setError(500, new OpenapiError("Error creating other costs"));
     }
   }
 
-  private async createOtherCost(
-    body: StoplightOperations["post-campaigns-campaign-finance-otherCosts"]["requestBody"]["content"]["application/json"]
-  ): Promise<number> {
+  private async createOtherCost(item: OtherCostItem): Promise<number> {
     const result = await tryber.tables.WpAppqCampaignOtherCosts.do()
       .insert({
         campaign_id: this.cp_id,
-        description: body.description,
-        cost: body.cost,
-        type_id: body.type_id,
-        supplier_id: body.supplier_id,
+        description: item.description,
+        cost: item.cost,
+        type_id: item.type_id,
+        supplier_id: item.supplier_id,
       })
       .returning("id");
 
