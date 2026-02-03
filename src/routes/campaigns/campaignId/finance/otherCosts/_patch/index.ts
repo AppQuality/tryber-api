@@ -20,6 +20,14 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
 
     const body = this.getBody();
 
+    if (body.attachments.length === 0) {
+      this.setError(
+        400,
+        new OpenapiError("At least one attachment is required")
+      );
+      return false;
+    }
+
     if (body.cost_id <= 0) {
       this.setError(400, new OpenapiError("cost_id must be a positive number"));
       return false;

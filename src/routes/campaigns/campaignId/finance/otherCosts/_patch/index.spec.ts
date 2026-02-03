@@ -291,6 +291,15 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
       expect(response.body.err).toBeDefined();
     });
 
+    it("Should return 400 if attachments is an empty array", async () => {
+      const response = await request(app)
+        .patch("/campaigns/1/finance/otherCosts")
+        .send({ ...validPayload, attachments: [] })
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe("At least one attachment is required");
+    });
+
     it("Should return 400 if attachments array item is missing url", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
