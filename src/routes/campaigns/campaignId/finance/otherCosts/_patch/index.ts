@@ -25,20 +25,17 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
       return false;
     }
 
-    const costExists = await this.costExistsInCampaign(body.cost_id);
-    if (!costExists) {
+    if (!(await this.costExistsInCampaign(body.cost_id))) {
       this.setError(404, new OpenapiError("Cost not found for this campaign"));
       return false;
     }
 
-    const typeExists = await this.typeExists(body.type_id);
-    if (!typeExists) {
+    if (!(await this.typeExists(body.type_id))) {
       this.setError(404, new OpenapiError("Type not found"));
       return false;
     }
 
-    const supplierExists = await this.supplierExists(body.supplier_id);
-    if (!supplierExists) {
+    if (!(await this.supplierExists(body.supplier_id))) {
       this.setError(404, new OpenapiError("Supplier not found"));
       return false;
     }
