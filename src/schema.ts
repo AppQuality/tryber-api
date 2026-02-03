@@ -5697,7 +5697,7 @@ export interface operations {
             url: string;
             mime_type: string;
           }[];
-        };
+        }[];
       };
     };
   };
@@ -5747,7 +5747,7 @@ export interface operations {
               url: string;
               mime_type: string;
             }[];
-          };
+          }[];
         };
       };
       /** Bad Request */
@@ -5770,7 +5770,7 @@ export interface operations {
             mime_type: string;
           }[];
           cost_id: number;
-        };
+        }[];
       };
     };
   };

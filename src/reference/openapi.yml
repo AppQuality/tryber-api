@@ -13600,57 +13600,59 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              x-examples:
-                Example 1:
-                  description: Riparazione hardware ufficio
-                  type_id: 3
-                  supplier_id: 105
-                  cost: 250.5
+              type: array
+              items:
+                type: object
+                x-examples:
+                  Example 1:
+                    description: Riparazione hardware ufficio
+                    type_id: 3
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
+                required:
+                  - description
+                  - type_id
+                  - supplier_id
+                  - cost
+                  - attachments
+                properties:
+                  description:
+                    type: string
+                  type_id:
+                    type: integer
+                  supplier_id:
+                    type: integer
+                  cost:
+                    type: number
                   attachments:
-                    - url: 'https://esempio.com/documenti/fattura.pdf'
-                      mime_type: application/pdf
-                    - url: 'https://esempio.com/immagini/danno.jpg'
-                      mime_type: image/jpeg
-              required:
-                - description
-                - type_id
-                - supplier_id
-                - cost
-                - attachments
-              properties:
-                description:
-                  type: string
-                type_id:
-                  type: integer
-                supplier_id:
-                  type: integer
-                cost:
-                  type: number
-                attachments:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                      - url
-                      - mime_type
-                    properties:
-                      url:
-                        type: string
-                      mime_type:
-                        type: string
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+                        mime_type:
+                          type: string
             examples:
               Example 1:
                 value:
-                  description: Riparazione hardware ufficio
-                  type_id: 3
-                  supplier_id: 105
-                  cost: 250.5
-                  attachments:
-                    - url: 'https://esempio.com/documenti/fattura.pdf'
-                      mime_type: application/pdf
-                    - url: 'https://esempio.com/immagini/danno.jpg'
-                      mime_type: image/jpeg
+                  - description: Riparazione hardware ufficio
+                    type_id: 3
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
       security:
         - JWT: []
     delete:
@@ -13697,64 +13699,66 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                x-examples:
-                  Example 1:
-                    description: Riparazione hardware ufficio
-                    type_id: 3
-                    cost_id: 2
-                    supplier_id: 105
-                    cost: 250.5
+                type: array
+                items:
+                  type: object
+                  x-examples:
+                    Example 1:
+                      description: Riparazione hardware ufficio
+                      type_id: 3
+                      cost_id: 2
+                      supplier_id: 105
+                      cost: 250.5
+                      attachments:
+                        - url: 'https://esempio.com/documenti/fattura.pdf'
+                          mime_type: application/pdf
+                        - url: 'https://esempio.com/immagini/danno.jpg'
+                          mime_type: image/jpeg
+                  required:
+                    - description
+                    - type
+                    - cost_id
+                    - supplier
+                    - cost
+                    - attachments
+                  properties:
+                    description:
+                      type: string
+                    type:
+                      type: string
+                      x-stoplight:
+                        id: q54ltj77jcyf0
+                    cost_id:
+                      type: integer
+                    supplier:
+                      type: string
+                      x-stoplight:
+                        id: 5aunsjh1dxfq1
+                    cost:
+                      type: number
                     attachments:
-                      - url: 'https://esempio.com/documenti/fattura.pdf'
-                        mime_type: application/pdf
-                      - url: 'https://esempio.com/immagini/danno.jpg'
-                        mime_type: image/jpeg
-                required:
-                  - description
-                  - type
-                  - cost_id
-                  - supplier
-                  - cost
-                  - attachments
-                properties:
-                  description:
-                    type: string
-                  type:
-                    type: string
-                    x-stoplight:
-                      id: q54ltj77jcyf0
-                  cost_id:
-                    type: integer
-                  supplier:
-                    type: string
-                    x-stoplight:
-                      id: 5aunsjh1dxfq1
-                  cost:
-                    type: number
-                  attachments:
-                    type: array
-                    items:
-                      type: object
-                      required:
-                        - url
-                        - mime_type
-                      properties:
-                        url:
-                          type: string
-                        mime_type:
-                          type: string
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - url
+                          - mime_type
+                        properties:
+                          url:
+                            type: string
+                          mime_type:
+                            type: string
               examples:
                 Example 1:
                   value:
-                    description: description
-                    type: Type 1
-                    cost_id: 10
-                    supplier: Supplier
-                    cost: 104
-                    attachments:
-                      - url: 'https://example.com/'
-                        mime_type: image/jpg
+                    - description: description
+                      type: Type 1
+                      cost_id: 10
+                      supplier: Supplier
+                      cost: 104
+                      attachments:
+                        - url: 'https://example.com/'
+                          mime_type: image/jpg
         '400':
           description: Bad Request
         '403':
@@ -13772,63 +13776,65 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              x-examples:
-                Example 1:
-                  description: Riparazione hardware ufficio
-                  type_id: 3
-                  supplier_id: 105
-                  cost: 250.5
+              type: array
+              items:
+                type: object
+                x-examples:
+                  Example 1:
+                    description: Riparazione hardware ufficio
+                    type_id: 3
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
+                required:
+                  - description
+                  - type_id
+                  - supplier_id
+                  - cost
+                  - attachments
+                  - cost_id
+                properties:
+                  description:
+                    type: string
+                  type_id:
+                    type: integer
+                  supplier_id:
+                    type: integer
+                  cost:
+                    type: number
                   attachments:
-                    - url: 'https://esempio.com/documenti/fattura.pdf'
-                      mime_type: application/pdf
-                    - url: 'https://esempio.com/immagini/danno.jpg'
-                      mime_type: image/jpeg
-              required:
-                - description
-                - type_id
-                - supplier_id
-                - cost
-                - attachments
-                - cost_id
-              properties:
-                description:
-                  type: string
-                type_id:
-                  type: integer
-                supplier_id:
-                  type: integer
-                cost:
-                  type: number
-                attachments:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                      - url
-                      - mime_type
-                    properties:
-                      url:
-                        type: string
-                      mime_type:
-                        type: string
-                cost_id:
-                  type: integer
-                  x-stoplight:
-                    id: drnv0dayw8k18
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+                        mime_type:
+                          type: string
+                  cost_id:
+                    type: integer
+                    x-stoplight:
+                      id: drnv0dayw8k18
             examples:
               Example 1:
                 value:
-                  description: Riparazione hardware ufficio
-                  type_id: 3
-                  cost_id: 2
-                  supplier_id: 105
-                  cost: 250.5
-                  attachments:
-                    - url: 'https://esempio.com/documenti/fattura.pdf'
-                      mime_type: application/pdf
-                    - url: 'https://esempio.com/immagini/danno.jpg'
-                      mime_type: image/jpeg
+                  - description: Riparazione hardware ufficio
+                    type_id: 3
+                    cost_id: 2
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
 servers:
   - url: 'https://api.app-quality.com'
 tags:
