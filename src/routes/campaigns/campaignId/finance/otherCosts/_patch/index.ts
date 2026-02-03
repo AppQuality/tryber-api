@@ -38,12 +38,11 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
     }
 
     for (const item of body) {
+      const i = body.indexOf(item);
       if (item.attachments.length === 0) {
         this.setError(
           400,
-          new OpenapiError(
-            `Item ${item.cost_id}: At least one attachment is required`
-          )
+          new OpenapiError(`Item ${i + 1}: At least one attachment is required`)
         );
         return false;
       }
@@ -51,9 +50,7 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
       if (item.cost_id <= 0) {
         this.setError(
           400,
-          new OpenapiError(
-            `Item ${item.cost_id}: cost_id must be a positive number`
-          )
+          new OpenapiError(`Item ${i + 1}: cost_id must be a positive number`)
         );
         return false;
       }
@@ -61,25 +58,20 @@ export default class OtherCostsPatchRoute extends CampaignRoute<{
       if (!(await this.costExistsInCampaign(item.cost_id))) {
         this.setError(
           404,
-          new OpenapiError(
-            `Item ${item.cost_id}: Cost not found for this campaign`
-          )
+          new OpenapiError(`Item ${i + 1}: Cost not found for this campaign`)
         );
         return false;
       }
 
       if (!(await this.typeExists(item.type_id))) {
-        this.setError(
-          404,
-          new OpenapiError(`Item ${item.cost_id}: Type not found`)
-        );
+        this.setError(404, new OpenapiError(`Item ${i + 1}: Type not found`));
         return false;
       }
 
       if (!(await this.supplierExists(item.supplier_id))) {
         this.setError(
           404,
-          new OpenapiError(`Item ${item.cost_id}: Supplier not found`)
+          new OpenapiError(`Item ${i + 1}: Supplier not found`)
         );
         return false;
       }

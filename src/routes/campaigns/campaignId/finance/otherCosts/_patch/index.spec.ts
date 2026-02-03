@@ -108,23 +108,25 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     await tryber.tables.WpAppqEvdProfile.do().delete();
   });
 
-  const validPayload = {
-    description: "Riparazione hardware ufficio",
-    type_id: 3,
-    cost_id: 1,
-    supplier_id: 105,
-    cost: 250.5,
-    attachments: [
-      {
-        url: "https://esempio.com/documenti/fattura.pdf",
-        mime_type: "application/pdf",
-      },
-      {
-        url: "https://esempio.com/immagini/danno.jpg",
-        mime_type: "image/jpeg",
-      },
-    ],
-  };
+  const validPayload = [
+    {
+      description: "Riparazione hardware ufficio",
+      type_id: 3,
+      cost_id: 1,
+      supplier_id: 105,
+      cost: 250.5,
+      attachments: [
+        {
+          url: "https://esempio.com/documenti/fattura.pdf",
+          mime_type: "application/pdf",
+        },
+        {
+          url: "https://esempio.com/immagini/danno.jpg",
+          mime_type: "image/jpeg",
+        },
+      ],
+    },
+  ];
 
   describe("Authentication and Authorization", () => {
     beforeEach(async () => {
@@ -190,12 +192,32 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
       });
     });
 
+    it("Should return 400 if body is not an array", async () => {
+      const response = await request(app)
+        .patch("/campaigns/1/finance/otherCosts")
+        .send(validPayload[0])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body.err).toBeDefined();
+    });
+
+    it("Should return 400 if array is empty", async () => {
+      const response = await request(app)
+        .patch("/campaigns/1/finance/otherCosts")
+        .send([])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        "Body must be a non-empty array of cost items"
+      );
+    });
+
     it("Should return 400 if cost_id is missing", async () => {
-      const { cost_id, ...payload } = validPayload;
+      const { cost_id, ...item } = validPayload[0];
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
+        .send([item])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
@@ -204,7 +226,7 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if cost_id is null", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost_id: null })
+        .send([{ ...validPayload[0], cost_id: null }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
@@ -213,12 +235,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if cost_id is zero", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost_id: 0 })
+        .send([{ ...validPayload[0], cost_id: 0 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "cost_id must be a positive number",
+          message: "Item 1: cost_id must be a positive number",
         })
       );
     });
@@ -226,66 +248,66 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if cost_id is negative", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost_id: -1 })
+        .send([{ ...validPayload[0], cost_id: -1 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "cost_id must be a positive number",
+          message: "Item 1: cost_id must be a positive number",
         })
       );
     });
 
     it("Should return 400 if description is missing", async () => {
-      const { description, ...payload } = validPayload;
+      const { description, ...item } = validPayload[0];
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
+        .send([item])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
     });
 
     it("Should return 400 if type_id is missing", async () => {
-      const { type_id, ...payload } = validPayload;
+      const { type_id, ...item } = validPayload[0];
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
+        .send([item])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
     });
 
     it("Should return 400 if supplier_id is missing", async () => {
-      const { supplier_id, ...payload } = validPayload;
+      const { supplier_id, ...item } = validPayload[0];
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
+        .send([item])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
     });
 
     it("Should return 400 if cost is missing", async () => {
-      const { cost, ...payload } = validPayload;
+      const { cost, ...item } = validPayload[0];
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
+        .send([item])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
     });
 
     it("Should return 400 if attachments is missing", async () => {
-      const { attachments, ...payload } = validPayload;
+      const { attachments, ...item } = validPayload[0];
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send(payload)
+        .send([item])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
@@ -294,19 +316,23 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if attachments is an empty array", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, attachments: [] })
+        .send([{ ...validPayload[0], attachments: [] }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
-      expect(response.body.message).toBe("At least one attachment is required");
+      expect(response.body.message).toBe(
+        "Item 1: At least one attachment is required"
+      );
     });
 
     it("Should return 400 if attachments array item is missing url", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          attachments: [{ mime_type: "application/pdf" }],
-        })
+        .send([
+          {
+            ...validPayload[0],
+            attachments: [{ mime_type: "application/pdf" }],
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
@@ -315,10 +341,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 400 if attachments array item is missing mime_type", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({
-          ...validPayload,
-          attachments: [{ url: "https://example.com/file.pdf" }],
-        })
+        .send([
+          {
+            ...validPayload[0],
+            attachments: [{ url: "https://example.com/file.pdf" }],
+          },
+        ])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(400);
       expect(response.body.err).toBeDefined();
@@ -329,12 +357,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
     it("Should return 404 if cost_id does not exist", async () => {
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost_id: 999 })
+        .send([{ ...validPayload[0], cost_id: 999 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(404);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Cost not found for this campaign",
+          message: "Item 1: Cost not found for this campaign",
         })
       );
     });
@@ -351,12 +379,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, cost_id: 10 })
+        .send([{ ...validPayload[0], cost_id: 10 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(404);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Cost not found for this campaign",
+          message: "Item 1: Cost not found for this campaign",
         })
       );
     });
@@ -373,12 +401,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, type_id: 999 })
+        .send([{ ...validPayload[0], type_id: 999 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(404);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Type not found",
+          message: "Item 1: Type not found",
         })
       );
     });
@@ -395,12 +423,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, supplier_id: 999 })
+        .send([{ ...validPayload[0], supplier_id: 999 }])
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(404);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Supplier not found",
+          message: "Item 1: Supplier not found",
         })
       );
     });
@@ -422,6 +450,15 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
         .send(validPayload)
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(1);
+      expect(response.body[0]).toEqual(
+        expect.objectContaining({
+          cost_id: 1,
+          description: "Riparazione hardware ufficio",
+          cost: 250.5,
+        })
+      );
 
       const updatedCost = await tryber.tables.WpAppqCampaignOtherCosts.do()
         .where({ id: 1 })
@@ -469,6 +506,8 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
         .send(validPayload)
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(1);
 
       const attachments =
         await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
@@ -633,16 +672,12 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
 
       const response = await request(app)
         .patch("/campaigns/1/finance/otherCosts")
-        .send({ ...validPayload, attachments: [] })
+        .send([{ ...validPayload[0], attachments: [] }])
         .set("Authorization", "Bearer admin");
-      expect(response.status).toBe(200);
-
-      const attachments =
-        await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
-          .where({ cost_id: 1 })
-          .select();
-      expect(attachments).toHaveLength(0);
-      expect(deleteFromS3).toHaveBeenCalledTimes(1);
+      expect(response.status).toBe(400);
+      expect(response.body.message).toBe(
+        "Item 1: At least one attachment is required"
+      );
     });
 
     it("Should only update specified cost, not others", async () => {
@@ -670,6 +705,8 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
         .send(validPayload)
         .set("Authorization", "Bearer admin");
       expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(1);
 
       const updatedCost = await tryber.tables.WpAppqCampaignOtherCosts.do()
         .where({ id: 1 })
@@ -697,6 +734,63 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
       expect(getResponse.status).toBe(200);
       expect(getResponse.body.items).toHaveLength(2);
     });
+
+    it("Should update multiple costs in single request", async () => {
+      await tryber.tables.WpAppqCampaignOtherCosts.do().insert([
+        {
+          id: 1,
+          campaign_id: 1,
+          description: "First cost",
+          cost: 100.0,
+          type_id: 1,
+          supplier_id: 1,
+        },
+        {
+          id: 2,
+          campaign_id: 1,
+          description: "Second cost",
+          cost: 200.0,
+          type_id: 2,
+          supplier_id: 2,
+        },
+      ]);
+
+      const response = await request(app)
+        .patch("/campaigns/1/finance/otherCosts")
+        .send([
+          validPayload[0],
+          {
+            ...validPayload[0],
+            cost_id: 2,
+            description: "Updated second cost",
+            cost: 300.0,
+          },
+        ])
+        .set("Authorization", "Bearer admin");
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(2);
+
+      const cost1 = await tryber.tables.WpAppqCampaignOtherCosts.do()
+        .where({ id: 1 })
+        .first();
+      expect(cost1).toEqual(
+        expect.objectContaining({
+          description: "Riparazione hardware ufficio",
+          cost: 250.5,
+        })
+      );
+
+      const cost2 = await tryber.tables.WpAppqCampaignOtherCosts.do()
+        .where({ id: 2 })
+        .first();
+      expect(cost2).toEqual(
+        expect.objectContaining({
+          description: "Updated second cost",
+          cost: 300.0,
+        })
+      );
+    });
   });
 
   describe("Success - olp permissions", () => {
@@ -715,6 +809,8 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
         .send(validPayload)
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
       expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(1);
 
       const updatedCost = await tryber.tables.WpAppqCampaignOtherCosts.do()
         .where({ id: 1 })
@@ -757,6 +853,8 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
         .send(validPayload)
         .set("Authorization", 'Bearer tester olp {"appq_campaign":[1]}');
       expect(response.status).toBe(200);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveLength(1);
 
       const attachments =
         await tryber.tables.WpAppqCampaignOtherCostsAttachment.do()
@@ -808,7 +906,7 @@ describe("PATCH /campaigns/campaignId/finance/otherCosts", () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual(
         expect.objectContaining({
-          message: "Error updating other cost",
+          message: "Error updating other costs",
         })
       );
     });
