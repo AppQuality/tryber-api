@@ -827,10 +827,11 @@ export interface paths {
     /** Create a new campaign cost */
     post: operations["post-campaigns-campaign-finance-otherCosts"];
     delete: operations["delete-campaigns-campaign-finance-otherCosts"];
+    patch: operations["patch-campaigns-campaign-finance-otherCosts"];
     parameters: {
       path: {
         /** A campaign id */
-        campaign: components["parameters"]["campaign"];
+        campaign: string;
       };
     };
   };
@@ -5630,7 +5631,7 @@ export interface operations {
     parameters: {
       path: {
         /** A campaign id */
-        campaign: components["parameters"]["campaign"];
+        campaign: string;
       };
     };
     responses: {
@@ -5672,7 +5673,7 @@ export interface operations {
     parameters: {
       path: {
         /** A campaign id */
-        campaign: components["parameters"]["campaign"];
+        campaign: string;
       };
     };
     responses: {
@@ -5704,7 +5705,7 @@ export interface operations {
     parameters: {
       path: {
         /** A campaign id */
-        campaign: components["parameters"]["campaign"];
+        campaign: string;
       };
     };
     responses: {
@@ -5720,6 +5721,54 @@ export interface operations {
     requestBody: {
       content: {
         "application/json": {
+          cost_id: number;
+        };
+      };
+    };
+  };
+  "patch-campaigns-campaign-finance-otherCosts": {
+    parameters: {
+      path: {
+        /** A campaign id */
+        campaign: string;
+      };
+    };
+    responses: {
+      /** OK */
+      200: {
+        content: {
+          "application/json": {
+            description: string;
+            type: string;
+            cost_id: number;
+            supplier: string;
+            cost: number;
+            attachments: {
+              url: string;
+              mime_type: string;
+            }[];
+          };
+        };
+      };
+      /** Bad Request */
+      400: unknown;
+      /** Forbidden */
+      403: unknown;
+      404: components["responses"]["NotFound"];
+      /** Internal Server Error */
+      500: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          description: string;
+          type_id: number;
+          supplier_id: number;
+          cost: number;
+          attachments: {
+            url: string;
+            mime_type: string;
+          }[];
           cost_id: number;
         };
       };
