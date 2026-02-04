@@ -2985,11 +2985,86 @@ paths:
                     size: 0
                     start: 0
                     total: 0
+                reviewer-types:
+                  value:
+                    items:
+                      - created: string
+                        duplication: father
+                        id: 1
+                        internalId: string
+                        isFavourite: true
+                        severity:
+                          id: 0
+                          name: string
+                        status:
+                          id: 0
+                          name: string
+                        tags:
+                          - id: 0
+                            name: string
+                        tester:
+                          id: 0
+                        title: string
+                        type:
+                          id: 0
+                          name: string
+                        updated: string
+                      - created: string
+                        duplication: father
+                        id: 2
+                        internalId: string
+                        isFavourite: true
+                        reviewerType: ai
+                        severity:
+                          id: 0
+                          name: string
+                        status:
+                          id: 0
+                          name: string
+                        tags:
+                          - id: 0
+                            name: string
+                        tester:
+                          id: 0
+                        title: string
+                        type:
+                          id: 0
+                          name: string
+                        updated: string
+                      - created: string
+                        duplication: father
+                        id: 3
+                        internalId: string
+                        isFavourite: true
+                        reviewerType: human
+                        severity:
+                          id: 0
+                          name: string
+                        status:
+                          id: 0
+                          name: string
+                        tags:
+                          - id: 0
+                            name: string
+                        tester:
+                          id: 0
+                        title: string
+                        type:
+                          id: 0
+                          name: string
+                        updated: string
+                    limit: 0
+                    size: 0
+                    start: 0
+                    total: 3
               schema:
                 allOf:
-                  - properties:
+                  - type: object
+                    properties:
                       items:
+                        type: array
                         items:
+                          type: object
                           properties:
                             created:
                               type: string
@@ -3005,68 +3080,70 @@ paths:
                               type: string
                             isFavourite:
                               type: boolean
+                            reviewerType:
+                              type: string
+                              enum:
+                                - ai
+                                - human
                             severity:
+                              type: object
+                              required:
+                                - id
+                                - name
                               properties:
                                 id:
                                   type: integer
                                 name:
                                   type: string
-                              required:
-                                - id
-                                - name
-                              type: object
                             status:
+                              type: object
+                              required:
+                                - id
+                                - name
                               properties:
                                 id:
                                   type: integer
                                 name:
                                   type: string
-                              required:
-                                - id
-                                - name
-                              type: object
                             tags:
+                              type: array
                               items:
                                 $ref: '#/components/schemas/BugTag'
-                              type: array
                             tester:
+                              type: object
+                              required:
+                                - id
                               properties:
                                 id:
                                   type: integer
-                              required:
-                                - id
-                              type: object
                             title:
                               type: string
                             type:
+                              type: object
+                              required:
+                                - id
+                                - name
                               properties:
                                 id:
                                   type: integer
                                 name:
                                   type: string
-                              required:
-                                - id
-                                - name
-                              type: object
                             updated:
                               type: string
                           required:
-                            - id
-                            - title
-                            - internalId
-                            - status
-                            - type
-                            - severity
-                            - tester
-                            - duplication
-                            - isFavourite
                             - created
+                            - duplication
+                            - id
+                            - internalId
+                            - isFavourite
+                            - severity
+                            - status
+                            - tester
+                            - title
+                            - type
                             - updated
-                          type: object
-                        type: array
                     required:
                       - items
-                    type: object
                   - $ref: '#/components/schemas/PaginationData'
           description: OK
         '403':
@@ -6671,13 +6748,7 @@ paths:
       summary: Get Human Resources for a campaign
       tags: []
     parameters:
-      - schema:
-          type: string
-        name: campaign
-        in: path
-        required: true
       - $ref: '#/components/parameters/campaign'
-        description: Updates tokens_usage in campaign and updates the link between cp_id and agreementId
     put:
       summary: Your PUT endpoint
       tags: []
@@ -12841,6 +12912,7 @@ paths:
                       - id: 0
                         name: Name
                         rate: 0
+          description: ''
         '403':
           $ref: '#/components/responses/Authentication'
         '404':
@@ -13168,12 +13240,6 @@ paths:
       responses:
         '200':
           description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties: {}
-        '':
           content:
             application/json:
               schema:

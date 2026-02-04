@@ -41,6 +41,7 @@ const config: {
     name: string;
     email: string;
   };
+  aiReviewer: number;
 } = {
   port: process.env.PORT || "3000",
   apiRoot: false,
@@ -77,6 +78,7 @@ const config: {
     name: process.env.TESTER_LEADER_CPV2_NAME || "Unknown",
     email: process.env.TESTER_LEADER_CPV2_EMAIL || "Unknown",
   },
+  aiReviewer: Number(process.env.AI_REVIEWER_PROFILE_ID) || 0,
 };
 
 if (process.env.SSL_CHAIN && process.env.SSL_PRIVATE) {
