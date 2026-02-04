@@ -3,6 +3,7 @@
 import CampaignRoute from "@src/features/routes/CampaignRoute";
 import { tryber } from "@src/features/database";
 import OpenapiError from "@src/features/OpenapiError";
+import { getPresignedUrl } from "@src/features/s3/presignUrl";
 
 type OtherCost = {
   cost_id: number;
@@ -20,6 +21,7 @@ type OtherCost = {
     id: number;
     url: string;
     mimetype: string;
+    presigned_url: string;
   }[];
 };
 
@@ -77,31 +79,49 @@ export default class OtherCostsRoute extends CampaignRoute<{
         .select("id", "url", "mime_type", "cost_id")
         .whereIn("cost_id", costIds);
 
-    return costs.map((cost) => {
-      const type = types.find((t) => t.id === cost.type_id);
-      const supplier = suppliers.find((s) => s.id === cost.supplier_id);
-      const costAttachments = attachments.filter(
-        (a) => a.cost_id === cost.cost_id
-      );
+    return Promise.all(
+      costs.map(async (cost) => {
+        const type = types.find((t) => t.id === cost.type_id);
+        const supplier = suppliers.find((s) => s.id === cost.supplier_id);
+        const costAttachments = attachments.filter(
+          (a) => a.cost_id === cost.cost_id
+        );
 
-      return {
-        cost_id: cost.cost_id,
-        cost: cost.cost,
-        type: {
-          name: type?.name || "",
-          id: type?.id || 0,
-        },
-        supplier: {
-          name: supplier?.name || "",
-          id: supplier?.id || 0,
-        },
-        description: cost.description,
-        attachments: costAttachments.map((a) => ({
-          id: a.id,
-          url: a.url,
-          mimetype: a.mime_type,
-        })),
-      };
-    });
+        const resolvedAttachments = await Promise.all(
+          costAttachments.map(async (a) => {
+            let presignedUrl = a.url;
+            try {
+              presignedUrl = await getPresignedUrl(a.url, 10800);
+            } catch (error) {
+              console.error(
+                `Failed to generate presigned URL for ${a.url}:`,
+                error
+              );
+            }
+            return {
+              id: a.id,
+              url: a.url,
+              mimetype: a.mime_type,
+              presigned_url: presignedUrl,
+            };
+          })
+        );
+
+        return {
+          cost_id: cost.cost_id,
+          cost: cost.cost,
+          type: {
+            name: type?.name || "",
+            id: type?.id || 0,
+          },
+          supplier: {
+            name: supplier?.name || "",
+            id: supplier?.id || 0,
+          },
+          description: cost.description,
+          attachments: resolvedAttachments,
+        };
+      })
+    );
   }
 }

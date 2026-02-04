@@ -13533,6 +13533,7 @@ paths:
                               - id
                               - url
                               - mimetype
+                              - presigned_url
                             properties:
                               id:
                                 type: number
@@ -13546,6 +13547,10 @@ paths:
                                 type: string
                                 x-stoplight:
                                   id: 6tqj2cg96280v
+                              presigned_url:
+                                type: string
+                                x-stoplight:
+                                  id: 8zt5euhrtitz3
                         cost:
                           type: number
                           x-stoplight:

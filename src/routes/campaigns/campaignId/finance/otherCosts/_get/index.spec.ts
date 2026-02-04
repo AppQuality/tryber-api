@@ -1,8 +1,20 @@
 import request from "supertest";
 import app from "@src/app";
 import { tryber } from "@src/features/database";
+import { getPresignedUrl } from "@src/features/s3/presignUrl";
+
+jest.mock("@src/features/s3/presignUrl", () => {
+  return {
+    getPresignedUrl: jest
+      .fn()
+      .mockImplementation((url: string) => Promise.resolve(url)),
+  };
+});
 
 describe("GET /campaigns/campaignId/finance/otherCosts", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   beforeAll(async () => {
     await tryber.tables.WpAppqEvdProfile.do().insert([
       {
@@ -176,11 +188,13 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
                 id: 1,
                 url: "https://example.com/attachment1.pdf",
                 mimetype: "application/pdf",
+                presigned_url: expect.any(String),
               }),
               expect.objectContaining({
                 id: 2,
                 url: "https://example.com/attachment2.jpg",
                 mimetype: "image/jpeg",
+                presigned_url: expect.any(String),
               }),
             ]),
           }),
@@ -201,6 +215,7 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
                 id: 3,
                 url: "https://example.com/attachment3.png",
                 mimetype: "image/png",
+                presigned_url: expect.any(String),
               }),
             ]),
           }),
@@ -230,6 +245,20 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
               id: 1,
             },
             description: "Cost 1 description",
+            attachments: expect.arrayContaining([
+              expect.objectContaining({
+                id: 1,
+                url: "https://example.com/attachment1.pdf",
+                mimetype: "application/pdf",
+                presigned_url: expect.any(String),
+              }),
+              expect.objectContaining({
+                id: 2,
+                url: "https://example.com/attachment2.jpg",
+                mimetype: "image/jpeg",
+                presigned_url: expect.any(String),
+              }),
+            ]),
           }),
           expect.objectContaining({
             cost_id: 2,
@@ -243,6 +272,14 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
               id: 2,
             },
             description: "Cost 2 description",
+            attachments: expect.arrayContaining([
+              expect.objectContaining({
+                id: 3,
+                url: "https://example.com/attachment3.png",
+                mimetype: "image/png",
+                presigned_url: expect.any(String),
+              }),
+            ]),
           }),
         ]),
       })
@@ -306,5 +343,25 @@ describe("GET /campaigns/campaignId/finance/otherCosts", () => {
     expect(costWithoutAttachments).toBeDefined();
     expect(costWithoutAttachments.cost).toBe(50);
     expect(costWithoutAttachments.attachments).toEqual([]);
+  });
+
+  it("Should call getPresignedUrl for each attachment", async () => {
+    await request(app)
+      .get("/campaigns/1/finance/otherCosts")
+      .set("Authorization", "Bearer admin");
+
+    expect(getPresignedUrl).toHaveBeenCalledTimes(3);
+    expect(getPresignedUrl).toHaveBeenCalledWith(
+      "https://example.com/attachment1.pdf",
+      10800
+    );
+    expect(getPresignedUrl).toHaveBeenCalledWith(
+      "https://example.com/attachment2.jpg",
+      10800
+    );
+    expect(getPresignedUrl).toHaveBeenCalledWith(
+      "https://example.com/attachment3.png",
+      10800
+    );
   });
 });
