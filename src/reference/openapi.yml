@@ -4058,6 +4058,82 @@ paths:
         required: true
         schema:
           type: string
+  '/campaigns/{campaign}/finance/attachments':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    post:
+      summary: Your POST endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - name
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+                        name:
+                          type: string
+                        mime_type:
+                          type: string
+                  failed:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - path
+                      properties:
+                        name:
+                          type: string
+                        path:
+                          type: string
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '500':
+          description: Internal Server Error
+      operationId: post-campaigns-campaign-finance-attachments
+      x-stoplight:
+        id: 0ucra88nj3skb
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                attachment:
+                  x-stoplight:
+                    id: loo9qp15yg7er
+                  oneOf:
+                    - type: string
+                      x-stoplight:
+                        id: 1y0da4vjut50n
+                      format: binary
+                    - type: array
+                      x-stoplight:
+                        id: 567eldf6sv5mh
+                      items:
+                        x-stoplight:
+                          id: ykrxebcilk657
+                        type: string
+                        format: binary
   '/campaigns/{campaign}/forms':
     get:
       description: ''
@@ -13265,6 +13341,571 @@ paths:
                 - jotformId
                 - testerQuestionId
       description: ''
+  '/campaigns/{campaign}/finance/supplier':
+    get:
+      description: Get all finance suppliers
+      operationId: get-campaigns-campaign-finance-supplier
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: hhr19m5dfxjtt
+                    items:
+                      x-stoplight:
+                        id: ihcfe7bywmrjs
+                      type: object
+                      required:
+                        - name
+                        - id
+                      properties:
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: 08yzm5eu8tl1h
+                        created_at:
+                          type: string
+                          x-stoplight:
+                            id: w0fmflgc090ff
+                        created_by:
+                          type: integer
+                          x-stoplight:
+                            id: gcs2p8mvl32gc
+                        id:
+                          type: number
+                          x-stoplight:
+                            id: ek7zfipegepg5
+              examples:
+                Example 2:
+                  value:
+                    items:
+                      - id: 1
+                        name: Respondent
+                        created_at: '2026-01-01'
+                        created_by: 10
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      summary: Get finance supplier
+      x-stoplight:
+        id: tlziygldrfder
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    post:
+      summary: POST a new supplier
+      operationId: post-campaigns-campaign-finance-supplier
+      tags:
+        - Campaign
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - supplier_id
+                properties:
+                  supplier_id:
+                    type: number
+                    x-stoplight:
+                      id: rsrwvlerw0w2j
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal Server Error
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+            examples:
+              Example 1:
+                value:
+                  name: Respondent
+      x-stoplight:
+        id: j17dlfvjwluu7
+  '/campaigns/{campaign}/finance/type':
+    parameters:
+      - schema:
+          type: string
+        name: campaign
+        in: path
+        required: true
+    get:
+      summary: GET types
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: d7f0e5l5qrx6o
+                    items:
+                      x-stoplight:
+                        id: r1p9rcymebjpu
+                      type: object
+                      required:
+                        - name
+                        - id
+                      properties:
+                        name:
+                          type: string
+                          x-stoplight:
+                            id: y0keeoutvijjh
+                        id:
+                          type: number
+                          x-stoplight:
+                            id: r546xns1ecc4j
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - name: Recruiting
+                        id: 1
+                      - name: Survey
+                        id: 2
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: get-campaigns-campaign-finance-type
+      x-stoplight:
+        id: 02e8ns5xdhecm
+      security:
+        - JWT: []
+  '/campaigns/{campaign}/finance/otherCosts':
+    parameters:
+      - description: A campaign id
+        in: path
+        name: campaign
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    x-stoplight:
+                      id: 7k2qykvqlzwfe
+                    items:
+                      x-stoplight:
+                        id: srl106ylr6cpm
+                      type: object
+                      required:
+                        - cost_id
+                        - type
+                        - supplier
+                        - description
+                        - attachments
+                        - cost
+                      properties:
+                        cost_id:
+                          type: number
+                          x-stoplight:
+                            id: 5tq4npphsv3wx
+                        type:
+                          type: object
+                          x-stoplight:
+                            id: itchthltx575n
+                          required:
+                            - name
+                            - id
+                          properties:
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: mkzkmmdtonn2u
+                            id:
+                              type: number
+                              x-stoplight:
+                                id: ng1a3g0fc695g
+                        supplier:
+                          type: object
+                          x-stoplight:
+                            id: pewi2gjqq2j1h
+                          required:
+                            - name
+                            - id
+                          properties:
+                            name:
+                              type: string
+                              x-stoplight:
+                                id: eel1e2x9tsc4x
+                            id:
+                              type: number
+                              x-stoplight:
+                                id: ppawzunmvk3qx
+                        description:
+                          type: string
+                          x-stoplight:
+                            id: jlosijekgy2c6
+                        attachments:
+                          type: array
+                          x-stoplight:
+                            id: jj9p1k4imekme
+                          items:
+                            x-stoplight:
+                              id: w31uej26rl532
+                            type: object
+                            required:
+                              - id
+                              - url
+                              - mimetype
+                              - presigned_url
+                            properties:
+                              id:
+                                type: number
+                                x-stoplight:
+                                  id: bz8ydut5na834
+                              url:
+                                type: string
+                                x-stoplight:
+                                  id: nctzb7saomq7c
+                              mimetype:
+                                type: string
+                                x-stoplight:
+                                  id: 6tqj2cg96280v
+                              presigned_url:
+                                type: string
+                                x-stoplight:
+                                  id: 8zt5euhrtitz3
+                        cost:
+                          type: number
+                          x-stoplight:
+                            id: 4zut3xli3ht5f
+              examples:
+                Example 1:
+                  value:
+                    items:
+                      - type:
+                          name: string
+                          id: 0
+                        supplier:
+                          name: string
+                          id: 0
+                        description: string
+                        attachments:
+                          - id: 0
+                            url: string
+                            mimetype: string
+                        cost_id: 0
+                        cost: 10.2
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: 9hp8r67rwl59d
+      security:
+        - JWT: []
+    post:
+      summary: Your POST endpoint
+      tags: []
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: post-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: aujq76gdkus39
+      description: Create a new campaign cost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                x-examples:
+                  Example 1:
+                    description: Riparazione hardware ufficio
+                    type_id: 3
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
+                required:
+                  - description
+                  - type_id
+                  - supplier_id
+                  - cost
+                  - attachments
+                properties:
+                  description:
+                    type: string
+                  type_id:
+                    type: integer
+                  supplier_id:
+                    type: integer
+                  cost:
+                    type: number
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+                        mime_type:
+                          type: string
+            examples:
+              Example 1:
+                value:
+                  - description: Riparazione hardware ufficio
+                    type_id: 3
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
+      security:
+        - JWT: []
+    delete:
+      summary: Your DELETE endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '403':
+          $ref: '#/components/responses/NotAuthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: delete-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: p9q4g69c20okp
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cost_id
+              properties:
+                cost_id:
+                  type: integer
+                  x-stoplight:
+                    id: b27nhd7f5ugfs
+            examples:
+              Example 1:
+                value:
+                  cost_id: 80
+    patch:
+      summary: Your PATCH endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  x-examples:
+                    Example 1:
+                      description: Riparazione hardware ufficio
+                      type_id: 3
+                      cost_id: 2
+                      supplier_id: 105
+                      cost: 250.5
+                      attachments:
+                        - url: 'https://esempio.com/documenti/fattura.pdf'
+                          mime_type: application/pdf
+                        - url: 'https://esempio.com/immagini/danno.jpg'
+                          mime_type: image/jpeg
+                  required:
+                    - description
+                    - type
+                    - cost_id
+                    - supplier
+                    - cost
+                    - attachments
+                  properties:
+                    description:
+                      type: string
+                    type:
+                      type: string
+                      x-stoplight:
+                        id: q54ltj77jcyf0
+                    cost_id:
+                      type: integer
+                    supplier:
+                      type: string
+                      x-stoplight:
+                        id: 5aunsjh1dxfq1
+                    cost:
+                      type: number
+                    attachments:
+                      type: array
+                      items:
+                        type: object
+                        required:
+                          - url
+                          - mime_type
+                        properties:
+                          url:
+                            type: string
+                          mime_type:
+                            type: string
+              examples:
+                Example 1:
+                  value:
+                    - description: description
+                      type: Type 1
+                      cost_id: 10
+                      supplier: Supplier
+                      cost: 104
+                      attachments:
+                        - url: 'https://example.com/'
+                          mime_type: image/jpg
+        '400':
+          description: Bad Request
+        '403':
+          description: Forbidden
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Internal Server Error
+      operationId: patch-campaigns-campaign-finance-otherCosts
+      x-stoplight:
+        id: mwhcb91voxivy
+      security:
+        - JWT: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                x-examples:
+                  Example 1:
+                    description: Riparazione hardware ufficio
+                    type_id: 3
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
+                required:
+                  - description
+                  - type_id
+                  - supplier_id
+                  - cost
+                  - attachments
+                  - cost_id
+                properties:
+                  description:
+                    type: string
+                  type_id:
+                    type: integer
+                  supplier_id:
+                    type: integer
+                  cost:
+                    type: number
+                  attachments:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - url
+                        - mime_type
+                      properties:
+                        url:
+                          type: string
+                        mime_type:
+                          type: string
+                  cost_id:
+                    type: integer
+                    x-stoplight:
+                      id: drnv0dayw8k18
+            examples:
+              Example 1:
+                value:
+                  - description: Riparazione hardware ufficio
+                    type_id: 3
+                    cost_id: 2
+                    supplier_id: 105
+                    cost: 250.5
+                    attachments:
+                      - url: 'https://esempio.com/documenti/fattura.pdf'
+                        mime_type: application/pdf
+                      - url: 'https://esempio.com/immagini/danno.jpg'
+                        mime_type: image/jpeg
 servers:
   - url: 'https://api.app-quality.com'
 tags:
