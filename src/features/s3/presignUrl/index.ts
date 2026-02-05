@@ -4,8 +4,11 @@ import { parseUrl } from "@aws-sdk/url-parser";
 import { Hash } from "@aws-sdk/hash-node";
 import { formatUrl } from "@aws-sdk/util-format-url";
 
-export const getPresignedUrl = async (url: string): Promise<string> => {
-  const expirationSeconds = 1200; // 20 minutes
+// default expiration is 20 minutes (1200 seconds)
+export const getPresignedUrl = async (
+  url: string,
+  expirationSeconds: number = 1200
+): Promise<string> => {
   const s3ObjectUrl = parseUrl(url);
   const presigner = new S3RequestPresigner({
     credentials: {
