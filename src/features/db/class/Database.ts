@@ -1,4 +1,6 @@
 import * as db from "@src/features/db";
+import { Knex } from "knex";
+
 type Arrayable<T> = { [K in keyof T]: T[K] | T[K][] };
 
 type WhereConditions =
@@ -37,13 +39,14 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     this.fields = fields ? fields : ["*"];
   }
 
-  public async get(id: number) {
+  public async get(id: number, trx?: Knex.Transaction) {
     if (!this.primaryKey) {
       throw new Error("No primary key defined");
     }
     const result = await this.query({
       where: [{ [this.primaryKey]: id }] as Database<T>["where"],
       limit: 1,
+      trx,
     });
     if (result.length === 0) {
       throw new Error(`No ${this.table} with id ${id}`);
@@ -51,13 +54,14 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     return result[0];
   }
 
-  public async exists(id: number): Promise<boolean> {
+  public async exists(id: number, trx?: Knex.Transaction): Promise<boolean> {
     if (!this.primaryKey) {
       throw new Error("No primary key defined");
     }
     const result = await this.query({
       where: [{ [this.primaryKey]: id }] as Database<T>["where"],
       limit: 1,
+      trx,
     });
     return result.length > 0;
   }
@@ -67,14 +71,16 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     orderBy,
     limit,
     offset,
+    trx,
   }: {
     where?: Database<T>["where"];
     orderBy?: Database<T>["orderBy"];
     limit?: number;
     offset?: number;
+    trx?: Knex.Transaction;
   }): Promise<ReturnType<this["createObject"]>[]> {
     const sql = this.constructSelectQuery({ where, orderBy, limit, offset });
-    return (await db.query(sql)).map((item: T["fields"]) =>
+    return (await db.query(sql, trx)).map((item: T["fields"]) =>
       this.createObject(item)
     );
   }
@@ -84,11 +90,13 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
     orderBy,
     limit,
     offset,
+    trx,
   }: {
     where: string;
     orderBy?: Database<T>["orderBy"];
     limit?: number;
     offset?: number;
+    trx?: Knex.Transaction;
   }): Promise<ReturnType<this["createObject"]>[]> {
     const sql = this.constructSelectQuery({
       where: { customWhere: where },
@@ -96,7 +104,7 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
       limit,
       offset,
     });
-    return (await db.query(sql)).map((item: T["fields"]) =>
+    return (await db.query(sql, trx)).map((item: T["fields"]) =>
       this.createObject(item)
     );
   }
@@ -104,24 +112,30 @@ class Database<T extends Record<"fields", Record<string, number | string>>> {
   public async update({
     data,
     where,
+    trx,
   }: {
     data: Database<T>["fieldItem"];
     where: Database<T>["where"];
+    trx?: Knex.Transaction;
   }) {
     const sql = this.constructUpdateQuery({ data, where });
-    await db.query(sql);
+    await db.query(sql, trx);
   }
 
   public async insert(
-    data: Database<T>["fieldItem"]
+    data: Database<T>["fieldItem"],
+    trx?: Knex.Transaction
   ): Promise<{ insertId: number }> {
     const sql = this.constructInsertQuery({ data });
-    return await db.query(sql);
+    return await db.query(sql, trx);
   }
 
-  public async delete(where: Database<T>["fieldItem"][]) {
+  public async delete(
+    where: Database<T>["fieldItem"][],
+    trx?: Knex.Transaction
+  ) {
     const sql = this.constructDeleteQuery({ where });
-    await db.query(sql);
+    await db.query(sql, trx);
   }
 
   public createObject(item: T["fields"]) {
