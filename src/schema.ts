@@ -4327,6 +4327,8 @@ export interface operations {
         content: {
           "application/json": {
             additionalFields?: components["schemas"]["CampaignAdditionalField"][];
+            /** @default 0 */
+            autoApprove: number;
             bugReplicability: {
               invalid: string[];
               valid: string[];
