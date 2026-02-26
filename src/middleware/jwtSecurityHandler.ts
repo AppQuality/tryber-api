@@ -1,4 +1,3 @@
-import Sentry from "@src/features/sentry";
 import { checkCookies } from "@src/middleware/checkCookies";
 import jwt from "jsonwebtoken";
 import { Context } from "openapi-backend";
@@ -26,6 +25,5 @@ export default async (
   const decoded = jwt.verify(token, config.jwt.secret);
   req.user = decoded as unknown as UserType;
 
-  Sentry.identifyUser(req.user.user_login);
   return req.user;
 };
