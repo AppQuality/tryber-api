@@ -9521,6 +9521,7 @@ paths:
                         regex: '[A-Z]{3}[0-9]{4}'
                         slug: codice-cliente
                         type: text
+                    autoApprove: 0
                     bugReplicability:
                       invalid:
                         - ONCE
@@ -9588,6 +9589,7 @@ paths:
                       - mp4
                 with-bugform-disabled:
                   value:
+                    autoApprove: 0
                     bugReplicability:
                       invalid: []
                       valid:
@@ -9628,6 +9630,7 @@ paths:
                       - mp4
                 with-only-one-device:
                   value:
+                    autoApprove: 0
                     bugReplicability:
                       invalid: []
                       valid:
@@ -9682,6 +9685,7 @@ paths:
                       - mp4
                 without-device:
                   value:
+                    autoApprove: 0
                     bugReplicability:
                       invalid: []
                       valid:
@@ -9729,6 +9733,11 @@ paths:
                     items:
                       $ref: '#/components/schemas/CampaignAdditionalField'
                     type: array
+                  autoApprove:
+                    default: 0
+                    maximum: 1
+                    minimum: 0
+                    type: integer
                   bugReplicability:
                     properties:
                       invalid:
@@ -9840,6 +9849,7 @@ paths:
                       type: string
                     type: array
                 required:
+                  - autoApprove
                   - bugReplicability
                   - bugSeverity
                   - bugTypes

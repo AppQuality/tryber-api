@@ -15,6 +15,7 @@ class Campaign {
   public id: number;
   public title: string = "";
   public min_allowed_media: number = 0;
+  public auto_approve: 0 | 1 = 0;
   public campaign_type: -1 | 0 | 1 = 0;
   public bug_lang: 0 | 1 = 0;
   public end_date: string = "";
@@ -39,6 +40,7 @@ class Campaign {
           "id",
           "title",
           "min_allowed_media",
+          "auto_approve",
           "campaign_type",
           "bug_lang",
           tryber.fn.charDate("end_date"),
@@ -53,6 +55,7 @@ class Campaign {
       }
       this.title = campaignData.title;
       this.min_allowed_media = campaignData.min_allowed_media;
+      this.auto_approve = campaignData.auto_approve as 0 | 1;
       this.campaign_type = campaignData.campaign_type as 0 | 1 | -1;
       this.bug_lang = campaignData.bug_lang as 0 | 1;
       this.end_date = campaignData.end_date;
@@ -193,7 +196,7 @@ class Campaign {
           "id",
           "name",
         ])
-      ).map((s: typeof replicabilities[0]) => ({
+      ).map((s: (typeof replicabilities)[0]) => ({
         ...s,
         name: s.name.toUpperCase(),
       }));

@@ -40,6 +40,7 @@ describe("Route GET /users/me/campaigns/{campaignId}/", () => {
       id: 1,
       title: "My campaign",
       minimumMedia: 4,
+      autoApprove: 0,
       hasBugForm: true,
       hasBugParade: 0,
       bugSeverity: { valid: ["LOW", "MEDIUM"], invalid: [] },
@@ -408,6 +409,39 @@ describe("Route GET /users/me/campaigns/{campaignId}/ - title rule set", () => {
       .set("Authorization", "Bearer tester");
     expect(response.body).toMatchObject({
       titleRule: true,
+    });
+  });
+});
+
+describe("Route GET /users/me/campaigns/{campaignId}/ - autoApprove", () => {
+  useBasicData();
+  it("Should return autoApprove: 0 by default", async () => {
+    const response = await request(app)
+      .get("/users/me/campaigns/1")
+      .set("Authorization", "Bearer tester");
+    expect(response.body).toMatchObject({
+      autoApprove: 0,
+    });
+  });
+
+  describe("when campaign has auto_approve = 1", () => {
+    beforeAll(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({ auto_approve: 1 })
+        .where({ id: 1 });
+    });
+    afterAll(async () => {
+      await tryber.tables.WpAppqEvdCampaign.do()
+        .update({ auto_approve: 0 })
+        .where({ id: 1 });
+    });
+    it("Should return autoApprove: 1", async () => {
+      const response = await request(app)
+        .get("/users/me/campaigns/1")
+        .set("Authorization", "Bearer tester");
+      expect(response.body).toMatchObject({
+        autoApprove: 1,
+      });
     });
   });
 });
