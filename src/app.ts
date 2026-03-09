@@ -5,7 +5,6 @@ import express from "express";
 import morgan from "morgan";
 import OpenAPIBackend, { Options, Request } from "openapi-backend";
 import config from "./config";
-import Sentry from "./features/sentry";
 import middleware from "./middleware";
 import getExample from "./middleware/getExample";
 import routes from "./routes";
@@ -36,7 +35,6 @@ routes(api);
 api.init();
 
 const app = express();
-const sentry = new Sentry(app);
 
 app.use(
   busboy({
@@ -100,5 +98,4 @@ app.use((req, res) => {
   return api.handleRequest(req as Request, req, res);
 });
 
-sentry.setErrorHandler();
 export default app;
