@@ -1,5 +1,7 @@
 import jest from "jest";
 import Database from "./Database";
+import * as db from "../index";
+import { tryber } from "@src/features/database";
 
 class TestableDatabase extends Database<{
   fields: { id: number; name: string };
@@ -87,5 +89,103 @@ describe("Database connector class", () => {
       { field: "name" },
     ]);
     expect(sql).toBe("ORDER BY id DESC, name ASC");
+  });
+});
+
+describe("Database transactions", () => {
+  // Create a real Database instance for testing transactions
+  class UserDatabase extends Database<{
+    fields: { ID: number; user_login: string; user_email: string };
+  }> {
+    constructor() {
+      super({
+        table: "wp_users",
+        primaryKey: "ID",
+        fields: ["ID", "user_login", "user_email"],
+      });
+    }
+  }
+
+  const userDb = new UserDatabase();
+
+  afterAll(async () => {
+    // Clean up test data after all tests
+    await tryber.tables.WpUsers.do().where("ID", ">", 999999).delete();
+  });
+
+  it("Should commit insert operation when transaction succeeds", async () => {
+    await db.transaction(async (trx) => {
+      await userDb.insert(
+        {
+          ID: 1000000,
+          user_login: "test_user_1",
+          user_email: "test1@example.com",
+        },
+        trx
+      );
+    });
+
+    // Verify data was committed
+    const user = await userDb.get(1000000);
+    expect(user).toBeDefined();
+    expect(user?.user_login).toBe("test_user_1");
+  });
+
+  it("Should rollback insert operation when transaction fails", async () => {
+    try {
+      await db.transaction(async (trx) => {
+        await userDb.insert(
+          {
+            ID: 1000001,
+            user_login: "test_user_2",
+            user_email: "test2@example.com",
+          },
+          trx
+        );
+        // Force transaction to fail
+        throw new Error("Simulated transaction failure");
+      });
+    } catch (e) {
+      // Expected error
+    }
+
+    // Verify data was rolled back
+    const exists = await userDb.exists(1000001);
+    expect(exists).toBe(false);
+  });
+
+  it("Should rollback all operations when one fails in a transaction", async () => {
+    try {
+      await db.transaction(async (trx) => {
+        // Insert first user
+        await userDb.insert(
+          {
+            ID: 1000008,
+            user_login: "test_user_9",
+            user_email: "test9@example.com",
+          },
+          trx
+        );
+        // Insert second user
+        await userDb.insert(
+          {
+            ID: 1000009,
+            user_login: "test_user_10",
+            user_email: "test10@example.com",
+          },
+          trx
+        );
+        // Force transaction to fail
+        throw new Error("Simulated transaction failure");
+      });
+    } catch (e) {
+      // Expected error
+    }
+
+    // Verify both inserts were rolled back
+    const exists1 = await userDb.exists(1000008);
+    const exists2 = await userDb.exists(1000009);
+    expect(exists1).toBe(false);
+    expect(exists2).toBe(false);
   });
 });
