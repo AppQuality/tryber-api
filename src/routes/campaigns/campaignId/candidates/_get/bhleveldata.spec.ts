@@ -9,13 +9,16 @@ const bug = {
 };
 const addNewbieRequirements = async ({
   wp_user_id,
+  profile_id,
 }: {
   wp_user_id: number;
+  profile_id: number;
 }) => {
   await tryber.tables.WpAppqEvdBug.do().insert({
     ...bug,
     wp_user_id,
     campaign_id: 2,
+    profile_id,
   });
 };
 
@@ -35,11 +38,13 @@ const addRookieRequirements = async ({
     ...bug,
     wp_user_id,
     campaign_id: 2,
+    profile_id: tester_id,
   });
   await tryber.tables.WpAppqEvdBug.do().insert({
     ...bug,
     wp_user_id,
     campaign_id: 2,
+    profile_id: tester_id,
   });
 };
 
@@ -60,6 +65,7 @@ const addAdvancedRequirements = async ({
       ...bug,
       wp_user_id,
       campaign_id: Number(i) + 1,
+      profile_id: tester_id,
     });
   }
   for (const i in [1, 2]) {
@@ -68,6 +74,7 @@ const addAdvancedRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 3,
+      profile_id: tester_id,
     });
   }
   for (const i in [1, 2, 3]) {
@@ -76,6 +83,7 @@ const addAdvancedRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 4,
+      profile_id: tester_id,
     });
   }
 };
@@ -102,6 +110,7 @@ const addVeteranRequirements = async ({
       ...bug,
       wp_user_id,
       campaign_id: Number(i) + 1,
+      profile_id: tester_id,
     });
   }
   for (const i in [...Array(5).keys()]) {
@@ -110,6 +119,7 @@ const addVeteranRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 3,
+      profile_id: tester_id,
     });
   }
   for (const i in [...Array(5).keys()]) {
@@ -118,6 +128,7 @@ const addVeteranRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 4,
+      profile_id: tester_id,
     });
   }
 };
@@ -144,6 +155,7 @@ const addExpertRequirements = async ({
       ...bug,
       wp_user_id,
       campaign_id: Number(i) + 1,
+      profile_id: tester_id,
     });
   }
   for (const i in [...Array(15).keys()]) {
@@ -152,6 +164,7 @@ const addExpertRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 3,
+      profile_id: tester_id,
     });
   }
   for (const i in [...Array(5).keys()]) {
@@ -160,6 +173,7 @@ const addExpertRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 4,
+      profile_id: tester_id,
     });
   }
 };
@@ -185,6 +199,7 @@ const addChampionRequirements = async ({
       ...bug,
       wp_user_id,
       campaign_id: Number(i) + 1,
+      profile_id: tester_id,
     });
   }
   for (const i in [...Array(40).keys()]) {
@@ -193,6 +208,7 @@ const addChampionRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 3,
+      profile_id: tester_id,
     });
   }
   for (const i in [...Array(10).keys()]) {
@@ -201,6 +217,7 @@ const addChampionRequirements = async ({
       wp_user_id,
       campaign_id: Number(i) + 1,
       severity_id: 4,
+      profile_id: tester_id,
     });
   }
 };
@@ -289,7 +306,7 @@ describe("GET /campaigns/:campaignId/candidates - questions ", () => {
       },
     ]);
 
-    await addNewbieRequirements({ wp_user_id: 1 });
+    await addNewbieRequirements({ wp_user_id: 1, profile_id: 1 });
     await addRookieRequirements({ tester_id: 2, wp_user_id: 2 });
     await addAdvancedRequirements({ tester_id: 3, wp_user_id: 3 });
     await addVeteranRequirements({ tester_id: 4, wp_user_id: 4 });
